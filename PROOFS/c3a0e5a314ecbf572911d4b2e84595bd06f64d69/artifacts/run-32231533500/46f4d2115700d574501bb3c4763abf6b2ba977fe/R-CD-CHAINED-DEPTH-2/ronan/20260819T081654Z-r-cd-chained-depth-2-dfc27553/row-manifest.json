@@ -1,0 +1,261 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-CHAINED-DEPTH-2",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-chained-depth-2",
+    "description": "Depth-2 delegate chain: parent→child→grandchild→return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
+    ],
+    "subtests": [
+      "chain-1-uptree-silent-wake",
+      "chain-2-inter-session-return",
+      "chain-3-echo-broadcast"
+    ],
+    "status": "runnable",
+    "file": "r-cd-chained-depth-2.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.",
+    "idempotencyKeyPrefix": "R-CD-CHAIN"
+  },
+  "expectedReceipts": [
+    {
+      "name": "parent-dispatch-accepted",
+      "required": true,
+      "description": "Parent fires continue_delegate → accepted"
+    },
+    {
+      "name": "child-spawns",
+      "required": true,
+      "description": "Post-dispatch, non-harness session event contains strict CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED sentinel"
+    },
+    {
+      "name": "child-fires-grandchild",
+      "required": true,
+      "description": "CHILD-DONE sentinel confirms depth-1 delegate executed the nested continue_delegate instruction"
+    },
+    {
+      "name": "grandchild-spawns",
+      "required": true,
+      "description": "Post-dispatch, non-harness session event contains strict GRANDCHILD-DONE sentinel"
+    },
+    {
+      "name": "grandchild-returns",
+      "required": true,
+      "description": "A nonce-bound grandchild identity and exact GRANDCHILD-DONE sentinel are observed after dispatch acceptance"
+    },
+    {
+      "name": "root-consumes-chain-return",
+      "required": true,
+      "description": "After consuming the prompt-only descendant completion, the exact root session emits assistant acknowledgement ROOT-CHAIN-ACK {{nonce}}, bound to distinct child and grandchild identities"
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Trace ID for chain visualization in Tempo"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-CHAINED-DEPTH-2",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, and exact assistant acknowledgement ROOT-CHAIN-ACK {{nonce}} from the root after it consumes the prompt-only return. Grandchild output alone is not return authority."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "chain.id makes the chain itself partially rebindable, but each hop’s identity is not: no exported span says which run or turn was depth-1 versus depth-2, so a later reader can see that a chain existed and cannot reconstruct its shape or which seat produced it."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "trace-id"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "One per hop; hops are not distinguishable from each other in exported attributes."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row’s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "continuation.chain.depth",
+          "purpose": "chain",
+          "emittedByProduct": false,
+          "publicSafeForm": "integer",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Hop depth on the accepted entry span. Without it a depth-2 chain and two unrelated depth-1 dispatches look alike."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Hop identities are published as nonce-bound fingerprints. Chain task text, grandchild prompt bodies, raw session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "chain task text",
+        "prompt body",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "Strict child and grandchild sentinels are observed, two distinct nonce-bound hop identities exist, and the exact root emits ROOT-CHAIN-ACK {{nonce}} after consuming the return.",
+      "negative": "Prompt echoes and ordinary grandchild output do not satisfy the root receipt; descendant output alone is never return authority.",
+      "notes": "Depth is currently established by sentinels and hop identities, not by telemetry."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "chain_nonce_fingerprint"
+      ],
+      "notes": "A degraded backend removes chain visualization only. The behavioral receipts stand on the gateway event stream and the row stays PARTIAL for the missing trace."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.proof-row-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "k6-summary.json",
+        "gateway-events.ndjson",
+        "seat-readiness.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Both hop sentinels, two distinct nonce-bound hop identities, and the explicit root-session consumption acknowledgement. Behavioral only.",
+      "partial": "A hop identity or the trace receipt is unavailable, or the telemetry backend is degraded or partial.",
+      "fail": "The root session never acknowledges consuming the grandchild return, or the two hop identities collapse into one."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-chained-depth-2.js fires the exact committed manifest task and asserts both hops.",
+      "manual": "Per-seat cross-walk runs (TEST-1/2/3) remain manual and are filed under the row’s canonical path with their substitution recorded.",
+      "relationship": "The deterministic row is the verdict authority for chain shape; manual cross-walks add seat coverage and never substitute for a missing hop receipt."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-dispatch-accepted",
+      "child-spawns",
+      "child-fires-grandchild",
+      "grandchild-spawns",
+      "grandchild-returns",
+      "root-consumes-chain-return",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE descendant output; PASS requires distinct hop identities plus the exact root assistant acknowledgement ROOT-CHAIN-ACK {{nonce}} after return consumption."
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "c3a0e5a314ecbf572911d4b2e84595bd06f64d69",
+  "sha": "c3a0e5a314ecbf572911d4b2e84595bd06f64d69",
+  "mode": "test-shard",
+  "shard": "agentic-gateway-core-3",
+  "configs": [
+    "test/vitest/vitest.gateway-core.config.ts",
+    "test/vitest/vitest.gateway-client.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (agentic-gateway-core-3)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 160
+    }
+  ],
+  "tests": {
+    "passed": 1556,
+    "failed": 1
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (agentic-gateway-core-3)",
+      "kind": "test",
+      "detail": "gateway-core  src/gateway/portals/portal-http-proxy.test.ts > portal HTTP proxy > reaches IPv6-only targets through the localhost dual-stack dial"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

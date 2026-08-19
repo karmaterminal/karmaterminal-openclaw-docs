@@ -1,0 +1,67 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-19T08:19:30Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cd-model-tool-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-MODEL-TOOL",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+    "started": "2026-08-19T08:19:04.795Z",
+    "requested_model_byte": "openai/gpt-5.6-luna",
+    "requested_model_source": "continue_delegate.model parameter",
+    "dispatch_accepted": true,
+    "parent_scheduled_sentinel": true,
+    "child_session_observed": true,
+    "child_session_metadata_observed": true,
+    "child_metadata_model_byte": "openai/gpt-5.6-luna",
+    "child_metadata_model_source": "gateway sessions.describe persisted provider/model metadata",
+    "child_self_reported_model": "open",
+    "child_self_reported_model_source": "auxiliary child runtime-context self-report (not used for equality)",
+    "child_session_metadata": {
+      "key": "<redacted-session-key>",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "modelSelectionLocked": false
+    },
+    "child_metadata_requested": true,
+    "task_identity_token": "MTOOL:7544795-2800lyku",
+    "task_list_responses": 2,
+    "task_records_seen": 100,
+    "task_records_with_child_key": 78,
+    "task_identity_matches": 0,
+    "model_matches": true,
+    "return_payload": true,
+    "trace_id": null,
+    "model_classification_reason": null,
+    "ended": "2026-08-19T08:19:30.753Z",
+    "duration_ms": 25958
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

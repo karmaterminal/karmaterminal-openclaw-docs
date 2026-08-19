@@ -1,0 +1,12 @@
+2026-08-19T01:27:49.191873-07:00 ronan node[3878307]: 2026-08-19T01:27:49.191-07:00 [ws] ⇄ res ✓ sessions.send 131ms runId=R-RC-2-<redacted-nonce> conn=430950ec…b16c id=1-0-1787128069058-84ux1z
+2026-08-19T01:28:00.565073-07:00 ronan node[3878307]: 2026-08-19T01:28:00.564-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-19T01:28:00.983944-07:00 ronan node[3878307]: 2026-08-19T01:28:00.983-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:28:00.984555-07:00 ronan node[3878307]: 2026-08-19T01:28:00.984-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:28:00.984662-07:00 ronan node[3878307]: 2026-08-19T01:28:00.984-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:28:00.985098-07:00 ronan node[3878307]: 2026-08-19T01:28:00.984-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:28:00.992968-07:00 ronan node[3878307]: 2026-08-19T01:28:00.992-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-19T01:28:01.208945-07:00 ronan node[3878307]: 2026-08-19T01:28:01.208-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-19T01:28:09.526138-07:00 ronan node[3878307]: 2026-08-19T01:28:09.526-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:28:09.526613-07:00 ronan node[3878307]: 2026-08-19T01:28:09.526-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:28:09.565361-07:00 ronan node[3878307]: 2026-08-19T01:28:09.565-07:00 REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD <redacted-nonce> CONTEXT unknown THRESHOLD 70%
+2026-08-19T01:28:09.565663-07:00 ronan node[3878307]: 2026-08-19T01:28:09.565-07:00 [agents/agent-command] [agent] run continuation-delegate-c9a92f0bea8e77fbe370e821364bfecb ended with stopReason=stop

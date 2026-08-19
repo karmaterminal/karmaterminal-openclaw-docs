@@ -1,0 +1,32 @@
+{
+  "row": "R-CD-2",
+  "sha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+  "seat": "ronan",
+  "timestamp": "2026-08-19T08:14:47.213Z",
+  "verdict": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "resolved-after-run"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "r-cd-2-authoritative-receipt"
+    ],
+    "notes": [
+      "The runner owns final R-CD-2 candidate disposition from its validated row-scoped receipt."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "med": 25198,
+      "max": 25198,
+      "p(90)": 25198,
+      "p(95)": 25198,
+      "avg": 25198,
+      "min": 25198
+    },
+    "failures": 0
+  }
+}

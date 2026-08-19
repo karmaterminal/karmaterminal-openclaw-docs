@@ -1,0 +1,54 @@
+sha=c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+command=pnpm test src/gateway/portals/portal-http-proxy.test.ts
+$ node --import tsx scripts/test-projects.mts src/gateway/portals/portal-http-proxy.test.ts
+[test] starting test/vitest/vitest.gateway.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<redacted-local-path>[39m
+
+ [31m❯[39m [30m[42m gateway-core [49m[39m ../../src/gateway/portals/portal-http-proxy.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 98[2mms[22m[39m
+     [32m✓[39m proxies a URL token directly, sets a private cookie, and strips the token[32m 63[2mms[22m[39m
+     [32m✓[39m keeps concurrent portal HTTP sessions authorized in A-B-A order[32m 6[2mms[22m[39m
+     [32m✓[39m streams HTTP requests and responses with rewritten safe headers[32m 2[2mms[22m[39m
+     [32m✓[39m forwards only each target's prefixed cookies, never either portal auth cookie[32m 4[2mms[22m[39m
+     [32m✓[39m forces no-referrer and never forwards a token-bearing referrer[32m 1[2mms[22m[39m
+     [32m✓[39m streams POST bodies to the target[32m 1[2mms[22m[39m
+     [32m✓[39m shows a retry page while the target is down[32m 2[2mms[22m[39m
+[31m     [31m×[31m reaches IPv6-only targets through the localhost dual-stack dial[39m[32m 5[2mms[22m[39m
+     [32m✓[39m splices WebSockets and destroys upgraded sockets and listeners on close[32m 5[2mms[22m[39m
+     [32m✓[39m keeps portal A WebSocket authorized after portal B replaces the active URL[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m gateway-core [49m[39m ../../src/gateway/portals/portal-http-proxy.test.ts[2m > [22mportal HTTP proxy[2m > [22mreaches IPv6-only targets through the localhost dual-stack dial
+[31m[1mAssertionError[22m: expected { Object (status, headers, ...) } to match object { status: 200, body: 'v6 proxied' }
+(10 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "body": "v6 proxied",[39m
+[32m-   "status": 200,[39m
+[31m+   "body": "<!doctype html><meta charset=utf-8><meta http-equiv=\"refresh\" content=\"2\"><title>Waiting for app</title><p>Waiting for the app on port 41525…</p>",[39m
+[31m+   "status": 502,[39m
+[2m  }[22m
+
+[36m [2m❯[22m ../../src/gateway/portals/portal-http-proxy.test.ts:[2m444:22[22m[39m
+    [90m442|[39m         path[33m:[39m [32m`/?[39m[36m${[39mportal[33m.[39mtokenQuery[36m}[39m[32m`[39m[33m,[39m
+    [90m443|[39m       })[33m;[39m
+    [90m444|[39m       expect(result).toMatchObject({ status: 200, body: "v6 proxied" }…
+    [90m   |[39m                      [31m^[39m
+    [90m445|[39m     } [35mfinally[39m {
+    [90m446|[39m       [35mawait[39m [35mnew[39m [33mPromise[39m[33m<[39m[35mvoid[39m[33m>[39m((resolve) [33m=>[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 21:39:05
+[2m   Duration [22m 1.01s[2m (transform 604ms, setup 571ms, import 179ms, tests 98ms, environment 0ms)[22m
+
+[test] failed 1 Vitest shard in 5.67s
+[ELIFECYCLE] Test failed. See above for more details.
+exit=1

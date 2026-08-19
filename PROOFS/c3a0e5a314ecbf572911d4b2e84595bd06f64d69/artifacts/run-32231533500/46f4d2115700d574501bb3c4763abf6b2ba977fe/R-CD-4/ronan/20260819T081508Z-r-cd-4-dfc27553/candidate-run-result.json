@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+    "docsRef": "51a6f65b625d3dbe347f44df19c914acdd2bc488"
+  },
+  "harness": {
+    "docsRef": "51a6f65b625d3dbe347f44df19c914acdd2bc488",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-4.json",
+    "manifestSha256": "80ef74e6e5d3527950958aa9ee0bd173047f618a087296feb159e64364a3c6f9",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-4-target-session-key.js",
+    "scenarioSha256": "c4aa4be1850b18e5dd864964c6b7e3a3ddbc346ba2a12db832a329e957d4497f",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260819T081508Z-r-cd-4-dfc27553",
+    "rowId": "R-CD-4",
+    "seat": "ronan",
+    "scenario": "r-cd-4-target-session-key",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-4-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-54708bfd18f5.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  }
+}

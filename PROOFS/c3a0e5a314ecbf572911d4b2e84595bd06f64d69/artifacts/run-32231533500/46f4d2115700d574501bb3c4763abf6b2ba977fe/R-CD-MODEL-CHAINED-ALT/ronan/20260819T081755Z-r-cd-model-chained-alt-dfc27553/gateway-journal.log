@@ -1,0 +1,6 @@
+2026-08-19T01:17:59.190739-07:00 ronan node[3878307]: 2026-08-19T01:17:59.190-07:00 [ws] ⇄ res ✓ sessions.send 112ms runId=R-CD-MODEL-CHAINED-ALT-DISPATCH-<redacted-nonce> conn=2918a38e…8447 id=1-0-1787127479076-pxqwik
+2026-08-19T01:18:13.373315-07:00 ronan node[3878307]: 2026-08-19T01:18:13.373-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:13.374211-07:00 ronan node[3878307]: 2026-08-19T01:18:13.374-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:13.375261-07:00 ronan node[3878307]: 2026-08-19T01:18:13.375-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:13.376289-07:00 ronan node[3878307]: 2026-08-19T01:18:13.376-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:13.391696-07:00 ronan node[3878307]: 2026-08-19T01:18:13.391-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3036ms fireAt=1787127496426 session=<redacted-session-key>

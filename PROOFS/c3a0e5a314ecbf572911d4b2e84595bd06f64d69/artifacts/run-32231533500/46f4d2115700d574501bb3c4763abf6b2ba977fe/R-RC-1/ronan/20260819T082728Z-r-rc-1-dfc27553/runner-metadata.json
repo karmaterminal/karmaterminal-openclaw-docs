@@ -1,0 +1,16 @@
+{
+  "row": "R-RC-1",
+  "scenario": "r-rc-1-threshold-reject.js",
+  "candidateSha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (46f4d21)",
+  "seat": "ronan",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-19T08:27:28Z",
+  "docsRef": "51a6f65b625d3dbe347f44df19c914acdd2bc488",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260819T081337Z-51a6f65b625d-dfc27553",
+  "manifestPath": "tools/k6-proofs/manifests/r-rc-1.json",
+  "manifestSha256": "8e2cb6d5333545ec014270f185c71cc5a777c367d66383bb581098d17498daea",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-rc-1-threshold-reject.js",
+  "scenarioSha256": "57608c4f10ddcb6da3edf416d880ced0ec16bcd17ebc797207ddf4a0ffdaa2ab"
+}

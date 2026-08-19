@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-MODEL-TOKEN",
+  "sha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+  "seat": "ronan",
+  "timestamp": "2026-08-19T08:18:58.611Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 14529,
+      "p(95)": 14529,
+      "avg": 14529,
+      "min": 14529,
+      "med": 14529,
+      "max": 14529
+    },
+    "failures": 0
+  }
+}

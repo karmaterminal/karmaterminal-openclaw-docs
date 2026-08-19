@@ -1,0 +1,19 @@
+2026-08-19T01:18:45.150525-07:00 ronan node[3878307]: 2026-08-19T01:18:45.150-07:00 [ws] ⇄ res ✓ sessions.send 114ms runId=R-CD-MODEL-TOKEN-DISPATCH-<redacted-nonce> conn=b5412e94…c419 id=1-0-1787127525035-npi27l
+2026-08-19T01:18:47.149856-07:00 ronan node[3878307]: 2026-08-19T01:18:47.149-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:47.150958-07:00 ronan node[3878307]: 2026-08-19T01:18:47.150-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:47.194107-07:00 ronan node[3878307]: 2026-08-19T01:18:47.194-07:00 [agents/agent-command] [agent] run continuation-delegate-c337995e84e165330b26b573da4340f1 ended with stopReason=stop
+2026-08-19T01:18:54.141862-07:00 ronan node[3878307]: 2026-08-19T01:18:54.141-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:54.142912-07:00 ronan node[3878307]: 2026-08-19T01:18:54.142-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:54.200530-07:00 ronan node[3878307]: 2026-08-19T01:18:54.200-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-19T01:18:54.249137-07:00 ronan node[3878307]: 2026-08-19T01:18:54.249-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:54.249586-07:00 ronan node[3878307]: 2026-08-19T01:18:54.249-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:54.250003-07:00 ronan node[3878307]: 2026-08-19T01:18:54.249-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:54.250399-07:00 ronan node[3878307]: 2026-08-19T01:18:54.250-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:54.256767-07:00 ronan node[3878307]: 2026-08-19T01:18:54.256-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=2120ms fireAt=1787127536375 session=<redacted-session-key>
+2026-08-19T01:18:56.417029-07:00 ronan node[3878307]: 2026-08-19T01:18:56.416-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-08-19T01:18:56.418078-07:00 ronan node[3878307]: 2026-08-19T01:18:56.418-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-08-19T01:18:56.579644-07:00 ronan node[3878307]: 2026-08-19T01:18:56.579-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-08-19T01:18:58.623971-07:00 ronan node[3878307]: 2026-08-19T01:18:58.623-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:58.624415-07:00 ronan node[3878307]: 2026-08-19T01:18:58.624-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:18:58.624834-07:00 ronan node[3878307]: 2026-08-19T01:18:58.624-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:18:58.625209-07:00 ronan node[3878307]: 2026-08-19T01:18:58.625-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

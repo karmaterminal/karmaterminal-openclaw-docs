@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-1",
+  "scenario": "r-cd-1-typed-delegate.js",
+  "candidateSha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+  "runtimeBuildSha": "OpenClaw 2026.8.1 (46f4d21)",
+  "seat": "ronan",
+  "sessionConfigured": true,
+  "startedAt": "2026-08-19T08:13:48Z",
+  "docsRef": "51a6f65b625d3dbe347f44df19c914acdd2bc488",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260819T081337Z-51a6f65b625d-dfc27553",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-1.json",
+  "manifestSha256": "dcc93f8fc4eeccaf5dfbdb79bff573b0c9496b25ef895b732b8fa35e0a0f01d7",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-1-typed-delegate.js",
+  "scenarioSha256": "45aaad43cc5fff6a39b4e578194707bbf12af13bd5efc4c1a9c258fe2134c412"
+}

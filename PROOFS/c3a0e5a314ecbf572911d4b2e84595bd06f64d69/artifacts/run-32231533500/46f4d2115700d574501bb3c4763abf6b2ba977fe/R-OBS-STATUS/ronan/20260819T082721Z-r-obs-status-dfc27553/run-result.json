@@ -1,0 +1,44 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-19T08:27:25Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "summary-file",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "r-obs-status-summary.json"
+  ],
+  "evidence": {
+    "row": "R-OBS-STATUS",
+    "candidate_sha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+    "source_repository": "karmaterminal/openclaw",
+    "source_path": "src/status/status-continuation-line.ts",
+    "source_fetch_ok": true,
+    "source_sha256": "96370622632121bc109e61d93e649c9fde8a55dbcf692754fe5e2556cb0176e7",
+    "formatter_extracted": true,
+    "active_continuation_line_present": true,
+    "clean_session_continuation_line_absent": true,
+    "ended": "2026-08-19T08:27:25.025Z",
+    "duration_ms": 3
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

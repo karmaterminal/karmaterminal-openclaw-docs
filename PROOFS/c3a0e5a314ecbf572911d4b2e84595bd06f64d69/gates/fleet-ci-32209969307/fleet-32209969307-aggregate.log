@@ -1,0 +1,914 @@
+aggregate + status	Set up job	﻿2026-08-19T04:31:39.8084515Z Current runner version: '2.336.0'
+aggregate + status	Set up job	2026-08-19T04:31:39.8088372Z Runner name: 'emeric'
+aggregate + status	Set up job	2026-08-19T04:31:39.8088777Z Runner group name: 'thornfield'
+aggregate + status	Set up job	2026-08-19T04:31:39.8089272Z Machine name: 'emeric'
+aggregate + status	Set up job	2026-08-19T04:31:39.8090622Z ##[group]GITHUB_TOKEN Permissions
+aggregate + status	Set up job	2026-08-19T04:31:39.8091864Z Contents: read
+aggregate + status	Set up job	2026-08-19T04:31:39.8092161Z Metadata: read
+aggregate + status	Set up job	2026-08-19T04:31:39.8092444Z ##[endgroup]
+aggregate + status	Set up job	2026-08-19T04:31:39.8093618Z Secret source: Actions
+aggregate + status	Set up job	2026-08-19T04:31:39.8094213Z Prepare workflow directory
+aggregate + status	Set up job	2026-08-19T04:31:39.8365697Z Prepare all required actions
+aggregate + status	Set up job	2026-08-19T04:31:39.8394209Z Getting action download info
+aggregate + status	Set up job	2026-08-19T04:31:40.1810854Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+aggregate + status	Set up job	2026-08-19T04:31:40.7692694Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+aggregate + status	Set up job	2026-08-19T04:31:41.2158630Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+aggregate + status	Set up job	2026-08-19T04:31:41.8555952Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+aggregate + status	Set up job	2026-08-19T04:31:42.3473993Z Complete job name: aggregate + status
+aggregate + status	Checkout bootstrap	﻿2026-08-19T04:31:42.3987220Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3991727Z ##[group]Run actions/checkout@v4
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3991981Z with:
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3992142Z   repository: karmaterminal/openclaw-bootstrap
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3993616Z   token: ***
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3993756Z   ssh-strict: true
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3993897Z   ssh-user: git
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994043Z   persist-credentials: true
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994198Z   clean: true
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994339Z   sparse-checkout-cone-mode: true
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994503Z   fetch-depth: 1
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994670Z   fetch-tags: false
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994813Z   show-progress: true
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3994948Z   lfs: false
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3995071Z   submodules: false
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3995224Z   set-safe-directory: true
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3995385Z   allow-unsafe-pr-checkout: false
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3995606Z env:
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3995747Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3995947Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3996140Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.3996317Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4695323Z Syncing repository: karmaterminal/openclaw-bootstrap
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4696353Z ##[group]Getting Git version info
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4696766Z Working directory is '<redacted-local-path>'
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4697213Z [command]/usr/bin/git version
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4697402Z git version 2.55.0
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4707383Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4712663Z Copying '<redacted-local-path>' to '<redacted-local-path>'
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4718070Z Temporarily overriding HOME='<redacted-local-path>' before making global git config changes
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4719088Z Adding repository directory to the temporary git global config as a safe directory
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4719897Z [command]/usr/bin/git config --global --add safe.directory <redacted-local-path>
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4744841Z [command]/usr/bin/git config --local --get remote.origin.url
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4759259Z https://github.com/karmaterminal/openclaw-bootstrap
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4768853Z ##[group]Removing previously created refs, to avoid conflicts
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4773186Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4789439Z refs/heads/main
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4796399Z [command]/usr/bin/git checkout --detach
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4847643Z HEAD is now at e384daf Merge pull request #1392 from karmaterminal/scribe/20260814/no-rollback-masked-schema
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4880824Z [command]/usr/bin/git branch --delete --force main
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4911421Z Deleted branch main (was e384daf).
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4954357Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.4961169Z [command]/usr/bin/git submodule status
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5232496Z ##[group]Cleaning the repository
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5238357Z [command]/usr/bin/git clean -ffdx
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5293480Z [command]/usr/bin/git reset --hard HEAD
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5361925Z HEAD is now at e384daf Merge pull request #1392 from karmaterminal/scribe/20260814/no-rollback-masked-schema
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5364445Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5365948Z ##[group]Disabling automatic garbage collection
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5370602Z [command]/usr/bin/git config --local gc.auto 0
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5398731Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5399235Z ##[group]Setting up auth
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5406373Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5445689Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5760191Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5785016Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.5993379Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.6015695Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.6199268Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.6224591Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.6224932Z ##[group]Fetching the repository
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:42.6237781Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e384daf44525a898e654ba581cd066c890585448:refs/remotes/origin/main
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0464218Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0465027Z ##[group]Determining the checkout info
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0465989Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0474435Z [command]/usr/bin/git sparse-checkout disable
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0542716Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0570142Z ##[group]Checking out the ref
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0570662Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0638300Z Switched to a new branch 'main'
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0638917Z branch 'main' set up to track 'origin/main'.
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0643660Z ##[endgroup]
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0674938Z [command]/usr/bin/git log -1 --format=%H
+aggregate + status	Checkout bootstrap	2026-08-19T04:31:43.0696090Z e384daf44525a898e654ba581cd066c890585448
+aggregate + status	Runner temp hygiene	﻿2026-08-19T04:31:43.0900477Z ##[group]Run bash "${GITHUB_WORKSPACE}/tools/openclaw-local-ci-temp-hygiene.sh"
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0900942Z [36;1mbash "${GITHUB_WORKSPACE}/tools/openclaw-local-ci-temp-hygiene.sh"[0m
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0910659Z shell: /usr/bin/bash -e {0}
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0910856Z env:
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0911018Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0911237Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0911447Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0911630Z ##[endgroup]
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0997434Z 
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0997633Z === runner temp diagnostics: before ===
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0997934Z temp_root=<redacted-local-path>
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.0998378Z --- filesystem capacity (df -h) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1005232Z Filesystem      Size  Used Avail Use% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1005555Z /dev/nvme1n1p2  928G  335G  588G  37% /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1006254Z --- inode capacity (df -i) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1015934Z Filesystem     Inodes IUsed IFree IUse% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1016456Z /dev/nvme1n1p2      0     0     0     - /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1016843Z --- mount/filesystem ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1032599Z TARGET SOURCE                 FSTYPE OPTIONS
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.1033220Z /home  /dev/nvme1n1p2[/@home] btrfs  rw,noatime,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2656998Z cleanup_policy=direct children of RUNNER_TEMP matching workflow-owned prefixes only
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2657570Z owned_prefixes=ci-batch-work-* ci-batch-results-* dist-runtime-artifact-* openclaw-local-ci-*
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2658018Z minimum_age_minutes=1440 (minimum age threshold; recent content is treated as active)
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2658447Z current_run=32209969307 attempt=1 (matching current-run paths are always preserved)
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2658952Z cleanup_summary deleted=0 skipped_current=0 skipped_recent=0 errors=0
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2659149Z 
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2659281Z === runner temp diagnostics: after ===
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2659531Z temp_root=<redacted-local-path>
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2659769Z --- filesystem capacity (df -h) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2667556Z Filesystem      Size  Used Avail Use% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2667964Z /dev/nvme1n1p2  928G  335G  588G  37% /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2669105Z --- inode capacity (df -i) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2677277Z Filesystem     Inodes IUsed IFree IUse% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2677645Z /dev/nvme1n1p2      0     0     0     - /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2678438Z --- mount/filesystem ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2693783Z TARGET SOURCE                 FSTYPE OPTIONS
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2694215Z /home  /dev/nvme1n1p2[/@home] btrfs  rw,noatime,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2694698Z openclaw_tmp_cleanup_policy=direct children older than minimum age only
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2694910Z 
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2695000Z === OpenClaw temp diagnostics: before ===
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2695219Z temp_root=<redacted-local-path>
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2695409Z --- filesystem capacity (df -h) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2703156Z Filesystem      Size  Used Avail Use% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2703441Z tmpfs            32G  8.3G   23G  27% /tmp
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2703706Z --- inode capacity (df -i) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2711458Z Filesystem      Inodes  IUsed  IFree IUse% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2711754Z tmpfs          1048576 245250 803326   24% /tmp
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2712040Z --- mount/filesystem ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2725524Z TARGET SOURCE FSTYPE OPTIONS
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2725902Z /tmp   tmpfs  tmpfs  rw,nosuid,nodev,size=32700328k,nr_inodes=1048576,inode64,huge=advise,usrquota
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2732683Z openclaw_tmp_cleanup_summary deleted=0 skipped_recent=33 errors=0
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2733221Z 
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2733339Z === OpenClaw temp diagnostics: after ===
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2733578Z temp_root=<redacted-local-path>
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2733920Z --- filesystem capacity (df -h) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2741358Z Filesystem      Size  Used Avail Use% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2741639Z tmpfs            32G  8.3G   23G  27% /tmp
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2741907Z --- inode capacity (df -i) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2748938Z Filesystem      Inodes  IUsed  IFree IUse% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2749237Z tmpfs          1048576 245250 803326   24% /tmp
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2749464Z --- mount/filesystem ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2763708Z TARGET SOURCE FSTYPE OPTIONS
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2764076Z /tmp   tmpfs  tmpfs  rw,nosuid,nodev,size=32700328k,nr_inodes=1048576,inode64,huge=advise,usrquota
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2764880Z short_runtime_cleanup_policy=direct children older than minimum age only
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2765218Z 
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2765485Z === short runtime diagnostics: before ===
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2765734Z temp_root=<redacted-local-path>
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2765950Z --- filesystem capacity (df -h) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2773046Z Filesystem      Size  Used Avail Use% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2773339Z /dev/nvme1n1p2  928G  335G  588G  37% /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2773761Z --- inode capacity (df -i) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2781588Z Filesystem     Inodes IUsed IFree IUse% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2781888Z /dev/nvme1n1p2      0     0     0     - /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2782215Z --- mount/filesystem ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2795809Z TARGET SOURCE                 FSTYPE OPTIONS
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2796236Z /home  /dev/nvme1n1p2[/@home] btrfs  rw,noatime,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2803695Z openclaw_tmp_cleanup_summary deleted=0 skipped_recent=0 errors=0
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2804110Z 
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2804292Z === short runtime diagnostics: after ===
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2804629Z temp_root=<redacted-local-path>
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2804947Z --- filesystem capacity (df -h) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2812005Z Filesystem      Size  Used Avail Use% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2812499Z /dev/nvme1n1p2  928G  335G  588G  37% /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2812866Z --- inode capacity (df -i) ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2819839Z Filesystem     Inodes IUsed IFree IUse% Mounted on
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2820248Z /dev/nvme1n1p2      0     0     0     - /home
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2820660Z --- mount/filesystem ---
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2834207Z TARGET SOURCE                 FSTYPE OPTIONS
+aggregate + status	Runner temp hygiene	2026-08-19T04:31:43.2834834Z /home  /dev/nvme1n1p2[/@home] btrfs  rw,noatime,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+aggregate + status	Setup Node.js	﻿2026-08-19T04:31:43.2944837Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2946085Z ##[group]Run actions/setup-node@v4
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2946267Z with:
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2946454Z   node-version: 24.17.0
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2946619Z   always-auth: false
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2946788Z   check-latest: false
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2948512Z   token: ***
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2948645Z env:
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2948808Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2949039Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2949276Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.2949464Z ##[endgroup]
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.4024972Z Found in cache @ <redacted-local-path>
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.4025924Z (node:565185) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.4026377Z (Use `node --trace-deprecation ...` to show where the warning was created)
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.4028553Z ##[group]Environment details
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.5158703Z node: v24.17.0
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.5159105Z npm: 11.13.0
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.5159320Z yarn: 1.22.22
+aggregate + status	Setup Node.js	2026-08-19T04:31:43.5159914Z ##[endgroup]
+aggregate + status	Download shard artifacts	﻿2026-08-19T04:31:43.5313800Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5315460Z ##[group]Run actions/download-artifact@v4
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5315845Z with:
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5316349Z   path: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5317052Z   pattern: openclaw-local-ci-*
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5317412Z   merge-multiple: false
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5317787Z   repository: karmaterminal/openclaw-bootstrap
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5318332Z   run-id: 32209969307
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5318623Z env:
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5318935Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5319387Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5319819Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.5320242Z ##[endgroup]
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.6790817Z (node:565220) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:43.6791524Z (Use `node --trace-deprecation ...` to show where the warning was created)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0714137Z Found 83 artifact(s)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0715258Z Filtering artifacts by pattern 'openclaw-local-ci-*'
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0735392Z Preparing to download the following artifacts:
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0736092Z - openclaw-local-ci-batch-batch-077-c3a0e5a314ec (ID: 9352364022, Size: 58551, Expected Digest: sha256:5d4f739db4f228a7bf9e2ede58e4d01006ac40edeeacee5f774053f3a5531527)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0737115Z - openclaw-local-ci-batch-batch-073-c3a0e5a314ec (ID: 9352134633, Size: 24097, Expected Digest: sha256:b16e7dec308c158b7552ae066e19fe2f3d5bed6270d4065720ff9615736eb4db)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0738051Z - openclaw-local-ci-batch-batch-079-c3a0e5a314ec (ID: 9352129545, Size: 18784, Expected Digest: sha256:b4ef75fe7fc0e73735c5129f08e79bc4f9c71fd50b26bd53bb8771de4f1483e1)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0738941Z - openclaw-local-ci-batch-batch-076-c3a0e5a314ec (ID: 9352102112, Size: 21746, Expected Digest: sha256:8038813b5960e0f707003be8263a4017adbcacb8cdf7329ae02fb47ec8255175)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0739773Z - openclaw-local-ci-batch-batch-080-c3a0e5a314ec (ID: 9352075708, Size: 20544, Expected Digest: sha256:76cb599ebb90bf29bc3083901bb7ddf8561cb694414c4b49df1ad9005b86d992)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0740608Z - openclaw-local-ci-batch-batch-069-c3a0e5a314ec (ID: 9352038092, Size: 10853, Expected Digest: sha256:ce65bb9667d6fa42dc132a1e28555e8a308e232eb1c4576d6ec3f33452a90b56)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0741446Z - openclaw-local-ci-batch-batch-075-c3a0e5a314ec (ID: 9351988621, Size: 13966, Expected Digest: sha256:a023dac7fc3569913b25ef8908efa8ad216625fed9bbd184d2adad7201201d87)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0742289Z - openclaw-local-ci-batch-batch-070-c3a0e5a314ec (ID: 9351977187, Size: 16971, Expected Digest: sha256:4e4884ff68c424066da47ad1dc421788c7e2bf55e9cdc4b4cbe222924f37e621)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0743115Z - openclaw-local-ci-batch-batch-074-c3a0e5a314ec (ID: 9351951709, Size: 20555, Expected Digest: sha256:ce66365da770672e3251644fe7fb6c95484e3c5723e21bd643fab837b2b32303)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0743952Z - openclaw-local-ci-batch-batch-071-c3a0e5a314ec (ID: 9351900902, Size: 25905, Expected Digest: sha256:5d8bc3a436c296f9c1ed3c11fd9f497f1771f1e156729f8d6fb346baccd492e1)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0744798Z - openclaw-local-ci-batch-batch-072-c3a0e5a314ec (ID: 9351885620, Size: 9074, Expected Digest: sha256:9208970b42ac8beb4e14eced9d81ed306816261ad7500293dbfb07f24b3bce98)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0745646Z - openclaw-local-ci-batch-batch-081-c3a0e5a314ec (ID: 9351851794, Size: 27245, Expected Digest: sha256:cebcb8a306f23fcf302c0e9ac76f6bae0fdaa09b67498198fcd874890bd59a72)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0746538Z - openclaw-local-ci-batch-batch-065-c3a0e5a314ec (ID: 9351825227, Size: 9643, Expected Digest: sha256:5767a70ce6beaaaa8e31ae4a093815fabf225c504b7e5f45c6ea6aef3373125f)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0747555Z - openclaw-local-ci-batch-batch-068-c3a0e5a314ec (ID: 9351824587, Size: 12321, Expected Digest: sha256:93dbc08f53027f5146055a5783a33e703b095624d9e0a78f513a11423d4044f3)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0748350Z - openclaw-local-ci-batch-batch-066-c3a0e5a314ec (ID: 9351773846, Size: 11948, Expected Digest: sha256:415d0d1feb6340cb19de87e7f3f748f2226a90a55e549cea01b61ece26fdb58d)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0749169Z - openclaw-local-ci-batch-batch-078-c3a0e5a314ec (ID: 9351755442, Size: 46700, Expected Digest: sha256:085d3ce5e7e76983e69dd679372dcbbbd6c45496a7adeb93bf683dfb4dc3a766)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0749969Z - openclaw-local-ci-batch-batch-056-c3a0e5a314ec (ID: 9351744961, Size: 20468, Expected Digest: sha256:e664f6f5fec886951923bd3783077df646200cb3962d0adb9a014f6f4886841f)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0750895Z - openclaw-local-ci-batch-batch-067-c3a0e5a314ec (ID: 9351719726, Size: 9148, Expected Digest: sha256:19210e14400955e2c576764a738526e2e856df855d6ccdc204edacaaeef7f46d)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0751719Z - openclaw-local-ci-batch-batch-048-c3a0e5a314ec (ID: 9351718538, Size: 13964, Expected Digest: sha256:c43917e5b0477cacaa971c883ad44cb2bc1ba946156d880b6e858daf793429b8)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0752535Z - openclaw-local-ci-batch-batch-018-c3a0e5a314ec (ID: 9351684970, Size: 7281, Expected Digest: sha256:874711003d8ad3fc948e4c744dd5c696be5b8d91af37b38d066c326cfbb0a252)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0753328Z - openclaw-local-ci-batch-batch-051-c3a0e5a314ec (ID: 9351674883, Size: 23131, Expected Digest: sha256:5c8481c26864cce6d51a8221ca540411230e730af1f515df6929264088910e9e)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0754139Z - openclaw-local-ci-batch-batch-017-c3a0e5a314ec (ID: 9351666620, Size: 10598, Expected Digest: sha256:2b5ed0764c9822c26750b278ab716d5eaef4026e1d40d9147747ef6a28ecfec2)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0754944Z - openclaw-local-ci-batch-batch-022-c3a0e5a314ec (ID: 9351652095, Size: 8760, Expected Digest: sha256:ee15620cf7b4a3f156fed5ff45434a03313173897f96d71cd37bc016bba26293)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0755746Z - openclaw-local-ci-batch-batch-062-c3a0e5a314ec (ID: 9351625102, Size: 9777, Expected Digest: sha256:c43636696384706b8c7581f45463713e8d1f97b187bc0b6a0b0719361f6990c2)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0756587Z - openclaw-local-ci-batch-batch-050-c3a0e5a314ec (ID: 9351624427, Size: 9091, Expected Digest: sha256:f5c2ef9947d2607cb9a7ca254a5abbc19e514a1ceb9ca0f80d10299b8580551b)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0757421Z - openclaw-local-ci-batch-batch-016-c3a0e5a314ec (ID: 9351611468, Size: 7640, Expected Digest: sha256:572a76cccc6f31d89ffa9b8a142c78eb1978d82e86bef1f4a0478a85a8ddc9d1)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0758316Z - openclaw-local-ci-batch-batch-043-c3a0e5a314ec (ID: 9351588804, Size: 14760, Expected Digest: sha256:ebae3905e52ad9e8c442377cd01cd0e412433317c2ab16f29c3c63065e20c7fb)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0759173Z - openclaw-local-ci-batch-batch-014-c3a0e5a314ec (ID: 9351587717, Size: 7961, Expected Digest: sha256:3f915b15a150a2e554740cd4cdc0eaf8cb9ccc8b7f644ea3684eb348b4ec45d2)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0759984Z - openclaw-local-ci-batch-batch-021-c3a0e5a314ec (ID: 9351564947, Size: 13872, Expected Digest: sha256:7dd1e66d1cf673826dc21c3c2650bc21ca81b38413108386a64429c8fa198864)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0760791Z - openclaw-local-ci-batch-batch-042-c3a0e5a314ec (ID: 9351562080, Size: 8873, Expected Digest: sha256:0e25aa0c05de69dd27dcbc02ab181e8772a7f6a968bf7e388a311f9b66c1f6f9)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0761597Z - openclaw-local-ci-batch-batch-031-c3a0e5a314ec (ID: 9351560726, Size: 10959, Expected Digest: sha256:47feba7ac3cbc8b11e204297f79b4201e8bd7c24badf992e714073c674cc5935)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0762408Z - openclaw-local-ci-batch-batch-028-c3a0e5a314ec (ID: 9351553159, Size: 15026, Expected Digest: sha256:0a764831f9bcde566bcb762d59bdf66c8540de8de211a744e069ade15b686e74)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0763215Z - openclaw-local-ci-batch-batch-047-c3a0e5a314ec (ID: 9351518593, Size: 17219, Expected Digest: sha256:07989e2eebc34425603ea0919b6b23ff013e8ba039287a61cf2e542a7e08b020)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0764019Z - openclaw-local-ci-batch-batch-052-c3a0e5a314ec (ID: 9351506808, Size: 15176, Expected Digest: sha256:d943fe28085ccf888e6b2175ee92363fe2b7859187329bf91b1ba0afc114736e)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0764890Z - openclaw-local-ci-batch-batch-008-c3a0e5a314ec (ID: 9351493358, Size: 22919, Expected Digest: sha256:40a1d230a6c3632da638f00fd61ec208e1241532537f994431d5855e395dc7bc)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0765701Z - openclaw-local-ci-batch-batch-041-c3a0e5a314ec (ID: 9351492541, Size: 7848, Expected Digest: sha256:75835d802be1d62d051647b6713b68074a703bd7765eef11b92876f4307a2cf0)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0766545Z - openclaw-local-ci-batch-batch-064-c3a0e5a314ec (ID: 9351460726, Size: 11906, Expected Digest: sha256:c232a6e58b4f8147666f6700438f3310ccc633960ee8a85659b6441605091bb7)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0767364Z - openclaw-local-ci-batch-batch-024-c3a0e5a314ec (ID: 9351431427, Size: 14888, Expected Digest: sha256:a2f9ae169c6f79b3f5f4cebc66f65f291ba8f99821cde5fd003580ff087ffb5f)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0768240Z - openclaw-local-ci-batch-batch-055-c3a0e5a314ec (ID: 9351423039, Size: 32791, Expected Digest: sha256:45b61d790a83093096bf9e67355f53000343da6c2cd080946b82da2df6d17f29)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0769136Z - openclaw-local-ci-batch-batch-058-c3a0e5a314ec (ID: 9351419679, Size: 10452, Expected Digest: sha256:6402865d845968152557c5d04f1aa5915751b9186f2533416bc872aff7fdeccd)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0770020Z - openclaw-local-ci-batch-batch-025-c3a0e5a314ec (ID: 9351409052, Size: 51541, Expected Digest: sha256:58a5f0afa86cd60d310a145ecde30474e3a9b94807cc555320d371bffc9d15a4)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0770923Z - openclaw-local-ci-batch-batch-035-c3a0e5a314ec (ID: 9351389519, Size: 8336, Expected Digest: sha256:957f3a9e684db97daf48dc6ffe84f7db83796363631091fb0da31e82c94bbea5)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0771827Z - openclaw-local-ci-batch-batch-063-c3a0e5a314ec (ID: 9351372849, Size: 10218, Expected Digest: sha256:be72f976f2becfd9218b972f8952c72438f506ce1289bb78da46ad08fde327d1)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0772717Z - openclaw-local-ci-batch-batch-027-c3a0e5a314ec (ID: 9351361705, Size: 18759, Expected Digest: sha256:6460315d3cd9606916ceef9a051fe927688d2ceea7d3b1e540c7e0661c4e27bc)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0773607Z - openclaw-local-ci-batch-batch-009-c3a0e5a314ec (ID: 9351306513, Size: 10354, Expected Digest: sha256:dae31972f58bc2543b05684ae4bb9d463ad0ed215f8c2f98ae6f463dbcbe84c2)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0774508Z - openclaw-local-ci-batch-batch-023-c3a0e5a314ec (ID: 9351273669, Size: 17442, Expected Digest: sha256:d4fcb1e5f353c87956f1b154b12d1f8d4f73bec5052d3bf24ed392b364d35e52)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0775365Z - openclaw-local-ci-batch-batch-033-c3a0e5a314ec (ID: 9351268575, Size: 10144, Expected Digest: sha256:554b27e02fa31c8fd4c096e7b3f25fd60d0354d74a5e98fadae451c470d57ac4)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0776273Z - openclaw-local-ci-batch-batch-034-c3a0e5a314ec (ID: 9351249220, Size: 10583, Expected Digest: sha256:524fd6f4463b754494cff9981dde0e42b4afb51a6521cc4b3f587ed83ca4502c)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0777243Z - openclaw-local-ci-batch-batch-054-c3a0e5a314ec (ID: 9351246974, Size: 40004, Expected Digest: sha256:f5c4bd269d11ea194dfb5d74f002cdcced2ea0b75824a2c0b6ba2958ef7ea981)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0778114Z - openclaw-local-ci-batch-batch-037-c3a0e5a314ec (ID: 9351233074, Size: 32263, Expected Digest: sha256:2e8cd8715a8b69656164c8b5519290bf5b5192efa9bae3559464244b8a7de141)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0778897Z - openclaw-local-ci-batch-batch-061-c3a0e5a314ec (ID: 9351175007, Size: 43837, Expected Digest: sha256:41cc757cd0902434e1bdd76bdb15fd81615769e8e1d9b7def30096a66a9e05c0)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0779686Z - openclaw-local-ci-batch-batch-007-c3a0e5a314ec (ID: 9351162189, Size: 24933, Expected Digest: sha256:3421aa6e507ec53344c79f430b85490985d7393cbc2cc901890f9f9aa9262639)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0780473Z - openclaw-local-ci-batch-batch-053-c3a0e5a314ec (ID: 9351140418, Size: 31625, Expected Digest: sha256:83d610f176a3ec60646b2d1a2168ee9eac6103d699dfb276f6066234762a1cd3)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0781269Z - openclaw-local-ci-batch-batch-057-c3a0e5a314ec (ID: 9351111867, Size: 22738, Expected Digest: sha256:6be0f6cd47007d0814c9a28bfa71ac4d09b37e122d475c2b7518fa9698293299)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0782093Z - openclaw-local-ci-batch-batch-030-c3a0e5a314ec (ID: 9351103252, Size: 18513, Expected Digest: sha256:3dcc594f18c2c77e0be40324439e3063ca00a80b1ce06643d4af4add4ada51f8)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0782965Z - openclaw-local-ci-batch-batch-032-c3a0e5a314ec (ID: 9351048187, Size: 9943, Expected Digest: sha256:a5d5af7b40c04595591f6beea67135ae95b2b6e133f303b2e8fd4e6726d59efa)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0783820Z - openclaw-local-ci-batch-batch-026-c3a0e5a314ec (ID: 9351013741, Size: 26539, Expected Digest: sha256:5e7bc2bb76fc2ef72cbc2e516999edd88d2770f33d42f1416a93d1c606f55d9b)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0784666Z - openclaw-local-ci-batch-batch-036-c3a0e5a314ec (ID: 9351011665, Size: 9645, Expected Digest: sha256:8e94e32fe39a38126c5850209f34a29d83e1dbc38f4d6426c2132da0bcabb39c)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0785528Z - openclaw-local-ci-batch-batch-040-c3a0e5a314ec (ID: 9351010121, Size: 38085, Expected Digest: sha256:2a70061089fe7af859914b2628eae4dabd274d6e99baf893dd80f03cec7d55fb)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0786362Z - openclaw-local-ci-batch-batch-045-c3a0e5a314ec (ID: 9350997762, Size: 12970, Expected Digest: sha256:4c49bcf27d36dd5bb4194f0ddc9d5d4a8b6ced70f805a597e2817645f4e1aea1)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0787215Z - openclaw-local-ci-batch-batch-046-c3a0e5a314ec (ID: 9350976184, Size: 13242, Expected Digest: sha256:3144e450e36b2a363e0b9105fd025fa64b7a2f3a1703741d1fa5ff079bef5dd5)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0788111Z - openclaw-local-ci-batch-batch-006-c3a0e5a314ec (ID: 9350970445, Size: 20057, Expected Digest: sha256:dec4d032418708420cb550239ad6e13efaab1ff25be71fc5f5565cac87210243)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0788931Z - openclaw-local-ci-batch-batch-060-c3a0e5a314ec (ID: 9350940426, Size: 10698, Expected Digest: sha256:2de4d5edc8745441ec7cf9ad0f3ab5bfc61f661a48c1bee3b29d02091ad1de62)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0789752Z - openclaw-local-ci-batch-batch-044-c3a0e5a314ec (ID: 9350937164, Size: 7487, Expected Digest: sha256:8dbbc207c6b02b2a00e9968b7fa6051aa608f534a215479ad10554eecd9d3fb3)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0790580Z - openclaw-local-ci-batch-batch-049-c3a0e5a314ec (ID: 9350919177, Size: 8304, Expected Digest: sha256:5d217cb48a5e5841322b53befa67ad895e0ce7e8119efa288bb026a0e00a3e17)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0791404Z - openclaw-local-ci-batch-batch-059-c3a0e5a314ec (ID: 9350914817, Size: 11121, Expected Digest: sha256:0be628827a4fda738be226574c15f77e6e3f23964fa10f3ab04a4b2b494e3ee2)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0792217Z - openclaw-local-ci-batch-batch-029-c3a0e5a314ec (ID: 9350905637, Size: 22802, Expected Digest: sha256:03ab4b3048fc154ab95bdcf5e172c0da20f4c847cc617cbe1d616b37949bef8a)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0793039Z - openclaw-local-ci-batch-batch-038-c3a0e5a314ec (ID: 9350893884, Size: 12555, Expected Digest: sha256:90fc7c77649883905cb43d8e0c919ed078316e55431864669b5fb2a47edf82be)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0793873Z - openclaw-local-ci-batch-batch-039-c3a0e5a314ec (ID: 9350884185, Size: 18897, Expected Digest: sha256:7909df7ac6742e52c8afb0fed22629d8cd4154eed155dba8ec4771dfea6b7f4e)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0794760Z - openclaw-local-ci-batch-batch-019-c3a0e5a314ec (ID: 9350843989, Size: 8286, Expected Digest: sha256:6005e12c3b217576d276307c4ce145dd9b1dac89d4a43a882f0ff66d50a34578)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0795632Z - openclaw-local-ci-batch-batch-020-c3a0e5a314ec (ID: 9350828133, Size: 8101, Expected Digest: sha256:b63546089556257517c60d1bd7672d632c8523664141595c21d73027b290b238)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0796520Z - openclaw-local-ci-batch-batch-011-c3a0e5a314ec (ID: 9350823774, Size: 7856, Expected Digest: sha256:08cb360f0d26909de88b1d9b76114ec4dc9ba59fc1e792ff512f99ffee4e311a)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0797405Z - openclaw-local-ci-batch-batch-002-c3a0e5a314ec (ID: 9350808498, Size: 19484, Expected Digest: sha256:c120aedadacf905c53c19a2de7b8792a50d7ff48b0eea1fb77e94b0566a8c23b)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0798271Z - openclaw-local-ci-batch-batch-015-c3a0e5a314ec (ID: 9350807115, Size: 7588, Expected Digest: sha256:1898c1c8c8a1f032e01190f90177603ab58a126d4b35fedb37e06bb2bd9a66ad)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0799233Z - openclaw-local-ci-batch-batch-004-c3a0e5a314ec (ID: 9350799938, Size: 21065, Expected Digest: sha256:009c276def490882661814050b8fb707434c1a0095ccba28d006f3598dbe1c68)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0800157Z - openclaw-local-ci-batch-batch-001-c3a0e5a314ec (ID: 9350791637, Size: 52306, Expected Digest: sha256:3313264e4785a5db5f9f6d3ae73340fe10ae6a6dfa8337827b3cefd828b24816)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0801043Z - openclaw-local-ci-batch-batch-012-c3a0e5a314ec (ID: 9350788519, Size: 8848, Expected Digest: sha256:0022f91605d1912d84eb823b46c6caf36438219caf3612ef74900c988d2954ec)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0802011Z - openclaw-local-ci-batch-batch-003-c3a0e5a314ec (ID: 9350762783, Size: 32327, Expected Digest: sha256:23d3d3328d005ca79c15060f1f3ba58854f93f1d698d475deef5848b8c4907f0)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0802885Z - openclaw-local-ci-batch-batch-005-c3a0e5a314ec (ID: 9350709693, Size: 20419, Expected Digest: sha256:25b470b6bf80e4209cbbf484f948d1ec23350093effcf550304ae0afda436d09)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0803824Z - openclaw-local-ci-batch-batch-010-c3a0e5a314ec (ID: 9350694654, Size: 8542, Expected Digest: sha256:0cb0c94c8adac0ebcfa7d0854eeae80bbaee6af9c6186f2cc1ebcc671c774947)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0804707Z - openclaw-local-ci-batch-batch-013-c3a0e5a314ec (ID: 9350687334, Size: 8671, Expected Digest: sha256:b3f01fb9d9a9917d495cddfb19800e440e7229941ce4c31ad927c15b78101ea9)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0805594Z - openclaw-local-ci-dist-runtime-c3a0e5a314ec (ID: 9350640840, Size: 48024560, Expected Digest: sha256:81af936894c89770a29be69a465f241a92852511cdda4073938c5f6773c40bf6)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.0806467Z - openclaw-local-ci-static-c3a0e5a314ec (ID: 9350637788, Size: 11123, Expected Digest: sha256:c56f6e5258043cfe6b0959e125380f1109f51af8a1938c90799824a39ff18df8)
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.3247960Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-1614fdc9-1909-56d0-981b-5ce929468337/artifacts/49b02799a584087727bd98eff19998ff8364bdf984400890ba9e2faa35daba0f.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.3249914Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5011622Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-162e133f-1a4a-5fca-abe4-de279b8f6d3d/artifacts/4d8857d8a5fcf99e9eb928387b84d5e3a30da35e30abd1e95a00854949f31241.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5015211Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5097436Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-e9b6ee11-62ef-5be1-9cc8-547aab86fe9a/artifacts/dc6997e2c34b8778300bf260abc5838fc7adce955f3cd78b136a253bec7acdb7.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5103176Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5113146Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-96728a0f-f49f-5f7b-8637-1f97d1af4857/artifacts/4e6d4511e6a5f366aece1dd8500daf7699341897e4052e72db6ddcecf6c4c8c5.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5118221Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5132470Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-60ecb147-85fe-5638-a665-e1981dd783be/artifacts/4356c632de5c35898a1cf3e7633978b3f7f5bec4c1f5b31d877b119b2e929f09.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5136179Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5168410Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-c998dc80-6c99-5d7d-a134-17a10cb8bf36/artifacts/4ebb9c91846ade0c7d2843cdbbb9fa56e6cca87f8d28aec406681368edc51056.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5172421Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5178993Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-012a0611-3108-5c13-9262-69e51ad32a9f/artifacts/c2fe89966f90107ecb03df88417e6acb71bdd91df5b87ecb3877c18df844b17d.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5182211Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5188644Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-d3ac3819-413b-5d6b-b7ba-cf591d791f06/artifacts/62c70d8241dbe3e3625553b98e8920da7181b08ff50bcf3f2c2c2ab362297077.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5191659Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5196286Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-c556d364-302c-5d06-8ee3-153ef222fb5e/artifacts/ca4422f18dc2ad437d91b4fecd0331071c0118b44e0bd14c30e5137740554490.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5198810Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5203515Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-72fb8d80-4fab-53e8-9a0a-046cc71be418/artifacts/47ae29eb6486e1099a3fb2f1c1610b00f9c373bd701c3d5a41f3c58094c1efc9.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5205718Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5209799Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-48a3fddc-3d29-516a-a12c-56368df26616/artifacts/e9384804bd3da5be7a95694079ccb3134c9e1ae19487caa490be82e4909ae5ff.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5211787Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5264215Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-d4671589-a878-5d7f-a2ff-000128ca9895/artifacts/c2882981f44db3954382f5eca896a1c9b5e8a664d19c1045bd61a683419be082.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5267356Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5282169Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-d68cbb58-659e-549d-8892-59e2be438577/artifacts/5230de08c83e27f12b3e25f72f86a8da26a6c0f72c87982ad51ba8a4e2126d89.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5284869Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5320110Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-cffe5f80-5ce7-50c7-b8a7-e91773c97e1a/artifacts/595a74dabab00cfd6d14766c2d8e98ae728d7d298bbeb041d53d1a3da068de23.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5323244Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5329077Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-0ec6e18e-cd1b-57d4-bb8f-63662c54a6da/artifacts/19442da5abe40de8ffa2e502d95818a794f3c335581dda4703a03bd26726e882.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5331745Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5336488Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-fa99264d-a499-5bb1-b8e8-123db7367acb/artifacts/31dee74c9138adfe85df7384b77befee5d21579d81c266ed5d5c7fe551b03587.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5338824Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5365323Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-f7d9896c-696e-5e3a-8a94-963d9fca8e71/artifacts/19f425c9ec1d9cf4a09a7a138f6720664e1555a6bdd6d6fe04a1920af282b26c.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5367823Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5372490Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-f8416e06-c926-5355-901f-5464b642190c/artifacts/4355cdbb1bb033d15f883b55db4a7a1dc60781ce3d64bd50eca08119f73bbeff.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5374801Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5382889Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-e247ffde-9fa3-56b6-af34-c5c789e42ec0/artifacts/f52f1ddfc8062b8bbf941be83459008c1e041ea1132ed47be7f0cfff07aa0fe1.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5384957Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5404574Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-a9a1eeb4-2366-5f4b-b722-2103ccd653b4/artifacts/1f0db1e2ff748a5b5ef798fd99a131057225f96b0d8b5adcf8f8e7bebe816cc7.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5406762Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5410828Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-8c220949-4e34-5f5d-a1ba-88d1211eab81/artifacts/2f1edf164e55f3f387fb1ec12bb0974396f63fc540b8a80e928bd8c5ea916476.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5412902Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5417160Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-a45f1add-7a3b-5775-823a-71d7c2dc1a1f/artifacts/6270d34f899960212ecc0b67513d4b299a05da767a9e21a0af1d372ce77a672f.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5419273Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5444611Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-763e1b06-2724-5e59-bdfd-fa16ff069231/artifacts/27c17f92fcec9b697e436bb5b0241189a3c1bc19bc0d7524dbadf057114c8bfc.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5446904Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5451448Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-d36ec21e-c52a-5e51-a32a-a26144a2e8c5/artifacts/9312094b9c2690e206b51664b2688e6c88a9ab4d784e47816f016ea07a8d1a6b.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5453805Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5468878Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-39317edb-880b-5ae2-a86c-c8209d852777/artifacts/aab4f1b4b68e6a9aa3edc019e26f5fe42ca86afd4055ae8d811e7fa540280dbb.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5470278Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5480366Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-32b72ce6-6325-5c34-8ac0-3c2d175e2a05/artifacts/379c3e644d558fd5a0449feca9fe3090b3ec61e6552926ab56941234ab4bcf94.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5481816Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5484463Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-03407e15-aec4-5150-a1ac-8a507634237d/artifacts/423f70ae03678eb50b02906494fd49081cac0d6810547f1dfddd9f7fb8e96fe5.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5485776Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5488450Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-3c5f8ad1-83f5-5f46-9f42-005b2e9097de/artifacts/1483ed9d5c6a2a7ce110a0f8b37bd95951b18f54cff3f9868beaef3a570ed41d.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5489781Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5492482Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-01cc94ec-abf7-5dd6-983e-bf42e7b7b616/artifacts/d4a39d2b7a1c959fdbc6227e09f8ccce4f10da907211b9acd882f3735b39dc35.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5493824Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5552272Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-a7b7eb9d-0e69-504b-b254-99a70150a40b/artifacts/3fffc859a7daae00731c443fd17fcc5e9b28f720dc9dac94233d1711e3160752.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5553673Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5556386Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-78207636-b832-5a21-b71f-5747eb54141c/artifacts/146a5a940fa549b1f6459f967e39f5298f906aba4917e88e3b24c0d1cc8f19e4.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5557837Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5560565Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-114a45e0-7aed-5271-87fd-0e870490ad7a/artifacts/f457a5e4e8167b9919374f3abc7af512698b1e31db3cb6c152613aea030a60f4.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5561915Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5564806Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-2e5743ae-9659-5296-9969-003e5d8acab0/artifacts/0e290046fe3e88a7636aa5b619574a0cfcb6b022493169f60bda3823db0b4fd7.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5566173Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5569002Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-60ecb147-85fe-5638-a665-e1981dd783be/artifacts/e87f93c0104b4d7a99600ff254300011a6bab090237152ff0f0a9b19aa4b310c.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5570332Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5573055Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-cce29b8f-a4f4-5bae-970b-1fa1f77e7434/artifacts/06ad69c45fc23cc9e23f3f0c294478b9bce113f2e916f557cb145fa846151d7b.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5574432Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5577332Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-1819ad7a-41c1-5bd7-8630-f4d75071bad1/artifacts/daaa2e80c2fa15303b672cce31349712127e2d2c99fd3d17c9fd06128001b031.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5578728Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5581633Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-06c01b76-fa3d-57ac-89f2-37aadb558164/artifacts/993b95834fc22362d0b2234993c491444d3f0c35f3766f12aba6b7a2e2603dd3.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5583029Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5585958Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-fa937a31-134a-5691-96c0-4116151e0191/artifacts/0a2b6bdd07f61e1a223bd02293509d5935a6f696c305fa907d910e060664256f.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5587399Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5590454Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-11e5ddac-c2a1-5f13-9259-679016f73b30/artifacts/e1a71a08fab4e0f0282f7472d0098e93d9fd0f8277bd5ab5ae41a29ac725ef21.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5591952Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5594888Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-b4ed2189-2e21-5041-83c5-c67ad8ef2e19/artifacts/fca41ae2d79a0d082bade0a890f5a0966d7ea0cca6e5221ac31862f599d710dd.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5596300Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5608251Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-706817ea-bf71-5548-acbd-b9669739e876/artifacts/2a39f1433122aee91f7048d614a78fb940cc076087cb0df44526ec9276ff3a45.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5609718Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5613461Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-87a57591-2d39-5bfb-bee9-d0554ea8180a/artifacts/063d6427e506489773bc7aef7355c62bc6b990e91fa5e68a456f9639344d7ed6.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5614952Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5649198Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-9bdd998f-c3fe-5fac-bb61-978a9a176f21/artifacts/a5feb80d694e60cecde6135d5f0473e3eeeffc97f00a03cf23ef2199af4c690f.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5650723Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5653755Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-817eafaa-b7f4-5c49-ab98-881b29a18d92/artifacts/cb2895f1b34224e41fe5815deb943e461c0c1f4effa6567cbe80b293249528df.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5655177Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5658200Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-00ba73c6-bc3f-58c7-9a28-5168eec319bd/artifacts/daabf2b841618a7f8129c5c82baf122ad954749ab6d9ff1aa324674b07ccf9b7.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5659644Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5662683Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-a38415fc-e7d6-525f-a403-5f4d2a5249c3/artifacts/ca0100da25d5fbaa4837e0b2bf16d018f6e47a6d612a7515a19ba1d467674254.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5664125Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5667151Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-0c95f1ee-c153-5a0b-a2e8-e5634fb0e333/artifacts/8864f879a46f994defc0e916f303ab9eb4bf22be2efe7b607177a61351a6a9c6.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5668598Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5671731Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-8172b947-83b3-5bdf-a657-f91981d4a56f/artifacts/dfad22329805e02084596aee8d241c460f43dd4477ea4a8b41b8a622b608197e.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5673190Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5676272Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-85497569-7276-5729-b75d-ac93da28e9b2/artifacts/6caf9e9359898c3b783d4b7d8916f0a23e66aa047d1fefdc4e8215aa0ae92a33.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5677900Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5695624Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-faefd572-15a2-5731-99fd-0f39ba9f6211/artifacts/76c10a628b8239e5033aa993876ceb74fb0fdabffa5fbd137162389841bbaeb8.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5697214Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5715394Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-5af26661-2ff4-5806-84c7-2dc6a6039165/artifacts/ef39bc8d6f117f6116f1ff0439dda087587029905fc4f9c2dd78bfdac9bfe099.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5717097Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5730799Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-87cec6da-8eeb-5525-9db5-9f8e09f22db6/artifacts/eda670cf9ff190635f15f7778fda40381f30b3cd4568e07cdf29451663cfc3fd.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5732353Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5744696Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-5678eb11-d31b-5df3-a471-ee0a22e6298d/artifacts/390ada74df069823504c55448c1aac0b7f55b13522fe406be3fa20aa8c1f7d98.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5746268Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5757058Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-bd8dba05-6904-5f9b-ac24-8cb7325e00ca/artifacts/3dd7db8f2a512f1d09cc117e339b804e91c31c98b73acd1ff9db71de58b42a24.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5758622Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5775437Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-ac0e1f04-5ffe-57f6-ab0f-c60740fd2dcb/artifacts/246993afb4fb4fb5c86f6c8da8eb0254c9656e525cc20af1f8ae0c5a378ebab5.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5777143Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5799945Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-81a01339-9712-52b6-8906-88f09ea39a9f/artifacts/773be83b86df28107dc76909cf542601015f02683230d3beec77c1b1c51d1d91.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5801614Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5805499Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-ddcb9356-72a1-53f4-8f24-c7f9709bb05a/artifacts/40086f2b8d42fb356990530053a2064e6113599e37d1b5ce94110fca0f558640.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5807104Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5850519Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-0f73b230-be92-5703-9006-56bb65857035/artifacts/b8b02cdadaa12857d00167c3d6cb6684ee3c4f98cddce3012ed43b39f5e6b040.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5852203Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5856176Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-75f53a2f-9170-57bc-8fbc-76f73bde44a0/artifacts/de4587e0a68c04a95f0b5e357d38c63d311e98a084d153e475babad6ac6df5ce.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5857787Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5914352Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-d7c31457-2376-5a0e-bff1-d3016706389e/artifacts/6c1f00519dae05d7084f86b74e7e28f6957c26248e59f384bbaa69816e2669d9.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.5915955Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6060488Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-f7194e84-18a8-53f9-874d-e0969bc189c4/artifacts/44bfea7439b2d286d886efa40c0f4788dc13e5e8d5888f012de311329f5b4c6e.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6062818Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6074655Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-46ec84cb-5b3b-56b3-9c08-7c621195c258/artifacts/784f06ed66911e699ed17b3f59a6e2f27a8d6b1e12666b361c0ac1ea63873ee5.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6077006Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6557930Z (node:565220) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6881224Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-f242fce9-0023-51cc-8508-c12590916c30/artifacts/0dd14ce799a902f9928b75d753a780381262bb1ebfc421ca70ff5629b5f8f024.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.6885964Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.8198596Z SHA256 digest of downloaded artifact is 5d4f739db4f228a7bf9e2ede58e4d01006ac40edeeacee5f774053f3a5531527
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.8199637Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.8317358Z SHA256 digest of downloaded artifact is c56f6e5258043cfe6b0959e125380f1109f51af8a1938c90799824a39ff18df8
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.8318144Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9615257Z SHA256 digest of downloaded artifact is dae31972f58bc2543b05684ae4bb9d463ad0ed215f8c2f98ae6f463dbcbe84c2
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9616152Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9617199Z SHA256 digest of downloaded artifact is 19210e14400955e2c576764a738526e2e856df855d6ccdc204edacaaeef7f46d
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9618012Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9619183Z SHA256 digest of downloaded artifact is 6005e12c3b217576d276307c4ce145dd9b1dac89d4a43a882f0ff66d50a34578
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9619971Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9620791Z SHA256 digest of downloaded artifact is 5d217cb48a5e5841322b53befa67ad895e0ce7e8119efa288bb026a0e00a3e17
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9621551Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9762487Z SHA256 digest of downloaded artifact is e664f6f5fec886951923bd3783077df646200cb3962d0adb9a014f6f4886841f
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9763690Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9765039Z SHA256 digest of downloaded artifact is 3144e450e36b2a363e0b9105fd025fa64b7a2f3a1703741d1fa5ff079bef5dd5
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9766208Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9768559Z SHA256 digest of downloaded artifact is 8dbbc207c6b02b2a00e9968b7fa6051aa608f534a215479ad10554eecd9d3fb3
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9769735Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9771037Z SHA256 digest of downloaded artifact is 524fd6f4463b754494cff9981dde0e42b4afb51a6521cc4b3f587ed83ca4502c
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9772156Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9773376Z SHA256 digest of downloaded artifact is ce65bb9667d6fa42dc132a1e28555e8a308e232eb1c4576d6ec3f33452a90b56
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9774578Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9775846Z SHA256 digest of downloaded artifact is a5d5af7b40c04595591f6beea67135ae95b2b6e133f303b2e8fd4e6726d59efa
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9777084Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9860179Z SHA256 digest of downloaded artifact is ce66365da770672e3251644fe7fb6c95484e3c5723e21bd643fab837b2b32303
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9861353Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9862550Z SHA256 digest of downloaded artifact is b3f01fb9d9a9917d495cddfb19800e440e7229941ce4c31ad927c15b78101ea9
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9863685Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9864888Z SHA256 digest of downloaded artifact is 572a76cccc6f31d89ffa9b8a142c78eb1978d82e86bef1f4a0478a85a8ddc9d1
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9866130Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9867757Z SHA256 digest of downloaded artifact is a023dac7fc3569913b25ef8908efa8ad216625fed9bbd184d2adad7201201d87
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9868902Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9870208Z SHA256 digest of downloaded artifact is 08cb360f0d26909de88b1d9b76114ec4dc9ba59fc1e792ff512f99ffee4e311a
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9871284Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9872461Z SHA256 digest of downloaded artifact is be72f976f2becfd9218b972f8952c72438f506ce1289bb78da46ad08fde327d1
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9873547Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9875461Z SHA256 digest of downloaded artifact is 5767a70ce6beaaaa8e31ae4a093815fabf225c504b7e5f45c6ea6aef3373125f
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9876581Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9877811Z SHA256 digest of downloaded artifact is 90fc7c77649883905cb43d8e0c919ed078316e55431864669b5fb2a47edf82be
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9878871Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9880016Z SHA256 digest of downloaded artifact is 9208970b42ac8beb4e14eced9d81ed306816261ad7500293dbfb07f24b3bce98
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9881253Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9882432Z SHA256 digest of downloaded artifact is 07989e2eebc34425603ea0919b6b23ff013e8ba039287a61cf2e542a7e08b020
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9883488Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9904559Z SHA256 digest of downloaded artifact is b4ef75fe7fc0e73735c5129f08e79bc4f9c71fd50b26bd53bb8771de4f1483e1
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9905704Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9906954Z SHA256 digest of downloaded artifact is ebae3905e52ad9e8c442377cd01cd0e412433317c2ab16f29c3c63065e20c7fb
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9908060Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9909365Z SHA256 digest of downloaded artifact is 957f3a9e684db97daf48dc6ffe84f7db83796363631091fb0da31e82c94bbea5
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9910469Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9911611Z SHA256 digest of downloaded artifact is 8e94e32fe39a38126c5850209f34a29d83e1dbc38f4d6426c2132da0bcabb39c
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9912664Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9913794Z SHA256 digest of downloaded artifact is 0022f91605d1912d84eb823b46c6caf36438219caf3612ef74900c988d2954ec
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9914869Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9916018Z SHA256 digest of downloaded artifact is 7dd1e66d1cf673826dc21c3c2650bc21ca81b38413108386a64429c8fa198864
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9917146Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9918278Z SHA256 digest of downloaded artifact is 93dbc08f53027f5146055a5783a33e703b095624d9e0a78f513a11423d4044f3
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9919340Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9920505Z SHA256 digest of downloaded artifact is 0e25aa0c05de69dd27dcbc02ab181e8772a7f6a968bf7e388a311f9b66c1f6f9
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9921586Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9922744Z SHA256 digest of downloaded artifact is 0cb0c94c8adac0ebcfa7d0854eeae80bbaee6af9c6186f2cc1ebcc671c774947
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9923816Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9924941Z SHA256 digest of downloaded artifact is 1898c1c8c8a1f032e01190f90177603ab58a126d4b35fedb37e06bb2bd9a66ad
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9926006Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9927562Z SHA256 digest of downloaded artifact is 874711003d8ad3fc948e4c744dd5c696be5b8d91af37b38d066c326cfbb0a252
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9928625Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9929778Z SHA256 digest of downloaded artifact is 2b5ed0764c9822c26750b278ab716d5eaef4026e1d40d9147747ef6a28ecfec2
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9930835Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9931991Z SHA256 digest of downloaded artifact is 0be628827a4fda738be226574c15f77e6e3f23964fa10f3ab04a4b2b494e3ee2
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9933072Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9943013Z SHA256 digest of downloaded artifact is d943fe28085ccf888e6b2175ee92363fe2b7859187329bf91b1ba0afc114736e
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9944101Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9945260Z SHA256 digest of downloaded artifact is 7909df7ac6742e52c8afb0fed22629d8cd4154eed155dba8ec4771dfea6b7f4e
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9946330Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9947525Z SHA256 digest of downloaded artifact is a2f9ae169c6f79b3f5f4cebc66f65f291ba8f99821cde5fd003580ff087ffb5f
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9948603Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9949766Z SHA256 digest of downloaded artifact is d4fcb1e5f353c87956f1b154b12d1f8d4f73bec5052d3bf24ed392b364d35e52
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9950837Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9952052Z SHA256 digest of downloaded artifact is 3f915b15a150a2e554740cd4cdc0eaf8cb9ccc8b7f644ea3684eb348b4ec45d2
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9953142Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9954314Z SHA256 digest of downloaded artifact is ee15620cf7b4a3f156fed5ff45434a03313173897f96d71cd37bc016bba26293
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9955521Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9956723Z SHA256 digest of downloaded artifact is 25b470b6bf80e4209cbbf484f948d1ec23350093effcf550304ae0afda436d09
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9966549Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9967755Z SHA256 digest of downloaded artifact is 76cb599ebb90bf29bc3083901bb7ddf8561cb694414c4b49df1ad9005b86d992
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9968836Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9970004Z SHA256 digest of downloaded artifact is c120aedadacf905c53c19a2de7b8792a50d7ff48b0eea1fb77e94b0566a8c23b
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9971092Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9972380Z SHA256 digest of downloaded artifact is 009c276def490882661814050b8fb707434c1a0095ccba28d006f3598dbe1c68
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9973468Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9974649Z SHA256 digest of downloaded artifact is 45b61d790a83093096bf9e67355f53000343da6c2cd080946b82da2df6d17f29
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9975735Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9976929Z SHA256 digest of downloaded artifact is 5e7bc2bb76fc2ef72cbc2e516999edd88d2770f33d42f1416a93d1c606f55d9b
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9977736Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9978531Z SHA256 digest of downloaded artifact is 03ab4b3048fc154ab95bdcf5e172c0da20f4c847cc617cbe1d616b37949bef8a
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9979222Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9979985Z SHA256 digest of downloaded artifact is 23d3d3328d005ca79c15060f1f3ba58854f93f1d698d475deef5848b8c4907f0
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9980662Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9981417Z SHA256 digest of downloaded artifact is 4e4884ff68c424066da47ad1dc421788c7e2bf55e9cdc4b4cbe222924f37e621
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9982093Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9982825Z SHA256 digest of downloaded artifact is 3421aa6e507ec53344c79f430b85490985d7393cbc2cc901890f9f9aa9262639
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9983516Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9984237Z SHA256 digest of downloaded artifact is 40a1d230a6c3632da638f00fd61ec208e1241532537f994431d5855e395dc7bc
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9984897Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9985634Z SHA256 digest of downloaded artifact is f5c4bd269d11ea194dfb5d74f002cdcced2ea0b75824a2c0b6ba2958ef7ea981
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9986297Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9987365Z SHA256 digest of downloaded artifact is 8038813b5960e0f707003be8263a4017adbcacb8cdf7329ae02fb47ec8255175
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9988114Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9988936Z SHA256 digest of downloaded artifact is 2a70061089fe7af859914b2628eae4dabd274d6e99baf893dd80f03cec7d55fb
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9989687Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9990436Z SHA256 digest of downloaded artifact is cebcb8a306f23fcf302c0e9ac76f6bae0fdaa09b67498198fcd874890bd59a72
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9991138Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9991887Z SHA256 digest of downloaded artifact is b16e7dec308c158b7552ae066e19fe2f3d5bed6270d4065720ff9615736eb4db
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9992566Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9993292Z SHA256 digest of downloaded artifact is 3313264e4785a5db5f9f6d3ae73340fe10ae6a6dfa8337827b3cefd828b24816
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9993954Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9994679Z SHA256 digest of downloaded artifact is 085d3ce5e7e76983e69dd679372dcbbbd6c45496a7adeb93bf683dfb4dc3a766
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9995340Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9996079Z SHA256 digest of downloaded artifact is 41cc757cd0902434e1bdd76bdb15fd81615769e8e1d9b7def30096a66a9e05c0
+aggregate + status	Download shard artifacts	2026-08-19T04:31:44.9996815Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.0233566Z SHA256 digest of downloaded artifact is 5d8bc3a436c296f9c1ed3c11fd9f497f1771f1e156729f8d6fb346baccd492e1
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.0234972Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.0458256Z SHA256 digest of downloaded artifact is c232a6e58b4f8147666f6700438f3310ccc633960ee8a85659b6441605091bb7
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.0460845Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6601346Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-07a4825c-9be8-51a8-9b90-593ffb5f3524/artifacts/550303c96e7ff53bf43ff068514af763a9f078de3993d595dcbdf040b50283d0.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6603019Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6606647Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-73372a68-4337-528a-b215-457a46030989/artifacts/b93522d0dca5cf19c228d76000de02c53186a695294f7805516c07d986c06848.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6608188Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6620833Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-438f59f3-e15a-5165-abfc-a9532469362c/artifacts/bb5b76e58337e8b3f17429b727d6c1b3620aa67f3fd4051b626f181c42ab36da.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6622415Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6648132Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-53410c13-045f-5476-a50f-0c86359cdd12/artifacts/b50467f3d24015ac5ce89e6a0b079439cd5dc9243efaabd859651554eb1a511b.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6649711Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6653298Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-1087e7ec-e3d7-5af1-95ab-1c2e60b433e9/artifacts/58ab7b4fdfa7fa00242bae7f5c7eb4351cb83ad0c0277bd86280ec4412179682.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6654845Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6658297Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-7b802391-864f-5631-ab93-e469c74ac0cf/artifacts/1435910990d09eefb52f390454bc6ff01d2666afa581fb05ddedf8030516eb2a.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6659861Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6677160Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-5e9a7f89-ee4b-5e6a-8c07-c4a7d615a87c/artifacts/97abd567a302c54166be9c56c5eebec5b2263d24d96b3ea4c21d3f43d1c74d61.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6678837Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6682556Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-73019d84-3a4a-547b-9b1d-619f1064cb59/artifacts/7a9083724ff8352365df8da3a4fcb24729e991c2ff57e6e00dd8228e17ef0aa2.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6684226Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6687809Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-94c1787c-a67e-5c6b-ac6f-0848d9e3613d/artifacts/900d4ff48b6c2d7e4aa46f2fb3463fa056ad43e62e01ccc82e148433572002e4.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6689366Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6787118Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-6c32df8b-928f-5bba-9392-17597feb5163/artifacts/e8c91a9b274c5d777c1d4b41a099e9880afa8e72bde524b729c81ba29508bea4.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6789744Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6833103Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-33a2bf7b-23af-5f3f-8bf6-4e7c7f5fc470/artifacts/9210fba63e5e2a2a7d52258a99eeec6d94fbce5c03073861cddd7510547ec9b2.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6836682Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6843670Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-3ea3d186-6b3d-5bd2-875b-4f67f96d61a9/artifacts/0824e58c408958f0791f750ec4e0defff1541f92bc3ce69172506b6a5383938d.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6846765Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6854157Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-6f3bca11-d73d-5a50-9f6a-1a91f3b8ebb8/artifacts/0aaa257c6313f6ebb7193a3802923d20f1c351dc83d9b6f93b714963a3bc2020.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6857078Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6863094Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-18e6d438-dfad-5b55-a359-1fb4bce50c84/artifacts/1af0b00b17d90a6ad06082c64091accfd33a707218ace5305a24aa5b73a5409f.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6865796Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6891358Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-dcdb5f45-52ce-5baa-b80f-500baec70d1e/artifacts/59d702435a6c470a564c0874ed594ae607622a11cd5ff2fc01a7172f5f1359d7.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6894749Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6901372Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-2fcc8886-ea22-5457-ac2c-803b501a0425/artifacts/772f85d44334b1a621cd517988efc4d141baab46a860be6a905e4d6e63450786.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6904215Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6926651Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-43059396-045a-598f-8a28-578842226e95/artifacts/fe3480b8698d60d4fc7289cdeb6a4b19fe5c3df7691224846ac544b1a76f417b.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6930017Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6937325Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-ed52fe8a-7215-526a-8ff9-0850099f2d3c/artifacts/e6708f08fc2ecb86062a8754e616025a95a921fd306a844b7dbda36bbb77d313.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.6940408Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7062663Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-219bc25a-db0d-580c-8ba0-62cbb0dc6cd9/artifacts/a32837f00672fca7f6746f46548702ed350160ec0ae8bfbbdcfcff66fa7d3326.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7064216Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7383958Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/057fb5e9-f97b-4402-ba57-2882310aa61e/workflow-job-run-4abc34ae-e796-5083-8f1b-f7160e80ddf6/artifacts/58302ca414a5d01bcb86331055c6b6852e3f968f75516ab5ec48fd8ec29489e0.zip
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7388102Z Starting download of artifact to: <redacted-local-path>
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7943796Z SHA256 digest of downloaded artifact is 6402865d845968152557c5d04f1aa5915751b9186f2533416bc872aff7fdeccd
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7944826Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7945890Z SHA256 digest of downloaded artifact is 0a764831f9bcde566bcb762d59bdf66c8540de8de211a744e069ade15b686e74
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7946800Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7947757Z SHA256 digest of downloaded artifact is dec4d032418708420cb550239ad6e13efaab1ff25be71fc5f5565cac87210243
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7948629Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7959718Z SHA256 digest of downloaded artifact is 415d0d1feb6340cb19de87e7f3f748f2226a90a55e549cea01b61ece26fdb58d
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7960550Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7961446Z SHA256 digest of downloaded artifact is c43917e5b0477cacaa971c883ad44cb2bc1ba946156d880b6e858daf793429b8
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7962264Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7963170Z SHA256 digest of downloaded artifact is 554b27e02fa31c8fd4c096e7b3f25fd60d0354d74a5e98fadae451c470d57ac4
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7964000Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7964891Z SHA256 digest of downloaded artifact is 75835d802be1d62d051647b6713b68074a703bd7765eef11b92876f4307a2cf0
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7965717Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7966657Z SHA256 digest of downloaded artifact is 47feba7ac3cbc8b11e204297f79b4201e8bd7c24badf992e714073c674cc5935
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7967503Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7968784Z SHA256 digest of downloaded artifact is 83d610f176a3ec60646b2d1a2168ee9eac6103d699dfb276f6066234762a1cd3
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7969608Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7970506Z SHA256 digest of downloaded artifact is 2de4d5edc8745441ec7cf9ad0f3ab5bfc61f661a48c1bee3b29d02091ad1de62
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7971325Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7972228Z SHA256 digest of downloaded artifact is 4c49bcf27d36dd5bb4194f0ddc9d5d4a8b6ced70f805a597e2817645f4e1aea1
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7973171Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7974072Z SHA256 digest of downloaded artifact is 3dcc594f18c2c77e0be40324439e3063ca00a80b1ce06643d4af4add4ada51f8
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7974921Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7975768Z SHA256 digest of downloaded artifact is 6be0f6cd47007d0814c9a28bfa71ac4d09b37e122d475c2b7518fa9698293299
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7976538Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7977377Z SHA256 digest of downloaded artifact is 6460315d3cd9606916ceef9a051fe927688d2ceea7d3b1e540c7e0661c4e27bc
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7978143Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7979048Z SHA256 digest of downloaded artifact is c43636696384706b8c7581f45463713e8d1f97b187bc0b6a0b0719361f6990c2
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7979825Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7980665Z SHA256 digest of downloaded artifact is 5c8481c26864cce6d51a8221ca540411230e730af1f515df6929264088910e9e
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7981453Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7988796Z SHA256 digest of downloaded artifact is f5c2ef9947d2607cb9a7ca254a5abbc19e514a1ceb9ca0f80d10299b8580551b
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.7989759Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.8208789Z SHA256 digest of downloaded artifact is b63546089556257517c60d1bd7672d632c8523664141595c21d73027b290b238
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.8209656Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.8679995Z SHA256 digest of downloaded artifact is 58a5f0afa86cd60d310a145ecde30474e3a9b94807cc555320d371bffc9d15a4
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.8681179Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.8682447Z SHA256 digest of downloaded artifact is 2e8cd8715a8b69656164c8b5519290bf5b5192efa9bae3559464244b8a7de141
+aggregate + status	Download shard artifacts	2026-08-19T04:31:45.8683583Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:51.8377130Z SHA256 digest of downloaded artifact is 81af936894c89770a29be69a465f241a92852511cdda4073938c5f6773c40bf6
+aggregate + status	Download shard artifacts	2026-08-19T04:31:51.8378034Z Artifact download completed successfully.
+aggregate + status	Download shard artifacts	2026-08-19T04:31:51.8378734Z Total of 83 artifact(s) downloaded
+aggregate + status	Download shard artifacts	2026-08-19T04:31:51.8387170Z Download artifact has finished successfully
+aggregate + status	Build aggregate summary	﻿2026-08-19T04:31:51.8649575Z ##[group]Run set -euo pipefail
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8650886Z [36;1mset -euo pipefail[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8651974Z [36;1mmkdir -p "${ARTIFACT_ROOT}"[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8653062Z [36;1mnode --input-type=module <<'EOF'[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8654463Z [36;1mimport { appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8655779Z [36;1mimport { join } from "node:path";[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8656826Z [36;1m[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8657637Z [36;1mconst needs = {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8658782Z [36;1m  preflight: { result: process.env.NEED_PREFLIGHT_RESULT || "unknown" },[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8660190Z [36;1m  "custom-command": { result: process.env.NEED_CUSTOM_COMMAND_RESULT || "unknown" },[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8661581Z [36;1m  "static-gates": { result: process.env.NEED_STATIC_GATES_RESULT || "unknown" },[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8662911Z [36;1m  "test-shard": { result: process.env.NEED_TEST_SHARD_RESULT || "unknown" },[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8664018Z [36;1m};[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8664840Z [36;1mconst root = process.env.ARTIFACT_ROOT;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8665823Z [36;1mconst badNeeds = Object.entries(needs)[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8666953Z [36;1m  .filter(([, value]) => !["success", "skipped"].includes(value.result))[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8668108Z [36;1m  .map(([name, value]) => ({ name, result: value.result }));[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8669071Z [36;1m[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8669700Z [36;1mconst files = [];[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8670224Z [36;1mconst visit = (dir) => {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8670761Z [36;1m  if (!existsSync(dir)) return;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8671409Z [36;1m  for (const entry of readdirSync(dir, { withFileTypes: true })) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8672068Z [36;1m    const path = join(dir, entry.name);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8672660Z [36;1m    if (entry.isDirectory()) visit(path);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8673345Z [36;1m    else if (entry.isFile() && entry.name === "summary.json") files.push(path);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8673980Z [36;1m  }[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8674464Z [36;1m};[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8674948Z [36;1mvisit(root);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8675422Z [36;1m[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8675871Z [36;1mlet passed = 0;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8676373Z [36;1mlet failed = 0;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8677159Z [36;1mlet sawTests = false;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8677748Z [36;1mlet deterministicFailures = 0;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8679028Z [36;1mlet flakes = 0;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8679969Z [36;1mconst failedDetails = [];[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8681095Z [36;1mconst shardSummaries = [];[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8682170Z [36;1m[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8683076Z [36;1mfor (const file of files.sort()) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8684442Z [36;1m  const summary = JSON.parse(readFileSync(file, "utf8"));[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8685675Z [36;1m  shardSummaries.push(summary);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8686777Z [36;1m  if (summary.tests) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8687956Z [36;1m    passed += Number(summary.tests.passed || 0);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8689243Z [36;1m    failed += Number(summary.tests.failed || 0);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8690426Z [36;1m    sawTests = true;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8691458Z [36;1m  }[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8692538Z [36;1m  deterministicFailures += Number(summary.failure_count || 0);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8693923Z [36;1m  flakes += Number(summary.flakes_greened_count || 0);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8695243Z [36;1m  for (const failure of summary.failures ?? []) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8696840Z [36;1m    failedDetails.push({ shard: summary.shard, gate: failure.gate, kind: failure.kind, detail: failure.detail });[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8698287Z [36;1m  }[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8699169Z [36;1m}[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8700081Z [36;1m[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8713285Z [36;1mconst verdict = badNeeds.length === 0 ? "success" : "failure";[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8714715Z [36;1mconst lines = [[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8715964Z [36;1m  `# openclaw-local-ci - ${verdict.toUpperCase()}`,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8717655Z [36;1m  "",[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8718923Z [36;1m  `- target: \`${process.env.REPO || "?"}@${process.env.REF || "?"}\``,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8720434Z [36;1m  `- commit: \`${process.env.SHA || "?"}\``,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8721941Z [36;1m  `- shard jobs planned: \`${process.env.SHARDS || "?"}\``,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8723465Z [36;1m  `- artifacts with summaries: \`${files.length}\``,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8724839Z [36;1m  `- run: ${process.env.RUN_URL}`,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8726054Z [36;1m  "",[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8727138Z [36;1m  "## Job results",[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8728241Z [36;1m];[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8729604Z [36;1mif (process.env.CONTINUE_TESTS_AFTER_STATIC_FAILURE === "true") {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8731124Z [36;1m  lines.push([0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8732266Z [36;1m    "",[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8733524Z [36;1m    "## Static-failure test fanout override",[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8735179Z [36;1m    "- aggregate verdict remains failed when static gates fail",[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8737096Z [36;1m    `- audit reason: ${process.env.STATIC_FAILURE_REASON || "(missing)"}`,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8738661Z [36;1m  );[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8739309Z [36;1m}[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8740090Z [36;1mfor (const [name, value] of Object.entries(needs)) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8741361Z [36;1m  lines.push(`- ${value.result === "success" || value.result === "skipped" ? "PASS" : "FAIL"} \`${name}\`: ${value.result}`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8742479Z [36;1m}[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8743107Z [36;1mif (sawTests) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8744208Z [36;1m  lines.push("", "## Full-suite tally", `- passed: ${passed}`, `- failed: ${failed}`, `- load-flakes greened: ${flakes}`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8745310Z [36;1m}[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8745962Z [36;1mif (failedDetails.length) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8747007Z [36;1m  lines.push("", `## Deterministic failures (${deterministicFailures})`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8748131Z [36;1m  for (const failure of failedDetails.slice(0, 120)) {[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8749279Z [36;1m    lines.push(`- [${failure.shard ?? failure.gate} / ${failure.kind}] ${failure.detail}`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8750275Z [36;1m  }[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8750908Z [36;1m}[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8751766Z [36;1mwriteFileSync(join(root, "aggregate-summary.md"), `${lines.join("\n")}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8753069Z [36;1mwriteFileSync(join(root, "aggregate-summary.json"), JSON.stringify({[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8754008Z [36;1m  verdict,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8754707Z [36;1m  repo: process.env.REPO,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8755502Z [36;1m  ref: process.env.REF,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8756291Z [36;1m  sha: process.env.SHA,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8757296Z [36;1m  shard_jobs_planned: Number(process.env.SHARDS || 0),[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8759415Z [36;1m  summaries_found: files.length,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8760053Z [36;1m  tests: sawTests ? { passed, failed } : null,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8760632Z [36;1m  flakes_greened: flakes,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8761235Z [36;1m  deterministic_failures: deterministicFailures,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8761969Z [36;1m  static_failure_test_fanout: process.env.CONTINUE_TESTS_AFTER_STATIC_FAILURE === "true"[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8762741Z [36;1m    ? { enabled: true, reason: process.env.STATIC_FAILURE_REASON || "" }[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8763365Z [36;1m    : { enabled: false },[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8763888Z [36;1m  failed_jobs: badNeeds,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8764428Z [36;1m  failed_details: failedDetails.slice(0, 120),[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8765025Z [36;1m  shard_summaries: shardSummaries.map((summary) => ({[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8765575Z [36;1m    shard: summary.shard,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8766071Z [36;1m    mode: summary.mode,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8766707Z [36;1m    conclusion: summary.conclusion,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8767349Z [36;1m    tests: summary.tests,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8768010Z [36;1m    failure_count: summary.failure_count,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8768897Z [36;1m    flakes_greened_count: summary.flakes_greened_count,[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8769573Z [36;1m  })),[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8770112Z [36;1m}, null, 2));[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8770673Z [36;1m[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8771264Z [36;1mconst output = process.env.GITHUB_OUTPUT;[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8772011Z [36;1mappendFileSync(output, `verdict=${verdict}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8772760Z [36;1mappendFileSync(output, `passed=${passed}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8773483Z [36;1mappendFileSync(output, `failed=${failed}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8774206Z [36;1mappendFileSync(output, `flakes=${flakes}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8774972Z [36;1mappendFileSync(output, `summaries=${files.length}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8775896Z [36;1mappendFileSync(output, `failed_jobs=${badNeeds.map((job) => `${job.name}:${job.result}`).join(",")}\n`);[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8776771Z [36;1mEOF[0m
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8787416Z shell: /usr/bin/bash -e {0}
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8788138Z env:
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8788786Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8789585Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8790377Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8791121Z   NEED_PREFLIGHT_RESULT: success
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8791866Z   NEED_CUSTOM_COMMAND_RESULT: skipped
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8792611Z   NEED_STATIC_GATES_RESULT: success
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8793367Z   NEED_TEST_SHARD_RESULT: failure
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8794344Z   ARTIFACT_ROOT: <redacted-local-path>
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8795284Z   REPO: karmaterminal/openclaw
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8796101Z   REF: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8797006Z   SHA: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8797807Z   SHORT_SHA: c3a0e5a314ec
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8798528Z   SHARDS: 162
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8799426Z   RUN_URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32209969307
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8800462Z   CONTINUE_TESTS_AFTER_STATIC_FAILURE: false
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8801294Z   STATIC_FAILURE_REASON: 
+aggregate + status	Build aggregate summary	2026-08-19T04:31:51.8802043Z ##[endgroup]
+aggregate + status	Run summary	﻿2026-08-19T04:31:51.9546393Z ##[group]Run artifact_root="${RUNNER_TEMP}/openclaw-local-ci-artifacts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+aggregate + status	Run summary	2026-08-19T04:31:51.9548083Z [36;1martifact_root="${RUNNER_TEMP}/openclaw-local-ci-artifacts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"[0m
+aggregate + status	Run summary	2026-08-19T04:31:51.9549446Z [36;1mif [ -f "${artifact_root}/aggregate-summary.md" ]; then[0m
+aggregate + status	Run summary	2026-08-19T04:31:51.9550547Z [36;1m  cat "${artifact_root}/aggregate-summary.md" >> "${GITHUB_STEP_SUMMARY}"[0m
+aggregate + status	Run summary	2026-08-19T04:31:51.9551504Z [36;1mfi[0m
+aggregate + status	Run summary	2026-08-19T04:31:51.9563037Z shell: /usr/bin/bash -e {0}
+aggregate + status	Run summary	2026-08-19T04:31:51.9563569Z env:
+aggregate + status	Run summary	2026-08-19T04:31:51.9564044Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Run summary	2026-08-19T04:31:51.9564611Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Run summary	2026-08-19T04:31:51.9565170Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Run summary	2026-08-19T04:31:51.9565690Z ##[endgroup]
+aggregate + status	Upload aggregate artifact	﻿2026-08-19T04:31:51.9711195Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9712543Z ##[group]Run actions/upload-artifact@v4
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9713075Z with:
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9713553Z   name: openclaw-local-ci-aggregate-c3a0e5a314ec
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9714231Z   path: <redacted-local-path>
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9714859Z   retention-days: 14
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9715334Z   if-no-files-found: warn
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9715811Z   compression-level: 6
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9716289Z   overwrite: false
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9717087Z   include-hidden-files: false
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9717614Z env:
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9718871Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9719835Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9720748Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:51.9721558Z ##[endgroup]
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:52.0883654Z (node:565257) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:52.0885160Z (Use `node --trace-deprecation ...` to show where the warning was created)
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:52.7003048Z With the provided path, there will be 12938 files uploaded
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:52.7003881Z Artifact name is valid!
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:52.7004359Z Root directory input is valid!
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:52.8503850Z Beginning upload of artifact content to blob storage
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:54.5639295Z (node:565257) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:55.7035480Z Uploaded bytes 8388608
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:56.3307398Z Uploaded bytes 16777216
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:57.7359924Z Uploaded bytes 25165824
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:58.8519214Z Uploaded bytes 33554432
+aggregate + status	Upload aggregate artifact	2026-08-19T04:31:59.7149335Z Uploaded bytes 41943040
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:00.8605429Z Uploaded bytes 50331648
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:00.9567358Z Uploaded bytes 50633475
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:01.0519421Z Finished uploading artifact content to blob storage!
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:01.0525893Z SHA256 digest of uploaded artifact zip is 747df60d658d2b897ff94a857d2f4ae76dc0b73bd7ed89ab3c78de4f123a1619
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:01.0528769Z Finalizing artifact upload
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:01.4347072Z Artifact openclaw-local-ci-aggregate-c3a0e5a314ec.zip successfully finalized. Artifact ID 9352381351
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:01.4351627Z Artifact openclaw-local-ci-aggregate-c3a0e5a314ec has been successfully uploaded! Final size is 50633475 bytes. Artifact ID is 9352381351
+aggregate + status	Upload aggregate artifact	2026-08-19T04:32:01.4364981Z Artifact download URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32209969307/artifacts/9352381351
+aggregate + status	Post final commit-status	﻿2026-08-19T04:32:01.4618928Z ##[group]Run set -euo pipefail
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4619493Z [36;1mset -euo pipefail[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4620143Z [36;1m[ -z "${TOKEN}" ] && { echo "::warning::OPENCLAW_FORK_CI_TOKEN unset - skipping status"; exit 0; }[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4620835Z [36;1mif [ -z "${REPO}" ] || [ -z "${SHA}" ]; then[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4621571Z [36;1m  echo "::warning::missing repo/sha - skipping status"[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4622165Z [36;1m  exit 0[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4622619Z [36;1mfi[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4623068Z [36;1mstate="${VERDICT}"[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4623615Z [36;1m[ "${state}" = "success" ] || state="failure"[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4633805Z [36;1mSTATE="${state}" node --input-type=module > "${RUNNER_TEMP}/final-status.json" <<'NODE'[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4634936Z [36;1mconsole.log(JSON.stringify({[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4635738Z [36;1m  state: process.env.STATE,[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4636598Z [36;1m  context: process.env.CONTEXT,[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4637780Z [36;1m  description: `${process.env.VERDICT}: ${process.env.PASSED} passed, ${process.env.FAILED} failed`,[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4638989Z [36;1m  target_url: process.env.TARGET_URL,[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4639799Z [36;1m}));[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4640454Z [36;1mNODE[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4641612Z [36;1mcurl -sS -f -X POST -H "Authorization: ***" \[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4642571Z [36;1m  -H "Accept: application/vnd.github+json" \[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4643794Z [36;1m  "https://api.github.com/repos/${REPO}/statuses/${SHA}" -d @"${RUNNER_TEMP}/final-status.json" > /dev/null || \[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4644984Z [36;1m  echo "::warning::final status post failed"[0m
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4657379Z shell: /usr/bin/bash -e {0}
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4658133Z env:
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4658803Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4659661Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4660522Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4661499Z   TOKEN: ***
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4662171Z   REPO: karmaterminal/openclaw
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4662972Z   SHA: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4663838Z   CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4664611Z   VERDICT: failure
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4665299Z   PASSED: 157772
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4665960Z   FAILED: 3
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4666887Z   TARGET_URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32209969307
+aggregate + status	Post final commit-status	2026-08-19T04:32:01.4667905Z ##[endgroup]
+aggregate + status	Discord completion (passive	﻿2026-08-19T04:32:02.6415847Z ##[group]Run set -euo pipefail
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6416470Z [36;1mset -euo pipefail[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6417368Z [36;1mif [ -z "${WEBHOOK}" ]; then echo "::warning::no Discord webhook configured"; exit 0; fi[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6418110Z [36;1mcase "${VERDICT}" in success) emoji="✅" ;; *) emoji="❌" ;; esac[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6418724Z [36;1mshort="${SHORT_SHA:-${SHA:0:12}}"[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6419699Z [36;1mcontent="${emoji} openclaw-local-ci **${VERDICT}** — \`${REPO}@${REF}\` (\`${short}\`) by @${ACTOR}"$'\n'"tests: ${PASSED} passed, ${FAILED} failed; load-flakes greened: ${FLAKES}; shard summaries: ${SUMMARIES}"$'\n'"results: ${RUN_URL}"[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6420636Z [36;1mif [ -n "${FAILED_JOBS}" ]; then[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6421249Z [36;1m  content="${content}"$'\n'"failed jobs: ${FAILED_JOBS}"[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6421819Z [36;1mfi[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6422450Z [36;1mCONTENT="${content}" node --input-type=module > "${RUNNER_TEMP}/discord-payload.json" <<'NODE'[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6423238Z [36;1mconsole.log(JSON.stringify({ content: process.env.CONTENT }));[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6423827Z [36;1mNODE[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6424557Z [36;1mcurl --fail --show-error --silent -H 'Content-Type: application/json' \[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6432858Z [36;1m  -d @"${RUNNER_TEMP}/discord-payload.json" "${WEBHOOK}" >/dev/null || echo "::warning::Discord post failed"[0m
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6440941Z shell: /usr/bin/bash -e {0}
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6441412Z env:
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6441863Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6442408Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6442957Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6443813Z   WEBHOOK: ***
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6444378Z   REPO: karmaterminal/openclaw
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6444943Z   REF: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6445540Z   SHA: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6446063Z   SHORT_SHA: c3a0e5a314ec
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6446554Z   VERDICT: failure
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6447254Z   PASSED: 157772
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6447712Z   FAILED: 3
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6448145Z   FLAKES: 2
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6448559Z   SUMMARIES: 163
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6449010Z   FAILED_JOBS: test-shard:failure
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6449648Z   RUN_URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32209969307
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6450258Z   ACTOR: ronan-dandelion-cult
+aggregate + status	Discord completion (passive	2026-08-19T04:32:02.6450733Z ##[endgroup]
+aggregate + status	Fail workflow if aggregate failed	﻿2026-08-19T04:32:02.9085851Z ##[group]Run exit 1
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9086391Z [36;1mexit 1[0m
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9094928Z shell: /usr/bin/bash -e {0}
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9095437Z env:
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9095927Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9096571Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9097201Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9097779Z ##[endgroup]
+aggregate + status	Fail workflow if aggregate failed	2026-08-19T04:32:02.9141947Z ##[error]Process completed with exit code 1.
+aggregate + status	Post Checkout bootstrap	﻿2026-08-19T04:32:02.9237963Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9239166Z Post job cleanup.
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9827230Z [command]/usr/bin/git version
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9852400Z git version 2.55.0
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9872020Z Copying '<redacted-local-path>' to '<redacted-local-path>'
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9880509Z Temporarily overriding HOME='<redacted-local-path>' before making global git config changes
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9881578Z Adding repository directory to the temporary git global config as a safe directory
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9883288Z [command]/usr/bin/git config --global --add safe.directory <redacted-local-path>
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9906957Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:02.9930576Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:03.0125718Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:03.0142144Z http.https://github.com/.extraheader
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:03.0150340Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:03.0176345Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:03.0386400Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+aggregate + status	Post Checkout bootstrap	2026-08-19T04:32:03.0406865Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+aggregate + status	Complete job	﻿2026-08-19T04:32:03.0902769Z Cleaning up orphan processes
+aggregate + status	Complete job	2026-08-19T04:32:03.1367967Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

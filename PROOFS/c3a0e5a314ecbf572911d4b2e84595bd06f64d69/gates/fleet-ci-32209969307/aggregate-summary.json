@@ -1,0 +1,1823 @@
+{
+  "verdict": "failure",
+  "repo": "karmaterminal/openclaw",
+  "ref": "c3a0e5a314ecbf572911d4b2e84595bd06f64d69",
+  "sha": "c3a0e5a314ecbf572911d4b2e84595bd06f64d69",
+  "shard_jobs_planned": 162,
+  "summaries_found": 163,
+  "tests": {
+    "passed": 157772,
+    "failed": 3
+  },
+  "flakes_greened": 2,
+  "deterministic_failures": 1,
+  "static_failure_test_fanout": {
+    "enabled": false
+  },
+  "failed_jobs": [
+    {
+      "name": "test-shard",
+      "result": "failure"
+    }
+  ],
+  "failed_details": [
+    {
+      "shard": "agentic-gateway-core-3",
+      "gate": "test shard (agentic-gateway-core-3)",
+      "kind": "test",
+      "detail": "gateway-core  src/gateway/portals/portal-http-proxy.test.ts > portal HTTP proxy > reaches IPv6-only targets through the localhost dual-stack dial"
+    }
+  ],
+  "shard_summaries": [
+    {
+      "shard": "core-unit-fast-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 6929,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-fast-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 7594,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-fast-fake-timers",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 189,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-fast-isolated",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1454,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-src-security-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2685,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-src-security-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1523,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-src-security-3",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1647,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-src-security-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 292,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 831,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-unit-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2911,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 895,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-3",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 926,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-4",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1610,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-5",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 866,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-6",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1949,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-7",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1033,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-hooks",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 254,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-tooling-isolated",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 318,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-approval-exec",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 774,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-channel-plugin",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 50,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-cli-ui",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 60,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-device",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 82,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-core-utils",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 198,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-diagnostics-state",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 271,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-env-auth",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 120,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-events-runtime",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 128,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-file-safety",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 41,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-files-commands",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 183,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-gateway-lock-argv",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 41,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-gateway-processes",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 6,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-gateway-watch",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 27,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-heartbeat-core",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 76,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-heartbeat-runner",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 287,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-misc",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 227,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-misc-dedupe-disk",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 4,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-misc-os",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 9,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-misc-values",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-net-install",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 433,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-network-node",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 50,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-network-platform",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 209,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-outbound-actions",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 327,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-outbound-core",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 879,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-provider-push",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 223,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-repo-tooling",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 157,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-storage-state",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 803,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-system-runtime",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 832,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-infra-process",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 857,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-secrets",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 771,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-config",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3402,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-media-ui-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2823,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-media-ui-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3510,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-media-ui-3",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3080,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-media-ui-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2828,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-shared",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 628,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-cron-core",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 557,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-cron-isolated-agent",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 708,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-agent-chat",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 669,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-cron-service",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 965,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-auth-node",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 490,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-http-models",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 195,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-http-plugin-ws",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 205,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 94,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-config",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 45,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-cron",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 158,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-network",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-server",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 796,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-shared-token",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-state",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 22,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-runtime-ui-tools",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 8,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-startup-config",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 70,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-startup-core",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 167,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-startup-health-runtime",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 114,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-cli",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 4834,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-control-plane-startup-restart-close",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 144,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-cli-process",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 60,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-command-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1241,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-agent-channel",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 587,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 316,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-auth",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 118,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-config-state",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 406,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-device",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 9,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-gateway",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 125,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-platform",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 17,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-plugins-tools",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 141,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-sessions-cron",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 205,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-shared",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 497,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-whatsapp",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 6,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-doctor-workspace",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 29,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-models",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 236,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-onboard-config",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 648,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-auth",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 626,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-commands-status-tools",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 847,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-models",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1046,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-tools",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2194,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runner-cli-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 66,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-subagents",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 839,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runner-cli-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 90,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runner-cli-3",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 91,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runner-commands",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 256,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runner-embedded",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 302,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runner-sessions",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 117,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-runtime",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2432,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-core-isolated",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 139,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-embedded",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2359,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 4810,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-agents-tools",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2165,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-gateway-core-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2111,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-gateway-core-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2821,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-gateway-core-3",
+      "mode": "test-shard",
+      "conclusion": "fail",
+      "tests": {
+        "passed": 1556,
+        "failed": 1
+      },
+      "failure_count": 1,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-gateway-methods",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3395,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-plugin-sdk",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 831,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "agentic-plugins",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3716,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-core-top-level",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 471,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-agent-runner",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 726,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-commands-1",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 224,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-commands-2",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 253,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-commands-3",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 194,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-dispatch",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1282,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-session",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 266,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "auto-reply-reply-state-routing",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1133,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-runtime-tui-pty",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 62,
+        "failed": 2
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 2
+    },
+    {
+      "shard": "core-support-boundary",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 118,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "checks-fast-contracts-plugins-a",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 783,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "checks-fast-contracts-plugins-b",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 253,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "checks-fast-contracts-channels-a",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 218,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "checks-fast-contracts-channels-b",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 264,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "channels",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1126,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "core-bundled",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 205,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-acpx",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 251,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-active-memory",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 391,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-attempt-extra",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 257,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-attempt",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 143,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-attempt-light",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 50,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-attempt-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 76,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-runtime",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 823,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-support",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1129,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-app-server-tools",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 593,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-codex-surface",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 773,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-diffs",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 150,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-discord",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2775,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-feishu",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1569,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-imessage",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1126,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-irc",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 141,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-line",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 518,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-matrix",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1939,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-mattermost",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 754,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-memory",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1761,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-messaging",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1475,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-msteams",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1429,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-provider-openai",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 854,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-providers",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3828,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-signal",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 819,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-slack",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2416,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-telegram",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 3577,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-voice-call",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 700,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-whatsapp",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1321,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-browser",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2589,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-zalo",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 454,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-media",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 309,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-qa",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 2797,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extension-misc",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 1158,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": "extensions",
+      "mode": "test-shard",
+      "conclusion": "pass",
+      "tests": {
+        "passed": 5251,
+        "failed": 0
+      },
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    },
+    {
+      "shard": null,
+      "mode": "static-gates",
+      "conclusion": "pass",
+      "tests": null,
+      "failure_count": 0,
+      "flakes_greened_count": 0
+    }
+  ]
+}

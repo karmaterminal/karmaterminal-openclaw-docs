@@ -1,0 +1,12 @@
+2026-08-19T01:26:38.677745-07:00 ronan node[3878307]: 2026-08-19T01:26:38.677-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:26:38.678178-07:00 ronan node[3878307]: 2026-08-19T01:26:38.678-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:26:38.715740-07:00 ronan node[3878307]: 2026-08-19T01:26:38.715-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-19T01:26:38.970025-07:00 ronan node[3878307]: 2026-08-19T01:26:38.969-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-19T01:26:39.436402-07:00 ronan node[3878307]: 2026-08-19T01:26:39.436-07:00 [diagnostic] lane task error: lane=main durationMs=4517 error="agent run aborted"
+2026-08-19T01:26:39.436841-07:00 ronan node[3878307]: 2026-08-19T01:26:39.436-07:00 [diagnostic] lane task error: lane=session:<redacted-session-key> durationMs=4518 error="agent run aborted"
+2026-08-19T01:26:39.437788-07:00 ronan node[3878307]: 2026-08-19T01:26:39.437-07:00 Embedded agent failed before reply: agent run aborted
+2026-08-19T01:26:42.600517-07:00 ronan node[3878307]: 2026-08-19T01:26:42.600-07:00 [ws] ⇄ res ✓ sessions.send 122ms runId=R-CW-TOKEN-DISPATCH-<redacted-nonce> conn=3ac80d97…fc4f id=1-0-1787128002477-qxrxwz
+2026-08-19T01:26:53.680128-07:00 ronan node[3878307]: 2026-08-19T01:26:53.679-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:26:53.680470-07:00 ronan node[3878307]: 2026-08-19T01:26:53.680-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:26:53.680872-07:00 ronan node[3878307]: 2026-08-19T01:26:53.680-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:26:53.681252-07:00 ronan node[3878307]: 2026-08-19T01:26:53.681-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

@@ -1,0 +1,56 @@
+Gate 2 — feature-byte preservation check
+  PR_HEAD:   315d9994823
+  CANDIDATE: c3a0e5a314e
+  UPSTREAM:  4589d8514ce
+  BASE:      eb63cb14811
+  CORES:     <redacted-local-path>
+
+  FAIL: src/agents/openclaw-tools.ts (blob de57c52e746d303c72fe9ecc015a3ad7c6898724 → b2ff4f8ada3cd59abfd1c032a334b0ebd7e410a6; 7732 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/openclaw-tools.ts' with conflicts. U src/agents/openclaw-tools.ts )
+  PASS: src/agents/tools/continue-work-tool.ts
+  PASS: src/agents/tools/continue-work-tool.test.ts
+  PASS: src/agents/tools/continue-work-tool.boundary.test.ts
+  PASS: src/agents/tools/continue-delegate-tool.ts
+  PASS: src/agents/tools/continue-delegate-tool.test.ts
+  PASS: src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts
+  PASS: src/agents/tools/request-compaction-tool.ts
+  PASS: src/agents/tools/request-compaction-tool.test.ts
+  PASS: src/agents/tools/request-compaction-tool.callsite-threading.test.ts
+  PASS: src/agents/tools/request-compaction-tool.classifier-emission.test.ts
+  PASS: src/agents/tools/request-compaction-tool.volitional-threading.test.ts
+  PASS: src/agents/tools/continuation-tools-registration.test.ts
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/compact-reasons.test.ts (exact projected blob 475a9513d70d507979a7febe97ebb062523f376a)
+  FAIL: src/agents/embedded-agent-runner/compact-reasons.ts (blob 57ad1b9491909bd42d967bf989d0870bad0f5ac4 → 36a4392c64fdc41527b4191ef3ef156dcc8d7f86; 883 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/embedded-agent-runner/compact-reasons.ts' with conflicts. U src/agents/embedded-agent-runner/compact-reasons.ts )
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/compact.hooks.harness.ts (exact projected blob b82c200ba3ed462e69db75c7921c511db1a21fc9)
+  FAIL: src/agents/embedded-agent-runner/compact.hooks.test.ts (blob 9ace54cb5c7cbea91bbdc14cb623dcfd4b774588 → 807e2fe8ee17b0de61b9ad4f553afdd7f42eb12a; 15762 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/embedded-agent-runner/compact.hooks.test.ts' with conflicts. U src/agents/embedded-agent-runner/compact.hooks.test.ts )
+  PASS: src/agents/embedded-agent-runner/compact.ts
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/compact.types.ts (exact projected blob dea7f8e5b76332e1ce4db31c50cb63c812ef346a)
+  PASS: src/agents/embedded-agent-runner/run.continuation-opts-forward.test.ts
+  PASS: src/agents/embedded-agent-runner/run.overflow-compaction.harness.ts
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run.overflow-compaction.loop.test.ts (exact projected blob 41b99ab190ddd3269a8f166d08d5e6d0de842bfa)
+  PASS: src/agents/embedded-agent-runner/run.ts
+  PASS: src/agents/embedded-agent-runner/run/assistant-failover.ts
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/attempt-tool-construction-plan.ts (exact projected blob e5750c48c310bf7a26dbdb6bf83b1741d87dfa3b)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/attempt.ts (exact projected blob c51161e8ed14bc15a467e352f725987e222c29a0)
+  PASS: src/agents/embedded-agent-runner/run/failover-policy.ts
+  FAIL: src/agents/embedded-agent-runner/run/params.ts (blob 29b6645e94a6cd03deb5e6ab18ad9db7ed124711 → cd352c6a8928ad7bdb18a089201797400ae6c743; 4386 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/embedded-agent-runner/run/params.ts' with conflicts. U src/agents/embedded-agent-runner/run/params.ts )
+  PASS: src/agents/embedded-agent-runner/system-prompt.ts
+  PASS: src/cli/program/preaction.ts
+  PASS-TOMBSTONE: ui/src/ui/usage-helpers.ts
+  PASS: ui/src/pages/usage/helpers.ts
+  PASS-TOMBSTONE: ui/src/ui/controllers/config.ts
+  PASS-TOMBSTONE: ui/src/lib/config/index.ts
+  PASS: ui/src/lib/config/config-draft-model.ts
+  PASS: ui/src/lib/config/config-gateway-operations.ts
+  PASS: ui/src/lib/config/config-state-model.ts
+  PASS: ui/src/lib/config/config-write-coordinator.ts
+  PASS: ui/src/lib/config/runtime-config-capability.ts
+  PASS: apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntime.swift
+
+Summary: 40 primitive-core invariants; 4 FAIL; 6 exact-upstream; 3 tombstone; 0 empty-pattern
+Gate 2 FAIL — 4 feature-core file(s) are neither byte-identical nor exact upstream projections.
+
+Failed files:
+  - src/agents/openclaw-tools.ts
+  - src/agents/embedded-agent-runner/compact-reasons.ts
+  - src/agents/embedded-agent-runner/compact.hooks.test.ts
+  - src/agents/embedded-agent-runner/run/params.ts

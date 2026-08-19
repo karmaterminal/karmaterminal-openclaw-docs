@@ -1,0 +1,54 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-3-reason-telemetry.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * r_cw_3_reason_telemetry: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+time="2026-08-19T01:01:20-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m01.0s/10m0s  0/1 shared iters
+time="2026-08-19T01:01:20-07:00" level=info msg="✓ sessions.send accepted — reason telemetry turn triggered" source=console
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m02.0s/10m0s  0/1 shared iters
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m03.0s/10m0s  0/1 shared iters
+
+running (00m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m04.0s/10m0s  0/1 shared iters
+
+running (00m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m05.0s/10m0s  0/1 shared iters
+
+running (00m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m06.0s/10m0s  0/1 shared iters
+
+running (00m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m07.0s/10m0s  0/1 shared iters
+
+running (00m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m08.0s/10m0s  0/1 shared iters
+
+running (00m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry   [   0% ] 1 VUs  00m09.0s/10m0s  0/1 shared iters
+time="2026-08-19T01:01:29-07:00" level=info msg="✓ CW3-SCHEDULED sentinel observed" source=console
+time="2026-08-19T01:01:29-07:00" level=info msg="✓ CW3-WOKE sentinel observed" source=console
+time="2026-08-19T01:01:29-07:00" level=info msg="Required R-CW-3 schedule/wake evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-3","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"46f4d2115700d574501bb3c4763abf6b2ba977fe","started":"2026-08-19T08:01:19.852Z","dispatch_accepted":true,"scheduled_sentinel":true,"wake_observed":true,"public_artifact_raw_reason_absent":true,"tempo_assertion":"pending-review","reason_hash":"8b7a10882e982116","reason_length":139,"trace_id":null,"trace_id_source":null,"dispatch_accepted_at_ms":1787126480886,"scheduled_result_at_ms":1787126489417,"wake_delay_ms":260,"ended":"2026-08-19T08:01:29.677Z","duration_ms":9825}
+time="2026-08-19T01:01:29-07:00" level=info msg="\n[R-CW-3] VERDICT: PARTIAL-candidate" source=console
+
+[R-CW-3] Summary: PARTIAL-candidate | SHA: 46f4d2115700d574501bb3c4763abf6b2ba977fe | Seat: ronan
+
+running (00m09.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_3_reason_telemetry ✓ [ 100% ] 1 VUs  00m09.8s/10m0s  1/1 shared iters

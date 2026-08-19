@@ -1,76 +1,25 @@
 {
- "schema": "openclaw.proofs.index.v1",
- "purpose": "Top-level signpost for the current proof corpus.",
- "current_sha": "a7ef03177e0f42831a087521e6eb7720102d6be1",
- "current_sha_short": "a7ef0317",
- "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
- "static_evidence_note": "Static-corpus scenarios (static-corpus-row-validator.js and the four row-specific readers) load PRIOR evidence as a comparison baseline via `index.static_evidence_sha || index.current_sha`. current_sha (c868194) holds live run artefacts only and carries no EVIDENCE.md, so every static-corpus row resolved a non-existent path and reported all checks false - 13 rows failed (9 x exit 99 threshold, 4 x exit 107 open() abort) for that single reason, not for product regressions. This pin names the last corpus that actually carries the static baseline in the layout the scenarios read (<row>/cael-dgx/ plus its ancillary receipts: test logs, source snippets, hop1/hop2, verifier and tempo receipts - all verified present for all 13 rows). Baseline only: it never supplies candidate verdicts, and each row's evidence records `carriedFrom` so the provenance is explicit in the published artefact rather than implied.",
- "build_string": "OpenClaw presentation candidate (a7ef0317) \u2014 continuation PR-presentation head; runtime executed composite 2e72b665 (continuation c8681949 + PR #121204 6f276fa2)",
- "corpus_path": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/",
- "manifest_path": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/proofs-manifest.json",
- "readme_path": "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/README.md",
- "rollup": {
-  "pass": 26,
-  "partial": 7,
-  "thin": 0,
-  "fail": 0,
-  "unclassified": 1,
-  "honest_limit": 4,
-  "missing": 0,
-  "runnable_artifact_dirs": 34,
-  "proof_rows_run": 33,
-  "excluded_orchestration_required": 4,
-  "total_rows": 38
- },
- "disposition_note": "Published under the presentation SHA a7ef03177e0f42831a087521e6eb7720102d6be1 because that is the upstream PR-presentation branch tip verified before packaging. The runtime executed on cael was the composite 2e72b665229bac6c41388d10a6b979b86750211b (continuation c868194997d0a61de2e648580afdf40e0d0b34b9 plus Emeric PR #121204 fix 6f276fa24da8174cd97a029ce9e47f2141032c8a); Emeric's fix is not yet merged upstream and must not be conflated with the continuation feature, so the composite runtime SHA is recorded as ancillary provenance rather than used as the publication directory. Two runs are merged: 31367303220 (initial) and 31394791476 (re-run after OTel exporter corrected from 2026.7.1\u21922026.8.1; exited 99 due to 3 PARTIAL rows but all artifacts written). The corpus now contains 34 artifact directories x2 run instances (33 proof rows + PREFLIGHT). Row count remains 33/38; R-CW-5/R-CW-5A/R-CW-6/R-CW-6A excluded by design. Proof-row verdicts: 26 PASS-candidate, 7 PARTIAL-candidate, 0 FAIL-candidate; PREFLIGHT unclassified. R-CW-1 trace receipts closed by run 31394791476. Remaining pending receipts: 14 (3 continuation-trace-correlation, 3 tempo-trace-json on R-CD-TOKEN/R-CW-3/R-RC-2; plus 8 delegate-return receipts on R-CD-TOKEN). All rows executed on seat cael; per-owner execution blocked because the workflow passes one shared OPENCLAW_GATEWAY_TOKEN while each prince's gateway has its own token.",
- "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]; per-row public evidence is at <row>/cael-dgx/EVIDENCE.md except R-TRACE-REDACTION-1121/EVIDENCE.md",
- "generated": "2026-08-10",
- "generated_by": "Copilot CLI: R-CD-1 ronan PASS (run 31412540257) published; first per-owner pass with parent_return_event",
- "review": {
-  "readyForHumanReview": 31,
-  "reviewPending": 3,
-  "validatedCandidateEnvelopes": 26,
-  "pendingReceiptTally": {
-   "attempt-state": 1,
-   "child-completed": 1,
-   "child-spawned": 1,
-   "continuation-trace-correlation": 3,
-   "exact-candidate-runtime-identity": 1,
-   "parent-return-event": 1,
-   "parser-detected": 1,
-   "queue-identity": 1,
-   "raw-final-text-origin": 1,
-   "tempo-trace-json": 3
-  }
- },
- "generated_at": "2026-08-10T17:23:00Z",
- "perSeatRuns": {
-  "ronan": {
-   "runId": "31406009157",
-   "rows": [
-    "R-CD-2",
-    "R-CD-3",
-    "R-CD-4",
-    "R-CD-CHAINED-DEPTH-2",
-    "R-CD-MODEL-TOOL",
-    "R-CD-SILENT",
-    "R-CD-TOKEN",
-    "R-CD-1"
-   ],
-   "pass": 3,
-   "partial": 5,
-   "note": "First per-seat run with local gateway token (PR #507). PARTIAL rows tracked: openclaw#1241."
+  "schema": "openclaw.proofs.index.v1",
+  "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
+  "current_sha": "c3a0e5a314ecbf572911d4b2e84595bd06f64d69",
+  "current_sha_short": "c3a0e5a3",
+  "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+  "static_evidence_note": "Static-corpus scenarios (static-corpus-row-validator.js and the four row-specific readers) load PRIOR evidence as a comparison baseline via `index.static_evidence_sha || index.current_sha`. current_sha (c868194) holds live run artefacts only and carries no EVIDENCE.md, so every static-corpus row resolved a non-existent path and reported all checks false - 13 rows failed (9 x exit 99 threshold, 4 x exit 107 open() abort) for that single reason, not for product regressions. This pin names the last corpus that actually carries the static baseline in the layout the scenarios read (<row>/cael-dgx/ plus its ancillary receipts: test logs, source snippets, hop1/hop2, verifier and tempo receipts - all verified present for all 13 rows). Baseline only: it never supplies candidate verdicts, and each row's evidence records `carriedFrom` so the provenance is explicit in the published artefact rather than implied.",
+  "build_string": "OpenClaw 2026.8.1 (46f4d21); continuation presentation c3a0e5a3",
+  "corpus_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/",
+  "manifest_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/proofs-manifest.json",
+  "readme_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/README.md",
+  "rollup": {
+    "total_rows": 41,
+    "pass": 30,
+    "partial": 2,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 8
   },
-  "emeric": {
-   "runId": "31408090482",
-   "rows": [
-    "R-CONFIG-DEFAULTS",
-    "R-CONFIG-INTERSESSION",
-    "R-REGRESSION-TRAP-TESTS"
-   ],
-   "pass": 3,
-   "partial": 0,
-   "note": "First per-seat run with local gateway token (PR #507). All PASS."
-  }
- }
+  "disposition_note": "Complete current-catalog publication: 33 live behavioral results plus 8 explicit missing rows. Runtime was the disclosed continuation-plus-PR-#121204 composite. R-CD-2 candidate false failure is folded partial and tracked by docs#514; refinement will update this same corpus.",
+  "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
+  "generated": "2026-08-19",
+  "generated_by": "frond-scribe"
 }

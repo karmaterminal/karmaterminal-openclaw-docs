@@ -1,0 +1,3 @@
+2026-08-19T01:14:54.735726-07:00 ronan node[3878307]: 2026-08-19T01:14:54.735-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:14:54.736824-07:00 ronan node[3878307]: 2026-08-19T01:14:54.736-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:14:56.905265-07:00 ronan node[3878307]: 2026-08-19T01:14:56.905-07:00 [ws] ⇄ res ✓ sessions.send 105ms runId=R-CD-3-<redacted-nonce> conn=1d464fcb…6f1e id=1-0-1787127296798-nuuqwr

@@ -1,0 +1,25 @@
+rows: 34
+review-pending rows: 3
+manual-review: 11
+tempo-trace-unfetchable: 3
+
+- R-CD-TOKEN: exact-candidate-runtime-identity, attempt-state, raw-final-text-origin, parser-detected, queue-identity, child-spawned, child-completed, parent-return-event, tempo-trace-json, continuation-trace-correlation
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - manual-review: supply-or-accept-review-receipt
+  - tempo-trace-unfetchable: rerun with trace emission or explicitly accept trace-missing as an honest review limit
+  - manual-review: supply-or-accept-review-receipt
+  - 46f4d2115700d574501bb3c4763abf6b2ba977fe/R-CD-TOKEN/ronan/20260819T082016Z-r-cd-token-dfc27553/run-result.json
+- R-CW-3: continuation-trace-correlation, tempo-trace-json
+  - manual-review: supply-or-accept-review-receipt
+  - tempo-trace-unfetchable: rerun with trace emission or explicitly accept trace-missing as an honest review limit
+  - 46f4d2115700d574501bb3c4763abf6b2ba977fe/R-CW-3/ronan/20260819T082122Z-r-cw-3-dfc27553/run-result.json
+- R-RC-2: continuation-trace-correlation, tempo-trace-json
+  - manual-review: supply-or-accept-review-receipt
+  - tempo-trace-unfetchable: rerun with trace emission or explicitly accept trace-missing as an honest review limit
+  - 46f4d2115700d574501bb3c4763abf6b2ba977fe/R-RC-2/ronan/20260819T082745Z-r-rc-2-dfc27553/run-result.json

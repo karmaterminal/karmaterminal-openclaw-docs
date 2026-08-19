@@ -1,0 +1,254 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-TOOL",
+  "toolSurface": "typed-tool",
+  "scenario": {
+    "name": "r-cd-model-tool",
+    "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list",
+      "sessions.describe"
+    ],
+    "status": "runnable",
+    "expectedFile": "r-cd-model-tool.js",
+    "notes": "Alternate-model rows are blocked on karmaterminal/openclaw#1103 until the child runtime observes the requested model instead of inheriting gpt-5.5.",
+    "file": "r-cd-model-tool.js",
+    "registryNotes": "Runnable k6 scenario exercises typed continue_delegate with explicit model override; authoritative model mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool-model-override"
+    ],
+    "model": "${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}",
+    "promptTemplate": "MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly MODEL-TOOL-CHILD {{nonce}} MODEL <provider/model>, replacing <provider/model> with the current model identity from runtime context. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-MODEL-TOOL"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "child-model-byte",
+      "required": true,
+      "description": "Observed child provider/model byte from authoritative gateway child-session metadata or spawn record; child prose is auxiliary only"
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying dispatch to child and return"
+    },
+    {
+      "name": "requested-model-byte",
+      "required": true,
+      "description": "Committed request byte showing continue_delegate model=<provider/model>"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-TOOL",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when the requested model byte matches authoritative gateway child-session metadata or spawn-record model bytes. The child task omits the requested model and its self-report is auxiliary only; mismatch is FAIL-candidate and unavailable metadata is PARTIAL-candidate."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "This row’s authority is deliberately not telemetry: the model byte comes from authoritative gateway child-session metadata, and the trace/session correlation receipt is optional. The census explains why that cannot change yet — an accepted entry span cannot be joined to the child run it produced, so telemetry cannot corroborate which child received which model. The row is separately blocked on karmaterminal/openclaw#1103."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "trace-or-session-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.model.call",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Model-call spans exist fleet-wide; they cannot be attributed to a specific continuation entry."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row’s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "continuation.delegate.requested_model",
+          "purpose": "other",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "The requested override on the accepted entry span, so a later reader can compare request to the child’s observed model without trusting child prose."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Model and provider identifiers are published literally because they are public product identifiers. The requested model is withheld from the child task to prevent echo-based false PASS, and prompt bodies, session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "prompt body",
+        "raw session key",
+        "gateway token",
+        "provider api key"
+      ]
+    },
+    "controls": {
+      "positive": "A committed request byte shows continue_delegate model=<provider/model> and authoritative gateway child-session metadata reports the same model.",
+      "negative": "The child task omits the requested model, so a child that merely echoes the expected string cannot produce a PASS; inheritance of the seat default is FAIL-candidate, not PARTIAL.",
+      "notes": "The negative control is the reason this row does not rest on telemetry: the only trustworthy byte is authoritative metadata, and telemetry cannot supply it today."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "requested_model"
+      ],
+      "notes": "The trace/session correlation receipt is optional, so a degraded backend does not by itself change this row’s class; unavailable authoritative child metadata does, and it is PARTIAL-candidate."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.proof-row-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "k6-summary.json",
+        "seat-readiness.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "The requested model byte matches authoritative gateway child-session metadata or the spawn record. Child prose is auxiliary and can never carry a PASS.",
+      "partial": "Authoritative child metadata is unavailable, or the optional correlation receipt is missing while everything else holds.",
+      "fail": "The child runs on a different model than requested, including silent inheritance of the seat default.",
+      "honestLimit": "Not applicable. HONEST-LIMIT remains reserved for R-RC-2 below-threshold request_compaction refusal."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-model-tool.js fires the typed tool with an explicit override and reads authoritative metadata.",
+      "manual": "Manual runs may be used to confirm an alternate model is deployable on a seat before the row is fired.",
+      "relationship": "Deterministic k6 is the verdict authority. Manual confirmation is a precondition check and never evidence."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "requested-model-byte",
+      "child-session-observed",
+      "child-model-byte",
+      "return-payload"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Explicit model override row. Prevent echo-based false PASS by omitting requested model from the child task; authoritative fallback/inheritance is FAIL-candidate, while unavailable authoritative metadata is PARTIAL-candidate."
+  }
+}

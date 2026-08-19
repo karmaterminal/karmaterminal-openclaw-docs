@@ -1,0 +1,123 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-rc-2-delegate-request-compaction.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 3m0s max duration (incl. graceful stop):
+              * r_rc_2_delegate_request_compaction: 1 iterations shared among 1 VUs (maxDuration: 2m30s, gracefulStop: 30s)
+
+time="2026-08-19T01:27:48-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m01.0s/2m30s  0/1 shared iters
+time="2026-08-19T01:27:49-07:00" level=info msg="✓ sessions.send accepted — parent agent turn triggered for R-RC-2" source=console
+time="2026-08-19T01:27:49-07:00" level=info msg="ℹ Ignoring harness prompt echo event" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m02.0s/2m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m03.0s/2m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m04.0s/2m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m05.0s/2m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m06.0s/2m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m07.0s/2m30s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m08.0s/2m30s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m09.0s/2m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m10.0s/2m30s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m11.0s/2m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m12.0s/2m30s  0/1 shared iters
+time="2026-08-19T01:28:00-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m13.0s/2m30s  0/1 shared iters
+time="2026-08-19T01:28:01-07:00" level=info msg="✓ nonce-bound delegated child session observed" source=console
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m14.0s/2m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m15.0s/2m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m16.0s/2m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m17.0s/2m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m18.0s/2m30s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m19.0s/2m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m20.0s/2m30s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com...   [   0% ] 1 VUs  0m21.0s/2m30s  0/1 shared iters
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=unknown" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ auxiliary delegated threshold report observed: context=unknown threshold=70" source=console
+time="2026-08-19T01:28:09-07:00" level=info msg="✓ nonce-bound request_compaction toolResult rejected by context_threshold" source=console
+PUBLIC_EVIDENCE {"row":"R-RC-2","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"46f4d2115700d574501bb3c4763abf6b2ba977fe","started":"2026-08-19T08:27:48.079Z","parent_dispatch_accepted":true,"dispatch_accepted_at_ms":1787128069191,"delegate_requested":true,"reason_hash":"a0f4e4c32910eaec","reason_length":640,"delegate_mode":"normal","child_session_observed":true,"child_history_requests":5,"child_history_available":true,"task_identity_token":"RRC2:8068079-p15g8qs8","task_list_responses":1,"task_records_seen":20,"task_records_with_child_key":18,"task_identity_matches":0,"delegate_child_report_observed":true,"child_reported_context_threshold":true,"request_compaction_tool_result_observed":true,"request_compaction_receipt_role":"toolResult","request_compaction_receipt_tool_name":"request_compaction","request_compaction_receipt_status":"rejected","request_compaction_invocation_bound":true,"request_compaction_rejected_context_threshold":true,"request_compaction_accepted":false,"request_compaction_accepted_reported":false,"post_compaction_path_observed":false,"guard":"context_threshold","context_usage":null,"threshold":null,"reported_context_usage":null,"reported_threshold":70,"trace_id":null,"ended":"2026-08-19T08:28:09.498Z","duration_ms":21419,"verdict":"HONEST-LIMIT-candidate"}
+time="2026-08-19T01:28:09-07:00" level=info msg="\n[R-RC-2] VERDICT: HONEST-LIMIT-candidate" source=console
+
+running (0m21.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_rc_2_delegate_request_com... ✓ [ 100% ] 1 VUs  0m21.4s/2m30s  1/1 shared iters

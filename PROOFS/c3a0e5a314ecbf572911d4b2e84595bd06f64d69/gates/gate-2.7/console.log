@@ -1,0 +1,38 @@
+drift-cure-gate: 4589d8514ce189b4adb8f0cf20b2a23ae92902d5  HEAD=c3a0e5a314ecbf572911d4b2e84595bd06f64d69  base=4589d8514ce  PRcreate=eb63cb14811
+files examined: 905
+
+  GENUINE        596
+  MIXED-CLOBBER  26
+  SAFE-NEW       283
+
+== FROZEN-STALE (high-confidence pure clobber; re-sync to upstream) ==
+
+== MIXED-CLOBBER (ranked by dropped post-fork upstream lines; triage top-down) ==
+     18  src/sessions/user-turn-transcript.test.ts            08622cd7669 fix(ui): keep streamed replies ordered across 
+      6  src/agents/subagents/spawn/subagent-spawn.ts         55ce95fac80 feat(sessions): three-layer session ownership 
+      4  test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/telegram-heartbeat-codex-tool.md 23bcaef0c10 fix: tools report terminal no-delivery outcome
+      4  test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/telegram-direct-codex-message-tool.md 23bcaef0c10 fix: tools report terminal no-delivery outcome
+      4  test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/discord-group-codex-message-tool.md 23bcaef0c10 fix: tools report terminal no-delivery outcome
+      4  src/agents/agent-tools.session-permissions.test.ts   4b0d573437b feat: session permission modes with worktree-s
+      3  ui/src/pages/chat/components/chat-task-suggestions.ts 47399310a08 improve(ui): redesign suggested task cards (#1
+      3  src/infra/device-identity.test.ts                    ab9b40daa33 fix(cli): prevent node/device RPCs from corrup
+      3  src/infra/device-auth-store.test.ts                  ab9b40daa33 fix(cli): prevent node/device RPCs from corrup
+      3  src/commands/doctor-config-preflight.legacy-copy.test.ts a23d19218c5 fix(doctor): surface legacy-config copy failur
+      3  src/auto-reply/reply/agent-runner-result-complete.ts efdfb69adc4 fix(agents): keep queued followups from missin
+      3  src/auto-reply/reply/agent-runner-result-accounting.test.ts 7c65bbcee31 fix(sessions): track context window provenance
+      3  src/agents/embedded-agent-subscribe.handlers.compaction.ts 3cc55589e37 fix(agents): stop silent compaction failures (
+      3  scripts/plugin-sdk-surface-report.mts                5ebfbbf8d78 fix(plugins): honor per-agent runtime config (
+      2  src/config/io.scalar-root.test.ts                    6575733bc03 fix(config): reject scalar config roots instea
+      2  src/agents/openclaw-tools.ts                         75c5d9e208d fix(agents): show waiting reply when sessions_
+      2  config/assertion-safety-baseline.txt                 916aca13f34 feat: record subagent execution lineage (#1220
+      1  src/sessions/user-turn-transcript.ts                 08622cd7669 fix(ui): keep streamed replies ordered across 
+      1  src/plugins/wired-hooks-compaction.test.ts           ?
+      1  src/plugin-sdk/provider-catalog-live-runtime.test.ts 715c379fd94 refactor(config): consolidate context budget t
+      1  src/infra/heartbeat-reason.ts                        541f373bc0c refactor(validation): type producers and drop 
+      1  src/infra/gateway-lock.state-dir.test.ts             b8344775658 fix(cli): refuse live state reset and uninstal
+      1  src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts efdfb69adc4 fix(agents): keep queued followups from missin
+      1  src/agents/embedded-agent-subscribe.handlers.ts      3cc55589e37 fix(agents): stop silent compaction failures (
+      1  src/agents/command/attempt-execution.ts              b65879e4b64 fix: deliver requested image artifacts across 
+      1  src/agents/bash-tools.exec.script-preflight.test.ts  ab5611f0be6 fix(security): prevent approved scripts from c
+
+full TSV: <redacted-local-path>

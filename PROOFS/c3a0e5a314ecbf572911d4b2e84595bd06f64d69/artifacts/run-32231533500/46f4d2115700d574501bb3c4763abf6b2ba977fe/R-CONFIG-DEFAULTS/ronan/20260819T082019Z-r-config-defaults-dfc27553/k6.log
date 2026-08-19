@@ -1,0 +1,22 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-config-defaults.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 1m15s max duration (incl. graceful stop):
+              * r_config_defaults: 1 iterations shared among 1 VUs (maxDuration: 45s, gracefulStop: 30s)
+
+PUBLIC_EVIDENCE {"row":"R-CONFIG-DEFAULTS","manifest_loaded":true,"seat":"ronan","candidateSha":"46f4d2115700d574501bb3c4763abf6b2ba977fe","started":"2026-08-19T08:20:22.155Z","rpc":{"method":"config.get","operator_surface":true,"response_ok":true,"response_shape":{"config_present":true,"continuation_present":true}},"config_read":true,"enabled":true,"max_chain_length":200,"max_delegates_per_turn":500,"cost_cap_tokens":50000000,"trace_id":null,"correlation":{"service":"ronan-prince","query_window_start":"2026-08-19T08:20:22.155Z","query_window_end":"2026-08-19T08:20:22.463Z"},"ended":"2026-08-19T08:20:22.463Z","duration_ms":308}
+time="2026-08-19T01:20:22-07:00" level=info msg="\n[R-CONFIG-DEFAULTS] VERDICT: PASS-candidate" source=console
+
+[R-CONFIG-DEFAULTS] Summary: PASS-candidate | SHA: 46f4d2115700d574501bb3c4763abf6b2ba977fe | Seat: ronan
+
+running (0m00.3s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_config_defaults ✓ [ 100% ] 1 VUs  00.3s/45s  1/1 shared iters

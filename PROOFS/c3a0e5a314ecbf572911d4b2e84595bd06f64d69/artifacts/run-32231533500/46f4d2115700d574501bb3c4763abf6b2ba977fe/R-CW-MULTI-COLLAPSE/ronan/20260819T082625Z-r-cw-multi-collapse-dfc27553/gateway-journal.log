@@ -1,0 +1,4 @@
+2026-08-19T01:26:26.120554-07:00 ronan node[3878307]: 2026-08-19T01:26:26.120-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:26:26.121019-07:00 ronan node[3878307]: 2026-08-19T01:26:26.120-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-19T01:26:26.122614-07:00 ronan node[3878307]: 2026-08-19T01:26:26.122-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4999ms fireAt=1787127991121 session=<redacted-session-key>
+2026-08-19T01:26:26.196012-07:00 ronan node[3878307]: 2026-08-19T01:26:26.195-07:00 [agents/agent-command] [agent] run continuation-delegate-7006918d0cccbcb46e2c128208c8e846 ended with stopReason=stop

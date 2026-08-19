@@ -1,0 +1,29 @@
+Exact-candidate fleet CI classification
+
+Run: 32209969307
+URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32209969307
+Candidate: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+Workflow conclusion: failure
+Aggregate: 157772 passed, 3 failed, 2 load-flakes greened
+Deterministic failures: 1
+
+Failure:
+src/gateway/portals/portal-http-proxy.test.ts
+portal HTTP proxy > reaches IPv6-only targets through the localhost dual-stack dial
+Expected 200 / "v6 proxied"; received the portal waiting page with status 502.
+
+Three-baseline execution matrix:
+- candidate c3a0e5a314ecbf572911d4b2e84595bd06f64d69: FAIL, exit 1
+- frozen upstream 4589d8514ce189b4adb8f0cf20b2a23ae92902d5: FAIL, exit 1
+- current upstream d16c2858bf8339727cc808329366efa90be259d5: FAIL, exit 1
+
+The failure is identical on all three executions. Candidate versus frozen upstream
+has no diff in either src/gateway/portals/portal-http-proxy.ts or
+src/gateway/portals/portal-http-proxy.test.ts. Frozen upstream versus current
+upstream also has no diff in those files.
+
+Verdict: upstream-class, inherited unchanged, not continuation-cure-introduced.
+Per PR-DRIFT-CURE-GATES-RUNBOOK.md Gate 3's naive-upstream-main procedure,
+this broader-sweep failure is documented and is not a Step-1 restart or
+promotion blocker. Cure-region focused tests remain 103/103 green and the full
+candidate pnpm check remains green.

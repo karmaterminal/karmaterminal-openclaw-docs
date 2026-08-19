@@ -1,0 +1,12 @@
+2026-08-19T01:27:00.562368-07:00 ronan node[3878307]: 2026-08-19T01:27:00.562-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-08-19T01:27:00.563889-07:00 ronan node[3878307]: 2026-08-19T01:27:00.563-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1787128080562 session=<redacted-session-key>
+2026-08-19T01:27:00.564518-07:00 ronan node[3878307]: 2026-08-19T01:27:00.564-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<redacted-session-key> reasonCategory=unknown
+2026-08-19T01:27:01.166756-07:00 ronan node[3878307]: 2026-08-19T01:27:01.166-07:00 [ws] ⇄ res ✓ sessions.send 108ms runId=R-OBS-1-<redacted-nonce> conn=512518ab…a674 id=1-0-1787128020767-pzh55k
+2026-08-19T01:27:04.653366-07:00 ronan node[3878307]: 2026-08-19T01:27:04.653-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:27:04.653718-07:00 ronan node[3878307]: 2026-08-19T01:27:04.653-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:27:04.692432-07:00 ronan node[3878307]: 2026-08-19T01:27:04.692-07:00 Proof subagent returned hop 1; hop-2 completion was not received.
+2026-08-19T01:27:04.693290-07:00 ronan node[3878307]: 2026-08-19T01:27:04.693-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop
+2026-08-19T01:27:04.871744-07:00 ronan node[3878307]: 2026-08-19T01:27:04.871-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:27:04.872112-07:00 ronan node[3878307]: 2026-08-19T01:27:04.872-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:27:04.872646-07:00 ronan node[3878307]: 2026-08-19T01:27:04.872-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:27:04.873077-07:00 ronan node[3878307]: 2026-08-19T01:27:04.872-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

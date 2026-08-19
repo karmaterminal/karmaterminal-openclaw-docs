@@ -1,0 +1,8 @@
+2026-08-19T01:20:36.308583-07:00 ronan node[3878307]: 2026-08-19T01:20:36.308-07:00 [ws] ⇄ res ✓ sessions.send 134ms runId=R-CW-1-<redacted-nonce> conn=dbc2ff8f…627e id=1-0-1787127636173-9pduou
+2026-08-19T01:20:46.009427-07:00 ronan node[3878307]: 2026-08-19T01:20:46.009-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:20:46.009899-07:00 ronan node[3878307]: 2026-08-19T01:20:46.009-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-08-19T01:20:46.010197-07:00 ronan node[3878307]: 2026-08-19T01:20:46.010-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-08-19T01:20:46.010582-07:00 ronan node[3878307]: 2026-08-19T01:20:46.010-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-08-19T01:20:46.052085-07:00 ronan node[3878307]: 2026-08-19T01:20:46.051-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1 reasonCategory=follow-up-work
+2026-08-19T01:20:46.052809-07:00 ronan node[3878307]: 2026-08-19T01:20:46.052-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-08-19T01:20:46.053596-07:00 ronan node[3878307]: 2026-08-19T01:20:46.053-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399997ms fireAt=1787214046049 session=<redacted-session-key>

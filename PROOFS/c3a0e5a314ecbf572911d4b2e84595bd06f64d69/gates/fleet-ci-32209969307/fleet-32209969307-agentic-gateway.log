@@ -1,0 +1,870 @@
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	﻿2026-08-19T03:34:20.2941289Z Current runner version: '2.336.0'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2945197Z Runner name: 'ronan'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2945583Z Runner group name: 'thornfield'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2946093Z Machine name: 'ronan'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2947309Z ##[group]GITHUB_TOKEN Permissions
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2948794Z Contents: read
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2949066Z Metadata: read
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2949334Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2950462Z Secret source: Actions
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.2951010Z Prepare workflow directory
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.3215397Z Prepare all required actions
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.3241175Z Getting action download info
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:20.6809439Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:21.0978014Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:21.6831436Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:22.1618406Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Set up job	2026-08-19T03:34:22.8404613Z Complete job name: pack(agentic-gateway-core-3,agentic-gateway-methods)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	﻿2026-08-19T03:34:22.9040350Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9044485Z ##[group]Run actions/checkout@v4
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9044679Z with:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9044805Z   repository: karmaterminal/openclaw-bootstrap
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9046457Z   token: ***
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9046556Z   ssh-strict: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9046663Z   ssh-user: git
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9046770Z   persist-credentials: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9046893Z   clean: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047009Z   sparse-checkout-cone-mode: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047165Z   fetch-depth: 1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047277Z   fetch-tags: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047398Z   show-progress: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047505Z   lfs: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047602Z   submodules: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047742Z   set-safe-directory: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9047875Z   allow-unsafe-pr-checkout: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9048061Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9048173Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9048340Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9048515Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9048664Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9599367Z Syncing repository: karmaterminal/openclaw-bootstrap
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9600110Z ##[group]Getting Git version info
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9600370Z Working directory is '<redacted-local-path>'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9600751Z [command]/usr/bin/git version
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9601276Z git version 2.43.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9609878Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9615125Z Copying '<redacted-local-path>' to '<redacted-local-path>'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9622967Z Temporarily overriding HOME='<redacted-local-path>' before making global git config changes
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9623433Z Adding repository directory to the temporary git global config as a safe directory
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9626034Z [command]/usr/bin/git config --global --add safe.directory <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9660505Z [command]/usr/bin/git config --local --get remote.origin.url
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9689555Z https://github.com/karmaterminal/openclaw-bootstrap
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9699233Z ##[group]Removing previously created refs, to avoid conflicts
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9702324Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9724322Z refs/heads/main
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9729815Z [command]/usr/bin/git checkout --detach
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9800245Z HEAD is now at e384daf445 Merge pull request #1392 from karmaterminal/scribe/20260814/no-rollback-masked-schema
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9834970Z [command]/usr/bin/git branch --delete --force main
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9864525Z Deleted branch main (was e384daf445).
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9890462Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:22.9893723Z [command]/usr/bin/git submodule status
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0084647Z ##[group]Cleaning the repository
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0087446Z [command]/usr/bin/git clean -ffdx
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0151396Z [command]/usr/bin/git reset --hard HEAD
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0231569Z HEAD is now at e384daf445 Merge pull request #1392 from karmaterminal/scribe/20260814/no-rollback-masked-schema
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0236200Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0236463Z ##[group]Disabling automatic garbage collection
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0237470Z [command]/usr/bin/git config --local gc.auto 0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0264332Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0264837Z ##[group]Setting up auth
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0265261Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0286325Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0486354Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0509580Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0754345Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0778307Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.0998729Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.1035380Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.1035850Z ##[group]Fetching the repository
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.1039134Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e384daf44525a898e654ba581cd066c890585448:refs/remotes/origin/main
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6214882Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6215349Z ##[group]Determining the checkout info
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6215789Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6220058Z [command]/usr/bin/git sparse-checkout disable
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6272489Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6301848Z ##[group]Checking out the ref
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6303337Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6371841Z Switched to a new branch 'main'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6372465Z branch 'main' set up to track 'origin/main'.
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6377198Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6411333Z [command]/usr/bin/git log -1 --format=%H
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Checkout bootstrap	2026-08-19T03:34:23.6442812Z e384daf44525a898e654ba581cd066c890585448
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	﻿2026-08-19T03:34:23.6660549Z ##[group]Run bash "${GITHUB_WORKSPACE}/tools/openclaw-local-ci-temp-hygiene.sh"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6661246Z [36;1mbash "${GITHUB_WORKSPACE}/tools/openclaw-local-ci-temp-hygiene.sh"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6688459Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6688735Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6688954Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6689294Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6689623Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6689913Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6795459Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6796691Z === runner temp diagnostics: before ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6797052Z temp_root=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6797862Z --- filesystem capacity (df -h) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6806727Z Filesystem      Size  Used Avail Use% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6807542Z /dev/nvme0n1p2  3.7T  2.2T  1.4T  61% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6807872Z --- inode capacity (df -i) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6815282Z Filesystem        Inodes    IUsed     IFree IUse% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6816460Z /dev/nvme0n1p2 250036224 44933152 205103072   18% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6816748Z --- mount/filesystem ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6828387Z TARGET SOURCE         FSTYPE OPTIONS
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.6829077Z /      /dev/nvme0n1p2 ext4   rw,relatime,errors=remount-ro
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8349546Z cleanup_policy=direct children of RUNNER_TEMP matching workflow-owned prefixes only
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8350355Z owned_prefixes=ci-batch-work-* ci-batch-results-* dist-runtime-artifact-* openclaw-local-ci-*
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8351052Z minimum_age_minutes=1440 (minimum age threshold; recent content is treated as active)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8351699Z current_run=32209969307 attempt=1 (matching current-run paths are always preserved)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8352420Z cleanup_summary deleted=0 skipped_current=0 skipped_recent=0 errors=0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8352742Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8352860Z === runner temp diagnostics: after ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8353194Z temp_root=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8353525Z --- filesystem capacity (df -h) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8367852Z Filesystem      Size  Used Avail Use% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8368244Z /dev/nvme0n1p2  3.7T  2.2T  1.4T  61% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8368669Z --- inode capacity (df -i) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8380027Z Filesystem        Inodes    IUsed     IFree IUse% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8380429Z /dev/nvme0n1p2 250036224 44933154 205103070   18% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8380805Z --- mount/filesystem ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8403016Z TARGET SOURCE         FSTYPE OPTIONS
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8403390Z /      /dev/nvme0n1p2 ext4   rw,relatime,errors=remount-ro
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8405926Z openclaw_tmp_cleanup_policy=direct children older than minimum age only
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8406249Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8406375Z === OpenClaw temp diagnostics: before ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8423880Z temp_root=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8424251Z --- filesystem capacity (df -h) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8425066Z Filesystem      Size  Used Avail Use% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8425393Z /dev/nvme0n1p2  3.7T  2.2T  1.4T  61% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8425690Z --- inode capacity (df -i) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8426019Z Filesystem        Inodes    IUsed     IFree IUse% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8426405Z /dev/nvme0n1p2 250036224 44933154 205103070   18% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8426709Z --- mount/filesystem ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8441496Z TARGET SOURCE         FSTYPE OPTIONS
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8441876Z /      /dev/nvme0n1p2 ext4   rw,relatime,errors=remount-ro
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8469895Z openclaw_tmp_cleanup_summary deleted=0 skipped_recent=330 errors=0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8471223Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8471352Z === OpenClaw temp diagnostics: after ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8471717Z temp_root=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8472027Z --- filesystem capacity (df -h) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8484204Z Filesystem      Size  Used Avail Use% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8484534Z /dev/nvme0n1p2  3.7T  2.2T  1.4T  61% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8485450Z --- inode capacity (df -i) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8497970Z Filesystem        Inodes    IUsed     IFree IUse% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8498356Z /dev/nvme0n1p2 250036224 44933154 205103070   18% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8498722Z --- mount/filesystem ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8511927Z TARGET SOURCE         FSTYPE OPTIONS
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8512331Z /      /dev/nvme0n1p2 ext4   rw,relatime,errors=remount-ro
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8514357Z short_runtime_cleanup_policy=direct children older than minimum age only
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8514669Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8514788Z === short runtime diagnostics: before ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8515376Z temp_root=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8515644Z --- filesystem capacity (df -h) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8527735Z Filesystem      Size  Used Avail Use% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8528058Z /dev/nvme0n1p2  3.7T  2.2T  1.4T  61% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8528991Z --- inode capacity (df -i) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8541909Z Filesystem        Inodes    IUsed     IFree IUse% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8542373Z /dev/nvme0n1p2 250036224 44933154 205103070   18% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8544358Z --- mount/filesystem ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8562501Z TARGET SOURCE         FSTYPE OPTIONS
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8562847Z /      /dev/nvme0n1p2 ext4   rw,relatime,errors=remount-ro
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8574315Z openclaw_tmp_cleanup_summary deleted=0 skipped_recent=0 errors=0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8576977Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8577132Z === short runtime diagnostics: after ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8577440Z temp_root=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8577756Z --- filesystem capacity (df -h) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8588592Z Filesystem      Size  Used Avail Use% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8588814Z /dev/nvme0n1p2  3.7T  2.2T  1.4T  61% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8591383Z --- inode capacity (df -i) ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8599455Z Filesystem        Inodes    IUsed     IFree IUse% Mounted on
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8599845Z /dev/nvme0n1p2 250036224 44933154 205103070   18% /
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8601509Z --- mount/filesystem ---
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8612077Z TARGET SOURCE         FSTYPE OPTIONS
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Runner temp hygiene	2026-08-19T03:34:23.8612467Z /      /dev/nvme0n1p2 ext4   rw,relatime,errors=remount-ro
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	﻿2026-08-19T03:34:23.8679153Z ##[group]Run set -euo pipefail
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8679360Z [36;1mset -euo pipefail[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8679558Z [36;1mtotal_gb=$(( $(awk '/^MemTotal:/{print $2}' /proc/meminfo) / 1024 / 1024 ))[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8679813Z [36;1mecho "Runner total RAM: ${total_gb} GB ; cpus: $(nproc)"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8680089Z [36;1mif [ "${total_gb}" -lt 60 ]; then echo "::error::Runner has only ${total_gb} GB."; exit 1; fi[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8696985Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8697121Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8697234Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8697405Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8697579Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8697727Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Pre-flight RAM guard (>=60GB)	2026-08-19T03:34:23.8750305Z Runner total RAM: 121 GB ; cpus: 20
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	﻿2026-08-19T03:34:23.8783222Z ##[group]Run set -euo pipefail
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8783630Z [36;1mset -euo pipefail[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8784180Z [36;1mnode "${GITHUB_WORKSPACE}/tools/openclaw-local-ci-slots.mjs" resolve --runner "${RUNNER_NAME}" --github_output[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8784831Z [36;1mecho "Resolved host slots for runner=${RUNNER_NAME}"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8807182Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8807487Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8807708Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8808043Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8808385Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8808672Z   RUNNER_NAME: ronan
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.8808874Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9130417Z {
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9130760Z   "host": "ronan",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9130981Z   "slots": 1,
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9131178Z   "eligible": true,
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9131622Z   "reason": "Conservative single-shard capacity while local inference uses reduced memory",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9132163Z   "ram_gb": 128
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9132482Z }
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Resolve host slots	2026-08-19T03:34:23.9162808Z Resolved host slots for runner=ronan
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	﻿2026-08-19T03:34:23.9196071Z ##[group]Run set -euo pipefail
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9196259Z [36;1mset -euo pipefail[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9196401Z [36;1mif [ "${SLOTS_ELIGIBLE}" != "true" ]; then[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9196712Z [36;1m  echo "::error::Runner '${RUNNER_NAME}' is not eligible for openclaw-local-ci (slots.eligible=${SLOTS_ELIGIBLE})."[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9196995Z [36;1m  exit 1[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9197218Z [36;1mfi[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9197376Z [36;1mif ! [[ "${SLOTS_COUNT}" =~ ^[0-9]+$ ]] || [ "${SLOTS_COUNT}" -lt 1 ]; then[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9197664Z [36;1m  echo "::error::Runner '${RUNNER_NAME}' resolved slots=${SLOTS_COUNT}; need slots>=1."[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9197886Z [36;1m  exit 1[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9197984Z [36;1mfi[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9198107Z [36;1mecho "Host eligible with slots=${SLOTS_COUNT}"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9214809Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9214942Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215058Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215310Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215482Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215629Z   SLOTS_ELIGIBLE: true
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215735Z   SLOTS_COUNT: 1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215837Z   RUNNER_NAME: ronan
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9215957Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Enforce slots eligibility (fail closed)	2026-08-19T03:34:23.9247153Z Host eligible with slots=1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	﻿2026-08-19T03:34:23.9340307Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9342552Z ##[group]Run actions/setup-node@v4
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9342823Z with:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9343020Z   node-version: 24.17.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9343244Z   always-auth: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9343456Z   check-latest: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9346042Z   token: ***
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9346242Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9346456Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9346784Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9347114Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:23.9347403Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.0139927Z Found in cache @ <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.0142811Z (node:3295299) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.0143566Z (Use `node --trace-deprecation ...` to show where the warning was created)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.0144291Z ##[group]Environment details
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.1605322Z node: v24.17.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.1606389Z npm: 11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.1606587Z yarn: 1.22.22
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Setup Node.js	2026-08-19T03:34:24.1607032Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	﻿2026-08-19T03:34:24.1773276Z ##[group]Run set -uo pipefail
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1773480Z [36;1mset -uo pipefail[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1773695Z [36;1mmkdir -p "${OPENCLAW_CI_BATCH_RESULTS_ROOT}" "${OPENCLAW_CI_WORK_ROOT}" "${TMPDIR}"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1773927Z [36;1mt0=${SECONDS}[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1774105Z [36;1mbash "${GITHUB_WORKSPACE}/tools/openclaw-local-ci-run-batch.sh"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1790360Z [36;1mrc=$?[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1790487Z [36;1mdur=$((SECONDS - t0))[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1790676Z [36;1m{ echo "rc=${rc}"; echo "duration=${dur}"; } >> "$GITHUB_OUTPUT"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1790860Z [36;1mexit "${rc}"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1810356Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1810500Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1810618Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1810785Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1810947Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1830413Z   OPENCLAW_CI_BATCH_SHARDS_JSON: [
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	  {
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "kind": "node-core",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "shard_group": "node-core",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "artifact_prefix": "node",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "check_name": "checks-node-agentic-gateway-core-3",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "shard_name": "agentic-gateway-core-3",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "configs": [
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "test/vitest/vitest.gateway-core.config.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "test/vitest/vitest.gateway-client.config.ts"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    ],
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "includePatterns": [
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/agent-turn/agent-wait-dedupe.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/android-node.capabilities.policy-source.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/approval-session-audience.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/auth-mode-policy.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/board-http.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/boot.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/channel-health-policy.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/chat-abort.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/chat-display-projection.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/chat-run-owner.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/cli-session-history.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/client-callsites.guard.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/client.watchdog.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/control-plane-rate-limit.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/control-ui-github-api.identity.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/control-ui-response-metadata.http.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/control-ui-session-prs-branch.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/control-ui.auto-root.http.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/conversation-read-origin.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/credential-precedence.parity.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/cron-creator-authority-grant.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/cron-stream-output.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/dashboard-session-title.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/desktop/host-observe.integration.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/desktop/node-observe.integration.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/desktop/rfb-preauth.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/device-auth.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/drain-active-sessions-for-shutdown.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/exec-approval-ios-push.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/gateway-cli-backend.connect.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/gateway-cli-plugin-routing.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/gateway-http-route-contracts.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/handshake-timeouts.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/health/collector.session-store-path.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/hooks.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/http-byte-range.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/http-endpoint-helpers.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/http-utils.request-context.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/live-agent-probes.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/managed-image-attachments.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/managed-image-record-store.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/mcp-app-reconstruction.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/mcp-grant-store.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/mcp-http.runtime.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/mcp-oauth-callback.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/methods/core-descriptors.since.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/net.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/node-command-policy.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/node-invoke-plugin-policy.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/node-pairing-auto-approve.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/node-plugin-tool-snapshot.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/node-registry.ws-lifecycle.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/openresponses-phase.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/operator-approval-session-events.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/operator-approvals-client.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/plugin-channel-reload-targets.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/portals/portal-http-proxy.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/probe.close-drain.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/project-github-search.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/resolve-configured-secret-input-string.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/runtime-plugin-config.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/event-loop-health.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/hooks.early-failure.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/plugin-route-runtime-scopes.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/plugins-http.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/presence-events.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection.startup.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/auth-context.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/authenticated-request-dispatch.connection-liveness.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/connect-hello.setup-completion.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/control-ui-build-admission.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/handshake-auth-log-limiter.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/message-handler.suspension-admission.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/server/ws-connection/unauthorized-flood-guard.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-automation-index.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-compaction-checkpoints.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-companion.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-event-payload.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-kill-http.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-sharing-snapshot-cache.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-subagent-reactivation.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-transcript-files.fs.archive-events.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-transcript-title-reader.markdown.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-utils-owners.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-utils.plugin-runtime.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-utils.subagent.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/session-viewer-presence.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/sessions-resolve-store.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/startup-control-ui-origins.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/subagent-completion-tool-handoff.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/system-run-approval-binding.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/talk-client-gateway-control.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/talk-realtime-relay-voice.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/talk-session-registry.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/terminal/buffer-text.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/terminal/node-relay.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/terminal/session-manager.output-ring.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/test-helpers.agent-results.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/tools-invoke-http.abort.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/user-profiles-http-path.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/admission.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/credential-broker.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/device-provider.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/inference-runtime.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/live-events.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/node-worker-bundle-transfer-service.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/node-workspace-retain-coordinator.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-disk-space.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-dispatch-reclaim.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-dispatch.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-move-schema.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-session-retirement.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-store.redispatch.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/placement-worker-gate.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/provider-provisioning-node-admission.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/provider-provisioning.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/service-lifetime.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/store-node-enrollment.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/transcript-commit.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/worker-bundle-retention.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/worker-turn-launcher-claim-admission.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/worker-turn-launcher-remote-handoff.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/worker-turn-payload.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/workspace-conflicts.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/workspace-large-inventory.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/workspace-reconcile-publication.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/workspace-rsync-path.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/worker-environments/workspace-sync-scripts.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "src/gateway/workspace-icon-http.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/client-address-utils.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/client.request-timeout.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/gateway-origin-scope.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/protocol-client.sequence.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/reconnect-policy.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/session-projection-run-event.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-client/src/timeouts.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/connect-error-details.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/exec-approvals-validators.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/index.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/plugin-approvals-validators.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/protocol-boundary.guard.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/agent.schema.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/audit-run.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/commands.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/devices.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/frames.build-id.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/logs-chat.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/openclaw.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/protocol-schema-composer.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/session-placement.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/sessions-create.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/sessions-sharing.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/system-event.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/terminal.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/schema/wizard.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/session-agent-status.test.ts",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "packages/gateway-protocol/src/sessions-groups-validators.test.ts"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    ],
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "requires_dist": false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	  },
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	  {
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "kind": "node-core",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "shard_group": "node-core",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "artifact_prefix": "node",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "check_name": "checks-node-agentic-gateway-methods",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "shard_name": "agentic-gateway-methods",
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "configs": [
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	      "test/vitest/vitest.gateway-methods.config.ts"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    ],
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "includePatterns": null,
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	    "requires_dist": false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	  }
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1857078Z   OPENCLAW_CI_BATCH_ID: batch-055
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1857214Z   OPENCLAW_CI_HOST_SLOTS: 1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1857341Z   OPENCLAW_CI_PER_SHARD_MAX_WORKERS: 1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1857481Z   OPENCLAW_CI_NODE_VERSION: 24.17.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1857746Z   OPENCLAW_CI_BATCH_RESULTS_ROOT: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1858133Z   OPENCLAW_CI_WORK_ROOT: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1858397Z   OPENCLAW_CI_REPO: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1858577Z   OPENCLAW_CI_REF: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1858780Z   OPENCLAW_CI_SHA: c3a0e5a314ecbf572911d4b2e84595bd06f64d69
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1859043Z   OPENCLAW_CI_PNPM_STORE: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1859427Z   OPENCLAW_CI_DIST_ARTIFACT_DIR: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1859942Z   RUNNER_SCRIPT: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1860332Z   TMPDIR: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1860650Z   TMP: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1860956Z   TEMP: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1861177Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.1966481Z === zip_source=system path=/usr/bin/zip ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.3834259Z === batch shards=2 host_slots=1 per_shard_max_workers=1 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:24.3835033Z === base clone karmaterminal/openclaw@c3a0e5a314ecbf572911d4b2e84595bd06f64d69 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:35.1136767Z From https://github.com/karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:35.1137319Z  * [new ref]           c3a0e5a314ecbf572911d4b2e84595bd06f64d69 -> origin/ci-target
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:36.3664343Z HEAD is now at c3a0e5a3 test: repair final fleet gate regressions
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:36.4990077Z Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:36.5054415Z === seed dependencies once for all copied shards ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:36.8670748Z Scope: all 172 workspace projects
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:36.9701622Z ✓ Lockfile passes supply-chain policies (verified 13h ago)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:36.9787575Z Lockfile is up to date, resolution step is skipped
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:37.0809639Z Packages: +1318
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:37.2498093Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:37.2498680Z Progress: resolved 0, reused 0, downloaded 1, added 0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:38.2500601Z Progress: resolved 0, reused 0, downloaded 496, added 499
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:39.2497120Z Progress: resolved 0, reused 0, downloaded 1006, added 1028
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:40.2496380Z Progress: resolved 0, reused 0, downloaded 1274, added 1304
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:41.2498370Z Progress: resolved 0, reused 0, downloaded 1280, added 1312
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:42.2503296Z Progress: resolved 0, reused 0, downloaded 1281, added 1313
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:43.2497937Z Progress: resolved 0, reused 0, downloaded 1282, added 1314
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:44.3703390Z Progress: resolved 0, reused 0, downloaded 1283, added 1314
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:45.3704061Z Progress: resolved 0, reused 0, downloaded 1284, added 1316
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.3696097Z Progress: resolved 0, reused 0, downloaded 1286, added 1318
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.5107269Z Progress: resolved 0, reused 0, downloaded 1286, added 1318, done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.5682946Z node_modules/node-pty install$ node scripts/prebuild.js || node-gyp rebuild
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.5690195Z node_modules/@google/genai preinstall$ echo 'preinstall: no-op'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.8176401Z node_modules/node-pty install: [32m> Checking prebuilds...[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.8182838Z node_modules/@google/genai preinstall: preinstall: no-op
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.8186727Z node_modules/@google/genai preinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.8188824Z node_modules/node-pty install: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.8220856Z node_modules/node-pty postinstall$ node scripts/post-install.js
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.9516217Z .../@matrix-org/matrix-sdk-crypto-nodejs postinstall$ node download-lib.js
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:46.9517810Z node_modules/esbuild postinstall$ node install.js
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1951067Z node_modules/node-pty postinstall: [32m> Cleaning release folder...[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1951594Z node_modules/node-pty postinstall: [32m> Moving conpty.dll...[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1951888Z node_modules/node-pty postinstall:   SKIPPED (not Windows)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1952856Z .../@matrix-org/matrix-sdk-crypto-nodejs postinstall: Downloading lib matrix-sdk-crypto.linux-arm64-gnu.node from https://github.com/matrix-org/matrix-rust-sdk-crypto-nodejs/releases/download/v0.6.1/matrix-sdk-crypto.linux-arm64-gnu.node
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1954890Z node_modules/node-pty postinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1971287Z node_modules/@tloncorp/tlon-skill postinstall$ node scripts/postinstall.js
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.1983537Z node_modules/baileys preinstall$ node ./engine-requirements.js
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.4490717Z node_modules/esbuild postinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.4491484Z node_modules/@tloncorp/tlon-skill postinstall: [tlon-skill] Binary ready: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.4496929Z node_modules/@tloncorp/tlon-skill postinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.4652550Z node_modules/baileys preinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.6666281Z .../@matrix-org/matrix-sdk-crypto-nodejs postinstall: Download Completed
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:47.6751919Z .../@matrix-org/matrix-sdk-crypto-nodejs postinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1650408Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1650986Z dependencies:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1651715Z + @openclaw/ai 2026.8.1 <- packages/ai
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1652468Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1652597Z devDependencies:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1653090Z + @openclaw/session-url-contract 0.0.0-private <- packages/session-url-contract
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.1653439Z 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.4066261Z . preinstall$ node scripts/preinstall-package-manager-warning.mjs
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.5665090Z . preinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.5666793Z . postinstall$ node scripts/postinstall-bundled-plugins.mjs
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.8216386Z . postinstall: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.8217999Z . prepare$ node scripts/prepare-git-hooks.mjs
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:48.9748197Z . prepare: Done
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:49.3310212Z Done in 12.7s using pnpm v11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:50.0488903Z === spawned agentic-gateway-core-3 pid=3295646 active_workers=1/1 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:34:50.2322408Z === start shard idx=0 name=agentic-gateway-core-3 check=checks-node-agentic-gateway-core-3 worker_pid=3295646 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2015334Z === shard heartbeat idx=0 name=agentic-gateway-core-3 elapsed=60s log_lines=16 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2035377Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2038512Z [agentic-gateway-core-3] === ENV user=figs arch=aarch64 cpus=20 mem=121GB ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2039643Z [agentic-gateway-core-3] node=v24.17.0 npm=11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2040970Z [agentic-gateway-core-3] Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2042061Z [agentic-gateway-core-3] pnpm=11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2042868Z [agentic-gateway-core-3] pnpm store-dir=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2043446Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2043901Z [agentic-gateway-core-3] === validating preinstalled dependency tree ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2044450Z [agentic-gateway-core-3] deps_preinstalled=validated
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2044918Z [agentic-gateway-core-3] pnpm_verify_deps_before_run=false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2045308Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2045803Z [agentic-gateway-core-3] === deps:shrinkwrap reconcile skipped for test-shard ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2046256Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2046713Z [agentic-gateway-core-3] === GATE: test shard (agentic-gateway-core-3) ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2047139Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:36:27.2047644Z [agentic-gateway-core-3] === restoring upstream-faithful bundled-plugin discovery ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2076914Z === shard heartbeat idx=0 name=agentic-gateway-core-3 elapsed=120s log_lines=16 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2093497Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2094867Z [agentic-gateway-core-3] === ENV user=figs arch=aarch64 cpus=20 mem=121GB ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2095446Z [agentic-gateway-core-3] node=v24.17.0 npm=11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2097700Z [agentic-gateway-core-3] Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2099406Z [agentic-gateway-core-3] pnpm=11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2100077Z [agentic-gateway-core-3] pnpm store-dir=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2100643Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2101111Z [agentic-gateway-core-3] === validating preinstalled dependency tree ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2101659Z [agentic-gateway-core-3] deps_preinstalled=validated
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2102126Z [agentic-gateway-core-3] pnpm_verify_deps_before_run=false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2102679Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2103169Z [agentic-gateway-core-3] === deps:shrinkwrap reconcile skipped for test-shard ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2103627Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2104079Z [agentic-gateway-core-3] === GATE: test shard (agentic-gateway-core-3) ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2104499Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:37:27.2105011Z [agentic-gateway-core-3] === restoring upstream-faithful bundled-plugin discovery ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1512619Z === failed shard tail idx=0 name=agentic-gateway-core-3 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1534878Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/board-http.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 251[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1535799Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/worker-turn-payload.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 7358[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1536863Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m drops a non-user prefix directly to the replay owner [33m 3526[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1537507Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m requires local fallback when the replay unit cannot fit the descriptor [33m 3768[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1538233Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/mcp-http.runtime.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1539116Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/workspace-large-inventory.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 17288[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1539890Z [agentic-gateway-core-3]    [33m[2m✓[22m[39m recovers the shipped v1 full tree while applying only changed entries [33m 420[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1540581Z [agentic-gateway-core-3]    [33m[2m✓[22m[39m recovers a converged shipped v1 deletion above the v2 worst-case record limit [33m 3748[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1541226Z [agentic-gateway-core-3]    [33m[2m✓[22m[39m stages only a one-file delta for a 31,274-entry Git baseline [33m 13007[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1541973Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/http-utils.request-context.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1542888Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/desktop/rfb-preauth.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1543830Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/ws-connection/message-handler.suspension-admission.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 425[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1544766Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/desktop/node-observe.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1545571Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-kill-http.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1546411Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/drain-active-sessions-for-shutdown.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1547551Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/placement-session-retirement.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 142[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1548454Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/service-lifetime.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 948[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1549330Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/credential-broker.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 891[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1550220Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/resolve-configured-secret-input-string.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1551075Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/event-loop-health.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1551867Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/terminal/node-relay.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1552671Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/tools-invoke-http.abort.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 278[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1553526Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/agent-turn/agent-wait-dedupe.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1554324Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/mcp-app-reconstruction.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1555175Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/device-provider.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1555986Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/mcp-oauth-callback.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1556787Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/desktop/host-observe.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1557653Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/placement-disk-space.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1558485Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/handshake-timeouts.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1559342Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/workspace-rsync-path.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 551[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1560191Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/control-ui.auto-root.http.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1561016Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/approval-session-audience.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1561818Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/http-endpoint-helpers.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1568743Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/control-ui-response-metadata.http.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1569734Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/ws-connection.startup.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 280[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1570575Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/credential-precedence.parity.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1571413Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/admission.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1572242Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/managed-image-record-store.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 531[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1573117Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/live-agent-probes.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1573912Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/talk-realtime-relay-voice.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1574748Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-subagent-reactivation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1575635Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-utils.plugin-runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 585[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1576381Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m keeps lifecycle event rows lightweight without changing explicit detail rows [33m 312[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1577221Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-transcript-files.fs.archive-events.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1578064Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/project-github-search.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1578965Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/workspace-reconcile-publication.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 991[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1579813Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m keeps local bytes and the journal pending when accepted publication is indeterminate [33m 522[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1580549Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m rolls local bytes back immediately when accepted publication fails definitively [33m 469[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1581442Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/provider-provisioning-node-admission.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 158[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1582422Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/placement-move-schema.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 312[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1583158Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m survives a same-version previous reader and candidate reopen [33m 312[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1583909Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/node-plugin-tool-snapshot.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1584770Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/store-node-enrollment.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 248[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1585679Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/control-plane-rate-limit.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1586483Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/hooks.early-failure.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1587301Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/methods/core-descriptors.since.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1588122Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/node-pairing-auto-approve.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1589106Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/ws-connection/authenticated-request-dispatch.connection-liveness.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1590228Z [agentic-gateway-core-3] [90mstdout[2m | src/gateway/node-registry.ws-lifecycle.test.ts[2m > [22m[2mNodeRegistry real WebSocket lifecycle[2m > [22m[2mrejects event and invoke delivery after a real socket leaves OPEN
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1591491Z [agentic-gateway-core-3] [22m[39m[behavior-evidence] node-ws-open-admission {"openState":1,"closingState":2,"openFrameCount":1,"closingNormalAccepted":false,"closingRawAccepted":false,"invokeErrorCode":"UNAVAILABLE","invokeDispatchReady":0,"framesAfterClosingAttempts":0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1592167Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1592771Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/node-registry.ws-lifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 54[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1593591Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/cron-creator-authority-grant.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1594526Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/node-worker-bundle-transfer-service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1595458Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/health/collector.session-store-path.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 420[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1596330Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/plugin-route-runtime-scopes.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1597156Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-automation-index.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1598025Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-transcript-title-reader.markdown.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 674[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1598957Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/ws-connection/handshake-auth-log-limiter.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1599801Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/runtime-plugin-config.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1600637Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/subagent-completion-tool-handoff.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1601439Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/probe.close-drain.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1602245Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-sharing-snapshot-cache.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1603237Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/placement-store.redispatch.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 144[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1604286Z [agentic-gateway-core-3] [90mstderr[2m | src/gateway/gateway-cli-plugin-routing.test.ts[2m > [22m[2mgateway-routed plugin CLI calls[2m > [22m[2mroutes voicecall status with token auth and preserves wrong-token request errors
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1605268Z [agentic-gateway-core-3] [22m[39mgateway connect failed: GatewayClientRequestError: unauthorized: gateway token mismatch (use this gateway's gateway.auth.token or pair the device)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1605694Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1606264Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/gateway-cli-plugin-routing.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2850[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1607023Z [agentic-gateway-core-3]      [33m[2m✓[22m[39m routes voicecall status with token auth and preserves wrong-token request errors [33m 2849[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1607784Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/openresponses-phase.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1608859Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/ws-connection/unauthorized-flood-guard.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1609676Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/auth-mode-policy.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1610411Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/device-auth.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1611254Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/ws-connection/control-ui-build-admission.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1612122Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/control-ui-github-api.identity.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1613006Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/terminal/session-manager.output-ring.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1613834Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-viewer-presence.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1614636Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/startup-control-ui-origins.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1615431Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/session-event-payload.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1616212Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/talk-session-registry.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1617063Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/worker-bundle-retention.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1617909Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/conversation-read-origin.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1618755Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/user-profiles-http-path.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1619530Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/terminal/buffer-text.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1620307Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/server/presence-events.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1621103Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/system-run-approval-binding.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1621921Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/plugin-channel-reload-targets.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1622765Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/test-helpers.agent-results.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1623532Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/chat-run-owner.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1624319Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/gateway-http-route-contracts.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1625224Z [agentic-gateway-core-3]  [32m✓[39m [30m[42m gateway-core [49m[39m src/gateway/worker-environments/workspace-conflicts.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1625641Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1625984Z [agentic-gateway-core-3] [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1626234Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1626971Z [agentic-gateway-core-3] [41m[1m FAIL [22m[49m [30m[42m gateway-core [49m[39m src/gateway/portals/portal-http-proxy.test.ts[2m > [22mportal HTTP proxy[2m > [22mreaches IPv6-only targets through the localhost dual-stack dial
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1627829Z [agentic-gateway-core-3] [31m[1mAssertionError[22m: expected { Object (status, headers, ...) } to match object { status: 200, body: 'v6 proxied' }
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1628325Z [agentic-gateway-core-3] (10 matching properties omitted from actual)[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1628552Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1628753Z [agentic-gateway-core-3] [32m- Expected[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1628987Z [agentic-gateway-core-3] [31m+ Received[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1629148Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1629333Z [agentic-gateway-core-3] [2m  {[22m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1629592Z [agentic-gateway-core-3] [32m-   "body": "v6 proxied",[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1629871Z [agentic-gateway-core-3] [32m-   "status": 200,[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1630586Z [agentic-gateway-core-3] [31m+   "body": "<!doctype html><meta charset=utf-8><meta http-equiv=\"refresh\" content=\"2\"><title>Waiting for app</title><p>Waiting for the app on port 45367…</p>",[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1631089Z [agentic-gateway-core-3] [31m+   "status": 502,[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1631309Z [agentic-gateway-core-3] [2m  }[22m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1631466Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1631852Z [agentic-gateway-core-3] [36m [2m❯[22m src/gateway/portals/portal-http-proxy.test.ts:[2m444:22[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1632488Z [agentic-gateway-core-3]     [90m442|[39m         path[33m:[39m [32m`/?[39m[36m${[39mportal[33m.[39mtokenQuery[36m}[39m[32m`[39m[33m,[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1632918Z [agentic-gateway-core-3]     [90m443|[39m       })[33m;[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1633369Z [agentic-gateway-core-3]     [90m444|[39m       expect(result).toMatchObject({ status: 200, body: "v6 proxied" }…
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1633845Z [agentic-gateway-core-3]     [90m   |[39m                      [31m^[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1634188Z [agentic-gateway-core-3]     [90m445|[39m     } [35mfinally[39m {
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1634747Z [agentic-gateway-core-3]     [90m446|[39m       [35mawait[39m [35mnew[39m [33mPromise[39m[33m<[39m[35mvoid[39m[33m>[39m((resolve) [33m=>[39m {
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1635078Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1635369Z [agentic-gateway-core-3] [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1635583Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1635795Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1636241Z [agentic-gateway-core-3] [2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m122 passed[39m[22m[90m (123)[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1636819Z [agentic-gateway-core-3] [2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1556 passed[39m[22m[90m (1557)[39m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1637209Z [agentic-gateway-core-3] [2m   Start at [22m 20:35:30
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1637724Z [agentic-gateway-core-3] [2m   Duration [22m 154.56s[2m (transform 32.97s, setup 2.05s, import 36.50s, tests 114.88s, environment 0ms)[22m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1638043Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1638174Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1640937Z [agentic-gateway-core-3] ::error file=<redacted-local-path> src/gateway/portals/portal-http-proxy.test.ts > portal HTTP proxy > reaches IPv6-only targets through the localhost dual-stack dial,line=444,column=22::AssertionError: expected { Object (status, headers, ...) } to match object { status: 200, body: 'v6 proxied' }%0A(10 matching properties omitted from actual)%0A%0A- Expected%0A+ Received%0A%0A  {%0A-   "body": "v6 proxied",%0A-   "status": 200,%0A+   "body": "<!doctype html><meta charset=utf-8><meta http-equiv=\"refresh\" content=\"2\"><title>Waiting for app</title><p>Waiting for the app on port 45367…</p>",%0A+   "status": 502,%0A  }%0A%0A ❯ src/gateway/portals/portal-http-proxy.test.ts:444:22%0A%0A
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1642906Z [agentic-gateway-core-3] [test] failed 1 Vitest shard in 155.57s
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1643400Z [agentic-gateway-core-3] CONFIRM_DETERMINISM: re-running gateway-core :: src/gateway/portals/portal-http-proxy.test.ts once (serial)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1643960Z [agentic-gateway-core-3]   DETERMINISTIC (re-red on isolated re-run): src/gateway/portals/portal-http-proxy.test.ts
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1644461Z [agentic-gateway-core-3] TEST_GATE: confirm-determinism: 0 flake(s) greened, 1 deterministic fail(s) remain
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1644850Z [agentic-gateway-core-3] TEST_GATE: 1 deterministic test FAIL -> FAIL
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1645199Z [agentic-gateway-core-3] GATE_FAIL: test shard (agentic-gateway-core-3) (rc=1, 160s)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1645439Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1645632Z [agentic-gateway-core-3] === RESULTS SUMMARY ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1645806Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1646241Z [agentic-gateway-core-3] # openclaw-local-ci / agentic-gateway-core-3 - FAIL (karmaterminal/openclaw@c3a0e5a314ecbf572911d4b2e84595bd06f64d69)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1646593Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1646750Z [agentic-gateway-core-3] ## Gates
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1647016Z [agentic-gateway-core-3] - FAIL `test shard (agentic-gateway-core-3)` - 160s
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1647243Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1647399Z [agentic-gateway-core-3] ## Tests
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1647596Z [agentic-gateway-core-3] - passed: 1556; failed: 1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1647770Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1648065Z [agentic-gateway-core-3] ## Failures (1) - deterministic; each must be understood, not accepted
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1648814Z [agentic-gateway-core-3] - [test shard (agentic-gateway-core-3) / test] gateway-core  src/gateway/portals/portal-http-proxy.test.ts > portal HTTP proxy > reaches IPv6-only targets through the localhost dual-stack dial
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1649356Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1649598Z [agentic-gateway-core-3] _full per-gate logs: `gate-*.log` in this artifact_
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1649817Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1649942Z [agentic-gateway-core-3] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.1650144Z [agentic-gateway-core-3] === RESULT rc=1 conclusion=fail ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.2330063Z === done shard idx=0 name=agentic-gateway-core-3 rc=1 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.2332335Z === FAIL agentic-gateway-core-3 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.2525360Z === spawned agentic-gateway-methods pid=3298425 active_workers=1/1 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:38:09.4233916Z === start shard idx=1 name=agentic-gateway-methods check=checks-node-agentic-gateway-methods worker_pid=3298425 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6614481Z === shard heartbeat idx=1 name=agentic-gateway-methods elapsed=60s log_lines=16 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6632035Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6632685Z [agentic-gateway-methods] === ENV user=figs arch=aarch64 cpus=20 mem=121GB ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6633219Z [agentic-gateway-methods] node=v24.17.0 npm=11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6634667Z [agentic-gateway-methods] Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6637803Z [agentic-gateway-methods] pnpm=11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6638510Z [agentic-gateway-methods] pnpm store-dir=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6639075Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6639540Z [agentic-gateway-methods] === validating preinstalled dependency tree ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6640077Z [agentic-gateway-methods] deps_preinstalled=validated
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6640553Z [agentic-gateway-methods] pnpm_verify_deps_before_run=false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6640938Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6641437Z [agentic-gateway-methods] === deps:shrinkwrap reconcile skipped for test-shard ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6641895Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6642468Z [agentic-gateway-methods] === GATE: test shard (agentic-gateway-methods) ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6642906Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:39:30.6643423Z [agentic-gateway-methods] === restoring upstream-faithful bundled-plugin discovery ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6678367Z === shard heartbeat idx=1 name=agentic-gateway-methods elapsed=120s log_lines=16 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6693566Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6694674Z [agentic-gateway-methods] === ENV user=figs arch=aarch64 cpus=20 mem=121GB ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6695205Z [agentic-gateway-methods] node=v24.17.0 npm=11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6696490Z [agentic-gateway-methods] Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6697580Z [agentic-gateway-methods] pnpm=11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6698250Z [agentic-gateway-methods] pnpm store-dir=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6698813Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6699373Z [agentic-gateway-methods] === validating preinstalled dependency tree ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6699912Z [agentic-gateway-methods] deps_preinstalled=validated
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6700406Z [agentic-gateway-methods] pnpm_verify_deps_before_run=false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6700778Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6701274Z [agentic-gateway-methods] === deps:shrinkwrap reconcile skipped for test-shard ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6701732Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6702197Z [agentic-gateway-methods] === GATE: test shard (agentic-gateway-methods) ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6702742Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:40:30.6703257Z [agentic-gateway-methods] === restoring upstream-faithful bundled-plugin discovery ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6737021Z === shard heartbeat idx=1 name=agentic-gateway-methods elapsed=180s log_lines=16 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6751470Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6752709Z [agentic-gateway-methods] === ENV user=figs arch=aarch64 cpus=20 mem=121GB ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6754391Z [agentic-gateway-methods] node=v24.17.0 npm=11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6755724Z [agentic-gateway-methods] Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6756347Z [agentic-gateway-methods] pnpm=11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6756715Z [agentic-gateway-methods] pnpm store-dir=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6757014Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6757270Z [agentic-gateway-methods] === validating preinstalled dependency tree ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6757569Z [agentic-gateway-methods] deps_preinstalled=validated
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6757824Z [agentic-gateway-methods] pnpm_verify_deps_before_run=false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6758020Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6758293Z [agentic-gateway-methods] === deps:shrinkwrap reconcile skipped for test-shard ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6758532Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6758782Z [agentic-gateway-methods] === GATE: test shard (agentic-gateway-methods) ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6759384Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:41:30.6759656Z [agentic-gateway-methods] === restoring upstream-faithful bundled-plugin discovery ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6795469Z === shard heartbeat idx=1 name=agentic-gateway-methods elapsed=240s log_lines=16 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6809077Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6809403Z [agentic-gateway-methods] === ENV user=figs arch=aarch64 cpus=20 mem=121GB ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6809702Z [agentic-gateway-methods] node=v24.17.0 npm=11.13.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6810466Z [agentic-gateway-methods] Preparing pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065 for immediate activation...
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6811041Z [agentic-gateway-methods] pnpm=11.15.1
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6811400Z [agentic-gateway-methods] pnpm store-dir=<redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6811709Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6811958Z [agentic-gateway-methods] === validating preinstalled dependency tree ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6812240Z [agentic-gateway-methods] deps_preinstalled=validated
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6812549Z [agentic-gateway-methods] pnpm_verify_deps_before_run=false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6812744Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6813012Z [agentic-gateway-methods] === deps:shrinkwrap reconcile skipped for test-shard ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6813251Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6813516Z [agentic-gateway-methods] === GATE: test shard (agentic-gateway-methods) ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6813750Z [agentic-gateway-methods] 
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:30.6814030Z [agentic-gateway-methods] === restoring upstream-faithful bundled-plugin discovery ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:53.0208976Z === done shard idx=1 name=agentic-gateway-methods rc=0 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:53.0209742Z === ok agentic-gateway-methods ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:53.0403196Z === batch failed failures=1 ===
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run packed test-shard batch	2026-08-19T03:42:58.0438066Z ##[error]Process completed with exit code 1.
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	﻿2026-08-19T03:42:58.0504274Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0505007Z ##[group]Run actions/upload-artifact@v4
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0505146Z with:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0505281Z   name: openclaw-local-ci-batch-batch-055-c3a0e5a314ec
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0505539Z   path: <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0505768Z   retention-days: 14
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0505879Z   if-no-files-found: warn
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506000Z   compression-level: 6
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506108Z   overwrite: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506216Z   include-hidden-files: false
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506358Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506470Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506658Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506828Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.0506978Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.1577309Z (node:3299792) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.1578174Z (Use `node --trace-deprecation ...` to show where the warning was created)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.1624486Z With the provided path, there will be 16 files uploaded
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.1626743Z Artifact name is valid!
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.1627061Z Root directory input is valid!
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.4987280Z Beginning upload of artifact content to blob storage
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.5306342Z (node:3299792) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.8734496Z Uploaded bytes 32791
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.9497501Z Finished uploading artifact content to blob storage!
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.9498551Z SHA256 digest of uploaded artifact zip is 45b61d790a83093096bf9e67355f53000343da6c2cd080946b82da2df6d17f29
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:58.9499173Z Finalizing artifact upload
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:59.1917725Z Artifact openclaw-local-ci-batch-batch-055-c3a0e5a314ec.zip successfully finalized. Artifact ID 9351423039
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:59.1918917Z Artifact openclaw-local-ci-batch-batch-055-c3a0e5a314ec has been successfully uploaded! Final size is 32791 bytes. Artifact ID is 9351423039
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Upload packed batch artifact	2026-08-19T03:42:59.1920322Z Artifact download URL: https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32209969307/artifacts/9351423039
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	﻿2026-08-19T03:42:59.2067779Z ##[group]Run results_root="${RUNNER_TEMP}/ci-batch-results-32209969307-1-batch-055"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2068123Z [36;1mresults_root="${RUNNER_TEMP}/ci-batch-results-32209969307-1-batch-055"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2068382Z [36;1mif [ -f "${results_root}/summary.md" ]; then[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2068589Z [36;1m  cat "${results_root}/summary.md" >> "${GITHUB_STEP_SUMMARY}"[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2068774Z [36;1mfi[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2401005Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2401178Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2401305Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2401511Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2401685Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Run summary	2026-08-19T03:42:59.2401832Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	﻿2026-08-19T03:42:59.2474682Z ##[group]Run rm -rf \
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2474829Z [36;1mrm -rf \[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2474985Z [36;1m  "${RUNNER_TEMP}/ci-batch-work-32209969307-1-batch-055" \[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2475228Z [36;1m  "${RUNNER_TEMP}/ci-batch-results-32209969307-1-batch-055" \[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2475496Z [36;1m  "${RUNNER_TEMP}/dist-runtime-artifact-32209969307-1-batch-055" || true[0m
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2491069Z shell: /usr/bin/bash -e {0}
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2491201Z env:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2491318Z   TARGET_REPO_DEFAULT: karmaterminal/openclaw
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2491491Z   STATUS_CONTEXT: fleet-ci / openclaw-local-ci
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2491659Z   OPENCLAW_LOCAL_CI_TEMP_MIN_AGE_MINUTES: 1440
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Cleanup	2026-08-19T03:42:59.2491813Z ##[endgroup]
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	﻿2026-08-19T03:43:02.8753393Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.8754789Z Post job cleanup.
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9222957Z [command]/usr/bin/git version
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9251527Z git version 2.43.0
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9274854Z Copying '<redacted-local-path>' to '<redacted-local-path>'
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9275539Z Temporarily overriding HOME='<redacted-local-path>' before making global git config changes
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9276042Z Adding repository directory to the temporary git global config as a safe directory
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9279371Z [command]/usr/bin/git config --global --add safe.directory <redacted-local-path>
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9310714Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9342666Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9577755Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9607302Z http.https://github.com/.extraheader
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9618283Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9655063Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9839221Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Post Checkout bootstrap	2026-08-19T03:43:02.9868374Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Complete job	﻿2026-08-19T03:43:03.0203203Z Cleaning up orphan processes
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Complete job	2026-08-19T03:43:03.0803848Z Terminate orphan process: pid (3299715) (sleep)
+pack(agentic-gateway-core-3,agentic-gateway-methods)	Complete job	2026-08-19T03:43:03.0822666Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

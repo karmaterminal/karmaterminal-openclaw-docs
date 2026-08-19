@@ -1,0 +1,57 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-2-immediate-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_2_immediate_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-08-19T01:21:09-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+time="2026-08-19T01:21:09-07:00" level=info msg="✓ sessions.send accepted — immediate continue_work turn triggered" source=console
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+time="2026-08-19T01:21:18-07:00" level=info msg="✓ CW2-SCHEDULED sentinel observed" source=console
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+time="2026-08-19T01:21:18-07:00" level=info msg="✓ CW2-WOKE sentinel observed" source=console
+time="2026-08-19T01:21:18-07:00" level=info msg="All required R-CW-2 evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-2","manifest_loaded":true,"seat":"ronan","session_created":true,"candidateSha":"46f4d2115700d574501bb3c4763abf6b2ba977fe","started":"2026-08-19T08:21:08.841Z","dispatch_accepted":true,"scheduled_sentinel":true,"immediate_wake_observed":true,"prompt_echo_ignored":true,"dispatch_accepted_at_ms":1787127669939,"scheduled_result_at_ms":1787127678777,"wake_delay_ms":146,"trace_id":null,"ended":"2026-08-19T08:21:18.923Z","duration_ms":10082}
+time="2026-08-19T01:21:18-07:00" level=info msg="\n[R-CW-2] VERDICT: PASS-candidate" source=console
+
+[R-CW-2] Summary: PASS-candidate | SHA: 46f4d2115700d574501bb3c4763abf6b2ba977fe | Seat: ronan
+
+running (0m10.1s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_2_immediate_wake ✓ [ 100% ] 1 VUs  0m10.1s/2m0s  1/1 shared iters

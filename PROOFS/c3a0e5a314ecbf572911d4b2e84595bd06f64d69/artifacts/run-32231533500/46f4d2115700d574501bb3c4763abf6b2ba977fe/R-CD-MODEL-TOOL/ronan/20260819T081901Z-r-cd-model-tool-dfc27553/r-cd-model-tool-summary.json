@@ -1,0 +1,23 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "46f4d2115700d574501bb3c4763abf6b2ba977fe",
+  "seat": "ronan",
+  "timestamp": "2026-08-19T08:19:30.759Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": "openai/gpt-5.6-luna",
+  "observedModel": null,
+  "observedModelSource": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "min": 25958,
+      "med": 25958,
+      "max": 25958,
+      "p(90)": 25958,
+      "p(95)": 25958,
+      "avg": 25958
+    },
+    "failures": 0
+  }
+}

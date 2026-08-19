@@ -2,6 +2,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
+import { filterHonestLimitReviewDebt } from '../lib/r-rc-2-honest-limit.mjs';
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\n`;
@@ -80,11 +81,15 @@ async function loadRows(root) {
       continue;
     }
     if (!candidateEnvelopeMatchesSiblings({ envelope: raw, manifest, metadata, runResult, runDir: dir })) continue;
-    const pendingReceipts = asArray(raw.review?.pendingReceipts);
+    const pendingReceipts = filterHonestLimitReviewDebt(asArray(raw.review?.pendingReceipts), {
+      rowId: raw.run?.rowId || rowFromPath(file),
+      verdict: raw.result?.outcome,
+      evidence: runResult?.evidence,
+    });
     rows.push({
       rowId: raw.run?.rowId || rowFromPath(file) || 'unknown-row',
       file: path.relative(root, file),
-      reviewStatus: raw.review?.status || 'unknown',
+      reviewStatus: pendingReceipts.length ? (raw.review?.status || 'review-pending') : 'ready-for-human-review',
       pendingReceipts,
       traceId: null,
       pending: pendingReceipts.map((receipt) => classifyPending({ traceId: null }, receipt)),
@@ -99,13 +104,21 @@ async function loadRows(root) {
       readJson(file),
     ]);
     if (candidateEnvelopeMatchesSiblings({ envelope: candidate, manifest, metadata, runResult: raw, runDir: dir })) continue;
-    const pendingReceipts = asArray(raw.review?.pendingReceipts);
     const rowId = raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
+    const pendingReceipts = filterHonestLimitReviewDebt(asArray(raw.review?.pendingReceipts), {
+      rowId,
+      verdict: raw.verdict || raw.result?.outcome,
+      evidence: raw.evidence,
+    });
     const traceId = raw.observability?.traceId || raw.traceId || null;
     rows.push({
       rowId,
       file: path.relative(root, file),
-      reviewStatus: raw.review?.status || (pendingReceipts.length ? 'review-pending' : 'ready-for-human-review'),
+      reviewStatus: pendingReceipts.length
+        ? (raw.review?.status || 'review-pending')
+        : (raw.review?.status === 'review-pending' && pendingReceipts.length === 0
+          ? 'ready-for-human-review'
+          : (raw.review?.status || 'ready-for-human-review')),
       pendingReceipts,
       traceId,
       pending: pendingReceipts.map((receipt) => classifyPending({ traceId }, receipt)),

@@ -17,7 +17,6 @@ const FAILURE_CATEGORIES = new Set([
 ]);
 const CONCLUSIVE_FAILURE_CATEGORIES = new Set([
   'provider-or-turn-failure',
-  'delegate-replay-unsafe',
   'missing-terminal-sentinel',
 ]);
 
@@ -103,6 +102,8 @@ function sameRowBinding(evidence, correlation) {
 }
 
 function categoryFor(evidence, correlation) {
+  // Replay-safety metadata is not a product failure. Preserve the historical
+  // category as review-only PARTIAL so old packets cannot promote to FAIL.
   if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
   if (evidence?.failureCategory === 'missing-terminal-sentinel') return 'missing-terminal-sentinel';
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
@@ -140,6 +141,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         typedDelegate: evidence?.typed_delegate_success_same_run === true,
         quiet: evidence?.post_wake_quiet === true,
         failed: evidence?.dispatch_failure_observed === true,
+        replayInvalid: evidence?.dispatch_replay_invalid === true,
       }),
       topologyFingerprint: binding({
         trace: correlation?.traceId || null,
@@ -183,6 +185,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       wakeLifecycleObserved: true,
       unboundSessionVerified: true,
       noChannelVerified: true,
+      replayInvalid: evidence.dispatch_replay_invalid === true,
       traceFingerprint: fingerprint(correlation.traceId),
       acceptedSendTraceFingerprint: fingerprint(evidence.accepted_send_trace_id),
       acceptedSendRunFingerprint: fingerprint(evidence.send_run_fingerprint),

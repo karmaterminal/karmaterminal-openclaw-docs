@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { filterHonestLimitReviewDebt, rrc2HonestLimitReceiptsSufficient } from '../lib/r-rc-2-honest-limit.mjs';
 
 function usage() {
   console.error('Usage: node render-run-report.mjs --root <run-out-root> [--out report.html]');
@@ -104,17 +105,34 @@ function receiptSummary({ manifest, runResult, evidenceRows }) {
   for (const name of manifest?.liveRunSafety?.requiredReceipts || []) {
     receipts.push({ name: safeText(name), required: true, status: 'unknown' });
   }
-  const pending = runResult?.review?.pendingReceipts || [];
+  const pending = filterHonestLimitReviewDebt(runResult?.review?.pendingReceipts || [], {
+    rowId: manifest?.rowId,
+    verdict: runResult?.verdict,
+    evidence: runResult?.evidence || evidenceRows[0],
+  });
   for (const name of pending) {
     const safe = safeText(name);
     const existing = receipts.find((r) => r.name === safe);
     if (existing) existing.status = 'missing';
     else receipts.push({ name: safe, required: true, status: 'missing' });
   }
+  const honestLimitSufficient = rrc2HonestLimitReceiptsSufficient({
+    rowId: manifest?.rowId,
+    verdict: runResult?.verdict,
+    evidence: runResult?.evidence || evidenceRows[0],
+  });
   const traceStatus = runResult?.observability?.traceStatus;
-  if (traceStatus === 'missing') {
+  if (traceStatus === 'missing' && !honestLimitSufficient) {
     const existing = receipts.find((r) => r.name === 'tempo-trace-json' || r.name === 'trace-id');
     if (existing) existing.status = 'missing';
+  }
+  if (honestLimitSufficient) {
+    for (const receipt of receipts) {
+      if (['tempo-trace-json', 'trace-id', 'continuation-trace-correlation'].includes(receipt.name) &&
+          receipt.status === 'missing') {
+        receipt.status = 'honest-limit-sufficient';
+      }
+    }
   }
   const evidence = evidenceRows[0] || {};
   for (const receipt of receipts) {

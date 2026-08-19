@@ -19,10 +19,18 @@ export function gatewayLifecyclePhase(value) {
   return phase === 'start' || phase === 'end' ? phase : null;
 }
 
+export function gatewayLifecycleReplayInvalid(value) {
+  return gatewayLifecyclePhase(value) === 'end' && value.data?.replayInvalid === true;
+}
+
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
   const status = String(value.data?.status || value.status || '').toLowerCase();
-  return !['error', 'failed', 'failure', 'aborted'].includes(status) && value.data?.replayInvalid !== true;
+  if (['error', 'failed', 'failure', 'aborted'].includes(status)) return false;
+  // replayInvalid is replay-safety metadata after a possibly side-effecting
+  // turn. It is independent from lifecycle success and must not fail the end.
+  if (value.data?.aborted === true || value.aborted === true) return false;
+  return true;
 }
 
 export function gatewayWakeRunId(value, acceptedRunId) {

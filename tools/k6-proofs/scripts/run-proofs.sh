@@ -732,19 +732,35 @@ fi
 # Runtime and session resolution run only in the verified snapshot runner: the
 # bootstrap must not invoke external tooling or resolve session state while it is
 # still executing unproven bytes.
-# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
-# Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
-# receipt for the exact SHA. Otherwise prefer a structured CLI receipt when available
-# and fall back to the human version string (for example, "OpenClaw ... (1cc8f4e)").
-DEPLOYED_BUILD_STAMP="${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}"
-if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; then
-  if openclaw version --json >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
-  elif openclaw --version >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw --version | head -n 1)"
+# Fetch deployed runtime identity independently of CANDIDATE_SHA.
+# The resolver may use a structured build receipt, installed metadata, or
+# `openclaw version --json`. It never copies the candidate SHA or expands a
+# short stamp into an invented full SHA.
+RUNTIME_IDENTITY_JSON="$OUT_ROOT/runtime-identity.json"
+mkdir -p "$OUT_ROOT"
+if ! node "$SCRIPT_DIR/resolve-runtime-identity.mjs" --write "$RUNTIME_IDENTITY_JSON" >/dev/null; then
+  echo "WARNING: runtime identity resolver failed; token rows will remain fail-closed." >&2
+  echo '{"schema":"openclaw.k6.runtime-identity.v1","exact":false,"reason":"absent"}' > "$RUNTIME_IDENTITY_JSON"
+fi
+RUNTIME_IDENTITY_EXACT="$(jq -r '.exact // false' "$RUNTIME_IDENTITY_JSON")"
+RUNTIME_IDENTITY_SOURCE="$(jq -r '.runtimeBuildShaSource // empty' "$RUNTIME_IDENTITY_JSON")"
+RUNTIME_VERSION_STAMP="$(jq -r '.versionStamp // empty' "$RUNTIME_IDENTITY_JSON")"
+RESOLVED_RUNTIME_SHA="$(jq -r '.runtimeBuildSha // empty' "$RUNTIME_IDENTITY_JSON")"
+if [[ "$RUNTIME_IDENTITY_EXACT" == "true" && "$RESOLVED_RUNTIME_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+  export OPENCLAW_RUNTIME_BUILD_SHA="$RESOLVED_RUNTIME_SHA"
+else
+  RUNTIME_IDENTITY_REASON="$(jq -r '.reason // "absent"' "$RUNTIME_IDENTITY_JSON")"
+  # Fail closed on ambiguous/malformed identity: do not keep a colliding env
+  # SHA and do not invent one from a short stamp.
+  if [[ "$RUNTIME_IDENTITY_REASON" == "ambiguous" || "$RUNTIME_IDENTITY_REASON" == "malformed" ]]; then
+    export OPENCLAW_RUNTIME_BUILD_SHA="malformed"
+  elif [[ -n "$RUNTIME_VERSION_STAMP" ]]; then
+    # Non-token rows may still publish a human version stamp.
+    export OPENCLAW_RUNTIME_BUILD_SHA="$RUNTIME_VERSION_STAMP"
+  elif [[ -z "${OPENCLAW_RUNTIME_BUILD_SHA:-}" ]]; then
+    export OPENCLAW_RUNTIME_BUILD_SHA="unknown"
   fi
 fi
-export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
 
 # Resolve Session Key
 if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
@@ -839,6 +855,9 @@ jq -n \
   --arg repository "$(safe_repository_or_marker "$DOCS_REPOSITORY")" \
   --arg candidate "$(safe_sha_or_marker "$OPENCLAW_CANDIDATE_SHA")" \
   --arg runtimeBuildSha "$(safe_runtime_stamp "$OPENCLAW_RUNTIME_BUILD_SHA")" \
+  --arg runtimeBuildShaSource "$RUNTIME_IDENTITY_SOURCE" \
+  --arg runtimeVersionStamp "$(safe_runtime_stamp "$RUNTIME_VERSION_STAMP")" \
+  --argjson runtimeIdentityExact "$([[ "$RUNTIME_IDENTITY_EXACT" == "true" ]] && echo true || echo false)" \
   --arg seat "$OPENCLAW_SEAT_NAME" \
   --arg seatReadinessSha256 "$SEAT_READINESS_SHA256" \
   --arg runnerScript "$PROOFS_TOOL_RELPATH/scripts/run-proofs.sh" \
@@ -862,6 +881,9 @@ jq -n \
     runtimeIdentity: {
       seat: $seat,
       runtimeBuildSha: (if $runtimeBuildSha == "" or $runtimeBuildSha == "unknown" then null else $runtimeBuildSha end),
+      runtimeBuildShaSource: (if $runtimeBuildShaSource == "" then null else $runtimeBuildShaSource end),
+      versionStamp: (if $runtimeVersionStamp == "" then null else $runtimeVersionStamp end),
+      exact: $runtimeIdentityExact,
       candidateMatchesRuntime: ($candidate != "" and $candidate == $runtimeBuildSha),
       seatReadinessReceipt: (if $seatReadinessSha256 == "" then null else "seat-readiness.json" end),
       seatReadinessSha256: (if $seatReadinessSha256 == "" then null else $seatReadinessSha256 end)
@@ -968,6 +990,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg scenario "$SCENARIO_FILE" \
       --arg candidate "$OPENCLAW_CANDIDATE_SHA" \
       --arg runtime "$(safe_runtime_stamp "$OPENCLAW_RUNTIME_BUILD_SHA")" \
+      --arg runtimeSource "$RUNTIME_IDENTITY_SOURCE" \
+      --argjson runtimeExact "$([[ "$RUNTIME_IDENTITY_EXACT" == "true" ]] && echo true || echo false)" \
       --arg seat "$OPENCLAW_SEAT_NAME" \
       --arg started "$RUN_STARTED_AT" \
       --arg docsRef "$DOCS_REF" \
@@ -977,7 +1001,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
       --arg scenarioPath "$ROW_SCENARIO_REL" \
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, runtimeBuildShaSource:(if $runtimeSource == "" then null else $runtimeSource end), runtimeIdentityExact:$runtimeExact, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
@@ -987,8 +1011,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         jq -n \
           --arg candidateSha "$(safe_sha_or_marker "$OPENCLAW_CANDIDATE_SHA")" \
           --arg runtimeBuildSha "$(safe_sha_or_marker "$OPENCLAW_RUNTIME_BUILD_SHA")" \
+          --arg runtimeBuildShaSource "$RUNTIME_IDENTITY_SOURCE" \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,dispatched:false,verdict:"PARTIAL-candidate",endedAt:$endedAt}' \
+          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,runtimeBuildShaSource:(if $runtimeBuildShaSource == "" then null else $runtimeBuildShaSource end),equalExactSha:false,dispatched:false,verdict:"PARTIAL-candidate",endedAt:$endedAt}' \
           > "$RUN_DIR/build-identity-gate.json"
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
@@ -1340,6 +1365,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       REVIEW_PENDING_RECEIPTS="$(
         jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
           '$current + ["tempo-trace-json"] | unique'
+      )"
+    fi
+    if [[ "$SUMMARY_VERDICT" == "HONEST-LIMIT-candidate" && "$ROW_ID" == "R-RC-2" ]]; then
+      # Bound nonce/toolResult + child threshold receipts are sufficient for
+      # this row's documented HONEST-LIMIT. Missing Tempo is not review debt.
+      REVIEW_PENDING_RECEIPTS="$(
+        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+          '$current - ["tempo-trace-json","continuation-trace-correlation","trace-id","tool-trace-correlation"]'
       )"
     fi
 

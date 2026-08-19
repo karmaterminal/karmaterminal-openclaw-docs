@@ -236,6 +236,40 @@ function positiveIntegerAttribute(spansAndKeys) {
   return null;
 }
 
+function spanIdHexOrNull(span, field) {
+  try {
+    const value = span?.[field];
+    if (!value) return null;
+    return idHex(value, 8, field);
+  } catch {
+    return null;
+  }
+}
+
+function toolCausallyScopedToTopology(tool, accept, fires) {
+  const toolId = spanIdHexOrNull(tool, 'spanId');
+  const toolParent = spanIdHexOrNull(tool, 'parentSpanId');
+  const acceptId = spanIdHexOrNull(accept, 'spanId');
+  const acceptParent = spanIdHexOrNull(accept, 'parentSpanId');
+  const fireIds = new Set(fires.map((span) => spanIdHexOrNull(span, 'spanId')).filter(Boolean));
+  const fireParents = new Set(fires.map((span) => spanIdHexOrNull(span, 'parentSpanId')).filter(Boolean));
+  if (!toolId) return false;
+  if (toolId === acceptParent || fireParents.has(toolId)) return true;
+  if (toolParent && (toolParent === acceptId || fireIds.has(toolParent))) return true;
+  if (toolParent && (toolParent === acceptParent || fireParents.has(toolParent))) return true;
+  return false;
+}
+
+function scopeWorkToolSpans(trace, tools, accept, fires) {
+  if (tools.length <= 1) return { kind: 'scoped', tools };
+  const causal = tools.filter((span) => toolCausallyScopedToTopology(span, accept, fires));
+  if (causal.length === 1) return { kind: 'scoped', tools: causal };
+  if (causal.length === 0) return { kind: 'ambiguous', tools };
+  const timing = scopeDelegateToolSpans(trace, causal, accept, fires);
+  if (timing.kind === 'scoped' && timing.tools.length === 1) return timing;
+  return { kind: 'ambiguous', tools: timing.tools || causal };
+}
+
 function scopeDelegateToolSpans(trace, tools, accept, fires) {
   const fire = fires[0];
   const lifecycleSpans = [accept, ...fires, ...tools];
@@ -329,9 +363,16 @@ function validateTrace(trace, expected) {
   });
   const toolScope = expected.tool === 'continue_delegate'
     ? scopeDelegateToolSpans(trace, matchingTools, accept, fires)
-    : null;
+    : expected.tool === 'continue_work'
+      ? scopeWorkToolSpans(trace, matchingTools, accept, fires)
+      : null;
   if (toolScope?.kind === 'invalid-timing') {
     throw new Error('matched raw trace lacks complete causal timing for continue_delegate generation scope');
+  }
+  if (toolScope?.kind === 'ambiguous') {
+    throw new Error(
+      `matched trace contains ${toolScope.tools.length || matchingTools.length} in-scope ${expected.tool} tool spans`,
+    );
   }
   const tools = toolScope?.tools ?? matchingTools;
   if (expected.originSurface === 'raw-final-text') {

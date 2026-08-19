@@ -17,6 +17,9 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.ok(buildGate > 0 && prepared > buildGate && surfaceGate > prepared &&
     disposableGate > surfaceGate && k6 > disposableGate);
   assert.match(source, /OPENCLAW_CANDIDATE_SHA" != "\$OPENCLAW_RUNTIME_BUILD_SHA/);
+  assert.match(source, /resolve-runtime-identity\.mjs/);
+  assert.match(source, /runtimeBuildShaSource/);
+  assert.doesNotMatch(source, /OPENCLAW_RUNTIME_BUILD_SHA="\$OPENCLAW_CANDIDATE_SHA"/);
   assert.match(source, /trap finalize_interrupted_token_run EXIT/);
   assert.match(source, /signal-int/);
   assert.match(source, /signal-term/);

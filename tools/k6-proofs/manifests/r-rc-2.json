@@ -67,7 +67,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "R-RC-2 is HONEST-LIMIT-candidate when the delegated child reaches request_compaction and receives a structured below-threshold rejection. A true accepted compaction path remains fixture-gated until reviewed tiny-context env/config exists."
+    "notes": "R-RC-2 is HONEST-LIMIT-candidate when the delegated child reaches request_compaction and receives a nonce-bound structured below-threshold rejection plus the matching child return. Those receipts are sufficient for the honest-limit fold review; missing Tempo is not debt on this path. A true accepted compaction path remains fixture-gated until reviewed tiny-context env/config exists."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -235,9 +235,9 @@
     "verdictAuthority": {
       "passScope": "behavioral-only",
       "pass": "A genuine accepted compaction with the post-compaction path observed and the structured accepted toolResult receipt.",
-      "partial": "Any other incomplete substrate, including a degraded or partial telemetry backend, a missing trace receipt, or a prose-only child report.",
+      "partial": "Any other incomplete substrate, including a degraded or partial telemetry backend on the accepted path, or a prose-only/unbound child report.",
       "fail": "The structured receipt contradicts the observed path, or request_compaction is never reached by the child.",
-      "honestLimit": "The sole corpus HONEST-LIMIT: a structured toolResult receipt proving request_compaction was refused because context pressure remained below threshold. It requires the structured receipt and is never inferred from absence."
+      "honestLimit": "The sole corpus HONEST-LIMIT: a nonce-bound structured toolResult receipt (status=rejected, guard=context_threshold) plus the matching child threshold return. Those receipts are sufficient; Tempo continuation topology is optional corroboration and must never be inferred from assistant prose or an unbound tool result."
     },
     "execution": {
       "deterministicK6": "r-rc-2-delegate-request-compaction.js runs in a disposable session, delegates request_compaction to a child, and captures the structured receipt without mutating config.",

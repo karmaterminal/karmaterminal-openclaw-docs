@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { verifiedRrc2AcceptedEvidence, verifiedRrc2ThresholdEvidence } from '../lib/r-rc-2-honest-limit.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -116,37 +117,6 @@ function receiptStatusFromName(name, summary) {
     default:
       return 'unknown';
   }
-}
-
-function verifiedRrc2ThresholdEvidence(evidence) {
-  return evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.child_reported_context_threshold === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_rejected_context_threshold === true &&
-    evidence.guard === 'context_threshold';
-}
-
-function verifiedRrc2AcceptedEvidence(evidence) {
-  return evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.post_compaction_path_observed === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'accepted' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_accepted === true;
 }
 
 function outcomeFromSummary(summary, expectedArtifactClass, rowId) {

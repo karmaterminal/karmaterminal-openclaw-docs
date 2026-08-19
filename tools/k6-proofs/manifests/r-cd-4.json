@@ -15,11 +15,12 @@
   },
   "scenario": {
     "name": "r-cd-4-target-session-key",
-    "description": "continue_delegate with targetSessionKey: delegate return lands in a SPECIFIED target session, not the dispatching session. Cross-session targeted delivery.",
+    "description": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
     "methods": [
       "sessions.create",
       "sessions.send",
       "sessions.messages.subscribe",
+      "sessions.get",
       "tasks.list"
     ],
     "status": "runnable",
@@ -45,14 +46,19 @@
       "description": "Disposable target session was created via sessions.create when disposable mode is enabled"
     },
     {
+      "name": "target-session-primed",
+      "required": true,
+      "description": "The disposable target completes a priming turn and records how to acknowledge the later internal completion"
+    },
+    {
       "name": "dispatch-accepted",
       "required": true,
       "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate with targetSessionKey"
     },
     {
-      "name": "target-return-event",
+      "name": "target-consumption-ack",
       "required": true,
-      "description": "The TARGET session receives the exact TARGET-RECEIVED {{nonce}} marker in a structured role=system session.message event"
+      "description": "After the continuation return is enqueued and wakes the recipient, the TARGET session emits exact assistant acknowledgement TARGET-ACK {{nonce}}"
     },
     {
       "name": "child-session-identity",
@@ -85,7 +91,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Cross-session targeted return. PASS-candidate requires dispatch acceptance, a nonce-bound child identity, the exact TARGET-RECEIVED {{nonce}} marker in a role=system TARGET event, and no matching parent receipt. Unrelated/assistant messages and nested session-key mentions fail closed."
+    "notes": "Cross-session targeted return. PASS-candidate requires a primed target, dispatch acceptance, a nonce-bound child identity, exact assistant acknowledgement TARGET-ACK {{nonce}} in the TARGET session after return consumption, and no matching parent acknowledgement. Raw child output, prompt echoes, unrelated messages, and nested session-key mentions fail closed."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -189,9 +195,9 @@
       ]
     },
     "controls": {
-      "positive": "The exact row marker arrives in the target session as a structured role=system event, and a structured spawn record binds the child session key to the same row nonce.",
-      "negative": "The dispatching parent session receives no matching return, and assistant messages or nested session-key mentions do not satisfy the receipt.",
-      "notes": "Both controls are gateway-event controls. Telemetry currently contributes nothing to either side."
+      "positive": "The primed target emits exact assistant acknowledgement TARGET-ACK {{nonce}} after consuming the prompt-only continuation return, and a structured spawn record binds the child session key to the same row nonce.",
+      "negative": "The dispatching parent session emits no matching acknowledgement; raw child output, prompt echoes, unrelated messages, and nested session-key mentions do not satisfy the receipt.",
+      "notes": "Both controls are gateway-event controls. The acknowledgement proves recipient consumption rather than assuming prompt-only system events are persisted transcript messages."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -227,12 +233,12 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "Dispatch accepted, nonce-bound child identity, exact marker in a structured target-session event, and no matching parent receipt. Behavioral only: no telemetry rebind is claimed or possible today.",
+      "pass": "Target primed, dispatch accepted, nonce-bound child identity, exact post-return TARGET-ACK acknowledgement in the target session, and no matching parent acknowledgement. Behavioral only: no telemetry rebind is claimed or possible today.",
       "partial": "The child identity or the trace receipt is unavailable, or the telemetry backend is degraded or partial.",
-      "fail": "The marker arrives in the dispatching parent session, or no structured target-session event carries it."
+      "fail": "The acknowledgement arrives in the dispatching parent session, or the primed target never acknowledges consuming the return."
     },
     "execution": {
-      "deterministicK6": "r-cd-4-target-session-key.js creates disposable parent and target sessions and asserts the structured target receipt.",
+      "deterministicK6": "r-cd-4-target-session-key.js creates disposable parent and target sessions, primes the target, dispatches the delegate, and asserts the target consumption acknowledgement.",
       "manual": "A reviewed manual run with an explicit target session key is still supported and produces the same artifact shape.",
       "relationship": "Deterministic disposable-session runs are preferred because manual runs against long-lived sessions cannot bound cross-talk; both remain behavioral-only."
     }
@@ -251,7 +257,8 @@
       "target-session-created",
       "dispatch-accepted",
       "child-session-identity",
-      "target-return-event",
+      "target-session-primed",
+      "target-consumption-ack",
       "no-parent-return",
       "trace-id"
     ],

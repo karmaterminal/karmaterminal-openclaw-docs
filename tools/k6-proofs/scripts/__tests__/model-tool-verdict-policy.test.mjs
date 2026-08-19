@@ -10,6 +10,8 @@ test('R-CD-MODEL-TOOL fails authoritative model mismatch instead of using honest
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 
   assert.match(scenario, /const authoritativeMismatch =[\s\S]+!evidence\.model_matches/);
+  assert.match(scenario, /tracker\.send\(socket, 'sessions\.describe'/);
+  assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.list'/);
   assert.match(scenario, /const verdict = authoritativeMismatch\s*\?\s*'FAIL-candidate'\s*:\s*\(complete \? 'PASS-candidate' : 'PARTIAL-candidate'\)/);
   assert.match(scenario, /finalEvidence\?\.child_session_metadata_observed[\s\S]+!finalEvidence\?\.model_matches/);
   assert.doesNotMatch(scenario, /HONEST-LIMIT-candidate/);

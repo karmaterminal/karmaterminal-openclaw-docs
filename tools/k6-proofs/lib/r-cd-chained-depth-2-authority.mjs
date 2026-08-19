@@ -35,32 +35,32 @@ function directMessageText(eventData) {
   return textParts.length > 0 ? textParts.join('\n') : null;
 }
 
-function hasExactGrandchildMarker(eventData, nonce) {
+function hasExactRootAck(eventData, nonce) {
   const messageText = directMessageText(eventData);
   if (!messageText || messageText.includes(HARNESS_MARKER)) return false;
   const pattern = new RegExp(
-    `(?:^|[^A-Za-z0-9_-])GRANDCHILD-DONE\\s+${escapeRegex(nonce)}(?=$|[^A-Za-z0-9_-])`,
+    `(?:^|[^A-Za-z0-9_-])ROOT-CHAIN-ACK\\s+${escapeRegex(nonce)}(?=$|[^A-Za-z0-9_-])`,
   );
   return pattern.test(messageText);
 }
 
 /**
- * Identify the root system-event candidate independently of the grandchild's
- * ordinary assistant output. The event must be a structured session.message
- * for the exact root and must carry the exact row marker as role=system.
+ * Identify the root-session acknowledgement emitted after the root consumes
+ * the prompt-only continuation return. Raw child/grandchild output is not
+ * sufficient because it can appear on descendant session streams.
  */
 export function rCdChainRootReturnCandidate({ eventName, eventData, rootSessionKey, nonce }) {
   if (eventName !== 'session.message') return null;
   if (!rootSessionKey || !nonce) return null;
   if (directSessionKey(eventData) !== rootSessionKey) return null;
-  if (directMessageRole(eventData) !== 'system') return null;
-  if (!hasExactGrandchildMarker(eventData, nonce)) return null;
+  if (directMessageRole(eventData) !== 'assistant') return null;
+  if (!hasExactRootAck(eventData, nonce)) return null;
   return {
     eventName,
     rootSessionKey,
     nonce,
-    marker: `GRANDCHILD-DONE ${nonce}`,
-    role: 'system',
+    marker: `ROOT-CHAIN-ACK ${nonce}`,
+    role: 'assistant',
   };
 }
 

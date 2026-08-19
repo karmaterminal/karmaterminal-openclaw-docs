@@ -64,9 +64,9 @@
       "description": "A nonce-bound grandchild identity and exact GRANDCHILD-DONE sentinel are observed after dispatch acceptance"
     },
     {
-      "name": "parent-receives-chain-return",
+      "name": "root-consumes-chain-return",
       "required": true,
-      "description": "The exact root session receives GRANDCHILD-DONE {{nonce}} as a structured role=system return event, bound to distinct child and grandchild identities"
+      "description": "After consuming the prompt-only descendant completion, the exact root session emits assistant acknowledgement ROOT-CHAIN-ACK {{nonce}}, bound to distinct child and grandchild identities"
     },
     {
       "name": "trace-id",
@@ -84,7 +84,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, and an explicit role=system GRANDCHILD-DONE {{nonce}} receipt in the exact root session. Grandchild assistant output alone is not return authority."
+    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, and exact assistant acknowledgement ROOT-CHAIN-ACK {{nonce}} from the root after it consumes the prompt-only return. Grandchild output alone is not return authority."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -189,8 +189,8 @@
       ]
     },
     "controls": {
-      "positive": "Strict child and grandchild sentinels are observed, two distinct nonce-bound hop identities exist, and the exact root session receives the grandchild sentinel as a structured role=system return.",
-      "negative": "Prompt echoes and ordinary grandchild assistant output do not satisfy the return receipt; grandchild output alone is never return authority.",
+      "positive": "Strict child and grandchild sentinels are observed, two distinct nonce-bound hop identities exist, and the exact root emits ROOT-CHAIN-ACK {{nonce}} after consuming the return.",
+      "negative": "Prompt echoes and ordinary grandchild output do not satisfy the root receipt; descendant output alone is never return authority.",
       "notes": "Depth is currently established by sentinels and hop identities, not by telemetry."
     },
     "backendUnavailable": {
@@ -227,9 +227,9 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "Both hop sentinels, two distinct nonce-bound hop identities, and the explicit root-session structured return. Behavioral only.",
+      "pass": "Both hop sentinels, two distinct nonce-bound hop identities, and the explicit root-session consumption acknowledgement. Behavioral only.",
       "partial": "A hop identity or the trace receipt is unavailable, or the telemetry backend is degraded or partial.",
-      "fail": "The root session never receives the structured grandchild return, or the two hop identities collapse into one."
+      "fail": "The root session never acknowledges consuming the grandchild return, or the two hop identities collapse into one."
     },
     "execution": {
       "deterministicK6": "r-cd-chained-depth-2.js fires the exact committed manifest task and asserts both hops.",
@@ -252,10 +252,10 @@
       "child-fires-grandchild",
       "grandchild-spawns",
       "grandchild-returns",
-      "parent-receives-chain-return",
+      "root-consumes-chain-return",
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE assistant output; PASS requires distinct hop identities plus the exact root role=system return receipt."
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE descendant output; PASS requires distinct hop identities plus the exact root assistant acknowledgement ROOT-CHAIN-ACK {{nonce}} after return consumption."
   }
 }

@@ -51,7 +51,8 @@ function hasExactSentinel(eventData, marker, nonce) {
 }
 
 /**
- * Identify the target/parent session event that carries the exact row marker.
+ * Identify the target/parent session event that proves the recipient consumed
+ * the prompt-only continuation return and acted in the named session.
  *
  * This deliberately accepts only the structured top-level event session. A
  * session key or nonce appearing in nested prompt text must not route the
@@ -63,14 +64,29 @@ export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, 
   if (!expectedSessionKey || !nonce) return null;
   const sessionKey = directSessionKey(eventData);
   if (sessionKey !== expectedSessionKey) return null;
-  if (directMessageRole(eventData) !== 'system') return null;
-  if (!hasExactSentinel(eventData, 'TARGET-RECEIVED', nonce)) return null;
+  if (directMessageRole(eventData) !== 'assistant') return null;
+  if (!hasExactSentinel(eventData, 'TARGET-ACK', nonce)) return null;
   return {
     eventName,
     sessionKey,
     nonce,
-    marker: `TARGET-RECEIVED ${nonce}`,
-    role: 'system',
+    marker: `TARGET-ACK ${nonce}`,
+    role: 'assistant',
+  };
+}
+
+export function rCd4TargetReadyCandidate({ eventName, eventData, targetSessionKey, nonce }) {
+  if (eventName !== 'session.message') return null;
+  if (!targetSessionKey || !nonce) return null;
+  if (directSessionKey(eventData) !== targetSessionKey) return null;
+  if (directMessageRole(eventData) !== 'assistant') return null;
+  if (!hasExactSentinel(eventData, 'TARGET-READY', nonce)) return null;
+  return {
+    eventName,
+    sessionKey: targetSessionKey,
+    nonce,
+    marker: `TARGET-READY ${nonce}`,
+    role: 'assistant',
   };
 }
 

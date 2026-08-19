@@ -175,7 +175,9 @@ export default function () {
           `Call continue_delegate with: mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
           `task=${JSON.stringify(task)}, ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${chainNonce}". ` +
-          `This is a proof run — execute the tool call immediately, no other action needed.`;
+          `After the tool result reports scheduled, reply exactly ROOT-READY ${chainNonce}. ` +
+          `On a later turn, only after an internal task completion contains GRANDCHILD-DONE ${chainNonce}, ` +
+          `reply exactly ROOT-CHAIN-ACK ${chainNonce}.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -298,7 +300,7 @@ export default function () {
                 if (rootReturnCandidate) {
                   evidence.root_return_candidate = rootReturnCandidate;
                   finalizeRootReturnReceipt();
-                  console.log('✓ explicit nonce-bound root system return candidate observed');
+                  console.log('✓ explicit nonce-bound root consumption ack observed');
                 }
               }
             }
@@ -337,7 +339,7 @@ export default function () {
     'grandchild sentinel observed post-dispatch': () => evidence.grandchild_done_sentinel,
     'nonce-bound child identity observed': () => evidence.child_session !== null,
     'nonce-bound grandchild identity observed': () => evidence.grandchild_session !== null,
-    'explicit root return receipt observed': () => evidence.root_return_receipt !== null,
+    'explicit root consumption ack observed': () => evidence.root_return_receipt !== null,
     'max depth >= 2': () => evidence.max_depth_observed >= 2,
   });
 

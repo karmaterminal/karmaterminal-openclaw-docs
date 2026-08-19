@@ -8,14 +8,14 @@ import {
 const nonce = 'R-CD-CHAIN-EXACT-NONCE';
 const root = 'agent:main:r-cd-chain-root';
 
-function systemEvent(text, sessionKey = root) {
-  return { sessionKey, message: { role: 'system', content: [{ type: 'text', text }] } };
+function assistantEvent(text, sessionKey = root) {
+  return { sessionKey, message: { role: 'assistant', content: [{ type: 'text', text }] } };
 }
 
-test('depth-2 chain binds an explicit root system receipt to both hop identities', () => {
+test('depth-2 chain binds an explicit root consumption ack to both hop identities', () => {
   const candidate = rCdChainRootReturnCandidate({
     eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}`),
+    eventData: assistantEvent(`ROOT-CHAIN-ACK ${nonce}`),
     rootSessionKey: root,
     nonce,
   });
@@ -26,8 +26,8 @@ test('depth-2 chain binds an explicit root system receipt to both hop identities
     eventName: 'session.message',
     rootSessionKey: root,
     nonce,
-    marker: `GRANDCHILD-DONE ${nonce}`,
-    role: 'system',
+    marker: `ROOT-CHAIN-ACK ${nonce}`,
+    role: 'assistant',
     childSessionKey: 'agent:main:subagent:child',
     grandchildSessionKey: 'agent:main:subagent:grandchild',
   });
@@ -36,10 +36,7 @@ test('depth-2 chain binds an explicit root system receipt to both hop identities
 test('depth-2 chain rejects ordinary GRANDCHILD-DONE assistant output', () => {
   assert.equal(rCdChainRootReturnCandidate({
     eventName: 'session.message',
-    eventData: {
-      sessionKey: root,
-      message: { role: 'assistant', content: `GRANDCHILD-DONE ${nonce}` },
-    },
+    eventData: assistantEvent(`GRANDCHILD-DONE ${nonce}`),
     rootSessionKey: root,
     nonce,
   }), null);
@@ -48,7 +45,7 @@ test('depth-2 chain rejects ordinary GRANDCHILD-DONE assistant output', () => {
 test('depth-2 chain rejects a correct marker delivered outside the root', () => {
   assert.equal(rCdChainRootReturnCandidate({
     eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}`, 'agent:main:subagent:child'),
+    eventData: assistantEvent(`ROOT-CHAIN-ACK ${nonce}`, 'agent:main:subagent:child'),
     rootSessionKey: root,
     nonce,
   }), null);
@@ -57,22 +54,22 @@ test('depth-2 chain rejects a correct marker delivered outside the root', () => 
 test('depth-2 chain rejects prompt echoes and nonce-prefix lookalikes', () => {
   assert.equal(rCdChainRootReturnCandidate({
     eventName: 'session.message',
-    eventData: systemEvent(`[k6-proof-harness] expect GRANDCHILD-DONE ${nonce}`),
+    eventData: assistantEvent(`[k6-proof-harness] expect ROOT-CHAIN-ACK ${nonce}`),
     rootSessionKey: root,
     nonce,
   }), null);
   assert.equal(rCdChainRootReturnCandidate({
     eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}-STALE`),
+    eventData: assistantEvent(`ROOT-CHAIN-ACK ${nonce}-STALE`),
     rootSessionKey: root,
     nonce,
   }), null);
 });
 
 test('depth-2 chain rejects a marker present only in sibling or nested metadata', () => {
-  const eventData = systemEvent('unrelated root system message');
-  eventData.metadata = { returnMarker: `GRANDCHILD-DONE ${nonce}` };
-  eventData.message.metadata = { echoedMarker: `GRANDCHILD-DONE ${nonce}` };
+  const eventData = assistantEvent('unrelated root assistant message');
+  eventData.metadata = { returnMarker: `ROOT-CHAIN-ACK ${nonce}` };
+  eventData.message.metadata = { echoedMarker: `ROOT-CHAIN-ACK ${nonce}` };
   assert.equal(rCdChainRootReturnCandidate({
     eventName: 'session.message',
     eventData,
@@ -84,7 +81,7 @@ test('depth-2 chain rejects a marker present only in sibling or nested metadata'
 test('depth-2 chain withholds return authority without two distinct hop identities', () => {
   const candidate = rCdChainRootReturnCandidate({
     eventName: 'session.message',
-    eventData: systemEvent(`GRANDCHILD-DONE ${nonce}`),
+    eventData: assistantEvent(`ROOT-CHAIN-ACK ${nonce}`),
     rootSessionKey: root,
     nonce,
   });

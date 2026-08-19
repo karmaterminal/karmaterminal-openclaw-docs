@@ -9,6 +9,7 @@ import {
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
   rCd4ShouldScheduleEarlyClose,
+  rCd4TargetReadyCandidate,
   rCd4TaskIdentityToken,
   rCd4TaskObservation,
   rCd4TaskPrompt,
@@ -52,12 +53,12 @@ test('R-CD-4 task prompt keeps the compact token in the traced reason', () => {
   assert.ok(prompt.startsWith(rCd4TaskIdentityToken(nonce)));
 });
 
-test('R-CD-4 accepts only the exact target marker and binds child identity', () => {
+test('R-CD-4 accepts only the exact target consumption ack and binds child identity', () => {
   const candidate = rCd4ReturnCandidate({
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     expectedSessionKey: target,
     nonce,
@@ -66,8 +67,8 @@ test('R-CD-4 accepts only the exact target marker and binds child identity', () 
     eventName: 'session.message',
     sessionKey: target,
     nonce,
-    marker: `TARGET-RECEIVED ${nonce}`,
-    role: 'system',
+    marker: `TARGET-ACK ${nonce}`,
+    role: 'assistant',
     childSessionKey: 'agent:main:subagent:child',
   });
 });
@@ -75,7 +76,7 @@ test('R-CD-4 accepts only the exact target marker and binds child identity', () 
 test('R-CD-4 rejects an unrelated delayed target message', () => {
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, message: { role: 'system', content: 'ordinary delayed target output' } },
+    eventData: { sessionKey: target, message: { role: 'assistant', content: 'ordinary delayed target output' } },
     expectedSessionKey: target,
     nonce,
   }), null);
@@ -86,14 +87,14 @@ test('R-CD-4 rejects prompt echo and nonce-prefix lookalikes', () => {
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'system', content: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `[k6-proof-harness] expect TARGET-ACK ${nonce}` },
     },
     expectedSessionKey: target,
     nonce,
   }), null);
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, message: { role: 'system', content: `TARGET-RECEIVED ${nonce}-STALE` } },
+    eventData: { sessionKey: target, message: { role: 'assistant', content: `TARGET-ACK ${nonce}-STALE` } },
     expectedSessionKey: target,
     nonce,
   }), null);
@@ -102,7 +103,7 @@ test('R-CD-4 rejects prompt echo and nonce-prefix lookalikes', () => {
 test('R-CD-4 never routes from a nested session-key mention', () => {
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: parent, message: { role: 'system', content: `for ${target}: TARGET-RECEIVED ${nonce}` } },
+    eventData: { sessionKey: parent, message: { role: 'assistant', content: `for ${target}: TARGET-ACK ${nonce}` } },
     expectedSessionKey: target,
     nonce,
   }), null);
@@ -111,19 +112,19 @@ test('R-CD-4 never routes from a nested session-key mention', () => {
 test('R-CD-4 withholds a marker candidate until child identity is available', () => {
   const candidate = rCd4ReturnCandidate({
     eventName: 'session.message',
-    eventData: { sessionKey: target, message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` } },
+    eventData: { sessionKey: target, message: { role: 'assistant', content: `TARGET-ACK ${nonce}` } },
     expectedSessionKey: target,
     nonce,
   });
   assert.equal(rCd4ReturnReceipt(candidate, null), null);
 });
 
-test('R-CD-4 rejects an assistant-authored marker in the target session', () => {
+test('R-CD-4 rejects a system-authored target ack', () => {
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'assistant', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'system', content: `TARGET-ACK ${nonce}` },
     },
     expectedSessionKey: target,
     nonce,
@@ -134,11 +135,11 @@ test('R-CD-4 rejects a marker present only in sibling or nested metadata', () =>
   const eventData = {
     sessionKey: target,
     message: {
-      role: 'system',
-      content: [{ type: 'text', text: 'unrelated target system message' }],
-      metadata: { echoedMarker: `TARGET-RECEIVED ${nonce}` },
+      role: 'assistant',
+      content: [{ type: 'text', text: 'unrelated target assistant message' }],
+      metadata: { echoedMarker: `TARGET-ACK ${nonce}` },
     },
-    metadata: { returnMarker: `TARGET-RECEIVED ${nonce}` },
+    metadata: { returnMarker: `TARGET-ACK ${nonce}` },
   };
   assert.equal(rCd4ReturnCandidate({
     eventName: 'session.message',
@@ -153,7 +154,7 @@ test('R-CD-4 retains an authoritative target receipt before the generic wake gat
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     targetSessionKey: target,
     parentSessionKey: parent,
@@ -170,11 +171,11 @@ test('R-CD-4 retains an authoritative target receipt before the generic wake gat
   ), null);
 });
 
-test('R-CD-4 recovers an authoritative target return from sessions.get history', () => {
+test('R-CD-4 recovers an authoritative target consumption ack from sessions.get history', () => {
   const observation = rCd4HistoryObservation({
     messages: [
       { role: 'user', content: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}` },
-      { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     ],
     sessionKey: target,
     targetSessionKey: target,
@@ -190,7 +191,7 @@ test('R-CD-4 recovers an authoritative target return from sessions.get history',
 
 test('R-CD-4 history recovery still identifies a parent-session misroute', () => {
   const observation = rCd4HistoryObservation({
-    messages: [{ role: 'system', content: `TARGET-RECEIVED ${nonce}` }],
+    messages: [{ role: 'assistant', content: `TARGET-ACK ${nonce}` }],
     sessionKey: parent,
     targetSessionKey: target,
     parentSessionKey: parent,
@@ -207,7 +208,7 @@ test('R-CD-4 retains an early parent receipt so a later target cannot false-PASS
     eventName: 'session.message',
     eventData: {
       sessionKey: parent,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     targetSessionKey: target,
     parentSessionKey: parent,
@@ -219,7 +220,7 @@ test('R-CD-4 retains an early parent receipt so a later target cannot false-PASS
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     targetSessionKey: target,
     parentSessionKey: parent,
@@ -270,7 +271,7 @@ test('R-CD-4 rejects requester sessionKey and nested nonce as tasks.list child a
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     expectedSessionKey: target,
     nonce,
@@ -308,7 +309,7 @@ test('R-CD-4 keeps observing after a target receipt but closes early on parent f
     eventName: 'session.message',
     eventData: {
       sessionKey: target,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     expectedSessionKey: target,
     nonce,
@@ -317,7 +318,7 @@ test('R-CD-4 keeps observing after a target receipt but closes early on parent f
     eventName: 'session.message',
     eventData: {
       sessionKey: parent,
-      message: { role: 'system', content: `TARGET-RECEIVED ${nonce}` },
+      message: { role: 'assistant', content: `TARGET-ACK ${nonce}` },
     },
     expectedSessionKey: parent,
     nonce,
@@ -329,4 +330,31 @@ test('R-CD-4 keeps observing after a target receipt but closes early on parent f
     parentReturnReceipt: null,
   }), false);
   assert.equal(rCd4ShouldScheduleEarlyClose({ parentReturnReceipt: parentReceipt }), true);
+});
+
+test('R-CD-4 target priming accepts only an exact assistant ready marker', () => {
+  assert.deepEqual(rCd4TargetReadyCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: target,
+      message: { role: 'assistant', content: `TARGET-READY ${nonce}` },
+    },
+    targetSessionKey: target,
+    nonce,
+  }), {
+    eventName: 'session.message',
+    sessionKey: target,
+    nonce,
+    marker: `TARGET-READY ${nonce}`,
+    role: 'assistant',
+  });
+  assert.equal(rCd4TargetReadyCandidate({
+    eventName: 'session.message',
+    eventData: {
+      sessionKey: parent,
+      message: { role: 'assistant', content: `TARGET-READY ${nonce}` },
+    },
+    targetSessionKey: target,
+    nonce,
+  }), null);
 });

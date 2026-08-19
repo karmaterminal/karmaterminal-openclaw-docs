@@ -22,6 +22,7 @@ import {
   rCd4ReturnReceipt,
   rCd4SessionMessageObservation,
   rCd4ShouldScheduleEarlyClose,
+  rCd4TargetReadyCandidate,
   rCd4TaskIdentityToken,
   rCd4TaskObservation,
   rCd4TaskPrompt,
@@ -114,6 +115,7 @@ export default function () {
     targetSessionKey,
     parent_session_created: false,
     target_session_created: false,
+    target_primed: false,
     created_parent_session_key: null,
     created_target_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
@@ -149,6 +151,8 @@ export default function () {
     let returnHistoryPollScheduled = false;
     let returnHistoryPollInFlight = false;
     let returnHistoryPhase = null;
+    let parentDispatchStarted = false;
+    let sendPhase = null;
 
     function finalizeReturnReceipts() {
       evidence.target_return_receipt = rCd4ReturnReceipt(
@@ -239,27 +243,42 @@ export default function () {
       });
     }
 
+    function dispatchParent(socket) {
+      if (parentDispatchStarted) return;
+      parentDispatchStarted = true;
+      sendPhase = 'parent-dispatch';
+      const prompt = rCd4TaskPrompt(inv.promptTemplate, rowNonce);
+      evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
+      evidence.reason_length = prompt.length;
+      evidence.delegate_mode = inv.mode;
+      const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, targetSessionKey="${targetSessionKey}". This is a proof run — execute the tool call immediately, no other action needed.`;
+      tracker.send(socket, 'sessions.send', {
+        key: sessionKey,
+        message: agentInstruction,
+        idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
+      });
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 8000);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 25000);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 50000);
+      socket.setTimeout(() => socket.close(), R_CD_4_OBSERVATION_WINDOW_MS);
+    }
+
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       tracker.send(socket, 'sessions.messages.subscribe', { key: targetSessionKey });
 
       socket.setTimeout(() => {
-        const prompt = rCd4TaskPrompt(inv.promptTemplate, rowNonce);
-        evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
-        evidence.reason_length = prompt.length;
-        evidence.delegate_mode = inv.mode;
-        const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, targetSessionKey="${targetSessionKey}". This is a proof run — execute the tool call immediately, no other action needed.`;
+        sendPhase = 'target-prime';
+        const agentInstruction =
+          `[k6-proof-harness] R-CD-4 target priming nonce ${rowNonce}. ` +
+          `Reply exactly TARGET-READY ${rowNonce} now. On a later turn, only after an internal ` +
+          `task completion contains TARGET-RECEIVED ${rowNonce}, reply exactly TARGET-ACK ${rowNonce}.`;
         tracker.send(socket, 'sessions.send', {
-          key: sessionKey,
+          key: targetSessionKey,
           message: agentInstruction,
-          idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
+          idempotencyKey: `${inv.idempotencyKeyPrefix}-TARGET-PRIME-${rowNonce}`,
         });
       }, 500);
-
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 8000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 25000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 50000);
-      socket.setTimeout(() => socket.close(), R_CD_4_OBSERVATION_WINDOW_MS);
     }
 
     socket.on('open', () => {
@@ -313,11 +332,15 @@ export default function () {
 
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
           if (classified.ok && classified.payload) {
-            evidence.tool_accepted = true;
-            evidence.dispatch_accepted_at_ms = Date.now();
-            if (classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
-            console.log('✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)');
-            requestReturnHistories(1000);
+            if (sendPhase === 'parent-dispatch') {
+              evidence.tool_accepted = true;
+              evidence.dispatch_accepted_at_ms = Date.now();
+              if (classified.payload.traceId) evidence.trace_id = classified.payload.traceId;
+              console.log('✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)');
+              requestReturnHistories(1000);
+            } else {
+              console.log('✓ target priming turn accepted');
+            }
           } else if (classified.error) {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
@@ -370,6 +393,19 @@ export default function () {
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
+          if (!evidence.target_primed) {
+            const ready = rCd4TargetReadyCandidate({
+              eventName,
+              eventData,
+              targetSessionKey,
+              nonce: rowNonce,
+            });
+            if (ready) {
+              evidence.target_primed = true;
+              console.log('✓ target session primed for continuation consumption acknowledgement');
+              socket.setTimeout(() => dispatchParent(socket), 100);
+            }
+          }
           const observedChildren = childSessionKeysForRow(
             eventData,
             rowNonce,
@@ -430,22 +466,23 @@ export default function () {
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
+    'target session primed': () => evidence.target_primed,
     'dispatch accepted': () => evidence.tool_accepted,
     'dispatching agent turn observed': () => evidence.agent_turn_observed,
     'nonce-bound child identity observed': () => evidence.child_session !== null,
     'nonce-bound child identity is unambiguous': () => !evidence.child_session_ambiguous,
     'nonce-bound child identity is not parent or target': () => !evidence.child_session_invalid,
-    'nonce-bound target return receipt observed': () => evidence.target_return_receipt !== null,
+    'nonce-bound target consumption ack observed': () => evidence.target_return_receipt !== null,
     'no nonce-bound parent return receipt': () => evidence.parent_return_receipt === null,
   });
 
-  if (!evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.child_session ||
+  if (!evidence.target_primed || !evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.child_session ||
       evidence.child_session_ambiguous || evidence.child_session_invalid ||
       !evidence.target_return_receipt || evidence.parent_return_receipt) {
     failures.add(1);
   }
 
-  const passed = evidence.tool_accepted && evidence.agent_turn_observed &&
+  const passed = evidence.target_primed && evidence.tool_accepted && evidence.agent_turn_observed &&
     evidence.child_session !== null && !evidence.child_session_ambiguous &&
     !evidence.child_session_invalid &&
     evidence.target_return_receipt !== null &&

@@ -83,6 +83,18 @@ export default function() {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let childMetadataAttempts = 0;
+    let childMetadataRequestInFlight = false;
+    function requestChildMetadata(socket, delayMs = 0) {
+      if (!evidence.child_session_key || childMetadataRequestInFlight || evidence.child_session_metadata_observed) return;
+      socket.setTimeout(() => {
+        if (!evidence.child_session_key || childMetadataRequestInFlight || evidence.child_session_metadata_observed) return;
+        childMetadataRequestInFlight = true;
+        childMetadataAttempts += 1;
+        evidence.child_metadata_requested = true;
+        tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
+      }, delayMs);
+    }
     function start(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
@@ -144,9 +156,9 @@ export default function() {
             console.log('✓ sessions.send accepted — explicit model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'sessions.list') {
-          const sessions = Array.isArray(classified.payload?.sessions) ? classified.payload.sessions : [];
-          const child = sessions.find((session) => session?.key === evidence.child_session_key);
+        if (classified.kind === 'response' && classified.method === 'sessions.describe') {
+          childMetadataRequestInFlight = false;
+          const child = classified.payload?.session || null;
           if (child) {
             evidence.child_session_observed = true;
             evidence.child_session_metadata_observed = true;
@@ -166,7 +178,9 @@ export default function() {
             console.log('✓ child session metadata observed');
           } else if (!classified.ok) {
             evidence.model_classification_reason =
-              'gateway sessions.list unavailable while resolving child session metadata';
+              'gateway sessions.describe unavailable while resolving child session metadata';
+          } else if (childMetadataAttempts < 6) {
+            requestChildMetadata(socket, 250);
           }
         }
         if (classified.kind === 'event') {
@@ -177,10 +191,7 @@ export default function() {
           if (observedChildSessionKey) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;
-            if (!evidence.child_metadata_requested) {
-              evidence.child_metadata_requested = true;
-              socket.setTimeout(() => tracker.send(socket, 'sessions.list', { limit: 100 }), 500);
-            }
+            requestChildMetadata(socket);
           }
           if (eventBelongsToRow && !eventStr.includes(HARNESS_MARKER)) {
             if (eventStr.includes('MODEL-TOOL-PARENT-SCHEDULED')) {

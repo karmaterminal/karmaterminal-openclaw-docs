@@ -88,6 +88,39 @@ async function fixture({ result = runResult(), metadata = null, manifestValue = 
   return { root, candidateDir, manifestPath, manifestBody };
 }
 
+async function writeCanonicalCorpusFixture(root) {
+  const corpusDir = path.join(root, 'PROOFS', sha);
+  await mkdir(corpusDir, { recursive: true });
+  const rollup = {
+    total_rows: 0,
+    pass: 0,
+    partial: 0,
+    thin: 0,
+    fail: 0,
+    honest_limit: 0,
+    missing: 0,
+  };
+  await writeFile(
+    path.join(corpusDir, 'proofs-manifest.json'),
+    `${JSON.stringify({
+      schema: 'openclaw.proofs.manifest.v1',
+      capture_sha: sha,
+      rows: [],
+      rollup,
+    }, null, 2)}\n`,
+  );
+  await writeFile(
+    path.join(root, 'PROOFS', 'INDEX.json'),
+    `${JSON.stringify({
+      schema: 'openclaw.proofs.index.v1',
+      current_sha: sha,
+      corpus_path: `PROOFS/${sha}`,
+      manifest_path: `PROOFS/${sha}/proofs-manifest.json`,
+      rollup,
+    }, null, 2)}\n`,
+  );
+}
+
 async function invoke({ manifestPath, candidateDir, out = null }) {
   const args = [script, '--manifest', manifestPath, '--candidate-dir', candidateDir, '--docs-ref', docsRef];
   if (out) args.push('--out', out);
@@ -474,16 +507,18 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
 test('candidate envelope is outside and invisible to canonical corpus validation', async () => {
   const setup = await fixture();
   try {
-    const before = await runNode(process.execPath, [corpusValidator, '--index', '--json'], { encoding: 'utf8' });
+    await writeCanonicalCorpusFixture(setup.root);
+    const validatorArgs = [corpusValidator, '--root', setup.root, '--index', '--json'];
+    const before = await runNode(process.execPath, validatorArgs, { encoding: 'utf8' });
     await invoke({ ...setup, out: path.join(setup.candidateDir, 'candidate-run-result.json') });
-    const after = await runNode(process.execPath, [corpusValidator, '--index', '--json'], { encoding: 'utf8' });
+    const after = await runNode(process.execPath, validatorArgs, { encoding: 'utf8' });
     const normalized = (raw) => {
       const value = JSON.parse(raw);
       value.root = '<repo-root>';
       for (const report of value.reports || []) {
         if (report.indexPath) report.indexPath = '<repo-root>/PROOFS/INDEX.json';
         for (const check of report.checks || []) {
-          if (typeof check.detail === 'string') check.detail = check.detail.replaceAll(process.cwd(), '<repo-root>');
+          if (typeof check.detail === 'string') check.detail = check.detail.replaceAll(setup.root, '<repo-root>');
         }
       }
       return value;

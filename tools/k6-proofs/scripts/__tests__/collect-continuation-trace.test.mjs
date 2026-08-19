@@ -522,7 +522,7 @@ test('accepts distinct repeated continue_work fire attempts and preserves every 
   }
 });
 
-test('rejects repeated continue_work fire attempts with duplicate span IDs', async () => {
+test('deduplicates retried exports of the same continue_work fire span', async () => {
   const fixture = await fixtureDir({ tool: 'continue_work' });
   const traceId = '18181818181818181818181818181818';
   const trace = traceFixture({
@@ -541,10 +541,14 @@ test('rejects repeated continue_work fire attempts with duplicate span IDs', asy
       : trace));
   });
   try {
-    await assert.rejects(execFileAsync(process.execPath, [
+    const { stdout } = await execFileAsync(process.execPath, [
       script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
       '--seat', 'silas-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
-    ]), /span IDs are not distinct/);
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.equal(receipt.fireAttemptCount, 1);
+    assert.deepEqual(receipt.fireSpanIds, ['bbbbbbbbbbbbbbbb']);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
@@ -1366,6 +1370,47 @@ test('reconstructs deterministic R-CW-3 reason telemetry without persisting the 
     assert.match(publicTraceText, /reason\.length/);
     assert.doesNotMatch(publicTraceText, /RAW-RCW3/);
     assert.doesNotMatch(JSON.stringify(receipt), /RAW-RCW3/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('deduplicates retried exports of the same R-CW-3 tool span', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work', workVariant: 'reason-prefix' });
+  const traceId = '45454545454545454545454545454545';
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  const spans = trace.batches[0].scopeSpans[0].spans;
+  trace.batches[0].scopeSpans[0].spans = [spans[0], spans[0], spans[0], ...spans.slice(1)];
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      url.pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'cael-dgx',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    assert.equal(receipt.row, 'R-CW-3');
+    assert.equal(receipt.toolSpanIds.length, 1);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

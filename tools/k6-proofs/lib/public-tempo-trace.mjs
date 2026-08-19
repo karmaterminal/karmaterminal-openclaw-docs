@@ -15,15 +15,28 @@ export function tempoAttributeValue(attribute) {
 }
 
 export function allTempoSpans(trace) {
+  let spans;
   if (Array.isArray(trace?.batches)) {
-    return trace.batches.flatMap((batch) =>
+    spans = trace.batches.flatMap((batch) =>
       (batch.scopeSpans || batch.instrumentationLibrarySpans || []).flatMap((scope) => scope.spans || []));
+  } else if (Array.isArray(trace?.trace?.spans)) {
+    spans = trace.trace.spans;
+  } else if (trace?.schema === 'openclaw.k6.public-tempo-trace.v1' && Array.isArray(trace.spans)) {
+    spans = trace.spans;
+  } else {
+    spans = [];
   }
-  if (Array.isArray(trace?.trace?.spans)) return trace.trace.spans;
-  if (trace?.schema === 'openclaw.k6.public-tempo-trace.v1' && Array.isArray(trace.spans)) {
-    return trace.spans;
-  }
-  return [];
+
+  const seen = new Map();
+  return spans.filter((span) => {
+    if (!span?.traceId || !span?.spanId) return true;
+    const identity = `${String(span.traceId)}:${String(span.spanId)}`;
+    const serialized = JSON.stringify(span);
+    const previous = seen.get(identity);
+    if (previous === serialized) return false;
+    if (previous === undefined) seen.set(identity, serialized);
+    return true;
+  });
 }
 
 function safeHex(value, length) {

@@ -25,7 +25,7 @@ const DEFAULTS = {
   idempotencyKeyPrefix: 'R-CD-MODEL-TOOL',
   requestedModel: 'openai/gpt-5.6-luna',
   promptTemplate:
-    'MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: report the current model identity from runtime context and the nonce only. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.',
+    'MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly MODEL-TOOL-CHILD {{nonce}} MODEL <provider/model>, replacing <provider/model> with the current model identity from runtime context. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 

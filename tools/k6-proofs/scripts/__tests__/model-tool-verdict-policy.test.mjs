@@ -22,4 +22,13 @@ test('R-CD-MODEL-TOOL fails authoritative model mismatch instead of using honest
   assert.doesNotMatch(scenario, /HONEST-LIMIT-candidate/);
   assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
   assert.doesNotMatch(JSON.stringify(manifest), /HONEST-LIMIT-candidate/);
+  assert.match(
+    manifest.invocation.promptTemplate,
+    /reply exactly MODEL-TOOL-CHILD \{\{nonce\}\} MODEL <provider\/model>/,
+  );
+  assert.doesNotMatch(manifest.invocation.promptTemplate, /openai\/gpt-5\.6-luna/);
+  assert.match(
+    scenario,
+    /reply exactly MODEL-TOOL-CHILD \{\{nonce\}\} MODEL <provider\/model>/,
+  );
 });

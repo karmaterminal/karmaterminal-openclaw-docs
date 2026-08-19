@@ -15,6 +15,11 @@ const FAILURE_CATEGORIES = new Set([
   'missing-continuation-topology',
   'invalid-continuation-topology',
 ]);
+const CONCLUSIVE_FAILURE_CATEGORIES = new Set([
+  'provider-or-turn-failure',
+  'delegate-replay-unsafe',
+  'missing-terminal-sentinel',
+]);
 
 const hex = (value, length) => typeof value === 'string' && new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
 const fingerprint = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
@@ -151,7 +156,14 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
   };
 
   if (!evidencePasses(evidence) || !topologyPasses(correlation) || !sameAcceptedTrace(evidence, correlation) || !sameRowBinding(evidence, correlation)) {
-    return seal({ ...base, verdict: 'PARTIAL-candidate', failureCategory: categoryFor(evidence, correlation) }, signingKey);
+    const failureCategory = categoryFor(evidence, correlation);
+    return seal({
+      ...base,
+      verdict: CONCLUSIVE_FAILURE_CATEGORIES.has(failureCategory)
+        ? 'FAIL-candidate'
+        : 'PARTIAL-candidate',
+      failureCategory,
+    }, signingKey);
   }
 
   return seal({
@@ -189,7 +201,10 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
       !hex(receipt.integrity?.signature, 64)) return { valid: false, reason: 'invalid-shape' };
   const expected = createHmac('sha256', signingKey).update(canonical(receipt)).digest('hex');
   if (!timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(receipt.integrity.signature, 'hex'))) return { valid: false, reason: 'invalid-integrity' };
-  if (receipt.verdict === 'PARTIAL-candidate') return FAILURE_CATEGORIES.has(receipt.failureCategory)
+  if (receipt.verdict === 'PARTIAL-candidate') return FAILURE_CATEGORIES.has(receipt.failureCategory) &&
+    !CONCLUSIVE_FAILURE_CATEGORIES.has(receipt.failureCategory)
+    ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };
+  if (receipt.verdict === 'FAIL-candidate') return CONCLUSIVE_FAILURE_CATEGORIES.has(receipt.failureCategory)
     ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };
   const life = receipt.lifecycle;
   const pass = receipt.verdict === 'PASS-candidate' && life?.typedTool === 'continue_delegate' && life.mode === 'silent-wake' &&

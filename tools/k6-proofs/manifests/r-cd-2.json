@@ -205,8 +205,8 @@
     "verdictAuthority": {
       "passScope": "behavioral-only",
       "pass": "Only the validated row-scoped authoritative receipt can produce PASS-candidate, and only for the observed behavior. It is not a claim that the silent wake is re-identifiable from telemetry.",
-      "partial": "Topology, wake lifecycle, or trace receipts are unavailable, including when the telemetry backend is degraded or partial.",
-      "fail": "A channel message is delivered for the silent-wake return, or the dispatch lifecycle does not reach its terminal sentinel."
+      "partial": "Topology, wake lifecycle, or trace receipts are unavailable without a conclusive failed lifecycle, including when the telemetry backend is degraded or partial.",
+      "fail": "A channel message is delivered for the silent-wake return, or the accepted dispatch lifecycle conclusively fails, becomes replay-unsafe, or does not reach its terminal sentinel."
     },
     "execution": {
       "deterministicK6": "r-cd-2-silent-wake.js plus the row-scoped resolver produce the signed receipt; the runner withholds the envelope if the digest does not match.",

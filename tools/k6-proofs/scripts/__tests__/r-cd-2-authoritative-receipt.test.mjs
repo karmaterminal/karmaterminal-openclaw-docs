@@ -93,7 +93,11 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
     evidence: evidence({ dispatch_failure_observed: true, failureCategory: 'delegate-replay-unsafe' }),
     correlation: correlation(), signingKey,
   });
-  assert.equal(replay.failureCategory, 'delegate-replay-unsafe');
+  assert.deepEqual(
+    [replay.verdict, replay.failureCategory],
+    ['FAIL-candidate', 'delegate-replay-unsafe'],
+  );
+  assert.equal(validateRcd2AuthoritativeReceipt(replay, signingKey).valid, true);
   for (const bad of [correlation({ delegate: { mode: 'normal' } }), correlation({ toolSpanIds: ['a'.repeat(16), 'b'.repeat(16)] })]) {
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
@@ -112,7 +116,7 @@ test('R-CD-2 rejects a successful lifecycle end without the exact post-tool sent
   });
   assert.deepEqual(
     [receipt.verdict, receipt.failureCategory],
-    ['PARTIAL-candidate', 'missing-terminal-sentinel'],
+    ['FAIL-candidate', 'missing-terminal-sentinel'],
   );
 });
 
@@ -128,7 +132,7 @@ test('R-CD-2 rejects a terminal sentinel observed outside the accepted dispatch 
   });
   assert.deepEqual(
     [receipt.verdict, receipt.failureCategory],
-    ['PARTIAL-candidate', 'missing-terminal-sentinel'],
+    ['FAIL-candidate', 'missing-terminal-sentinel'],
   );
 });
 

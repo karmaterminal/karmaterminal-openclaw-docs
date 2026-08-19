@@ -248,8 +248,13 @@ export default function () {
         }
 
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const taskStr = JSON.stringify(classified.payload || {});
-          if (taskStr.includes(rowNonce)) console.log('✓ task ledger contains R-RC-2 nonce context');
+          const observedChildSessionKey = childSessionKeyForRow(classified.payload, rowNonce);
+          if (observedChildSessionKey && !evidence.child_session_key) {
+            evidence.child_session_observed = true;
+            evidence.child_session_key = observedChildSessionKey;
+            requestChildHistory(250);
+            console.log('✓ nonce-bound delegated child session observed in task ledger');
+          }
         }
 
         if (classified.kind === 'response' && classified.method === 'sessions.get') {

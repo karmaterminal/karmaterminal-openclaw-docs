@@ -11,6 +11,9 @@ test('R-CD-MODEL-TOOL fails authoritative model mismatch instead of using honest
 
   assert.match(scenario, /const authoritativeMismatch =[\s\S]+!evidence\.model_matches/);
   assert.match(scenario, /tracker\.send\(socket, 'sessions\.describe'/);
+  assert.match(scenario, /tracker\.send\(socket, 'tasks\.list'/);
+  assert.match(scenario, /childSessionKeyForRow\(classified\.payload, rowNonce\)/);
+  assert.match(scenario, /requestChildMetadata\(socket, delayMs = 1\)/);
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.list'/);
   assert.match(scenario, /const verdict = authoritativeMismatch\s*\?\s*'FAIL-candidate'\s*:\s*\(complete \? 'PASS-candidate' : 'PARTIAL-candidate'\)/);
   assert.match(scenario, /finalEvidence\?\.child_session_metadata_observed[\s\S]+!finalEvidence\?\.model_matches/);

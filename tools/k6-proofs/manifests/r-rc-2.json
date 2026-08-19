@@ -15,6 +15,8 @@
     "methods": [
       "sessions.send",
       "sessions.messages.subscribe",
+      "tasks.list",
+      "sessions.get",
       "continue_delegate",
       "request_compaction-threshold-guard"
     ],

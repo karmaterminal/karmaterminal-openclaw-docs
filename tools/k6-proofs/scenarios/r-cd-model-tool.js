@@ -85,7 +85,7 @@ export default function() {
     const tracker = new RequestTracker();
     let childMetadataAttempts = 0;
     let childMetadataRequestInFlight = false;
-    function requestChildMetadata(socket, delayMs = 0) {
+    function requestChildMetadata(socket, delayMs = 1) {
       if (!evidence.child_session_key || childMetadataRequestInFlight || evidence.child_session_metadata_observed) return;
       socket.setTimeout(() => {
         if (!evidence.child_session_key || childMetadataRequestInFlight || evidence.child_session_metadata_observed) return;
@@ -117,6 +117,9 @@ export default function() {
           idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
         });
       }, 500);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 5000);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 15000);
+      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 30000);
       socket.setTimeout(() => socket.close(), 180000);
     }
     socket.on('open', () => {
@@ -156,6 +159,14 @@ export default function() {
             console.log('✓ sessions.send accepted — explicit model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
+        if (classified.kind === 'response' && classified.method === 'tasks.list') {
+          const observedChildSessionKey = childSessionKeyForRow(classified.payload, rowNonce);
+          if (observedChildSessionKey && !evidence.child_session_key) {
+            evidence.child_session_observed = true;
+            evidence.child_session_key = observedChildSessionKey;
+            requestChildMetadata(socket);
+          }
+        }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;
           const child = classified.payload?.session || null;
@@ -163,7 +174,7 @@ export default function() {
             evidence.child_session_observed = true;
             evidence.child_session_metadata_observed = true;
             evidence.child_metadata_model_byte = modelFromSessionMetadata(child);
-            evidence.child_metadata_model_source = 'gateway sessions.list persisted provider/model metadata';
+            evidence.child_metadata_model_source = 'gateway sessions.describe persisted provider/model metadata';
             evidence.child_session_metadata = {
               key: child.key || null,
               provider: child.modelProvider || child.provider || null,

@@ -14,6 +14,7 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   const scenario = await readFile(scenarioPath, 'utf8');
 
   assert.match(scenario, /childSessionKeyForRow\(eventData, rowNonce\)/);
+  assert.match(scenario, /childSessionKeyForRow\(classified\.payload, rowNonce\)/);
   assert.match(scenario, /findRequestCompactionReceipt\(messages, \{ rowNonce \}\)/);
   assert.match(scenario, /request_compaction_receipt_role = 'toolResult'/);
   assert.match(scenario, /request_compaction_receipt_tool_name = 'request_compaction'/);

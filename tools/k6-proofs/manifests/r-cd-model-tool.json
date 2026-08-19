@@ -19,6 +19,7 @@
     "methods": [
       "sessions.send",
       "sessions.messages.subscribe",
+      "tasks.list",
       "sessions.describe"
     ],
     "status": "runnable",

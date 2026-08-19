@@ -59,6 +59,18 @@ export function nonce(rowId) {
   return `${rowId}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function agentIdFromSessionKey(sessionKey) {
+  if (typeof sessionKey !== 'string') return null;
+  const match = /^agent:([^:]+):/i.exec(sessionKey.trim());
+  return match?.[1] || null;
+}
+
+export function withSessionCreateOwner(params = {}, env = __ENV) {
+  if (params.agentId || agentIdFromSessionKey(params.key)) return params;
+  const agentId = agentIdFromSessionKey(env?.OPENCLAW_SESSION_KEY);
+  return agentId ? { ...params, agentId } : params;
+}
+
 /**
  * Request tracker: maps request IDs to their method names for response correlation.
  */
@@ -69,7 +81,8 @@ export class RequestTracker {
 
   /** Send a tracked request on the socket. Returns the request ID. */
   send(socket, method, params = {}) {
-    const { id, frame } = buildRequest(method, params);
+    const requestParams = method === 'sessions.create' ? withSessionCreateOwner(params) : params;
+    const { id, frame } = buildRequest(method, requestParams);
     this._pending[id] = { method, sentAt: Date.now() };
     socket.send(frame);
     return id;

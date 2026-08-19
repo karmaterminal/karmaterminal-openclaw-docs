@@ -27,7 +27,7 @@ tools/k6-proofs/
 - Environment variables:
   - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
   - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required for live rows, never in source**)
-  - `OPENCLAW_SESSION_KEY` — target session key (**required explicitly for live rows that set `liveRunSafety.requiresTargetSessionKey=true`**)
+  - `OPENCLAW_SESSION_KEY` — target session key (**required explicitly for live rows that set `liveRunSafety.requiresTargetSessionKey=true`**); use an agent-prefixed key such as `agent:main:main` on multi-agent gateways so disposable sessions inherit an explicit owner
   - `OPENCLAW_CANDIDATE_SHA` — 40-char deploy SHA for this proof run
   - `OPENCLAW_SEAT_NAME` — seat identifier (default: `ronan-dgx`)
   - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)

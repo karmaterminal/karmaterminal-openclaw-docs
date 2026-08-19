@@ -153,7 +153,9 @@ Important inputs:
 - `candidate_sha` or `ref` — exact OpenClaw candidate under proof;
 - `rows` — comma-separated row ids, default `preflight`;
 - `docs_ref` — docs catalog ref, default `main`;
-- `session_selector` — scratch selector; avoid channel sessions for broad live rows;
+- `session_selector` — scratch selector; avoid channel sessions for broad live rows.
+  On gateways with multiple configured agents, use an agent-prefixed selector
+  such as `agent:main:main`; disposable proof sessions inherit that owner;
 - `dry_run` — defaults true;
 - `create_disposable_sessions` — recommended true for supported rows;
 - `metrics_push` / `metrics_otlp_endpoint` — public-safe metrics export.

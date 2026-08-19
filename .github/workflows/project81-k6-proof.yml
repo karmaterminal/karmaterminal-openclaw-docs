@@ -34,7 +34,7 @@ on:
         default: "ws://127.0.0.1:18789"
         type: string
       session_selector:
-        description: "Scratch/non-channel session selector for live proof rows"
+        description: "Scratch selector; use agent:<id>:main when the gateway has multiple agents"
         required: false
         default: "main"
         type: string

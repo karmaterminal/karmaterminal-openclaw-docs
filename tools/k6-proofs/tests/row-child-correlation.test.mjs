@@ -3,6 +3,8 @@ import test from 'node:test';
 import {
   childSessionKeyForRow,
   childSessionKeysForRow,
+  compactTaskIdentityToken,
+  renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
 
 test('rejects an earlier row child even when its event carries a child key', () => {
@@ -61,6 +63,28 @@ test('accepts a bounded nested task summary through an explicit compact row toke
       title,
     },
   }, rowNonce, [taskIdentityToken]), 'luna-child-for-current-row');
+});
+
+test('renders a compact identity token inside the bounded task title prefix', () => {
+  const rowNonce = 'R-CD-MODEL-TOOL-1787124114519-6b39vz9h';
+  const taskIdentityToken = compactTaskIdentityToken('MTOOL', rowNonce);
+  const task = renderRowTaskTemplate(
+    'MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: report runtime identity.',
+    rowNonce,
+  );
+  const title = `[continuation:chain-hop:1] Delegated task (turn 1/200): ${task}`.slice(0, 80);
+
+  assert.equal(taskIdentityToken, 'MTOOL:4114519-6b39vz9h');
+  assert.match(title, /MTOOL:4114519-6b39vz9h/);
+  assert.equal(childSessionKeyForRow({
+    tasks: [{ title, childSessionKey: 'model-tool-child' }],
+  }, rowNonce, [taskIdentityToken]), 'model-tool-child');
+});
+
+test('rejects invalid compact task identity inputs', () => {
+  assert.equal(compactTaskIdentityToken('too-long-prefix', 'R-CD-MODEL-TOOL-1234567890123456'), null);
+  assert.equal(compactTaskIdentityToken('MTOOL', 'short'), null);
+  assert.equal(renderRowTaskTemplate(null, 'nonce'), null);
 });
 
 test('accepts a direct spawn record that binds its child key and task nonce', () => {

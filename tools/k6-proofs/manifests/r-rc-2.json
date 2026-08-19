@@ -28,7 +28,7 @@
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 0,
-    "promptTemplate": "R-RC-2 child nonce {{nonce}}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
+    "promptTemplate": "RRC2:{{nonceSuffix16}} R-RC-2 child nonce {{nonce}}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
   },
   "expectedReceipts": [
     {

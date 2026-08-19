@@ -18,7 +18,11 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { findRequestCompactionReceipt } from '../lib/request-compaction-receipt.js';
-import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
+import {
+  childSessionKeyForRow,
+  compactTaskIdentityToken,
+  renderRowTaskTemplate,
+} from '../lib/row-child-correlation.mjs';
 
 export const options = {
   scenarios: {
@@ -60,6 +64,7 @@ export default function () {
   const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') || boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS', true);
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx';
   const rowNonce = nonce('R-RC-2');
+  const taskIdentityToken = compactTaskIdentityToken('RRC2', rowNonce);
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -92,6 +97,11 @@ export default function () {
     child_session_key: null,
     child_history_requests: 0,
     child_history_available: false,
+    task_identity_token: taskIdentityToken,
+    task_list_responses: 0,
+    task_records_seen: 0,
+    task_records_with_child_key: 0,
+    task_identity_matches: 0,
     delegate_child_report_observed: false,
     child_reported_context_threshold: false,
     request_compaction_tool_result_observed: false,
@@ -174,7 +184,13 @@ export default function () {
           socket.close();
           return;
         }
-        const childTask = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        const childTask = renderRowTaskTemplate(inv.promptTemplate, rowNonce);
+        if (!childTask || !taskIdentityToken) {
+          console.error('✗ R-RC-2 child task identity could not be rendered');
+          failures.add(1);
+          socket.close();
+          return;
+        }
         evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
         evidence.reason_length = childTask.length;
         evidence.delegate_mode = inv.mode || 'normal';
@@ -248,7 +264,20 @@ export default function () {
         }
 
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const observedChildSessionKey = childSessionKeyForRow(classified.payload, rowNonce);
+          const tasks = Array.isArray(classified.payload?.tasks) ? classified.payload.tasks : [];
+          evidence.task_list_responses += 1;
+          evidence.task_records_seen += tasks.length;
+          evidence.task_records_with_child_key += tasks.filter(
+            (task) => typeof task?.childSessionKey === 'string',
+          ).length;
+          evidence.task_identity_matches += tasks.filter(
+            (task) => typeof task?.title === 'string' && task.title.includes(taskIdentityToken),
+          ).length;
+          const observedChildSessionKey = childSessionKeyForRow(
+            classified.payload,
+            rowNonce,
+            [taskIdentityToken],
+          );
           if (observedChildSessionKey && !evidence.child_session_key) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;
@@ -299,7 +328,11 @@ export default function () {
 
         if (classified.kind === 'event') {
           const eventData = classified.data || {};
-          const observedChildSessionKey = childSessionKeyForRow(eventData, rowNonce);
+          const observedChildSessionKey = childSessionKeyForRow(
+            eventData,
+            rowNonce,
+            taskIdentityToken ? [taskIdentityToken] : [],
+          );
           if (observedChildSessionKey && !evidence.child_session_key) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;

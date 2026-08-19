@@ -3,6 +3,25 @@
 const DIRECT_ROW_IDENTITY_FIELDS = ['task', 'text', 'title'];
 const TASK_RECORD_FIELDS = ['task'];
 const TASK_RECORD_COLLECTION_FIELDS = ['tasks', 'records'];
+const TASK_IDENTITY_NONCE_SUFFIX_CHARS = 16;
+
+export function compactTaskIdentityToken(prefix, rowNonce) {
+  if (!/^[A-Z0-9-]{1,8}$/.test(String(prefix || '')) ||
+      typeof rowNonce !== 'string' ||
+      rowNonce.length < TASK_IDENTITY_NONCE_SUFFIX_CHARS) {
+    return null;
+  }
+  return `${prefix}:${rowNonce.slice(-TASK_IDENTITY_NONCE_SUFFIX_CHARS)}`;
+}
+
+export function renderRowTaskTemplate(template, rowNonce) {
+  if (typeof template !== 'string' || typeof rowNonce !== 'string' || rowNonce.length === 0) {
+    return null;
+  }
+  return template
+    .replaceAll('{{nonceSuffix16}}', rowNonce.slice(-TASK_IDENTITY_NONCE_SUFFIX_CHARS))
+    .replaceAll('{{nonce}}', rowNonce);
+}
 
 function directTaskIdentityValues(record) {
   return DIRECT_ROW_IDENTITY_FIELDS.flatMap((field) => {

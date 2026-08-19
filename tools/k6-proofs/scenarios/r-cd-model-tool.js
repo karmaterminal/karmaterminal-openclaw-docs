@@ -4,7 +4,11 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
+import {
+  childSessionKeyForRow,
+  compactTaskIdentityToken,
+  renderRowTaskTemplate,
+} from '../lib/row-child-correlation.mjs';
 
 export const options = {
   scenarios: { r_cd_model_tool: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -20,6 +24,8 @@ const DEFAULTS = {
   delaySeconds: 1,
   idempotencyKeyPrefix: 'R-CD-MODEL-TOOL',
   requestedModel: 'openai/gpt-5.6-luna',
+  promptTemplate:
+    'MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: report the current model identity from runtime context and the nonce only. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 
@@ -43,6 +49,8 @@ export default function() {
   const seat = manifest?.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-MODEL-TOOL');
   const inv = manifest?.invocation || {};
+  const taskIdentityToken = compactTaskIdentityToken('MTOOL', rowNonce);
+  const childTask = renderRowTaskTemplate(inv.promptTemplate || DEFAULTS.promptTemplate, rowNonce);
   const requestedModel = normalizeModel(__ENV.OPENCLAW_ALT_MODEL || inv.model || DEFAULTS.requestedModel);
   const delaySeconds = Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds);
   const idPrefix = inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix;
@@ -73,6 +81,11 @@ export default function() {
     child_self_reported_model_source: null,
     child_session_metadata: null,
     child_metadata_requested: false,
+    task_identity_token: taskIdentityToken,
+    task_list_responses: 0,
+    task_records_seen: 0,
+    task_records_with_child_key: 0,
+    task_identity_matches: 0,
     model_matches: false,
     return_payload: false,
     trace_id: null,
@@ -100,10 +113,12 @@ export default function() {
       socket.setTimeout(() => {
         // Deliberately do NOT include requestedModel in the child task. The child
         // must report its own runtime identity instead of echoing the request.
-        const childTask =
-          'Proof nonce ' + rowNonce + ': read your runtime context/current model identity. ' +
-          'Reply exactly MODEL-TOOL-CHILD ' + rowNonce + ' MODEL <provider/model>. ' +
-          'Use UNKNOWN only if no runtime model identity is available. Do not mutate files. Do not post externally.';
+        if (!childTask || !taskIdentityToken) {
+          console.error('✗ model-tool child task identity could not be rendered');
+          failures.add(1);
+          socket.close();
+          return;
+        }
         const instruction =
           HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
           'Call continue_delegate with task=' + JSON.stringify(childTask) +
@@ -160,7 +175,20 @@ export default function() {
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const observedChildSessionKey = childSessionKeyForRow(classified.payload, rowNonce);
+          const tasks = Array.isArray(classified.payload?.tasks) ? classified.payload.tasks : [];
+          evidence.task_list_responses += 1;
+          evidence.task_records_seen += tasks.length;
+          evidence.task_records_with_child_key += tasks.filter(
+            (task) => typeof task?.childSessionKey === 'string',
+          ).length;
+          evidence.task_identity_matches += tasks.filter(
+            (task) => typeof task?.title === 'string' && task.title.includes(taskIdentityToken),
+          ).length;
+          const observedChildSessionKey = childSessionKeyForRow(
+            classified.payload,
+            rowNonce,
+            [taskIdentityToken],
+          );
           if (observedChildSessionKey && !evidence.child_session_key) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;
@@ -198,7 +226,11 @@ export default function() {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
           const eventBelongsToRow = eventStr.includes(rowNonce);
-          const observedChildSessionKey = childSessionKeyForRow(eventData, rowNonce);
+          const observedChildSessionKey = childSessionKeyForRow(
+            eventData,
+            rowNonce,
+            taskIdentityToken ? [taskIdentityToken] : [],
+          );
           if (observedChildSessionKey) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;

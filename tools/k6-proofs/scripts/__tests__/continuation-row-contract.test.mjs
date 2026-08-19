@@ -161,6 +161,9 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       if (manifest.rowId === 'R-CD-4') {
         assert.match(manifest.invocation.promptTemplate, /^RCD4:\{\{nonceSuffix16\}\}/);
         assert.match(scenario, /rCd4TaskPrompt\(inv\.promptTemplate,\s*rowNonce\)/);
+      } else if (manifest.rowId === 'R-RC-2') {
+        assert.match(manifest.invocation.promptTemplate, /^RRC2:\{\{nonceSuffix16\}\}/);
+        assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate,\s*rowNonce\)/);
       } else {
         assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
       }

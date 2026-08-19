@@ -13,8 +13,10 @@ const runNode = promisify(execFile);
 test('R-RC-2 honest limit is bound to the child structured threshold receipt', async () => {
   const scenario = await readFile(scenarioPath, 'utf8');
 
-  assert.match(scenario, /childSessionKeyForRow\(eventData, rowNonce\)/);
-  assert.match(scenario, /childSessionKeyForRow\(classified\.payload, rowNonce\)/);
+  assert.match(scenario, /childSessionKeyForRow\([\s\S]*eventData,[\s\S]*rowNonce,[\s\S]*taskIdentityToken/);
+  assert.match(scenario, /childSessionKeyForRow\([\s\S]*classified\.payload,[\s\S]*rowNonce,[\s\S]*\[taskIdentityToken\]/);
+  assert.match(scenario, /compactTaskIdentityToken\('RRC2', rowNonce\)/);
+  assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /findRequestCompactionReceipt\(messages, \{ rowNonce \}\)/);
   assert.match(scenario, /request_compaction_receipt_role = 'toolResult'/);
   assert.match(scenario, /request_compaction_receipt_tool_name = 'request_compaction'/);

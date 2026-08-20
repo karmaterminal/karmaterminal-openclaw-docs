@@ -65,6 +65,7 @@ The deployed runtime was the separate continuation-plus-PR-#121204 composite. Th
 
 ## Navigation
 
+- [CLAWSSWEEPER.md](CLAWSSWEEPER.md) — explicit bot/reviewer entrypoint
 - [METHOD.md](METHOD.md)
 - [RESOLVED-SHA.md](RESOLVED-SHA.md)
 - [ARTIFACTS.md](ARTIFACTS.md)

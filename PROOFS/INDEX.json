@@ -9,6 +9,16 @@
   "corpus_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/",
   "manifest_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/proofs-manifest.json",
   "readme_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/README.md",
+  "clawsweeper_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/CLAWSSWEEPER.md",
+  "entrypoints": {
+    "clawsweeper": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/proofs-manifest.json",
+    "readme": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/README.md",
+    "method": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/METHOD.md",
+    "resolved_sha": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/ARTIFACTS.md"
+  },
+  "manifest_filename": "proofs-manifest.json",
   "rollup": {
     "total_rows": 41,
     "pass": 30,

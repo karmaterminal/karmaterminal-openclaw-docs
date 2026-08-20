@@ -55,17 +55,17 @@ Follow `EVIDENCE-LANGUAGE.md`: RED-only fossils use `CHARACTERIZES`, not
 ## 3. Build exports
 
 ```bash
-python3 -m pip install -e .
+python3 -m pip install -r .agents/skills/causal-bug-proof/requirements.txt
 
-causal-proof-graph \
+python3 .agents/skills/causal-bug-proof/scripts/build-proof-graph.py \
   --spec path/to/proof-spec.json \
   --gitnexus-result path/to/gitnexus-result.json \
   --out-dir path/to/graph-output
 ```
 
 Omit `--gitnexus-result` when building only the temporal/manual layers.
-The historical `scripts/build-proof-graph.py` path remains a thin compatibility
-wrapper for already-authored workorders.
+The skill includes its Python implementation under `scripts/`; it does not
+depend on a sibling frond-scribe source checkout or an editable package install.
 
 The output directory contains:
 

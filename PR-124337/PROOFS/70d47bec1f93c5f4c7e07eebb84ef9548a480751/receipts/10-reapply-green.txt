@@ -1,0 +1,19 @@
+COMMAND: node scripts/run-vitest.mjs run --config test/vitest/vitest.channels.config.ts --maxWorkers=1 src/channels/message/ingress-drain.abandonment-retry-budget.test.ts src/channels/message/ingress-drain.cancellation.test.ts src/channels/message/ingress-drain.test.ts
+CWD_SHA: 70d47bec1f93c5f4c7e07eebb84ef9548a480751
+TREE_NOTE: production files restored to 70d47bec bytes
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree-head>[39m
+
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.abandonment-retry-budget.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 985[2mms[22m[39m
+     [33m[2m✓[22m[39m terminalizes a repeatedly abandoned pre-adoption claim at the attempt ceiling [33m 350[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.cancellation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 450[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 4144[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+[2m   Start at [22m 20:01:30
+[2m   Duration [22m 7.55s[2m (transform 1.11s, setup 534ms, import 1.01s, tests 5.58s, environment 0ms)[22m
+
+
+EXIT=0

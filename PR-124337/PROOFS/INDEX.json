@@ -1,0 +1,25 @@
+{
+  "schema": "openclaw.proofs.index.v1",
+  "purpose": "PR-124337 exact-head non-continuation proof signpost. Does not replace PROOFS/INDEX.json.",
+  "current_sha": "70d47bec1f93c5f4c7e07eebb84ef9548a480751",
+  "current_sha_short": "70d47bec",
+  "replaced_sha": "0a77fdcf5fc0bfaa1013798c5514286acc7bc5f5",
+  "exact_base": "5626a79cc836d95d236debd720a34fc2dcdcc685",
+  "upstream_pr": "https://github.com/openclaw/openclaw/pull/124337",
+  "bound_issue": "https://github.com/karmaterminal/openclaw/issues/1255",
+  "corpus_path": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/",
+  "manifest_path": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/proofs-manifest.json",
+  "readme_path": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/README.md",
+  "rollup": {
+    "total_rows": 4,
+    "pass": 4,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "missing": 0
+  },
+  "disposition_note": "Unit causal closure on corrected head 70d47bec after P1 mixed-fan-in cancel. Isolated Gateway/state-dir smoke pending on pure continuation assembly tip + this head. Continuation INDEX unchanged.",
+  "navigation": "read PR-124337/PROOFS/INDEX.json -> current_sha -> manifest_path -> rows[]",
+  "generated": "2026-08-16",
+  "generated_by": "codeagent/pr124337-proof-corpus"
+}

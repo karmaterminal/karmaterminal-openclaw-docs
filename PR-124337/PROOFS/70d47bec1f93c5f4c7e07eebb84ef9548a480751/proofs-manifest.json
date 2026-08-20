@@ -1,0 +1,114 @@
+{
+  "schema": "openclaw.proofs.pr-sidecar.v1",
+  "corpus": "PR-124337 non-continuation abandonment retry budget (P1 rebound)",
+  "kind": "non-continuation-unit-causal-closure",
+  "sha": "70d47bec1f93c5f4c7e07eebb84ef9548a480751",
+  "sha_short": "70d47bec",
+  "replaces_sha": "0a77fdcf5fc0bfaa1013798c5514286acc7bc5f5",
+  "upstream_pr": "https://github.com/openclaw/openclaw/pull/124337",
+  "upstream_pr_number": 124337,
+  "exact_base": "5626a79cc836d95d236debd720a34fc2dcdcc685",
+  "fossil_commit": "c17a5c73a9bf9807d15b33bfa6bfb4aad5116398",
+  "implementation_commit": "401dc7a1f5c3445b4ff85de6ac0574f91da2fde9",
+  "review_commit": "a01d78a4b33c155c948eeca283f179ef06fa7e7e",
+  "p1_commit": "70d47bec1f93c5f4c7e07eebb84ef9548a480751",
+  "bound_issue": "https://github.com/karmaterminal/openclaw/issues/1255",
+  "parent_issue": "https://github.com/karmaterminal/openclaw/issues/1254",
+  "claim_scope": "unit-causal-closure",
+  "does_not_claim": [
+    "fleet-cure",
+    "live-discord-delivery",
+    "treatment-composite-gateway-smoke"
+  ],
+  "future_runtime_composite": "pending",
+  "future_runtime_must_use": [
+    "current-pure-continuation-assembly-tip",
+    "70d47bec1f93c5f4c7e07eebb84ef9548a480751"
+  ],
+  "isolated_gateway_state_dir_smoke": "pending",
+  "fossil_evidence_class": "CHARACTERIZES",
+  "intervention_coupling": "production-only-reverse-red/reapply-green of M1+P1 three-file diff",
+  "historical_full_suite_0a77fdcf": "not-p1-exact-head-evidence",
+  "product_root_artifacts": {
+    "output.md": false,
+    "proof-handoff.json": false
+  },
+  "targeted_suites": {
+    "channels": { "files": 103, "tests": 1130, "exit": 0 },
+    "plugin_sdk": { "files": 77, "tests": 765, "exit": 0 },
+    "msteams_ingress_lifecycle": { "files": 1, "tests": 4, "exit": 0 }
+  },
+  "generated": "2026-08-16",
+  "generated_by": "codeagent/pr124337-proof-corpus (Grok 4.6)",
+  "does_not_repoint": [
+    "PROOFS/INDEX.json",
+    "PROOFS/a7ef03177e0f42831a087521e6eb7720102d6be1/"
+  ],
+  "rollup": {
+    "total_rows": 4,
+    "pass": 4,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "missing": 0,
+    "pending_runtime": 1
+  },
+  "rows": [
+    {
+      "row": "R-NC-ABANDON-BUDGET",
+      "title": "Genuine pre-adoption abandonment consumes the existing retry budget and terminalizes at maxAttempts",
+      "state": "pass",
+      "authority": "unit",
+      "dir": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/R-NC-ABANDON-BUDGET/",
+      "evidence_doc": "EVIDENCE.md",
+      "receipts": [
+        "receipts/01-base-fossil-red.txt",
+        "receipts/02-head-fossil-green.txt",
+        "receipts/08-reverse-fossil-red.txt",
+        "receipts/10-reapply-green.txt"
+      ]
+    },
+    {
+      "row": "R-NC-ABANDON-LANE-PROGRESS",
+      "title": "A terminalized abandoned head unblocks the next FIFO row in the same lane",
+      "state": "pass",
+      "authority": "unit",
+      "dir": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/R-NC-ABANDON-LANE-PROGRESS/",
+      "evidence_doc": "EVIDENCE.md",
+      "receipts": [
+        "receipts/01-base-fossil-red.txt",
+        "receipts/02-head-fossil-green.txt",
+        "receipts/03-head-mixed-cancel-green.txt"
+      ]
+    },
+    {
+      "row": "R-NC-ABANDON-CANCEL",
+      "title": "onCancelled and mixed capable+legacy fan-in cancel remain budget-free",
+      "state": "pass",
+      "authority": "unit",
+      "dir": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/R-NC-ABANDON-CANCEL/",
+      "evidence_doc": "EVIDENCE.md",
+      "receipts": [
+        "receipts/03-head-mixed-cancel-green.txt",
+        "receipts/09-reverse-mixed-cancel-red.txt",
+        "receipts/10-reapply-green.txt",
+        "receipts/12-head-plugin-sdk-runtime.txt"
+      ]
+    },
+    {
+      "row": "R-NC-ABANDON-SETTLE-RACE",
+      "title": "Adopt/guillotine/supersede share one settlement owner; MS Teams aged sibling retargeted",
+      "state": "pass",
+      "authority": "unit-via-existing-settle-owner",
+      "dir": "PR-124337/PROOFS/70d47bec1f93c5f4c7e07eebb84ef9548a480751/R-NC-ABANDON-SETTLE-RACE/",
+      "evidence_doc": "EVIDENCE.md",
+      "receipts": [
+        "receipts/04-head-msteams-green.txt",
+        "receipts/05-head-drain-settle-green.txt",
+        "receipts/06-base-msteams-retarget-red.txt",
+        "receipts/11-head-channels-owner.txt",
+        "receipts/production-hunk.patch"
+      ]
+    }
+  ]
+}

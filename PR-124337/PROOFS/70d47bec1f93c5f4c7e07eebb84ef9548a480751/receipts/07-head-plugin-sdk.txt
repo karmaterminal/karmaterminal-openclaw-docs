@@ -1,0 +1,130 @@
+COMMAND: node scripts/run-vitest.mjs run --config test/vitest/vitest.plugin-sdk.config.ts --maxWorkers=1
+CWD_SHA: 70d47bec1f93c5f4c7e07eebb84ef9548a480751
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m<product-worktree-head>[39m
+
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/provider-auth.test.ts [2m([22m[2m61 tests[22m[2m)[22m[33m 9633[2mms[22m[39m
+     [33m[2m✓[22m[39m recognizes usable config-only API keys for normalized provider entry media-readiness-provider [33m 583[2mms[22m[39m
+     [33m[2m✓[22m[39m applies credential acceptance to the higher-priority auth profile allowed-profile-key [33m 931[2mms[22m[39m
+     [33m[2m✓[22m[39m applies credential acceptance to the higher-priority auth profile blocked-profile-key [33m 614[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves API-key-only profile filters while accepting actual config API keys [33m 795[2mms[22m[39m
+     [33m[2m✓[22m[39m filters auth profile API-key resolution by credential type [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m only discovers external CLI auth when provider resolution opts in [33m 323[2mms[22m[39m
+     [33m[2m✓[22m[39m warns once when a configured domain is rejected during token resolution [33m 376[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/provider-catalog-live-runtime.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 521[2mms[22m[39m
+     [33m[2m✓[22m[39m fetches and dedupes OpenAI-style live model ids with resolved discovery auth [33m 439[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/memory-host-core.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 3549[2mms[22m[39m
+     [33m[2m✓[22m[39m does not let a workspace alias overwrite a newer event export [33m 451[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps public event exports isolated across state directories [33m 472[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/session-store-runtime.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 11234[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the public session read shape while using accessor-backed exports [33m 479[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a sparse stat sentinel for beta.5 Feishu oversized transcript inspection [33m 6361[2mms[22m[39m
+     [33m[2m✓[22m[39m cleans lifecycle artifacts through the accessor-backed SDK wrapper [33m 2621[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/outbound-media.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 4229[2mms[22m[39m
+     [33m[2m✓[22m[39m stores hosted media chunks and reads them back [33m 311[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/session-transcript-runtime.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 2645[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves transcript identity and reads events without returning sessionFile [33m 370[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/reply-payload.test.ts [2m([22m[2m69 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-entry-contract.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 2019[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/api-baseline.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 8612[2mms[22m[39m
+     [33m[2m✓[22m[39m reports same-entrypoint closure changes without a committed merge unit [33m 1512[2mms[22m[39m
+     [33m[2m✓[22m[39m reads added and removed entrypoints from each revision's own inventory [33m 843[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies exported signature changes separately from reachable-only changes [33m 534[2mms[22m[39m
+     [33m[2m✓[22m[39m validates renderer artifacts at the subprocess boundary [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m reports public types resolved from each revision's dependency declarations [33m 578[2mms[22m[39m
+     [33m[2m✓[22m[39m renders byte-identical surfaces deterministically [33m 618[2mms[22m[39m
+     [33m[2m✓[22m[39m fails when a declaration dependency cannot be resolved [33m 348[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps hashes stable when reachable declarations move [33m 620[2mms[22m[39m
+     [33m[2m✓[22m[39m includes globals from side-effect imports in closure hashes [33m 489[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps hashes stable when unqualified repo import types move [33m 529[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores unreachable transitive declaration changes [33m 483[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps cycle members complete across cached export walks [33m 467[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores unrelated declarations beside an aliased re-export [33m 471[2mms[22m[39m
+     [33m[2m✓[22m[39m captures transitive private declaration changes deterministically [33m 751[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/ssrf-policy.test.ts [2m([22m[2m62 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/approval-reaction-runtime.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/approval-delivery-helpers.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/facade-loader.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/test-helpers/plugin-runtime-mock.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/migration-runtime.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/provider-catalog-shared.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 451[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/qa-runtime.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 873[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/qa-runner-runtime.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/file-lock.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/browser-maintenance.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/realtime-voice.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 7988[2mms[22m[39m
+     [33m[2m✓[22m[39m owns copied pending audio and clears it at terminal boundaries [33m 4557[2mms[22m[39m
+     [33m[2m✓[22m[39m releases byte budget as queued audio is consumed [33m 3412[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/provider-auth-runtime.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 847[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves non-secret provider auth profile metadata [33m 777[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/webhook-request-guards.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/direct-dm.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/ingress-effect-once.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 1833[2mms[22m[39m
+     [33m[2m✓[22m[39m executes an effect once and reports its replay [33m 301[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/dedupe-runtime.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/session-transcript-runtime-visible-delta.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 3641[2mms[22m[39m
+     [33m[2m✓[22m[39m pages appends and resets when the active branch changes [33m 3388[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-ingress-runtime.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/agent-harness-runtime.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/memory-host-event-export.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 403[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/qa-runner-runtime.integration.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 18844[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores operator runner metadata and state during private QA discovery [33m 18761[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/core.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/tool-plugin.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/discord.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/memory-core-bundled-runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 270[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/outbound-media.retention.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 971[2mms[22m[39m
+     [33m[2m✓[22m[39m denies new reads at logical expiry and deletes rows after serving grace [33m 320[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/command-status.runtime.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/session-transcript-mirror-runtime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1963[2mms[22m[39m
+     [33m[2m✓[22m[39m rechecks idempotency and publishes only committed visible sequences [33m 1845[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/agent-harness-task-runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/persistent-dedupe.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/delivery-queue-runtime.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/inbound-reply-dispatch.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/question-gateway-runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-reply-pipeline.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/runtime-store.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/windows-spawn.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-lifecycle.queue.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-pairing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/media-understanding-runtime.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/node-host.test.ts [2m([22m[2m13 tests[22m[2m | [22m[33m12 skipped[39m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/browser-facades.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/session-transcript-hit.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/provider-catalog-live-projection.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m caches the anonymous fallback independently after an authenticated 401 [33m 427[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/fetch-runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1023[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-message.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-lifecycle.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/runtime-doctor-migrations.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/channel-dm-policy.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/migration-config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/session-store-runtime.recovery.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 527[2mms[22m[39m
+     [33m[2m✓[22m[39m allows public recovery fields to change without an active core transaction [33m 423[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/qa-channel.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/fs-safe-compat.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/memory-host-search.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/extension-shared.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/qa-lab.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/gateway-method-runtime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/browser-bridge.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/text-utility-runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/browser-subpaths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/agent-runtime-model-catalog-contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/test-helpers/node-builtin-mocks.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/plugin-state-runtime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/runtime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/telegram-account.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/tool-results.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/test-helpers/node-builtin-mocks.child-process.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m plugin-sdk [49m[39m src/plugin-sdk/agent-runtime-avatar-contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m77 passed[39m[22m[90m (77)[39m
+[2m      Tests [22m [1m[32m765 passed[39m[22m[2m | [22m[33m13 skipped[39m[90m (778)[39m
+[2m   Start at [22m 19:57:49
+[2m   Duration [22m 137.20s[2m (transform 35.44s, setup 2.72s, import 49.53s, tests 83.74s, environment 0ms)[22m
+
+
+EXIT=0

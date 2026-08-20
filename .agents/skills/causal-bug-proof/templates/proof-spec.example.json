@@ -1,0 +1,47 @@
+{
+  "schema": "frond.causal-bug-proof.v1",
+  "name": "example causal bug proof",
+  "nodes": [
+    {
+      "id": "commit:introducing",
+      "layer": "commit",
+      "kind": "commit",
+      "sha": "0123456789abcdef",
+      "timestamp": "2026-01-01"
+    },
+    {
+      "id": "bug:A",
+      "layer": "defect",
+      "kind": "bug",
+      "owner": "core"
+    },
+    {
+      "id": "fossil:A",
+      "layer": "test",
+      "kind": "fossil",
+      "result": "RED"
+    },
+    {
+      "id": "patch:A",
+      "layer": "intervention",
+      "kind": "patch"
+    }
+  ],
+  "edges": [
+    {
+      "source": "commit:introducing",
+      "target": "bug:A",
+      "relation": "INTRODUCES"
+    },
+    {
+      "source": "fossil:A",
+      "target": "bug:A",
+      "relation": "CHARACTERIZES"
+    },
+    {
+      "source": "patch:A",
+      "target": "fossil:A",
+      "relation": "CAUSES_TEST_PASS"
+    }
+  ]
+}

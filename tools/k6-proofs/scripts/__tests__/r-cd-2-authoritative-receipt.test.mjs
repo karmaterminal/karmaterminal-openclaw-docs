@@ -49,6 +49,13 @@ function correlation(overrides = {}) {
   };
 }
 
+test('R-CD-2 scenario keeps replayInvalid as evidence and never maps it to FAIL', async () => {
+  const scenario = await readFile(path.join(repoRoot, 'scenarios/r-cd-2-silent-wake.js'), 'utf8');
+  assert.match(scenario, /gatewayLifecycleReplayInvalid/);
+  assert.match(scenario, /dispatch_replay_invalid/);
+  assert.doesNotMatch(scenario, /delegate-replay-unsafe/);
+});
+
 test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: correlation(), signingKey });
   assert.equal(receipt.verdict, 'PASS-candidate');
@@ -88,16 +95,38 @@ test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce',
   }
 });
 
-test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology', () => {
-  const replay = resolveRcd2AuthoritativeReceipt({
+test('R-CD-2 keeps successful replayInvalid evidence and does not conclusive-fail it', () => {
+  const replaySafe = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ dispatch_replay_invalid: true }),
+    correlation: correlation(), signingKey,
+  });
+  assert.equal(replaySafe.verdict, 'PASS-candidate');
+  assert.equal(replaySafe.lifecycle.replayInvalid, true);
+  assert.equal(validateRcd2AuthoritativeReceipt(replaySafe, signingKey).valid, true);
+
+  const historical = resolveRcd2AuthoritativeReceipt({
     evidence: evidence({ dispatch_failure_observed: true, failureCategory: 'delegate-replay-unsafe' }),
     correlation: correlation(), signingKey,
   });
   assert.deepEqual(
-    [replay.verdict, replay.failureCategory],
-    ['FAIL-candidate', 'delegate-replay-unsafe'],
+    [historical.verdict, historical.failureCategory],
+    ['PARTIAL-candidate', 'delegate-replay-unsafe'],
   );
-  assert.equal(validateRcd2AuthoritativeReceipt(replay, signingKey).valid, true);
+  assert.equal(validateRcd2AuthoritativeReceipt(historical, signingKey).valid, true);
+});
+
+test('R-CD-2 still conclusive-fails genuine provider or abort failures', () => {
+  const failed = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ dispatch_failure_observed: true, failureCategory: 'provider-or-turn-failure' }),
+    correlation: correlation(), signingKey,
+  });
+  assert.deepEqual(
+    [failed.verdict, failed.failureCategory],
+    ['FAIL-candidate', 'provider-or-turn-failure'],
+  );
+});
+
+test('R-CD-2 rejects wrong mode and mismatched trace topology', () => {
   for (const bad of [correlation({ delegate: { mode: 'normal' } }), correlation({ toolSpanIds: ['a'.repeat(16), 'b'.repeat(16)] })]) {
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);

@@ -4,6 +4,11 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import {
+  filterHonestLimitReviewDebt,
+  hasVerifiedRrc2Outcome,
+  rrc2HonestLimitReceiptsSufficient,
+} from '../../lib/r-rc-2-honest-limit.mjs';
 import test from 'node:test';
 
 const scenarioPath = 'tools/k6-proofs/scenarios/r-rc-2-delegate-request-compaction.js';
@@ -143,6 +148,48 @@ test('R-RC-2 summary processing cannot promote report-only evidence', async () =
     },
     runId: 'accepted-receipt',
   }), 'PASS-candidate');
+});
+
+const boundHonestLimit = {
+  row: 'R-RC-2',
+  parent_dispatch_accepted: true,
+  delegate_requested: true,
+  child_session_observed: true,
+  delegate_child_report_observed: true,
+  child_reported_context_threshold: true,
+  request_compaction_tool_result_observed: true,
+  request_compaction_receipt_role: 'toolResult',
+  request_compaction_receipt_tool_name: 'request_compaction',
+  request_compaction_receipt_status: 'rejected',
+  request_compaction_invocation_bound: true,
+  request_compaction_rejected_context_threshold: true,
+  guard: 'context_threshold',
+};
+
+test('R-RC-2 honest-limit requires bound structured receipts, not prose or unbound tools', () => {
+  assert.equal(hasVerifiedRrc2Outcome('R-RC-2', 'HONEST-LIMIT-candidate', boundHonestLimit), true);
+  assert.equal(rrc2HonestLimitReceiptsSufficient({
+    rowId: 'R-RC-2',
+    verdict: 'HONEST-LIMIT-candidate',
+    evidence: boundHonestLimit,
+  }), true);
+  assert.equal(hasVerifiedRrc2Outcome('R-RC-2', 'HONEST-LIMIT-candidate', {
+    ...boundHonestLimit,
+    request_compaction_tool_result_observed: false,
+    request_compaction_receipt_role: 'assistant',
+    request_compaction_invocation_bound: false,
+  }), false);
+  assert.equal(hasVerifiedRrc2Outcome('R-RC-2', 'HONEST-LIMIT-candidate', {
+    ...boundHonestLimit,
+    request_compaction_invocation_bound: false,
+  }), false);
+  assert.deepEqual(
+    filterHonestLimitReviewDebt(
+      ['tempo-trace-json', 'continuation-trace-correlation', 'gateway-journal'],
+      { rowId: 'R-RC-2', verdict: 'HONEST-LIMIT-candidate', evidence: boundHonestLimit },
+    ),
+    ['gateway-journal'],
+  );
 });
 
 test('summary processing honors partial manifest and scenario ceilings', async () => {

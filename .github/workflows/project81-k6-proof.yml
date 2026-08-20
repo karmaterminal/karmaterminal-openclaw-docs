@@ -176,6 +176,23 @@ jobs:
           command -v k6 >/dev/null || { echo "k6 is required for live runs: https://grafana.com/docs/k6/latest/set-up/install-k6/"; exit 1; }
           test -n "${OPENCLAW_GATEWAY_TOKEN:-}" || { echo "no gateway token: this seat's ~/.openclaw/openclaw.json has no gateway.auth.token and no OPENCLAW_GATEWAY_TOKEN secret is set"; exit 1; }
 
+      - name: Resolve independent runtime identity
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$K6_PROOF_OUT_DIR"
+          node tools/k6-proofs/scripts/resolve-runtime-identity.mjs \
+            --write "$K6_PROOF_OUT_DIR/runtime-identity.json"
+          exact="$(jq -r '.exact // false' "$K6_PROOF_OUT_DIR/runtime-identity.json")"
+          sha="$(jq -r '.runtimeBuildSha // empty' "$K6_PROOF_OUT_DIR/runtime-identity.json")"
+          source="$(jq -r '.runtimeBuildShaSource // empty' "$K6_PROOF_OUT_DIR/runtime-identity.json")"
+          echo "runtime identity exact=$exact source=${source:-none}"
+          if [[ "$exact" == "true" && "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "OPENCLAW_RUNTIME_BUILD_SHA=$sha" >> "$GITHUB_ENV"
+            echo "OPENCLAW_RUNTIME_BUILD_SHA_SOURCE=$source" >> "$GITHUB_ENV"
+          fi
+
       - name: Run Project 81 proof suite
         shell: bash
         run: |

@@ -115,6 +115,41 @@ test('summarizes trace-missing debt as unfetchable when no trace id exists', asy
   }
 });
 
+test('R-RC-2 bound honest-limit receipts clear Tempo review debt', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'review-debt-rrc2-'));
+  try {
+    await writeResult(root, 'R-RC-2', {
+      verdict: 'HONEST-LIMIT-candidate',
+      evidence: {
+        row: 'R-RC-2',
+        parent_dispatch_accepted: true,
+        delegate_requested: true,
+        child_session_observed: true,
+        delegate_child_report_observed: true,
+        child_reported_context_threshold: true,
+        request_compaction_tool_result_observed: true,
+        request_compaction_receipt_role: 'toolResult',
+        request_compaction_receipt_tool_name: 'request_compaction',
+        request_compaction_receipt_status: 'rejected',
+        request_compaction_invocation_bound: true,
+        request_compaction_rejected_context_threshold: true,
+        guard: 'context_threshold',
+      },
+      observability: { traceStatus: 'missing', traceId: null, tempoTraceJson: null },
+      review: {
+        status: 'review-pending',
+        pendingReceipts: ['tempo-trace-json', 'continuation-trace-correlation'],
+      },
+    });
+    const run = await runNode(process.execPath, [script, '--run-root', root, '--json'], { encoding: 'utf8' });
+    const summary = JSON.parse(run.stdout);
+    assert.equal(summary.totalRows, 1);
+    assert.equal(summary.pendingRows, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('renders human-readable review debt table', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'review-debt-text-'));
   try {

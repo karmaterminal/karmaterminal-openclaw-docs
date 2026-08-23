@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "ship_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "proof_source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "execution_runtime_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "execution_runtime_provenance": {
+    "kind": "deployment-only composite",
+    "note": "The composite executes the rows. It is not presented as the #124337 source SHA."
+  },
+  "harness_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/harness.mjs",
+  "method": "Composite-bound synthetic durable-ingress rows on an exact deployed seat; raw SQLite projections reviewed before fold.",
+  "required_rows": [
+    "A-GENUINE-ABANDONMENT",
+    "B-BUDGET-FREE-CANCELLATION",
+    "C-MIXED-FANIN-SEPARATION"
+  ],
+  "dispatch_allocation": [
+    {
+      "row": "A-GENUINE-ABANDONMENT",
+      "owner": "emeric-nuc",
+      "status": "not-fired"
+    },
+    {
+      "row": "B-BUDGET-FREE-CANCELLATION",
+      "owner": "emeric-nuc",
+      "status": "not-fired"
+    },
+    {
+      "row": "C-MIXED-FANIN-SEPARATION",
+      "owner": "emeric-nuc",
+      "status": "not-fired"
+    }
+  ],
+  "rows": [
+    {
+      "row": "A-GENUINE-ABANDONMENT",
+      "title": "Genuine pre-adoption abandonment consumes the retry budget",
+      "owner": "emeric-nuc",
+      "state": "missing",
+      "dir": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT",
+      "evidence_doc": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT/EVIDENCE.md",
+      "summary": "Awaiting exact-composite candidate artifacts.",
+      "traces": [],
+      "supporting_docs": []
+    },
+    {
+      "row": "B-BUDGET-FREE-CANCELLATION",
+      "title": "Cancellation preserves prior retry facts",
+      "owner": "emeric-nuc",
+      "state": "missing",
+      "dir": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION",
+      "evidence_doc": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION/EVIDENCE.md",
+      "summary": "Awaiting exact-composite candidate artifacts.",
+      "traces": [],
+      "supporting_docs": []
+    },
+    {
+      "row": "C-MIXED-FANIN-SEPARATION",
+      "title": "Mixed fan-in cancellation stays separate from genuine abandonment",
+      "owner": "emeric-nuc",
+      "state": "missing",
+      "dir": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION",
+      "evidence_doc": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION/EVIDENCE.md",
+      "summary": "Awaiting exact-composite candidate artifacts.",
+      "traces": [],
+      "supporting_docs": []
+    }
+  ],
+  "rollup": {
+    "total_rows": 3,
+    "pass": 0,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 3
+  }
+}

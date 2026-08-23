@@ -1,0 +1,26 @@
+{
+  "schema": "openclaw.proofs.index.v1",
+  "purpose": "PR-124337 exact-source behavioral proof signpost.",
+  "current_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "current_sha_short": "4ff99f7",
+  "capture_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "proof_source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "execution_runtime_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "build_string": "OpenClaw 2026.8.1 (6e6da7b); PR-124337 source 4ff99f7",
+  "corpus_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/",
+  "manifest_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/proofs-manifest.json",
+  "readme_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/README.md",
+  "rollup": {
+    "total_rows": 3,
+    "pass": 0,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 3
+  },
+  "disposition_note": "Seeded exact-source corpus; all three behavioral rows remain missing until the composite-bound harness run is reviewed and folded.",
+  "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
+  "generated": "2026-08-23",
+  "generated_by": "frond-scribe"
+}

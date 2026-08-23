@@ -276,11 +276,13 @@
   "source_runs": [],
   "gates": {
     "frozen_upstream_sha": "8578b8f55cf77ddb161891b662a02f8c8c2a80ba",
-    "exact_gate_2_7": "review-in-progress",
+    "exact_gate_2_7": "unresolved: 930 files; 296 GENUINE, 288 SAFE-NEW, 346 MIXED-CLOBBER without exact-SHA disposition ledger, 0 FROZEN-STALE",
     "presentation_mode_b_run": "32650099821",
     "presentation_mode_b_verdict": "failure: 163506 passed, 38 failed (16 deterministic; 22 load-flakes greened)",
     "upstream_baseline_mode_b_run": "32657627746",
-    "acceptance": "blocked until exact Gate 2.7 and baseline classification are complete"
+    "upstream_baseline_mode_b_verdict": "failure: 162053 passed, 41 failed (19 deterministic; 22 load-flakes greened)",
+    "mode_b_failure_comparison": "13 shared deterministic test identities; 3 presentation-only; 6 baseline-only",
+    "acceptance": "blocked: both Mode-B runs are red, 3 deterministic failures are presentation-only, and exact Gate 2.7 has 346 undispositioned MIXED-CLOBBER paths"
   },
   "generated": "2026-08-23",
   "generated_by": "codeagent/openclaw-85651-continuation-proof-20260823",

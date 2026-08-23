@@ -5,8 +5,9 @@
 - Seed state: `41 missing`
 - Live-suite denominator: 34 runnable entries (`PREFLIGHT` + 33 behavior rows)
 - Live workflow: not dispatched
-- Acceptance: blocked by red exact-presentation Mode-B run `32650099821`
-  pending exact baseline and Gate 2.7 closure
+- Acceptance: blocked by red presentation Mode-B run `32650099821`, red exact
+  upstream baseline run `32657627746`, three presentation-only deterministic
+  failures, and 346 undispositioned exact Gate 2.7 mixed paths
 - Canonical manifest: [`proofs-manifest.json`](proofs-manifest.json)
 - Human rollup: [`README.md`](README.md)
 - Non-interference: [`NON-INTERFERENCE-MAP.md`](NON-INTERFERENCE-MAP.md)

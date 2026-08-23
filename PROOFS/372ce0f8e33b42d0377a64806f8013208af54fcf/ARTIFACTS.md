@@ -7,8 +7,13 @@
 - `NON-INTERFERENCE-MAP.md`: direct presentation/runtime classification.
 - `gates/mode-b-presentation-32650099821-summary.md`: exact red presentation
   receipt.
-- `gates/`: terminal exact Gate 2.7 and frozen-upstream baseline receipts must
-  be present before a live dispatch is permitted.
+- `gates/mode-b-*-aggregate.{md,json}`: unedited public aggregate artifacts
+  from the exact presentation and absorbed-upstream baseline runs.
+- `gates/mode-b-failure-classification.md`: exact deterministic-set
+  comparison and fail-closed disposition.
+- `gates/gate-2.7-summary.md` and `gates/gate-2.7-classification.tsv`: exact
+  final-presentation classification; 346 mixed paths remain undispositioned.
+- Both terminal Mode-B receipts are red; a live dispatch is not permitted.
 - `artifacts/.gitkeep`: no behavior artifact exists at seed.
 
 ## Live artifact rule

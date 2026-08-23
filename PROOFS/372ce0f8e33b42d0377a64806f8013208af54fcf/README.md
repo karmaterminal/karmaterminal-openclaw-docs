@@ -39,7 +39,10 @@ is red: 163,506 passed and 38 failed. Its aggregate records 16 deterministic
 failures (14 TUI PTY, one doctor-lint, one Telegram Mantis) and 22 load flakes
 that greened on retry. The exact absorbed-upstream baseline run
 [32657627746](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32657627746)
-and exact Gate 2.7 review are recorded in
+also failed: 162,053 passed / 41 failed, with 19 deterministic failures.
+Thirteen deterministic test identities are shared, three are
+presentation-only, and six are baseline-only. Exact Gate 2.7 also has 346
+mixed paths without dispositions. These receipts are recorded in
 [RESOLVED-SHA.md](RESOLVED-SHA.md).
 
 No live proof row may fire while the acceptance state remains blocked.

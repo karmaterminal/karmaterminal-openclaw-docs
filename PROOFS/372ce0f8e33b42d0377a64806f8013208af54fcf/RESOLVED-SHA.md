@@ -28,13 +28,20 @@ move any presentation ref.
 - Load flakes greened on retry: 22.
 - Exact frozen-upstream baseline Mode-B:
   [32657627746](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32657627746),
-  workflow SHA `6dd6c3a7712c8ae02937a29054525b2ddacb89c1`;
-  classification is in progress at seed construction time.
-- Exact Gate 2.7 is being recomputed with the current canonical gate tool
-  against frozen upstream `8578b8f55cf77ddb161891b662a02f8c8c2a80ba`.
+  workflow SHA `6dd6c3a7712c8ae02937a29054525b2ddacb89c1`,
+  **failure**, 162,053 passed / 41 failed.
+- Baseline deterministic failures: 19. Thirteen exact test identities are
+  shared with the presentation failure set; three are presentation-only and
+  six are baseline-only. See `gates/mode-b-failure-classification.md`.
+- Exact Gate 2.7 recomputation examined 930 paths: 296 `GENUINE`, 288
+  `SAFE-NEW`, 346 `MIXED-CLOBBER`, and zero `FROZEN-STALE`. The canonical
+  tool exited zero, but the runbook requires all 346 mixed paths to have
+  recorded keep/restore dispositions. The exact classification is preserved
+  under `gates/gate-2.7-classification.tsv`; the gate remains unresolved.
 
-The gate is fail-closed until these in-progress receipts are replaced by exact
-terminal results. No current proof behavior has fired.
+The gate is fail-closed: both Mode-B runs are red, the presentation has three
+deterministic failures absent from its exact upstream baseline, and 346 exact
+Gate 2.7 mixed paths lack dispositions. No current proof behavior has fired.
 
 ## Ronan readiness snapshot
 

@@ -11,8 +11,19 @@
   from the exact presentation and absorbed-upstream baseline runs.
 - `gates/mode-b-failure-classification.md`: exact deterministic-set
   comparison and fail-closed disposition.
+- `gates/mode-b-three-test-reconciliation.md`: raw-log and matched-run
+  classification for the three presentation-only aggregate identities.
 - `gates/gate-2.7-summary.md` and `gates/gate-2.7-classification.tsv`: exact
-  final-presentation classification; 346 mixed paths remain undispositioned.
+  final-presentation classification and reconciliation summary.
+- `gates/gate-2.7-dispositions.tsv`: exact 346-row current authority.
+- `gates/gate-2.7-current-only-dispositions.tsv`: semantic review of all 36
+  current-only paths.
+- `gates/gate-2.7-prior-only-dispositions.tsv`: seven superseded/not-current
+  prior rows.
+- `gates/gate-2.7-*-paths.txt` and `gates/gate-2.7-hashes.sha256`: sorted set
+  members and integrity hashes.
+- `gates/gate-2.7-independent-review.md`: independent geometry and sole-restore
+  review.
 - Both terminal Mode-B receipts are red; a live dispatch is not permitted.
 - `artifacts/.gitkeep`: no behavior artifact exists at seed.
 

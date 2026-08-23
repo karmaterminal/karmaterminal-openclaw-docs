@@ -33,15 +33,27 @@ move any presentation ref.
 - Baseline deterministic failures: 19. Thirteen exact test identities are
   shared with the presentation failure set; three are presentation-only and
   six are baseline-only. See `gates/mode-b-failure-classification.md`.
+- Raw artifact logs and three matched serial repetitions per SHA classify the
+  three presentation-only identities as:
+  - Telegram Mantis: host `/run/lock` permission/fixture class, 3/3 matched
+    passes on both SHAs;
+  - xAI account-limit rendering: PTY timing/order class, 3/3 presentation and
+    2/3 frozen matched passes;
+  - redacted cause-aware send failure: one-off PTY timing class, 3/3 matched
+    passes on both SHAs.
+  No presentation-specific product regression was proved by these identities.
 - Exact Gate 2.7 recomputation examined 930 paths: 296 `GENUINE`, 288
   `SAFE-NEW`, 346 `MIXED-CLOBBER`, and zero `FROZEN-STALE`. The canonical
-  tool exited zero, but the runbook requires all 346 mixed paths to have
-  recorded keep/restore dispositions. The exact classification is preserved
-  under `gates/gate-2.7-classification.tsv`; the gate remains unresolved.
+  tool exited zero. Its reconciliation has 346 unique dispositions: 345
+  `KEEP`, one `RESTORE`, and zero missing, extra, or duplicate paths. Set
+  geometry is 346 current / 317 prior / 310 shared / 36 current-only / seven
+  prior-only.
 
-The gate is fail-closed: both Mode-B runs are red, the presentation has three
-deterministic failures absent from its exact upstream baseline, and 346 exact
-Gate 2.7 mixed paths lack dispositions. No current proof behavior has fired.
+The gate is fail-closed because
+`extensions/telegram/src/bot-message-dispatch.context-recovery.test.ts`
+requires restoration of frozen upstream's compatible anti-spoof assertion.
+The immutable presentation cannot be repaired from this docs lane. No current
+proof behavior has fired; docs main and the presentation ref were not moved.
 
 ## Ronan readiness snapshot
 

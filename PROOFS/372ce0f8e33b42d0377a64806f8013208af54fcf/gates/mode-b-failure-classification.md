@@ -31,8 +31,14 @@ doctor SQLite UTF-16 case and five `install-sh` platform cases.
 ## Gate disposition
 
 The shared failures classify a substantial inherited baseline class, but this
-does not launder either run. Every deterministic failure keeps both Mode-B
-runs red. The three presentation-only failures additionally prevent a claim
-that the exact presentation is no worse than its absorbed upstream baseline.
+does not launder either run. Every deterministic failure keeps both terminal
+Mode-B runs red.
+
+The three presentation-only aggregate identities were reconciled from raw
+logs and matched execution in
+[`mode-b-three-test-reconciliation.md`](mode-b-three-test-reconciliation.md).
+They classify as one host permission/fixture failure and two PTY timing/order
+failures, not presentation-specific product regressions. The exact terminal
+runs remain red; classification does not recolor them.
 
 No continuation proof row was dispatched.

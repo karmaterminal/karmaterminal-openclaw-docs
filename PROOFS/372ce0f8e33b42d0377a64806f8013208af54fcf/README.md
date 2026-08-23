@@ -41,8 +41,16 @@ that greened on retry. The exact absorbed-upstream baseline run
 [32657627746](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32657627746)
 also failed: 162,053 passed / 41 failed, with 19 deterministic failures.
 Thirteen deterministic test identities are shared, three are
-presentation-only, and six are baseline-only. Exact Gate 2.7 also has 346
-mixed paths without dispositions. These receipts are recorded in
+presentation-only, and six are baseline-only. Raw logs plus three matched
+serial repetitions on each immutable SHA classify the three presentation-only
+identities as host permission or PTY timing/order failures, not presentation
+product regressions.
+
+Exact Gate 2.7 is fully dispositioned: 346 unique current rows, 345 `KEEP` and
+one `RESTORE`, with zero missing, extra, or duplicate paths. The restore is a
+compatible frozen-upstream Telegram anti-spoof assertion omitted by the
+presentation. The presentation is immutable and this docs lane cannot patch
+OpenClaw, so acceptance remains blocked. These receipts are recorded in
 [RESOLVED-SHA.md](RESOLVED-SHA.md).
 
 No live proof row may fire while the acceptance state remains blocked.

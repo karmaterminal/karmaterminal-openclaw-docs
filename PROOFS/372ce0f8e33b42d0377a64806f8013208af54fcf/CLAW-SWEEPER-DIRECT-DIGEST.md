@@ -5,9 +5,10 @@
 - Seed state: `41 missing`
 - Live-suite denominator: 34 runnable entries (`PREFLIGHT` + 33 behavior rows)
 - Live workflow: not dispatched
-- Acceptance: blocked by red presentation Mode-B run `32650099821`, red exact
-  upstream baseline run `32657627746`, three presentation-only deterministic
-  failures, and 346 undispositioned exact Gate 2.7 mixed paths
+- Acceptance: blocked by one exact Gate 2.7 `RESTORE`; all 346 mixed paths are
+  dispositioned (345 `KEEP`, one `RESTORE`). Matched execution classifies the
+  three presentation-only Mode-B aggregate identities as host/fixture/timing,
+  not product regressions. Both terminal Mode-B runs remain red.
 - Canonical manifest: [`proofs-manifest.json`](proofs-manifest.json)
 - Human rollup: [`README.md`](README.md)
 - Non-interference: [`NON-INTERFERENCE-MAP.md`](NON-INTERFERENCE-MAP.md)

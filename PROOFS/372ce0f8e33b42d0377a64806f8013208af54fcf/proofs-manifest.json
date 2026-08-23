@@ -1,0 +1,1167 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "372ce0f8e33b42d0377a64806f8013208af54fcf",
+  "ship_sha": "372ce0f8e33b42d0377a64806f8013208af54fcf",
+  "proof_source_sha": "372ce0f8e33b42d0377a64806f8013208af54fcf",
+  "execution_runtime_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "execution_runtime_provenance": {
+    "presentation_sha": "372ce0f8e33b42d0377a64806f8013208af54fcf",
+    "runtime_composite_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "ancillary_sources": [
+      {
+        "pull_request": "openclaw/openclaw#121204",
+        "source_sha": "3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9"
+      },
+      {
+        "pull_request": "openclaw/openclaw#124337",
+        "source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835"
+      }
+    ],
+    "non_interference_map": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/NON-INTERFERENCE-MAP.md",
+    "note": "Runtime identity is ancillary execution context and is not the presentation, capture, ship, or proof-source identity."
+  },
+  "harness_sha": "5862caf39a3844a8ce3dd25def236a901ce9b316",
+  "fire_type": "seed-unfired-exact-presentation",
+  "method": "Fresh exact-presentation seed. All current behavior rows reopened missing; only explicitly marked static comparison baselines retain carriedFrom provenance.",
+  "required_rows": [
+    "R-CD-1",
+    "R-CD-2",
+    "R-CD-3",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CD-MODEL-DEFAULT",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-MODEL-TOOL",
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-SILENT",
+    "R-CD-TOKEN",
+    "R-CONFIG-DEFAULTS",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-4",
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-TOKEN",
+    "R-OBS-1",
+    "R-OBS-2",
+    "R-OBS-BACKEND-DISPOSITION",
+    "R-OBS-CONT-PROVENANCE",
+    "R-OBS-PROOF-MARKER",
+    "R-OBS-STATUS",
+    "R-OBS-TERMINAL-OUTCOME",
+    "R-RC-1",
+    "R-RC-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "dispatch_allocation": [
+    {
+      "row": "R-CD-1",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-2",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-CW-5A",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-CW-6A",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-OBS-BACKEND-DISPOSITION",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-OBS-CONT-PROVENANCE",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-OBS-PROOF-MARKER",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-OBS-TERMINAL-OUTCOME",
+      "owner": "frond-followup",
+      "status": "allocated-non-live-suite"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "owner": "ronan",
+      "status": "allocated-live-suite"
+    }
+  ],
+  "source_runs": [],
+  "gates": {
+    "frozen_upstream_sha": "8578b8f55cf77ddb161891b662a02f8c8c2a80ba",
+    "exact_gate_2_7": "review-in-progress",
+    "presentation_mode_b_run": "32650099821",
+    "presentation_mode_b_verdict": "failure: 163506 passed, 38 failed (16 deterministic; 22 load-flakes greened)",
+    "upstream_baseline_mode_b_run": "32657627746",
+    "acceptance": "blocked until exact Gate 2.7 and baseline classification are complete"
+  },
+  "generated": "2026-08-23",
+  "generated_by": "codeagent/openclaw-85651-continuation-proof-20260823",
+  "rollup": {
+    "total_rows": 41,
+    "pass": 0,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 41
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "title": "Typed continue_delegate() schedule/spawn/return.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-1/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 103
+    },
+    {
+      "row": "R-CD-2",
+      "title": "continue_delegate(mode='silent-wake') full path.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-2/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 119
+    },
+    {
+      "row": "R-CD-3",
+      "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-3/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-3/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 119
+    },
+    {
+      "row": "R-CD-4",
+      "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-4/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-4/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 119
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "title": "Depth-2 delegate chain: parent→child→grandchild→return path.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 119
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "title": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-COLLECTION-ON-COLLAPSE/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 119,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-CHAINED-ALT/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 140
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-DEFAULT/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 140
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-TOKEN/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 140
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-TOOL/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 140
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-RETURN-OVERLAP/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 246
+    },
+    {
+      "row": "R-CD-SILENT",
+      "title": "Typed continue_delegate(mode='silent') proof.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-SILENT/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-SILENT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 119
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-TOKEN/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CD-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 103
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 104
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 121
+    },
+    {
+      "row": "R-CW-1",
+      "title": "Typed continue_work() tool-form schedule + wake.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-1/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117
+    },
+    {
+      "row": "R-CW-2",
+      "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-2/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117
+    },
+    {
+      "row": "R-CW-3",
+      "title": "continue_work reason telemetry/redaction partial candidate.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-3/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-3/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117
+    },
+    {
+      "row": "R-CW-4",
+      "title": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-4/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-4/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117
+    },
+    {
+      "row": "R-CW-5",
+      "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-5/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-5/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
+      "scenario_status": "scaffold",
+      "live_run_classification": "orchestration-required",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117
+    },
+    {
+      "row": "R-CW-5A",
+      "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-5A/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-5A/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "static-preflight-only",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-6",
+      "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-6/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-6/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
+      "scenario_status": "scaffold",
+      "live_run_classification": "orchestration-required",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117
+    },
+    {
+      "row": "R-CW-6A",
+      "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-6A/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-6A/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "static-preflight-only",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-7",
+      "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-7/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-7/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 220,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 213,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "title": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 118
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "title": "Static validator for committed delegate child bare-token continuation receipts.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 221,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-MULTI/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-MULTI/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 117,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 216,
+      "carriedFrom": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-TOKEN/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-CW-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 118
+    },
+    {
+      "row": "R-OBS-1",
+      "title": "Session-status-card observability via the session_status tool.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-1/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 1135
+    },
+    {
+      "row": "R-OBS-2",
+      "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-2/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 233
+    },
+    {
+      "row": "R-OBS-BACKEND-DISPOSITION",
+      "title": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-BACKEND-DISPOSITION/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-backend-disposition.json",
+      "scenario_status": "construct-only",
+      "live_run_classification": "construct-only",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 1254
+    },
+    {
+      "row": "R-OBS-CONT-PROVENANCE",
+      "title": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-CONT-PROVENANCE/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-CONT-PROVENANCE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-cont-provenance.json",
+      "scenario_status": "construct-only",
+      "live_run_classification": "construct-only",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 1254
+    },
+    {
+      "row": "R-OBS-PROOF-MARKER",
+      "title": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-PROOF-MARKER/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-PROOF-MARKER/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-proof-marker.json",
+      "scenario_status": "construct-only",
+      "live_run_classification": "construct-only",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 1254
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-STATUS/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-STATUS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 104
+    },
+    {
+      "row": "R-OBS-TERMINAL-OUTCOME",
+      "title": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure.",
+      "owner": "frond follow-up",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-TERMINAL-OUTCOME/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-terminal-outcome.json",
+      "scenario_status": "construct-only",
+      "live_run_classification": "construct-only",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 1254
+    },
+    {
+      "row": "R-RC-1",
+      "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-RC-1/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-RC-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 422
+    },
+    {
+      "row": "R-RC-2",
+      "title": "Parent fires continue_delegate to a child that calls request_compaction.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-RC-2/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-RC-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 104
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 121
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+      "owner": "ronan live proof suite",
+      "state": "missing",
+      "dir": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-TRACE-REDACTION-1121/",
+      "evidence_doc": "PROOFS/372ce0f8e33b42d0377a64806f8013208af54fcf/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": null,
+      "review_status": "unfired",
+      "pending_receipts": [
+        "current exact-presentation behavioral evidence"
+      ],
+      "traces": [],
+      "supporting_docs": [],
+      "notes": "Fresh seed: current behavior has not fired. Historical evidence is not a current verdict.",
+      "fired": null,
+      "issue": 1121
+    }
+  ]
+}

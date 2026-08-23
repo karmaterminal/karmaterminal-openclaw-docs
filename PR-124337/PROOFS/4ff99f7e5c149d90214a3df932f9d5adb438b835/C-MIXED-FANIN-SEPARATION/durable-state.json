@@ -1,0 +1,59 @@
+{
+  "schema": "openclaw.pr124337.durable-state.v1",
+  "row": "C-MIXED-FANIN-SEPARATION",
+  "database_sha256": "fd8e44e83ba7382ceea354f93518b367308e6228c2370f72e91dbd27cb9a07aa",
+  "rows": [
+    {
+      "id_role": "poison",
+      "status": "failed",
+      "lane_role": "lane",
+      "attempts": 2,
+      "last_attempt_at": 10004,
+      "last_error": "turn-abandoned",
+      "fail_reason": "retry-limit-exceeded",
+      "received_at": 10,
+      "updated_at": 10005,
+      "claimed_at": null,
+      "payload_retained": true
+    },
+    {
+      "id_role": "follower",
+      "status": "completed",
+      "lane_role": "lane",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "fail_reason": null,
+      "received_at": 11,
+      "updated_at": 10006,
+      "claimed_at": null,
+      "payload_retained": false
+    },
+    {
+      "id_role": "capable",
+      "status": "pending",
+      "lane_role": "lane",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "fail_reason": null,
+      "received_at": 1,
+      "updated_at": 10002,
+      "claimed_at": null,
+      "payload_retained": true
+    },
+    {
+      "id_role": "legacy",
+      "status": "pending",
+      "lane_role": "lane",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "fail_reason": null,
+      "received_at": 1,
+      "updated_at": 10002,
+      "claimed_at": null,
+      "payload_retained": true
+    }
+  ]
+}

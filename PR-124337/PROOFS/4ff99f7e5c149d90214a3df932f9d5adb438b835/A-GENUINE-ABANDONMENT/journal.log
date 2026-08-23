@@ -1,0 +1,8 @@
+2026-08-23T17:12:47.648Z genuine-abandon id=head attempts=0
+2026-08-23T17:12:47.650Z spooled update a77318fd-0698-4dce-a4d2-512b6504881e-head failed; keeping for retry: turn-abandoned
+2026-08-23T17:12:47.652Z genuine-abandon id=head attempts=1
+2026-08-23T17:12:47.653Z spooled update a77318fd-0698-4dce-a4d2-512b6504881e-head failed; keeping for retry: turn-abandoned
+2026-08-23T17:12:47.655Z genuine-abandon id=head attempts=2
+2026-08-23T17:12:47.655Z spooled update a77318fd-0698-4dce-a4d2-512b6504881e-head failed with non-retryable retry-limit-exceeded: turn-abandoned; dead-lettered
+2026-08-23T17:12:47.655Z spooled update a77318fd-0698-4dce-a4d2-512b6504881e-head on lane a77318fd-0698-4dce-a4d2-512b6504881e-lane reached retry limit after 3 attempts; dead-lettered
+2026-08-23T17:12:47.658Z follower-adopted

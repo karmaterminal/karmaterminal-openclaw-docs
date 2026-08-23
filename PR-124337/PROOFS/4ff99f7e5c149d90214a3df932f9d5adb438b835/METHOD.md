@@ -22,6 +22,22 @@ state while keeping accepted source identity separate from execution identity.
    lifecycle logs.
 7. Review the candidate artifacts before changing a row from `missing`.
 
+## Recorded fire
+
+- Docs seed SHA: `3aeb17c1b3ec55af2aee787702aa6923f06a266b`
+- Bootstrap workflow SHA:
+  `6dd6c3a7712c8ae02937a29054525b2ddacb89c1`
+- Bootstrap run:
+  [32652334564](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32652334564)
+- Seat: `emeric-nuc`
+- Window: `2026-08-23T17:12:47.500Z` -
+  `2026-08-23T17:12:47.883Z`
+- Workflow result: custom command `rc=0`; all three row envelopes
+  `PASS-candidate`
+
+The fold independently read every receipt, identity check, durable-state
+projection, and journal before assigning canonical `pass`.
+
 ## Safety
 
 - The harness never opens the seat's live state database.

@@ -8,6 +8,8 @@
 | Drift-cure candidate | `d81272c117ef7a2ac765450d682309a941d58463` |
 | Frozen upstream for the drift cure | `8578b8f55cf77ddb161891b662a02f8c8c2a80ba` |
 | OpenClaw Bootstrap workflow authority | `6dd6c3a7712c8ae02937a29054525b2ddacb89c1` |
+| Proof harness docs seed | `3aeb17c1b3ec55af2aee787702aa6923f06a266b` |
+| Exact composite proof run | `32652334564` |
 
 The source SHA identifies this corpus. The composite SHA identifies what
 executes the rows. The drift-cure candidate is presentation preparation and is
@@ -22,3 +24,7 @@ Composite deployment receipts:
 
 Each receipt resolves the approved target, checkout, build version, and
 post-deploy commit to the exact composite SHA.
+
+The behavioral fire ran on Emeric and repeated the installed checkout/build
+identity check before all three rows. The row receipts preserve the exact
+nonce and time window for each fire.

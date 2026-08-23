@@ -1,0 +1,49 @@
+{
+  "schema": "openclaw.pr124337.row-receipt.v1",
+  "row": "B-BUDGET-FREE-CANCELLATION",
+  "verdict": "PASS-candidate",
+  "proof_source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "execution_composite_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "drift_cure_candidate_sha": "d81272c117ef7a2ac765450d682309a941d58463",
+  "docs_sha": "3aeb17c1b3ec55af2aee787702aa6923f06a266b",
+  "seat": "emeric-nuc",
+  "nonce": "31d643ba-3e59-40d2-b92f-4f4471fcb9ec",
+  "time_window": {
+    "started_at": "2026-08-23T17:12:47.676Z",
+    "ended_at": "2026-08-23T17:12:47.767Z"
+  },
+  "identity": {
+    "checked_at": "2026-08-23T17:12:47.672Z",
+    "row": "B-BUDGET-FREE-CANCELLATION",
+    "seat": "emeric-nuc",
+    "checkout_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "build_info_commit": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "build_info_version": "2026.8.1",
+    "expected_composite_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "match": true
+  },
+  "cancel_compat_expected": false,
+  "observations": {
+    "retry_facts_before": {
+      "id_role": "cancel",
+      "attempts": 1,
+      "last_attempt_at": 10000,
+      "last_error": "prior-proof-failure"
+    },
+    "retry_facts_after": {
+      "id_role": "cancel",
+      "attempts": 1,
+      "last_attempt_at": 10000,
+      "last_error": "prior-proof-failure"
+    },
+    "cancellation_cycles": 3,
+    "failed_ids": [],
+    "claimed_ids": []
+  },
+  "durable_database": {
+    "format": "SQLite",
+    "sha256": "d1f2ed94f175526eb4eeab312c9e686b224110ac9531d5fa8a684b462033f57b",
+    "projected_rows_path": "B-BUDGET-FREE-CANCELLATION/durable-state.json",
+    "projected_row_count": 1
+  }
+}

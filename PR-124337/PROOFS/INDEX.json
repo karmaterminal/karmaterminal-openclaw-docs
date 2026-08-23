@@ -12,14 +12,14 @@
   "readme_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/README.md",
   "rollup": {
     "total_rows": 3,
-    "pass": 0,
+    "pass": 3,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 3
+    "missing": 0
   },
-  "disposition_note": "Seeded exact-source corpus; all three behavioral rows remain missing until the composite-bound harness run is reviewed and folded.",
+  "disposition_note": "Three reviewed durable-ingress rows pass on Emeric at exact composite 6e6da7bba079b0fc50d134b96657cda683985837. Source credit remains bound to 4ff99f7e5c149d90214a3df932f9d5adb438b835.",
   "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-23",
   "generated_by": "frond-scribe"

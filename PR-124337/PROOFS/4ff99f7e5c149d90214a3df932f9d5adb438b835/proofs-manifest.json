@@ -9,6 +9,15 @@
     "note": "The composite executes the rows. It is not presented as the #124337 source SHA."
   },
   "harness_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/harness.mjs",
+  "harness_docs_sha": "3aeb17c1b3ec55af2aee787702aa6923f06a266b",
+  "proof_run": {
+    "repository": "karmaterminal/openclaw-bootstrap",
+    "workflow_sha": "6dd6c3a7712c8ae02937a29054525b2ddacb89c1",
+    "run_id": 32652334564,
+    "seat": "emeric-nuc",
+    "started_at": "2026-08-23T17:12:47.500Z",
+    "ended_at": "2026-08-23T17:12:47.883Z"
+  },
   "method": "Composite-bound synthetic durable-ingress rows on an exact deployed seat; raw SQLite projections reviewed before fold.",
   "required_rows": [
     "A-GENUINE-ABANDONMENT",
@@ -19,17 +28,17 @@
     {
       "row": "A-GENUINE-ABANDONMENT",
       "owner": "emeric-nuc",
-      "status": "not-fired"
+      "status": "fired"
     },
     {
       "row": "B-BUDGET-FREE-CANCELLATION",
       "owner": "emeric-nuc",
-      "status": "not-fired"
+      "status": "fired"
     },
     {
       "row": "C-MIXED-FANIN-SEPARATION",
       "owner": "emeric-nuc",
-      "status": "not-fired"
+      "status": "fired"
     }
   ],
   "rows": [
@@ -37,43 +46,70 @@
       "row": "A-GENUINE-ABANDONMENT",
       "title": "Genuine pre-adoption abandonment consumes the retry budget",
       "owner": "emeric-nuc",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT",
       "evidence_doc": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT/EVIDENCE.md",
-      "summary": "Awaiting exact-composite candidate artifacts.",
+      "summary": "Attempts 0/1/2 reached retry-limit-exceeded with turn-abandoned; the same-lane follower completed.",
+      "test_cases_executed": [
+        "three genuine pre-adoption abandonments",
+        "durable retry-limit terminalization",
+        "same-lane follower adoption"
+      ],
       "traces": [],
-      "supporting_docs": []
+      "supporting_docs": [
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT/receipt.json",
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT/durable-state.json",
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/A-GENUINE-ABANDONMENT/journal.log"
+      ]
     },
     {
       "row": "B-BUDGET-FREE-CANCELLATION",
       "title": "Cancellation preserves prior retry facts",
       "owner": "emeric-nuc",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION",
       "evidence_doc": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION/EVIDENCE.md",
-      "summary": "Awaiting exact-composite candidate artifacts.",
+      "summary": "Three explicit cancellations preserved attempts, last-attempt time, and last error without a failed or claimed row.",
+      "test_cases_executed": [
+        "seeded prior retry facts",
+        "three explicit cancellation settlements",
+        "durable retry-fact equality"
+      ],
       "traces": [],
-      "supporting_docs": []
+      "supporting_docs": [
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION/receipt.json",
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION/durable-state.json",
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/B-BUDGET-FREE-CANCELLATION/journal.log"
+      ]
     },
     {
       "row": "C-MIXED-FANIN-SEPARATION",
       "title": "Mixed fan-in cancellation stays separate from genuine abandonment",
       "owner": "emeric-nuc",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION",
       "evidence_doc": "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION/EVIDENCE.md",
-      "summary": "Awaiting exact-composite candidate artifacts.",
+      "summary": "Capable and legacy fan-in rows stayed attempts-neutral while separate genuine abandonment terminalized and released its follower.",
+      "test_cases_executed": [
+        "three mixed capable and legacy fan-in cancellations",
+        "same-process genuine abandonment",
+        "same-lane follower adoption"
+      ],
       "traces": [],
-      "supporting_docs": []
+      "supporting_docs": [
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION/receipt.json",
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION/durable-state.json",
+        "PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/C-MIXED-FANIN-SEPARATION/journal.log"
+      ]
     }
   ],
   "rollup": {
     "total_rows": 3,
-    "pass": 0,
+    "pass": 3,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 3
+    "missing": 0
   }
 }

@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.pr124337.durable-state.v1",
+  "row": "B-BUDGET-FREE-CANCELLATION",
+  "database_sha256": "d1f2ed94f175526eb4eeab312c9e686b224110ac9531d5fa8a684b462033f57b",
+  "rows": [
+    {
+      "id_role": "cancel",
+      "status": "pending",
+      "lane_role": "lane",
+      "attempts": 1,
+      "last_attempt_at": 10000,
+      "last_error": "prior-proof-failure",
+      "fail_reason": null,
+      "received_at": 1,
+      "updated_at": 10003,
+      "claimed_at": null,
+      "payload_retained": true
+    }
+  ]
+}

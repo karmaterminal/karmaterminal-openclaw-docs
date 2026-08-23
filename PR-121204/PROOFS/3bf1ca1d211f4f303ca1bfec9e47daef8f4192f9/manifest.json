@@ -1,0 +1,78 @@
+{
+  "schema": "openclaw.pr121204.exact-source-proof-manifest.v1",
+  "source_sha": "3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "execution_composite_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "corpus_path": "PR-121204/PROOFS/3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "seat": "rune",
+  "capture_date": "2026-08-23",
+  "harness": {
+    "path": "proof-harness.test.ts",
+    "sha256": "368650f8f97583038cd0a9beec2488fbe67574b12a4d8df514a595a583b8f344",
+    "runner": "package.json#scripts.test"
+  },
+  "identity": {
+    "installed_checkout": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "runtime_build_commit": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "gateway_service_state": "not-found-or-inactive",
+    "gateway_process_observed": true,
+    "gateway_mutated": false
+  },
+  "rows": [
+    {
+      "id": "stale-direct-open-ambient-vs-fresh-mention",
+      "path": "STALE-DIRECT-OPEN",
+      "evidence": "STALE-DIRECT-OPEN/EVIDENCE.md",
+      "gate": "STALE-DIRECT-OPEN/gate.json",
+      "receipt": "STALE-DIRECT-OPEN/receipt.json",
+      "test_result": "STALE-DIRECT-OPEN/test-result.json",
+      "nonce": "RUNE-PR121204-R1-20260823T155150Z-993991",
+      "composite_verdict": "pass",
+      "exact_source_verdict": "pass",
+      "exact_source_isolation": true
+    },
+    {
+      "id": "corrupt-pending-vs-fresh-addressed",
+      "path": "CORRUPT-PENDING",
+      "evidence": "CORRUPT-PENDING/EVIDENCE.md",
+      "gate": "CORRUPT-PENDING/gate.json",
+      "receipt": "CORRUPT-PENDING/receipt.json",
+      "test_result": "CORRUPT-PENDING/test-result.json",
+      "nonce": "RUNE-PR121204-R2-20260823T155221Z-994186",
+      "composite_verdict": "pass",
+      "exact_source_verdict": "pass",
+      "exact_source_isolation": true
+    },
+    {
+      "id": "watchdog-bounded-recovery-no-completed-replay",
+      "path": "WATCHDOG-REPAIR",
+      "evidence": "WATCHDOG-REPAIR/EVIDENCE.md",
+      "gate": "WATCHDOG-REPAIR/gate.json",
+      "receipt": "WATCHDOG-REPAIR/receipt.json",
+      "test_result": "WATCHDOG-REPAIR/test-result.json",
+      "nonce": "RUNE-PR121204-R3-20260823T155236Z-994306",
+      "composite_verdict": "pass",
+      "exact_source_verdict": "non-isolating",
+      "exact_source_isolation": false,
+      "dependency": "ee79b0a49ae4b0ecd30f9e483c70c0f49f20232c"
+    }
+  ],
+  "rollup": {
+    "total": 3,
+    "composite_pass": 3,
+    "exact_source_pass": 2,
+    "non_isolating": 1
+  },
+  "hybrid_ci": {
+    "repository": "karmaterminal/openclaw-bootstrap",
+    "workflow": "openclaw-local-ci.yml",
+    "run_id": 32649941654,
+    "product_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+    "workflow_head_sha": "ee5182f6954d8f38e94c8baeb339d96172419f3a",
+    "status": "pending"
+  },
+  "limits": [
+    "No deployed gateway journal was emitted because all rows used isolated test state.",
+    "Downstream agent execution was not exercised.",
+    "The watchdog row is composite-context evidence and is not exact-source proof."
+  ]
+}

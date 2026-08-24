@@ -1,37 +1,35 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "30e9051e2a79b4f70e9e7429561ccd395ed9f4ab",
-  "current_sha_short": "30e9051e",
+  "current_sha": "c3a0e5a314ecbf572911d4b2e84595bd06f64d69",
+  "current_sha_short": "c3a0e5a3",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Static-corpus scenarios (static-corpus-row-validator.js and the four row-specific readers) load PRIOR evidence as a comparison baseline via `index.static_evidence_sha || index.current_sha`. current_sha (c868194) holds live run artefacts only and carries no EVIDENCE.md, so every static-corpus row resolved a non-existent path and reported all checks false - 13 rows failed (9 x exit 99 threshold, 4 x exit 107 open() abort) for that single reason, not for product regressions. This pin names the last corpus that actually carries the static baseline in the layout the scenarios read (<row>/cael-dgx/ plus its ancillary receipts: test logs, source snippets, hop1/hop2, verifier and tempo receipts - all verified present for all 13 rows). Baseline only: it never supplies candidate verdicts, and each row's evidence records `carriedFrom` so the provenance is explicit in the published artefact rather than implied.",
-  "build_string": "OpenClaw continuation presentation 30e9051e",
-  "corpus_path": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/",
-  "manifest_path": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/proofs-manifest.json",
-  "readme_path": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/README.md",
-  "clawsweeper_path": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/CLAWSSWEEPER.md",
+  "build_string": "OpenClaw 2026.8.1 (46f4d21); continuation presentation c3a0e5a3",
+  "corpus_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/",
+  "manifest_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/proofs-manifest.json",
+  "readme_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/README.md",
+  "clawsweeper_path": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/CLAWSSWEEPER.md",
   "entrypoints": {
-    "clawsweeper": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/CLAWSSWEEPER.md",
-    "manifest": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/proofs-manifest.json",
-    "readme": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/README.md",
-    "method": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/METHOD.md",
-    "resolved_sha": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/RESOLVED-SHA.md",
-    "artifacts": "PROOFS/30e9051e2a79b4f70e9e7429561ccd395ed9f4ab/ARTIFACTS.md"
+    "clawsweeper": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/proofs-manifest.json",
+    "readme": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/README.md",
+    "method": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/METHOD.md",
+    "resolved_sha": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/c3a0e5a314ecbf572911d4b2e84595bd06f64d69/ARTIFACTS.md"
   },
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
     "total_rows": 41,
-    "pass": 0,
-    "partial": 0,
+    "pass": 30,
+    "partial": 2,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 0,
-    "missing": 41
+    "honest_limit": 1,
+    "missing": 8
   },
-  "disposition_note": "Exact accepted seed; one Ronan live-suite fire allocated, all rows reopened missing pending review.",
+  "disposition_note": "Complete current-catalog publication: 33 live behavioral results plus 8 explicit missing rows. Runtime was the disclosed continuation-plus-PR-#121204 composite. R-CD-2 candidate false failure is folded partial and tracked by docs#514; refinement will update this same corpus.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-08-24",
-  "generated_by": "openclaw-85651-final-reproof-20260823",
-  "capture_sha": "30e9051e2a79b4f70e9e7429561ccd395ed9f4ab",
-  "proof_source_sha": "30e9051e2a79b4f70e9e7429561ccd395ed9f4ab"
+  "generated": "2026-08-19",
+  "generated_by": "frond-scribe"
 }

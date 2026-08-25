@@ -1,0 +1,90 @@
+[
+  {
+    "flow_id": "029d408a-5353-4eeb-91ae-5d5d6fce672d",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783203682850,
+    "updated_at": 1783203693521,
+    "ended_at": 1783203693521,
+    "state": {
+      "kind": "continuation_delegate",
+      "silentWake": null,
+      "delayMs": 8000,
+      "fanoutMode": "tree",
+      "traceparent": "00-0d676f84623ebfe6499a324d039ee050-614a4f019c05a9fc-01",
+      "childSessionKey": "agent:main:subagent:continuation-7bdd46e2035532e982d84c5b7c3da6fc",
+      "releasedAt": 1783203693359,
+      "deliveredAt": null,
+      "disposition": null,
+      "reason": null
+    }
+  },
+  {
+    "flow_id": "273b73ef-fdb8-447c-8e89-c803e119ecf0",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783203689002,
+    "updated_at": 1783203697411,
+    "ended_at": 1783203697411,
+    "state": {
+      "kind": "continuation_delegate",
+      "silentWake": true,
+      "delayMs": 8000,
+      "fanoutMode": "tree",
+      "traceparent": "00-0d676f84623ebfe6499a324d039ee050-614a4f019c05a9fc-01",
+      "childSessionKey": "agent:main:subagent:continuation-dc71cbaff90c1ec7bdcd5514a1e21d31",
+      "releasedAt": 1783203697006,
+      "deliveredAt": null,
+      "disposition": null,
+      "reason": null
+    }
+  },
+  {
+    "flow_id": "73394cca-a887-4f56-a5ab-a4c4dcee4ebb",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-work",
+    "status": "queued",
+    "current_step": "Anchored same-session continuation wake to electing turn finalization",
+    "created_at": 1783203693325,
+    "updated_at": 1783203693637,
+    "ended_at": null,
+    "state": {
+      "kind": "continuation_work",
+      "silentWake": null,
+      "delayMs": 90000,
+      "fanoutMode": null,
+      "traceparent": "00-0d676f84623ebfe6499a324d039ee050-614a4f019c05a9fc-01",
+      "childSessionKey": null,
+      "releasedAt": null,
+      "deliveredAt": null,
+      "disposition": null,
+      "reason": "Complete R-CD-RETURN-OVERLAP proof/package, docs PR merge, runbook update/admin merge."
+    }
+  },
+  {
+    "flow_id": "81d4ffc9-c818-4afe-bf8f-420641132753",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "controller_id": "core/continuation-work",
+    "status": "running",
+    "current_step": "Released to continuation wake scheduler",
+    "created_at": 1783203734251,
+    "updated_at": 1783203759301,
+    "ended_at": null,
+    "state": {
+      "kind": "continuation_work",
+      "silentWake": null,
+      "delayMs": 25000,
+      "fanoutMode": null,
+      "traceparent": "00-0d676f84623ebfe6499a324d039ee050-614a4f019c05a9fc-01",
+      "childSessionKey": null,
+      "releasedAt": 1783203759301,
+      "deliveredAt": null,
+      "disposition": null,
+      "reason": "Collect 15:21 no-backup R-CD-RETURN-OVERLAP delegates, package proof, update and merge runbook copies."
+    }
+  }
+]

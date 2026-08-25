@@ -1,22 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-  "current_sha_short": "80311e8a",
+  "current_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+  "current_sha_short": "4737afdf",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw 2026.8.1 (80311e8a)",
-  "corpus_path": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/",
-  "manifest_path": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/proofs-manifest.json",
-  "readme_path": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/README.md",
-  "clawsweeper_path": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/CLAWSSWEEPER.md",
+  "build_string": "OpenClaw 2026.8.1 (4737afdf)",
+  "corpus_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/",
+  "manifest_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/proofs-manifest.json",
+  "readme_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/README.md",
+  "clawsweeper_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/CLAWSSWEEPER.md",
   "entrypoints": {
-    "clawsweeper": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/CLAWSSWEEPER.md",
-    "manifest": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/proofs-manifest.json",
-    "readme": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/README.md",
-    "method": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/METHOD.md",
-    "resolved_sha": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/RESOLVED-SHA.md",
-    "artifacts": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/ARTIFACTS.md"
+    "clawsweeper": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/proofs-manifest.json",
+    "readme": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/README.md",
+    "method": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/METHOD.md",
+    "resolved_sha": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/ARTIFACTS.md",
+    "transposition": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/TRANSPOSED-FROM.md"
   },
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
@@ -28,8 +29,14 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Pure presentation identity with ancestry-bound live execution composite. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail. R-CW-5 exact-pure fixture passes; R-CW-6 exact-pure fixture preserves a docs-harness partial.",
+  "disposition_note": "Full self-contained transposition from 80311e8a to conflict-cured descendant 4737afdf. Historical live execution remains attributed to composite 37300f29 and source pure 80311e8a; exact-target reproof/Mode-B are separate gates. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-25",
-  "generated_by": "frond-scribe"
+  "generated_by": "frond-scribe",
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
+    "exact_target_execution": false
+  }
 }

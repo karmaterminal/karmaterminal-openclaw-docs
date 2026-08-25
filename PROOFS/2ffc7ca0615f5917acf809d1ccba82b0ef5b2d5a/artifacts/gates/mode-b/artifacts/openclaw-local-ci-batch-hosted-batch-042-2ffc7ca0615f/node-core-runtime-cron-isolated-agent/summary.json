@@ -1,0 +1,34 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "core-runtime-cron-isolated-agent",
+  "configs": [
+    "test/vitest/vitest.cron.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (core-runtime-cron-isolated-agent)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 3620
+    }
+  ],
+  "tests": {
+    "passed": 722,
+    "failed": 0
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (core-runtime-cron-isolated-agent)",
+      "kind": "test",
+      "detail": "cron  src/cron/isolated-agent.session-identity.test.ts > runCronIsolatedAgentTurn session identity"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

@@ -1,0 +1,368 @@
+[test] starting test/vitest/vitest.extension-discord.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-045/shard-1-extension-discord[39m
+
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/runtime.test.ts [2m([22m[2m163 tests[22m[2m)[22m[32m 248[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.preflight.test.ts [2m([22m[2m63 tests[22m[2m)[22m[33m 3104[2mms[22m[39m
+     [33m[2m✓[22m[39m admits embed-only messages when their text appears after a textless first embed [33m 786[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.plugin-dispatch.test.ts [2m([22m[2m47 tests[22m[2m)[22m[33m 767[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.sends-basic-channel-messages.test.ts [2m([22m[2m87 tests[22m[2m)[22m[33m 686[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/thread-bindings.lifecycle.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 889[2mms[22m[39m
+     [33m[2m✓[22m[39m persists touched activity timestamps across restart when persistence is enabled [33m 417[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/model-picker.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.model-picker.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor.test.ts [2m([22m[2m45 tests[22m[2m)[22m[33m 503[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks DM reactions when dmPolicy is disabled [33m 458[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/outbound-adapter.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 222[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.test.ts [2m([22m[2m42 tests[22m[2m)[22m[33m 933[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/monitor.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 1038[2mms[22m[39m
+     [33m[2m✓[22m[39m routes button clicks with reply references [33m 554[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.queue.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3302[2mms[22m[39m
+     [33m[2m✓[22m[39m dead-letters an exhausted preflight failure and releases its Discord lane [33m 1508[2mms[22m[39m
+     [33m[2m✓[22m[39m dead-letters an exhausted queued processing failure and releases its Discord lane [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves retry facts when deactivation cancels a durable Discord claim [33m 368[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves retry facts when a started durable Discord job returns after cancellation [33m 341[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves retry facts when a started durable Discord job throws after cancellation [33m 340[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves retry facts when deactivation skips a queued durable Discord job [33m 309[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/realtime-turns.test.ts [2m([22m[2m41 tests[22m[2m)[22m[33m 595[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/voice-session.lifecycle.test.ts [2m([22m[2m39 tests[22m[2m)[22m[33m 545[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/gateway.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/voice-receive.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 1077[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/rest.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 1395[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds gzip-compressed REST response bodies after decompression [33m 801[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/handle-action.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/listeners.presence.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 733[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/voice-following.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/components.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 634[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.proxy.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 429[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/http.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 1016[2mms[22m[39m
+     [33m[2m✓[22m[39m does not charge malformed or unresolved requests to the global budget [33m 301[2mms[22m[39m
+[90mstderr[2m | extensions/discord/src/monitor/message-handler.process.draft-final.test.ts[2m > [22m[2mprocessDiscordMessage draft streaming final delivery[2m > [22m[2mpreserves a delivered final when its first stale-preview cleanup fails
+[22m[39mLive preview cleanup failed after delivery; a stale preview may remain
+
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.draft-final.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 1338[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.draft-progress.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 996[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/realtime-consults.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 482[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 821[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.lifecycle.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 407[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/interactions.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 353[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice-message.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 698[2mms[22m[39m
+     [33m[2m✓[22m[39m times out a hanging upload URL request [33m 308[2mms[22m[39m
+     [33m[2m✓[22m[39m times out a hanging PUT upload request [33m 308[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/client.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 269[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.components.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 1009[2mms[22m[39m
+     [33m[2m✓[22m[39m rechecks delivery authority before each retried component post [33m 534[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.options.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1910[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the provider-startup catalog snapshot for /think autocomplete [33m 1206[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/doctor.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-media.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 1117[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/reply-delivery.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 135[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/realtime-playback.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 318[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.draft-recovery.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 4015[2mms[22m[39m
+     [33m[2m✓[22m[39m renders reasoning block payloads as a 🧠 blockquote [33m 1505[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers non-reasoning block payloads to Discord [33m 1503[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/monitor.threading-utils.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/shared-interactive.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.creates-thread.test.ts [2m([22m[2m42 tests[22m[2m)[22m[33m 950[2mms[22m[39m
+[90mstdout[2m | extensions/discord/src/api.test.ts[2m > [22m[2mfetchDiscord[2m > [22m[2mrejects malformed UTF-8 in otherwise valid Discord JSON
+[22m[39m[discord requestDiscord loopback proof] malformed UTF-8: rejected=true body_used=true
+
+[90mstdout[2m | extensions/discord/src/api.test.ts[2m > [22m[2mfetchDiscord[2m > [22m[2mreturns under-cap requestDiscord responses from a real loopback HTTP server
+[22m[39m[discord requestDiscord loopback proof] normal path: returned={"id":"channel-42","name":"loopback","type":0} content_length=none
+
+[90mstdout[2m | extensions/discord/src/api.test.ts[2m > [22m[2mfetchDiscord[2m > [22m[2mredacts reflected bot credentials from non-JSON error bodies
+[22m[39m[discord credential redaction proof] format=html status=502 authorization_received=true token_present=false unique_fragment_present=false detail=Error: Discord API /gateway/bot failed (502): proxy failure Authorization: Bot ***; request rejected
+
+[90mstdout[2m | extensions/discord/src/api.test.ts[2m > [22m[2mfetchDiscord[2m > [22m[2mredacts reflected bot credentials from JSON error messages
+[22m[39m[discord credential redaction proof] format=json status=429 authorization_received=true token_present=false unique_fragment_present=false retry_after=0 detail=Error: Discord API /gateway/bot failed (429): proxy failure Authorization: Bot proof-…ffix; request rejected (retry after 0.0s)
+
+[90mstdout[2m | extensions/discord/src/api.test.ts[2m > [22m[2mfetchDiscord[2m > [22m[2mrejects oversized valid JSON requestDiscord responses from a real loopback HTTP server
+[22m[39m[discord requestDiscord loopback proof] oversized path: cap=4194304 streamed>=4456448 content_length=none rejected=Error: Discord API /channels/123/messages response body too large: 4259785 bytes (limit: 4194304 bytes)
+
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/api.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 145[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.commands-allowfrom.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+[90mstdout[2m | extensions/discord/src/outbound-payload.contract.test.ts[2m > [22m[2mDiscord voice fallback delivery safety[2m > [22m[2mpreserves the voice failure when a remaining media send also fails
+[22m[39mdiscord-voice-partial-proof {"voiceAttempt":"failed","fallbackTextDelivered":true,"remainingMediaAttempted":true,"remainingMediaFailed":true,"reportedError":"ffmpeg unavailable"}
+
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/outbound-payload.contract.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/config-schema.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/monitor.agent-components.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+ [31m❯[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.think-autocomplete.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m5 skipped[39m[2m)[22m[33m 238804[2mms[22m[39m
+     [2m[90m↓[39m[22m uses the session override context for /think choices
+     [2m[90m↓[39m[22m uses the effective 'codex' runtime for Luna choices
+     [2m[90m↓[39m[22m uses the effective 'openclaw' runtime for Luna choices
+     [2m[90m↓[39m[22m includes max only for provider-advertised models
+     [2m[90m↓[39m[22m falls back when a configured binding is unavailable
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.session-routing.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 11191[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps typed control commands as explicit text command turns [33m 1509[2mms[22m[39m
+     [33m[2m✓[22m[39m uses prepared media instead of re-downloading after the run queue [33m 1506[2mms[22m[39m
+     [33m[2m✓[22m[39m does not attach referenced reply media when reply context is hidden [33m 1507[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps attachment-only referenced messages as typed reply context [33m 1544[2mms[22m[39m
+     [33m[2m✓[22m[39m does not inject the bot's previous message body when users reply to it [33m 1505[2mms[22m[39m
+     [33m[2m✓[22m[39m stores group lastRoute with channel target [33m 1504[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.startup.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.ack.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 22693[2mms[22m[39m
+     [33m[2m✓[22m[39m sends ack reactions for mention-gated guild messages when mentioned [33m 1504[2mms[22m[39m
+     [33m[2m✓[22m[39m uses preflight-resolved messageChannelId when message.channelId is missing [33m 1504[2mms[22m[39m
+     [33m[2m✓[22m[39m uses separate REST clients for feedback and reply delivery [33m 1505[2mms[22m[39m
+     [33m[2m✓[22m[39m starts typing only after reply dispatch is admitted [33m 1504[2mms[22m[39m
+     [33m[2m✓[22m[39m starts typing when an admitted fast reply bypasses resolver lifecycle [33m 1504[2mms[22m[39m
+     [33m[2m✓[22m[39m does not start typing for fast replies when typing mode is never [33m 1505[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards repeated resolver typing refresh callbacks [33m 1504[2mms[22m[39m
+     [33m[2m✓[22m[39m does not create visible typing feedback when reply dispatch stays silent [33m 6537[2mms[22m[39m
+     [33m[2m✓[22m[39m marks automatic visible replies as failed when final Discord delivery fails [33m 2512[2mms[22m[39m
+     [33m[2m✓[22m[39m marks a recovered agent failure as failed after delivering its visible error reply [33m 2508[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/chunk.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/transcripts-source.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.permissions.authz.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 232[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.rest-proxy.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 534[2mms[22m[39m
+     [33m[2m✓[22m[39m uses debug proxy env when no discord proxy URL is configured [33m 338[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel-actions.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.draft-reasoning.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 6349[2mms[22m[39m
+     [33m[2m✓[22m[39m strips reasoning tags from partial stream updates [33m 1506[2mms[22m[39m
+     [33m[2m✓[22m[39m skips pure-reasoning partial updates without updating draft [33m 1505[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/receive-recovery.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.room-events.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 8127[2mms[22m[39m
+     [33m[2m✓[22m[39m uses PluralKit original ids for inbound dedupe while preserving the Discord message id [33m 1503[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves guild source delivery from default, explicit, and room-event modes [33m 1509[2mms[22m[39m
+     [33m[2m✓[22m[39m prefers bound session keys and sets MessageThreadId for bound thread messages [33m 1504[2mms[22m[39m
+     [33m[2m✓[22m[39m passes Discord thread parent only for model inheritance when transcript inheritance is off [33m 1505[2mms[22m[39m
+     [33m[2m✓[22m[39m omits thread starter context when the effective thread session already exists [33m 1505[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.webhook.proxy.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 1134[2mms[22m[39m
+     [33m[2m✓[22m[39m throws typed rate limit errors for webhook 429 responses [33m 1060[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/command-deploy.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/gateway-plugin.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/retry.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/threading.auto-thread.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 348[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/draft-stream.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/approval-native.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/probe.intents.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/targets.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/threading.starter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.context.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1032[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves the native Discord channel id for tool authorization [33m 376[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/resolve-channels.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/model-picker-preferences-migrations.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/exec-approvals.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.hydration.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m fetches the referenced message when the hydrated reply still omits it [33m 356[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.preflight.acp-bindings.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 500[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/rest-errors.redaction.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 436[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.status-direct.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/accounts.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/client.proxy.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/voice-auto-join.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-text.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 505[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.commands.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.creates-thread.chunking.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/interaction.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 534[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/thread-session-close.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 508[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/approval-handler.runtime.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/security-audit.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.webhook-activity.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 3492[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/api.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/ingress.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1360[2mms[22m[39m
+     [33m[2m✓[22m[39m does not normalize or dispatch before the durable append completes [33m 319[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.ingress-recovery.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 570[2mms[22m[39m
+     [33m[2m✓[22m[39m terminally settles a preexisting exhausted poison row before its follower [33m 319[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/audio.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 138[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/dm-command-auth.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/command.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.abort-retry.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 8441[2mms[22m[39m
+     [33m[2m✓[22m[39m commits replay ownership after a visible terminal failure notice [33m 2519[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps exhaustion retryable when the visible failure notice cannot land [33m 2517[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves unrelated dispatch errors [33m 2581[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/presenter.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/thread-bindings.discord-api.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel.message-adapter.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/subagent-progress.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.voice.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 241[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/directory-live.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.allowlist.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command-reply.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/resolve-users.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/route-resolution.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/gateway-metadata.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 295[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/runtime.presence.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/access.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/handle-action.adopted-thread.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/listeners.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 546[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/model-picker-preferences.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 975[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/pluralkit.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/inbound-job.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/presence-emission-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/rest-scheduler.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor.gateway.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/acp-bind-here.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 293[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/questions.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/gateway-supervisor.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/audit.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/shared.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/mentions.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/durable-forum-batch.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-media.references.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 493[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/subagent-hooks.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[90mstderr[2m | extensions/discord/src/monitor/agent-components.modal-presentation-failure.test.ts[2m > [22m[2mDiscord modal presentation failures[2m > [22m[2mhandles a rejected modal callback with replyRejects=false
+[22m[39mdiscord component modal: failed to show modal: Error: Discord rejected the modal
+
+[90mstderr[2m | extensions/discord/src/monitor/agent-components.modal-presentation-failure.test.ts[2m > [22m[2mDiscord modal presentation failures[2m > [22m[2mhandles a rejected modal callback with replyRejects=true
+[22m[39mdiscord component modal: failed to show modal: Error: Discord rejected the modal
+
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/agent-components.modal-presentation-failure.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/token.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/timeouts.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.deploy.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-avatar.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 209[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-utils.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 324[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/entity-cache.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/interaction-dispatch.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/runtime.moderation.authz.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/preflight-audio.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/auto-presence.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/conversation-route-owner.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 290[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/secret-config-contract.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/threading.parent-info.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/thread-title.generate.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 320[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/proxy-request-client.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/shell.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 416[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/durable-delivery.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps accepted Discord chunks visible when monitored reply delivery fails [33m 305[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/agent-components.wildcard.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 574[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/register.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command-context.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel.policies.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.webhook.timeout.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.command-arg.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.interactions.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/group-policy.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/dm-command-decision.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/client.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1417[2mms[22m[39m
+     [33m[2m✓[22m[39m extends a single REST operation after the registered gateway disconnects [33m 1413[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.messages.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/manager.ready-listener.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/channel-access.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/listeners.thread-delete.session-store.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 418[2mms[22m[39m
+     [33m[2m✓[22m[39m deletes matching sessions from every configured agent store [33m 417[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/listeners.thread-delete.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 576[2mms[22m[39m
+     [33m[2m✓[22m[39m immediately unbinds deleted threads and archives their sessions without a farewell [33m 555[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/account-inspect.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/gateway-logging.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/presence-events.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/setup-account-state.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/directory-contract.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.message-request.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/inbound-context.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/gateway-lifecycle.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/network-config.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/exec-approvals.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.webhook.chunk-limit.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel.conversation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/setup-surface.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/rest-routes.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/outbound-session-route.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/custom-id-codec.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel.target-resolver.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/api-barrel.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/realtime-turns.wake-name-followup.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/outbound-adapter.interactive-order.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/status-issues.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/presence-transition-cache.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.guild.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/agent-control.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/presence.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/normalize.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.bot-self-filter.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/config.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/handle-action.upload-file-caption.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.draft-preview.visibility.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.process.abort-skip.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/question-finalization.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/participant-context.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/speaker-context.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/activities/discord-api.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/ingress.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.inbound-context.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/prompt.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/capture-state.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/probe.parse-token.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/channel-actions.contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 192[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.draft-preview.rest.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/session-key-normalization.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/resolve-allowlist-common.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/structures.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 154[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/thread-bindings.shared-state.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/send.typing.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1813[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/sanitize.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/internal/gateway-websocket-options.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2097[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds inbound gateway websocket payloads [33m 2094[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/approval-message-safety.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/security-doctor.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/typing.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/realtime-transcript.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/startup-status.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/provider.skill-dedupe.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/component-custom-id.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/question-custom-id.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.batch-gate.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/markdown.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/commands.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/actions/runtime.shared.auto-archive.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/media-detection.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/thread-bindings.persona.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/message-handler.preflight-channel-context.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/voice/log-preview.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/allow-list.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/presence-cooldown-store.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/draft-chunking.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/setup-entry.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/error-body.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.think-autocomplete.test.ts[2m > [22mdiscord native /think autocomplete
+[31m[1mError[22m: Hook timed out in 180000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".[39m
+[36m [2m❯[22m extensions/discord/src/monitor/native-command.think-autocomplete.test.ts:[2m188:3[22m[39m
+    [90m186|[39m
+    [90m187|[39m [34mdescribe[39m([32m"discord native /think autocomplete"[39m[33m,[39m () [33m=>[39m {
+    [90m188|[39m   [34mbeforeAll[39m([35masync[39m () [33m=>[39m {
+    [90m   |[39m   [31m^[39m
+    [90m189|[39m     providerThinkingMocks.resolveProviderThinkingProfile.mockImplement…
+    [90m190|[39m       ({ provider[33m,[39m context }) [33m=>[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m226 passed[39m[22m[90m (227)[39m
+[2m      Tests [22m [1m[32m2940 passed[39m[22m[2m | [22m[33m5 skipped[39m[90m (2945)[39m
+[2m   Start at [22m 20:35:45
+[2m   Duration [22m 566.52s[2m (transform 59.61s, setup 5.05s, import 191.81s, tests 356.03s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-045/shard-1-extension-discord/extensions/discord/src/monitor/native-command.think-autocomplete.test.ts,title=[extension-discord] extensions/discord/src/monitor/native-command.think-autocomplete.test.ts > discord native /think autocomplete,line=188,column=3::Error: Hook timed out in 180000ms.%0AIf this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".%0A ❯ extensions/discord/src/monitor/native-command.think-autocomplete.test.ts:188:3%0A%0A
+[test] failed 1 Vitest shard in 569.78s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-045/shard-1-extension-discord[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+ [32m✓[39m [30m[42m extension-discord [49m[39m extensions/discord/src/monitor/native-command.think-autocomplete.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 137451[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the session override context for /think choices [33m 869[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 20:45:15
+[2m   Duration [22m 153.79s[2m (transform 11.00s, setup 633ms, import 15.41s, tests 137.45s, environment 0ms)[22m
+

@@ -1,0 +1,34 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "core-tooling-3",
+  "configs": [
+    "test/vitest/vitest.tooling.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (core-tooling-3)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 123
+    }
+  ],
+  "tests": {
+    "passed": 1328,
+    "failed": 1
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (core-tooling-3)",
+      "kind": "test",
+      "detail": "tooling  test/scripts/telegram-mantis-sut.test.ts > Telegram Mantis SUT > waits for the claimed runtime owner before returning from stop"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

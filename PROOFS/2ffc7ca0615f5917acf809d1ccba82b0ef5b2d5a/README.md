@@ -1,25 +1,34 @@
-# PR #85651 replacement proof corpus
+# PR #129388 exact proof corpus
 
-Pure presentation SHA: `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd`.
+Exact pure target SHA: `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`.
 Historical live execution composite:
 `37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains source proof SHA
 `80311e8aa07fd560cb957475517c5ea18164541c` plus #124337 and #121204. The
 target candidate descends from that source proof SHA; it is not an ancestor of
 the historical execution composite.
 
+Pending runtime composite
+`a48c475baa893493df2ee8ebb17834b845a64aec` is a descendant of the exact
+target through ordinary no-fast-forward merges of #124337 and #121204. It has
+no Ronan exact-live receipt yet and is not used as execution evidence here.
+
 ## Transposition
 
 This is a complete in-subtree transposition of
-`PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/` after the required
-conflict-bearing upstream absorb. Candidate and corpus paths are rebound to
-`4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd`; copied row evidence remains
-explicitly marked as historical ancestry/materiality evidence unless a receipt
-states that it was executed at the target SHA.
+predecessor corpus
+`PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/` at docs product
+`0e75318a68d7145c0c5b99e8b11bda304f4f9fd2`. That predecessor already
+descends from historical source proof SHA `80311e8a…`. Candidate and corpus
+paths are rebound to `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`;
+copied row evidence remains explicitly marked as historical
+ancestry/materiality evidence unless a receipt states that it executed at the
+exact target.
 
 Exact-target Mode-B run
-[`32859410821`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32859410821)
-completed with 166,719 passing tests and no candidate-caused failure. Its
-non-green workflow conclusion is preserved and fully classified in
+[`32895790947`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32895790947)
+completed with 165,696 passing and 39 failing assertions. Nine load flakes
+greened; 32 deterministic failures remain fully disclosed. The workflow's
+`failure` conclusion is preserved, not relabeled green, and is classified in
 [`artifacts/gates/MODE-B.md`](artifacts/gates/MODE-B.md).
 
 ## Verdicts
@@ -74,7 +83,10 @@ non-green workflow conclusion is preserved and fully classified in
 
 ## Honest limits
 
-- Live rows are historical execution-composite evidence, not exact-target execution claims.
+- Live rows are historical execution-composite evidence from `37300f29…`, not
+  exact-target or descendant-composite execution claims.
+- Exact live execution on pending runtime composite `a48c475b…` awaits Ronan's
+  receipt.
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.
 - R-CW-6 remains partial because the docs-generated selected delegate fixture is stale; its direct product surfaces passed.

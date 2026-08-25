@@ -30,9 +30,9 @@
       "sourceSha": true
     },
     "source_files": {
-      "evidence": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-7/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md",
-      "testLog": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-7/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log",
-      "sourceSnippets": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-7/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md"
+      "evidence": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-7/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/EVIDENCE.md",
+      "testLog": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-7/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/test/focused-traceparent-tests.log",
+      "sourceSnippets": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-7/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-7/cael-dgx/source/source-snippets.md"
     },
     "ended": "2026-08-25T10:04:21.207Z",
     "duration_ms": 0,
@@ -58,7 +58,7 @@
   },
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

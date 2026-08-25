@@ -2,21 +2,28 @@
 
 | Field | Value |
 |---|---|
-| Source corpus | `80311e8aa07fd560cb957475517c5ea18164541c` |
-| Target corpus | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` |
-| Source docs commit | `591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b` |
+| Immediate source corpus | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` |
+| Target corpus | `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a` |
+| Source docs commit | `0e75318a68d7145c0c5b99e8b11bda304f4f9fd2` |
+| Historical evidence source | `80311e8aa07fd560cb957475517c5ea18164541c` |
 | Historical live execution composite | `37300f29a7ec1f731575343c2aa73ae25f1d0efb` |
-| Absorbed upstream | `1ba243c88ed800986909bc50e4ce7b8139891b94` |
+| Spawn-init cured pure parent | `6b6f4db79ba5143f2a56e759abe111478bf6c8a5` |
+| Absorbed upstream parent | `4da57168d3c1970419e93e59a91e65466518231b` |
+| Pending descendant runtime composite | `a48c475baa893493df2ee8ebb17834b845a64aec` |
 
-The target descends from the source proof SHA through an ordinary upstream
-back-merge and reviewed semantic repairs. The entire source corpus subtree was
-copied here. Referenced historical evidence needed by copied rows is vendored
-inside the corresponding target row; clawsweeper does not need to follow links
-to another corpus.
+The immediate predecessor descends from historical source proof SHA
+`80311e8a…`. From predecessor `4737afdf…`, the spawn-init cure chain reaches
+pure parent `6b6f4db7…`; an ordinary back-merge of upstream `4da57168…`
+produces exact merge target `2ffc7ca0…`. The merge's sole textual conflict is
+the heartbeat owner surface, independently reviewed `APPROVE`.
 
-The upstream absorb was material enough to require Gates 2, 2.5, 2.7, and 3,
-but it does not retroactively turn historical execution into exact-target
-execution. Every copied machine receipt carries transposition metadata.
-Historical live rows remain attributed to execution composite `37300f29…`,
-whose continuation ancestor is source proof SHA `80311e8a…`. Exact-target
-Mode-B and independent reproof/review are separate receipts.
+The entire predecessor subtree was copied here without links. Target paths and
+candidate identities were rebound; historical source and execution identities
+were not rewritten. Referenced exact-target receipts are vendored under
+`artifacts/gates/`, so clawsweeper follows no path outside this target subtree.
+
+Runtime composite `a48c475b…` descends from exact pure `2ffc7ca0…` through
+ordinary no-fast-forward merges of #124337 and #121204. That ancestry is
+materiality, not execution evidence: historical live rows remain attributed to
+`37300f29…`, and exact composite live proof stays pending until Ronan supplies
+the receipt.

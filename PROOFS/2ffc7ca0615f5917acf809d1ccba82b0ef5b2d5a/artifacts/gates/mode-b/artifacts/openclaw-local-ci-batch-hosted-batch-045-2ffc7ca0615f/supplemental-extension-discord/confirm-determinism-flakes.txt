@@ -1,0 +1,1 @@
+extensions/discord/src/monitor/native-command.think-autocomplete.test.ts

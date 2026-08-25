@@ -1,0 +1,30 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "extension-discord",
+  "configs": [
+    "test/vitest/vitest.extension-discord.config.ts"
+  ],
+  "conclusion": "pass",
+  "rc": 0,
+  "gates": [
+    {
+      "name": "test shard (extension-discord)",
+      "rc": 0,
+      "ok": true,
+      "seconds": 729
+    }
+  ],
+  "tests": {
+    "passed": 2940,
+    "failed": 0
+  },
+  "failure_count": 0,
+  "failures": [],
+  "flakes_greened_count": 1,
+  "flakes_greened": [
+    "extension-discord  extensions/discord/src/monitor/native-command.think-autocomplete.test.ts > discord native /think autocomplete"
+  ]
+}

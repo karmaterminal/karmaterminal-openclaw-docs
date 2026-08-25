@@ -1,0 +1,120 @@
+product_sha=2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a
+feature_parent=6b6f4db79ba5143f2a56e759abe111478bf6c8a5
+upstream_parent=4da57168d3c1970419e93e59a91e65466518231b
+merge_base=1ba243c88ed800986909bc50e4ce7b8139891b94
+upstream_changed_tests=193
+candidate_overlap_tests=7
+runner=node scripts/run-vitest.mjs; maxWorkers=1
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.extension-qa.config.ts --maxWorkers=1 extensions/qa-lab/src/crabline-transport.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/crabline-transport.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 312[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m   Start at [22m 15:04:18
+[2m   Duration [22m 2.75s[2m (transform 2.07s, setup 356ms, import 1.97s, tests 312ms, environment 0ms)[22m
+
+owner_exit_code=0
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.agents.config.ts --maxWorkers=1 src/agents/embedded-agent-subscribe.handlers.tools.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+ [32m✓[39m [30m[46m agents [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 1104[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m181 passed[39m[22m[90m (181)[39m
+[2m   Start at [22m 15:04:21
+[2m   Duration [22m 6.83s[2m (transform 4.35s, setup 362ms, import 5.22s, tests 1.10s, environment 0ms)[22m
+
+owner_exit_code=0
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.agents-core.config.ts --maxWorkers=1 src/agents/subagents/announce/subagent-announce-delivery.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagents/announce/subagent-announce-delivery.test.ts [2m([22m[2m189 tests[22m[2m)[22m[33m 593[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m189 passed[39m[22m[90m (189)[39m
+[2m   Start at [22m 15:04:29
+[2m   Duration [22m 9.14s[2m (transform 6.57s, setup 393ms, import 7.96s, tests 593ms, environment 0ms)[22m
+
+owner_exit_code=0
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.auto-reply-reply.config.ts --maxWorkers=1 src/auto-reply/reply/commands-status.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/commands-status.test.ts [2m([22m[2m51 tests[22m[2m)[22m[33m 15095[2mms[22m[39m
+     [33m[2m✓[22m[39m counts ended orchestrators with active descendants as active [33m 2582[2mms[22m[39m
+     [33m[2m✓[22m[39m uses transcript usage fallback in /status output [33m 413[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores stale live contextTokens when /status displays the current default model [33m 510[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the effective non-OpenClaw embedded harness in /status [33m 480[2mms[22m[39m
+     [33m[2m✓[22m[39m uses Codex OAuth auth labels for openai models running on the Codex harness [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the Codex app-server account before OpenAI env labels on Codex harness status [33m 393[2mms[22m[39m
+     [33m[2m✓[22m[39m uses Codex usage for bare codex models running on the Codex harness [33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards a selected OpenAI profile to Codex synthetic usage [33m 417[2mms[22m[39m
+     [33m[2m✓[22m[39m loads Codex synthetic usage when no local OpenAI profile label exists [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m does not forward stale non-OpenAI profile overrides to Codex usage [33m 442[2mms[22m[39m
+     [33m[2m✓[22m[39m uses active fallback provider usage for legacy fallback notices [33m 386[2mms[22m[39m
+     [33m[2m✓[22m[39m uses live runtime context for unresolved active fallback notices [33m 319[2mms[22m[39m
+     [33m[2m✓[22m[39m uses provider-qualified model overrides for /status usage lookup [33m 527[2mms[22m[39m
+     [33m[2m✓[22m[39m uses Codex OAuth auth labels for explicit OpenAI OpenClaw auth order [33m 394[2mms[22m[39m
+     [33m[2m✓[22m[39m uses native Claude CLI auth labels for anthropic models running on the Claude CLI runtime [33m 434[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 15:04:38
+[2m   Duration [22m 34.00s[2m (transform 18.34s, setup 2.10s, import 16.62s, tests 15.09s, environment 0ms)[22m
+
+owner_exit_code=0
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.cli.config.ts --maxWorkers=1 src/cli/gateway-cli/run.option-collisions.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/run.option-collisions.test.ts [2m([22m[2m76 tests[22m[2m)[22m[33m 2657[2mms[22m[39m
+     [33m[2m✓[22m[39m composes gateway run registration through startup after the fast-path bootstrap [33m 1669[2mms[22m[39m
+     [33m[2m✓[22m[39m skips failure bundles but exits nonzero for unconfirmed gateway lock conflicts [33m 568[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m76 passed[39m[22m[90m (76)[39m
+[2m   Start at [22m 15:05:13
+[2m   Duration [22m 4.63s[2m (transform 2.29s, setup 346ms, import 1.50s, tests 2.66s, environment 0ms)[22m
+
+owner_exit_code=0
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.infra.config.ts --maxWorkers=1 src/infra/heartbeat-wake.preemption.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+ [32m✓[39m [30m[42m infra [49m[39m src/infra/heartbeat-wake.preemption.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 15:05:18
+[2m   Duration [22m 670ms[2m (transform 477ms, setup 528ms, import 24ms, tests 59ms, environment 0ms)[22m
+
+owner_exit_code=0
+
+$ node scripts/run-vitest.mjs run --config test/vitest/vitest.tasks.config.ts --maxWorkers=1 src/tasks/task-registry.test.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-upstream-4da57168-gates[39m
+
+ [32m✓[39m [30m[43m tasks [49m[39m src/tasks/task-registry.test.ts [2m([22m[2m131 tests[22m[2m)[22m[33m 10935[2mms[22m[39m
+     [33m[2m✓[22m[39m sweeps one expired plugin-state batch per maintenance pass after restart [33m 334[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m131 passed[39m[22m[90m (131)[39m
+[2m   Start at [22m 15:05:19
+[2m   Duration [22m 22.11s[2m (transform 8.65s, setup 335ms, import 10.69s, tests 10.93s, environment 0ms)[22m
+
+owner_exit_code=0
+
+assertions_passed=656
+aggregate_exit_code=0

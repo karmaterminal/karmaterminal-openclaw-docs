@@ -1,0 +1,482 @@
+[test] starting test/vitest/vitest.auto-reply-reply.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=2851)
+[vitest] process: pid=2851 ppid=2815 pgid=2851 elapsed=05:01 state=S cpu=90.6% rss_kb=2217820 wchan=futex_ comm=other
+[vitest] process tree: pgid=2851 members=1
+[vitest] process tree: pid=2851 ppid=2815 pgid=2851 elapsed=05:01 state=S cpu=90.7% rss_kb=2217892 wchan=futex_ comm=other
+[vitest] fd summary: total=26 types=A_INODE:12,CHR:1,FIFO:11,UNIX:2
+[test] retrying test/vitest/vitest.auto-reply-reply.config.ts after no-output timeout
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+ [31m❯[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-memory.test.ts [2m([22m[2m75 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 205150[2mms[22m[39m
+[31m     [31m×[31m runs exactly one auto-reply memory flush turn, rotates, and persists metadata[39m[33m 177573[2mms[22m[39m
+     [33m[2m✓[22m[39m does not rotate or increment for an incomplete projected compaction end [33m 360[2mms[22m[39m
+     [32m✓[39m inherits requester taint across a multi-write flush[32m 226[2mms[22m[39m
+     [33m[2m✓[22m[39m downgrades an owner-directed flush after a network-tainted embedded turn [33m 356[2mms[22m[39m
+     [33m[2m✓[22m[39m revalidates immutable Ultra for each memory-flush fallback candidate [33m 551[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves thinking for runtime-discovered Ollama memory-flush models [33m 308[2mms[22m[39m
+     [32m✓[39m keeps catalog-adopted sessions on Codex for memory flush turns[32m 201[2mms[22m[39m
+     [32m✓[39m counts resolved error payloads as failed memory flushes[32m 270[2mms[22m[39m
+     [32m✓[39m reports restricted memory-flush write failures for visible delivery[32m 226[2mms[22m[39m
+     [32m✓[39m surfaces generic non-abort memory-flush failures so cron meta.error is populated (regression: #80755)[32m 216[2mms[22m[39m
+     [32m✓[39m redacts and caps generic visible memory-flush failures before delivery[32m 233[2mms[22m[39m
+     [32m✓[39m does not surface user-abort errors as visible payloads (regression: #80755)[32m 182[2mms[22m[39m
+     [32m✓[39m increments and UTF-16-safely persists a capped non-abort flush failure[32m 253[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'initial plan resolution' attempt, cleans up, and retries [33m 357[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'time-refreshed plan resolution' attempt, cleans up, and retries [33m 350[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'target preparation' attempt, cleans up, and retries [33m 364[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'maintenance execution setup' attempt, cleans up, and retries [33m 388[2mms[22m[39m
+     [32m✓[39m honors a time-refreshed null plan before preparing or registering a run[32m 180[2mms[22m[39m
+     [32m✓[39m does not track failure on abort error[32m 235[2mms[22m[39m
+     [32m✓[39m clears failure counters on successful flush[32m 241[2mms[22m[39m
+     [33m[2m✓[22m[39m marks flush as completed after MAX_FLUSH_FAILURES to break retry loop [33m 344[2mms[22m[39m
+     [32m✓[39m runs memory flush on the configured maintenance model without active fallbacks[32m 275[2mms[22m[39m
+     [32m✓[39m loads the selected harness before memory-flush fallback preflight[32m 172[2mms[22m[39m
+     [32m✓[39m ignores stale runtime pins before memory-flush fallback preflight[32m 181[2mms[22m[39m
+     [32m✓[39m skips memory flush for CLI providers[32m 1[2mms[22m[39m
+     [32m✓[39m skips memory flush for incognito sessions[32m 1[2mms[22m[39m
+     [32m✓[39m skips memory flush for an incognito key after process-local state is gone[32m 1[2mms[22m[39m
+     [32m✓[39m skips memory flush for compatible CLI session runtime pins[32m 96[2mms[22m[39m
+     [32m✓[39m uses runtime policy session key when checking memory-flush sandbox writability[32m 168[2mms[22m[39m
+     [33m[2m✓[22m[39m continues when preflight compaction reports the session is already under target [33m 924[2mms[22m[39m
+     [33m[2m✓[22m[39m fails when required preflight context-engine compaction is deferred to background maintenance [33m 439[2mms[22m[39m
+     [33m[2m✓[22m[39m passes persisted session policy and runtime policy key to preflight compaction [33m 451[2mms[22m[39m
+     [33m[2m✓[22m[39m fails required preflight compaction after native harness stale_thread_binding failure [33m 438[2mms[22m[39m
+     [33m[2m✓[22m[39m fails required preflight compaction after native harness missing_thread_binding failure [33m 439[2mms[22m[39m
+     [33m[2m✓[22m[39m fails required preflight compaction after an unstructured thread-not-found failure [33m 424[2mms[22m[39m
+     [33m[2m✓[22m[39m still fails preflight compaction for non-binding native harness failures [33m 417[2mms[22m[39m
+     [33m[2m✓[22m[39m passes resolved context budget and $authProfileIdSource auth profile to preflight compaction [33m 417[2mms[22m[39m
+     [33m[2m✓[22m[39m passes resolved context budget and $authProfileIdSource auth profile to preflight compaction [33m 387[2mms[22m[39m
+     [33m[2m✓[22m[39m preflight compacts a fresh session when the current prompt estimate pushes the next request over budget [33m 568[2mms[22m[39m
+     [33m[2m✓[22m[39m does not preflight compact a fresh session when only accumulated output tokens are large and the latest output keeps the request under budget [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at unavailable context and accepts only a later valid transcript snapshot [33m 805[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores unversioned fresh state and legacy CLI usage on the first upgraded turn [33m 763[2mms[22m[39m
+     [33m[2m✓[22m[39m updates the active preflight run after transcript rotation [33m 484[2mms[22m[39m
+     [33m[2m✓[22m[39m includes recent output tokens when deciding preflight compaction [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps nonzero unavailable output as growth after the previous exact snapshot [33m 450[2mms[22m[39m
+     [33m[2m✓[22m[39m does not add unavailable output twice when full-message estimation already includes it [33m 438[2mms[22m[39m
+     [32m✓[39m reads flush usage and byte size from SQLite without statting a retired transcript path[32m 287[2mms[22m[39m
+     [33m[2m✓[22m[39m fails when required preflight compaction returns an unknown successful no-op [33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m skips OpenClaw preflight compaction for explicit Codex runtime overrides [33m 376[2mms[22m[39m
+     [33m[2m✓[22m[39m skips fresh persisted token totals for explicit Codex runtime overrides [33m 343[2mms[22m[39m
+     [32m✓[39m skips preflight compaction for compatible CLI session runtime pins[32m 106[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the OpenAI API context window for persisted OpenClaw runtime overrides [33m 508[2mms[22m[39m
+     [33m[2m✓[22m[39m estimates Codex tool-result mirrors through the provider projection without provider usage after runtime cutover [33m 511[2mms[22m[39m
+     [33m[2m✓[22m[39m estimates Codex tool-result mirrors through the provider projection after provider usage after runtime cutover [33m 491[2mms[22m[39m
+     [33m[2m✓[22m[39m accounts for provider-visible history beyond the recent read bounds [33m 524[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a provider usage anchor older than the scan window when pressure is below threshold [33m 513[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a provider usage anchor older than the scan window when pressure is above threshold [33m 508[2mms[22m[39m
+     [33m[2m✓[22m[39m does not use the active run sessionFile when the session entry has no transcript path [33m 425[2mms[22m[39m
+     [33m[2m✓[22m[39m does not treat unavailable Anthropic context as transcript prompt usage [33m 520[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps preflight compaction conservative for content appended after latest usage [33m 469[2mms[22m[39m
+     [33m[2m✓[22m[39m combines latest usage with post-usage tail pressure for preflight compaction [33m 457[2mms[22m[39m
+     [33m[2m✓[22m[39m does not count bytes from a large latest usage record as post-usage tail pressure [33m 360[2mms[22m[39m
+     [33m[2m✓[22m[39m does not treat raw transcript metadata bytes as token pressure [33m 446[2mms[22m[39m
+     [33m[2m✓[22m[39m triggers preflight compaction when the active transcript exceeds the configured byte threshold [33m 439[2mms[22m[39m
+     [33m[2m✓[22m[39m byte-guards a Codex runtime fresh session selected from the outset through native preflight [33m 455[2mms[22m[39m
+     [33m[2m✓[22m[39m byte-guards a Codex runtime upgraded session with historical embedded ownership through native preflight [33m 465[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves a reset SQLite Codex session below the byte fuse for native compaction [33m 451[2mms[22m[39m
+     [32m✓[39m keeps ownsNativeCompaction absolute over the SQLite transcript byte guard[32m 267[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves post-compaction context when prepared delivery ownership changes [33m 470[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps incognito preflight compaction in the process-local transcript store [33m 442[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves usage from an active branch whose leaf target predates the bounded tail [33m 543[2mms[22m[39m
+     [33m[2m✓[22m[39m forces memory flush when a SQLite-backed transcript exceeds the byte threshold [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m emits preflight compaction notices around a successful budget compaction [33m 465[2mms[22m[39m
+     [33m[2m✓[22m[39m emits an incomplete preflight compaction notice when post-compaction state update throws [33m 438[2mms[22m[39m
+     [32m✓[39m uses configured prompts and stored bootstrap warning signatures[32m 171[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+ [31m❯[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts [2m([22m[2m80 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 271702[2mms[22m[39m
+[31m     [31m×[31m updates totalTokens from lastCallUsage even without compaction[39m[33m 244706[2mms[22m[39m
+     [32m✓[39m keeps an unarmed preflight drain visible instead of dropping the reply[32m 292[2mms[22m[39m
+     [32m✓[39m accounts for empty interactive direct replies without side effects[32m 165[2mms[22m[39m
+     [32m✓[39m accounts for empty interactive direct replies after hidden compaction[32m 106[2mms[22m[39m
+     [32m✓[39m accounts for empty interactive direct replies after an intentional terminal tool batch[32m 108[2mms[22m[39m
+     [32m✓[39m threads the empty interactive direct fallback through normal final preparation[32m 110[2mms[22m[39m
+     [32m✓[39m surfaces a fallback for disabled reasoning-only direct output[32m 110[2mms[22m[39m
+     [32m✓[39m surfaces a fallback for disabled commentary-only direct output[32m 106[2mms[22m[39m
+     [32m✓[39m keeps spawn-only empty direct replies silent[32m 112[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps continuation-only direct replies silent [33m 340[2mms[22m[39m
+     [32m✓[39m surfaces terminal direct failures after runtime compaction progress[32m 117[2mms[22m[39m
+     [32m✓[39m surfaces empty direct replies when runtime compaction notice delivery fails[32m 108[2mms[22m[39m
+     [32m✓[39m starts queued followup drain only after clearing the active reply operation[32m 102[2mms[22m[39m
+     [32m✓[39m loads post-compaction context before starting a queued followup drain[32m 138[2mms[22m[39m
+     [32m✓[39m keeps a provided reply operation active until final delivery completes[32m 108[2mms[22m[39m
+     [32m✓[39m records a settled fallback cancelled by 'its upstream signal' as aborted[32m 112[2mms[22m[39m
+     [32m✓[39m records a settled fallback cancelled by 'a visible-turn supersession' as aborted[32m 115[2mms[22m[39m
+     [33m[2m✓[22m[39m reports live diagnostic context from promptTokens, not provider usage totals [33m 1857[2mms[22m[39m
+     [33m[2m✓[22m[39m falls back to last-call prompt usage for live diagnostic context [33m 1682[2mms[22m[39m
+     [33m[2m✓[22m[39m does not treat diagnostic compaction metadata as a context-refresh trigger [33m 416[2mms[22m[39m
+     [32m✓[39m coalesces duplicate text_end block replies[32m 7[2mms[22m[39m
+     [32m✓[39m returns the final payload when onBlockReply times out[32m 10[2mms[22m[39m
+     [33m[2m✓[22m[39m appends inline Active Memory status payload when verbose is enabled [33m 441[2mms[22m[39m
+     [33m[2m✓[22m[39m appends inline Active Memory status and trace payloads when verbose and trace are enabled [33m 434[2mms[22m[39m
+     [33m[2m✓[22m[39m appends inline Active Memory trace payload when only trace is enabled [33m 427[2mms[22m[39m
+     [33m[2m✓[22m[39m appends raw trace payloads when trace raw is enabled [33m 1708[2mms[22m[39m
+     [33m[2m✓[22m[39m does not emit persisted trace output to an unauthorized sender [33m 1668[2mms[22m[39m
+     [33m[2m✓[22m[39m shows session and last-turn usage totals without per-call usage blocks [33m 1696[2mms[22m[39m
+     [33m[2m✓[22m[39m escapes markdown fence delimiters inside raw trace blocks [33m 1667[2mms[22m[39m
+     [32m✓[39m uses the CLI runner for claude-cli provider[32m 82[2mms[22m[39m
+     [32m✓[39m does not leak hook-blocked CLI input in raw trace payloads[32m 5[2mms[22m[39m
+     [32m✓[39m uses the selected CLI runtime for canonical Anthropic models[32m 95[2mms[22m[39m
+     [32m✓[39m delivers distinct replies when a messaging tool sent via the same provider + target[32m 13[2mms[22m[39m
+     [32m✓[39m drops duplicate replies when a messaging tool sent the same text via the same provider + target[32m 7[2mms[22m[39m
+     [32m✓[39m delivers replies when tool provider does not match[32m 6[2mms[22m[39m
+     [32m✓[39m keeps final reply when text matches a cross-target messaging send[32m 8[2mms[22m[39m
+     [32m✓[39m delivers replies when account ids do not match[32m 6[2mms[22m[39m
+     [32m✓[39m appends guard note when reminder commitment is not backed by cron.add[32m 6[2mms[22m[39m
+     [32m✓[39m does not append a reminder note to a plain memory promise[32m 5[2mms[22m[39m
+     [32m✓[39m keeps reminder commitment unchanged when cron.add succeeded[32m 5[2mms[22m[39m
+     [32m✓[39m suppresses guard note when session already has an active cron job[32m 5[2mms[22m[39m
+     [32m✓[39m still appends guard note when cron jobs exist but not for the current session[32m 5[2mms[22m[39m
+     [32m✓[39m still appends guard note when cron jobs for session exist but are disabled[32m 5[2mms[22m[39m
+     [32m✓[39m still appends guard note when sessionKey is missing[32m 2[2mms[22m[39m
+     [32m✓[39m still appends guard note when cron store read fails[32m 5[2mms[22m[39m
+     [32m✓[39m enforces <final> when the fallback provider requires reasoning tags[32m 5[2mms[22m[39m
+     [32m✓[39m enforces <final> during memory flush on fallback providers[32m 103[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the built-in compact footer when responseUsage=full [33m 999[2mms[22m[39m
+     [32m✓[39m does not append session key when responseUsage=tokens[32m 192[2mms[22m[39m
+     [33m[2m✓[22m[39m omits partial token counts from the built-in full footer [33m 977[2mms[22m[39m
+     [32m✓[39m omits aggregate-only token totals in the built-in full footer[32m 183[2mms[22m[39m
+     [32m✓[39m shows configured costs for aws-sdk providers when responseUsage=full[32m 183[2mms[22m[39m
+     [32m✓[39m retries once after transient 521 HTML failure and then succeeds[32m 5[2mms[22m[39m
+     [32m✓[39m returns billing message for mixed-signal error (billing text + overflow patterns)[32m 22[2mms[22m[39m
+     [32m✓[39m surfaces a final error when only reasoning preceded a mid-turn rate limit[32m 5[2mms[22m[39m
+     [32m✓[39m preserves successful media-only replies that use legacy mediaUrl[32m 4[2mms[22m[39m
+     [33m[2m✓[22m[39m warns when a substantive private final reply never used the message tool [33m 407[2mms[22m[39m
+     [33m[2m✓[22m[39m attests observed delivery for message-tool source replies outside message_tool_only [33m 397[2mms[22m[39m
+     [33m[2m✓[22m[39m enqueues a one-shot recovery retry by default for substantive stranded finals [33m 392[2mms[22m[39m
+     [33m[2m✓[22m[39m uses visible final text, not raw assistant text, in the recovery retry prompt [33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m uses normalized delivery text, not reply directive tags, in the recovery retry prompt [33m 409[2mms[22m[39m
+     [33m[2m✓[22m[39m excludes raw trace and status payloads from the recovery retry prompt [33m 410[2mms[22m[39m
+     [33m[2m✓[22m[39m suppresses retry prompt persistence and keeps the retry out of collect batches [33m 405[2mms[22m[39m
+     [33m[2m✓[22m[39m records a short private final without a message call as non-delivery [33m 412[2mms[22m[39m
+     [33m[2m✓[22m[39m does not warn or enqueue retry when the message tool delivered this turn [33m 406[2mms[22m[39m
+     [33m[2m✓[22m[39m does not record message-tool non-delivery while the run has a continuation [33m 406[2mms[22m[39m
+     [33m[2m✓[22m[39m still recovers a private final after only a message-tool progress delivery [33m 413[2mms[22m[39m
+     [33m[2m✓[22m[39m does not recover again after an explicit final message-tool delivery [33m 418[2mms[22m[39m
+     [33m[2m✓[22m[39m still retries when the message tool sent only to a non-source target [33m 419[2mms[22m[39m
+     [33m[2m✓[22m[39m still retries when only an unrelated cron side effect succeeded [33m 421[2mms[22m[39m
+     [33m[2m✓[22m[39m does not warn or enqueue retry on an intentional NO_REPLY turn even when metadata payloads remain [33m 423[2mms[22m[39m
+     [33m[2m✓[22m[39m does not warn or enqueue retry for room_event turns [33m 417[2mms[22m[39m
+     [32m✓[39m does not warn, enqueue retry, or emit diagnostic for heartbeat runs[32m 243[2mms[22m[39m
+     [33m[2m✓[22m[39m does not warn or enqueue retry when send policy denied source delivery [33m 423[2mms[22m[39m
+     [33m[2m✓[22m[39m does not enqueue a second retry when a stranded-reply retry strands again [33m 428[2mms[22m[39m
+     [33m[2m✓[22m[39m does not treat user-controlled summary text as the internal retry marker [33m 427[2mms[22m[39m
+     [33m[2m✓[22m[39m does not emit retry-failure diagnostic after internal source reply delivery [33m 442[2mms[22m[39m
+     [33m[2m✓[22m[39m emits the sanitized diagnostic when a stranded-reply retry produces no source delivery [33m 449[2mms[22m[39m
+     [33m[2m✓[22m[39m emits the same sanitized diagnostic when the retry cannot be enqueued [33m 436[2mms[22m[39m
+     [33m[2m✓[22m[39m schedules the stranded-reply retry drain only after the active reply operation clears [33m 392[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/abort.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 4020[2mms[22m[39m
+     [33m[2m✓[22m[39m fast-aborts even when text commands are disabled [33m 405[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-payloads.test.ts [2m([22m[2m75 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-cli-progress.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 779[2mms[22m[39m
+     [33m[2m✓[22m[39m bridges CLI assistant agent events into onPartialReply for live preview (#76869) [33m 612[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-provider-failures.test.ts [2m([22m[2m75 tests[22m[2m)[22m[33m 883[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps raw runner failure boilerplate out of 'Discord group' chats [33m 579[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.media-paths.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 644[2mms[22m[39m
+     [33m[2m✓[22m[39m reuses the provided media context inside executeAgentTurn [33m 336[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-lifecycle.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 982[2mms[22m[39m
+     [33m[2m✓[22m[39m attributes one admitted channel participant before its admission decision [33m 584[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-work-span.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 20313[2mms[22m[39m
+     [33m[2m✓[22m[39m emits exactly one `continuation.work` span on accepted WORK with UUID chain.id and clamped chain.step.remaining [33m 3666[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a hot-reloaded continuation enablement value at the next enforcement point [33m 1741[2mms[22m[39m
+     [33m[2m✓[22m[39m does not arm continue_work after enablement is disabled at the scheduling seam [33m 1792[2mms[22m[39m
+     [33m[2m✓[22m[39m does not arm continue_work when durable chain-state reservation fails [33m 2249[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls back the reservation when continuation is disabled during persistence [33m 2208[2mms[22m[39m
+     [33m[2m✓[22m[39m uses hot-reloaded continuation limits after durable reservation [33m 2168[2mms[22m[39m
+     [33m[2m✓[22m[39m does not schedule beyond the durable reservation when the live chain limit increases [33m 2164[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves parked work when concurrency leaves no newly reserved scheduling slots [33m 2161[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps hedge-fired delegates recoverable when chain-state persistence fails [33m 2164[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-cli-dispatch.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 492[2mms[22m[39m
+     [33m[2m✓[22m[39m clears the expected binding from active and stored session entries [33m 459[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-terminal-failures.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 643[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces billing guidance for mixed-cause fallback exhaustion [33m 571[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-progress.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 659[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps operational agent events from resetting repeated request evidence [33m 572[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-probes.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 31460[2mms[22m[39m
+     [33m[2m✓[22m[39m rechecks queued auto fallback primary probes before running [33m 5941[2mms[22m[39m
+     [33m[2m✓[22m[39m drops stale queued primary probes after a user model switch [33m 23699[2mms[22m[39m
+     [33m[2m✓[22m[39m canonicalizes a source-less 'legacy user' auth profile during queued probe recheck [33m 402[2mms[22m[39m
+     [33m[2m✓[22m[39m canonicalizes a source-less 'marker-backed auto' auth profile during queued probe recheck [33m 400[2mms[22m[39m
+     [33m[2m✓[22m[39m propagates rechecked user selections to post-run state [33m 977[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-direct-runtime-config.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 911[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards co-author context only for trusted profile-backed session creation [33m 688[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution.release-queued-compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-delegate-fire-span.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 15931[2mms[22m[39m
+     [33m[2m✓[22m[39m bracket-delayed delegate fires through TaskFlow hedge with matching fire and dispatch chain.id [33m 2868[2mms[22m[39m
+     [33m[2m✓[22m[39m tool-delegate immediate dispatch emits exactly one `continuation.delegate.dispatch` with chain.id [33m 1778[2mms[22m[39m
+     [33m[2m✓[22m[39m tool-delegate immediate dispatch preserves singular targetSessionKey into spawned continuation run [33m 1688[2mms[22m[39m
+     [33m[2m✓[22m[39m immediate bracket delegate derives its hop from persisted chain state, not pending delayed rows [33m 1631[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches a delegate retained only in raw terminal text after display sanitization [33m 1607[2mms[22m[39m
+     [33m[2m✓[22m[39m immediate bracket delegate preserves raw spawn task and trusted spawn echo [33m 1656[2mms[22m[39m
+     [33m[2m✓[22m[39m restart-survival: bracket-delayed delegate remains in TaskFlow and fires with fire-time hop [33m 1597[2mms[22m[39m
+     [33m[2m✓[22m[39m bare-silent quiet-channel bracket-delayed delegate hedges, fires, and persists chain count [33m 1511[2mms[22m[39m
+     [33m[2m✓[22m[39m matured consumed delegate fires on next dispatch without second full-delay wait [33m 1595[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-work-span.reservation.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 13292[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves child-token updates committed while a work reservation is active [33m 3232[2mms[22m[39m
+     [33m[2m✓[22m[39m suppresses continue_work tool callbacks from incomplete non-replay-safe turns [33m 1785[2mms[22m[39m
+     [33m[2m✓[22m[39m fails queued continue_delegate rows from incomplete non-replay-safe turns [33m 1776[2mms[22m[39m
+     [33m[2m✓[22m[39m still honors continue_work from incomplete replay-safe turns [33m 1655[2mms[22m[39m
+     [33m[2m✓[22m[39m treats continue_work tool callbacks as accepted WORK signals [33m 1614[2mms[22m[39m
+     [33m[2m✓[22m[39m reuses chain.id across consecutive accepted steps (mint-at-0→1, reuse-for-step-2) [33m 1614[2mms[22m[39m
+     [33m[2m✓[22m[39m does NOT emit `continuation.work` on the chain-cap reject path (rejected requests don't advance the chain) [33m 1615[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-session-reset.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 3225[2mms[22m[39m
+     [33m[2m✓[22m[39m appends a boundary and clears stale runtime and fallback fields [33m 533[2mms[22m[39m
+     [33m[2m✓[22m[39m settles a fresh checkout baseline before returning from a local reset [33m 697[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a stale pending cache entry when capture loses its generation [33m 336[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the same SQLite marker and appends a boundary over the kept DM tail [33m 338[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-chain-break-reset.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 7781[2mms[22m[39m
+     [33m[2m✓[22m[39m resets the chain budget to 0 on a fresh (non-wake) turn-entry, upstream of inference [33m 2733[2mms[22m[39m
+     [33m[2m✓[22m[39m does NOT reset the chain budget on a continuation-wake turn-entry (count carries forward) [33m 1716[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves an already-empty chain budget untouched on a fresh turn (no churn, no spurious mint) [33m 1768[2mms[22m[39m
+     [33m[2m✓[22m[39m resets a stale at-cap chain budget on an ordinary subagent-return so a fresh continuation passes the cap (doom-lock) [33m 1563[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-result-accounting.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 337[2mms[22m[39m
+     [33m[2m✓[22m[39m does not recover selected raw text when the settled fallback result is replay-unsafe [32m 300[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-results.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 2356[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards media-only tool results without typing text [33m 2024[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-utils.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/acp-projector.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/block-reply-pipeline.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-delegate-reject-obs.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 7994[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces spawnResult.error into log + system event when error present (bracket-delegate immediate path) [33m 2990[2mms[22m[39m
+     [33m[2m✓[22m[39m falls back to `delegation was not accepted.` when spawnResult.error is absent (bracket-delegate immediate path) [33m 1676[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves raw rejected spawn task and trusted reject event echoes [33m 1744[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves raw failed spawn task and trusted failure event echoes [33m 1584[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-postcompaction-staging.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 7957[2mms[22m[39m
+     [33m[2m✓[22m[39m post-compaction bracket stages via stagePostCompactionDelegate and does NOT normal-dispatch [33m 2865[2mms[22m[39m
+     [33m[2m✓[22m[39m post-compaction + target threads targetSessionKey into the staged payload [33m 1787[2mms[22m[39m
+     [33m[2m✓[22m[39m normal bracket (no post-compaction) normal-dispatches and does NOT stage [33m 1678[2mms[22m[39m
+     [33m[2m✓[22m[39m post-compaction bracket enqueues the delegate-staged-post-compaction system event [33m 1626[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-auto-fallback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-span-uniformity.test.ts [2m([22m[2m2 tests[22m[2m | [22m[90m1 todo[39m[2m)[22m[33m 4394[2mms[22m[39m
+     [33m[2m✓[22m[39m emits uniform continuation.delegate.dispatch spans for silent and silent-wake tool delegates [33m 4394[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-message-tools.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 846[2mms[22m[39m
+     [33m[2m✓[22m[39m suppresses progress callbacks after message-tool-only delivery completes [33m 608[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-compaction.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 870[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps compaction start notices silent by default [33m 591[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.continuation-postcompaction-autocompaction.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 4953[2mms[22m[39m
+     [33m[2m✓[22m[39m persists the staged delegate when auto-compaction fires the same turn [33m 2837[2mms[22m[39m
+     [33m[2m✓[22m[39m persists the staged delegate on the normal path with no compaction (baseline) [33m 2115[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.final-media-runreplyagent.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-command-events.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 644[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards plan, approval, command output, and patch events [33m 619[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution.context-usage.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-embedded-candidate.continuation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-cli-commentary.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1938[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers commentary from a real JSONL CLI subprocess [33m 1922[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.finally-drain-hardening.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2904[2mms[22m[39m
+     [33m[2m✓[22m[39m does not consume/claim queued delegates in the finally, and still marks dispatch idle [33m 2903[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-memory.preflight-stale-tokens.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 3638[2mms[22m[39m
+     [33m[2m✓[22m[39m does not compact when totalTokens is large but stale and the real transcript is small [33m 1049[2mms[22m[39m
+     [33m[2m✓[22m[39m compacts when totalTokens is large and fresh [33m 523[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves an unscoped session key with 'the configured roster default for an …' [33m 638[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves an unscoped session key with 'the explicitly prepared agent for an …' [33m 643[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves an unscoped session key with 'the configured roster default before …' [33m 396[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves an unscoped session key with 'the explicitly prepared agent before …' [33m 387[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-context-failures.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 959[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves the active session when embedded overflow recovery fails [33m 647[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/bash-command.stop.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-utils.secret-resolution.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/acp-elicitation-handler.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-conversation-failures.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 615[2mms[22m[39m
+     [33m[2m✓[22m[39m returns a session reset hint for Bedrock tool mismatch errors on external chat channels [33m 592[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-helpers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-runtime-selection.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-execution-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m returns one closed settled result with winner and fallback facts [33m 336[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-memory.test.ts[2m > [22mrunMemoryFlushIfNeeded[2m > [22mruns exactly one auto-reply memory flush turn, rotates, and persists metadata
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/auto-reply/reply/agent-runner-memory.test.ts:[2m518:3[22m[39m
+    [90m516|[39m   });
+    [90m517|[39m
+    [90m518|[39m   it("runs exactly one auto-reply memory flush turn, rotates, and pers…
+    [90m   |[39m   [31m^[39m
+    [90m519|[39m     const followupRun = createTestFollowupRun({
+    [90m520|[39m       authProfileId: "anthropic:work",
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts[2m > [22mrunReplyAgent auto-compaction token update[2m > [22mupdates totalTokens from lastCallUsage even without compaction
+[31m[1mError[22m: Test timed out in 180000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts:[2m560:3[22m[39m
+    [90m558|[39m   }
+    [90m559|[39m
+    [90m560|[39m   it("updates totalTokens from lastCallUsage even without compaction",…
+    [90m   |[39m   [31m^[39m
+    [90m561|[39m     const { sessionKey, stored } = await runBaseReplyWithAgentMeta({
+    [90m562|[39m       tmpPrefix: "openclaw-usage-last-",
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m44 passed[39m[22m[90m (46)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m754 passed[39m[22m[2m | [22m[90m1 todo[39m[90m (757)[39m
+[2m   Start at [22m 20:40:35
+[2m   Duration [22m 667.06s[2m (transform 22.01s, setup 1.36s, import 44.11s, tests 620.50s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner/src/auto-reply/reply/agent-runner-memory.test.ts,title=[auto-reply-reply] src/auto-reply/reply/agent-runner-memory.test.ts > runMemoryFlushIfNeeded > runs exactly one auto-reply memory flush turn%2C rotates%2C and persists metadata,line=518,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/auto-reply/reply/agent-runner-memory.test.ts:518:3%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner/src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts,title=[auto-reply-reply] src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts > runReplyAgent auto-compaction token update > updates totalTokens from lastCallUsage even without compaction,line=560,column=3::Error: Test timed out in 180000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts:560:3%0A%0A
+[test] failed 1 Vitest shard in 972.31s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+ [31m❯[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-memory.test.ts [2m([22m[2m75 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 162468[2mms[22m[39m
+[31m     [31m×[31m runs exactly one auto-reply memory flush turn, rotates, and persists metadata[39m[33m 135129[2mms[22m[39m
+     [33m[2m✓[22m[39m does not rotate or increment for an incomplete projected compaction end [33m 315[2mms[22m[39m
+     [32m✓[39m inherits requester taint across a multi-write flush[32m 221[2mms[22m[39m
+     [33m[2m✓[22m[39m downgrades an owner-directed flush after a network-tainted embedded turn [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m revalidates immutable Ultra for each memory-flush fallback candidate [33m 548[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves thinking for runtime-discovered Ollama memory-flush models [33m 302[2mms[22m[39m
+     [32m✓[39m keeps catalog-adopted sessions on Codex for memory flush turns[32m 201[2mms[22m[39m
+     [32m✓[39m counts resolved error payloads as failed memory flushes[32m 269[2mms[22m[39m
+     [32m✓[39m reports restricted memory-flush write failures for visible delivery[32m 225[2mms[22m[39m
+     [32m✓[39m surfaces generic non-abort memory-flush failures so cron meta.error is populated (regression: #80755)[32m 227[2mms[22m[39m
+     [32m✓[39m redacts and caps generic visible memory-flush failures before delivery[32m 221[2mms[22m[39m
+     [32m✓[39m does not surface user-abort errors as visible payloads (regression: #80755)[32m 187[2mms[22m[39m
+     [32m✓[39m increments and UTF-16-safely persists a capped non-abort flush failure[32m 251[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'initial plan resolution' attempt, cleans up, and retries [33m 351[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'time-refreshed plan resolution' attempt, cleans up, and retries [33m 353[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'target preparation' attempt, cleans up, and retries [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m records a failed 'maintenance execution setup' attempt, cleans up, and retries [33m 384[2mms[22m[39m
+     [32m✓[39m honors a time-refreshed null plan before preparing or registering a run[32m 181[2mms[22m[39m
+     [32m✓[39m does not track failure on abort error[32m 236[2mms[22m[39m
+     [32m✓[39m clears failure counters on successful flush[32m 237[2mms[22m[39m
+     [32m✓[39m marks flush as completed after MAX_FLUSH_FAILURES to break retry loop[32m 257[2mms[22m[39m
+     [32m✓[39m runs memory flush on the configured maintenance model without active fallbacks[32m 274[2mms[22m[39m
+     [32m✓[39m loads the selected harness before memory-flush fallback preflight[32m 172[2mms[22m[39m
+     [32m✓[39m ignores stale runtime pins before memory-flush fallback preflight[32m 221[2mms[22m[39m
+     [32m✓[39m skips memory flush for CLI providers[32m 2[2mms[22m[39m
+     [32m✓[39m skips memory flush for incognito sessions[32m 1[2mms[22m[39m
+     [32m✓[39m skips memory flush for an incognito key after process-local state is gone[32m 1[2mms[22m[39m
+     [32m✓[39m skips memory flush for compatible CLI session runtime pins[32m 93[2mms[22m[39m
+     [32m✓[39m uses runtime policy session key when checking memory-flush sandbox writability[32m 171[2mms[22m[39m
+     [33m[2m✓[22m[39m continues when preflight compaction reports the session is already under target [33m 916[2mms[22m[39m
+     [33m[2m✓[22m[39m fails when required preflight context-engine compaction is deferred to background maintenance [33m 440[2mms[22m[39m
+     [33m[2m✓[22m[39m passes persisted session policy and runtime policy key to preflight compaction [33m 451[2mms[22m[39m
+     [33m[2m✓[22m[39m fails required preflight compaction after native harness stale_thread_binding failure [33m 438[2mms[22m[39m
+     [33m[2m✓[22m[39m fails required preflight compaction after native harness missing_thread_binding failure [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m fails required preflight compaction after an unstructured thread-not-found failure [33m 423[2mms[22m[39m
+     [33m[2m✓[22m[39m still fails preflight compaction for non-binding native harness failures [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m passes resolved context budget and $authProfileIdSource auth profile to preflight compaction [33m 417[2mms[22m[39m
+     [33m[2m✓[22m[39m passes resolved context budget and $authProfileIdSource auth profile to preflight compaction [33m 389[2mms[22m[39m
+     [33m[2m✓[22m[39m preflight compacts a fresh session when the current prompt estimate pushes the next request over budget [33m 568[2mms[22m[39m
+     [33m[2m✓[22m[39m does not preflight compact a fresh session when only accumulated output tokens are large and the latest output keeps the request under budget [33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at unavailable context and accepts only a later valid transcript snapshot [33m 801[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores unversioned fresh state and legacy CLI usage on the first upgraded turn [33m 764[2mms[22m[39m
+     [33m[2m✓[22m[39m updates the active preflight run after transcript rotation [33m 482[2mms[22m[39m
+     [33m[2m✓[22m[39m includes recent output tokens when deciding preflight compaction [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps nonzero unavailable output as growth after the previous exact snapshot [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m does not add unavailable output twice when full-message estimation already includes it [33m 439[2mms[22m[39m
+     [32m✓[39m reads flush usage and byte size from SQLite without statting a retired transcript path[32m 286[2mms[22m[39m
+     [33m[2m✓[22m[39m fails when required preflight compaction returns an unknown successful no-op [33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m skips OpenClaw preflight compaction for explicit Codex runtime overrides [33m 342[2mms[22m[39m
+     [33m[2m✓[22m[39m skips fresh persisted token totals for explicit Codex runtime overrides [33m 347[2mms[22m[39m
+     [32m✓[39m skips preflight compaction for compatible CLI session runtime pins[32m 102[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the OpenAI API context window for persisted OpenClaw runtime overrides [33m 501[2mms[22m[39m
+     [33m[2m✓[22m[39m estimates Codex tool-result mirrors through the provider projection without provider usage after runtime cutover [33m 513[2mms[22m[39m
+     [33m[2m✓[22m[39m estimates Codex tool-result mirrors through the provider projection after provider usage after runtime cutover [33m 488[2mms[22m[39m
+     [33m[2m✓[22m[39m accounts for provider-visible history beyond the recent read bounds [33m 527[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a provider usage anchor older than the scan window when pressure is below threshold [33m 512[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a provider usage anchor older than the scan window when pressure is above threshold [33m 503[2mms[22m[39m
+     [33m[2m✓[22m[39m does not use the active run sessionFile when the session entry has no transcript path [33m 427[2mms[22m[39m
+     [33m[2m✓[22m[39m does not treat unavailable Anthropic context as transcript prompt usage [33m 462[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps preflight compaction conservative for content appended after latest usage [33m 467[2mms[22m[39m
+     [33m[2m✓[22m[39m combines latest usage with post-usage tail pressure for preflight compaction [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m does not count bytes from a large latest usage record as post-usage tail pressure [33m 362[2mms[22m[39m
+     [33m[2m✓[22m[39m does not treat raw transcript metadata bytes as token pressure [33m 443[2mms[22m[39m
+     [33m[2m✓[22m[39m triggers preflight compaction when the active transcript exceeds the configured byte threshold [33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m byte-guards a Codex runtime fresh session selected from the outset through native preflight [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m byte-guards a Codex runtime upgraded session with historical embedded ownership through native preflight [33m 461[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves a reset SQLite Codex session below the byte fuse for native compaction [33m 440[2mms[22m[39m
+     [32m✓[39m keeps ownsNativeCompaction absolute over the SQLite transcript byte guard[32m 265[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves post-compaction context when prepared delivery ownership changes [33m 471[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps incognito preflight compaction in the process-local transcript store [33m 447[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves usage from an active branch whose leaf target predates the bounded tail [33m 539[2mms[22m[39m
+     [33m[2m✓[22m[39m forces memory flush when a SQLite-backed transcript exceeds the byte threshold [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m emits preflight compaction notices around a successful budget compaction [33m 460[2mms[22m[39m
+     [33m[2m✓[22m[39m emits an incomplete preflight compaction notice when post-compaction state update throws [33m 437[2mms[22m[39m
+     [32m✓[39m uses configured prompts and stored bootstrap warning signatures[32m 172[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner-memory.test.ts[2m > [22mrunMemoryFlushIfNeeded[2m > [22mruns exactly one auto-reply memory flush turn, rotates, and persists metadata
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/auto-reply/reply/agent-runner-memory.test.ts:[2m518:3[22m[39m
+    [90m516|[39m   });
+    [90m517|[39m
+    [90m518|[39m   it("runs exactly one auto-reply memory flush turn, rotates, and pers…
+    [90m   |[39m   [31m^[39m
+    [90m519|[39m     const followupRun = createTestFollowupRun({
+    [90m520|[39m       authProfileId: "anthropic:work",
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m74 passed[39m[22m[90m (75)[39m
+[2m   Start at [22m 20:51:43
+[2m   Duration [22m 176.01s[2m (transform 8.34s, setup 579ms, import 12.69s, tests 162.47s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner/src/auto-reply/reply/agent-runner-memory.test.ts,title=[auto-reply-reply] src/auto-reply/reply/agent-runner-memory.test.ts > runMemoryFlushIfNeeded > runs exactly one auto-reply memory flush turn%2C rotates%2C and persists metadata,line=518,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/auto-reply/reply/agent-runner-memory.test.ts:518:3%0A%0A
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-043/shard-1-auto-reply-reply-agent-runner[39m
+
+ [32m✓[39m [30m[45m auto-reply-reply [49m[39m src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts [2m([22m[2m80 tests[22m[2m)[22m[33m 12462[2mms[22m[39m
+     [33m[2m✓[22m[39m updates totalTokens from lastCallUsage even without compaction [33m 1121[2mms[22m[39m
+     [33m[2m✓[22m[39m reports live diagnostic context from promptTokens, not provider usage totals [33m 364[2mms[22m[39m
+     [33m[2m✓[22m[39m appends raw trace payloads when trace raw is enabled [33m 327[2mms[22m[39m
+     [33m[2m✓[22m[39m shows session and last-turn usage totals without per-call usage blocks [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m escapes markdown fence delimiters inside raw trace blocks [33m 312[2mms[22m[39m
+     [33m[2m✓[22m[39m warns when a substantive private final reply never used the message tool [33m 337[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m80 passed[39m[22m[90m (80)[39m
+[2m   Start at [22m 20:54:40
+[2m   Duration [22m 24.67s[2m (transform 7.74s, setup 493ms, import 11.46s, tests 12.46s, environment 0ms)[22m
+
+TEST_GATE: 1 deterministic test FAIL -> FAIL

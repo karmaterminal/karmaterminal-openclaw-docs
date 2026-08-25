@@ -1,0 +1,1 @@
+extensions/qa-lab/src/suite-process-lifecycle.test.ts

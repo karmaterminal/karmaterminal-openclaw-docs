@@ -30,11 +30,11 @@
       "traceThreeWorkSpans": true
     },
     "source_files": {
-      "evidence": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/EVIDENCE.md",
-      "sourceReceipts": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl",
-      "flowRows": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/flow-runs-final.json",
-      "journal": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt",
-      "traceSummary": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl"
+      "evidence": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/EVIDENCE.md",
+      "sourceReceipts": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/source-tool-receipts.jsonl",
+      "flowRows": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/flow-runs-final.json",
+      "journal": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/journal-continuation-lines.txt",
+      "traceSummary": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-CW-MULTI/cael-dgx/tempo/trace-summary.jsonl"
     },
     "ended": "2026-08-25T10:04:45.671Z",
     "duration_ms": 0,
@@ -60,7 +60,7 @@
   },
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

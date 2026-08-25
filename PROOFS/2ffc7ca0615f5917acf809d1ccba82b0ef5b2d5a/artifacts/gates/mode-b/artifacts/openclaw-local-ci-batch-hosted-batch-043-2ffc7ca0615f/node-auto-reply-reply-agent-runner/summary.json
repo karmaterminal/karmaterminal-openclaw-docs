@@ -1,0 +1,36 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "auto-reply-reply-agent-runner",
+  "configs": [
+    "test/vitest/vitest.auto-reply-reply.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (auto-reply-reply-agent-runner)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 1178
+    }
+  ],
+  "tests": {
+    "passed": 754,
+    "failed": 2
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (auto-reply-reply-agent-runner)",
+      "kind": "test",
+      "detail": "auto-reply-reply  src/auto-reply/reply/agent-runner-memory.test.ts > runMemoryFlushIfNeeded > runs exactly one auto-reply memory flush turn, rotates, and persists metadata"
+    }
+  ],
+  "flakes_greened_count": 1,
+  "flakes_greened": [
+    "auto-reply-reply  src/auto-reply/reply/agent-runner.misc.runreplyagent.test.ts > runReplyAgent auto-compaction token update > updates totalTokens from lastCallUsage even without compaction"
+  ]
+}

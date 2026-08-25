@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-  "current_sha_short": "4737afdf",
+  "current_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "current_sha_short": "2ffc7ca0",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw 2026.8.1 (4737afdf)",
-  "corpus_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/",
-  "manifest_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/proofs-manifest.json",
-  "readme_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/README.md",
-  "clawsweeper_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/CLAWSSWEEPER.md",
+  "build_string": "OpenClaw 2026.8.1 (2ffc7ca0)",
+  "corpus_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/",
+  "manifest_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/proofs-manifest.json",
+  "readme_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/README.md",
+  "clawsweeper_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/CLAWSSWEEPER.md",
   "entrypoints": {
-    "clawsweeper": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/CLAWSSWEEPER.md",
-    "manifest": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/proofs-manifest.json",
-    "readme": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/README.md",
-    "method": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/METHOD.md",
-    "resolved_sha": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/RESOLVED-SHA.md",
-    "artifacts": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/ARTIFACTS.md",
-    "transposition": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/TRANSPOSED-FROM.md"
+    "clawsweeper": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/proofs-manifest.json",
+    "readme": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/README.md",
+    "method": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/METHOD.md",
+    "resolved_sha": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/ARTIFACTS.md",
+    "transposition": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/TRANSPOSED-FROM.md"
   },
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
@@ -29,15 +29,18 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Full self-contained transposition from 80311e8a to conflict-cured descendant 4737afdf. Exact-target Mode-B 32859410821 is complete with zero candidate-caused failures; historical live execution remains attributed to composite 37300f29 and source pure 80311e8a. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
+  "disposition_note": "Full self-contained transposition from immediate predecessor 4737afdf to exact pure target 2ffc7ca0. Exact-target Mode-B 32895790947 remains red with 165,696 passed, 39 failed, nine load flakes greened, and 32 deterministic failures classified. Historical live execution remains attributed to composite 37300f29 and source pure 80311e8a; descendant runtime a48c475b exact-live proof is pending. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-25",
   "generated_by": "frond-scribe",
   "transposition": {
-    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-    "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
+    "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "source_docs_commit": "0e75318a68d7145c0c5b99e8b11bda304f4f9fd2",
+    "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
     "exact_target_execution": false,
-    "exact_target_mode_b": true
+    "exact_target_mode_b": true,
+    "pending_runtime_composite_sha": "a48c475baa893493df2ee8ebb17834b845a64aec",
+    "pending_runtime_exact_live_proof": true
   }
 }

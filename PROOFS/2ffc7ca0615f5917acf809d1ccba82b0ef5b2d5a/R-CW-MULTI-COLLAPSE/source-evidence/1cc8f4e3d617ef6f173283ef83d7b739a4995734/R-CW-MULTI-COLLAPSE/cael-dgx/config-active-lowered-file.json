@@ -1,0 +1,14 @@
+{
+  "continuation": {
+    "enabled": true,
+    "maxChainLength": 200,
+    "costCapTokens": 500000,
+    "contextPressureThreshold": 0.4,
+    "maxDelegatesPerTurn": 500,
+    "maxDelayMs": 1000,
+    "defaultDelayMs": 1000,
+    "minDelayMs": 1000,
+    "crossSessionTargeting": "enabled"
+  },
+  "transposition": {}
+}

@@ -1,0 +1,10 @@
+{
+  "traces": [],
+  "metrics": {
+    "inspectedTraces": 319,
+    "inspectedBytes": "1100427",
+    "completedJobs": 1,
+    "totalJobs": 1
+  },
+  "transposition": {}
+}

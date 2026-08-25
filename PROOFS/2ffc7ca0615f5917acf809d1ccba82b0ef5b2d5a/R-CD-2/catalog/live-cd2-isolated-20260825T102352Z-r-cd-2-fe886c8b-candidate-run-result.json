@@ -1,0 +1,76 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "docsRef": "19b095ef0d356c6d68985ea26bc1bd958f53f144"
+  },
+  "harness": {
+    "docsRef": "19b095ef0d356c6d68985ea26bc1bd958f53f144",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-2.json",
+    "manifestSha256": "922ac87f8826306a308c041d517ca1ff8e276ab088f059feedd4cb090bfac792",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-2-silent-wake.js",
+    "scenarioSha256": "1cdac9a604bb31122d2c77791b82b2063f7234be3734ba8e645fd3110d840f44",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260825T102352Z-r-cd-2-fe886c8b",
+    "rowId": "R-CD-2",
+    "seat": "ronan",
+    "scenario": "r-cd-2-silent-wake",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "FAIL-candidate",
+    "outcomeSource": "r-cd-2-authoritative-receipt",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "r-cd-2-authoritative-receipt",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "authoritativeReceipt": {
+    "file": "r-cd-2-authoritative-receipt.json",
+    "sha256": "12b8270ffa4e7ad204cfafaf4f2c8d1aca04bf87e113d957428bde05de4ed1f0"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-2-authoritative-receipt.json",
+      "r-cd-2-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

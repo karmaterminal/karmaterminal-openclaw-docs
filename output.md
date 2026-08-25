@@ -92,7 +92,7 @@ node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-sha256sum -c PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/SHA256SUMS
+(cd PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a && sha256sum -c artifacts/gates/SHA256SUMS)
 ```
 
 Results:

@@ -1,0 +1,94 @@
+{
+  "schema": "openclaw.project81.r-cw-6.runtime-boundary.v1",
+  "configuredMaximum": 3,
+  "initialCurrentChainCount": 1,
+  "cases": [
+    {
+      "name": "below-limit",
+      "currentChainCountBefore": 1,
+      "attemptedHop": 2,
+      "scheduled": true,
+      "resultingChainCount": 2
+    },
+    {
+      "name": "at-limit",
+      "currentChainCountBefore": 2,
+      "attemptedHop": 3,
+      "scheduled": true,
+      "resultingChainCount": 3
+    },
+    {
+      "name": "first-over-limit",
+      "currentChainCountBefore": 3,
+      "attemptedHop": 4,
+      "scheduled": false,
+      "capped": true,
+      "reason": "chain-capped",
+      "resultingChainCount": 3
+    }
+  ],
+  "structuredRejection": {
+    "code": "chain-capped",
+    "currentChainCount": 3,
+    "maxChainLength": 3,
+    "attemptedHop": 4
+  },
+  "noSpawn": {
+    "flowCountBeforeRejectedHop": 2,
+    "flowCountAfterRejectedHop": 2,
+    "rejectedReasonAbsentFromDurableFlows": true,
+    "chainCountUnchanged": true
+  },
+  "durableState": {
+    "persistedCount": 3,
+    "reloadedCount": 3,
+    "recoveredBudgetReason": "chain-capped",
+    "recoveredAttemptScheduled": false
+  },
+  "passed": true,
+  "fixtureKind": "production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork",
+  "candidateWorktreeHead": "80311e8aa07fd560cb957475517c5ea18164541c",
+  "candidateLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
+  "installedLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
+  "candidatePackageManagerVersion": "11.22.0",
+  "executingPackageManagerVersion": "11.22.0",
+  "installedPackageManager": "pnpm@11.22.0",
+  "installedPackageManagerVersion": "11.22.0",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "installExitCode": 0,
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "hostToolchainHermetic": false
+}

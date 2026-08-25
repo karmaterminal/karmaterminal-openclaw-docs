@@ -25,9 +25,9 @@ Pure presentation SHA: `80311e8aa07fd560cb957475517c5ea18164541c`. Live executio
 | R-CW-2 | pass | Current exact execution-composite row produced a review-ready PASS-candidate receipt. |
 | R-CW-3 | pass | Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call. |
 | R-CW-4 | pass | Current exact execution-composite row produced a review-ready PASS-candidate receipt. |
-| R-CW-5 | missing | Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback. Not executed in run 32231533500; retained as an explicit missing row for refinement. |
+| R-CW-5 | pass | Exact-pure disposable fixture passed the boundary matrix, dispatcher, typed-tool, cleanup, and rejected-hop no-spawn contracts. |
 | R-CW-5A | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
-| R-CW-6 | missing | The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback. Not executed in run 32231533500; retained as an explicit missing row for refinement. |
+| R-CW-6 | partial | Exact-pure fixture passed every independently measured product boundary, but its docs-generated selected delegate test is stale and exited before emitting a receipt; the authoritative FAIL-fixture is retained. |
 | R-CW-6A | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
 | R-CW-7 | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
 | R-CW-DELEGATE-CHILD-LIVE | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
@@ -50,12 +50,13 @@ Pure presentation SHA: `80311e8aa07fd560cb957475517c5ea18164541c`. Live executio
 
 ## Rollup
 
-`{"total_rows":41,"pass":31,"partial":3,"thin":0,"fail":0,"honest_limit":1,"missing":6}`
+`{"total_rows":41,"pass":32,"partial":4,"thin":0,"fail":0,"honest_limit":1,"missing":4}`
 
 ## Honest limits
 
 - Live rows are execution-composite evidence, not exact-pure execution claims.
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.
+- R-CW-6 remains partial because the docs-generated selected delegate fixture is stale; its direct product surfaces passed.
 - R-RC-2 was threshold-rejected and remains an honest limit.
-- Six non-runnable canonical rows remain explicit missing.
+- Four construct-only observability rows remain explicit missing: three wait on product instrumentation tracked by `karmaterminal/openclaw#1254`; the harness-only backend-disposition row is tracked by `karmaterminal-openclaw-docs#517`.

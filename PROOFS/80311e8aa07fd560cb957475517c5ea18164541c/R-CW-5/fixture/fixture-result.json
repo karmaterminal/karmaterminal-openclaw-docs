@@ -1,0 +1,19 @@
+{
+  "schema": "openclaw.project81.r-cw-5.fixture-result.v1",
+  "verdict": "PASS-candidate",
+  "candidateSha": "80311e8aa07fd560cb957475517c5ea18164541c",
+  "cap": 100,
+  "receipts": {
+    "fixtureReadiness": "fixture-readiness.json",
+    "boundaryMatrix": "boundary-matrix.json",
+    "dispatchBoundarySuite": "dispatch-boundary-suite.json",
+    "typedToolSurface": "typed-tool-surface.json",
+    "cleanup": "cleanup.json"
+  },
+  "checks": {
+    "matrixPassed": true,
+    "dispatchPassed": true,
+    "toolSurfacePassed": true,
+    "noRejectedHopSpawn": true
+  }
+}

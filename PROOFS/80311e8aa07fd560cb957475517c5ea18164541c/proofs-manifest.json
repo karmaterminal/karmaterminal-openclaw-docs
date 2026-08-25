@@ -65,14 +65,14 @@
   "generated": "2026-08-25 (frond-scribe; pure identity with execution-composite ancestry)",
   "rollup": {
     "total_rows": 41,
-    "pass": 31,
-    "partial": 3,
+    "pass": 32,
+    "partial": 4,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 6
+    "missing": 4
   },
-  "notes": "Presentation identity is pure 80311e8a. Exact static/review/Mode-B evidence binds directly to pure. Live rows fired on runtime composite 37300f29, which preserves pure as an ancestor and adds only #124337 + #121204 via ordinary merge commits; live evidence is never represented as exact-pure execution. Six non-runnable canonical rows remain explicit missing.",
+  "notes": "Presentation identity is pure 80311e8a. Exact static/review/Mode-B and R-CW-5/R-CW-6 fixture evidence binds directly to pure. Live gateway rows fired on runtime composite 37300f29, which preserves pure as an ancestor and adds only #124337 + #121204 via ordinary merge commits; live evidence is never represented as exact-pure execution. Four construct-only observability rows remain explicit missing: three product instrumentation prerequisites tracked by openclaw#1254 and one harness receipt gap tracked by docs#517.",
   "execution": {
     "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "pure_ancestor": true,
@@ -590,24 +590,27 @@
       "row": "R-CW-5",
       "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond follow-up",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-5/",
       "evidence_doc": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-5/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
-      "candidate_verdict": null,
-      "review_status": "not-fired",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed-pass",
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-5/EVIDENCE.md"
+        "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-5/EVIDENCE.md",
+        "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-5/fixture/fixture-result.json"
       ],
-      "notes": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback. Not executed in run 32231533500; retained as an explicit missing row for refinement. Pure presentation SHA 80311e8aa07fd560cb957475517c5ea18164541c; execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb contains the pure SHA as an ancestor.",
-      "fired": null,
+      "notes": "Exact pure SHA executed directly in a disposable worktree with candidate-declared pnpm 11.22.0. All required receipts pass. This is process-local production-boundary evidence, not gateway-loopback execution. The older openclaw#1204 failure does not reproduce on this candidate.",
+      "fired": "2026-08-25 (ronan, exact pure process-local fixture; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
       "issue": 117,
-      "summary": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
-      "test_cases_executed": []
+      "summary": "Exact-pure disposable fixture passed the boundary matrix, dispatcher, typed-tool, cleanup, and rejected-hop no-spawn contracts.",
+      "test_cases_executed": [
+        "R-CW-5 exact-pure cost-cap fixture"
+      ]
     },
     {
       "row": "R-CW-5A",
@@ -638,24 +641,30 @@
       "row": "R-CW-6",
       "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond follow-up",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-6/",
       "evidence_doc": "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-6/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
-      "candidate_verdict": null,
-      "review_status": "not-fired",
-      "pending_receipts": [],
+      "candidate_verdict": "FAIL-fixture",
+      "review_status": "reviewed-partial-harness",
+      "pending_receipts": [
+        "selected-delegate-boundary-receipt"
+      ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-6/EVIDENCE.md"
+        "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-6/EVIDENCE.md",
+        "PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/R-CW-6/fixture/fixture-result.json",
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/516"
       ],
-      "notes": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback. Not executed in run 32231533500; retained as an explicit missing row for refinement. Pure presentation SHA 80311e8aa07fd560cb957475517c5ea18164541c; execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb contains the pure SHA as an ancestor.",
-      "fired": null,
+      "notes": "Product-owned max-chain surfaces pass at exact pure SHA. The remaining failed required receipt is docs harness compatibility debt tracked by karmaterminal-openclaw-docs#516; no product PASS is inferred from the partial fold.",
+      "fired": "2026-08-25 (ronan, exact pure process-local fixture; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
       "issue": 117,
-      "summary": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
-      "test_cases_executed": []
+      "summary": "Exact-pure fixture passed matrix, scheduler, recovery, typed-tool, and candidate delegate regression surfaces; a stale docs-generated selected delegate test exited before emitting its receipt, so the authoritative FAIL-fixture is retained and folded partial.",
+      "test_cases_executed": [
+        "R-CW-6 exact-pure max-chain fixture"
+      ]
     },
     {
       "row": "R-CW-6A",

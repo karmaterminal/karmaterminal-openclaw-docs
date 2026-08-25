@@ -2,47 +2,36 @@
 
 | Field | Value |
 |---|---|
-| Source product SHA executed | `80311e8aa07fd560cb957475517c5ea18164541c` |
-| Transposed target SHA | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` |
-| Frozen upstream control | `0d4e369b1c3df59cd77b59bba87aac17884742b1` |
+| Product SHA | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` |
+| Absorbed upstream control | `1ba243c88ed800986909bc50e4ce7b8139891b94` |
 | Workflow SHA | `342cc9c6d190e1ba57d9995d29e394c993a3e79b` |
-| Run | [`32820979682`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32820979682) |
-| Tests | 165,309 passed; 11 failed counts |
-| Deterministic unique failures | 6 |
+| Run | [`32859410821`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32859410821) |
+| Routed shards | 163 |
+| Routing receipts | 69/69 valid |
+| Tests | 166,719 passed; 23 failed counts |
+| Deterministic unique failures | 19 |
 | Load flakes greened | 5 |
 | Candidate-caused failures | 0 |
 
 The workflow conclusion is `failure`; this corpus does not rewrite that byte.
-The acceptance is based on the complete classification below.
-This historical run is preserved as transposed ancestry/materiality evidence;
-it is not the current target's Mode-B receipt. Current target Mode-B is tracked
-separately until run `32859410821` is terminal and classified.
+Every deterministic failure was classified before acceptance.
 
-## Deterministic test failures
+## Deterministic failures
 
 | Count | Cell | Classification |
 |---:|---|---|
-| 1 | `test/scripts/telegram-mantis-sut.test.ts` — waits for the claimed runtime owner before returning from stop | Self-hosted environment. `/run/lock/openclaw-mantis-sut-network.lock` was not writable; the test then observed the expected shell failure. |
-| 1 | `src/commands/doctor-lint.test.ts` — reports an actionable Crabbox profile finding before dispatch | Hosted-timeout boundary. The test hit its 120-second ceiling; exact-upstream local control passed in about 92 seconds. |
-| 2 | `src/plugins/bundled-plugin-metadata.test.ts` | Frozen-upstream baseline, reproduced on the exact control SHA. |
-| 2 | `src/plugins/tools.optional.test.ts` | Frozen-upstream baseline, reproduced on the exact control SHA. |
-
-## Static gate
-
-`check (typecheck+lint+duplicates+guards)` also concluded red because the
-temp-path guard reported `src/gateway/server-maintenance.ts`. The same guard
-failure reproduces on the frozen upstream control and is not candidate-caused.
-The static gate is not part of the six-test arithmetic above.
+| 1 | `test/scripts/telegram-mantis-sut.test.ts` — waits for the claimed runtime owner before returning from stop | Self-hosted environment: `/run/lock/openclaw-mantis-sut-network.lock` is not writable. Same known host-bound failure class as the prior exact run. |
+| 1 | `src/commands/doctor-lint.test.ts` — reports an actionable Crabbox profile finding before dispatch | Hosted-timeout boundary at 120 seconds. The exact-upstream local control previously passed in about 92 seconds. |
+| 4 | `src/cli/update-cli/update-command-post-update.test.ts` | Runner-order/environment class. The failed test file and owning implementation are byte-identical to absorbed upstream. The complete candidate CLI shard and complete exact-upstream CLI shard both pass locally: 228 files, 5,252 assertions, 79 skips. |
+| 13 | `src/tui/tui-pty-local.e2e.test.ts` | Dist-runner packaging class. Each failure starts before the tested PTY behavior because `node_modules/@openclaw/ai/dist/internal/openai-responses-payload-policy.mjs` is absent. The source module, package export, package build config, lockfile, and PTY test are byte-identical to absorbed upstream. |
 
 ## Load-flake accounting
 
-Five initially red cells passed their confirm-determinism reruns. They contribute
-to the aggregate’s 11 failed counts but not to its six deterministic failures.
-For example, the `extension-qa` process-lifecycle cell is explicitly recorded as
-green on its confirm-determinism rerun.
+Five initially red cells passed confirm-determinism reruns. The aggregate
+reports them separately from the 19 deterministic failures.
 
 ## Disposition
 
-Mode-B is accepted with baseline/environment reds disclosed, not converted to
-green. The candidate-caused failures found in the two earlier Mode-B attempts
-were cured before this terminal run.
+Mode-B is accepted with all non-candidate reds disclosed. No continuation,
+delegate, compaction, TaskFlow, session, gateway-delivery, or candidate repair
+test failed.

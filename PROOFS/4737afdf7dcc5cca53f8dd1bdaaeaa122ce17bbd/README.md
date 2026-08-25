@@ -16,6 +16,12 @@ conflict-bearing upstream absorb. Candidate and corpus paths are rebound to
 explicitly marked as historical ancestry/materiality evidence unless a receipt
 states that it was executed at the target SHA.
 
+Exact-target Mode-B run
+[`32859410821`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32859410821)
+completed with 166,719 passing tests and no candidate-caused failure. Its
+non-green workflow conclusion is preserved and fully classified in
+[`artifacts/gates/MODE-B.md`](artifacts/gates/MODE-B.md).
+
 ## Verdicts
 
 | Row | State | Summary |

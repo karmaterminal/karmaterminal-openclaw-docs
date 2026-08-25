@@ -29,7 +29,7 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Full self-contained transposition from 80311e8a to conflict-cured descendant 4737afdf. Historical live execution remains attributed to composite 37300f29 and source pure 80311e8a; exact-target reproof/Mode-B are separate gates. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
+  "disposition_note": "Full self-contained transposition from 80311e8a to conflict-cured descendant 4737afdf. Exact-target Mode-B 32859410821 is complete with zero candidate-caused failures; historical live execution remains attributed to composite 37300f29 and source pure 80311e8a. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-25",
   "generated_by": "frond-scribe",
@@ -37,6 +37,7 @@
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
     "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
     "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
-    "exact_target_execution": false
+    "exact_target_execution": false,
+    "exact_target_mode_b": true
   }
 }

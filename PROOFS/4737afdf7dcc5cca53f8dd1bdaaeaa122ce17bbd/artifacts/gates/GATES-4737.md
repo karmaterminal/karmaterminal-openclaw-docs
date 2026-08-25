@@ -27,4 +27,7 @@ the temporary GATES journal. Their product trees are identical.
 
 Current target Mode-B:
 [`32859410821`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32859410821).
-Its final classification is added after the run reaches a terminal state.
+It completed with 166,719 passing tests, five load flakes greened, and 19
+deterministic failures, all classified as upstream-identical or
+runner/environment failures in [`MODE-B.md`](MODE-B.md). No candidate-caused
+failure remained.

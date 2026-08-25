@@ -73,7 +73,7 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "notes": "Current presentation identity is 4737afdf. This is a full-subtree transposition from source corpus 80311e8a after a required conflict-bearing upstream absorb. Exact target local reproof and Mode-B are separate current-candidate gates. Historical live rows executed on composite 37300f29, which contains source 80311e8a—not target 4737afdf—as an ancestor; they are preserved as ancestry/materiality evidence and never represented as exact-target execution. Four construct-only observability rows remain explicit missing.",
+  "notes": "Current presentation identity is 4737afdf. This is a full-subtree transposition from source corpus 80311e8a after a required conflict-bearing upstream absorb. Exact target Mode-B is complete and classified; independent exact-target reproof/review remain separate gates. Historical live rows executed on composite 37300f29, which contains source 80311e8a—not target 4737afdf—as an ancestor; they are preserved as ancestry/materiality evidence and never represented as exact-target execution. Four construct-only observability rows remain explicit missing.",
   "execution": {
     "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "pure_ancestor": false,
@@ -1440,6 +1440,19 @@
     "target_descends_from_source": true,
     "source_evidence_preserved_in_subtree": true,
     "exact_target_execution": false,
-    "reason": "Upstream drift created merge conflicts after source proof generation. The full corpus was copied in-tree; candidate/path identities were rebound to the descendant while original execution ancestry remains explicit."
+    "reason": "Upstream drift created merge conflicts after source proof generation. The full corpus was copied in-tree; candidate/path identities were rebound to the descendant while original execution ancestry remains explicit.",
+    "exact_target_mode_b": true
+  },
+  "target_mode_b": {
+    "run": 32859410821,
+    "product_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+    "conclusion": "failure",
+    "passed_tests": 166719,
+    "failed_counts": 23,
+    "deterministic_failures": 19,
+    "load_flakes_greened": 5,
+    "candidate_caused_failures": 0,
+    "classification_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/artifacts/gates/MODE-B.md"
   }
 }

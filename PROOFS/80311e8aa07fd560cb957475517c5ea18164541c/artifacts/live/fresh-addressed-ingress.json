@@ -1,0 +1,12 @@
+{
+  "event_id": "1541744496717602908",
+  "status": "completed",
+  "lane_key": "channel:1466192485440164011",
+  "received_at": 1787650932311,
+  "updated_at": 1787650936183,
+  "attempts": 0,
+  "last_attempt_at": null,
+  "failed_reason": null,
+  "failed_at": null,
+  "completed_at": 1787650936183
+}

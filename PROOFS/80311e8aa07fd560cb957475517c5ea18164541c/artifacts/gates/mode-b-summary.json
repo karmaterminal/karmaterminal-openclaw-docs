@@ -1,0 +1,62 @@
+{
+  "schema": "openclaw.proofs.mode-b-summary.v1",
+  "run": 32820979682,
+  "product_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+  "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+  "workflow_conclusion": "failure",
+  "tests": {
+    "passed": 165309,
+    "failed": 11
+  },
+  "flakes_greened": 5,
+  "deterministic_failures": 6,
+  "failed_details": [
+    {
+      "shard": "agentic-commands-doctor",
+      "gate": "test shard (agentic-commands-doctor)",
+      "kind": "test",
+      "detail": "commands  src/commands/doctor-lint.test.ts > runDoctorLintCli > reports an actionable Crabbox profile finding before dispatch"
+    },
+    {
+      "shard": "agentic-plugins",
+      "gate": "test shard (agentic-plugins)",
+      "kind": "test",
+      "detail": "plugins  src/plugins/bundled-plugin-metadata.test.ts > bundled plugin metadata > declares explicit startup activation on all bundled plugin manifests"
+    },
+    {
+      "shard": "agentic-plugins",
+      "gate": "test shard (agentic-plugins)",
+      "kind": "test",
+      "detail": "plugins  src/plugins/bundled-plugin-metadata.test.ts > bundled plugin metadata > keeps empty-config Gateway startup narrower than declared startup sidecars"
+    },
+    {
+      "shard": "agentic-plugins",
+      "gate": "test shard (agentic-plugins)",
+      "kind": "test",
+      "detail": "plugins  src/plugins/tools.optional.test.ts > resolvePluginTools optional tools > does not widen active registry reuse to non-matching plugin tool owners"
+    },
+    {
+      "shard": "agentic-plugins",
+      "gate": "test shard (agentic-plugins)",
+      "kind": "test",
+      "detail": "plugins  src/plugins/tools.optional.test.ts > resolvePluginTools optional tools > does not let disabled bundled tool owners poison explicit runtime allowlists"
+    },
+    {
+      "shard": "core-tooling-1",
+      "gate": "test shard (core-tooling-1)",
+      "kind": "test",
+      "detail": "tooling  test/scripts/telegram-mantis-sut.test.ts > Telegram Mantis SUT > waits for the claimed runtime owner before returning from stop"
+    }
+  ],
+  "static_gate": {
+    "conclusion": "failure",
+    "cell": "temp path guard",
+    "path": "src/gateway/server-maintenance.ts",
+    "classification": "frozen-upstream baseline"
+  },
+  "classification": {
+    "candidate_caused": 0,
+    "baseline_or_environment": 7,
+    "note": "Six deterministic test failures plus one static guard failure; five load flakes greened on confirm-determinism reruns."
+  }
+}

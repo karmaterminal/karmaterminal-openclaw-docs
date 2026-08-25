@@ -1,0 +1,18 @@
+{
+  "execution_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+  "suppression": {
+    "id": "1541443384667934801",
+    "reason": "stale-ambient-backlog",
+    "attempts": 0,
+    "receivedAt": 1787649809833,
+    "failedAt": 1787650879336,
+    "ageMs": 1069503,
+    "laneKey": "channel:1466192485440164011",
+    "payloadRetained": true,
+    "channelType": 0,
+    "guildIdPresent": true,
+    "mentionCount": 0,
+    "mentionedEveryone": false,
+    "attachments": 0
+  }
+}

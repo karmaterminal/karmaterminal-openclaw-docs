@@ -1,0 +1,46 @@
+{
+  "schema": "openclaw.proofs.public-tempo.v1",
+  "resources": [
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ]
+  ],
+  "spans": [
+    {
+      "name": "continuation.queue.drain",
+      "startTimeUnixNano": "1787651732271000000",
+      "endTimeUnixNano": "1787651732271016704",
+      "attributes": [
+        {
+          "key": "queue.drained_count",
+          "value": {
+            "intValue": "0"
+          }
+        },
+        {
+          "key": "queue.drained_continuation_count",
+          "value": {
+            "intValue": "0"
+          }
+        }
+      ]
+    }
+  ]
+}

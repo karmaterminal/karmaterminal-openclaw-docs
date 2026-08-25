@@ -1,0 +1,19 @@
+{
+  "row": "R-RC-2",
+  "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+  "seat": "ronan",
+  "timestamp": "2026-08-25T10:35:50.650Z",
+  "verdict": "PASS-candidate",
+  "evidence": null,
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "avg": 28600,
+      "min": 28600,
+      "med": 28600,
+      "max": 28600,
+      "p(90)": 28600,
+      "p(95)": 28600
+    }
+  }
+}

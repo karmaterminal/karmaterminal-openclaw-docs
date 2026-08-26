@@ -1,4 +1,7 @@
-# Exact-target Mode-B classification
+# Source-ancestor 2ffc Mode-B classification
+
+This file classifies exact source corpus `2ffc7ca0...`. Run `32895790947` is
+immutable ancestor Mode-B and is not target Mode-B for warm `25051f3b...`.
 
 | Field | Value |
 |---|---|
@@ -53,7 +56,8 @@ contain two greened assertions each.
 
 ## Disposition
 
-No deterministic failure is candidate-specific, but the authoritative run
-conclusion remains `failure`. This exact pure-target CI receipt is independent
-of historical live evidence and provides no exact live claim for descendant
-runtime `a48c475b…`.
+No deterministic failure is source-candidate-specific, but the authoritative
+run conclusion remains `failure`. This exact source-ancestor CI receipt is
+independent of historical live evidence and provides no exact warm-target or
+runtime claim. Source-era pending runtime `a48c475b…` is an ancestor of current
+pending runtime `a0aa4ec8…`; exact `a0aa4ec8…` live proof remains pending.

@@ -5,9 +5,9 @@ State: **pass**
 The process-local fixture executed directly against source proof SHA
 `80311e8aa07fd560cb957475517c5ea18164541c` with its candidate-declared pnpm
 `11.22.0` and returned `PASS-candidate`. This packet is transposed to target
-`2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`; the fixture was not re-fired there.
+`25051f3b77409c45f5ce71c3b3b05aae85b0f8f9`; the fixture was not re-fired there.
 
-- Pure identity: `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`
+- Pure identity: `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9`
 - Harness identity: `86b39d87e0ae4eef980496d3742e83033ee84a93`
 - Execution class: source-pure disposable process-local fixture, transposed by ancestry/materiality
 - Evidence directory: `fixture/`
@@ -24,4 +24,4 @@ does not reproduce on this exact candidate.
 
 ## Transposition
 
-This complete row packet preserves historical evidence source `80311e8aa07fd560cb957475517c5ea18164541c` and was copied through immediate predecessor corpus `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` to target corpus `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a` after the spawn-init cure chain and ordinary upstream back-merge. Paths and candidate identity are rebound locally inside this subtree. Historical runtime/fixture evidence was not re-fired at the target unless a later receipt explicitly says so; its source and execution ancestry remain authoritative.
+This complete row packet preserves historical evidence source `80311e8aa07fd560cb957475517c5ea18164541c` and was full-copied from immediate source corpus `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a` through frozen qualified basis `c7131791a6d33ab83d1a820c7cdb81c1b1384931` to warm target corpus `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9` after the ordinary merge with pinned upstream parent `80985b9663252da97bf8d67dd2cbeba0fa03aeea`. Paths and target candidate identity are rebound locally inside this subtree. Historical runtime/fixture evidence was not re-fired at the warm target; its source and execution ancestry remain authoritative.

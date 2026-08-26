@@ -1,35 +1,54 @@
-# PR #129388 exact proof corpus
+# PR #129388 warm-target proof corpus
 
-Exact pure target SHA: `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`.
-Historical live execution composite:
-`37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains source proof SHA
-`80311e8aa07fd560cb957475517c5ea18164541c` plus #124337 and #121204. The
-target candidate descends from that source proof SHA; it is not an ancestor of
-the historical execution composite.
+Warm pure target SHA: `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9`.
+Qualification mode: **affected-slice-materiality**. The warm target intentionally
+has no exact-target Mode-B and no exact live execution.
 
-Pending runtime composite
-`a48c475baa893493df2ee8ebb17834b845a64aec` is a descendant of the exact
-target through ordinary no-fast-forward merges of #124337 and #121204. It has
-no Ronan exact-live receipt yet and is not used as execution evidence here.
+The complete immediate source corpus remains
+`2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`. Frozen qualified basis
+`c7131791a6d33ab83d1a820c7cdb81c1b1384931` and pinned upstream parent
+`80985b9663252da97bf8d67dd2cbeba0fa03aeea` are the two parents of the warm
+target. Their execution and qualification identities are not relabeled.
 
-## Transposition
+Historical live execution remains
+`37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains historical source
+proof SHA `80311e8aa07fd560cb957475517c5ea18164541c`; neither identity is a warm
+execution claim. Pending runtime composite
+`a0aa4ec8aefe95ced34342978b64c270c16ec3e9` contains the warm target but has
+no Ronan exact-live receipt.
 
-This is a complete in-subtree transposition of
-predecessor corpus
-`PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/` at docs product
-`0e75318a68d7145c0c5b99e8b11bda304f4f9fd2`. That predecessor already
-descends from historical source proof SHA `80311e8a…`. Candidate and corpus
-paths are rebound to `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`;
-copied row evidence remains explicitly marked as historical
-ancestry/materiality evidence unless a receipt states that it executed at the
-exact target.
+## Transposition and applicability
 
-Exact-target Mode-B run
-[`32895790947`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32895790947)
-completed with 165,696 passing and 39 failing assertions. Nine load flakes
-greened; 32 deterministic failures remain fully disclosed. The workflow's
-`failure` conclusion is preserved, not relabeled green, and is classified in
-[`artifacts/gates/MODE-B.md`](artifacts/gates/MODE-B.md).
+All 544 regular files from source corpus `2ffc7ca0...` at docs commit
+`e19110e419b67118fd8e890f1f3075c51acd8e4d` were copied into this subtree.
+Target paths and candidate identity were rebound locally; ancestor Mode-B,
+review, historical execution, and raw promotion receipts retain their original
+identities.
+
+The independent applicability packet is vendored at
+[`artifacts/promotion/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/`](artifacts/promotion/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/).
+It records 11 owner files / 686 assertions, an independent 11 files / 544
+assertions subset, production types, full test types, build, and three current
+generated snapshots. Every raw output in that packet is content-addressed.
+
+| Disposition | Result |
+|---|---|
+| `REUSE` | Immutable historical row corpus plus bounded structural applicability. |
+| `INVALIDATE` | Ancestor execution cannot transfer into an exact warm-target execution claim. |
+| `UNKNOWN` | None within the declared affected slice after the docs `e19110e4...` receipt closure. |
+
+## Ancestor qualification
+
+- Source ancestor `2ffc7ca0...`: Mode-B run `32895790947`, workflow
+  `342cc9c6d190e1ba57d9995d29e394c993a3e79b`, 165,696 passed / 39 failed /
+  9 load flakes / 32 deterministic; authoritative conclusion `failure`.
+- Frozen basis `c7131791...`: Mode-B run `32911065508`, the same workflow SHA,
+  167,237 passed / 21 failed / 3 load flakes / 18 deterministic; authoritative
+  conclusion `failure`.
+- The independent `APPROVE` review and 40/40 focused proof are bound only to
+  exact c713 qualification identity. They are not a review of warm 25051.
+
+These are ancestor Mode-B runs, not target Mode-B.
 
 ## Verdicts
 
@@ -84,8 +103,9 @@ greened; 32 deterministic failures remain fully disclosed. The workflow's
 ## Honest limits
 
 - Live rows are historical execution-composite evidence from `37300f29…`, not
-  exact-target or descendant-composite execution claims.
-- Exact live execution on pending runtime composite `a48c475b…` awaits Ronan's
+  exact warm-target or descendant-composite execution claims.
+- Warm `25051f3b…` has no exact-target Mode-B; qualification is compositional.
+- Exact live execution on pending runtime composite `a0aa4ec8…` awaits Ronan's
   receipt.
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.

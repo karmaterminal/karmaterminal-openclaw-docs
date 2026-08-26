@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-  "current_sha_short": "2ffc7ca0",
+  "current_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "current_sha_short": "25051f3b",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw 2026.8.1 (2ffc7ca0)",
-  "corpus_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/",
-  "manifest_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/proofs-manifest.json",
-  "readme_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/README.md",
-  "clawsweeper_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/CLAWSSWEEPER.md",
+  "build_string": "OpenClaw 2026.8.1 (25051f3b)",
+  "corpus_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/",
+  "manifest_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/proofs-manifest.json",
+  "readme_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/README.md",
+  "clawsweeper_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/CLAWSSWEEPER.md",
   "entrypoints": {
-    "clawsweeper": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/CLAWSSWEEPER.md",
-    "manifest": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/proofs-manifest.json",
-    "readme": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/README.md",
-    "method": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/METHOD.md",
-    "resolved_sha": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/RESOLVED-SHA.md",
-    "artifacts": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/ARTIFACTS.md",
-    "transposition": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/TRANSPOSED-FROM.md"
+    "clawsweeper": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/proofs-manifest.json",
+    "readme": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/README.md",
+    "method": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/METHOD.md",
+    "resolved_sha": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/ARTIFACTS.md",
+    "transposition": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/TRANSPOSED-FROM.md"
   },
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
@@ -29,18 +29,44 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Full self-contained transposition from immediate predecessor 4737afdf to exact pure target 2ffc7ca0. Exact-target Mode-B 32895790947 remains red with 165,696 passed, 39 failed, nine load flakes greened, and 32 deterministic failures classified. Historical live execution remains attributed to composite 37300f29 and source pure 80311e8a; descendant runtime a48c475b exact-live proof is pending. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
+  "disposition_note": "Full self-contained copy from source corpus 2ffc7ca0 to warm target 25051f3b. Qualification mode is affected-slice-materiality: 11 owner files / 686 assertions and an independent 11-file / 544-assertion subset, production and full test types, build, and three current generated snapshots. Ancestor Mode-B runs 32895790947 on 2ffc7ca0 and 32911065508 on c7131791 remain failures and are not target Mode-B. Historical live execution remains 37300f29; exact live proof on runtime a0aa4ec8 is pending. Rollup remains 32 pass, 4 partial, 1 honest limit, 4 missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-25",
   "generated_by": "frond-scribe",
   "transposition": {
-    "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-    "source_docs_commit": "0e75318a68d7145c0c5b99e8b11bda304f4f9fd2",
+    "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "source_docs_commit": "e19110e419b67118fd8e890f1f3075c51acd8e4d",
+    "frozen_qualified_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+    "pinned_upstream_parent_sha": "80985b9663252da97bf8d67dd2cbeba0fa03aeea",
     "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "qualification_mode": "affected-slice-materiality",
     "exact_target_execution": false,
-    "exact_target_mode_b": true,
-    "pending_runtime_composite_sha": "a48c475baa893493df2ee8ebb17834b845a64aec",
+    "exact_target_mode_b": false,
+    "pending_runtime_composite_sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
     "pending_runtime_exact_live_proof": true
-  }
+  },
+  "qualification_mode": "affected-slice-materiality",
+  "exact_target_execution": false,
+  "target_mode_b": {
+    "exact": false,
+    "run": null,
+    "note": "No exact-target Mode-B was run."
+  },
+  "ancestor_mode_b": [
+    {
+      "role": "source-corpus",
+      "product_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+      "run": 32895790947,
+      "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+      "conclusion": "failure"
+    },
+    {
+      "role": "frozen-qualified-basis",
+      "product_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+      "run": 32911065508,
+      "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+      "conclusion": "failure"
+    }
+  ]
 }

@@ -1,4 +1,8 @@
-# Exact-target GATES receipt
+# Source-ancestor 2ffc GATES receipt
+
+Every `2ffc7ca0...` identity in this file is the exact immediate source-corpus
+qualification identity. Nothing in this receipt is an exact warm-target
+`25051f3b...` gate.
 
 | Field | Value |
 |---|---|
@@ -32,6 +36,7 @@
   greened, and 32 deterministic failures. The conclusion remains `failure`.
   Classification: [`MODE-B.md`](MODE-B.md).
 
-These are exact pure-target gates. They do not convert historical live
-execution on `37300f29…` into an exact-target claim. Descendant runtime
-`a48c475b…` remains pending live proof.
+These are exact source-ancestor gates. They do not convert historical live
+execution on `37300f29…` into a source or warm-target execution claim. The
+source-era pending runtime `a48c475b…` is now an ancestor of runtime
+`a0aa4ec8…`; exact live proof on `a0aa4ec8…` remains pending.

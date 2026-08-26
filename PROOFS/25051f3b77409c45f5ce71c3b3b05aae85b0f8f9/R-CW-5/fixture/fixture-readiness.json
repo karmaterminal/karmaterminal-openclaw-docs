@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.project81.r-cw-5.fixture-readiness.v1",
-  "candidateSha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "candidateSha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
   "sourceHeadMatchesCandidate": true,
   "sourceTrackedCleanBefore": true,
   "productionConfigTouched": false,
@@ -11,7 +11,7 @@
   "cap": 100,
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

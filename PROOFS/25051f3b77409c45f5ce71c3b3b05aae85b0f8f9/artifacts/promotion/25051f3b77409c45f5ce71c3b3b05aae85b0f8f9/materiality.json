@@ -4,7 +4,7 @@
   "proof_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
   "upstream_sha": "80985b9663252da97bf8d67dd2cbeba0fa03aeea",
   "proof_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-  "proof_docs_sha": "41861059af0958c1d563181e2932ac6ef05aaec7",
+  "proof_docs_sha": "e19110e419b67118fd8e890f1f3075c51acd8e4d",
   "presentation_candidate_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
   "merge": {
     "parents": [
@@ -70,7 +70,7 @@
     }
   ],
   "changed_feature_core_blobs": {
-    "inventory_source": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/gate-2-feature-cores.log",
+    "inventory_source": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/gate-2-feature-cores.log",
     "total": 40,
     "unchanged": 36,
     "changed": [
@@ -137,11 +137,12 @@
       }
     },
     "runtime_composite": {
-      "sha": "a48c475baa893493df2ee8ebb17834b845a64aec",
-      "candidate_merge_base": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+      "sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+      "candidate_merge_base": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
       "runtime_is_candidate_ancestor": false,
-      "candidate_is_runtime_ancestor": false,
-      "status": "Independent pending descendant remains unchanged and supplies no evidence to this lane."
+      "candidate_is_runtime_ancestor": true,
+      "exact_live_execution": false,
+      "status": "Pending final runtime contains the warm target but supplies no execution evidence until the Ronan receipt."
     },
     "codex_contract_checked": [
       "../codex/codex-rs/app-server-protocol/src/protocol/v2/thread.rs:56-133",
@@ -233,6 +234,18 @@
     }
   },
   "ci_path": "focused-only",
-  "verdict": "affected-slice-rerun",
-  "blocking_unknowns": []
+  "verdict": "reuse",
+  "blocking_unknowns": [],
+  "qualification_mode": "affected-slice-materiality",
+  "target_mode_b": {
+    "exact": false,
+    "run": null
+  },
+  "exact_target_execution": false,
+  "pending_runtime_composite_sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+  "independent_disposition": {
+    "REUSE": "immutable historical corpus plus bounded structural applicability",
+    "INVALIDATE": "no ancestor execution transfer",
+    "UNKNOWN": []
+  }
 }

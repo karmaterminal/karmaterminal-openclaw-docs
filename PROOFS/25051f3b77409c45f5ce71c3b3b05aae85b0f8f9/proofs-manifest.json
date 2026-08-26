@@ -1,12 +1,12 @@
 {
   "schema": "openclaw.proofs.manifest.v1",
-  "capture_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-  "ship_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "capture_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "ship_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
   "proof_source_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
   "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
   "execution_runtime_provenance": {
     "source_pure_ancestor": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "transposed_target": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "transposed_target": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
     "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "source_pure_is_ancestor_of_execution": true,
     "target_descends_from_source_pure": true,
@@ -14,19 +14,17 @@
     "note": "Historical live rows executed on the runtime composite containing the source proof SHA. They are ancestry/materiality evidence for the target, not exact-target execution."
   },
   "pending_runtime_composite": {
-    "sha": "a48c475baa893493df2ee8ebb17834b845a64aec",
+    "sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
     "target_is_ancestor": true,
-    "pr124337": "d81272c117ef7a2ac765450d682309a941d58463",
-    "pr121204": "5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938",
     "exact_live_execution": false,
     "status": "pending-ronan-live-receipt"
   },
   "harness_sha": "19b095ef0d356c6d68985ea26bc1bd958f53f144",
-  "fire_type": "transposed-ancestry-materiality-corpus-with-separate-target-gates",
-  "corpus": "PR #129388 exact continuation proof corpus",
-  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-  "sha_short": "2ffc7ca0",
-  "build_string": "OpenClaw 2026.8.1 (2ffc7ca0)",
+  "fire_type": "transposed-ancestor-corpus-with-affected-slice-materiality",
+  "corpus": "PR #129388 warm-target continuation proof corpus",
+  "sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "sha_short": "25051f3b",
+  "build_string": "OpenClaw 2026.8.1 (25051f3b)",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
   "required_rows": [
     "R-CD-1",
@@ -71,7 +69,7 @@
     "R-REGRESSION-TRAP-TESTS",
     "R-TRACE-REDACTION-1121"
   ],
-  "generated": "2026-08-25 (frond-scribe; full predecessor-subtree transposition to exact target)",
+  "generated": "2026-08-25 (frond-scribe; complete 2ffc source-corpus copy to warm target)",
   "rollup": {
     "total_rows": 41,
     "pass": 32,
@@ -81,15 +79,15 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "notes": "Exact pure identity is 2ffc7ca0. This is a full-subtree transposition from immediate predecessor corpus 4737afdf, which itself descends from historical evidence source 80311e8a. Exact-target preservation gates, heartbeat review, and red Mode-B are vendored. Historical live rows executed on composite 37300f29, which contains source 80311e8a—not target 2ffc7ca0—as an ancestor; they remain ancestry/materiality evidence. Descendant runtime a48c475b contains the target but has no exact live receipt. Four construct-only observability rows remain explicit missing.",
+  "notes": "Warm target 25051f3b is qualified by affected-slice materiality, not exact target Mode-B or live execution. Immediate source corpus 2ffc7ca0 and frozen basis c7131791 retain immutable qualification identities. Historical live rows remain bound to execution 37300f29 and historical source 80311e8a. Pending runtime a0aa4ec8 has no exact live receipt. Row rollup remains 32 pass, 4 partial, 1 honest limit, 4 missing, 0 fail.",
   "execution": {
     "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "pure_ancestor": false,
     "pr124337": "d81272c117ef7a2ac765450d682309a941d58463",
     "pr121204": "5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938",
-    "materiality": "Historical runtime composite preserves source pure 80311e8a and adds #124337/#121204. Target 2ffc7ca0 descends from source pure through predecessor 4737afdf, the spawn-init cure chain, and ordinary upstream absorption; live rows were not re-fired on target.",
+    "materiality": "Historical runtime composite preserves historical source pure 80311e8a. Warm target 25051f3b descends separately through source corpus 2ffc7ca0 and frozen basis c7131791; live rows were not re-fired on the warm target.",
     "source_pure_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_pure_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "target_pure_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
     "source_pure_is_ancestor": true,
     "target_is_ancestor_of_execution": false
   },
@@ -99,8 +97,8 @@
       "title": "Typed continue_delegate() schedule/spawn/return.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-1/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-1/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-1/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -109,13 +107,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-1/catalog/"
+          "path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-1/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-1/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 103,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -123,10 +121,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -135,8 +136,8 @@
       "title": "continue_delegate(mode='silent-wake') full path.",
       "owner": "ronan live proof suite",
       "state": "partial",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-2/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-2/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-2/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -145,9 +146,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-2/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-2/EVIDENCE.md"
       ],
-      "notes": "Two isolated signed catalog receipts classify delegate-replay-unsafe, while the same runtime trace shows one typed continue_delegate, one silent-wake dispatch/fire, completed child, enrichment return, and queue drain. Folded partial under the catalog resolver’s known false-failure shape; never promoted to PASS. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Two isolated signed catalog receipts classify delegate-replay-unsafe, while the same runtime trace shows one typed continue_delegate, one silent-wake dispatch/fire, completed child, enrichment return, and queue drain. Folded partial under the catalog resolver’s known false-failure shape; never promoted to PASS. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Two isolated signed catalog receipts classify delegate-replay-unsafe, while the same runtime trace shows one typed continue_delegate, one silent-wake dispatch/fire, completed child, enrichment return, and queue drain. Folded partial under the catalog resolver’s known false-failure shape; never promoted to PASS.",
@@ -155,10 +156,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -167,8 +171,8 @@
       "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-3/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-3/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-3/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -177,9 +181,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-3/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-3/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -187,10 +191,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -199,8 +206,8 @@
       "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-4/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-4/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-4/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -209,13 +216,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-4/catalog/"
+          "path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-4/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-4/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-4/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -223,10 +230,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -235,8 +245,8 @@
       "title": "Depth-2 delegate chain: parent→child→grandchild→return path.",
       "owner": "ronan live proof suite",
       "state": "partial",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-CHAINED-DEPTH-2/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -245,9 +255,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
       ],
-      "notes": "Child and grandchild both spawned and completed with depth 2 observed, but the root return did not land within the 150-second observation window. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Child and grandchild both spawned and completed with depth 2 observed, but the root return did not land within the 150-second observation window. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Child and grandchild both spawned and completed with depth 2 observed, but the root return did not land within the 150-second observation window.",
@@ -255,10 +265,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -267,8 +280,8 @@
       "title": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-COLLECTION-ON-COLLAPSE/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-COLLECTION-ON-COLLAPSE/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -277,9 +290,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -287,10 +300,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -299,8 +315,8 @@
       "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-CHAINED-ALT/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-CHAINED-ALT/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -309,9 +325,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -319,10 +335,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -331,8 +350,8 @@
       "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-DEFAULT/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-DEFAULT/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-DEFAULT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -341,9 +360,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-DEFAULT/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-DEFAULT/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -351,10 +370,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -363,8 +385,8 @@
       "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-TOKEN/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-TOKEN/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -373,9 +395,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-TOKEN/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -383,10 +405,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -395,8 +420,8 @@
       "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-TOOL/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-TOOL/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-TOOL/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -405,9 +430,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-MODEL-TOOL/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-MODEL-TOOL/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -415,10 +440,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -427,8 +455,8 @@
       "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-RETURN-OVERLAP/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-RETURN-OVERLAP/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-RETURN-OVERLAP/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -437,9 +465,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-RETURN-OVERLAP/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-RETURN-OVERLAP/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 246,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -447,10 +475,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -459,8 +490,8 @@
       "title": "Typed continue_delegate(mode='silent') proof.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-SILENT/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-SILENT/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-SILENT/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-SILENT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -469,9 +500,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-SILENT/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-SILENT/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -479,10 +510,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -491,8 +525,8 @@
       "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
       "owner": "ronan live proof suite",
       "state": "partial",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-TOKEN/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-TOKEN/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -512,9 +546,9 @@
       ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CD-TOKEN/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CD-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Exact raw-final-text run parsed the bracket in the origin child, armed/fired a hop-2 delegate, completed the delegate, and delivered the return. Catalog task correlation remained incomplete because the token-created task is unlabeled; folded partial. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Exact raw-final-text run parsed the bracket in the origin child, armed/fired a hop-2 delegate, completed the delegate, and delivered the return. Catalog task correlation remained incomplete because the token-created task is unlabeled; folded partial. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 103,
       "summary": "Exact raw-final-text run parsed the bracket in the origin child, armed/fired a hop-2 delegate, completed the delegate, and delivered the return. Catalog task correlation remained incomplete because the token-created task is unlabeled; folded partial.",
@@ -522,10 +556,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -534,8 +571,8 @@
       "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CONFIG-DEFAULTS/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CONFIG-DEFAULTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -544,9 +581,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CONFIG-DEFAULTS/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CONFIG-DEFAULTS/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 104,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -554,10 +591,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -566,8 +606,8 @@
       "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CONFIG-INTERSESSION/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CONFIG-INTERSESSION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -576,9 +616,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CONFIG-INTERSESSION/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CONFIG-INTERSESSION/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 121,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -586,10 +626,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -598,8 +641,8 @@
       "title": "Typed continue_work() tool-form schedule + wake.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-1/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-1/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-1/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -608,13 +651,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-1/catalog/"
+          "path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-1/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-1/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -622,10 +665,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -634,8 +680,8 @@
       "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-2/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-2/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-2/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -644,9 +690,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-2/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-2/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -654,10 +700,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -666,8 +715,8 @@
       "title": "continue_work reason telemetry/redaction partial candidate.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-3/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-3/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-3/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -679,13 +728,13 @@
       ],
       "traces": [
         {
-          "path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-3/catalog/"
+          "path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-3/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-3/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-3/EVIDENCE.md"
       ],
-      "notes": "Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call.",
@@ -693,10 +742,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -705,8 +757,8 @@
       "title": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-4/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-4/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-4/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -715,9 +767,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-4/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-4/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -725,10 +777,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -737,8 +792,8 @@
       "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond follow-up",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
@@ -747,21 +802,24 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5/EVIDENCE.md",
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5/fixture/fixture-result.json"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5/EVIDENCE.md",
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5/fixture/fixture-result.json"
       ],
-      "notes": "Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c and passed every required surface. Transposed to target 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a by ancestry/materiality; it was not re-fired at target.",
-      "fired": "2026-08-25 (ronan, source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; transposed to 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
+      "notes": "Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c and passed every required surface. Transposed to target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 by ancestry/materiality; it was not re-fired at target. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
+      "fired": "2026-08-25 (ronan, source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; transposed to 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
       "issue": 117,
       "summary": "Exact-pure disposable fixture passed the boundary matrix, dispatcher, typed-tool, cleanup, and rejected-hop no-spawn contracts.",
       "test_cases_executed": [
         "R-CW-5 exact-pure cost-cap fixture"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -770,8 +828,8 @@
       "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
       "owner": "frond follow-up",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5A/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5A/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5A/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5A/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
@@ -780,9 +838,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-5A/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-5A/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -790,10 +848,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -802,8 +863,8 @@
       "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond follow-up",
       "state": "partial",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
@@ -814,22 +875,25 @@
       ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6/EVIDENCE.md",
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6/fixture/fixture-result.json",
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6/EVIDENCE.md",
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6/fixture/fixture-result.json",
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/516"
       ],
-      "notes": "Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c. Product-owned max-chain surfaces passed; the docs-generated selected-boundary test failed and is tracked by docs#516. Transposed to target 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a; it was not re-fired at target.",
-      "fired": "2026-08-25 (ronan, source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; transposed to 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
+      "notes": "Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c. Product-owned max-chain surfaces passed; the docs-generated selected-boundary test failed and is tracked by docs#516. Transposed to target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9; it was not re-fired at target. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
+      "fired": "2026-08-25 (ronan, source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; transposed to 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
       "issue": 117,
       "summary": "Exact-pure fixture passed matrix, scheduler, recovery, typed-tool, and candidate delegate regression surfaces; a stale docs-generated selected delegate test exited before emitting its receipt, so the authoritative FAIL-fixture is retained and folded partial.",
       "test_cases_executed": [
         "R-CW-6 exact-pure max-chain fixture"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -838,8 +902,8 @@
       "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
       "owner": "frond follow-up",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6A/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6A/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6A/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6A/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
@@ -848,9 +912,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-6A/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-6A/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -858,10 +922,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -870,8 +937,8 @@
       "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-7/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-7/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-7/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-7/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -880,9 +947,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-7/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-7/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 220,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -890,10 +957,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -902,8 +972,8 @@
       "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-CHILD-LIVE/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -912,9 +982,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 213,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -922,10 +992,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -934,8 +1007,8 @@
       "title": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-SELF-CONTINUATION/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -944,9 +1017,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 118,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -954,10 +1027,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -966,8 +1042,8 @@
       "title": "Static validator for committed delegate child bare-token continuation receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-TOKEN/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -976,9 +1052,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 221,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -986,10 +1062,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -998,8 +1077,8 @@
       "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-MULTI/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-MULTI/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1008,9 +1087,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-MULTI/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1018,10 +1097,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1030,8 +1112,8 @@
       "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI-COLLAPSE/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1040,9 +1122,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 216,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1050,10 +1132,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1062,8 +1147,8 @@
       "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-TOKEN/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-TOKEN/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1072,13 +1157,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-TOKEN/catalog/"
+          "path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-TOKEN/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-CW-TOKEN/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-CW-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 118,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1086,10 +1171,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1098,8 +1186,8 @@
       "title": "Session-status-card observability via the session_status tool.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-1/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-1/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-1/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1108,9 +1196,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-1/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 1135,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1118,10 +1206,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1130,8 +1221,8 @@
       "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-2/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-2/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-2/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1140,9 +1231,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-2/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-2/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 233,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1150,10 +1241,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1162,8 +1256,8 @@
       "title": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence.",
       "owner": "karmaterminal-openclaw-docs#517",
       "state": "missing",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-BACKEND-DISPOSITION/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-BACKEND-DISPOSITION/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-backend-disposition.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1172,19 +1266,22 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/517"
       ],
-      "notes": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row owned by karmaterminal-openclaw-docs#517. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row owned by karmaterminal-openclaw-docs#517. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": null,
       "issue": 517,
       "summary": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1193,8 +1290,8 @@
       "title": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact.",
       "owner": "karmaterminal/openclaw#1254",
       "state": "missing",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-CONT-PROVENANCE/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-CONT-PROVENANCE/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-CONT-PROVENANCE/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-CONT-PROVENANCE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-cont-provenance.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1203,18 +1300,21 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-CONT-PROVENANCE/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-CONT-PROVENANCE/EVIDENCE.md"
       ],
-      "notes": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": null,
       "issue": 1254,
       "summary": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1223,8 +1323,8 @@
       "title": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref.",
       "owner": "karmaterminal/openclaw#1254",
       "state": "missing",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-PROOF-MARKER/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-PROOF-MARKER/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-PROOF-MARKER/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-PROOF-MARKER/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-proof-marker.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1233,18 +1333,21 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-PROOF-MARKER/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-PROOF-MARKER/EVIDENCE.md"
       ],
-      "notes": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": null,
       "issue": 1254,
       "summary": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1253,8 +1356,8 @@
       "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-STATUS/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-STATUS/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-STATUS/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-STATUS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1263,9 +1366,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-STATUS/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-STATUS/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 104,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1273,10 +1376,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1285,8 +1391,8 @@
       "title": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure.",
       "owner": "karmaterminal/openclaw#1254",
       "state": "missing",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-TERMINAL-OUTCOME/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-TERMINAL-OUTCOME/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-terminal-outcome.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1295,18 +1401,21 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md"
       ],
-      "notes": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": null,
       "issue": 1254,
       "summary": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1315,8 +1424,8 @@
       "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-RC-1/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-RC-1/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-RC-1/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-RC-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1325,9 +1434,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-RC-1/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-RC-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 422,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1335,10 +1444,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1347,8 +1459,8 @@
       "title": "Parent fires continue_delegate to a child that calls request_compaction.",
       "owner": "ronan live proof suite",
       "state": "honest_limit",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-RC-2/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-RC-2/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-RC-2/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-RC-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1360,9 +1472,9 @@
       ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-RC-2/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-RC-2/EVIDENCE.md"
       ],
-      "notes": "Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 104,
       "summary": "Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session.",
@@ -1370,10 +1482,13 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1382,8 +1497,8 @@
       "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-REGRESSION-TRAP-TESTS/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1392,9 +1507,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 121,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1402,10 +1517,13 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     },
@@ -1414,8 +1532,8 @@
       "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-TRACE-REDACTION-1121/",
-      "evidence_doc": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "dir": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-TRACE-REDACTION-1121/",
+      "evidence_doc": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-TRACE-REDACTION-1121/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1424,9 +1542,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/R-TRACE-REDACTION-1121/EVIDENCE.md"
+        "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-TRACE-REDACTION-1121/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a unless a later target receipt explicitly says so.",
+      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 unless a later target receipt explicitly says so. Immediate source corpus 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a is preserved as ancestor evidence; warm target 25051f3b77409c45f5ce71c3b3b05aae85b0f8f9 is qualified by affected-slice materiality and was not an exact row execution.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 1121,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1434,73 +1552,175 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-        "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+        "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+        "kind": "full-subtree source copy with affected-slice-materiality qualification",
+        "exact_target_execution": false,
+        "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "qualification_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+        "qualification_mode": "affected-slice-materiality"
       },
       "exact_target_execution": false
     }
   ],
   "transposition": {
-    "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-    "source_docs_commit": "0e75318a68d7145c0c5b99e8b11bda304f4f9fd2",
+    "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "source_docs_commit": "e19110e419b67118fd8e890f1f3075c51acd8e4d",
+    "frozen_qualified_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+    "pinned_upstream_parent_sha": "80985b9663252da97bf8d67dd2cbeba0fa03aeea",
     "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
     "target_descends_from_source": true,
     "source_evidence_preserved_in_subtree": true,
+    "qualification_mode": "affected-slice-materiality",
     "exact_target_execution": false,
-    "reason": "The full predecessor corpus was copied in-tree after the spawn-init cure chain and ordinary upstream back-merge. Candidate/path identities were rebound to the exact target while original execution ancestry remains explicit.",
-    "exact_target_mode_b": true
-  },
-  "target_gates": {
-    "gate_2": {
-      "primitive_core_invariants": 40,
-      "exact_upstream_projections": 1,
-      "tombstones": 3,
-      "failures": 0,
-      "receipt": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/gate-2-feature-cores.log"
-    },
-    "gate_2_5": {
-      "overlap_test_files": 7,
-      "assertions_passed": 656,
-      "failures": 0,
-      "receipt": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/gate-2.5-overlap-tests.log"
-    },
-    "gate_2_7": {
-      "files": 948,
-      "genuine": 648,
-      "safe_new": 300,
-      "frozen_stale": 0,
-      "mixed_clobber": 0,
-      "receipt": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/gate-2.7-classification.tsv"
-    },
-    "heartbeat_owner": {
-      "files": 5,
-      "assertions_passed": 67,
-      "review": "APPROVE",
-      "receipt": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/HEARTBEAT-MERGE-REVIEW.md"
-    },
-    "normal_clone": {
-      "frozen_install": true,
-      "production_types": true,
-      "test_types": true,
-      "complete_check": true,
-      "build": true,
-      "tracked_tree_clean": true,
-      "receipt": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/NORMAL-CLONE.md"
-    }
+    "exact_target_mode_b": false,
+    "reason": "The complete 2ffc source corpus was copied in-tree. The warm target merges frozen c713 qualification with pinned upstream 80985b96; target credit is bounded to the independently rerun affected slice."
   },
   "target_mode_b": {
-    "run": 32895790947,
-    "product_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-    "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
-    "conclusion": "failure",
-    "passed_tests": 165696,
-    "failed_counts": 39,
-    "deterministic_failures": 32,
-    "load_flakes_greened": 9,
-    "candidate_caused_failures": 0,
-    "classification_path": "PROOFS/2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a/artifacts/gates/MODE-B.md"
+    "exact": false,
+    "run": null,
+    "product_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "conclusion": null,
+    "note": "No exact-target Mode-B was run; ancestor Mode-B must not be relabeled."
+  },
+  "qualification_mode": "affected-slice-materiality",
+  "exact_target_execution": false,
+  "source_corpus": {
+    "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "docs_sha": "e19110e419b67118fd8e890f1f3075c51acd8e4d",
+    "complete_copy": true,
+    "regular_files": 544,
+    "symlinks": 0
+  },
+  "warm_target": {
+    "sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "parents": [
+      "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+      "80985b9663252da97bf8d67dd2cbeba0fa03aeea"
+    ],
+    "ordinary_no_fast_forward_merge": true,
+    "exact_mode_b": false,
+    "exact_execution": false
+  },
+  "frozen_qualified_basis": {
+    "sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+    "upstream_parent": "df9b7a5fbe9b94b0ab25dc404db7784797feadca",
+    "review": {
+      "verdict": "APPROVE",
+      "applies_only_to": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+      "focused_files": 1,
+      "focused_assertions": 40,
+      "receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/C713-HEARTBEAT-REVIEW.md"
+    }
+  },
+  "ancestor_qualification": {
+    "source_2ffc": {
+      "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+      "classification": "ancestor-only",
+      "gates": {
+        "gate_2": {
+          "primitive_core_invariants": 40,
+          "exact_upstream_projections": 1,
+          "tombstones": 3,
+          "failures": 0,
+          "receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/gate-2-feature-cores.log"
+        },
+        "gate_2_5": {
+          "overlap_test_files": 7,
+          "assertions_passed": 656,
+          "failures": 0,
+          "receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/gate-2.5-overlap-tests.log"
+        },
+        "gate_2_7": {
+          "files": 948,
+          "genuine": 648,
+          "safe_new": 300,
+          "frozen_stale": 0,
+          "mixed_clobber": 0,
+          "receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/gate-2.7-classification.tsv"
+        },
+        "heartbeat_owner": {
+          "files": 5,
+          "assertions_passed": 67,
+          "review": "APPROVE",
+          "receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/HEARTBEAT-MERGE-REVIEW.md"
+        },
+        "normal_clone": {
+          "frozen_install": true,
+          "production_types": true,
+          "test_types": true,
+          "complete_check": true,
+          "build": true,
+          "tracked_tree_clean": true,
+          "receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/NORMAL-CLONE.md"
+        }
+      }
+    },
+    "frozen_c713": {
+      "sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+      "classification": "ancestor-only",
+      "mode_b_receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/MODE-B-C713.md",
+      "review_receipt": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/C713-HEARTBEAT-REVIEW.md"
+    }
+  },
+  "ancestor_mode_b": [
+    {
+      "role": "source-corpus",
+      "exact": true,
+      "run": 32895790947,
+      "product_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+      "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+      "conclusion": "failure",
+      "passed_tests": 165696,
+      "failed_tests": 39,
+      "deterministic_failures": 32,
+      "load_flakes_greened": 9,
+      "candidate_caused_failures": 0,
+      "classification_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/MODE-B.md"
+    },
+    {
+      "role": "frozen-qualified-basis",
+      "exact": true,
+      "run": 32911065508,
+      "product_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+      "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+      "conclusion": "failure",
+      "passed_tests": 167237,
+      "failed_tests": 21,
+      "deterministic_failures": 18,
+      "load_flakes_greened": 3,
+      "candidate_caused_failures": 0,
+      "unknown_failures": 0,
+      "classification_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/MODE-B-C713.md"
+    }
+  ],
+  "affected_slice_qualification": {
+    "packet": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/promotion/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/",
+    "owner": {
+      "files": 11,
+      "assertions": 686,
+      "result": "pass"
+    },
+    "independent_subset": {
+      "files": 11,
+      "assertions": 544,
+      "result": "pass"
+    },
+    "production_types": "pass",
+    "full_test_types": "pass",
+    "build": "pass",
+    "generated_snapshots_current": 3
+  },
+  "qualification_disposition": {
+    "REUSE": "immutable historical corpus plus bounded structural applicability",
+    "INVALIDATE": "no ancestor execution transfer",
+    "UNKNOWN": []
+  },
+  "source_mapping": {
+    "path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/transposition/SOURCE-MAPPING.tsv",
+    "source_files": 544,
+    "target_files_mapped": 544,
+    "missing": 0
   }
 }

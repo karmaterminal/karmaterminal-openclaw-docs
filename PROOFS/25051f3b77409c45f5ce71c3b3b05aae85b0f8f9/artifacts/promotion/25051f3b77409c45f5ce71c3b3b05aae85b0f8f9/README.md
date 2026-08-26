@@ -11,9 +11,15 @@ content-addressed applicability relation; `affected-slice.log` is a direct
 exact-head receipt for 11 owner files, 544 assertions, and generated snapshot
 currency.
 
-The current owner verdict is `affected-slice-rerun`. Independent review must
-derive `reuse`, `invalidate`, or `unknown` from these receipts and the exact Git
-objects before presentation credit is granted.
+Independent disposition after docs receipt closure is:
+
+- `REUSE`: immutable historical corpus plus bounded structural applicability;
+- `INVALIDATE`: no ancestor execution transfer;
+- `UNKNOWN`: none inside the declared affected slice.
+
+Qualification mode is `affected-slice-materiality`. Warm target Mode-B exactness
+and exact target execution are both false. Exact live proof on pending runtime
+`a0aa4ec8aefe95ced34342978b64c270c16ec3e9` awaits the Ronan receipt.
 
 | Artifact | SHA-256 |
 |---|---|

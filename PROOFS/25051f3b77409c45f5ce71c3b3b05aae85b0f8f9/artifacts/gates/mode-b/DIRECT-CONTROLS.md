@@ -1,4 +1,7 @@
-# Accepted exact-target direct controls
+# Accepted source-ancestor 2ffc direct controls
+
+These controls are bound to exact source `2ffc7ca0...`. They classify ancestor
+run `32895790947`; they are not warm-target executions or target Mode-B.
 
 | Field | Value |
 |---|---|

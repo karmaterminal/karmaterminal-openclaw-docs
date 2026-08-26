@@ -1,5 +1,9 @@
 # PR #129388 heartbeat merge review
 
+Scope note for this warm corpus: every `2ffc7ca0...` identity below is the
+exact source-ancestor review subject. This `APPROVE` receipt is not an exact
+warm-target `25051f3b...` review.
+
 ## Named-ref contract
 
 | Category | Named ref | Full SHA | Local | Tracking | Server | Equality / use |

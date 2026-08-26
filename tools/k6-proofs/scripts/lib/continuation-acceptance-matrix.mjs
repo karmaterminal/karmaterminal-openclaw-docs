@@ -1,6 +1,8 @@
 import {
   existsSync,
+  realpathSync,
   readFileSync,
+  statSync,
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +12,30 @@ export const POLICY_SCHEMA = 'openclaw.proofs.continuation-acceptance-policy.v1'
 export const ACCEPTANCE_SCHEMA = 'openclaw.proofs.continuation-acceptance.v1';
 export const MATRIX_STATES = ['pass', 'partial', 'thin', 'fail', 'honest_limit', 'missing'];
 export const ROLLUP_KEYS = ['total_rows', ...MATRIX_STATES];
+export const SUPPLEMENTAL_ROW_IDS = [
+  'R-OBS-CONT-PROVENANCE',
+  'R-OBS-PROOF-MARKER',
+  'R-OBS-TERMINAL-OUTCOME',
+];
+export const REQUIRED_TARGET_ROLLUP = {
+  total_rows: 38,
+  pass: 37,
+  partial: 0,
+  thin: 0,
+  fail: 0,
+  honest_limit: 1,
+  missing: 0,
+};
+export const SUPPLEMENTAL_TARGET_ROLLUP = {
+  total_rows: 3,
+  pass: 0,
+  partial: 0,
+  thin: 0,
+  fail: 0,
+  honest_limit: 0,
+  missing: 3,
+};
+const TELEMETRY_CATALOG_COMMIT = '5a061227cbb438572bc9aecdb1dbc902dc585452';
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_POLICY_PATH = path.resolve(
@@ -49,10 +75,17 @@ function safeReceiptPath(root, receiptPath, captureSha) {
       !normalized.startsWith(`PROOFS/${captureSha}/R-RC-2/`)) {
     return null;
   }
-  const resolvedRoot = path.resolve(root);
-  const resolved = path.resolve(resolvedRoot, normalized);
-  if (!resolved.startsWith(`${resolvedRoot}${path.sep}`)) return null;
-  return resolved;
+  try {
+    const resolvedRoot = realpathSync(path.resolve(root));
+    const resolved = realpathSync(path.resolve(resolvedRoot, normalized));
+    if (!resolved.startsWith(`${resolvedRoot}${path.sep}`) ||
+        !statSync(resolved).isFile()) {
+      return null;
+    }
+    return resolved;
+  } catch {
+    return null;
+  }
 }
 
 export function tallyRows(rows) {
@@ -100,6 +133,11 @@ export function validateContinuationAcceptancePolicy(policy) {
   if (requiredIds.length !== 38) {
     failures.push(`policy must contain exactly 38 required rows, got ${requiredIds.length}`);
   }
+  if (!sameJson(supplementalIds, SUPPLEMENTAL_ROW_IDS)) {
+    failures.push(
+      `policy supplemental_rows must be exactly: ${SUPPLEMENTAL_ROW_IDS.join(', ')}`,
+    );
+  }
   if (!requiredIds.includes('R-OBS-BACKEND-DISPOSITION')) {
     failures.push('R-OBS-BACKEND-DISPOSITION must remain required');
   }
@@ -111,7 +149,7 @@ export function validateContinuationAcceptancePolicy(policy) {
     if (entry.classification !== 'future-product-telemetry' ||
         entry.state !== 'missing' ||
         entry.issue !== 'karmaterminal/openclaw#1254' ||
-        !/^[0-9a-f]{40}$/.test(entry.introduced_commit || '') ||
+        entry.introduced_commit !== TELEMETRY_CATALOG_COMMIT ||
         entry.catalog_pr !== 'karmaterminal/karmaterminal-openclaw-docs#512') {
       failures.push(`${entry.row} has an invalid supplemental provenance contract`);
     }
@@ -135,7 +173,27 @@ export function validateContinuationAcceptancePolicy(policy) {
       failures.push(`${label} must tally exactly ${expectedRows} rows`);
     }
   }
+  if (!sameJson(policy.target_rollup, REQUIRED_TARGET_ROLLUP)) {
+    failures.push('target_rollup must be exactly 37 PASS plus one honest limit');
+  }
+  if (!sameJson(policy.supplemental_target_rollup, SUPPLEMENTAL_TARGET_ROLLUP)) {
+    failures.push('supplemental_target_rollup must preserve three missing rows');
+  }
   return failures;
+}
+
+export function isContinuationAcceptanceManifest(
+  manifest,
+  policy = loadContinuationAcceptancePolicy(),
+) {
+  if (!isObject(manifest)) return false;
+  if (manifest.acceptance || manifest.supplemental_rows) return true;
+  const ids = new Set([
+    ...(Array.isArray(manifest.required_rows) ? manifest.required_rows : []),
+    ...(Array.isArray(manifest.rows) ? manifest.rows.map((row) => row?.row) : []),
+  ]);
+  const policyIds = [...policy.required_rows, ...SUPPLEMENTAL_ROW_IDS];
+  return policyIds.filter((row) => ids.has(row)).length >= 30;
 }
 
 export function flattenDispatchAllocation(allocation) {

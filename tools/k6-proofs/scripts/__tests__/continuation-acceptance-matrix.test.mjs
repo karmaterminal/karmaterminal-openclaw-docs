@@ -1,11 +1,23 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import {
+  mkdir,
+  mkdtemp,
+  rm,
+  symlink,
+} from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 import {
   analyzeContinuationAcceptanceManifest,
   buildContinuationAcceptanceManifest,
+  isContinuationAcceptanceManifest,
   loadContinuationAcceptancePolicy,
+  REQUIRED_TARGET_ROLLUP,
+  SUPPLEMENTAL_ROW_IDS,
+  SUPPLEMENTAL_TARGET_ROLLUP,
 } from '../lib/continuation-acceptance-matrix.mjs';
 
 const REJECTED_BASE = '45cf1ae59ba0f32031a90dde193fe2d48d494e25';
@@ -283,14 +295,70 @@ test('R-RC-2 is the sole receipt-backed required non-PASS path', async (t) => {
   });
 });
 
+test('R-RC-2 receipt validation refuses a symlink that escapes the corpus root', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'continuation-matrix-receipt-'));
+  const receiptDir = path.join(root, 'PROOFS', CURRENT_SHA, 'R-RC-2');
+  await mkdir(receiptDir, { recursive: true });
+  try {
+    const manifest = generated();
+    const escaped = path.join(receiptDir, 'escaped-run-result.json');
+    await symlink(path.resolve(RRC2_RECEIPT), escaped);
+    manifest.acceptance.honest_limit_receipts['R-RC-2'] =
+      `PROOFS/${CURRENT_SHA}/R-RC-2/escaped-run-result.json`;
+    manifest.acceptance.blocking_required_rows.push({
+      row: 'R-RC-2',
+      state: 'honest_limit',
+      reason: 'receipt path is missing, unsafe, or absent',
+    });
+    const analysis = analyzeContinuationAcceptanceManifest(manifest, { root });
+    assert.equal(analysis.valid, false);
+    assert.match(analysis.failures.join('\n'), /R-RC-2 honest_limit is not receipt-backed/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('policy itself pins backend disposition and the exact supplemental provenance', () => {
   const policy = loadContinuationAcceptancePolicy();
   assert.equal(policy.required_rows.length, 38);
   assert.ok(policy.required_rows.includes('R-OBS-BACKEND-DISPOSITION'));
   assert.deepEqual(policy.supplemental_rows.map((entry) => entry.row), SUPPLEMENTAL);
+  assert.deepEqual(SUPPLEMENTAL_ROW_IDS, SUPPLEMENTAL);
+  assert.deepEqual(policy.target_rollup, REQUIRED_TARGET_ROLLUP);
+  assert.deepEqual(policy.supplemental_target_rollup, SUPPLEMENTAL_TARGET_ROLLUP);
   for (const entry of policy.supplemental_rows) {
     assert.equal(entry.issue, 'karmaterminal/openclaw#1254');
     assert.equal(entry.state, 'missing');
     assert.equal(entry.introduced_commit, '5a061227cbb438572bc9aecdb1dbc902dc585452');
   }
+});
+
+test('a continuation matrix cannot downgrade itself to legacy validation', () => {
+  const manifest = generated();
+  delete manifest.acceptance;
+  delete manifest.supplemental_rows;
+  delete manifest.supplemental_rollup;
+  assert.equal(isContinuationAcceptanceManifest(manifest), true);
+  const analysis = analyzeContinuationAcceptanceManifest(manifest, {
+    root: process.cwd(),
+  });
+  assert.equal(analysis.valid, false);
+  assert.match(
+    analysis.failures.join('\n'),
+    /supplemental_rows.*typed|acceptance\.schema/,
+  );
+});
+
+test('policy rejects moving a supplemental row back into required acceptance', () => {
+  const policy = loadContinuationAcceptancePolicy();
+  const moved = clone(policy);
+  const [entry] = moved.supplemental_rows.splice(0, 1);
+  moved.required_rows.push(entry.row);
+  const manifest = generated();
+  const analysis = analyzeContinuationAcceptanceManifest(manifest, {
+    policy: moved,
+    root: process.cwd(),
+  });
+  assert.equal(analysis.valid, false);
+  assert.match(analysis.failures.join('\n'), /supplemental_rows must be exactly/);
 });

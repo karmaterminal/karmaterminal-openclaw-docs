@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import {
+  existsSync,
   readFileSync,
   renameSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
@@ -9,6 +11,7 @@ import {
   analyzeContinuationAcceptanceManifest,
   buildContinuationAcceptanceManifest,
 } from './lib/continuation-acceptance-matrix.mjs';
+import { resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 function usage() {
   console.error(
@@ -21,7 +24,7 @@ function usage() {
 
 function parseArgs(argv) {
   const args = { receipts: {}, summary: false };
-  for (let index = 2; index < argv.length; index += 1) {
+  for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === '--summary') {
       args.summary = true;
@@ -61,12 +64,19 @@ function readJson(file, label) {
 function atomicWrite(file, body) {
   const target = path.resolve(file);
   const temporary = `${target}.tmp-${process.pid}`;
-  writeFileSync(temporary, body, { flag: 'wx' });
-  renameSync(temporary, target);
+  try {
+    writeFileSync(temporary, body, { flag: 'wx' });
+    renameSync(temporary, target);
+  } finally {
+    if (existsSync(temporary)) unlinkSync(temporary);
+  }
 }
 
 function main() {
-  const args = parseArgs(process.argv);
+  const { root, rest } = resolveRepositoryRoot({
+    argv: process.argv.slice(2),
+  });
+  const args = parseArgs(rest);
   if (args.help) {
     usage();
     return;
@@ -75,9 +85,11 @@ function main() {
     usage();
     throw new Error('--input and --allocation-from are required');
   }
-  const root = process.cwd();
-  const source = readJson(path.resolve(args.input), 'input manifest');
-  const allocation = readJson(path.resolve(args.allocationfrom), 'allocation manifest');
+  const source = readJson(path.resolve(root, args.input), 'input manifest');
+  const allocation = readJson(
+    path.resolve(root, args.allocationfrom),
+    'allocation manifest',
+  );
   const manifest = buildContinuationAcceptanceManifest(source, {
     allocationManifest: allocation,
     honestLimitReceipts: args.receipts,
@@ -88,7 +100,7 @@ function main() {
     throw new Error(`generated matrix is invalid: ${analysis.failures.join('; ')}`);
   }
   const body = `${JSON.stringify(manifest, null, 2)}\n`;
-  if (args.output) atomicWrite(args.output, body);
+  if (args.output) atomicWrite(path.resolve(root, args.output), body);
   if (args.summary) {
     process.stdout.write(`${JSON.stringify({
       required_rows: analysis.requiredRows.length,

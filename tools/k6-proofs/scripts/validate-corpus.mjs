@@ -30,6 +30,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import {
   analyzeContinuationAcceptanceManifest,
+  isContinuationAcceptanceManifest,
 } from './lib/continuation-acceptance-matrix.mjs';
 
 const STALE_TOKENS = [
@@ -305,7 +306,7 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
     pushCheck(report, 'manifest-rollup-matches-rows', false, 'manifest.rollup missing');
   }
 
-  if (manifest.acceptance || manifest.supplemental_rows) {
+  if (isContinuationAcceptanceManifest(manifest)) {
     const matrix = analyzeContinuationAcceptanceManifest(manifest, { root });
     report.continuationAcceptance = matrix;
     pushCheck(

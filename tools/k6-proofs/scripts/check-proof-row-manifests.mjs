@@ -14,6 +14,7 @@ import path from 'node:path';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 import {
   analyzeContinuationAcceptanceManifest,
+  isContinuationAcceptanceManifest,
 } from './lib/continuation-acceptance-matrix.mjs';
 
 const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
@@ -43,7 +44,7 @@ if (!failures.length) {
       .sort();
     if (existsSync(corpusManifestPath)) {
       const corpusManifest = JSON.parse(readFileSync(corpusManifestPath, 'utf8'));
-      if (corpusManifest.acceptance || corpusManifest.supplemental_rows) {
+      if (isContinuationAcceptanceManifest(corpusManifest)) {
         matrix = analyzeContinuationAcceptanceManifest(corpusManifest, { root });
         if (!matrix.valid) {
           failures.push(`current continuation matrix is invalid: ${matrix.failures.join('; ')}`);

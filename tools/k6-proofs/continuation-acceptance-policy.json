@@ -1,0 +1,94 @@
+{
+  "$schema": "./continuation-acceptance-policy.schema.json",
+  "schema": "openclaw.proofs.continuation-acceptance-policy.v1",
+  "required_rows": [
+    "R-CD-1",
+    "R-CD-2",
+    "R-CD-3",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CD-MODEL-DEFAULT",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-MODEL-TOOL",
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-SILENT",
+    "R-CD-TOKEN",
+    "R-CONFIG-DEFAULTS",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-4",
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-TOKEN",
+    "R-OBS-1",
+    "R-OBS-2",
+    "R-OBS-BACKEND-DISPOSITION",
+    "R-OBS-STATUS",
+    "R-RC-1",
+    "R-RC-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "supplemental_rows": [
+    {
+      "row": "R-OBS-CONT-PROVENANCE",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    },
+    {
+      "row": "R-OBS-PROOF-MARKER",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    },
+    {
+      "row": "R-OBS-TERMINAL-OUTCOME",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    }
+  ],
+  "required_non_pass": {
+    "row": "R-RC-2",
+    "state": "honest_limit",
+    "candidate_verdict": "HONEST-LIMIT-candidate",
+    "receipt_required": true
+  },
+  "target_rollup": {
+    "total_rows": 38,
+    "pass": 37,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 0
+  },
+  "supplemental_target_rollup": {
+    "total_rows": 3,
+    "pass": 0,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 3
+  }
+}

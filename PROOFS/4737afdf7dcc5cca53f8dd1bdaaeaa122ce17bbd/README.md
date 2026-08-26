@@ -22,7 +22,24 @@ completed with 166,719 passing tests and no candidate-caused failure. Its
 non-green workflow conclusion is preserved and fully classified in
 [`artifacts/gates/MODE-B.md`](artifacts/gates/MODE-B.md).
 
-## Verdicts
+## Acceptance classification
+
+`proofs-manifest.json` preserves all 41 historical row records, while
+classifying 38 as continuation acceptance requirements and three product-owned
+fleet telemetry contracts as supplemental/future work:
+
+- required: 38 rows, including harness-integrity row
+  `R-OBS-BACKEND-DISPOSITION`;
+- supplemental/future: `R-OBS-CONT-PROVENANCE`,
+  `R-OBS-PROOF-MARKER`, and `R-OBS-TERMINAL-OUTCOME`;
+- required target: 37 `pass` plus the receipt-backed `R-RC-2`
+  `honest_limit`, with no other required non-PASS state.
+
+The supplemental rows remain `missing`; this correction does not relabel any
+evidence. `dispatch_allocation` contains each required row exactly once and no
+supplemental row.
+
+## Required acceptance verdicts
 
 | Row | State | Summary |
 |---|---|---|
@@ -59,18 +76,30 @@ non-green workflow conclusion is preserved and fully classified in
 | R-OBS-1 | pass | Current exact execution-composite row produced a review-ready PASS-candidate receipt. |
 | R-OBS-2 | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
 | R-OBS-BACKEND-DISPOSITION | missing | A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row for refinement. |
-| R-OBS-CONT-PROVENANCE | missing | Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement. |
-| R-OBS-PROOF-MARKER | missing | Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement. |
 | R-OBS-STATUS | pass | Current exact execution-composite row produced a review-ready PASS-candidate receipt. |
-| R-OBS-TERMINAL-OUTCOME | missing | Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement. |
 | R-RC-1 | pass | Current exact execution-composite row produced a review-ready PASS-candidate receipt. |
 | R-RC-2 | honest_limit | Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session. |
 | R-REGRESSION-TRAP-TESTS | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
 | R-TRACE-REDACTION-1121 | pass | Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. |
 
+## Supplemental/future contracts
+
+| Row | State | Provenance |
+|---|---|---|
+| R-OBS-CONT-PROVENANCE | missing | Fleet communication-health telemetry remedy contract from `karmaterminal/openclaw#1254`; no historical PASS. |
+| R-OBS-PROOF-MARKER | missing | Fleet communication-health telemetry remedy contract from `karmaterminal/openclaw#1254`; no historical PASS. |
+| R-OBS-TERMINAL-OUTCOME | missing | Fleet communication-health telemetry remedy contract from `karmaterminal/openclaw#1254`; no historical PASS. |
+
 ## Rollup
 
-`{"total_rows":41,"pass":32,"partial":4,"thin":0,"fail":0,"honest_limit":1,"missing":4}`
+- Catalog/history (all preserved rows):
+  `{"total_rows":41,"pass":32,"partial":4,"thin":0,"fail":0,"honest_limit":1,"missing":4}`
+- Required acceptance:
+  `{"total_rows":38,"pass":32,"partial":4,"thin":0,"fail":0,"honest_limit":1,"missing":1}`
+- Supplemental/future:
+  `{"total_rows":3,"pass":0,"partial":0,"thin":0,"fail":0,"honest_limit":0,"missing":3}`
+- Required semantic target:
+  `{"total_rows":38,"pass":37,"partial":0,"thin":0,"fail":0,"honest_limit":1,"missing":0}`
 
 ## Honest limits
 
@@ -78,5 +107,12 @@ non-green workflow conclusion is preserved and fully classified in
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.
 - R-CW-6 remains partial because the docs-generated selected delegate fixture is stale; its direct product surfaces passed.
-- R-RC-2 was threshold-rejected and remains an honest limit.
-- Four construct-only observability rows remain explicit missing: three wait on product instrumentation tracked by `karmaterminal/openclaw#1254`; the harness-only backend-disposition row is tracked by `karmaterminal-openclaw-docs#517`.
+- R-RC-2 was threshold-rejected and remains the sole allowed required honest
+  limit, backed by the structured run result named in
+  `acceptance.honest_limit_receipts`.
+- Required harness-integrity row R-OBS-BACKEND-DISPOSITION remains missing in
+  this historical corpus and is tracked by
+  `karmaterminal/karmaterminal-openclaw-docs#517`.
+- The three product telemetry contracts tracked by
+  `karmaterminal/openclaw#1254` remain explicit supplemental `missing` rows and
+  do not enter required acceptance arithmetic.

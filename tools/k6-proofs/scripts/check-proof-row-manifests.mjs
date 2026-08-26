@@ -4,7 +4,7 @@
  *
  * This does not require every proof row to be k6-runnable. Manual-only rows may be
  * construct-only or scaffold, but they should still be explicit in the catalog so
- * the public executable-suite surface can explain the full 29-row corpus.
+ * the public executable-suite surface can explain the full current corpus.
  *
  * The repository root comes from the shared repo-root contract, so running this
  * from the repository root and from tools/k6-proofs inspects the same files.
@@ -12,6 +12,9 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
+import {
+  analyzeContinuationAcceptanceManifest,
+} from './lib/continuation-acceptance-matrix.mjs';
 
 const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
@@ -24,10 +27,12 @@ if (!existsSync(manifestsDir)) failures.push(`missing ${manifestsDir}`);
 
 let currentSha = '';
 let proofRows = [];
+let matrix = null;
 if (!failures.length) {
   const index = JSON.parse(readFileSync(indexPath, 'utf8'));
   currentSha = index.current_sha;
   const corpusDir = path.join(root, 'PROOFS', currentSha);
+  const corpusManifestPath = path.join(corpusDir, 'proofs-manifest.json');
   if (!currentSha || !existsSync(corpusDir)) {
     failures.push(`current PROOFS corpus missing: ${corpusDir}`);
   } else {
@@ -36,6 +41,15 @@ if (!failures.length) {
       .map((entry) => entry.name)
       .filter((name) => !SUPPORT_DIRECTORIES.has(name))
       .sort();
+    if (existsSync(corpusManifestPath)) {
+      const corpusManifest = JSON.parse(readFileSync(corpusManifestPath, 'utf8'));
+      if (corpusManifest.acceptance || corpusManifest.supplemental_rows) {
+        matrix = analyzeContinuationAcceptanceManifest(corpusManifest, { root });
+        if (!matrix.valid) {
+          failures.push(`current continuation matrix is invalid: ${matrix.failures.join('; ')}`);
+        }
+      }
+    }
   }
 }
 
@@ -85,6 +99,13 @@ if (duplicateManifestRows.length) {
 
 console.log(`Current corpus: PROOFS/${currentSha}`);
 console.log(`Proof rows: ${proofRows.length}`);
+if (matrix) {
+  console.log(`Required acceptance rows: ${matrix.requiredRows.length}`);
+  console.log(
+    `Supplemental/future rows: ${matrix.supplementalRows.length} ` +
+    `(${matrix.supplementalRows.join(', ')})`,
+  );
+}
 console.log(`Manifest entries: ${manifestRows.length}`);
 if (missing.length) console.log(`Missing manifests: ${missing.join(', ')}`);
 else console.log('Missing manifests: 0');

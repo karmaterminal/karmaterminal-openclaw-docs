@@ -28,6 +28,9 @@ This document complements:
 - Keep the proof target explicit: `OPENCLAW_CANDIDATE_SHA=<40-char-sha>`.
 - For PR-presentation/GATES work, the proof SHA must be the SHA that will be presented. If the code changes, rerun or explicitly classify the drift.
 - `HONEST_LIMIT` is reserved for `R-RC-2` when a structured live receipt proves `request_compaction` was denied because context pressure remained below threshold. Every other incomplete substrate or receipt condition is `PARTIAL`, never PASS.
+- Continuation acceptance is the exact 38-row `required_rows` policy. Keep the
+  three product telemetry contracts in typed `supplemental_rows`; never allocate
+  or count them as required merely because their manifests remain in the catalog.
 
 ## Local proof round shape
 
@@ -56,6 +59,12 @@ preflight; a failure is harness infrastructure (`harness-control-receipt.json`,
 exit 78, zero rows executed), never a per-row product verdict.
 
 The “all” denominator includes `preflight`; the live-suite denominator may be smaller when it excludes static/support rows. Record which denominator you cite.
+
+The concluding corpus denominator is separate: read
+`continuation-acceptance-policy.json` and
+[`CONTINUATION-ACCEPTANCE-MATRIX.md`](CONTINUATION-ACCEPTANCE-MATRIX.md).
+The policy requires 38 unique required rows, three unique supplemental rows,
+and an exactly-once required dispatch allocation.
 
 ### 2. Offline artifact smoke
 
@@ -190,6 +199,11 @@ A row must define:
 - a `telemetryContract` when any required receipt is a telemetry receipt — see
   [`CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](CONTINUATION-TELEMETRY-REMEDY-ROWS.md);
 - linked issue and PR.
+
+If the row belongs in the concluding continuation corpus, update the typed
+acceptance policy first. The matrix validator rejects a row present in `rows[]`
+but absent from both `required_rows` and `supplemental_rows`; a new row cannot
+silently enter the denominator through directory discovery.
 
 ## Telemetry rebind contract (#1254)
 

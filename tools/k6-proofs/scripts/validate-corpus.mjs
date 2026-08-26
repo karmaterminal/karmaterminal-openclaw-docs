@@ -18,6 +18,9 @@
  *   --json          Emit a machine-readable JSON result on stdout.
  *   --strict        Make archival --all failures fatal. By default --all is
  *                   informational; use --index/--current for current-board gating.
+ *   --require-acceptance
+ *                   Require the continuation matrix to reach its semantic target.
+ *                   Structural validation does not fabricate PASS for open rows.
  *
  * Exit code is non-zero on current-board check failure; --all exits 0 unless
  * --strict is supplied.
@@ -25,6 +28,9 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import {
+  analyzeContinuationAcceptanceManifest,
+} from './lib/continuation-acceptance-matrix.mjs';
 
 const STALE_TOKENS = [
   'pending_push',
@@ -45,6 +51,7 @@ function parseArgs(argv) {
       out._.push(arg);
       continue;
     }
+
     const key = arg.slice(2);
     const next = argv[i + 1];
     if (next === undefined || next.startsWith('--')) {
@@ -64,7 +71,7 @@ function usage() {
       `  node tools/k6-proofs/scripts/validate-corpus.mjs --all\n` +
       `  node tools/k6-proofs/scripts/validate-corpus.mjs --index\n` +
       `  node tools/k6-proofs/scripts/validate-corpus.mjs --current\n` +
-      `Options: --root <path>  --json  --strict`,
+      `Options: --root <path>  --json  --strict  --require-acceptance`,
   );
 }
 
@@ -277,6 +284,39 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
       : unknownStates.map((u) => `${u.row}→${JSON.stringify(u.state)}`).join('; '),
   );
   report.talliedRollup = tallied;
+  if (manifest.rollup) {
+    const manifestRollupDiffs = [];
+    for (const key of ROLLUP_KEYS) {
+      if (manifest.rollup[key] !== tallied[key]) {
+        manifestRollupDiffs.push(
+          `${key}: manifest=${manifest.rollup[key]} tallied=${tallied[key]}`,
+        );
+      }
+    }
+    pushCheck(
+      report,
+      'manifest-rollup-matches-rows',
+      manifestRollupDiffs.length === 0,
+      manifestRollupDiffs.length === 0
+        ? `manifest rollup matches all ${tallied.total_rows} catalog rows`
+        : manifestRollupDiffs.join('; '),
+    );
+  } else {
+    pushCheck(report, 'manifest-rollup-matches-rows', false, 'manifest.rollup missing');
+  }
+
+  if (manifest.acceptance || manifest.supplemental_rows) {
+    const matrix = analyzeContinuationAcceptanceManifest(manifest, { root });
+    report.continuationAcceptance = matrix;
+    pushCheck(
+      report,
+      'continuation-acceptance-contract',
+      matrix.valid,
+      matrix.valid
+        ? `${matrix.requiredRows.length} required, ${matrix.supplementalRows.length} supplemental; acceptance complete=${matrix.acceptance.complete}`
+        : matrix.failures.join('; '),
+    );
+  }
 
   const stale = findStaleTokenHits(shaDir);
   pushCheck(
@@ -387,9 +427,23 @@ function renderReport(report, opts) {
       for (const c of report.shaReport.checks) {
         lines.push(`  · ${c.ok ? '✓' : '✗'} ${c.name}${c.detail ? ` — ${c.detail}` : ''}`);
       }
+      if (report.shaReport.continuationAcceptance) {
+        const matrix = report.shaReport.continuationAcceptance;
+        lines.push(
+          `  · continuation acceptance — required=${matrix.requiredRollup.total_rows}, ` +
+          `supplemental=${matrix.supplementalRollup.total_rows}, complete=${matrix.acceptance.complete}`,
+        );
+      }
     }
   }
-  lines.push(`  ${report.failed === 0 ? 'OK' : 'FAIL'}: ${report.passed} passed, ${report.failed} failed`);
+  if (report.continuationAcceptance) {
+    const matrix = report.continuationAcceptance;
+    lines.push(
+      `  continuation acceptance — required=${matrix.requiredRollup.total_rows}, ` +
+      `supplemental=${matrix.supplementalRollup.total_rows}, complete=${matrix.acceptance.complete}`,
+    );
+  }
+  lines.push(`  ${reportFailed(report) ? 'FAIL' : 'OK'}: ${report.passed} passed, ${report.failed} failed`);
   return lines.join('\n');
 }
 
@@ -397,6 +451,21 @@ function reportFailed(report) {
   if (report.failed > 0) return true;
   if (report.shaReport && report.shaReport.failed > 0) return true;
   return false;
+}
+
+function requireAcceptance(report) {
+  const target = report.shaReport || report;
+  const matrix = target.continuationAcceptance;
+  pushCheck(
+    target,
+    'continuation-acceptance-complete',
+    matrix?.valid === true && matrix.acceptance.complete === true,
+    matrix?.valid !== true
+      ? 'no valid typed continuation acceptance matrix'
+      : matrix.acceptance.complete
+        ? '37 PASS plus receipt-backed R-RC-2 honest limit'
+        : `blocked by ${matrix.acceptance.blockers.map((entry) => `${entry.row}:${entry.state}`).join(', ')}`,
+  );
 }
 
 function main() {
@@ -426,6 +495,7 @@ function main() {
       return;
     }
     const report = validateSha(root, args.sha, { manifestRequired: true });
+    if (args['require-acceptance']) requireAcceptance(report);
     failed = reportFailed(report);
     payload = { mode: 'sha', root, reports: [report] };
     if (!wantJson) console.log(renderReport(report));
@@ -433,6 +503,7 @@ function main() {
     const reports = validateAll(root);
     let archivalFailed = false;
     for (const r of reports) {
+      if (args['require-acceptance'] && !r.skipped) requireAcceptance(r);
       if (r.skipped) skipped += 1;
       if (reportFailed(r)) archivalFailed = true;
       if (!wantJson) console.log(renderReport(r));
@@ -451,7 +522,8 @@ function main() {
       failedReports,
       legacySchemaReports,
     };
-    failed = Boolean(args.strict) && archivalFailed;
+    failed = (Boolean(args.strict) || Boolean(args['require-acceptance'])) &&
+      archivalFailed;
     if (!wantJson) {
       console.log(
         `\n--all archival summary: ${validated} validated (${okCount} OK), ` +
@@ -462,6 +534,7 @@ function main() {
     payload = { mode: 'all', root, archivalSummary, archivalFailed, reports };
   } else {
     const report = validateIndex(root);
+    if (args['require-acceptance']) requireAcceptance(report);
     failed = reportFailed(report);
     payload = { mode: 'index', root, reports: [report] };
     if (!wantJson) console.log(renderReport(report));

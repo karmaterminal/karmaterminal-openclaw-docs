@@ -177,10 +177,15 @@ not happen.
 ## What the coordinator does next
 
 1. Reviews EVIDENCE.md + receipts against the manifest's declared expectation.
-2. Folds the row into the corpus, regenerates INDEX/manifest, and runs
-   `node tools/k6-proofs/scripts/validate-corpus.mjs --index` — green is mandatory
-   before merge.
-3. Any row that fires `pending_push`, `upload-blame`, `TODO-UPLOAD`, or similar
+2. Classifies every row through
+   `continuation-acceptance-policy.json`, then regenerates the manifest with
+   `generate-continuation-acceptance-matrix.mjs`. Required rows must be allocated
+   exactly once; supplemental rows remain visible and unallocated.
+3. Runs `node tools/k6-proofs/scripts/validate-corpus.mjs --index` — structural
+   green is mandatory before merge. A concluding acceptance fold also runs
+   `--index --require-acceptance`; open required rows must not be relabeled to
+   make that gate pass.
+4. Any row that fires `pending_push`, `upload-blame`, `TODO-UPLOAD`, or similar
    "promise-of-artifact" wording is bounced back. Either the artifact exists or
    the row is not folded.
 
@@ -188,6 +193,7 @@ not happen.
 
 - [README.md](README.md) — harness usage, design principles, redaction boundary.
 - [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md) — telemetry rebind contract (`karmaterminal/openclaw#1254`).
+- [`docs/CONTINUATION-ACCEPTANCE-MATRIX.md`](docs/CONTINUATION-ACCEPTANCE-MATRIX.md) — required versus supplemental provenance and fold contract.
 - [`validate-corpus.mjs`](scripts/validate-corpus.mjs) — invariants enforced at fold time.
 - [`check-telemetry-contracts.mjs`](scripts/check-telemetry-contracts.mjs) — telemetry contract invariants enforced at catalog preflight.
 - [Project 81](https://github.com/orgs/karmaterminal/projects/81) — row backlog.

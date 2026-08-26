@@ -203,7 +203,7 @@ function scenarioName(manifest) {
   return manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || null;
 }
 
-function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {
+export function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {
   if (rowId !== 'R-RC-2') return verdict !== 'HONEST-LIMIT-candidate';
   if (verdict === 'HONEST-LIMIT-candidate') return (
     evidence?.row === 'R-RC-2' &&

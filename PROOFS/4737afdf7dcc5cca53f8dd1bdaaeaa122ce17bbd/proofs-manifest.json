@@ -54,10 +54,7 @@
     "R-OBS-1",
     "R-OBS-2",
     "R-OBS-BACKEND-DISPOSITION",
-    "R-OBS-CONT-PROVENANCE",
-    "R-OBS-PROOF-MARKER",
     "R-OBS-STATUS",
-    "R-OBS-TERMINAL-OUTCOME",
     "R-RC-1",
     "R-RC-2",
     "R-REGRESSION-TRAP-TESTS",
@@ -73,7 +70,7 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "notes": "Current presentation identity is 4737afdf. This is a full-subtree transposition from source corpus 80311e8a after a required conflict-bearing upstream absorb. Exact target Mode-B is complete and classified; independent exact-target reproof/review remain separate gates. Historical live rows executed on composite 37300f29, which contains source 80311e8a—not target 4737afdf—as an ancestor; they are preserved as ancestry/materiality evidence and never represented as exact-target execution. Four construct-only observability rows remain explicit missing.",
+  "notes": "Current presentation identity is 4737afdf. This is a full-subtree transposition from source corpus 80311e8a after a required conflict-bearing upstream absorb. Exact target Mode-B is complete and classified; independent exact-target reproof/review remain separate gates. Historical live rows executed on composite 37300f29, which contains source 80311e8a—not target 4737afdf—as an ancestor; they are preserved as ancestry/materiality evidence and never represented as exact-target execution. R-OBS-BACKEND-DISPOSITION remains required and missing in these historical bytes. The three product-owned fleet telemetry contracts remain missing under supplemental_rows and are excluded from continuation acceptance arithmetic.",
   "execution": {
     "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "pure_ancestor": false,
@@ -1454,5 +1451,284 @@
     "load_flakes_greened": 5,
     "candidate_caused_failures": 0,
     "classification_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/artifacts/gates/MODE-B.md"
+  },
+  "supplemental_rows": [
+    {
+      "row": "R-OBS-CONT-PROVENANCE",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    },
+    {
+      "row": "R-OBS-PROOF-MARKER",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    },
+    {
+      "row": "R-OBS-TERMINAL-OUTCOME",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    }
+  ],
+  "dispatch_allocation": [
+    {
+      "row": "R-CD-1",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-2",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-3",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-4",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-1",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-2",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-3",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-4",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-5",
+      "owner": "frond-followup",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-5A",
+      "owner": "frond-followup",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-6",
+      "owner": "frond-followup",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-6A",
+      "owner": "frond-followup",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-7",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-OBS-1",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-OBS-2",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-OBS-BACKEND-DISPOSITION",
+      "owner": "frond-followup",
+      "status": "not-fired"
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-RC-1",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-RC-2",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "owner": "ronan",
+      "status": "fired"
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "owner": "ronan",
+      "status": "fired"
+    }
+  ],
+  "supplemental_rollup": {
+    "total_rows": 3,
+    "pass": 0,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 3
+  },
+  "acceptance": {
+    "schema": "openclaw.proofs.continuation-acceptance.v1",
+    "required_rollup": {
+      "total_rows": 38,
+      "pass": 32,
+      "partial": 4,
+      "thin": 0,
+      "fail": 0,
+      "honest_limit": 1,
+      "missing": 1
+    },
+    "target_rollup": {
+      "total_rows": 38,
+      "pass": 37,
+      "partial": 0,
+      "thin": 0,
+      "fail": 0,
+      "honest_limit": 1,
+      "missing": 0
+    },
+    "complete": false,
+    "blocking_required_rows": [
+      {
+        "row": "R-CD-2",
+        "state": "partial",
+        "reason": "required row is not PASS"
+      },
+      {
+        "row": "R-CD-CHAINED-DEPTH-2",
+        "state": "partial",
+        "reason": "required row is not PASS"
+      },
+      {
+        "row": "R-CD-TOKEN",
+        "state": "partial",
+        "reason": "required row is not PASS"
+      },
+      {
+        "row": "R-CW-6",
+        "state": "partial",
+        "reason": "required row is not PASS"
+      },
+      {
+        "row": "R-OBS-BACKEND-DISPOSITION",
+        "state": "missing",
+        "reason": "required row is not PASS"
+      }
+    ],
+    "honest_limit_receipts": {
+      "R-RC-2": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-2/catalog/live-rc2-isolated-20260825T103519Z-r-rc-2-489d7712-run-result.json"
+    }
   }
 }

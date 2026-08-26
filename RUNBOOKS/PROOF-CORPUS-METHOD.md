@@ -92,7 +92,11 @@ Adapted from the 0831fb5e80 exemplar verdict table; preserved + extended at e90a
 
 > **DESIRED-BEHAVIOR SPEC (figs, 2026-06-20 — `1517936677`).** Before a behavior can be called erroneous, the EXPECTED behavior must be defined. `RUNBOOKS/CONTINUATION-BEHAVIOR-SPEC.md` states what SHOULD happen for every cell of the 4-surface × 2-context matrix + figs's 8 #1053 tests (grounded in the implementation at `3ae2d4cb2c`), so "works/doesn't" is measured against a definition, not a shrug. This is OUR software; the desired behavior is ours to define, not deferred. The new R-CW-MULTI / R-CW-MULTI-COLLAPSE / R-CW-DELEGATE-CHILD-LIVE rows below trace to that spec.
 
-Each cycle should produce verdicts for at least these rows:
+The generic table below records long-lived stewardship, historical subtests,
+and planned research surfaces. It does not define the acceptance denominator.
+The exact 38 required rows come from
+`tools/k6-proofs/continuation-acceptance-policy.json` and the concluding
+manifest's `required_rows`.
 
 | Row | Owner | Behavior |
 |---|---|---|
@@ -128,16 +132,35 @@ Each cycle should produce verdicts for at least these rows:
 | R-CONFIG-DEFAULTS | 🕯 Emeric | continuation config defaults applied on bootstrap (lamp-axis cure-authoring natural fit) |
 | R-CONFIG-INTERSESSION | 🕯 Emeric | continuation config persists across session boundaries (lamp-axis cure-authoring natural fit) |
 | R-REGRESSION-TRAP-TESTS | 🕯 Emeric | sister-trap-tests landed alongside each cure-PR (#898 / #913 / #914 / #915 / etc.) substantively-lock-in the cure going-forward. Emerged from figs's 2026-06-03 framing "its frightening how we keep losing things" + the half-symmetric-cure-class (cure ships for one tool but not the sibling tool sharing the same plumbing, e.g. `continueWorkOpts` cured but `requestCompactionOpts` missed at spawn-init code-path). Lamp-axis owns because the authoring-seat is best-positioned to enumerate the sibling-surfaces that need parallel trap-test coverage. |
-| R-OBS-CONT-PROVENANCE | unclaimed | **CONSTRUCT-ONLY remedy row** (`karmaterminal/openclaw#1254`). Accepted continuation entry spans must carry primitive/origin classification (`continuation.signal.origin` / `.kind`) plus stable public-safe run/session/turn fingerprints, so a typed-tool span and its accepted-entry span can be causally joined. Product instrumentation is PREREQUISITE — it does not exist on the census product basis `6b09b1db`. |
-| R-OBS-PROOF-MARKER | unclaimed | **CONSTRUCT-ONLY remedy row** (`#1254`). Proof-originated traffic must be separable from organic fleet traffic by a durable marker (proof run id, row id, product SHA, immutable harness ref, synthetic flag). The census found zero k6/Project-81 resource markers, so proof classification stays `unknown_without_stable_marker`. Product instrumentation is PREREQUISITE. |
-| R-OBS-TERMINAL-OUTCOME | unclaimed | **CONSTRUCT-ONLY remedy row** (`#1254`). Continuation/finalization must terminate into a canonical outcome enum on a span. Today zero-payload and finalization-failure exist only as `empty payload` / `finalization failed` log strings, which the census bounded as heuristics, not counters. Product instrumentation is PREREQUISITE. |
 | R-OBS-BACKEND-DISPOSITION | unclaimed | **RUNNABLE harness-side remedy row** (`#517`, census `karmaterminal/openclaw#1254`). Every Tempo/Loki interaction writes `backend-status.json`; complete/partial/unavailable/capped/unknown are explicit, HTTP 200 without completeness is unknown, and only complete receipts retain count/PASS authority. This row does NOT wait on product instrumentation. |
 
 If the fleet is on CANDIDATE_SHA + each prince fires assigned rows from own seat, the cross-walk is complete. Substitutions are fine if a prince's seat is unavailable; document the substitution in the row's EVIDENCE.md (see substitution-pattern formalization below).
 
+### Supplemental/future telemetry contracts
+
+These contracts originated in the separate fleet communication-health research
+tracked by `karmaterminal/openclaw#1254`. They remain visible and `missing`, but
+are not continuation acceptance requirements and receive no dispatch allocation:
+
+| Row | Classification | Disposition |
+|---|---|---|
+| R-OBS-CONT-PROVENANCE | `future-product-telemetry` | Product instrumentation prerequisite; supplemental, no historical PASS. |
+| R-OBS-PROOF-MARKER | `future-product-telemetry` | Product instrumentation prerequisite; supplemental, no historical PASS. |
+| R-OBS-TERMINAL-OUTCOME | `future-product-telemetry` | Product instrumentation prerequisite; supplemental, no historical PASS. |
+
+The typed authority is
+`tools/k6-proofs/continuation-acceptance-policy.json`. Required and supplemental
+IDs must be disjoint, unique, and exhaustive over `rows[]`. See
+`tools/k6-proofs/docs/CONTINUATION-ACCEPTANCE-MATRIX.md`.
+
 ### Continuation telemetry rebind contract (census `karmaterminal/openclaw#1254`)
 
-> **The instrumentation described by the four `R-OBS-*` remedy rows does not exist yet.** Those rows publish the contract; they are `construct-only`, rejected by the live-run guard, and must never be read as evidence that the attributes are emitted.
+> **The product instrumentation described by the three supplemental `R-OBS-*`
+> contracts does not exist yet.** They remain construct-only and must never be
+> read as evidence that the attributes are emitted.
+> `R-OBS-BACKEND-DISPOSITION` is different: its harness-side implementation is
+> runnable and remains required because it prevents backend zeros from
+> masquerading as complete evidence.
 
 The continuation telemetry census (report `39803b297bd4786db3971eb82a3a7fd0b29bc643`, exact product basis `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`) measured the fleet's actual continuation telemetry and found:
 
@@ -341,20 +364,62 @@ regenerate it whenever a row state, trace, or the SHA changes. Shape:
 
 ```json
 {
+  "schema": "openclaw.proofs.manifest.v1",
   "corpus": "<corpus name>",
   "sha": "<full 40-char CANDIDATE_SHA>",
   "sha_short": "<7-char>",
   "build_string": "OpenClaw <ver> (<sha_short>)",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
   "generated": "<date (seat, basis)>",
-  "rollup": { "total_rows": N, "pass": N, "partial": N, "thin": N, "fail": N, "missing": N },
+  "required_rows": ["<38 exact continuation acceptance row ids>"],
+  "supplemental_rows": [
+    {
+      "row": "R-OBS-CONT-PROVENANCE",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    },
+    {
+      "row": "R-OBS-PROOF-MARKER",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    },
+    {
+      "row": "R-OBS-TERMINAL-OUTCOME",
+      "classification": "future-product-telemetry",
+      "state": "missing",
+      "issue": "karmaterminal/openclaw#1254",
+      "introduced_commit": "5a061227cbb438572bc9aecdb1dbc902dc585452",
+      "catalog_pr": "karmaterminal/karmaterminal-openclaw-docs#512"
+    }
+  ],
+  "dispatch_allocation": [
+    { "row": "R-CW-1", "owner": "cael", "status": "assigned" }
+  ],
+  "rollup": { "total_rows": 41, "pass": N, "partial": N, "thin": N, "fail": N, "honest_limit": N, "missing": N },
+  "supplemental_rollup": { "total_rows": 3, "pass": 0, "partial": 0, "thin": 0, "fail": 0, "honest_limit": 0, "missing": 3 },
+  "acceptance": {
+    "schema": "openclaw.proofs.continuation-acceptance.v1",
+    "required_rollup": { "total_rows": 38, "pass": N, "partial": N, "thin": N, "fail": N, "honest_limit": N, "missing": N },
+    "target_rollup": { "total_rows": 38, "pass": 37, "partial": 0, "thin": 0, "fail": 0, "honest_limit": 1, "missing": 0 },
+    "complete": false,
+    "blocking_required_rows": [],
+    "honest_limit_receipts": {
+      "R-RC-2": "PROOFS/<SHA>/R-RC-2/<structured-run-result.json>"
+    }
+  },
   "notes": "<disposition / honest-limits / contested-deferred>",
   "rows": [
     {
       "row": "R-CW-1",
       "title": "...",
       "owner": "🩸 cael (cael-dgx)",
-      "state": "pass|partial|thin|fail|missing",
+      "state": "pass|partial|thin|fail|honest_limit|missing",
       "dir": "PROOFS/<SHA>/R-CW-1/",
       "evidence_doc": "R-CW-1/EVIDENCE.md",
       "summary": "...",
@@ -368,10 +433,21 @@ regenerate it whenever a row state, trace, or the SHA changes. Shape:
 }
 ```
 
-- `rows[]` enumerates **every** row in the README verdict table — same ordering,
-  same states; `rollup` is the count by state.
+- `rows[]` enumerates **every required and supplemental** row in the README
+  tables; top-level `rollup` preserves the complete catalog/history count.
+- `acceptance.required_rollup` counts only `required_rows`.
+  `supplemental_rollup` counts only `supplemental_rows`.
+- `dispatch_allocation` assigns every required row exactly once and must not
+  contain a supplemental row.
+- `R-RC-2` is the sole allowed required non-PASS state, and only with the
+  structured receipt named by `acceptance.honest_limit_receipts`.
 - Each row's `traces[]` carries the **Tempo trace JSON path(s)** (the fire-time
   trace mandated in "Tempo trace requirement"); `supporting_docs[]` the evidence files.
+- Generate the classification with
+  `tools/k6-proofs/scripts/generate-continuation-acceptance-matrix.mjs`; validate
+  structural integrity with `validate-corpus.mjs --current`, and add
+  `--require-acceptance` only when reviewed evidence is expected to meet the
+  37 PASS + one honest-limit target.
 
 ### 2. `PROOFS/INDEX.json` — the top-level signpost
 

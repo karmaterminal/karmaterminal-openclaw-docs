@@ -62,12 +62,19 @@ is a runnable harness row. Each concern is owned by **exactly one** row
 (enforced by
 `scripts/check-telemetry-contracts.mjs`).
 
-| Row | Concern | Product instrumentation prerequisite | Owns |
+Concern ownership is not acceptance membership. The three product rows came
+from separate fleet communication-health research and are typed
+supplemental/future contracts. `R-OBS-BACKEND-DISPOSITION` protects proof
+integrity and remains continuation-required. The classification and provenance
+are enforced by `continuation-acceptance-policy.json` and documented in
+[`CONTINUATION-ACCEPTANCE-MATRIX.md`](CONTINUATION-ACCEPTANCE-MATRIX.md).
+
+| Row | Acceptance class | Product instrumentation prerequisite | Owns |
 |---|---|---|---|
-| `R-OBS-CONT-PROVENANCE` | `origin-provenance` | yes | Primitive/origin classification plus stable public-safe run/session/turn correlation on accepted entry spans |
-| `R-OBS-PROOF-MARKER` | `proof-run-classification` | yes | Durable proof run id, row id, product SHA and immutable harness ref on proof-originated traffic |
-| `R-OBS-TERMINAL-OUTCOME` | `terminal-outcome` | yes | Canonical continuation/finalization outcome enum replacing the log-string heuristics |
-| `R-OBS-BACKEND-DISPOSITION` | `backend-disposition` | **no** (harness-side) | Explicit unavailable/partial/capped classification plus the rebind key set |
+| `R-OBS-CONT-PROVENANCE` | supplemental/future | yes | Primitive/origin classification plus stable public-safe run/session/turn correlation on accepted entry spans |
+| `R-OBS-PROOF-MARKER` | supplemental/future | yes | Durable proof run id, row id, product SHA and immutable harness ref on proof-originated traffic |
+| `R-OBS-TERMINAL-OUTCOME` | supplemental/future | yes | Canonical continuation/finalization outcome enum replacing the log-string heuristics |
+| `R-OBS-BACKEND-DISPOSITION` | **required** | **no** (harness-side) | Explicit unavailable/partial/capped classification plus the rebind key set |
 
 `R-OBS-BACKEND-DISPOSITION` is the one row in the set that is not waiting on
 OpenClaw. Its shared classifier, atomic writer, Tempo/Loki adapters, runnable k6

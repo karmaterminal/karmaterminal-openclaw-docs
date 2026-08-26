@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://karmaterminal.invalid/schemas/openclaw-proofs-continuation-acceptance-policy-v1.json",
+  "title": "OpenClaw continuation acceptance policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema",
+    "required_rows",
+    "supplemental_rows",
+    "required_non_pass",
+    "target_rollup",
+    "supplemental_target_rollup"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "./continuation-acceptance-policy.schema.json"
+    },
+    "schema": {
+      "const": "openclaw.proofs.continuation-acceptance-policy.v1"
+    },
+    "required_rows": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^R-[A-Z0-9-]+$"
+      }
+    },
+    "supplemental_rows": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "row",
+          "classification",
+          "state",
+          "issue",
+          "introduced_commit",
+          "catalog_pr"
+        ],
+        "properties": {
+          "row": {
+            "type": "string",
+            "pattern": "^R-[A-Z0-9-]+$"
+          },
+          "classification": {
+            "const": "future-product-telemetry"
+          },
+          "state": {
+            "const": "missing"
+          },
+          "issue": {
+            "const": "karmaterminal/openclaw#1254"
+          },
+          "introduced_commit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "catalog_pr": {
+            "const": "karmaterminal/karmaterminal-openclaw-docs#512"
+          }
+        }
+      }
+    },
+    "required_non_pass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "row",
+        "state",
+        "candidate_verdict",
+        "receipt_required"
+      ],
+      "properties": {
+        "row": {
+          "const": "R-RC-2"
+        },
+        "state": {
+          "const": "honest_limit"
+        },
+        "candidate_verdict": {
+          "const": "HONEST-LIMIT-candidate"
+        },
+        "receipt_required": {
+          "const": true
+        }
+      }
+    },
+    "target_rollup": {
+      "$ref": "#/$defs/rollup"
+    },
+    "supplemental_target_rollup": {
+      "$ref": "#/$defs/rollup"
+    }
+  },
+  "$defs": {
+    "rollup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_rows",
+        "pass",
+        "partial",
+        "thin",
+        "fail",
+        "honest_limit",
+        "missing"
+      ],
+      "properties": {
+        "total_rows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pass": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partial": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "thin": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fail": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "honest_limit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missing": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

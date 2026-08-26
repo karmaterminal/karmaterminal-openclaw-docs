@@ -213,28 +213,28 @@
     </Row>
 
     <!-- Continuation telemetry remedy rows (karmaterminal/openclaw#1254).
-         All four are construct-only: they publish the instrumentation contract
-         the census proved is missing. They are rejected by the live-run guard
-         and must not be read as evidence that the instrumentation exists. -->
-    <Row id="R-OBS-CONT-PROVENANCE" owner="unclaimed" forms="tool+token" issue="1254">
+         The three product-instrumentation contracts are supplemental/future.
+         Backend disposition is implemented harness integrity and remains
+         required continuation acceptance. -->
+    <Row id="R-OBS-CONT-PROVENANCE" owner="unclaimed" forms="tool+token" issue="1254" acceptance="supplemental-future">
       <Behavior>Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run/session/turn correlation</Behavior>
       <Evidence>Every accepted entry span carries continuation.signal.origin/kind and three identity fingerprints; typed-tool origins join to exactly one openclaw.tool.execution span</Evidence>
       <Constraint>construct-only; product instrumentation is prerequisite. Census: accepted entry spans carry no signal.kind and no session/turn/run identity on 6b09b1db</Constraint>
       <Manifest>tools/k6-proofs/manifests/r-obs-cont-provenance.json</Manifest>
     </Row>
-    <Row id="R-OBS-PROOF-MARKER" owner="unclaimed" forms="external" issue="1254">
+    <Row id="R-OBS-PROOF-MARKER" owner="unclaimed" forms="external" issue="1254" acceptance="supplemental-future">
       <Behavior>Proof-originated traffic is separable from organic fleet traffic by a durable marker: proof run id, row id, product SHA, immutable harness ref</Behavior>
       <Evidence>Selection by proof run id alone returns exactly the run's spans; organic traffic in the same window is unmarked</Evidence>
       <Constraint>construct-only; product instrumentation is prerequisite. Census: zero k6/Project-81 resource markers, so proof classification is unknown_without_stable_marker</Constraint>
       <Manifest>tools/k6-proofs/manifests/r-obs-proof-marker.json</Manifest>
     </Row>
-    <Row id="R-OBS-TERMINAL-OUTCOME" owner="unclaimed" forms="tool+token" issue="1254">
+    <Row id="R-OBS-TERMINAL-OUTCOME" owner="unclaimed" forms="tool+token" issue="1254" acceptance="supplemental-future">
       <Behavior>Continuation and finalization terminate into a canonical outcome enum on a span instead of a log string</Behavior>
       <Evidence>continuation.outcome from the closed enum on every terminal span; zero-payload proven by continuation.payload.bytes=0, not by a matched log line</Evidence>
       <Constraint>construct-only; product instrumentation is prerequisite. Census: 'empty payload' / 'finalization failed' counts are heuristics, not source-owned enums</Constraint>
       <Manifest>tools/k6-proofs/manifests/r-obs-terminal-outcome.json</Manifest>
     </Row>
-    <Row id="R-OBS-BACKEND-DISPOSITION" owner="unclaimed" forms="external" issue="517">
+    <Row id="R-OBS-BACKEND-DISPOSITION" owner="unclaimed" forms="external" issue="517" acceptance="required">
       <Behavior>A degraded telemetry backend produces explicit unavailable/partial/capped evidence plus the rebind key set, never a zero that reads as absence</Behavior>
       <Evidence>backend-status.json per interaction carrying totalBlocks/completedJobs/inspectedBytes/status; published rebind keys re-derive an identical slice</Evidence>
       <Constraint>runnable, harness-side: every Tempo/Loki interaction writes backend-status.json; this is the one remedy row that does NOT wait on product instrumentation</Constraint>
@@ -292,6 +292,15 @@
       <Validator>node tools/k6-proofs/scripts/check-telemetry-contracts.mjs</Validator>
       <Doc>tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md</Doc>
       <Reason>Continuation telemetry census karmaterminal/openclaw#1254 (report 39803b297bd4786db3971eb82a3a7fd0b29bc643, product basis 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955): rows can execute real behavior and remain impossible to rebind or correlate later</Reason>
+    </Mandate>
+    <Mandate id="continuation-acceptance-matrix">
+      <Rule>The continuation denominator contains exactly 38 required rows and three typed supplemental/future product telemetry rows</Rule>
+      <Rule>Required and supplemental ids are unique, disjoint, and exhaustive over the concluding manifest rows</Rule>
+      <Rule>Every required row appears exactly once in dispatch_allocation; supplemental rows never appear there</Rule>
+      <Rule>R-OBS-BACKEND-DISPOSITION remains required; only receipt-backed R-RC-2 may be a required non-PASS state</Rule>
+      <Policy>tools/k6-proofs/continuation-acceptance-policy.json</Policy>
+      <Validator>node tools/k6-proofs/scripts/validate-corpus.mjs --current</Validator>
+      <Doc>tools/k6-proofs/docs/CONTINUATION-ACCEPTANCE-MATRIX.md</Doc>
     </Mandate>
   </Mandates>
 

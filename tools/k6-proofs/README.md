@@ -542,6 +542,13 @@ OPENCLAW_PROOFS_LOKI_LOGQL='<public-safe bounded LogQL>' \
 ./run-proof.sh r-obs-backend-disposition
 ```
 
+It remains one of the 38 required continuation acceptance rows. The separate
+product telemetry contracts `R-OBS-CONT-PROVENANCE`,
+`R-OBS-PROOF-MARKER`, and `R-OBS-TERMINAL-OUTCOME` remain visible in the
+manifest catalog as supplemental/future `missing` rows; they are not dispatch
+or acceptance arithmetic. See
+[`docs/CONTINUATION-ACCEPTANCE-MATRIX.md`](docs/CONTINUATION-ACCEPTANCE-MATRIX.md).
+
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 
 ### R-CW-5 isolated cost-cap fixture

@@ -15,3 +15,14 @@
   transposed ancestry/materiality evidence, not exact-target execution.
 - Tempo evidence uses public-safe projections with content capture disabled.
 - Static carried rows name their historical source SHA and remain comparison evidence only.
+- Continuation acceptance is classified by
+  `tools/k6-proofs/continuation-acceptance-policy.json`: 38 required rows and
+  three typed supplemental/future product telemetry contracts.
+- The catalog `rows[]` and top-level `rollup` preserve all 41 historical row
+  records. `acceptance.required_rollup` excludes supplemental rows;
+  `supplemental_rollup` keeps their missing state visible.
+- `dispatch_allocation` assigns every required row exactly once and excludes all
+  supplemental rows. `R-OBS-BACKEND-DISPOSITION` remains required.
+- `R-RC-2` is the only allowed required non-PASS state. Its honest limit is
+  revalidated from the structured context-threshold receipt named under
+  `acceptance.honest_limit_receipts`.

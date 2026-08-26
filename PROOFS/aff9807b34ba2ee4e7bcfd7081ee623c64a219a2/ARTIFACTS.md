@@ -16,6 +16,9 @@
 - `artifacts/transposition/SOURCE-MAPPING-25051-TO-AFF980.tsv`: every one of the 595 warm source files mapped to its final local target path.
 - `artifacts/transposition/IDENTITY-SEMANTICS.md`: normative role for every source, basis, execution, and target SHA.
 - `artifacts/transposition/VALIDATION.md`: final corpus validation receipt.
+- `artifacts/transposition/check-execution-identity.mjs`: deterministic execution-versus-transposition identity boundary validator.
+- `artifacts/transposition/REJECTED-29F7388C-IDENTITY-CONTROL.json`: rejected-SHA negative control with 24 expected violations.
+- `artifacts/transposition/POSTFIX-EXECUTION-IDENTITY.json`: matching post-fix control with zero violations.
 - `R-CW-5/fixture/`: exact-pure cost-cap fixture receipts.
 - `R-CW-6/fixture/`: exact-pure max-chain fixture receipts, including the retained harness failure.
 - Row-local `catalog/` directories: public-safe candidate envelopes and row receipts.
@@ -24,4 +27,6 @@ The broad live packet remains historical execution evidence from `37300f29…`.
 The bounded R-CW-1 packet records exact functional execution on runtime
 `a0aa4ec8…`, which contains warm 250 but not final aff; observability remains
 partial. Ancestor Mode-B runs and warm affected-slice receipts are never
-relabeled as final-target evidence.
+relabeled as final-target evidence. Historical live `pure_sha` and R-CW-5/R-CW-6
+fixture candidate/worktree fields remain `80311e8a...`; only their explicit
+transposition target fields name aff.

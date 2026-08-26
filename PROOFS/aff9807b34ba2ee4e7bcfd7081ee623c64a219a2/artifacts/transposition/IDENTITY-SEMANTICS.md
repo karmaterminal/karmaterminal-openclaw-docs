@@ -10,6 +10,7 @@ This map is normative for every repeated SHA in the final-target subtree.
 | `c841a9958abc8344b37ce5c6c5a06bec4cfa6b91` | pinned upstream parent of ordinary merge | Final materiality topology and exact-upstream comparison only |
 | `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a` | ancestor source corpus / source-ancestor qualification | Immutable warm promotion fields, ancestor qualification sections, source gate wrappers, and `artifacts/gates/mode-b/` receipts |
 | `c7131791a6d33ab83d1a820c7cdb81c1b1384931` | frozen qualified basis | Row qualification-basis labels, promotion proof-basis fields, c713 review, and immutable `artifacts/gates/mode-b-c713/` receipts |
+| `80311e8aa07fd560cb957475517c5ea18164541c` | historical continuation pure and fixture execution source | Historical live `pure_sha`, R-CW-5/R-CW-6 operational candidate/worktree fields, row transposition source fields, and carried source evidence |
 | `37300f29a7ec1f731575343c2aa73ae25f1d0efb` | historical live execution | Row evidence/catalog packets and `artifacts/live/`; never a target identity |
 | `a0aa4ec8aefe95ced34342978b64c270c16ec3e9` | exact functional-live runtime composite | Exact R-CW-1 functional packet only; contains 250, not aff; observability remains `PARTIAL-candidate` |
 
@@ -24,4 +25,6 @@ The immutable warm promotion packet uses 2ffc as `proof_corpus_sha`, c713 as
 invalidates execution transfer. The final maintenance packet uses 25051 as its
 basis and aff980 as its target. Row catalog files use 37300 as the historical
 runtime candidate and aff980 only in rebound transposition target metadata.
+The historical live ledger and cap fixtures retain 80311 in operational
+identity fields; aff appears there only as `transposition.target_corpus_sha`.
 No receipt claims exact aff Mode-B or execution.

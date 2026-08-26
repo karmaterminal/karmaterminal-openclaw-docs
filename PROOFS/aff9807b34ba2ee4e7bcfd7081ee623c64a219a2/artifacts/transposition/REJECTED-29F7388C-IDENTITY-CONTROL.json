@@ -1,0 +1,165 @@
+{
+  "schema": "openclaw.proofs.execution-identity-check.v1",
+  "corpus": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
+  "expected": {
+    "historicalSource": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "historicalExecution": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "exactRuntime": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+    "transpositionTarget": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+  },
+  "counts": {
+    "fixtureFiles": 15,
+    "fixtureTranspositions": 15,
+    "operationalIdentityFields": 23
+  },
+  "violations": [
+    {
+      "file": "R-CW-5/fixture/boundary-matrix.json",
+      "field": "dependency.executionWorktreeIntegrity.beforeInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/boundary-matrix.json",
+      "field": "dependency.executionWorktreeIntegrity.afterInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/boundary-matrix.json",
+      "field": "dependency.executionWorktreeIntegrity.afterExecution.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/cleanup.json",
+      "field": "executionWorktreeIntegrity.beforeInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/cleanup.json",
+      "field": "executionWorktreeIntegrity.afterInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/cleanup.json",
+      "field": "executionWorktreeIntegrity.afterExecution.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/dispatch-boundary-suite.json",
+      "field": "dependency.executionWorktreeIntegrity.beforeInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/dispatch-boundary-suite.json",
+      "field": "dependency.executionWorktreeIntegrity.afterInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/dispatch-boundary-suite.json",
+      "field": "dependency.executionWorktreeIntegrity.afterExecution.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/fixture-readiness.json",
+      "field": "candidateSha",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/fixture-result.json",
+      "field": "candidateSha",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/typed-tool-surface.json",
+      "field": "dependency.executionWorktreeIntegrity.beforeInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/typed-tool-surface.json",
+      "field": "dependency.executionWorktreeIntegrity.afterInstall.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-5/fixture/typed-tool-surface.json",
+      "field": "dependency.executionWorktreeIntegrity.afterExecution.head",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/boundary-matrix.json",
+      "field": "candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/cleanup.json",
+      "field": "candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/dispatch-boundary-suite.json",
+      "field": "candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/durable-state-recovery.json",
+      "field": "candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/fixture-readiness.json",
+      "field": "candidateSha",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/fixture-result.json",
+      "field": "candidateSha",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/fixture-result.json",
+      "field": "dependencyProvenance.candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/runtime-boundary.json",
+      "field": "candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "R-CW-6/fixture/typed-tool-surface.json",
+      "field": "candidateWorktreeHead",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    },
+    {
+      "file": "artifacts/live/LIVE-PROOF.public.json",
+      "field": "pure_sha",
+      "expected": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "actual": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    }
+  ],
+  "ok": false,
+  "rejected_sha": "29f7388c9f50a7a1758295845169a6628e6cbf31",
+  "validator_exit_code": 1,
+  "expected_failure": "23 fixture operational identity fields plus historical live pure_sha were incorrectly rebound to aff"
+}

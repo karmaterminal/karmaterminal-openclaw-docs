@@ -1,0 +1,12 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "mode": "test-shard",
+  "kind": "node-dist",
+  "shard_group": "node-dist",
+  "shard": "core-runtime-tui-pty",
+  "check_name": "checks-node-core-runtime-tui-pty",
+  "rc": 1,
+  "conclusion": "failure"
+}

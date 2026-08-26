@@ -1,0 +1,452 @@
+[test] starting test/vitest/vitest.commands.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config[39m
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboarding-plugin-install.test.ts [2m([22m[2m30 tests[22m[2m)[22m[33m 422[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-guided.custodian.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 166[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard.test.ts [2m([22m[2m87 tests[22m[2m)[22m[33m 18942[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps non-interactive reset ordering without a TTY [33m 540[2mms[22m[39m
+     [33m[2m✓[22m[39m validates dependent auth-choice options before reset [33m 1052[2mms[22m[39m
+     [33m[2m✓[22m[39m validates a required setup token before reset [33m 1034[2mms[22m[39m
+     [33m[2m✓[22m[39m validates setup-token expiry before reset [33m 991[2mms[22m[39m
+     [33m[2m✓[22m[39m validates the token provider before reset [33m 1054[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'config' [33m 1020[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'config' [33m 1060[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'main' provider profiles against reset scope 'config' [33m 949[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'config+creds+sessions' [33m 938[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'full' [33m 927[2mms[22m[39m
+     [33m[2m✓[22m[39m validates 'ollama' exactly once before reset and non-interactive setup [33m 1029[2mms[22m[39m
+     [33m[2m✓[22m[39m validates 'lmstudio' exactly once before reset and non-interactive setup [33m 1762[2mms[22m[39m
+     [33m[2m✓[22m[39m never resets or starts setup when 'ollama' validation fails [33m 1326[2mms[22m[39m
+     [33m[2m✓[22m[39m never resets or starts setup when 'lmstudio' validation fails [33m 1055[2mms[22m[39m
+     [33m[2m✓[22m[39m validates a provider-specific API key before reset [33m 1136[2mms[22m[39m
+     [33m[2m✓[22m[39m validates an inferred custom auth choice before reset [33m 1077[2mms[22m[39m
+     [33m[2m✓[22m[39m validates custom credential storage before reset [33m 1078[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-guided.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/auth-choice.plugin-providers.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.gateway-auth.prompt-auth-config.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive.gateway.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 6277[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects concurrent onboarding runs sharing one state directory [33m 614[2mms[22m[39m
+     [33m[2m✓[22m[39m migrates local onboard plugin install records in the setup write [33m 718[2mms[22m[39m
+     [33m[2m✓[22m[39m migrates remote onboard plugin install records in the setup write [33m 591[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.gateway.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 592[2mms[22m[39m
+     [33m[2m✓[22m[39m runs selected sections in canonical order and commits their combined config once [33m 492[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-helpers.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 657[2mms[22m[39m
+     [33m[2m✓[22m[39m persists provider-owned web search config changes returned by setupSearch [33m 529[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-browser-handoff.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice.apply.plugin-provider.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 658[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps provider config patches when default model application is deferred [33m 444[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-options.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/auth-choice.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-skills.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+[90mstderr[2m | src/commands/setup.test.ts[2m > [22m[2msetupCommand[2m > [22m[2mdoes not copy an entry workspace into defaults during a gateway-only write
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2453-1.XiFGZp/tmp/openclaw-test-home-N1zpwD/case-5/.openclaw/openclaw.json): Removed retired agents.entries.*.default markers.
+
+[90mstderr[2m | src/commands/setup.test.ts[2m > [22m[2msetupCommand[2m > [22m[2mupdates only inherited workspace defaults beside an include-owned roster
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2453-1.XiFGZp/tmp/openclaw-test-home-N1zpwD/case-8/.openclaw/openclaw.json): Removed retired agents.entries.*.default markers.
+
+[90mstderr[2m | src/commands/setup.test.ts[2m > [22m[2msetupCommand[2m > [22m[2mupdates inherited workspace defaults below a nested roster include
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2453-1.XiFGZp/tmp/openclaw-test-home-N1zpwD/case-9/.openclaw/openclaw.json): Removed retired agents.entries.*.default markers.
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/setup.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 8000[2mms[22m[39m
+     [33m[2m✓[22m[39m updates the default entry workspace created by fresh setup [33m 872[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the default entry workspace on bare setup [33m 778[2mms[22m[39m
+     [33m[2m✓[22m[39m does not copy an entry workspace into defaults during a gateway-only write [33m 970[2mms[22m[39m
+     [33m[2m✓[22m[39m adds gateway.mode=local to an existing config without overwriting workspace [33m 473[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves an include-owned roster in its authored file [33m 494[2mms[22m[39m
+     [33m[2m✓[22m[39m updates only inherited workspace defaults beside an include-owned roster [33m 833[2mms[22m[39m
+     [33m[2m✓[22m[39m updates inherited workspace defaults below a nested roster include [33m 828[2mms[22m[39m
+     [33m[2m✓[22m[39m persists a roster when existing setup settings already match [33m 813[2mms[22m[39m
+     [33m[2m✓[22m[39m threads skipOptionalBootstrapFiles into workspace creation [33m 463[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a stale config snapshot before workspace or session mutation [33m 457[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-inference.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-remote-gateway.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 269[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-auth.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 9679[2mms[22m[39m
+     [33m[2m✓[22m[39m persists OAuth credentials under the default agent SQLite store [33m 530[2mms[22m[39m
+     [33m[2m✓[22m[39m persists primary and main OAuth rows while later siblings inherit [33m 1571[2mms[22m[39m
+     [33m[2m✓[22m[39m writes OAuth credentials only to target dir by default [33m 544[2mms[22m[39m
+     [33m[2m✓[22m[39m syncs siblings from explicit agentDir outside OPENCLAW_STATE_DIR [33m 437[2mms[22m[39m
+     [33m[2m✓[22m[39m handles plaintext, ref mode, and inline env-ref provider keys [33m 3853[2mms[22m[39m
+     [33m[2m✓[22m[39m stores provider-specific env refs and metadata in ref mode [33m 2357[2mms[22m[39m
+     [33m[2m✓[22m[39m writes to the default agent dir [33m 380[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-remote.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+ [31m❯[39m [30m[42m commands [49m[39m src/commands/auth-choice.model-check.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 277754[2mms[22m[39m
+     [33m[2m✓[22m[39m skips catalog validation when requested while keeping auth checks [33m 2733[2mms[22m[39m
+     [33m[2m✓[22m[39m reports missing auth for generic providers without credential evidence [33m 379[2mms[22m[39m
+[31m     [31m×[31m accepts pending auth profiles collected by the current setup transaction[39m[33m 263199[2mms[22m[39m
+     [33m[2m✓[22m[39m does not use pending auth profiles from a different provider [33m 861[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts Codex OAuth profiles for canonical OpenAI models using the Codex runtime [33m 722[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps custom OpenAI-compatible provider auth separate from Codex OAuth profiles [33m 959[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps full catalog validation enabled by default [33m 887[2mms[22m[39m
+     [33m[2m✓[22m[39m publishes validation catalogs for the selected agent [33m 928[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts subscription auth but not key sources for gpt-5.3-codex-spark [33m 1546[2mms[22m[39m
+     [33m[2m✓[22m[39m maps incompatible route facts to status and recovery wording [33m 1039[2mms[22m[39m
+     [33m[2m✓[22m[39m uses selected static ChatGPT catalog facts for auth checks [33m 686[2mms[22m[39m
+     [33m[2m✓[22m[39m matches shipped OpenAI aliases to their canonical catalog model [33m 740[2mms[22m[39m
+     [33m[2m✓[22m[39m uses every physical route for a logical model: Platform first [33m 747[2mms[22m[39m
+     [33m[2m✓[22m[39m uses every physical route for a logical model: ChatGPT first [33m 762[2mms[22m[39m
+     [33m[2m✓[22m[39m reports an unknown static transport as indeterminate instead of missing auth [33m 1171[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps OpenAI route checks indeterminate when the route artifact is unavailable [33m 394[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/gateway-config.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-prompt.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-agent-target.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 474[2mms[22m[39m
+     [33m[2m✓[22m[39m provisions the configured default agent workspace and sessions [33m 456[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/api-keys.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.default-agent.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=2853)
+[vitest] process: pid=2853 ppid=2817 pgid=2853 elapsed=11:12 state=R cpu=4.1% rss_kb=226672 wchan=- comm=other
+[vitest] process tree: pgid=2853 members=2
+[vitest] process tree: pid=2853 ppid=2817 pgid=2853 elapsed=11:12 state=Z cpu=4.1% rss_kb=0 wchan=- comm=other
+[vitest] process tree: pid=2890 ppid=2853 pgid=2853 elapsed=11:11 state=Z cpu=91.1% rss_kb=0 wchan=- comm=other
+[vitest] fd summary: unavailable
+[test] retrying test/vitest/vitest.commands.config.ts after no-output timeout
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config[39m
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboarding-plugin-install.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 277[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-guided.custodian.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 147[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard.test.ts [2m([22m[2m87 tests[22m[2m)[22m[33m 17390[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps non-interactive reset ordering without a TTY [33m 507[2mms[22m[39m
+     [33m[2m✓[22m[39m validates dependent auth-choice options before reset [33m 1106[2mms[22m[39m
+     [33m[2m✓[22m[39m validates a required setup token before reset [33m 1034[2mms[22m[39m
+     [33m[2m✓[22m[39m validates setup-token expiry before reset [33m 972[2mms[22m[39m
+     [33m[2m✓[22m[39m validates the token provider before reset [33m 923[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'config' [33m 966[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'config' [33m 902[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'main' provider profiles against reset scope 'config' [33m 884[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'config+creds+sessions' [33m 984[2mms[22m[39m
+     [33m[2m✓[22m[39m preflights 'robby' provider profiles against reset scope 'full' [33m 928[2mms[22m[39m
+     [33m[2m✓[22m[39m validates 'ollama' exactly once before reset and non-interactive setup [33m 1027[2mms[22m[39m
+     [33m[2m✓[22m[39m validates 'lmstudio' exactly once before reset and non-interactive setup [33m 942[2mms[22m[39m
+     [33m[2m✓[22m[39m never resets or starts setup when 'ollama' validation fails [33m 1035[2mms[22m[39m
+     [33m[2m✓[22m[39m never resets or starts setup when 'lmstudio' validation fails [33m 985[2mms[22m[39m
+     [33m[2m✓[22m[39m validates a provider-specific API key before reset [33m 1128[2mms[22m[39m
+     [33m[2m✓[22m[39m validates an inferred custom auth choice before reset [33m 1251[2mms[22m[39m
+     [33m[2m✓[22m[39m validates custom credential storage before reset [33m 1088[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-guided.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 252[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/auth-choice.plugin-providers.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.gateway-auth.prompt-auth-config.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive.gateway.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 6406[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects concurrent onboarding runs sharing one state directory [33m 480[2mms[22m[39m
+     [33m[2m✓[22m[39m migrates local onboard plugin install records in the setup write [33m 781[2mms[22m[39m
+     [33m[2m✓[22m[39m migrates remote onboard plugin install records in the setup write [33m 633[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.gateway.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 529[2mms[22m[39m
+     [33m[2m✓[22m[39m runs selected sections in canonical order and commits their combined config once [33m 448[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-helpers.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 862[2mms[22m[39m
+     [33m[2m✓[22m[39m persists provider-owned web search config changes returned by setupSearch [33m 815[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-browser-handoff.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice.apply.plugin-provider.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 636[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps provider config patches when default model application is deferred [33m 469[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-options.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/auth-choice.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-skills.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+[90mstderr[2m | src/commands/setup.test.ts[2m > [22m[2msetupCommand[2m > [22m[2mdoes not copy an entry workspace into defaults during a gateway-only write
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2453-1.XiFGZp/tmp/openclaw-test-home-R33k06/case-5/.openclaw/openclaw.json): Removed retired agents.entries.*.default markers.
+
+[90mstderr[2m | src/commands/setup.test.ts[2m > [22m[2msetupCommand[2m > [22m[2mupdates only inherited workspace defaults beside an include-owned roster
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2453-1.XiFGZp/tmp/openclaw-test-home-R33k06/case-8/.openclaw/openclaw.json): Removed retired agents.entries.*.default markers.
+
+[90mstderr[2m | src/commands/setup.test.ts[2m > [22m[2msetupCommand[2m > [22m[2mupdates inherited workspace defaults below a nested roster include
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2453-1.XiFGZp/tmp/openclaw-test-home-R33k06/case-9/.openclaw/openclaw.json): Removed retired agents.entries.*.default markers.
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/setup.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 7859[2mms[22m[39m
+     [33m[2m✓[22m[39m updates the default entry workspace created by fresh setup [33m 825[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the default entry workspace on bare setup [33m 685[2mms[22m[39m
+     [33m[2m✓[22m[39m does not copy an entry workspace into defaults during a gateway-only write [33m 953[2mms[22m[39m
+     [33m[2m✓[22m[39m adds gateway.mode=local to an existing config without overwriting workspace [33m 473[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves an include-owned roster in its authored file [33m 519[2mms[22m[39m
+     [33m[2m✓[22m[39m updates only inherited workspace defaults beside an include-owned roster [33m 847[2mms[22m[39m
+     [33m[2m✓[22m[39m updates inherited workspace defaults below a nested roster include [33m 798[2mms[22m[39m
+     [33m[2m✓[22m[39m persists a roster when existing setup settings already match [33m 907[2mms[22m[39m
+     [33m[2m✓[22m[39m threads skipOptionalBootstrapFiles into workspace creation [33m 449[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a stale config snapshot before workspace or session mutation [33m 439[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-inference.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-remote-gateway.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 267[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-auth.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 9534[2mms[22m[39m
+     [33m[2m✓[22m[39m persists OAuth credentials under the default agent SQLite store [33m 589[2mms[22m[39m
+     [33m[2m✓[22m[39m persists primary and main OAuth rows while later siblings inherit [33m 1557[2mms[22m[39m
+     [33m[2m✓[22m[39m writes OAuth credentials only to target dir by default [33m 566[2mms[22m[39m
+     [33m[2m✓[22m[39m syncs siblings from explicit agentDir outside OPENCLAW_STATE_DIR [33m 436[2mms[22m[39m
+     [33m[2m✓[22m[39m handles plaintext, ref mode, and inline env-ref provider keys [33m 3722[2mms[22m[39m
+     [33m[2m✓[22m[39m stores provider-specific env refs and metadata in ref mode [33m 2368[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-remote.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+ [31m❯[39m [30m[42m commands [49m[39m src/commands/auth-choice.model-check.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 193178[2mms[22m[39m
+     [33m[2m✓[22m[39m skips catalog validation when requested while keeping auth checks [33m 2399[2mms[22m[39m
+     [33m[2m✓[22m[39m reports missing auth for generic providers without credential evidence [33m 362[2mms[22m[39m
+[31m     [31m×[31m accepts pending auth profiles collected by the current setup transaction[39m[33m 184357[2mms[22m[39m
+     [33m[2m✓[22m[39m does not use pending auth profiles from a different provider [33m 498[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts Codex OAuth profiles for canonical OpenAI models using the Codex runtime [33m 393[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps custom OpenAI-compatible provider auth separate from Codex OAuth profiles [33m 476[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps full catalog validation enabled by default [33m 487[2mms[22m[39m
+     [33m[2m✓[22m[39m publishes validation catalogs for the selected agent [33m 474[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts subscription auth but not key sources for gpt-5.3-codex-spark [33m 850[2mms[22m[39m
+     [33m[2m✓[22m[39m maps incompatible route facts to status and recovery wording [33m 558[2mms[22m[39m
+     [33m[2m✓[22m[39m uses selected static ChatGPT catalog facts for auth checks [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m matches shipped OpenAI aliases to their canonical catalog model [33m 375[2mms[22m[39m
+     [33m[2m✓[22m[39m uses every physical route for a logical model: Platform first [33m 389[2mms[22m[39m
+     [33m[2m✓[22m[39m uses every physical route for a logical model: ChatGPT first [33m 396[2mms[22m[39m
+     [33m[2m✓[22m[39m reports an unknown static transport as indeterminate instead of missing auth [33m 595[2mms[22m[39m
+     [32m✓[39m keeps OpenAI route checks indeterminate when the route artifact is unavailable[32m 191[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/gateway-config.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-prompt.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-agent-target.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 272[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/api-keys.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+│
+◇  Existing config detected ─╮
+│                            │
+│                            │
+│                            │
+├────────────────────────────╯
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.default-agent.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+ [31m❯[39m [30m[42m commands [49m[39m src/commands/onboard-custom.test.ts [2m([22m[2m13 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 263356[2mms[22m[39m
+     [32m✓[39m handles openai flow and saves alias[32m 5[2mms[22m[39m
+[31m     [31m×[31m rejects aliases already used only by the selected agent[39m[33m 263315[2mms[22m[39m
+     [32m✓[39m cancels custom provider verification response bodies[32m 2[2mms[22m[39m
+     [32m✓[39m handles explicit OpenAI Responses flow[32m 1[2mms[22m[39m
+     [32m✓[39m skips the image-input prompt for known custom vision models[32m 1[2mms[22m[39m
+     [32m✓[39m prompts for custom model image support when the model is unknown[32m 1[2mms[22m[39m
+     [32m✓[39m does not seed custom setup with a provider-specific base URL[32m 1[2mms[22m[39m
+     [32m✓[39m retries when verification fails[32m 2[2mms[22m[39m
+     [32m✓[39m rejects successful-looking HTML verification responses with a base URL hint[32m 1[2mms[22m[39m
+     [32m✓[39m detects openai compatibility when unknown[32m 1[2mms[22m[39m
+     [32m✓[39m detects OpenAI Responses compatibility when chat completions fail[32m 1[2mms[22m[39m
+     [32m✓[39m re-prompts base url when unknown detection fails[32m 1[2mms[22m[39m
+     [32m✓[39m aborts verification after timeout[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local.default-agent.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-guided-memory-import.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-agent.persistence.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 4811[2mms[22m[39m
+     [33m[2m✓[22m[39m retains env references and includes through the real snapshot writer [33m 2114[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves an existing roster config byte-identical [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m renames a legacy install and converges its main session before returning [33m 1255[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces a locked migration and converges it on the next startup [33m 1135[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.gateway.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-helpers.remote-probe.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-recommendations.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.channels.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive.gateway-auth-token.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 847[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/remote.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-agent.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice.apply.api-providers.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive.migration.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 971[2mms[22m[39m
+     [33m[2m✓[22m[39m stages, promotes, and acknowledges an explicit import [33m 971[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.daemon.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-config.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.wizard.persistence.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/configure.commands.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive.gateway-health-auth.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/daemon-install.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice.preferred-provider.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-cli-agreement.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 485[2mms[22m[39m
+     [33m[2m✓[22m[39m advertises exactly the choices the non-interactive dispatcher accepts [33m 477[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-interactive.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/workspace.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-channels.post-write.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/auth-choice-legacy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/local/auth-choice-inference.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-inference-ambient.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-non-interactive/config-write.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m commands [49m[39m src/commands/auth-choice.model-check.test.ts[2m > [22mwarnIfModelConfigLooksOff[2m > [22maccepts pending auth profiles collected by the current setup transaction
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/commands/auth-choice.model-check.test.ts:[2m100:3[22m[39m
+    [90m 98|[39m   })[33m;[39m
+    [90m 99|[39m
+    [90m100|[39m   it("accepts pending auth profiles collected by the current setup tra…
+    [90m   |[39m   [31m^[39m
+    [90m101|[39m     [35mconst[39m config [33m=[39m {
+    [90m102|[39m       agents[33m:[39m { defaults[33m:[39m { model[33m:[39m [32m"anthropic/claude-sonnet-4-6"[39m } }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m commands [49m[39m src/commands/onboard-custom.test.ts[2m > [22mpromptCustomApiConfig[2m > [22mrejects aliases already used only by the selected agent
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/commands/onboard-custom.test.ts:[2m113:3[22m[39m
+    [90m111|[39m   })[33m;[39m
+    [90m112|[39m
+    [90m113|[39m   it("rejects aliases already used only by the selected agent", async …
+    [90m   |[39m   [31m^[39m
+    [90m114|[39m     [35mconst[39m prompter [33m=[39m [34mcreateTestPrompter[39m({
+    [90m115|[39m       text[33m:[39m [[32m"http://localhost:11434/v1"[39m[33m,[39m [32m""[39m[33m,[39m [32m"llama3"[39m[33m,[39m [32m"custom"[39m[33m,[39m [32m""[39m][33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m52 passed[39m[22m[90m (54)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m745 passed[39m[22m[90m (747)[39m
+[2m   Start at [22m 20:46:13
+[2m   Duration [22m 536.60s[2m (transform 10.48s, setup 1.55s, import 24.65s, tests 509.30s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config/src/commands/auth-choice.model-check.test.ts,title=[commands] src/commands/auth-choice.model-check.test.ts > warnIfModelConfigLooksOff > accepts pending auth profiles collected by the current setup transaction,line=100,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/commands/auth-choice.model-check.test.ts:100:3%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config/src/commands/onboard-custom.test.ts,title=[commands] src/commands/onboard-custom.test.ts > promptCustomApiConfig > rejects aliases already used only by the selected agent,line=113,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/commands/onboard-custom.test.ts:113:3%0A%0A
+[test] failed 1 Vitest shard in 1210.86s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+ [31m❯[39m [30m[42m commands [49m[39m src/commands/auth-choice.model-check.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 146066[2mms[22m[39m
+     [33m[2m✓[22m[39m skips catalog validation when requested while keeping auth checks [33m 1654[2mms[22m[39m
+     [33m[2m✓[22m[39m reports missing auth for generic providers without credential evidence [33m 327[2mms[22m[39m
+[31m     [31m×[31m accepts pending auth profiles collected by the current setup transaction[39m[33m 136807[2mms[22m[39m
+     [33m[2m✓[22m[39m does not use pending auth profiles from a different provider [33m 614[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts Codex OAuth profiles for canonical OpenAI models using the Codex runtime [33m 493[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps custom OpenAI-compatible provider auth separate from Codex OAuth profiles [33m 638[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps full catalog validation enabled by default [33m 576[2mms[22m[39m
+     [33m[2m✓[22m[39m publishes validation catalogs for the selected agent [33m 578[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts subscription auth but not key sources for gpt-5.3-codex-spark [33m 949[2mms[22m[39m
+     [33m[2m✓[22m[39m maps incompatible route facts to status and recovery wording [33m 567[2mms[22m[39m
+     [33m[2m✓[22m[39m uses selected static ChatGPT catalog facts for auth checks [33m 484[2mms[22m[39m
+     [33m[2m✓[22m[39m matches shipped OpenAI aliases to their canonical catalog model [33m 538[2mms[22m[39m
+     [33m[2m✓[22m[39m uses every physical route for a logical model: Platform first [33m 479[2mms[22m[39m
+     [33m[2m✓[22m[39m uses every physical route for a logical model: ChatGPT first [33m 473[2mms[22m[39m
+     [33m[2m✓[22m[39m reports an unknown static transport as indeterminate instead of missing auth [33m 689[2mms[22m[39m
+     [32m✓[39m keeps OpenAI route checks indeterminate when the route artifact is unavailable[32m 194[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m commands [49m[39m src/commands/auth-choice.model-check.test.ts[2m > [22mwarnIfModelConfigLooksOff[2m > [22maccepts pending auth profiles collected by the current setup transaction
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/commands/auth-choice.model-check.test.ts:[2m100:3[22m[39m
+    [90m 98|[39m   })[33m;[39m
+    [90m 99|[39m
+    [90m100|[39m   it("accepts pending auth profiles collected by the current setup tra…
+    [90m   |[39m   [31m^[39m
+    [90m101|[39m     [35mconst[39m config [33m=[39m {
+    [90m102|[39m       agents[33m:[39m { defaults[33m:[39m { model[33m:[39m [32m"anthropic/claude-sonnet-4-6"[39m } }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m15 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 20:55:11
+[2m   Duration [22m 152.09s[2m (transform 3.52s, setup 638ms, import 5.13s, tests 146.07s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config/src/commands/auth-choice.model-check.test.ts,title=[commands] src/commands/auth-choice.model-check.test.ts > warnIfModelConfigLooksOff > accepts pending auth profiles collected by the current setup transaction,line=100,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/commands/auth-choice.model-check.test.ts:100:3%0A%0A
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-022/shard-1-agentic-commands-onboard-config[39m
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/onboard-custom.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 413[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects aliases already used only by the selected agent [33m 329[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m   Start at [22m 20:57:44
+[2m   Duration [22m 5.79s[2m (transform 3.02s, setup 530ms, import 4.62s, tests 413ms, environment 0ms)[22m
+
+TEST_GATE: 1 deterministic test FAIL -> FAIL

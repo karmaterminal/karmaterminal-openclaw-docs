@@ -1,0 +1,49 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "core-unit-fast-isolated",
+  "configs": [
+    "test/vitest/vitest.unit-fast-isolated.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (core-unit-fast-isolated)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 1068
+    }
+  ],
+  "tests": {
+    "passed": 1577,
+    "failed": 4
+  },
+  "failure_count": 4,
+  "failures": [
+    {
+      "gate": "test shard (core-unit-fast-isolated)",
+      "kind": "test",
+      "detail": "unit-fast-isolated  src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts > embedded setup inference inherited auth owner > prepares the explicit main agent from 'a pre-roster config'"
+    },
+    {
+      "gate": "test shard (core-unit-fast-isolated)",
+      "kind": "test",
+      "detail": "unit-fast-isolated  src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts > embedded setup inference inherited auth owner > prepares the explicit main agent from 'a sole-agent config'"
+    },
+    {
+      "gate": "test shard (core-unit-fast-isolated)",
+      "kind": "test",
+      "detail": "unit-fast-isolated  src/agents/embedded-agent-runner/run.session-permissions.test.ts > embedded run session permissions > prepares the exec mode with plugin-owned permission facts"
+    },
+    {
+      "gate": "test shard (core-unit-fast-isolated)",
+      "kind": "test",
+      "detail": "unit-fast-isolated  src/agents/embedded-agent-runner/run.session-permissions.test.ts > embedded run session permissions > shares the final plugin-clamped exec mode with the outer run"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

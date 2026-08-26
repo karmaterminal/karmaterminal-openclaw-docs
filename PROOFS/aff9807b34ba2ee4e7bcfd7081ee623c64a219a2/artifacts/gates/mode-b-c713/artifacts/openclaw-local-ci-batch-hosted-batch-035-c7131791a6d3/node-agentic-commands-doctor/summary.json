@@ -1,0 +1,34 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "mode": "test-shard",
+  "shard": "agentic-commands-doctor",
+  "configs": [
+    "test/vitest/vitest.commands.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (agentic-commands-doctor)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 604
+    }
+  ],
+  "tests": {
+    "passed": 336,
+    "failed": 1
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (agentic-commands-doctor)",
+      "kind": "test",
+      "detail": "commands  src/commands/doctor-lint.test.ts > runDoctorLintCli > reports an actionable Crabbox profile finding before dispatch"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "openclaw.k6.r-cd-token-authoritative-receipt.v1",
+  "row": "R-CD-TOKEN",
+  "authoritativeSource": "r-cd-token-row-scoped-resolver",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "binding": {
+    "candidateSha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "runtimeBuildSha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "localEvidenceFingerprint": "d0ebff70e7cd0e320f66ada924c877d9b23faa2ec1ef6af0de7c36b4d70cbb3f",
+    "topologyFingerprint": "244f3c719812055b8cf2f285c258b44b51c664d25fad45087a7e4aa4efd2ff19"
+  },
+  "verdict": "PARTIAL-candidate",
+  "failureCategory": "incomplete-or-nonunique-lifecycle",
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "b71320ca8090b1c789c7dbd23923f0774e9c30456f1a22bdc68bccdcd7bf2dbc"
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

@@ -1,0 +1,24 @@
+Command exited with non-zero status 1
+	Command being timed: "bash /home/figs/actions-runner/_work/openclaw-bootstrap/openclaw-bootstrap/tools/openclaw-local-ci-runner.sh"
+	User time (seconds): 211.28
+	System time (seconds): 25.51
+	Percent of CPU this job got: 120%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:16.76
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4820356
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1841
+	Minor (reclaiming a frame) page faults: 6603951
+	Voluntary context switches: 771871
+	Involuntary context switches: 17521
+	Swaps: 0
+	File system inputs: 1286752
+	File system outputs: 1513520
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

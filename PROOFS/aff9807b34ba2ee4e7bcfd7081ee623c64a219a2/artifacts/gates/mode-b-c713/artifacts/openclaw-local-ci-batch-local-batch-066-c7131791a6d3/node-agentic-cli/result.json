@@ -1,0 +1,12 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "mode": "test-shard",
+  "kind": "node-core",
+  "shard_group": "node-core",
+  "shard": "agentic-cli",
+  "check_name": "checks-node-agentic-cli",
+  "rc": 1,
+  "conclusion": "failure"
+}

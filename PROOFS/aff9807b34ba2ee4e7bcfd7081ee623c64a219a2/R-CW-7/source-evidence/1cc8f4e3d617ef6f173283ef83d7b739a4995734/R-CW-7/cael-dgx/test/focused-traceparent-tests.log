@@ -1,0 +1,38 @@
+[test] starting test/vitest/vitest.unit.config.ts
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/tmp/oc-r-cw-7-1cc[39m
+
+ [32m✓[39m [30m[42m unit [49m[39m packages/gateway-protocol/src/schema/agent.schema.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 15:31:25
+[2m   Duration [22m 580ms[2m (transform 533ms, setup 283ms, import 82ms, tests 117ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.auto-reply.config.ts
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/tmp/oc-r-cw-7-1cc[39m
+
+ [32m✓[39m [30m[45m auto-reply [49m[39m src/auto-reply/continuation/delegate-dispatch.test.ts [2m([22m[2m81 tests[22m[2m)[22m[32m 164[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m81 passed[39m[22m[90m (81)[39m
+[2m   Start at [22m 15:31:27
+[2m   Duration [22m 3.71s[2m (transform 3.01s, setup 337ms, import 3.08s, tests 164ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.agents.config.ts
+The `envFile` option is deprecated, please use `envDir: false` instead.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/tmp/oc-r-cw-7-1cc[39m
+
+ [32m✓[39m [30m[46m agents [49m[39m src/agents/tools/continue-delegate-tool.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 174[2mms[22m[39m
+ [32m✓[39m [30m[46m agents [49m[39m src/agents/subagent-spawn.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 3178[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 15:31:33
+[2m   Duration [22m 3.62s[2m (transform 4.91s, setup 604ms, import 2.37s, tests 3.35s, environment 0ms)[22m
+
+[test] passed 3 Vitest shards in 13.99s

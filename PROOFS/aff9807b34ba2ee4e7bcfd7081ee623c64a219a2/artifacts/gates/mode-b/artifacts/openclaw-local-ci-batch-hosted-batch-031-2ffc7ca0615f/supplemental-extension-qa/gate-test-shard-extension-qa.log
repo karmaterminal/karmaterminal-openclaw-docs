@@ -1,0 +1,521 @@
+[test] starting test/vitest/vitest.extension-qa.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-031/shard-0-extension-qa[39m
+
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/mock-openai/server.test.ts [2m([22m[2m271 tests[22m[2m)[22m[33m 6697[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps cursor reads correct when retained debug requests rotate [33m 4365[2mms[22m[39m
+     [33m[2m✓[22m[39m retains enough debug requests for long shared QA runs [33m 533[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/cli.runtime.test.ts [2m([22m[2m146 tests[22m[2m)[22m[33m 5580[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches a taxonomy-backed profile category through the suite runner [33m 362[2mms[22m[39m
+     [33m[2m✓[22m[39m passes non-Crabline profile channel drivers as declarative suite metadata [33m 606[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches the Matrix restart scenario through the Crabline driver profile [33m 325[2mms[22m[39m
+[qa-suite] infra retry 1/1: WhatsApp readiness timed out
+[qa-suite] infra retry 1/1: WhatsApp readiness timed out
+[qa-suite] infra retry 1/1: WhatsApp readiness timed out
+[qa-suite] infra retry 1/1: second scenario readiness timed out
+[qa-suite] infra retry 1/1: retry
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-launch.runtime.test.ts [2m([22m[2m58 tests[22m[2m)[22m[33m 3449[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps Crabline out of unrelated live transport startup [33m 1158[2mms[22m[39m
+     [33m[2m✓[22m[39m forces the declared runtime for a single runtime-specific flow scenario [33m 758[2mms[22m[39m
+     [33m[2m✓[22m[39m isolates flow scenarios that restart after state mutations [33m 360[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/gateway-child.test.ts [2m([22m[2m88 tests[22m[2m)[22m[33m 5279[2mms[22m[39m
+     [33m[2m✓[22m[39m cleans up temp QA gateway roots when node path resolution fails before startup [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m cleans staged QA runtime roots when 'bundled plugin staging cannot copy ro…' [33m 495[2mms[22m[39m
+     [33m[2m✓[22m[39m stages direct live OpenAI API-key aliases for isolated QA workers [33m 315[2mms[22m[39m
+     [33m[2m✓[22m[39m stages configured OpenAI API keys for live QA runs [33m 539[2mms[22m[39m
+     [33m[2m✓[22m[39m stages configured OpenAI env secret refs for default OpenAI live QA runs [33m 330[2mms[22m[39m
+     [33m[2m✓[22m[39m stages configured OpenAI env markers for live QA runs [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m stages placeholder mock auth profiles per agent dir so mock-openai runs can resolve credentials [33m 320[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/whatsapp/whatsapp-live.runtime.test.ts [2m([22m[2m54 tests[22m[2m)[22m[33m 4330[2mms[22m[39m
+     [33m[2m✓[22m[39m registers the WhatsApp canary scenario [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m defines WhatsApp QA hardening scenarios as mock-backed user-path checks [33m 536[2mms[22m[39m
+     [33m[2m✓[22m[39m defines WhatsApp group capability scenarios as mock-backed group checks [33m 1079[2mms[22m[39m
+     [33m[2m✓[22m[39m runs WhatsApp group direct Gateway media, audio, and poll probes against the group target [33m 364[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/lab-server.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 9452[2mms[22m[39m
+     [33m[2m✓[22m[39m returns a 500 JSON response when a shared bus route rejects [33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m marks 'failed' suite results failed while preserving generated artifacts [33m 471[2mms[22m[39m
+     [33m[2m✓[22m[39m marks 'skipped' suite results failed while preserving generated artifacts [33m 338[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed on an 'invalid' suite summary while preserving artifacts [33m 382[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed on an 'empty' suite summary while preserving artifacts [33m 342[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps implicit suites green for catalog-verified report-only optional skips [33m 331[2mms[22m[39m
+     [33m[2m✓[22m[39m allows only one concurrent request to commit a resolved suite plan [33m 605[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects empty and unknown explicit selections before dispatch [33m 438[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the bus available until the embedded gateway finishes stopping [33m 434[2mms[22m[39m
+     [33m[2m✓[22m[39m serves bootstrap state and message state [33m 608[2mms[22m[39m
+     [33m[2m✓[22m[39m proxies control-ui paths through /control-ui [33m 475[2mms[22m[39m
+     [33m[2m✓[22m[39m aborts an in-flight runner model catalog when the lab stops [33m 467[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes structured outcomes and can attach control-ui after startup [33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m serves proxy capture sessions, events, and query rows [33m 460[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/slack/slack-live.runtime.test.ts [2m([22m[2m50 tests[22m[2m)[22m[33m 5266[2mms[22m[39m
+     [33m[2m✓[22m[39m selects Slack scenarios by id [33m 464[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces MPIM cleanup failures and retains ownership for a retry [33m 614[2mms[22m[39m
+     [33m[2m✓[22m[39m builds the Slack progress commentary true, false, omitted, and dedupe configs [33m 768[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies progress commentary from history or successful captured message writes [33m 436[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects commentary when false and mismatched tool progress [33m 493[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/runtime-tool-fixture.test.ts [2m([22m[2m62 tests[22m[2m)[22m[33m 10866[2mms[22m[39m
+     [33m[2m✓[22m[39m checks effective tools on the same session used for the happy prompt [33m 766[2mms[22m[39m
+     [33m[2m✓[22m[39m requires live runtime tool fixtures to produce transcript tool output [33m 485[2mms[22m[39m
+     [33m[2m✓[22m[39m skips async live runtime tool fixtures when the happy path has no result [33m 858[2mms[22m[39m
+     [33m[2m✓[22m[39m still requires async live runtime tool fixtures to call the happy-path tool [32m 300[2mms[22m[39m
+     [33m[2m✓[22m[39m requires live failure fixtures to produce failure-shaped tool output [33m 422[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects failure-shaped live happy-path tool output [33m 317[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies native Codex patch success and workspace denial: patch rejected: writing outside of the project; rejected by user approval settings [33m 540[2mms[22m[39m
+     [33m[2m✓[22m[39m recognizes forced Codex native patches even when the effective inventory lists apply_patch [33m 712[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a native patch whose recorded working directory changes its target [33m 486[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies linked 'native freeform patch text' without weakening workspace containment [33m 608[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies linked 'OpenClaw input envelope' without weakening workspace containment [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies linked 'JSON-encoded provider arguments' without weakening workspace containment [33m 926[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies linked 'executed provider arguments with an e…' without weakening workspace containment [33m 357[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects native patch transcripts that claim success without creating the workspace file [33m 425[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects native Codex patch failures without a linked failure result [33m 351[2mms[22m[39m
+     [33m[2m✓[22m[39m validates the native patch call linked to its result instead of the first plan [33m 308[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed when required native Codex patch execution has no linked transcript [33m 447[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/slack-desktop-smoke.runtime.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 1246[2mms[22m[39m
+     [33m[2m✓[22m[39m runs approval checkpoint mode with default approval scenarios and records screenshots [33m 474[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.test.ts [2m([22m[2m58 tests[22m[2m)[22m[33m 33749[2mms[22m[39m
+     [33m[2m✓[22m[39m loads the YAML pack as the canonical source of truth [33m 361[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the update.run producer blocked without destructive opt-in [33m 33312[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/crabline-transport.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 597[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/agentic-parity-report.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 392[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/coverage-report.test.ts [2m([22m[2m48 tests[22m[2m)[22m[33m 1111[2mms[22m[39m
+     [33m[2m✓[22m[39m groups scenario coverage metadata by theme and surface [33m 683[2mms[22m[39m
+     [33m[2m✓[22m[39m finds every cataloged native scenario by its authoritative execution path [33m 330[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-planning.test.ts [2m([22m[2m50 tests[22m[2m)[22m[33m 583[2mms[22m[39m
+     [33m[2m✓[22m[39m selects the real channel streaming scenario for the 'qa-channel' driver [33m 363[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/confidence-report.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 194[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-scenario-timeouts.test.ts [2m([22m[2m66 tests[22m[2m)[22m[33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the model-aware timeout for the Telegram compact tools reply [33m 344[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-flow-runner.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 370[2mms[22m[39m
+     [33m[2m✓[22m[39m loads bundled QA fixture modules through qaImport [33m 336[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/runtime-parity.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 6345[2mms[22m[39m
+     [33m[2m✓[22m[39m cancels a failed mock-request response before falling back to transcript calls [33m 376[2mms[22m[39m
+     [33m[2m✓[22m[39m captures tool results from the canonical SQLite session transcript [33m 485[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps distinct same-tool calls with identical arguments [33m 486[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts a fresh scenario MEDIA result for terminal image tools [33m 567[2mms[22m[39m
+     [33m[2m✓[22m[39m requires call-linked passed step evidence for terminal image results [33m 691[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves missing image results when capture sources disagree on call count [33m 343[2mms[22m[39m
+     [33m[2m✓[22m[39m copies model-switch evidence into the runtime parity cell [33m 569[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 719[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects unsupported transport ids before starting the lab [33m 454[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-channel/src/channel.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 392[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-agent-process.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 1573[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/cli.test.ts [2m([22m[2m67 tests[22m[2m)[22m[32m 156[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/tool-coverage-report.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 370[2mms[22m[39m
+     [33m[2m✓[22m[39m discovers the runtime tool fixture catalog [33m 364[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-environment.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 2017[2mms[22m[39m
+     [33m[2m✓[22m[39m shares the preparation deadline across revision and fresh account readiness [33m 754[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a stale account start after a delayed failed pre-restart status read [33m 1003[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/tool-search-gateway.fixture.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/character-eval.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/recording-proxy.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/test-file-scenario-runner.script-evidence.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 355[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/shared/credential-lease.runtime.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/run-config.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 1360[2mms[22m[39m
+     [33m[2m✓[22m[39m shares implicit profile membership and eligibility with the canonical profile planner [33m 465[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/config.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/evidence-gallery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-causality.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 367[2mms[22m[39m
+     [33m[2m✓[22m[39m loads live gateway sentinel scenarios for harness self-health [33m 358[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/client.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/token-efficiency-report.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/web/src/ui-render.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-agent-session.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 4950[2mms[22m[39m
+     [33m[2m✓[22m[39m reads the raw qa session store from SQLite [33m 997[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds QA session metadata and transcript messages in SQLite [33m 594[2mms[22m[39m
+     [33m[2m✓[22m[39m reports bounded persisted compaction summaries [33m 386[2mms[22m[39m
+     [33m[2m✓[22m[39m summarizes QA transcript events after non-assistant rows [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m reports provider-owned assistant mirror identities [33m 499[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds authenticated successful tool results to the latest 64 events [33m 417[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed when a requested QA session transcript is empty [33m 378[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/discord/discord-live.runtime.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 551[2mms[22m[39m
+     [33m[2m✓[22m[39m retries Discord REST requests after a 429 rate limit [33m 537[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-gateway-config.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/bus-state.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+[90mstderr[2m | extensions/qa-channel/src/inbound.test.ts[2m > [22m[2mhandleQaInbound[2m > [22m[2mdeletes an active preview when reply dispatch fails
+[22m[39m[qa-channel] reply dispatch failed: model failed
+
+[90mstderr[2m | extensions/qa-channel/src/inbound.test.ts[2m > [22m[2mhandleQaInbound[2m > [22m[2mdeletes a preview after a queued edit fails
+[22m[39m[qa-channel] reply dispatch failed: dispatch failed
+
+[90mstderr[2m | extensions/qa-channel/src/inbound.test.ts[2m > [22m[2mhandleQaInbound[2m > [22m[2mskips malformed inline attachment base64 without dropping the message
+[22m[39m[qa-channel] inbound attachment contentBase64 rejected (invalid base64)
+
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-channel/src/inbound.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 508[2mms[22m[39m
+[90mstdout[2m | extensions/qa-lab/src/code-mode-model-matrix.test.ts[2m > [22m[2mCode Mode model matrix artifacts[2m > [22m[2mcontinues after cell crashes and reports first-pass versus eventual success
+[22m[39m[code-mode-matrix] FAIL harness_error ollama-qwen3-5-9b-07d79b62ba-code-read-1 1ms
+
+[90mstdout[2m | extensions/qa-lab/src/code-mode-model-matrix.test.ts[2m > [22m[2mCode Mode model matrix artifacts[2m > [22m[2mcontinues after cell crashes and reports first-pass versus eventual success
+[22m[39m[code-mode-matrix] PASS ollama-qwen3-5-9b-07d79b62ba-code-read-2 10ms
+
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/code-mode-model-matrix.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-summary.test.ts [2m([22m[2m63 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-compaction.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 346[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps 'compaction-empty-response-recovery' on the OpenClaw compaction owner [33m 343[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/harness.runtime.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-flow.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 561[2mms[22m[39m
+     [33m[2m✓[22m[39m wires the split suite runtime deps into the scenario runtime api [33m 514[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-gateway.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 5548[2mms[22m[39m
+     [33m[2m✓[22m[39m retries rate-limited config mutations using the primary gateway error [33m 1254[2mms[22m[39m
+     [33m[2m✓[22m[39m retries config hash conflicts from the primary gateway error [33m 752[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the live timeout profile for config mutations and restart settle [33m 753[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the live timeout profile when config mutation races a restart [33m 753[2mms[22m[39m
+     [33m[2m✓[22m[39m retries when a restart race settles before the config mutation is visible [33m 503[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps polling gateway health instead of sleeping blindly through restart settle [33m 502[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/bus-server.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 6084[2mms[22m[39m
+     [33m[2m✓[22m[39m wakes matching polls and fences late polls and writes during shutdown [33m 316[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts a generated-media payload larger than 1 MiB on the inbound message route [33m 2901[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts a generated-media payload larger than 1 MiB on the outbound message route [33m 2818[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/test-file-scenario-runner.native.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/mock-openai/mock-openai-responses-websocket.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/discord-smoke.runtime.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 897[2mms[22m[39m
+     [33m[2m✓[22m[39m parses a large-but-under-cap Discord response unchanged [33m 550[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/visual-task.runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/sync.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/test-file-scenario-command-lifecycle.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1653[2mms[22m[39m
+     [33m[2m✓[22m[39m settles within a bound after the leader writes its final result with inherited stdio open [33m 304[2mms[22m[39m
+     [33m[2m✓[22m[39m reports that a self-detached descendant escaped and cleans it explicitly [33m 1051[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/telegram/adapter.runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 329[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-cli.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 2858[2mms[22m[39m
+     [33m[2m✓[22m[39m kills CLI commands that ignore graceful timeout termination [33m 771[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves timeout diagnostics when wait attaches after timeout [33m 778[2mms[22m[39m
+     [33m[2m✓[22m[39m settles and kills descendants that keep timed-out CLI stdio open [33m 775[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-parity-runner.cleanup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/lab-server-ui.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 10043[2mms[22m[39m
+     [33m[2m✓[22m[39m returns a flushed 504 and closes both sockets when TLS stays silent after TCP connect [33m 10022[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/docker-up.runtime.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 1043[2mms[22m[39m
+     [33m[2m✓[22m[39m builds the QA UI, writes the harness, starts compose, and waits for health [33m 535[2mms[22m[39m
+     [33m[2m✓[22m[39m falls back to the container IP when the host gateway port is unreachable [33m 395[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-e2ee-destructive.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1053[2mms[22m[39m
+     [33m[2m✓[22m[39m finds account metadata stored in account-local SQLite [33m 1033[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/evidence-summary.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 624[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-memory-ranking-proof.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 413[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts current session memory ranked before competing stale durable memory (mock-openai) [33m 382[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-channel/src/bus-client.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 994[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds oversized qa-bus state responses [33m 918[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-transport.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/profile-evidence-sharding.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 3901[2mms[22m[39m
+     [33m[2m✓[22m[39m partitions the real all profile while keeping exclusive live channels shard-affine [33m 677[2mms[22m[39m
+     [33m[2m✓[22m[39m attests a complete aggregate assembled from every planned shard [33m 621[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an incomplete child as incomplete aggregate evidence [33m 1673[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects duplicate or missing shards instead of treating them as partial evidence [33m 384[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/desktop-browser-smoke.runtime.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-channels.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies every current module flow intrinsically [33m 357[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-channel/src/gateway.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/telegram-desktop-builder.runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-lane.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/runtime-parity-cache-diagnostics.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1306[2mms[22m[39m
+     [33m[2m✓[22m[39m captures post-warm cache losses from the canonical SQLite assistant transcript [33m 380[2mms[22m[39m
+     [33m[2m✓[22m[39m treats Ollama adapter cache zeros as unavailable telemetry [33m 388[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an explicitly measured zero-cache result [33m 390[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/test-file-scenario-runner.docker.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/matrix-scenario-flows.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-credentials-admin.runtime.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/fault-proxy.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-run-isolated.cleanup.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/manual-lane.runtime.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/shared/live-gateway.runtime.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite.summary-json.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-run-standard.parity-retry.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/agentic-parity-report.cache.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-transport-registry.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/multipass.runtime.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/gateway-rpc-client.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/e2ee-client.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-flow-runner-redaction-proof.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+     [33m[2m✓[22m[39m requires secret-redaction-tool-logs to successfully read the fake secret before proving safe delivery [33m 341[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-channel-transport.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/events.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-transport.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 410[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-agent-tools.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scorecard-evidence.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1018[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[qa-process-lifecycle] waiting for completed summary elapsedMs=30002 gatewayPorts=0 stderrBytes=1449
+ [31m❯[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-process-lifecycle.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 32010[2mms[22m[39m
+[31m     [31m×[31m exits after the terminal summary and leaves no gateway listener[39m[33m 32009[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/ci-smoke-plan.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 6711[2mms[22m[39m
+     [33m[2m✓[22m[39m balances the bounded smoke pack across 4 profile parts [33m 3615[2mms[22m[39m
+     [33m[2m✓[22m[39m balances the bounded smoke pack across 6 profile parts [33m 1993[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-model-switch-tool-continuity-proof.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/telegram/cli.runtime.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/web-runtime.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/gateway-process-boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 147[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-channel/src/channel-actions.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/run.runtime.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/telegram/telegram-api.runtime.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-matrix-session-identity-proof.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 394[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts distinct room-owned sessions on the 'live' Matrix lane [33m 386[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-model-switch-follow-up-proof.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 368[2mms[22m[39m
+     [33m[2m✓[22m[39m invokes the canonical alias target and records exact run-owned evidence [33m 361[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/harness-parity.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.openai-live.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 350[2mms[22m[39m
+     [33m[2m✓[22m[39m includes the GPT-5.6 Luna thinking visibility switch scenario [33m 347[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/docker-harness.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 386[2mms[22m[39m
+     [33m[2m✓[22m[39m writes compose, env, config, and workspace scaffold files [33m 372[2mms[22m[39m
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel channelDriver=live
+[qa-suite] lab start
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] lab start
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] lab start
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] lab start
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] lab start
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-provider-selection.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 1061[2mms[22m[39m
+     [33m[2m✓[22m[39m adopts a single runtime-partitioned flow scenario's required provider [33m 508[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps an explicit unified provider override ahead of a scenario requirement [33m 351[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-agent-media.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/mock-openai/mock-openai-events.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/aimock/server.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1818[2mms[22m[39m
+     [33m[2m✓[22m[39m reads requests after a stable debug cursor [33m 1790[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/channel-driver-lifecycle.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/shared/auth-store.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1444[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps inherited host shared state unchanged while staging isolated profiles [33m 390[2mms[22m[39m
+     [33m[2m✓[22m[39m writes new auth profiles to SQLite without creating legacy JSON [33m 372[2mms[22m[39m
+     [33m[2m✓[22m[39m can replace an existing profile set for deterministic fixture seeding [33m 401[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-flow-runner-character-safety.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 486[2mms[22m[39m
+     [33m[2m✓[22m[39m requires a live provider for character-vibes-gollum [33m 331[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/model-catalog.runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1669[2mms[22m[39m
+     [33m[2m✓[22m[39m kills aborted catalog process groups when the catalog child exits first [33m 532[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves abort grace when catalog descendants exit cleanly [33m 612[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/runtime-parity-session-selection.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 885[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps fixture-owned tool sessions when Codex attaches parent metadata [33m 610[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/request.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 405[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-flow-runner.deadline.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 490[2mms[22m[39m
+     [33m[2m✓[22m[39m does not invoke generic call after aborting during async input resolution [33m 362[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/shared/scenario-selection.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1938[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps explicit and implicit singleton eligibility aligned for 'matrix' [33m 518[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps explicit and implicit singleton eligibility aligned for 'slack' [33m 323[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/posix-command-settlement.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/jsonl-replay.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/discord/discord-transcripts-authorization.runtime.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-cli-stream-error.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1431[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects after cleaning up when stdout emits a stream error (after exit: false) [33m 484[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects after cleaning up when stderr emits a stream error (after exit: false) [33m 472[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects after cleaning up when stdout emits a stream error (after exit: true) [33m 474[2mms[22m[39m
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair start (1/1): runtime-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair pass (1/1): runtime-channel
+[qa-suite] run complete
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair start (1/1): runtime-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair pass (1/1): runtime-channel
+[qa-suite] run complete
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair start (1/1): runtime-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair pass (1/1): runtime-channel
+[qa-suite] run complete
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair start (1/1): runtime-control-ui
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair pass (1/1): runtime-control-ui
+[qa-suite] run complete
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair start (1/1): runtime-control-ui
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair pass (1/1): runtime-control-ui
+[qa-suite] run complete
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair start (1/1): runtime-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] runtime pair pass (1/1): runtime-channel
+[qa-suite] run complete
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-parity-runner.control-ui.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/runtime-parity-outcomes.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 916[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a skip diagnostic out of runtime error classification [33m 914[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/agentic-parity-report.timing.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/web/src/http.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/static-ssh-worker-provider.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/harness-runtime.integration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 472[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches a QA Channel inbound turn through the embedded runner [33m 443[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/crabline-transport-message-id.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/cli.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.runtime-pair.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 365[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the canonical lanes with audited declaration counts [33m 361[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/profile-selection.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1176[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves smoke membership from every primary coverage owner [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m derives channel defaults from catalog metadata and lane constraints [33m 304[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/model-selection.runtime.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/gateway-log-sentinel.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/self-check.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/codex-plugin-lifecycle.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1376[2mms[22m[39m
+     [33m[2m✓[22m[39m repairs a missing codex plugin before the retry succeeds without leaking to the API-key path [33m 467[2mms[22m[39m
+     [33m[2m✓[22m[39m selects openai OAuth when openai API-key profiles are present [33m 402[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-media.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-runtime-api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/live-transport-adapters.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/browser-runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/node-exec.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/shared/live-transport-suite.runtime.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 312[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/slack/slack-live.capture.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.inference.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 353[2mms[22m[39m
+     [33m[2m✓[22m[39m isolates live goal followthrough from shared gateway state [33m 350[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/telegram/profiles.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2191[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the default mock-openai command on flow scenarios [33m 592[2mms[22m[39m
+     [33m[2m✓[22m[39m lets explicit scenarios override profile selection [33m 341[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/test-file-scenario-runner.process.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 428[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/adapter.runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-agent-process.integration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1051[2mms[22m[39m
+     [33m[2m✓[22m[39m retains real child output when the qa cli times out [33m 1015[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-e2ee-messages.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/cron-run-wait.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/scenario-module-parity.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 367[2mms[22m[39m
+     [33m[2m✓[22m[39m routes every 'discord' flow through one shared channel runner [33m 362[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/runtime-parity.execution-order.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/process-tree-cpu.windows.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/web/src/capture-saved-view.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/test-file-scenario-runner.e2e-routing.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/profile-evidence-plan.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/mantis/crabbox-runtime.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 215[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/image-generation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/gateway-log-redaction.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/slack/adapter.runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/discovery-eval.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/shared/live-gateway-config.runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 254[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/slack/scenario-environment.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/posix-process-group.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-flow-runner.voice-talkback.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 331[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a live OpenAI model outside the scenario contract [33m 329[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/slack/scenario-runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-web-search-provider.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-reaction.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-runtime-parity-runner.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/process-tree-cpu.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/crabline-transport-readiness.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-memory-recall-proof.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 339[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects the earlier remember acknowledgement when recall produces no reply [33m 338[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/cli.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/codex-app-server-args.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-module-flow.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/crabline-transport-native-command.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-timeout.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/report.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-model-selection.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/gateway-port-reservation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-merge-patch.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-round-trip.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/windows-system-tools.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/lab-server-capture.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.config-restart.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 365[2mms[22m[39m
+     [33m[2m✓[22m[39m waits for the restart wake before using restored capabilities [33m 363[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/evidence-environment.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-tool-progress-diagnostics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-state-files.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 274[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-bus-protocol.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/model-switch-eval.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-agent-workspace.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 390[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the expected repo link type on win32 [33m 356[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-anthropic-live.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 343[2mms[22m[39m
+     [33m[2m✓[22m[39m pins anthropic-opus-api-key-smoke to live Anthropic Opus [33m 341[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/providers/mock-openai/server.memory-ranking-proof.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog-browser-coverage.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 333[2mms[22m[39m
+     [33m[2m✓[22m[39m loads the screenshot and unread-body cancellation as a native Playwright scenario [33m 331[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/reply-failure.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/scenarios/scenario-runtime-shared.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/child-output.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/whatsapp/whatsapp-boundary.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/execution-identity-storage-inspection.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-planning-module-flows.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.slack-blocked-lifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 346[2mms[22m[39m
+     [33m[2m✓[22m[39m invalidates and observes the selected account without waiting for readiness [33m 345[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 799[2mms[22m[39m
+     [33m[2m✓[22m[39m loads the package Telegram harness without the private QA transport runtime [33m 697[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/timer-timeouts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/ignored-response-body.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/qa-credentials-common.runtime.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/web/src/ui-conversation-key.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/matrix/substrate/topology.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/live-transports/telegram/run-options.runtime.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-channel/setup-entry.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 18195[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/scenario-catalog.no-meta.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 437[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps context visibility proof on one primary scenario [33m 436[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/web/src/app.browser.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1372[2mms[22m[39m
+     [33m[2m✓[22m[39m labels every execution configuration select [33m 534[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-process-lifecycle.test.ts[2m > [22mqa suite command process lifecycle[2m > [22mexits after the terminal summary and leaves no gateway listener
+[31m[1mError[22m: QA suite process exited before writing a completed summary: {"code":1,"signal":null}
+stdout:
+
+stderr:
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] lab start
+[qa-suite] lab ready: http://127.0.0.1:37649
+[qa-suite] provider start: mock-openai
+[qa-suite] provider ready: http://127.0.0.1:46503
+[qa-suite] gateway start
+[qa-suite] infra retry 1/1: gateway exited before listening (exitCode=1, signal=null):
+[openclaw] Building TypeScript (dist is stale: force_build - forced by OPENCLAW_FORCE_BUILD).
+[openclaw] Building bundled plugin assets.
+[canvas] build: node scripts/bundle-a2ui.mjs
+[diffs] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts curated
+[diffs-language-pack] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts full
+[discord] build: node --import tsx ../../scripts/build-discord-activity-sdk.mts
+[tsdown-build] The resolved OpenClaw build heap is 1861MB, and a full build needs 4352MB, peaking near 4.7GB once rolldown's native allocations are counted; those are not covered by --max-old-space-size.
+Stopping before any build output is removed. Pick one:
+  - give this machine or container more memory
+  - set OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB=<MB> to explicitly attempt the build anyway | gateway_startup_unhealthy
+[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel
+[qa-suite] lab start
+[qa-suite] lab ready: http://127.0.0.1:39491
+[qa-suite] provider start: mock-openai
+[qa-suite] provider ready: http://127.0.0.1:33533
+[qa-suite] gateway start
+gateway exited before listening (exitCode=1, signal=null):
+[openclaw] Building TypeScript (dist is stale: force_build - forced by OPENCLAW_FORCE_BUILD).
+[openclaw] Building bundled plugin assets.
+[canvas] build: node scripts/bundle-a2ui.mjs
+A2UI bundle up to date; skipping.
+[diffs] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts curated
+[diffs-language-pack] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts full
+[discord] build: node --import tsx ../../scripts/build-discord-activity-sdk.mts
+[tsdown-build] The resolved OpenClaw build heap is 1827MB, and a full build needs 4352MB, peaking near 4.7GB once rolldown's native allocations are counted; those are not covered by --max-old-space-size.
+Stopping before any build output is removed. Pick one:
+  - give this machine or container more memory
+  - set OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB=<MB> to explicitly attempt the build anyway | gateway_startup_unhealthy
+[39m
+[36m [2m❯[22m throwIfProcessClosed extensions/qa-lab/src/suite-process-lifecycle.test.ts:[2m197:11[22m[39m
+
+[90m [2m❯[22m waitForCompletedSummary extensions/qa-lab/src/suite-process-lifecycle.test.ts:[2m209:7[22m[39m
+[90m [2m❯[22m extensions/qa-lab/src/suite-process-lifecycle.test.ts:[2m272:23[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m209 passed[39m[22m[90m (210)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2895 passed[39m[22m[90m (2896)[39m
+[2m   Start at [22m 20:38:16
+[2m   Duration [22m 344.80s[2m (transform 56.83s, setup 4.34s, import 96.53s, tests 237.65s, environment 1.46s)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-031/shard-0-extension-qa/extensions/qa-lab/src/suite-process-lifecycle.test.ts,title=[extension-qa] extensions/qa-lab/src/suite-process-lifecycle.test.ts > qa suite command process lifecycle > exits after the terminal summary and leaves no gateway listener,line=197,column=11::Error: QA suite process exited before writing a completed summary: {"code":1,"signal":null}%0Astdout:%0A%0Astderr:%0A[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel%0A[qa-suite] lab start%0A[qa-suite] lab ready: http://127.0.0.1:37649%0A[qa-suite] provider start: mock-openai%0A[qa-suite] provider ready: http://127.0.0.1:46503%0A[qa-suite] gateway start%0A[qa-suite] infra retry 1/1: gateway exited before listening (exitCode=1, signal=null):%0A[openclaw] Building TypeScript (dist is stale: force_build - forced by OPENCLAW_FORCE_BUILD).%0A[openclaw] Building bundled plugin assets.%0A[canvas] build: node scripts/bundle-a2ui.mjs%0A[diffs] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts curated%0A[diffs-language-pack] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts full%0A[discord] build: node --import tsx ../../scripts/build-discord-activity-sdk.mts%0A[tsdown-build] The resolved OpenClaw build heap is 1861MB, and a full build needs 4352MB, peaking near 4.7GB once rolldown's native allocations are counted; those are not covered by --max-old-space-size.%0AStopping before any build output is removed. Pick one:%0A  - give this machine or container more memory%0A  - set OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB=<MB> to explicitly attempt the build anyway | gateway_startup_unhealthy%0A[qa-suite] run start: scenarios=1 concurrency=1 transport=qa-channel%0A[qa-suite] lab start%0A[qa-suite] lab ready: http://127.0.0.1:39491%0A[qa-suite] provider start: mock-openai%0A[qa-suite] provider ready: http://127.0.0.1:33533%0A[qa-suite] gateway start%0Agateway exited before listening (exitCode=1, signal=null):%0A[openclaw] Building TypeScript (dist is stale: force_build - forced by OPENCLAW_FORCE_BUILD).%0A[openclaw] Building bundled plugin assets.%0A[canvas] build: node scripts/bundle-a2ui.mjs%0AA2UI bundle up to date; skipping.%0A[diffs] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts curated%0A[diffs-language-pack] build: node --import tsx ../../scripts/build-diffs-viewer-runtime.mts full%0A[discord] build: node --import tsx ../../scripts/build-discord-activity-sdk.mts%0A[tsdown-build] The resolved OpenClaw build heap is 1827MB, and a full build needs 4352MB, peaking near 4.7GB once rolldown's native allocations are counted; those are not covered by --max-old-space-size.%0AStopping before any build output is removed. Pick one:%0A  - give this machine or container more memory%0A  - set OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB=<MB> to explicitly attempt the build anyway | gateway_startup_unhealthy%0A%0A ❯ throwIfProcessClosed extensions/qa-lab/src/suite-process-lifecycle.test.ts:197:11%0A ❯ waitForCompletedSummary extensions/qa-lab/src/suite-process-lifecycle.test.ts:209:7%0A ❯ extensions/qa-lab/src/suite-process-lifecycle.test.ts:272:23%0A%0A
+[test] failed 1 Vitest shard in 346.55s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-031/shard-0-extension-qa[39m
+
+[vitest] still running with no output for 30000ms.
+[qa-process-lifecycle] waiting for completed summary elapsedMs=30000 gatewayPorts=0 stderrBytes=249
+[qa-process-lifecycle] waiting for completed summary elapsedMs=60001 gatewayPorts=0 stderrBytes=249
+[vitest] still running with no output for 30000ms.
+[qa-process-lifecycle] waiting for completed summary elapsedMs=90001 gatewayPorts=0 stderrBytes=249
+ [32m✓[39m [30m[42m extension-qa [49m[39m extensions/qa-lab/src/suite-process-lifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 103983[2mms[22m[39m
+     [33m[2m✓[22m[39m exits after the terminal summary and leaves no gateway listener [33m 103978[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 20:44:03
+[2m   Duration [22m 107.71s[2m (transform 2.29s, setup 1.25s, import 2.25s, tests 103.98s, environment 0ms)[22m
+

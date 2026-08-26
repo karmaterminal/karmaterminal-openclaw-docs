@@ -1,0 +1,34 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "core-unit-fast-1",
+  "configs": [
+    "test/vitest/vitest.unit-fast.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (core-unit-fast-1)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 286
+    }
+  ],
+  "tests": {
+    "passed": 7531,
+    "failed": 1
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (core-unit-fast-1)",
+      "kind": "test",
+      "detail": "unit-fast  src/auto-reply/reply/commands-learn.test.ts > learn command > includes the load-bearing skill authoring standards"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

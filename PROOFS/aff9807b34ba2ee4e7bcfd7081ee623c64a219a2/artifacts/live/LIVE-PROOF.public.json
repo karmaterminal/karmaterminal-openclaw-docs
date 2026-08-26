@@ -1,0 +1,206 @@
+{
+  "schema": "frond-scribe.pr85651-live-proof.v1",
+  "execution_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+  "pure_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "pickup_heads": {
+    "pr124337": "d81272c117ef7a2ac765450d682309a941d58463",
+    "pr121204": "5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938"
+  },
+  "deployment": {
+    "run": 32828846929,
+    "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+    "source_status": "succeeded",
+    "startup_health_hold_seconds": 60,
+    "post_doctor_health_hold_seconds": 15,
+    "nrestarts": 0
+  },
+  "runtime": {
+    "head_matches_build_info": true,
+    "version": "2026.8.1",
+    "package_dist_count": 16,
+    "gateway_health": 200,
+    "state_schema": 9,
+    "state_quick_check": "ok",
+    "agent_schema": 17,
+    "agent_quick_check": "ok",
+    "discord": {
+      "accountId": "default",
+      "running": true,
+      "connected": true,
+      "lifecycle": "ready"
+    },
+    "otel": {
+      "service_name": "ronan-prince",
+      "endpoint": "http://otel.dandelion.cult:4318",
+      "protocol": "http/protobuf",
+      "traces": true,
+      "capture_content": false
+    }
+  },
+  "stale_suppression": {
+    "before": {
+      "id": "1541443384667934801",
+      "reason": "stale-ambient-backlog",
+      "attempts": 0,
+      "receivedAt": 1787579141613,
+      "failedAt": 1787580042082,
+      "laneKey": "channel:1466192485440164011",
+      "payloadRetained": true,
+      "channelType": 0,
+      "guildIdPresent": true,
+      "mentionCount": 0,
+      "mentionedEveryone": false,
+      "attachments": 0
+    },
+    "after": {
+      "id": "1541443384667934801",
+      "reason": "stale-ambient-backlog",
+      "attempts": 0,
+      "receivedAt": 1787649809833,
+      "failedAt": 1787650879336,
+      "ageMs": 1069503,
+      "laneKey": "channel:1466192485440164011",
+      "payloadRetained": true,
+      "channelType": 0,
+      "guildIdPresent": true,
+      "mentionCount": 0,
+      "mentionedEveryone": false,
+      "attachments": 0
+    },
+    "journal_file": "stale-suppression-journal.txt",
+    "verdict": "PASS"
+  },
+  "fresh_addressed": {
+    "discord": {
+      "execution_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+      "request": {
+        "id": "1541744496717602908",
+        "timestamp": "2026-08-25T09:42:12.245000+00:00",
+        "author_id": "1495281313526059018",
+        "author_username": "frond-scribe🌿"
+      },
+      "response": {
+        "id": "1541744687830798478",
+        "timestamp": "2026-08-25T09:42:57.810000+00:00",
+        "author_id": "1477180909848629301",
+        "author_username": "Ronan🌊"
+      },
+      "latency_ms": 45565
+    },
+    "ingress": {
+      "event_id": "1541744496717602908",
+      "status": "completed",
+      "lane_key": "channel:1466192485440164011",
+      "received_at": 1787650932311,
+      "updated_at": 1787650936183,
+      "attempts": 0,
+      "last_attempt_at": null,
+      "failed_reason": null,
+      "failed_at": null,
+      "completed_at": 1787650936183
+    },
+    "tempo_trace_ids": [
+      "9c06bc96ec2ce77b4eb95062aba48812",
+      "a6a62fb17ca527ed9e267688ed38d21f"
+    ],
+    "no_tool_trace_window": {
+      "trace_id": "9c06bc96ec2ce77b4eb95062aba48812",
+      "tool_execution_count": 0,
+      "window_start_unix_nano": "1787650932311000000",
+      "window_end_unix_nano": "1787650985145000000"
+    },
+    "verdict": "PASS"
+  },
+  "typed_continue_work": {
+    "run_id": "dc51df75-835a-4ee0-b312-76001474d833",
+    "terminal_receipt": {
+      "runId": "dc51df75-835a-4ee0-b312-76001474d833",
+      "sessionId": "b1e8491b-443a-47bc-8f6e-573dc51a7be6",
+      "turnId": "01a03854-102f-7082-8860-c44f6b3e6419",
+      "requested": {
+        "provider": "openai",
+        "model": "gpt-5.6-sol"
+      },
+      "effective": {
+        "provider": "openai",
+        "model": "gpt-5.6-sol",
+        "responseModel": "gpt-5.6-sol"
+      },
+      "successfulToolNames": [
+        "continue_work"
+      ],
+      "rerouted": false
+    },
+    "armed": {
+      "role": "assistant",
+      "text": "RONAN-37300-TYPED-ARMED-D",
+      "timestamp": 1787651436175
+    },
+    "wake": {
+      "role": "assistant",
+      "text": "RONAN-37300-TYPED-WAKE-D",
+      "timestamp": 1787651446218
+    },
+    "trace_origin": "tool-call",
+    "trace_kind": "work",
+    "tempo_trace_ids": [
+      "f896f09bf24fb4b442d33e9d7af5e59",
+      "9c06bc96ec2ce77b4eb95062aba48812",
+      "aa1cadb296d16a23c3f0d3fecac03b3f"
+    ],
+    "projection_note": "chat.history projects one canonical wake event plus its Codex prompt mirror; agent DB has one canonical wake identity and Tempo has one continuation.work.fire/model execution",
+    "discord_wake_visible": false,
+    "verdict": "PASS_WITH_DELIVERY_LIMIT"
+  },
+  "bracket_continue_work": {
+    "run_id": "439dc563-edc6-4b2a-8447-9348e632a23c",
+    "successful_tool_names": [],
+    "armed": {
+      "role": "assistant",
+      "text": "RONAN-37300-BRACKET-ARMED-E [[CONTINUE_WORK:5]]",
+      "timestamp": 1787651726631
+    },
+    "wake": {
+      "role": "assistant",
+      "text": "RONAN-37300-BRACKET-WAKE-E",
+      "timestamp": 1787651737640
+    },
+    "trace_origin": "bracket",
+    "trace_kind": "work",
+    "tempo_trace_ids": [
+      "57442f0e220024f06039bc21648bfe4",
+      "a9b36f2205260bd7190f6209ac12df91",
+      "3cf767738f41a688b8abac16479576e0"
+    ],
+    "discord_wake_visible": false,
+    "verdict": "PASS_WITH_DELIVERY_LIMIT"
+  },
+  "excluded_attempts": [
+    {
+      "kind": "fresh_cross_seat_stray",
+      "message_id": "1541744566799958106",
+      "reason": "Rune-authored, not Ronan-authored"
+    },
+    {
+      "kind": "typed_shared_lane",
+      "request_id": "1541745880238006295",
+      "reason": "shared Discord run aborted before tool execution"
+    },
+    {
+      "kind": "typed_incomplete_spawn",
+      "run_id": "947b0474-c98e-4271-bc7b-de029a547eeb",
+      "reason": "tool executed but spawn-init turn incomplete/replay-unsafe; election ignored by design"
+    }
+  ],
+  "honest_limits": [
+    "Continuation wake sentinels are transcript-visible but not Discord-visible because dedicated direct-agent proof sessions did not persist a channel route for later system wakes.",
+    "The shared sprites lane showed unrelated cross-seat replies and aborted runs; none receive continuation proof credit.",
+    "Abandonment/cancellation fan-in is covered by the exact-composite 403-test non-interference matrix, not claimed as a separate live transport cell."
+  ],
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

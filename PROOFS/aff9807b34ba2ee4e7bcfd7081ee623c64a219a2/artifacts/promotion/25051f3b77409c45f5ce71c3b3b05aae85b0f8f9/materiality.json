@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "task_id": "129388-warm-currency-80985b96",
+  "proof_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+  "upstream_sha": "80985b9663252da97bf8d67dd2cbeba0fa03aeea",
+  "proof_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "proof_docs_sha": "e19110e419b67118fd8e890f1f3075c51acd8e4d",
+  "presentation_candidate_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "merge": {
+    "parents": [
+      "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
+      "80985b9663252da97bf8d67dd2cbeba0fa03aeea"
+    ],
+    "ordinary_no_fast_forward": true,
+    "ancestry": {
+      "proof_is_ancestor": true,
+      "upstream_is_ancestor": true,
+      "proof_corpus_is_ancestor": true
+    }
+  },
+  "named_refs": {
+    "lane": {
+      "name": "codeagent/129388-warm-currency-80985b96",
+      "local": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "tracking": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "server": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "equal": true
+    },
+    "presentation": {
+      "name": "codeagent/85651-upstream-1ba243c8-gates",
+      "tracking": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "server": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "equal": true,
+      "mutated": false
+    },
+    "ci_workflow": null
+  },
+  "textual_conflicts": [
+    {
+      "path": "src/agents/system-prompt.ts",
+      "base_blob": "2f3e8faa357d4663c604a3def7197bd006ace92f",
+      "feature_blob": "f2c3f3b959f533ba25e67c73a2dd507a85c729d8",
+      "upstream_blob": "168feabd0af56c8c425f552a77aaad2c62ebad30",
+      "resolved_blob": "1aed2ad2235b8b52987c7c5ecd9917ecd40c73be",
+      "resolution": "Retained the complete continuation and chain-delegation blocks; removed the upstream-retired redundant heartbeat section and retained upstream shared-terminal authorization wording."
+    },
+    {
+      "path": "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/discord-group-codex-message-tool.md",
+      "base_blob": "b95d4f5ae4fc9a0cefb87553d61ff06799af6e82",
+      "feature_blob": "027a4e3df2302315e27c212e245c685f6b98a719",
+      "upstream_blob": "8509eb2cdcbabf903f1f4dfdf47c10097dac72db",
+      "resolved_blob": "371f3f8885e58c641088e97d16397c04e7caf4ca",
+      "resolution": "Regenerated from the resolved source."
+    },
+    {
+      "path": "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/telegram-direct-codex-message-tool.md",
+      "base_blob": "f7aa63deecdc5f379c8d0827569435d352edf22d",
+      "feature_blob": "86af5d76e081f41898ab7fad5e18fed6dd0cd92c",
+      "upstream_blob": "f3012a6847f2077be99c4eddb12ee844419124ed",
+      "resolved_blob": "2a9380fd1e3d21012f30c25f2418903ce023c34d",
+      "resolution": "Regenerated from the resolved source."
+    },
+    {
+      "path": "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/telegram-heartbeat-codex-tool.md",
+      "base_blob": "8199f59d6cced93fffe0922de6a8d8b64ee14f5f",
+      "feature_blob": "c0933e8166b38dc4d7d70c7c8afeae000542638e",
+      "upstream_blob": "7433ad6e9a285daef26bcf21ab9cdde99bc4bf19",
+      "resolved_blob": "a29534c7f4fc395c8cfd085b86cb6730e46a268c",
+      "resolution": "Regenerated from the resolved source; heartbeat guidance remains in Codex turn-scoped collaboration instructions rather than the global OpenClaw system prompt."
+    }
+  ],
+  "changed_feature_core_blobs": {
+    "inventory_source": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/gates/gate-2-feature-cores.log",
+    "total": 40,
+    "unchanged": 36,
+    "changed": [
+      {
+        "path": "src/agents/openclaw-tools.ts",
+        "before": "ffa98328f0e13f531aedd3f2f4fe3973bc3e4ffe",
+        "after": "3729f83b38477e709ba1962cc27ce1e8037d7a43",
+        "upstream": "d0a64284d6d3a2114956860b5d78af8d03db6ca8",
+        "classification": "mixed-orthogonal",
+        "reason": "Adds upstream terminal permission/config inputs while retaining the continuation delegate tool composition."
+      },
+      {
+        "path": "src/agents/embedded-agent-runner/compact.hooks.test.ts",
+        "before": "d1459191e432ed0dd53d38d7542ce4a5d5c0926e",
+        "after": "69d3cd1b0ba2f4fccc75ea2bf3a42bb5d3f35d81",
+        "upstream": "fec0539ab602f6a9e3b1f39bb444b59442ac0c3c",
+        "classification": "test-only-orthogonal",
+        "reason": "Adds the upstream assertion that compacted prompt rebuilds no longer pass heartbeatPrompt."
+      },
+      {
+        "path": "src/agents/embedded-agent-runner/run/attempt.ts",
+        "before": "c51161e8ed14bc15a467e352f725987e222c29a0",
+        "after": "86252084ff2c368875ef1a38b5d6dbd67baabcb3",
+        "upstream": "86252084ff2c368875ef1a38b5d6dbd67baabcb3",
+        "classification": "exact-upstream-orthogonal",
+        "reason": "Removes defaultAgentId forwarding used only by retired heartbeat-prompt assembly; continuation enablement remains owned by attempt.config."
+      },
+      {
+        "path": "src/agents/embedded-agent-runner/system-prompt.ts",
+        "before": "c4625e8bb0a94611047f36f88ae579eab1a2c34b",
+        "after": "5025f8387471559d76d5dc70c3bff58c13dd4e17",
+        "upstream": "e4a3e920f8d9f1692ec00f35b9cc8a364a263fba",
+        "classification": "mixed-orthogonal",
+        "reason": "Removes heartbeatPrompt plumbing while retaining continuationEnabled forwarding byte-for-byte."
+      }
+    ],
+    "continuation_semantics_changed": false
+  },
+  "proof_sensitive_input_comparison": {
+    "continuation_source_slices": {
+      "system_prompt_continuation_sha256": {
+        "source_path": "src/agents/system-prompt.ts",
+        "ancestor_blob": "f2c3f3b959f533ba25e67c73a2dd507a85c729d8",
+        "candidate_blob": "1aed2ad2235b8b52987c7c5ecd9917ecd40c73be",
+        "proof": "a07e924ebc1fb471938d74b1677ad66e2c98d9073bfb30a2768681c37496f82e",
+        "candidate": "a07e924ebc1fb471938d74b1677ad66e2c98d9073bfb30a2768681c37496f82e",
+        "equal": true
+      },
+      "embedded_prompt_forwarding_sha256": {
+        "source_path": "src/agents/embedded-agent-runner/system-prompt.ts",
+        "ancestor_blob": "c4625e8bb0a94611047f36f88ae579eab1a2c34b",
+        "candidate_blob": "5025f8387471559d76d5dc70c3bff58c13dd4e17",
+        "proof": "6e39f9929ec1d20c97f4e00c437b6266feb124a849947ab212f19d721d7e35d4",
+        "candidate": "6e39f9929ec1d20c97f4e00c437b6266feb124a849947ab212f19d721d7e35d4",
+        "equal": true
+      },
+      "attempt_prompt_enablement_sha256": {
+        "source_path": "src/agents/embedded-agent-runner/run/attempt.ts",
+        "ancestor_blob": "c51161e8ed14bc15a467e352f725987e222c29a0",
+        "candidate_blob": "86252084ff2c368875ef1a38b5d6dbd67baabcb3",
+        "proof": "1d6fdcd01148fadaabfc580052d83ea8ac258499950467915d17e604a548f2ad",
+        "candidate": "1d6fdcd01148fadaabfc580052d83ea8ac258499950467915d17e604a548f2ad",
+        "equal": true
+      }
+    },
+    "runtime_composite": {
+      "sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+      "candidate_merge_base": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "runtime_is_candidate_ancestor": false,
+      "candidate_is_runtime_ancestor": true,
+      "exact_live_execution": false,
+      "status": "Pending final runtime contains the warm target but supplies no execution evidence until the Ronan receipt."
+    },
+    "codex_contract_checked": [
+      "../codex/codex-rs/app-server-protocol/src/protocol/v2/thread.rs:56-133",
+      "../codex/codex-rs/app-server-protocol/src/protocol/v2/turn.rs:71-155",
+      "../codex/codex-rs/app-server/src/request_processors/turn_processor.rs:354-368",
+      "../codex/codex-rs/core/src/session/turn_context.rs:549-585",
+      "../codex/codex-rs/models-manager/src/collaboration_mode_presets.rs:16-44"
+    ]
+  },
+  "generated_snapshots": {
+    "command": "pnpm prompt:snapshots:gen",
+    "result": "Wrote 7 prompt snapshot files.",
+    "check": "pnpm prompt:snapshots:check",
+    "affected": [
+      "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/discord-group-codex-message-tool.md",
+      "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/telegram-direct-codex-message-tool.md",
+      "test/fixtures/agents/prompt-snapshots/codex-runtime-happy-path/telegram-heartbeat-codex-tool.md"
+    ]
+  },
+  "validation": {
+    "focused_tests": {
+      "files_passed": 11,
+      "assertions_passed": 686,
+      "commands": [
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.agents-core.config.ts --maxWorkers=1 src/agents/system-prompt.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.unit-fast.config.ts --maxWorkers=1 src/agents/system-prompt.continuation.test.ts src/agents/prompt-overlay-runtime-contract.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.agents-embedded-agent.config.ts --maxWorkers=1 src/agents/embedded-agent-runner/compact.hooks.test.ts src/agents/embedded-agent-runner/run.continuation-opts-forward.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.agents-embedded-agent-run.config.ts --maxWorkers=1 src/agents/embedded-agent-runner/run/attempt.prompt-helpers.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.agents-tools.config.ts --maxWorkers=1 src/agents/tools/terminal-tool.test.ts src/agents/tools/continuation-tools-registration.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.extension-codex-app-server-runtime.config.ts --maxWorkers=1 extensions/codex/src/app-server/thread-lifecycle.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.extension-codex-app-server-attempt.config.ts --maxWorkers=1 extensions/codex/src/app-server/run-attempt.test.ts",
+        "node scripts/run-vitest.mjs run --config test/vitest/vitest.tooling.config.ts --maxWorkers=1 test/scripts/prompt-snapshots.test.ts"
+      ]
+    },
+    "production_types": "pass",
+    "test_types": "pass",
+    "build": "pass",
+    "targeted_check": "pass",
+    "environment": "Types, build, and the final four-path check ran in same-host source/openclaw-85651-deps at the exact candidate SHA because the linked worktree exposes only the root node_modules symlink and not pnpm's workspace-local module directories."
+  },
+  "autoreview": {
+    "engine": "codex",
+    "model": "gpt-5.6-sol",
+    "thinking": "high",
+    "reviewed_tree": "f66f8a4f622f0d04e003ad6ce94697da79a7d591",
+    "candidate_tree": "f66f8a4f622f0d04e003ad6ce94697da79a7d591",
+    "result": "clean",
+    "accepted_actionable_findings": 0
+  },
+  "loc": {
+    "production": {
+      "additions": 3,
+      "deletions": 20,
+      "net": -17
+    },
+    "generated_test_snapshots": {
+      "additions": 41,
+      "deletions": 38,
+      "net": 3
+    },
+    "inherited_first_parent_files": 312,
+    "conflict_resolution_files": 4
+  },
+  "published_receipts": {
+    "owner_686": {
+      "path": "owner-686.log",
+      "sha256": "39f2b50e343cdad9206e0dd9ec706692284d06582ffe3027b44ee0fe60a56d88",
+      "files": 11,
+      "assertions": 686,
+      "result": "pass"
+    },
+    "scribe_subset_544": {
+      "path": "affected-slice.log",
+      "sha256": "669b1b1019ebc553daf4ad11fff5d7aaf2fd007dcc17401f8294cfbd332b0cf5",
+      "files": 11,
+      "assertions": 544,
+      "result": "pass"
+    },
+    "static_types_build": {
+      "path": "static-types-build.log",
+      "sha256": "90877c78b536dbdbf072f9052ab697a1b0c12c7c69a1c5fa8e2d411bce55cc94",
+      "commands": [
+        "pnpm tsgo:prod",
+        "pnpm check:test-types",
+        "pnpm build"
+      ],
+      "result": "pass",
+      "tracked_status": 0
+    }
+  },
+  "ci_path": "focused-only",
+  "verdict": "reuse",
+  "blocking_unknowns": [],
+  "qualification_mode": "affected-slice-materiality",
+  "target_mode_b": {
+    "exact": false,
+    "run": null
+  },
+  "exact_target_execution": false,
+  "pending_runtime_composite_sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+  "independent_disposition": {
+    "REUSE": "immutable historical corpus plus bounded structural applicability",
+    "INVALIDATE": "no ancestor execution transfer",
+    "UNKNOWN": []
+  }
+}

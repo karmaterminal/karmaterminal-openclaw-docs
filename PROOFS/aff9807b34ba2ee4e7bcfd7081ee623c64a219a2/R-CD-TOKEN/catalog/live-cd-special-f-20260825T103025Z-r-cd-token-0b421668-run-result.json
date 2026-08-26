@@ -1,0 +1,49 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-25T10:30:25Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "pre-dispatch-build-identity-gate",
+  "summaryFileVerdict": null,
+  "vuLogVerdict": null,
+  "summaryFiles": [],
+  "evidence": {
+    "row": "R-CD-TOKEN",
+    "dispatched": false
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "terminal": true,
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "serviceLogStatus": "not-started",
+    "serviceLog": null,
+    "serviceLogCapture": null,
+    "serviceLogRedaction": null
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "exact-candidate-runtime-identity",
+      "attempt-state",
+      "raw-final-text-origin",
+      "parser-detected",
+      "queue-identity",
+      "child-spawned",
+      "child-completed",
+      "parent-return-event",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ]
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

@@ -67,7 +67,9 @@ execution identity and transposition target metadata:
 operational fields plus the historical live `pure_sha`. The same validator run
 against the repaired successor exits 0 with zero violations. Raw controls are
 `REJECTED-29F7388C-IDENTITY-CONTROL.json` and
-`POSTFIX-EXECUTION-IDENTITY.json`.
+`POSTFIX-EXECUTION-IDENTITY.json`. An archive of exact committed successor
+`979aa6189c16e93efc62b06a5f9d45c21dfedc32` passes the same validator with
+zero violations.
 
 Nearest siblings and alternate paths are included in the same owner boundary:
 R-CW-5 checks readiness, dependency integrity, dispatch, typed-tool, cleanup,
@@ -84,8 +86,8 @@ node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-node artifacts/transposition/check-execution-identity.mjs --corpus <rejected archive>
-node artifacts/transposition/check-execution-identity.mjs --corpus PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2
+node PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/artifacts/transposition/check-execution-identity.mjs --corpus <rejected archive>
+node PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/artifacts/transposition/check-execution-identity.mjs --corpus PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2
 node <built-in-only JSON/JSONL parser>
 node <built-in-only Markdown and declared-reference checker>
 node <built-in-only source-map/hash/disposition checker>

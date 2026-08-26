@@ -1,0 +1,11 @@
+# Named ref identity receipt
+
+| Category | Required named ref | Resolved full SHA | Local | Tracking | Server | Identity verdict |
+|---|---|---|---|---|---|---|
+| Docs/base | `karmaterminal/karmaterminal-openclaw-docs@fd4d323bc396c044890dd732b7d10c7ad346415e` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | `origin/codeagent/129388-token-return-observer-cure@fd4d323bc396c044890dd732b7d10c7ad346415e` | commit object `fd4d323bc396c044890dd732b7d10c7ad346415e` | Equal |
+| Safe lane | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-token-return-observer-cure` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | Equal; published unchanged before evidence inspection |
+| Product/runtime evidence | `karmaterminal/openclaw:codeagent/129388-runtime-composite-final-cures` (read-only) | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | Equal |
+| CI/workflow | Focused harness tests only; no live dispatch | N/A | N/A | N/A | N/A | N/A |
+| Presentation | `karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates` (read-only) | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | Equal |
+| Docs/proof ref | Immutable Actions run `33014309397` head on `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-depth-token-fixture-refire` | `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | commit object `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | branch now `fd4d323bc396c044890dd732b7d10c7ad346415e` | run head `96c0e1b59c205696806ae50cc659a08f4b79fd3d`; branch now `fd4d323bc396c044890dd732b7d10c7ad346415e` | Immutable run identity equal; mutable branch intentionally advanced and is not credited as the run head |
+| Run/artifact | Run `33014309397`, artifact `9624150623` (`project81-k6-proof-33014309397`) | `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | run head object `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | N/A (immutable Actions record) | run head `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | Equal |

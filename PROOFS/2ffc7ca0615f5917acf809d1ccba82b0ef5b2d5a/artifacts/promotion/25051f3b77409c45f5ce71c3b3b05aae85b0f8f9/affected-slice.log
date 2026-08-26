@@ -1,0 +1,93 @@
+product_sha=25051f3b77409c45f5ce71c3b3b05aae85b0f8f9
+parents=c7131791a6d33ab83d1a820c7cdb81c1b1384931 80985b9663252da97bf8d67dd2cbeba0fa03aeea
+command=node scripts/run-vitest.mjs run --maxWorkers=1 [11 affected files]
+[test] starting test/vitest/vitest.unit-fast.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/system-prompt-stability.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/system-prompt.continuation.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m unit-fast [49m[39m src/agents/prompt-overlay-runtime-contract.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m32 passed[39m[22m[90m (32)[39m
+[2m   Start at [22m 17:55:24
+[2m   Duration [22m 5.94s[2m (transform 4.05s, setup 29ms, import 5.80s, tests 27ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.tooling.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+[90mstdout[2m | test/scripts/prompt-snapshots.test.ts[2m > [22m[2mhappy path prompt snapshots[2m > [22m[2mwrites Codex model prompt fixtures from an explicit catalog
+[22m[39mWrote Codex gpt-5.6-sol pragmatic prompt fixture to ../../../../../../tmp/openclaw-codex-catalog-write-BtpIAH/out/gpt-5.6-sol.pragmatic.instructions.md and ../../../../../../tmp/openclaw-codex-catalog-write-BtpIAH/out/gpt-5.6-sol.pragmatic.source.json.
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/prompt-snapshots.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 3412[2mms[22m[39m
+     [33m[2m✓[22m[39m reconstructs complete Codex tool catalogs from readable full-tool overrides [33m 3157[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m   Start at [22m 17:55:30
+[2m   Duration [22m 12.41s[2m (transform 8.63s, setup 23ms, import 8.82s, tests 3.41s, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.agents-core.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/system-prompt.test.ts [2m([22m[2m130 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m130 passed[39m[22m[90m (130)[39m
+[2m   Start at [22m 17:55:43
+[2m   Duration [22m 4.34s[2m (transform 2.96s, setup 329ms, import 3.80s, tests 57ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.agents-embedded-agent.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+ [32m✓[39m [30m[45m agents-embedded-agent [49m[39m src/agents/embedded-agent-runner/system-prompt.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 17:55:48
+[2m   Duration [22m 4.98s[2m (transform 3.54s, setup 313ms, import 4.48s, tests 32ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.agents-embedded-agent-run.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+ [32m✓[39m [30m[45m agents-embedded-agent-run [49m[39m src/agents/embedded-agent-runner/run/attempt-system-prompt.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 4704[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 17:55:53
+[2m   Duration [22m 5.24s[2m (transform 3.75s, setup 371ms, import 5ms, tests 4.70s, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.agents-support.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+ [32m✓[39m [30m[45m agents-support [49m[39m src/agents/cli-runner/helpers.system-prompt.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 17:55:59
+[2m   Duration [22m 4.46s[2m (transform 3.06s, setup 284ms, import 3.97s, tests 45ms, environment 0ms)[22m
+
+[test] starting test/vitest/vitest.extension-codex.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-129388-warm-currency-80985b96[39m
+
+ [32m✓[39m [30m[42m extension-codex [49m[39m extensions/codex/src/app-server/side-question.test.ts [2m([22m[2m72 tests[22m[2m)[22m[33m 5208[2mms[22m[39m
+     [33m[2m✓[22m[39m forks an ephemeral side thread and returns the completed assistant text [33m 326[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-codex [49m[39m extensions/codex/src/app-server/thread-lifecycle.binding.test.ts [2m([22m[2m113 tests[22m[2m)[22m[33m 513[2mms[22m[39m
+ [32m✓[39m [30m[42m extension-codex [49m[39m extensions/codex/src/app-server/thread-lifecycle.test.ts [2m([22m[2m157 tests[22m[2m)[22m[32m 154[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m342 passed[39m[22m[90m (342)[39m
+[2m   Start at [22m 17:56:04
+[2m   Duration [22m 17.08s[2m (transform 7.89s, setup 317ms, import 10.70s, tests 5.87s, environment 0ms)[22m
+
+[test] passed 7 Vitest shards in 62.27s
+$ node --import tsx scripts/generate-prompt-snapshots.ts --check
+Prompt snapshots are current (7 files).
+tracked_status=0

@@ -15,6 +15,7 @@ const RAW_PAYLOAD_KEYS = new Set([
   'redactedevents',
   'task',
 ]);
+const GATEWAY_EVENT_RECEIPT_KEYS = new Set(['ts', 'kind', 'method', 'event', 'ok']);
 
 function usage() {
   console.error(`Usage: node sanitize-k6-artifacts.mjs \\
@@ -98,6 +99,26 @@ function scrubString(value, orderedTokens) {
     .replace(/\bhttps?:\/\/[^@\s/]+:[^@\s/]+@/gi, 'https://<redacted-credentials>@');
 }
 
+function sanitizeGatewayEventReceipts(value, orderedTokens) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((event) => {
+    if (!event || typeof event !== 'object' || Array.isArray(event)) return [];
+    const receipt = {};
+    for (const key of GATEWAY_EVENT_RECEIPT_KEYS) {
+      const child = event[key];
+      if (
+        child === null ||
+        typeof child === 'string' ||
+        typeof child === 'number' ||
+        typeof child === 'boolean'
+      ) {
+        receipt[key] = sanitizeValue(child, orderedTokens);
+      }
+    }
+    return Object.keys(receipt).length > 0 ? [receipt] : [];
+  });
+}
+
 function sanitizeValue(value, orderedTokens) {
   if (Array.isArray(value)) return value.map((item) => sanitizeValue(item, orderedTokens));
   if (!value || typeof value !== 'object') {
@@ -106,6 +127,11 @@ function sanitizeValue(value, orderedTokens) {
 
   const out = {};
   for (const [key, child] of Object.entries(value)) {
+    if (normalizedKey(key) === 'redactedevents') {
+      const receipts = sanitizeGatewayEventReceipts(child, orderedTokens);
+      if (receipts.length > 0) out.gatewayEventReceipts = receipts;
+      continue;
+    }
     if (sensitiveCategory(key)) continue;
     out[key] = sanitizeValue(child, orderedTokens);
   }

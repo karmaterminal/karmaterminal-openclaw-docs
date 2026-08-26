@@ -189,6 +189,52 @@ test('missing declared telemetry artifacts withhold PASS', async () => {
   }
 });
 
+test('structural gateway event receipts satisfy the declared artifact without payload leakage', async () => {
+  const setup = await fixture({
+    requiredFiles: [
+      'EVIDENCE.md',
+      'row-result.json',
+      'k6-summary.json',
+      'gateway-events.ndjson',
+      'backend-status.json',
+    ],
+  });
+  try {
+    await writeFile(path.join(setup.runDir, 'evidence.jsonl'), `${JSON.stringify({
+      row: 'R-BACKEND-TEST',
+      gatewayEventReceipts: [{
+        ts: 1783882863334,
+        kind: 'event',
+        method: null,
+        event: 'agent',
+        ok: true,
+        data: {
+          sessionKey: 'agent:main:private',
+          message: 'private prompt',
+        },
+      }],
+    })}\n`);
+    await apply(setup);
+    const gatewayEvents = await readFile(
+      path.join(setup.runDir, 'gateway-events.ndjson'),
+      'utf8',
+    );
+    assert.deepEqual(JSON.parse(gatewayEvents.trim()), {
+      ts: 1783882863334,
+      kind: 'event',
+      method: null,
+      event: 'agent',
+      ok: true,
+    });
+    assert.doesNotMatch(gatewayEvents, /sessionKey|private prompt/);
+    const result = JSON.parse(await readFile(path.join(setup.runDir, 'run-result.json'), 'utf8'));
+    assert.equal(result.verdict, 'PASS-candidate');
+    assert.deepEqual(result.telemetryRebind.missingRequiredArtifacts, []);
+  } finally {
+    await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
 test('backend policy never promotes an explicit non-PASS verdict', async () => {
   const setup = await fixture({ verdict: 'FAIL-candidate', backend: 'absent' });
   try {

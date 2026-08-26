@@ -29,7 +29,19 @@ test('removes identity fields and scrubs their values recursively', () => {
     child_session: sessionKey,
     reason_hash: 'adfa6bb5a86112ed',
     reason_length: 139,
-    redacted_events: [{ data: { sessionKey, message: `Proof nonce ${nonce}` } }],
+    redacted_events: [{
+      ts: 1783882863334,
+      kind: 'event',
+      method: null,
+      event: 'agent',
+      ok: true,
+      data: {
+        sessionKey,
+        taskId: 'private-task-id',
+        message: `Proof nonce ${nonce}`,
+        reason: 'private chain task text',
+      },
+    }],
   };
 
   const { sanitized } = sanitizeEvidenceRecords([record]);
@@ -40,8 +52,16 @@ test('removes identity fields and scrubs their values recursively', () => {
   assert.equal('sessionKey' in sanitized[0], false);
   assert.equal('run_id' in sanitized[0], false);
   assert.equal('redacted_events' in sanitized[0], false);
+  assert.deepEqual(sanitized[0].gatewayEventReceipts, [{
+    ts: 1783882863334,
+    kind: 'event',
+    method: null,
+    event: 'agent',
+    ok: true,
+  }]);
   assert.doesNotMatch(serialized, new RegExp(nonce));
   assert.doesNotMatch(serialized, new RegExp(sessionKey));
+  assert.doesNotMatch(serialized, /private-task-id|private chain task text/);
   assert.match(sanitized[0].expected_return_sentinel, /<redacted-nonce>/);
 });
 
@@ -56,7 +76,14 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     reason_hash: 'adfa6bb5a86112ed',
     reason_length: 139,
     expected_return_sentinel: `CD1-DONE ${nonce}`,
-    redacted_events: [{ data: { sessionKey } }],
+    redacted_events: [{
+      ts: 1783882863334,
+      kind: 'response',
+      method: 'sessions.send',
+      event: null,
+      ok: true,
+      data: { sessionKey, message: `Proof nonce ${nonce}` },
+    }],
   };
   const input = path.join(dir, 'private.jsonl');
   const logInput = path.join(dir, 'private.log');
@@ -110,6 +137,14 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     }
     assert.match(await readFile(logOutput, 'utf8'), /\[k6-proof-harness\] <redacted-dispatch>/);
     assert.match(await readFile(linesOutput, 'utf8'), /PUBLIC_EVIDENCE/);
+    const publicEvidence = JSON.parse((await readFile(output, 'utf8')).trim());
+    assert.deepEqual(publicEvidence.gatewayEventReceipts, [{
+      ts: 1783882863334,
+      kind: 'response',
+      method: 'sessions.send',
+      event: null,
+      ok: true,
+    }]);
     const serviceLog = await readFile(serviceLogOutput, 'utf8');
     assert.match(serviceLog, /Model override "github-copilot\/claude-sonnet-4\.6" is not allowed/);
     assert.match(serviceLog, /OPENCLAW_GATEWAY_TOKEN=<redacted-secret>/);

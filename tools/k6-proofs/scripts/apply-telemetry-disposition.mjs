@@ -39,6 +39,23 @@ function safeArtifactName(value) {
     !value.includes('\\');
 }
 
+function structuralGatewayEvent(event) {
+  if (!event || typeof event !== 'object' || Array.isArray(event)) return null;
+  const out = {};
+  for (const key of ['ts', 'kind', 'method', 'event', 'ok']) {
+    const value = event[key];
+    if (
+      value === null ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      out[key] = value;
+    }
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
+
 async function normalizeSummary(runDir) {
   if (await nonEmptyFile(path.join(runDir, 'k6-summary.json'))) return;
   const names = (await readdir(runDir))
@@ -64,9 +81,12 @@ async function normalizeGatewayEvents(runDir) {
   } catch {
     evidence = null;
   }
-  const events = Array.isArray(evidence?.redacted_events)
-    ? evidence.redacted_events
-    : [];
+  const sourceEvents = Array.isArray(evidence?.gatewayEventReceipts)
+    ? evidence.gatewayEventReceipts
+    : Array.isArray(evidence?.redacted_events)
+      ? evidence.redacted_events
+      : [];
+  const events = sourceEvents.map(structuralGatewayEvent).filter(Boolean);
   if (events.length > 0) {
     await writeFile(
       target,

@@ -114,8 +114,10 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
   emits the right shape; do not hand-edit the schema).
 - `k6-summary.json` — the structured k6 summary / evidence block (post-processor
   output; no raw unredacted events).
-- `gateway-events.ndjson` — redacted gateway events, one JSON object per line. Skip
-  only if the row genuinely captured no frames; note the absence in EVIDENCE.md.
+- `gateway-events.ndjson` — structural gateway event receipts, one JSON object per
+  line. Only timestamp, kind, method, event name, and success state cross this
+  boundary; payloads and identifiers are discarded. Skip only if the row genuinely
+  captured no frames; note the absence in EVIDENCE.md.
 - `row-result.json` — normalised outcome (`PASS-candidate` / `PARTIAL-candidate` /
   `FAIL-candidate`, plus `HONEST-LIMIT-candidate` only for `R-RC-2` when a structured
   receipt proves below-threshold `request_compaction` refusal). When the artifact

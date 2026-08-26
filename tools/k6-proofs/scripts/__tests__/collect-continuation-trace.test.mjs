@@ -201,6 +201,7 @@ async function fixtureDir({
 test('correlates a unique trace and validates tool/fire/dispatch topology', async () => {
   const fixture = await fixtureDir();
   const traceId = '11111111111111111111111111111111';
+  const serviceName = 'isolated-proof-service-129388';
   let observedQuery = '';
   const server = await listen((request, response) => {
     const url = new URL(request.url, 'http://localhost');
@@ -234,15 +235,24 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   });
 
   try {
-    const { stdout } = await execFileAsync(process.execPath, [
-      script,
-      '--run-dir', fixture.dir,
-      '--manifest', fixture.manifestPath,
-      '--seat', 'silas-prince',
-      '--tempo-url', server.url,
-      '--timeout-ms', '100',
-      '--poll-ms', '10',
-    ]);
+    const { stdout } = await execFileAsync(
+      process.execPath,
+      [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ],
+      {
+        env: {
+          ...process.env,
+          OPENCLAW_PROOFS_OTEL_SERVICE_NAME: serviceName,
+        },
+      },
+    );
     const result = JSON.parse(stdout);
     const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
 
@@ -263,10 +273,40 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
       name: 'openclaw.harness.run',
       spanId: 'eeeeeeeeeeeeeeee',
     }]);
+    assert.match(observedQuery, new RegExp(`service\\.name="${serviceName}"`));
     assert.match(observedQuery, new RegExp(`reason\\.hash="${fixture.reasonHash}"`));
     assert.doesNotMatch(JSON.stringify(receipt), /Proof nonce/);
   } finally {
     await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects an unsafe explicit telemetry service name before issuing TraceQL', async () => {
+  const fixture = await fixtureDir();
+  try {
+    await assert.rejects(
+      execFileAsync(
+        process.execPath,
+        [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'silas-prince',
+          '--tempo-url', 'http://127.0.0.1:1',
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ],
+        {
+          env: {
+            ...process.env,
+            OPENCLAW_PROOFS_OTEL_SERVICE_NAME: 'unsafe\"service',
+          },
+        },
+      ),
+      /unsafe TraceQL value: unsafe"service/,
+    );
+  } finally {
     await rm(fixture.dir, { recursive: true, force: true });
   }
 });

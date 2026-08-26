@@ -514,7 +514,11 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-export function generatedTestDiagnostics(runResult, receiptPresent) {
+export function generatedTestDiagnostics(
+  runResult,
+  receiptPresent,
+  phase = 'selected-delegate-boundary',
+) {
   const primary = String(runResult?.stdout || '');
   const diagnostic = String(runResult?.stderr || '');
   const captured = `${primary}\n${diagnostic}`;
@@ -537,7 +541,7 @@ export function generatedTestDiagnostics(runResult, receiptPresent) {
   }
   return {
     schema: 'openclaw.project81.generated-test-diagnostics.v1',
-    phase: 'selected-delegate-boundary',
+    phase,
     classification,
     exitCode: Number.isInteger(runResult?.exitCode) ? runResult.exitCode : 1,
     receiptPresent: receiptPresent === true,
@@ -698,8 +702,13 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
         },
       },
     );
-    const runtimeReceipt = test.ok ? readJsonIfValid(rawRuntimeReceiptPath) : null;
-    const typedReceipt = test.ok ? readJsonIfValid(rawTypedReceiptPath) : null;
+    const runtimeReceipt = readJsonIfValid(rawRuntimeReceiptPath);
+    const typedReceipt = readJsonIfValid(rawTypedReceiptPath);
+    const runtimeSurfaceDiagnostics = generatedTestDiagnostics(
+      test,
+      runtimeReceipt !== null && typedReceipt !== null,
+      'runtime-and-typed-surface',
+    );
     result = {
       passed: test.ok && /2 passed/u.test(test.stdout),
       exitCode: test.exitCode,
@@ -716,6 +725,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       selectedDelegateDiagnostics,
       runtimeReceipt,
       typedReceipt,
+      runtimeSurfaceDiagnostics,
       candidateRuntime,
     };
     const candidateAfterProofSurfaces = assertCandidateWorktree(
@@ -897,6 +907,7 @@ export function runFixture(args) {
     ...runtimeReceipt,
     passed: structuredReceiptPassed,
     fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
+    diagnostics: runtimeSurface.runtimeSurfaceDiagnostics,
     ...candidateRuntimeReceipt,
   };
   const durableStateRecoveryReceipt = {
@@ -915,6 +926,7 @@ export function runFixture(args) {
     sourceDirMutated: false,
     disposableWorktreeCreated: true,
     disposableWorktreeRemoved: runtimeSurface.disposableWorktreeRemoved,
+    diagnostics: runtimeSurface.runtimeSurfaceDiagnostics,
     ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'runtime-boundary.json'), runtimeBoundaryReceipt);

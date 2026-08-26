@@ -36,6 +36,26 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.doesNotMatch(source, /INTERRUPTED_RESULT_WRITER[\s\S]{0,700}>\/dev\/null 2>&1 \|\| true/);
 });
 
+test('workflow forwards exact isolated runtime, seat, telemetry, and service identities', async () => {
+  const workflow = await read('../../.github/workflows/project81-k6-proof.yml');
+  const runner = await read('scripts/run-proofs.sh');
+  for (const input of [
+    'runtime_build_sha:',
+    'seat_class:',
+    'otel_service_name:',
+    'gateway_unit:',
+    'tempo_traceql:',
+    'loki_logql:',
+  ]) {
+    assert.match(workflow, new RegExp(`^      ${input}`, 'm'));
+  }
+  assert.match(workflow, /OPENCLAW_RUNTIME_BUILD_SHA: \$\{\{ inputs\.runtime_build_sha \}\}/);
+  assert.match(workflow, /OPENCLAW_SEAT_CLASS: \$\{\{ inputs\.seat_class \}\}/);
+  assert.match(workflow, /OPENCLAW_PROOFS_OTEL_SERVICE_NAME: \$\{\{ inputs\.otel_service_name \}\}/);
+  assert.match(workflow, /OPENCLAW_PROOFS_GATEWAY_UNIT: \$\{\{ inputs\.gateway_unit \}\}/);
+  assert.match(runner, /OPENCLAW_SEAT_NAME="\$\{OPENCLAW_SEAT_NAME:-\$\(hostname\)\}"/);
+});
+
 test('scenario paginates the public task ledger and binds a structured return', async () => {
   const source = await read('scenarios/r-cd-token-bracket-delegate.js');
   const proofFlow = source.indexOf('function startProofFlow()');

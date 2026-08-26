@@ -217,3 +217,17 @@ test('row-list runner applies backend disposition before candidate envelope vali
   assert.match(source, /BACKEND DISPOSITION/);
   assert.match(source, /telemetry-disposition-error/);
 });
+
+test('backend disposition scenario emits one extractable public record with Loki counting in scope', async () => {
+  const source = await readFile(
+    path.resolve('tools/k6-proofs/scenarios/r-obs-backend-disposition.js'),
+    'utf8',
+  );
+  const responseJsonStart = source.indexOf('function responseJson(response)');
+  const responseJsonEnd = source.indexOf('\n}\n\nfunction lokiResultCount', responseJsonStart);
+  const defaultFunction = source.indexOf('export default function ()');
+  assert.ok(responseJsonStart >= 0 && responseJsonEnd > responseJsonStart);
+  assert.ok(source.indexOf('function lokiResultCount', responseJsonEnd) < defaultFunction);
+  assert.match(source, /console\.log\(`PUBLIC_EVIDENCE \$\{JSON\.stringify\(\{/);
+  assert.match(source, /zeroResultAuthoritative: entry\.zeroResultAuthoritative/);
+});

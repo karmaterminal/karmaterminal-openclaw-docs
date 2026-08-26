@@ -324,6 +324,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       storePath,
       readConsistency: "latest",
     });
+    const authoritativeSessionEntry = sessionStore[sessionKey];
     const capNotice = peekSystemEvents(sessionKey).find((event) =>
       event.includes("1 of 3 continue_work elections were not scheduled"),
     );
@@ -334,7 +335,8 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     expect(flows).toHaveLength(2);
     expect(flows.map((flow) => flow.hop)).toEqual([maxChainLength - 1, maxChainLength]);
     expect(flows.some((flow) => flow.reason?.includes("first-over-limit"))).toBe(false);
-    expect(sessionEntry.continuationChainCount).toBe(maxChainLength);
+    expect(authoritativeSessionEntry?.continuationChainCount).toBe(maxChainLength);
+    expect(sessionEntry.continuationChainCount).toBe(startingCount);
     expect(persisted?.continuationChainCount).toBe(maxChainLength);
     expect(capNotice).toContain("1 of 3 continue_work elections were not scheduled");
 
@@ -348,7 +350,8 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       capturedElections: 3,
       scheduledFlows: flows.map((flow) => ({ hop: flow.hop, reason: flow.reason })),
       firstOverLimitFlowPresent: false,
-      finalInMemoryCount: sessionEntry.continuationChainCount,
+      finalInMemoryCount: authoritativeSessionEntry?.continuationChainCount,
+      inputSnapshotCount: sessionEntry.continuationChainCount,
       finalPersistedCount: persisted?.continuationChainCount,
       capNoticeObserved: Boolean(capNotice),
     });

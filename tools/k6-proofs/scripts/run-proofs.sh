@@ -318,7 +318,7 @@ if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
 fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
-export OPENCLAW_SEAT_NAME="$(hostname)"
+export OPENCLAW_SEAT_NAME="${OPENCLAW_SEAT_NAME:-$(hostname)}"
 
 # Portable observability endpoints. Defaults preserve the dandelion fleet, but
 # reviewers can override without editing scripts or docs-local config.

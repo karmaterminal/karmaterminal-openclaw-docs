@@ -18,6 +18,11 @@ on:
         required: false
         default: ""
         type: string
+      runtime_build_sha:
+        description: "Externally verified 40-char runtime build SHA; required for exact-identity rows"
+        required: false
+        default: ""
+        type: string
       dry_run:
         description: "Dry run only; set false only when gateway env/secrets are configured"
         required: true
@@ -42,6 +47,31 @@ on:
         description: "Seat/reviewer label recorded in artifacts"
         required: false
         default: "external-reviewer"
+        type: string
+      seat_class:
+        description: "Seat response surface: message-body or raw-final-text"
+        required: false
+        default: "message-body"
+        type: string
+      otel_service_name:
+        description: "Exact OpenTelemetry service.name used by the target gateway"
+        required: false
+        default: ""
+        type: string
+      gateway_unit:
+        description: "Exact user systemd unit that owns the target gateway logs"
+        required: false
+        default: "openclaw-gateway"
+        type: string
+      tempo_traceql:
+        description: "Optional public-safe TraceQL slice for backend-disposition proof"
+        required: false
+        default: ""
+        type: string
+      loki_logql:
+        description: "Optional public-safe LogQL slice for backend-disposition proof"
+        required: false
+        default: ""
         type: string
       create_disposable_sessions:
         description: "Create disposable proof sessions for rows that support it"
@@ -78,14 +108,20 @@ jobs:
     timeout-minutes: 90
     env:
       OPENCLAW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      OPENCLAW_RUNTIME_BUILD_SHA: ${{ inputs.runtime_build_sha }}
       OPENCLAW_GATEWAY_WS: ${{ inputs.gateway_ws }}
       OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
       OPENCLAW_SESSION_KEY: ${{ inputs.session_selector }}
       OPENCLAW_SEAT_NAME: ${{ inputs.seat_name }}
+      OPENCLAW_SEAT_CLASS: ${{ inputs.seat_class }}
       OPENCLAW_CREATE_DISPOSABLE_SESSION: ${{ inputs.create_disposable_sessions }}
       OPENCLAW_CREATE_DISPOSABLE_SESSIONS: ${{ inputs.create_disposable_sessions }}
       OPENCLAW_ALT_MODEL: ${{ inputs.openclaw_alt_model }}
       OPENCLAW_PROOFS_K6_OTLP_ENDPOINT: ${{ inputs.metrics_otlp_endpoint }}
+      OPENCLAW_PROOFS_OTEL_SERVICE_NAME: ${{ inputs.otel_service_name }}
+      OPENCLAW_PROOFS_GATEWAY_UNIT: ${{ inputs.gateway_unit }}
+      OPENCLAW_PROOFS_TEMPO_TRACEQL: ${{ inputs.tempo_traceql }}
+      OPENCLAW_PROOFS_LOKI_LOGQL: ${{ inputs.loki_logql }}
       OPENCLAW_PROOFS_DOCS_REPOSITORY: ${{ github.repository }}
       DOCS_REF: ${{ github.sha }}
       K6_PROOF_OUT_DIR: ${{ github.workspace }}/project81-k6-proof-artifacts
@@ -101,11 +137,31 @@ jobs:
         env:
           ROWS_INPUT: ${{ inputs.rows }}
           CANDIDATE_SHA_INPUT: ${{ inputs.candidate_sha }}
+          RUNTIME_BUILD_SHA_INPUT: ${{ inputs.runtime_build_sha }}
           RUNNER_LABELS_JSON: ${{ inputs.runner_labels_json }}
+          SEAT_CLASS_INPUT: ${{ inputs.seat_class }}
+          OTEL_SERVICE_NAME_INPUT: ${{ inputs.otel_service_name }}
+          GATEWAY_UNIT_INPUT: ${{ inputs.gateway_unit }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           node -e 'const v=JSON.parse(process.env.RUNNER_LABELS_JSON); if (!Array.isArray(v) || !v.every(x => typeof x === "string" && x.length)) throw new Error("runner_labels_json must be a JSON array of non-empty strings")'
+          if [[ -n "$RUNTIME_BUILD_SHA_INPUT" ]] && ! printf '%s' "$RUNTIME_BUILD_SHA_INPUT" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::runtime_build_sha must be a 40-char hex string when provided"
+            exit 1
+          fi
+          if [[ "$SEAT_CLASS_INPUT" != "message-body" && "$SEAT_CLASS_INPUT" != "raw-final-text" ]]; then
+            echo "::error::seat_class must be message-body or raw-final-text"
+            exit 1
+          fi
+          if [[ -n "$OTEL_SERVICE_NAME_INPUT" ]] && ! printf '%s' "$OTEL_SERVICE_NAME_INPUT" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._-]*$'; then
+            echo "::error::otel_service_name contains unsupported characters"
+            exit 1
+          fi
+          if ! printf '%s' "$GATEWAY_UNIT_INPUT" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9_.@:-]*$'; then
+            echo "::error::gateway_unit contains unsupported characters"
+            exit 1
+          fi
           if [[ "$DRY_RUN" != "true" ]]; then
             if [[ -z "$CANDIDATE_SHA_INPUT" ]] || ! printf '%s' "$CANDIDATE_SHA_INPUT" | grep -Eq '^[0-9a-f]{40}$'; then
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"

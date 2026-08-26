@@ -353,6 +353,9 @@ test('R-CW-6 typed template enters runAgentAttempt and omits the rejected flow',
   assert.match(template, /continueWorkTool\.execute/);
   assert.match(template, /continueWorkOpts/);
   assert.match(template, /typed first-over-limit/);
+  assert.match(template, /const authoritativeSessionEntry = sessionStore\[sessionKey\]/);
+  assert.match(template, /authoritativeSessionEntry\?\.continuationChainCount/);
+  assert.match(template, /inputSnapshotCount:\s*sessionEntry\.continuationChainCount/);
   assert.match(template, /firstOverLimitFlowPresent:\s*false/);
   assert.match(template, /capNoticeObserved/);
 });

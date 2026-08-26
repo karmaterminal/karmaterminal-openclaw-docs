@@ -560,7 +560,9 @@ async function main() {
 
   const contract = traceContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
-  const serviceName = `${prince}-prince`;
+  const serviceName = escapeTraceqlString(
+    process.env.OPENCLAW_PROOFS_OTEL_SERVICE_NAME || `${prince}-prince`,
+  );
   const query = contract.kind === 'continuation'
     ? (() => {
         const modeClause = contract.mode === undefined

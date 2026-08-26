@@ -94,12 +94,12 @@ function responseJson(response) {
   } catch {
     return null;
   }
+}
 
-  function lokiResultCount(json) {
-    const result = Array.isArray(json?.data?.result) ? json.data.result : [];
-    return result.reduce((count, entry) =>
-      count + (Array.isArray(entry?.values) ? entry.values.length : 1), 0);
-  }
+function lokiResultCount(json) {
+  const result = Array.isArray(json?.data?.result) ? json.data.result : [];
+  return result.reduce((count, entry) =>
+    count + (Array.isArray(entry?.values) ? entry.values.length : 1), 0);
 }
 
 function queryTempo() {
@@ -183,6 +183,29 @@ function queryLoki() {
 export default function () {
   const interactions = [queryTempo(), queryLoki()];
   interactions.forEach(recordInteraction);
+  console.log(`PUBLIC_EVIDENCE ${JSON.stringify({
+    row: ROW,
+    candidateSha: /^[a-f0-9]{40}$/.test(CANDIDATE_SHA) ? CANDIDATE_SHA : null,
+    seat: SEAT,
+    started: WINDOW_START_UTC,
+    ended: WINDOW_END_UTC,
+    interactions: interactions.map((entry) => ({
+      backend: entry.backend,
+      operation: entry.operation,
+      status: entry.status,
+      httpStatus: entry.httpStatus,
+      apiStatus: entry.apiStatus,
+      totalBlocks: entry.totalBlocks,
+      completedJobs: entry.completedJobs,
+      inspectedBytes: entry.inspectedBytes,
+      resultCapped: entry.resultCapped,
+      resultCount: entry.resultCount,
+      resultLimit: entry.resultLimit,
+      queryFingerprint: entry.queryFingerprint,
+      sliceStrategy: entry.sliceStrategy,
+      zeroResultAuthoritative: entry.zeroResultAuthoritative,
+    })),
+  })}`);
   check(interactions, {
     'every backend interaction received an explicit disposition': (entries) =>
       entries.length === 2 && entries.every((entry) => STATUS_NAMES.includes(entry.status)),

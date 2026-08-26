@@ -146,7 +146,7 @@ bind to the approved ref and the copied source bytes.
 
 Each row remains candidate evidence until reviewed and folded.
 
-Every live row also captures the `openclaw-gateway` user journal for the bounded row window. Raw journal bytes remain transient; the artifact contains only `gateway-journal.log`, `gateway-journal-capture.json`, and `gateway-journal-redaction.json`. Correlated continuation/model/tool failures are retained while proof nonces, session keys, authorization material, and unrelated routine lines are removed. Journal access is required by default; set `OPENCLAW_PROOFS_SERVICE_LOG_REQUIRED=false` only when the resulting receipt debt is intentionally retained as PARTIAL.
+Every live row also captures the target gateway's user journal for the bounded row window. Set `OPENCLAW_PROOFS_GATEWAY_UNIT` to the exact isolated unit; it defaults to `openclaw-gateway`. Raw journal bytes remain transient; the artifact contains only `gateway-journal.log`, `gateway-journal-capture.json`, and `gateway-journal-redaction.json`. Correlated continuation/model/tool failures are retained while proof nonces, session keys, authorization material, and unrelated routine lines are removed. Journal access is required by default; set `OPENCLAW_PROOFS_SERVICE_LOG_REQUIRED=false` only when the resulting receipt debt is intentionally retained as PARTIAL.
 
 The runner selects the VU-emitted `VERDICT:` line over a conflicting `handleSummary()` verdict because k6 summary callbacks cannot read mutable VU-local evidence. Any disagreement is retained as `verdict-reconciliation.json`; it is a harness-classification receipt, never a reason to refire the row.
 

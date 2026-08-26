@@ -28,6 +28,11 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  buildTelemetryBackendStatusReceipt,
+  validateTelemetryBackendStatusReceipt,
+} from '../lib/telemetry-backend-status.js';
+import { telemetryPassBlockers, telemetryRebindFrom } from '../lib/telemetry-rebind.js';
 
 function parseArgs(argv) {
   const out = {};
@@ -168,9 +173,69 @@ writeFileSync(join(outDir, 'evidence-redaction.json'), JSON.stringify({
 }, null, 2) + '\n');
 
 // Determine verdict
-const verdict = authoritativeReceipt ? authoritativeReceipt.verdict : (evidence.tool_accepted || evidence.prompt_sent
+let verdict = authoritativeReceipt ? authoritativeReceipt.verdict : (evidence.tool_accepted || evidence.prompt_sent
   ? (evidence.task_created || evidence.child_spawned ? 'PASS-candidate' : 'PARTIAL-candidate')
   : 'FAIL-candidate');
+let backendStatus = null;
+let telemetryRebind = null;
+let telemetryBlockers = [];
+if (manifest?.telemetryContract) {
+  const backendContract = manifest.telemetryContract.backendUnavailable;
+  if (args['backend-status']) {
+    backendStatus = JSON.parse(readFileSync(args['backend-status'], 'utf8'));
+    const validation = validateTelemetryBackendStatusReceipt(backendStatus, {
+      rowId: args.row,
+    });
+    if (!validation.valid) {
+      throw new Error(
+        `backend-status receipt rejected: ${validation.failures.join('; ')}`,
+      );
+    }
+  } else {
+    backendStatus = buildTelemetryBackendStatusReceipt({
+      rowId: args.row,
+      candidateSha: args.sha,
+      seat: args.seat,
+      proofRunId: runId,
+      interactions: [],
+      requiredCompletenessKeys: backendContract.requiredCompletenessKeys,
+      rebindKeys: backendContract.rebindKeys,
+      rebindValues: {
+        candidate_sha: args.sha,
+        row_id: args.row,
+        seat: args.seat,
+        run_id: runId,
+        proof_run_id: runId,
+      },
+    });
+  }
+  const plannedArtifacts = new Set([
+    'EVIDENCE.md',
+    'row-result.json',
+    'k6-summary.json',
+    'backend-status.json',
+    ...(authoritativeReceipt ? ['r-cd-2-authoritative-receipt.json'] : []),
+    ...(args['seat-readiness'] ? ['seat-readiness.json'] : []),
+    ...(safeEvents.length > 0 ? ['gateway-events.ndjson'] : []),
+  ]);
+  telemetryRebind = telemetryRebindFrom({
+    manifest,
+    receiptStatuses: (manifest.expectedReceipts || []).map((receipt) => ({
+      name: receipt.name,
+      status: 'unknown',
+    })),
+    backendStatus,
+    artifactStatuses:
+      (manifest.telemetryContract.artifact?.requiredFiles || []).map((name) => ({
+        name,
+        status: plannedArtifacts.has(name) ? 'present' : 'missing',
+      })),
+  });
+  telemetryBlockers = verdict === 'PASS-candidate'
+    ? telemetryPassBlockers(telemetryRebind)
+    : [];
+  if (telemetryBlockers.length > 0) verdict = 'PARTIAL-candidate';
+}
 
 // Write row-result.json
 const result = {
@@ -181,11 +246,29 @@ const result = {
   candidateSha: args.sha,
   seat: args.seat,
   outcome: verdict,
-  verdictSource: authoritativeReceipt ? 'r-cd-2-authoritative-receipt' : 'generic-evidence',
+  verdictSource: `${authoritativeReceipt
+    ? 'r-cd-2-authoritative-receipt'
+    : 'generic-evidence'}${telemetryBlockers.length
+    ? '+telemetry-disposition-policy'
+    : ''}`,
   ...(authoritativeReceiptDigest ? { authoritativeReceipt: {
     schema: authoritativeReceipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver',
     file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest,
   } } : {}),
+  ...(telemetryRebind ? { telemetryRebind } : {}),
+  ...(backendStatus ? {
+    observability: {
+      backendStatus: 'backend-status.json',
+      backendDisposition: backendStatus.status,
+      backendComplete: backendStatus.complete,
+    },
+  } : {}),
+  ...(telemetryBlockers.length > 0 ? {
+    failureClass: telemetryBlockers[0].failureClass,
+    reason: `withheld from PASS-candidate: ${
+      telemetryBlockers.map((entry) => entry.reason).join('; ')
+    }`,
+  } : {}),
   liveRunSafety: manifest?.liveRunSafety ? {
     classification: manifest.liveRunSafety.classification,
     requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
@@ -201,6 +284,12 @@ const result = {
   foldRequiresReview: true,
 };
 writeFileSync(join(outDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
+if (backendStatus) {
+  writeFileSync(
+    join(outDir, 'backend-status.json'),
+    `${JSON.stringify(backendStatus, null, 2)}\n`,
+  );
+}
 
 // Generate EVIDENCE.md
 const md = `# ${args.row} — ${args.seat} — ${verdict}

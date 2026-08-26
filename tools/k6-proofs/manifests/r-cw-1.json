@@ -203,7 +203,8 @@
         "row-result.json",
         "k6-summary.json",
         "seat-readiness.json",
-        "artifacts/wake_event_trace.json"
+        "continuation-trace-correlation.json",
+        "backend-status.json"
       ]
     },
     "verdictAuthority": {

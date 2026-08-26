@@ -1,9 +1,14 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  buildTelemetryBackendStatusReceipt,
+  validateTelemetryBackendStatusReceipt,
+} from '../lib/telemetry-backend-status.js';
+import { telemetryPassBlockers, telemetryRebindFrom } from '../lib/telemetry-rebind.js';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -52,49 +57,25 @@ function durationMsFromSummary(summary, rowId) {
   return null;
 }
 
-function failureClassFrom({ outcome, failureCount, checkRate, receipts, summary, telemetryRebindBlocked }) {
+function failureClassFrom({
+  outcome,
+  failureCount,
+  checkRate,
+  receipts,
+  summary,
+  telemetryBlockers,
+}) {
   const statusText = JSON.stringify(summary?.root_group || {}) + JSON.stringify(summary?.errors || {});
   if (/timeout|timed out/i.test(statusText)) return 'timeout';
   if (/auth|unauthorized|forbidden|token/i.test(statusText)) return 'auth';
   if (/transport|websocket|network|ECONNREFUSED|connection/i.test(statusText)) return 'transport';
   if (/redaction/i.test(statusText)) return 'redaction-gate';
   if (receipts.some((r) => r.required && r.status === 'missing')) return 'missing-receipt';
-  if (telemetryRebindBlocked) return 'telemetry-rebind-unproven';
+  if (telemetryBlockers.length > 0) return telemetryBlockers[0].failureClass;
   if (failureCount > 0) return 'threshold';
   if (checkRate !== null && checkRate < 1) return 'checks';
   if (outcome === 'FAIL-candidate') return 'postprocess';
   return 'none';
-}
-
-/**
- * Summarise the row's telemetry rebind contract against the receipts actually
- * observed (karmaterminal/openclaw#1254).
- *
- * The census established that a row can execute real behavior and still be
- * impossible to rebind afterwards. Recording that debt in every run artifact is
- * what keeps the gap visible instead of implied.
- */
-function telemetryRebindFrom(manifest, receipts) {
-  const contract = manifest?.telemetryContract;
-  if (!contract) return null;
-  const statusByName = new Map(receipts.map((receipt) => [receipt.name, receipt.status]));
-  const declared = Array.isArray(contract.rebindReceipts) ? contract.rebindReceipts : [];
-  const unproven = declared
-    .map((name) => ({ name, status: statusByName.get(name) ?? 'absent' }))
-    .filter((entry) => entry.status !== 'present');
-
-  return {
-    contract: contract.schema,
-    enforcement: contract.enforcement,
-    rebindable: contract.rebindable === true,
-    passScope: contract.verdictAuthority?.passScope ?? null,
-    productInstrumentationPrerequisite: contract.productInstrumentationPrerequisite === true,
-    prerequisiteRows: Array.isArray(contract.prerequisiteRows) ? contract.prerequisiteRows : [],
-    backendUnavailableDisposition: contract.backendUnavailable?.disposition ?? null,
-    declaredRebindReceipts: declared,
-    unprovenRebindReceipts: unproven,
-    status: unproven.length === 0 && declared.length > 0 ? 'proven' : 'unproven',
-  };
 }
 
 function receiptStatusFromName(name, summary) {
@@ -284,7 +265,60 @@ async function main() {
     required: Boolean(r.required),
     status: receiptStatusFromName(r.name, summary),
   }));
-  const telemetryRebind = telemetryRebindFrom(manifest, receipts);
+  let backendStatus = null;
+  let telemetryRebind = null;
+  if (manifest.telemetryContract) {
+    if (args['backend-status']) {
+      backendStatus = JSON.parse(readFileSync(args['backend-status'], 'utf8'));
+      const validation = validateTelemetryBackendStatusReceipt(backendStatus, {
+        rowId: manifest.rowId,
+      });
+      if (!validation.valid) {
+        throw new Error(
+          `backend-status receipt rejected: ${validation.failures.join('; ')}`,
+        );
+      }
+    } else {
+      const backendContract = manifest.telemetryContract.backendUnavailable;
+      backendStatus = buildTelemetryBackendStatusReceipt({
+        rowId: manifest.rowId,
+        candidateSha: /^[a-f0-9]{40}$/u.test(manifest.candidateSha || '')
+          ? manifest.candidateSha
+          : null,
+        seat: manifest.seat,
+        proofRunId: runId,
+        interactions: [],
+        requiredCompletenessKeys: backendContract.requiredCompletenessKeys,
+        rebindKeys: backendContract.rebindKeys,
+        rebindValues: {
+          candidate_sha: manifest.candidateSha,
+          row_id: manifest.rowId,
+          seat: manifest.seat,
+          run_id: runId,
+          proof_run_id: runId,
+        },
+      });
+    }
+    const plannedArtifacts = new Set([
+      'EVIDENCE.md',
+      'row-result.json',
+      'k6-summary.json',
+      'backend-status.json',
+      ...(authoritativeReceiptRaw ? ['r-cd-2-authoritative-receipt.json'] : []),
+      ...(args['seat-readiness'] ? ['seat-readiness.json'] : []),
+    ]);
+    const artifactStatuses =
+      (manifest.telemetryContract.artifact?.requiredFiles || []).map((name) => ({
+        name,
+        status: plannedArtifacts.has(name) ? 'present' : 'missing',
+      }));
+    telemetryRebind = telemetryRebindFrom({
+      manifest,
+      receiptStatuses: receipts,
+      backendStatus,
+      artifactStatuses,
+    });
+  }
 
   // A summary-derived PASS may not outrun its own receipts. A row that declares
   // an authoritative signed receipt keeps that receipt as its sole authority and
@@ -298,29 +332,24 @@ async function main() {
   const missingRequiredReceipts = receipts
     .filter((receipt) => (receipt.required || liveRequiredReceipts.has(receipt.name)) && receipt.status === 'missing')
     .map((receipt) => receipt.name);
-  const rebindablePassClaimed =
-    telemetryRebind?.rebindable === true ||
-    telemetryRebind?.passScope === 'behavioral-and-telemetry-rebindable';
-  const telemetryRebindBlocked = Boolean(
-    summaryDerivedVerdict &&
-    outcome === 'PASS-candidate' &&
-    telemetryRebind &&
-    (telemetryRebind.enforcement === 'blocking' || rebindablePassClaimed) &&
-    telemetryRebind.status !== 'proven',
-  );
   const downgradeReasons = [];
   if (summaryDerivedVerdict && outcome === 'PASS-candidate' && missingRequiredReceipts.length) {
     downgradeReasons.push(`required receipt(s) reported missing: ${missingRequiredReceipts.join(', ')}`);
   }
-  if (telemetryRebindBlocked) {
-    const unproven = telemetryRebind.unprovenRebindReceipts.length
-      ? telemetryRebind.unprovenRebindReceipts.map((entry) => `${entry.name}=${entry.status}`).join(', ')
-      : 'no rebind receipt declared';
-    downgradeReasons.push(`telemetry rebind not proven (${telemetryRebind.enforcement}): ${unproven}`);
-  }
+  const telemetryBlockers = outcome === 'PASS-candidate'
+    ? telemetryPassBlockers(telemetryRebind)
+    : [];
+  downgradeReasons.push(...telemetryBlockers.map((entry) => entry.reason));
   if (downgradeReasons.length) outcome = 'PARTIAL-candidate';
 
-  const failureClass = failureClassFrom({ outcome, failureCount, checkRate, receipts, summary, telemetryRebindBlocked });
+  const failureClass = failureClassFrom({
+    outcome,
+    failureCount,
+    checkRate,
+    receipts,
+    summary,
+    telemetryBlockers,
+  });
   const result = {
     schema: 'openclaw.k6.proof-row-result.v1',
     runId,
@@ -341,6 +370,13 @@ async function main() {
     },
     receipts,
     ...(telemetryRebind ? { telemetryRebind } : {}),
+    ...(backendStatus ? {
+      observability: {
+        backendStatus: 'backend-status.json',
+        backendDisposition: backendStatus.status,
+        backendComplete: backendStatus.complete,
+      },
+    } : {}),
     liveRunSafety: manifest.liveRunSafety ? {
       classification: manifest.liveRunSafety.classification,
       requiresLiveGatewayToken: Boolean(manifest.liveRunSafety.requiresLiveGatewayToken),
@@ -370,7 +406,16 @@ async function main() {
   await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   await writeFile(path.join(runDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
   await writeFile(path.join(runDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
+  if (backendStatus) {
+    await writeFile(
+      path.join(runDir, 'backend-status.json'),
+      `${JSON.stringify(backendStatus, null, 2)}\n`,
+    );
+  }
   if (authoritativeReceiptRaw) await writeFile(path.join(runDir, 'r-cd-2-authoritative-receipt.json'), authoritativeReceiptRaw);
+  if (args['seat-readiness']) {
+    await copyFile(args['seat-readiness'], path.join(runDir, 'seat-readiness.json'));
+  }
   await writeFile(path.join(runDir, 'EVIDENCE.md'), evidenceDraft({ manifest, summary, result }));
 
   console.log(JSON.stringify({ runDir, outcome, rowId: manifest.rowId, candidateOnly: true }, null, 2));

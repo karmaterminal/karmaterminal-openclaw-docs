@@ -164,7 +164,7 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   const liveSuite = spawnSync(process.execPath, [rowListScript, '--live-suite'], { cwd: repoRoot, encoding: 'utf8' });
   assert.equal(liveSuite.status, 0, liveSuite.stderr || liveSuite.stdout);
   const liveRows = liveSuite.stdout.trim().split(',');
-  assert.equal(liveRows.length, 34);
+  assert.equal(liveRows.length, 35);
   assert.equal(liveRows[0], 'PREFLIGHT');
   assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);

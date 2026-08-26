@@ -207,14 +207,30 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     response.setHeader('content-type', 'application/json');
     if (url.pathname === '/api/search') {
       observedQuery = url.searchParams.get('q') || '';
-      response.end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      response.end(JSON.stringify({
+        traces: [{ traceID: traceId }],
+        metrics: {
+          totalBlocks: 4,
+          completedJobs: 2,
+          totalJobs: 2,
+          inspectedBytes: 4096,
+        },
+      }));
       return;
     }
-    response.end(JSON.stringify(traceFixture({
-      traceId,
-      reasonHash: fixture.reasonHash,
-      reasonLength: fixture.reasonLength,
-    })));
+    response.end(JSON.stringify({
+      ...traceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+      }),
+      metrics: {
+        totalBlocks: 1,
+        completedJobs: 1,
+        totalJobs: 1,
+        inspectedBytes: 2048,
+      },
+    }));
   });
 
   try {
@@ -231,6 +247,14 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
 
     assert.equal(result.traceId, traceId);
+    assert.equal(result.backendStatusFile, 'backend-status.json');
+    assert.equal(result.backendDisposition, 'complete');
+    assert.equal(result.backendComplete, true);
+    const backend = JSON.parse(
+      await readFile(path.join(fixture.dir, result.backendStatusFile), 'utf8'),
+    );
+    assert.equal(backend.interactions.length, 2);
+    assert.equal(backend.countAuthority, true);
     assert.equal(receipt.reason.hash, fixture.reasonHash);
     assert.equal(receipt.reason.source, 'manifest-nonce');
     assert.equal(receipt.sameTrace, true);

@@ -90,9 +90,25 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
     if (req.url.startsWith('/health') || req.url.startsWith('/status')) {
       res.writeHead(200).end('{}');
     } else if (req.url.startsWith('/api/search')) {
-      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        traces: [{ traceID: traceId }],
+        metrics: {
+          totalBlocks: 1,
+          completedJobs: 1,
+          totalJobs: 1,
+          inspectedBytes: 1024,
+        },
+      }));
     } else if (req.url.startsWith(`/api/traces/${traceId}`)) {
-      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(trace));
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        ...trace,
+        metrics: {
+          totalBlocks: 1,
+          completedJobs: 1,
+          totalJobs: 1,
+          inspectedBytes: 1024,
+        },
+      }));
     } else {
       res.writeHead(404).end();
     }

@@ -218,7 +218,8 @@
         "row-result.json",
         "k6-summary.json",
         "seat-readiness.json",
-        "artifacts/reason_telemetry_trace.json"
+        "continuation-trace-correlation.json",
+        "backend-status.json"
       ]
     },
     "verdictAuthority": {

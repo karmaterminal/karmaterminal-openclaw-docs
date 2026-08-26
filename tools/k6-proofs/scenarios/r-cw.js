@@ -22,6 +22,11 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Trend, Counter, Rate } from 'k6/metrics';
+import crypto from 'k6/crypto';
+import {
+  buildTelemetryBackendStatusReceipt,
+  classifyTelemetryBackendInteraction,
+} from '../lib/telemetry-backend-status.js';
 
 const GATEWAY_HOST = __ENV.GATEWAY_HOST || '127.0.0.1';
 const GATEWAY_PORT = __ENV.GATEWAY_PORT || '18789';
@@ -37,6 +42,8 @@ const checksRun = new Counter('r_cw_checks_run');
 const checksPassed = new Counter('r_cw_checks_passed');
 const totalDuration = new Trend('r_cw_duration_ms', true);
 const passRate = new Rate('r_cw_pass_rate');
+const tempoReachable = new Rate('r_cw_tempo_reachable');
+const lokiReachable = new Rate('r_cw_loki_reachable');
 
 export const options = {
   scenarios: {
@@ -89,8 +96,9 @@ export default function () {
   checksRun.add(1);
   const tempo = http.get(`${TEMPO_BASE_URL}/ready`, { timeout: '5s' });
   const tempoOk = check(tempo, {
-    '[R-CW] tempo ready (trace correlation)': (r) => r.status === 200,
+    '[R-CW] tempo reachable (completeness unproven)': (r) => r.status === 200,
   });
+  tempoReachable.add(tempoOk ? 1 : 0);
   if (tempoOk) checksPassed.add(1);
   else {
     console.warn(`[R-CW] Tempo not ready — R-CW-3, R-CW-7 trace pulls may need retry`);
@@ -100,8 +108,9 @@ export default function () {
   checksRun.add(1);
   const loki = http.get(`${LOKI_BASE_URL}/ready`, { timeout: '5s' });
   const lokiOk = check(loki, {
-    '[R-CW] loki ready (log correlation)': (r) => r.status === 200,
+    '[R-CW] loki reachable (completeness unproven)': (r) => r.status === 200,
   });
+  lokiReachable.add(lokiOk ? 1 : 0);
   if (lokiOk) checksPassed.add(1);
   else console.warn(`[R-CW] Loki not ready — journal-based correlation available as fallback`);
 
@@ -134,12 +143,64 @@ export default function () {
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
+  const requiredCompletenessKeys = [
+    'totalBlocks',
+    'completedJobs',
+    'inspectedBytes',
+    'tempoApiStatus',
+  ];
+  const tempoWasReachable = data.metrics.r_cw_tempo_reachable?.values?.rate > 0;
+  const lokiWasReachable = data.metrics.r_cw_loki_reachable?.values?.rate > 0;
+  const interactions = [
+    classifyTelemetryBackendInteraction({
+      backend: 'tempo',
+      operation: 'ready',
+      httpStatus: tempoWasReachable ? 200 : null,
+      transportOk: tempoWasReachable,
+      responseParsed: tempoWasReachable,
+      responseJson: {},
+      resultCount: 0,
+      queryFingerprint: crypto.sha256('tempo:/ready', 'hex').slice(0, 16),
+      backendBaseUrlEnv: 'OPENCLAW_PROOFS_TEMPO_BASE_URL',
+      sliceStrategy: 'readiness-only',
+      requiredCompletenessKeys,
+    }),
+    classifyTelemetryBackendInteraction({
+      backend: 'loki',
+      operation: 'ready',
+      httpStatus: lokiWasReachable ? 200 : null,
+      transportOk: lokiWasReachable,
+      responseParsed: lokiWasReachable,
+      responseJson: {},
+      resultCount: 0,
+      queryFingerprint: crypto.sha256('loki:/ready', 'hex').slice(0, 16),
+      backendBaseUrlEnv: 'OPENCLAW_PROOFS_LOKI_BASE_URL',
+      sliceStrategy: 'readiness-only',
+      requiredCompletenessKeys,
+    }),
+  ];
+  const backendStatus = buildTelemetryBackendStatusReceipt({
+    rowId: 'R-CW-combined',
+    candidateSha: /^[a-f0-9]{40}$/.test(PROOF_SHA) ? PROOF_SHA : null,
+    seat: PROOF_SEAT,
+    proofRunId: __ENV.OPENCLAW_PROOF_RUN_ID || 'r-cw-preflight',
+    interactions,
+    requiredCompletenessKeys,
+    rebindKeys: ['candidate_sha', 'row_id', 'seat', 'run_id'],
+    rebindValues: {
+      ...(/^[a-f0-9]{40}$/.test(PROOF_SHA) ? { candidate_sha: PROOF_SHA } : {}),
+      row_id: 'R-CW-combined',
+      seat: PROOF_SEAT,
+      run_id: __ENV.OPENCLAW_PROOF_RUN_ID || 'r-cw-preflight',
+    },
+  });
+  const metricPass = data.metrics.r_cw_pass_rate?.values?.rate > 0;
   const summary = {
     row: 'R-CW-combined',
     sha: PROOF_SHA,
     seat: PROOF_SEAT,
     timestamp,
-    verdict: data.metrics.r_cw_pass_rate?.values?.rate > 0 ? 'PASS' : 'PARTIAL',
+    verdict: metricPass && backendStatus.complete ? 'PASS' : 'PARTIAL',
     checksRun: data.metrics.r_cw_checks_run?.values?.count || 0,
     checksPassed: data.metrics.r_cw_checks_passed?.values?.count || 0,
     metrics: data.metrics,
@@ -151,10 +212,13 @@ export function handleSummary(data) {
       'R-CW-6': 'maxChainLength boundary (process-local exact-candidate fixture)',
       'R-CW-7': 'traceparent E2E propagation (needs Tempo)',
     },
+    backendDisposition: backendStatus.status,
+    backendComplete: backendStatus.complete,
   };
 
   return {
     stdout: `\n[R-CW] Summary: ${summary.verdict} | Checks: ${summary.checksPassed}/${summary.checksRun}\n`,
     'r-cw-summary.json': JSON.stringify(summary, null, 2),
+    'backend-status.json': JSON.stringify(backendStatus, null, 2),
   };
 }

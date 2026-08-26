@@ -267,7 +267,9 @@
         "r-cd-token-authoritative-receipt.json",
         "attempt-state.json",
         "build-identity-gate.json",
-        "seat-readiness.json"
+        "seat-readiness.json",
+        "continuation-trace-correlation.json",
+        "backend-status.json"
       ]
     },
     "verdictAuthority": {

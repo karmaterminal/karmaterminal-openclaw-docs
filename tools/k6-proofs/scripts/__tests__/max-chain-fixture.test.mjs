@@ -386,6 +386,7 @@ test('R-CW-6 preserves a public-safe failure summary when the generated test exi
   assert.equal(diagnostics.classification, 'module-ownership-drift');
   assert.equal(diagnostics.receiptPresent, false);
   assert.equal(diagnostics.moduleResolutionFailure, true);
+  assert.equal(diagnostics.runtimeFailure, false);
   assert.match(diagnostics.diagnosticFingerprint, /^[a-f0-9]{64}$/);
   assert.doesNotMatch(JSON.stringify(diagnostics), /private|subagent-spawn/);
   assert.doesNotThrow(() => assertPublicArtifactSafe(diagnostics));

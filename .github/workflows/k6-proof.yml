@@ -44,6 +44,7 @@ on:
           - r-cw-4-chain-depth
           - r-cw-delegate-self-continuation
           - r-cw-token-bracket
+          - r-obs-backend-disposition
           - r-obs-status
           - r-rc-1-threshold-reject
           - r-cw

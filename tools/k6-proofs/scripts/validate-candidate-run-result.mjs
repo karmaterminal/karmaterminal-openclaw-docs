@@ -5,12 +5,17 @@
  * manifest plus one candidate directory and can write only inside that
  * candidate directory. It never reads or changes canonical PROOFS manifests.
  */
-import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
+import { readFile, writeFile, readdir, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
+import { validateTelemetryBackendStatusReceipt } from '../lib/telemetry-backend-status.js';
+import {
+  telemetryPassBlockers,
+  validateTelemetryRebind,
+} from '../lib/telemetry-rebind.js';
 
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
@@ -198,6 +203,60 @@ async function listSafeArtifacts(dir) {
     .sort();
 }
 
+async function requireTelemetryArtifacts(manifest, metadata, runResult, candidateDir) {
+  if (!manifest.telemetryContract) return null;
+  const rebindValidation = validateTelemetryRebind(runResult.telemetryRebind);
+  if (!rebindValidation.valid) {
+    throw new Error(
+      `run result telemetryRebind is invalid: ${rebindValidation.failures.join('; ')}`,
+    );
+  }
+  const backendPath = path.join(candidateDir, 'backend-status.json');
+  const backendStatus = await readJson(backendPath, 'backend status');
+  const backendValidation = validateTelemetryBackendStatusReceipt(backendStatus, {
+    rowId: metadata.row,
+    candidateSha: metadata.candidateSha,
+    seat: metadata.seat,
+    proofRunId: path.basename(candidateDir),
+  });
+  if (!backendValidation.valid) {
+    throw new Error(
+      `backend status is invalid: ${backendValidation.failures.join('; ')}`,
+    );
+  }
+  if (runResult.observability?.backendStatus !== 'backend-status.json' ||
+      runResult.observability?.backendDisposition !== backendStatus.status ||
+      runResult.observability?.backendComplete !== backendStatus.complete) {
+    throw new Error('run result backend disposition disagrees with backend-status.json');
+  }
+  const missing = [];
+  for (const name of manifest.telemetryContract.artifact?.requiredFiles || []) {
+    if (typeof name !== 'string' || !name || path.isAbsolute(name) ||
+        name.includes('..') || name.includes('\\')) {
+      missing.push(name);
+      continue;
+    }
+    try {
+      const details = await stat(path.join(candidateDir, name));
+      if (!details.isFile() || details.size === 0) missing.push(name);
+    } catch {
+      missing.push(name);
+    }
+  }
+  if (missing.length > 0) {
+    throw new Error(`required telemetry artifact(s) missing: ${missing.join(', ')}`);
+  }
+  if (runResult.verdict === 'PASS-candidate') {
+    const blockers = telemetryPassBlockers(runResult.telemetryRebind);
+    if (blockers.length > 0) {
+      throw new Error(
+        `telemetry-dependent PASS is blocked: ${blockers.map((entry) => entry.reason).join('; ')}`,
+      );
+    }
+  }
+  return backendStatus;
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   if (args.help) { usage(); return; }
@@ -234,6 +293,12 @@ async function main() {
   if (review?.status !== 'ready-for-human-review' || !Array.isArray(review.pendingReceipts) || review.pendingReceipts.length !== 0) {
     throw new Error('candidate run is review-incomplete: resolve or explicitly classify pending receipts first');
   }
+  const backendStatus = await requireTelemetryArtifacts(
+    manifest,
+    metadata,
+    runResult,
+    candidateDir,
+  );
 
   const observability = runResult.observability || {};
   let authoritativeReceipt = null;
@@ -262,6 +327,14 @@ async function main() {
     files: await listSafeArtifacts(candidateDir),
     tempoTraceJson: safeRelative(observability.tempoTraceJson, 'tempo trace artifact'),
     correlationReceipt: safeRelative(observability.correlationReceipt, 'correlation receipt artifact'),
+    ...(backendStatus
+      ? {
+          backendStatus: safeRelative(
+            observability.backendStatus,
+            'backend status artifact',
+          ),
+        }
+      : {}),
   };
   const envelope = {
     schema: 'openclaw.k6.candidate-run-result.v1',
@@ -287,7 +360,15 @@ async function main() {
       traceStatus: requireString(observability.traceStatus, 'observability traceStatus'),
       traceCaptured: Boolean(observability.traceId),
       correlationReceiptPresent: Boolean(observability.correlationReceipt),
+      ...(backendStatus
+        ? {
+            backendStatus: 'backend-status.json',
+            backendDisposition: backendStatus.status,
+            backendComplete: backendStatus.complete,
+          }
+        : {}),
     },
+    ...(backendStatus ? { telemetryRebind: runResult.telemetryRebind } : {}),
     ...(authoritativeReceipt ? { authoritativeReceipt: { file: authoritative.file, sha256: runResult.authoritativeReceipt.sha256 } } : {}),
     review: { status: review.status, pendingReceipts: [], complete: true },
     artifacts,

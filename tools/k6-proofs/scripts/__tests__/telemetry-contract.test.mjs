@@ -24,6 +24,10 @@ import {
   validateTelemetryCatalog,
   validateTelemetryContract,
 } from '../check-telemetry-contracts.mjs';
+import {
+  buildTelemetryBackendStatusReceipt,
+  classifyTelemetryBackendInteraction,
+} from '../../lib/telemetry-backend-status.js';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const manifestsDir = path.join(repoRoot, 'tools/k6-proofs/manifests');
@@ -92,7 +96,10 @@ function contractFixture(overrides = {}) {
       requiredCompletenessKeys: ['totalBlocks'],
       rebindKeys: ['candidate_sha'],
     },
-    artifact: { schema: 'openclaw.k6.proof-row-result.v1', requiredFiles: ['row-result.json'] },
+    artifact: {
+      schema: 'openclaw.k6.proof-row-result.v1',
+      requiredFiles: ['row-result.json', 'backend-status.json'],
+    },
     verdictAuthority: { passScope: 'behavioral-only', pass: 'p', partial: 'q', fail: 'r' },
     execution: { deterministicK6: 'k6', manual: 'manual', relationship: 'k6 wins' },
   };
@@ -108,6 +115,43 @@ function manifestFixture(contractOverrides = {}, manifestOverrides = {}) {
     telemetryContract: contractFixture(contractOverrides),
     ...manifestOverrides,
   };
+}
+
+async function writeCompleteBackend(dir, rowId = 'PREFLIGHT') {
+  const requiredCompletenessKeys = [
+    'totalBlocks',
+    'completedJobs',
+    'inspectedBytes',
+    'tempoApiStatus',
+  ];
+  const receipt = buildTelemetryBackendStatusReceipt({
+    rowId,
+    candidateSha: null,
+    seat: 'unit',
+    proofRunId: 'postprocess-unit',
+    requiredCompletenessKeys,
+    rebindKeys: [],
+    interactions: [classifyTelemetryBackendInteraction({
+      backend: 'tempo',
+      operation: 'search',
+      httpStatus: 200,
+      responseJson: {
+        metrics: {
+          totalBlocks: 1,
+          completedJobs: 1,
+          totalJobs: 1,
+          inspectedBytes: 1024,
+        },
+      },
+      resultCount: 1,
+      queryFingerprint: '1'.repeat(16),
+      backendBaseUrlEnv: 'OPENCLAW_PROOFS_TEMPO_BASE_URL',
+      requiredCompletenessKeys,
+    })],
+  });
+  const file = path.join(dir, 'backend-status.json');
+  await writeFile(file, `${JSON.stringify(receipt, null, 2)}\n`);
+  return file;
 }
 
 const identityAttributes = () =>
@@ -164,7 +208,7 @@ test('no committed row claims a telemetry-rebindable PASS, because no product at
   }
 });
 
-test('each census remedy concern is owned by exactly one construct-only row', async () => {
+test('each census remedy concern is owned by exactly one guarded row', async () => {
   const byRowId = new Map((await loadCatalog()).map(({ manifest }) => [manifest.rowId, manifest]));
   const seen = new Set();
 
@@ -173,9 +217,16 @@ test('each census remedy concern is owned by exactly one construct-only row', as
     assert.ok(manifest, `${rowId} is missing from the manifest catalog`);
     assert.equal(manifest.telemetryContract.remedyConcern, concern);
     assert.equal(manifest.telemetryContract.enforcement, 'blocking');
-    assert.equal(manifest.scenario.status, 'construct-only');
-    assert.equal(manifest.liveRunSafety.classification, 'construct-only');
-    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'construct-only');
+    const harnessSide = rowId === 'R-OBS-BACKEND-DISPOSITION';
+    assert.equal(manifest.scenario.status, harnessSide ? 'runnable' : 'construct-only');
+    assert.equal(
+      manifest.liveRunSafety.classification,
+      harnessSide ? 'k6-runnable' : 'construct-only',
+    );
+    assert.equal(
+      manifest.liveRunSafety.expectedArtifactClass,
+      harnessSide ? 'PASS-candidate' : 'construct-only',
+    );
     seen.add(concern);
   }
 
@@ -378,6 +429,16 @@ test('a degraded backend may never be declared as an absence or as a pass', () =
   assert.ok(noRebindKeys.some((f) => /rebindKeys must be non-empty/.test(f)));
 });
 
+test('every telemetry contract requires the shared backend-status artifact', () => {
+  const contract = contractFixture();
+  contract.artifact.requiredFiles = ['row-result.json'];
+  const failures = validateTelemetryContract(manifestFixture(contract));
+  assert.ok(
+    failures.some((failure) =>
+      /artifact\.requiredFiles must include backend-status\.json/.test(failure)),
+  );
+});
+
 test('an attribute the product does not emit must name the product issue that will emit it', () => {
   const failures = validateTelemetryContract(
     manifestFixture({
@@ -501,10 +562,11 @@ test('a rebindable pass claim is withheld at run time even under advisory enforc
     });
     const manifestPath = path.join(outRoot, 'claimed-manifest.json');
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    const backendPath = await writeCompleteBackend(outRoot);
 
     const run = spawnSync(
       process.execPath,
-      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-claimed'],
+      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-claimed', '--backend-status', backendPath],
       { cwd: repoRoot, encoding: 'utf8' },
     );
     assert.equal(run.status, 0, run.stderr || run.stdout);
@@ -604,10 +666,11 @@ test('a blocking telemetry contract withholds PASS until its rebind receipts are
     });
     const manifestPath = path.join(outRoot, 'blocking-manifest.json');
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    const backendPath = await writeCompleteBackend(outRoot);
 
     const blocked = spawnSync(
       process.execPath,
-      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-blocked'],
+      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-blocked', '--backend-status', backendPath],
       { cwd: repoRoot, encoding: 'utf8' },
     );
     assert.equal(blocked.status, 0, blocked.stderr || blocked.stdout);
@@ -631,7 +694,7 @@ test('a blocking telemetry contract withholds PASS until its rebind receipts are
 
     const proven = spawnSync(
       process.execPath,
-      [postprocess, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', outRoot, '--run-id', 'k6-run-proven'],
+      [postprocess, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', outRoot, '--run-id', 'k6-run-proven', '--backend-status', backendPath],
       { cwd: repoRoot, encoding: 'utf8' },
     );
     assert.equal(proven.status, 0, proven.stderr || proven.stdout);
@@ -657,10 +720,11 @@ test('an advisory contract records the rebind debt without changing the behavior
     ];
     const manifestPath = path.join(outRoot, 'advisory-manifest.json');
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    const backendPath = await writeCompleteBackend(outRoot);
 
     const run = spawnSync(
       process.execPath,
-      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-advisory'],
+      [postprocess, '--manifest', manifestPath, '--summary', preflightSummary, '--out-root', outRoot, '--run-id', 'k6-run-advisory', '--backend-status', backendPath],
       { cwd: repoRoot, encoding: 'utf8' },
     );
     assert.equal(run.status, 0, run.stderr || run.stdout);

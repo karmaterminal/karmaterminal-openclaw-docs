@@ -22,6 +22,9 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.match(source, /signal-term/);
   assert.match(source, /automaticRetryAllowed:false/);
   assert.match(source, /export OPENCLAW_CREATE_DISPOSABLE_SESSION=true/);
+  assert.match(source, /equalExactSha:true/);
+  assert.match(source, /build-identity-gate\.json/);
+  assert.match(source, /TELEMETRY_DISPOSITION_APPLIER/);
   assert.match(source, /only R-RC-2 may use HONEST-LIMIT-candidate/);
   assert.match(source, /\.request_compaction_receipt_role == "toolResult"/);
   assert.match(source, /\.request_compaction_receipt_tool_name == "request_compaction"/);

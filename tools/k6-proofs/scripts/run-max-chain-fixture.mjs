@@ -524,11 +524,13 @@ export function generatedTestDiagnostics(runResult, receiptPresent) {
     );
   const testCollectionFailure = /No test files found|Failed Suites?\s+\d+/u.test(captured);
   const assertionFailure = /AssertionError|expected .+ to /u.test(captured);
+  const runtimeFailure = /ReferenceError|TypeError|SyntaxError/u.test(captured);
   let classification = 'complete';
   if (!receiptPresent) {
     if (moduleResolutionFailure) classification = 'module-ownership-drift';
     else if (testCollectionFailure) classification = 'test-collection-failure';
     else if (assertionFailure) classification = 'assertion-failure-before-receipt';
+    else if (runtimeFailure) classification = 'test-runtime-failure-before-receipt';
     else classification = 'test-exited-before-receipt';
   } else if (!runResult?.ok) {
     classification = 'test-failed-after-receipt';
@@ -542,6 +544,7 @@ export function generatedTestDiagnostics(runResult, receiptPresent) {
     moduleResolutionFailure,
     testCollectionFailure,
     assertionFailure,
+    runtimeFailure,
     capturedByteCount: Buffer.byteLength(captured),
     diagnosticFingerprint: createHash('sha256').update(captured).digest('hex'),
   };

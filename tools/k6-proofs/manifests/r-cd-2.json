@@ -197,8 +197,8 @@
         "EVIDENCE.md",
         "row-result.json",
         "r-cd-2-authoritative-receipt.json",
-        "candidate-run-result.json",
-        "seat-readiness.json"
+        "seat-readiness.json",
+        "backend-status.json"
       ],
       "notes": "The authoritative receipt is digest-bound; a tampered receipt withholds the candidate envelope entirely."
     },

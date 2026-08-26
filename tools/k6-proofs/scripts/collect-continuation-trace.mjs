@@ -10,7 +10,13 @@ import {
   publicTempoStatusCode as publicStatusCode,
   tempoAttributeValue as attributeValue,
 } from '../lib/public-tempo-trace.mjs';
+import { classifyTelemetryBackendInteraction } from '../lib/telemetry-backend-status.js';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import {
+  finalizeTelemetryBackendStatus,
+  fingerprintTelemetryQuery,
+  recordTelemetryBackendInteraction,
+} from './lib/telemetry-backend-status-store.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 const CORRELATION_WINDOW_PADDING_SECONDS = 60;
@@ -183,24 +189,123 @@ function assertTraceIsPublicSafe(trace, evidence, reason) {
 }
 
 
-async function tempoSearch(baseUrl, query, start, end) {
-  const root = String(baseUrl).replace(/\/+$/, '');
-  const params = new URLSearchParams({ q: query, start: String(start), end: String(end), limit: '20' });
-  const response = await fetch(`${root}/api/search?${params}`, { headers: { accept: 'application/json' } });
-  const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim());
-  const json = JSON.parse(text);
-  return json.traces || [];
+async function recordTempoInteraction(backendStatus, values) {
+  const interaction = classifyTelemetryBackendInteraction({
+    backend: 'tempo',
+    backendBaseUrlEnv: 'OPENCLAW_PROOFS_TEMPO_BASE_URL',
+    requiredCompletenessKeys: backendStatus.context.requiredCompletenessKeys,
+    ...values,
+  });
+  await recordTelemetryBackendInteraction(
+    backendStatus.file,
+    backendStatus.context,
+    interaction,
+  );
 }
 
-async function fetchTrace(baseUrl, traceId) {
+async function tempoSearch(baseUrl, query, start, end, backendStatus) {
   const root = String(baseUrl).replace(/\/+$/, '');
-  const response = await fetch(`${root}/api/traces/${encodeURIComponent(traceId)}`, {
-    headers: { accept: 'application/json' },
-  });
+  const params = new URLSearchParams({ q: query, start: String(start), end: String(end), limit: '20' });
+  const queryFingerprint = fingerprintTelemetryQuery(query);
+  const windowStartUtc = new Date(start * 1000).toISOString();
+  const windowEndUtc = new Date(end * 1000).toISOString();
+  let response;
+  try {
+    response = await fetch(`${root}/api/search?${params}`, {
+      headers: { accept: 'application/json' },
+    });
+  } catch (error) {
+    await recordTempoInteraction(backendStatus, {
+      operation: 'search',
+      transportOk: false,
+      responseParsed: false,
+      queryFingerprint,
+      resultLimit: 20,
+      windowStartUtc,
+      windowEndUtc,
+      sliceStrategy: 'single-window',
+    });
+    throw new Error(`Tempo search unavailable: ${error.message}`);
+  }
   const text = await response.text();
-  if (!response.ok) throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim());
-  return JSON.parse(text);
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    await recordTempoInteraction(backendStatus, {
+      operation: 'search',
+      httpStatus: response.status,
+      responseParsed: false,
+      queryFingerprint,
+      resultLimit: 20,
+      windowStartUtc,
+      windowEndUtc,
+      sliceStrategy: 'single-window',
+    });
+    throw new Error('Tempo search did not return JSON');
+  }
+  const traces = Array.isArray(json?.traces) ? json.traces : [];
+  await recordTempoInteraction(backendStatus, {
+    operation: 'search',
+    httpStatus: response.status,
+    responseJson: json,
+    resultCount: traces.length,
+    resultLimit: 20,
+    queryFingerprint,
+    windowStartUtc,
+    windowEndUtc,
+    sliceStrategy: 'single-window',
+  });
+  if (!response.ok) {
+    throw new Error(`Tempo search failed: HTTP ${response.status} ${response.statusText}`.trim());
+  }
+  return traces;
+}
+
+async function fetchTrace(baseUrl, traceId, backendStatus) {
+  const root = String(baseUrl).replace(/\/+$/, '');
+  const queryFingerprint = fingerprintTelemetryQuery(`trace:${traceId}`);
+  let response;
+  try {
+    response = await fetch(`${root}/api/traces/${encodeURIComponent(traceId)}`, {
+      headers: { accept: 'application/json' },
+    });
+  } catch (error) {
+    await recordTempoInteraction(backendStatus, {
+      operation: 'trace-by-id',
+      transportOk: false,
+      responseParsed: false,
+      queryFingerprint,
+      sliceStrategy: 'trace-id',
+    });
+    throw new Error(`Tempo trace fetch unavailable: ${error.message}`);
+  }
+  const text = await response.text();
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    await recordTempoInteraction(backendStatus, {
+      operation: 'trace-by-id',
+      httpStatus: response.status,
+      responseParsed: false,
+      queryFingerprint,
+      sliceStrategy: 'trace-id',
+    });
+    throw new Error(`Tempo trace fetch did not return JSON for ${traceId}`);
+  }
+  await recordTempoInteraction(backendStatus, {
+    operation: 'trace-by-id',
+    httpStatus: response.status,
+    responseJson: json,
+    resultCount: response.ok ? 1 : 0,
+    queryFingerprint,
+    sliceStrategy: 'trace-id',
+  });
+  if (!response.ok) {
+    throw new Error(`Tempo trace fetch failed: HTTP ${response.status} ${response.statusText}`.trim());
+  }
+  return json;
 }
 
 function matchesContinuationSpan(span, expected, name) {
@@ -473,6 +578,55 @@ async function main() {
     ? Math.floor(evidenceEndMs / 1000)
     : dispatchSeconds;
   const end = Math.max(dispatchSeconds, evidenceEndSeconds) + CORRELATION_WINDOW_PADDING_SECONDS;
+  const backendContract = manifest?.telemetryContract?.backendUnavailable || {};
+  const backendCandidateSha = [
+    evidence.candidateSha,
+    manifest.candidateSha,
+    process.env.OPENCLAW_CANDIDATE_SHA,
+  ].find((value) => /^[a-f0-9]{40}$/u.test(value || '')) || null;
+  const backendStatus = {
+    file: path.join(runDir, 'backend-status.json'),
+    context: {
+      rowId: evidence.row || manifest.rowId,
+      candidateSha: backendCandidateSha,
+      seat: args.seat,
+      proofRunId: path.basename(runDir),
+      requiredCompletenessKeys: backendContract.requiredCompletenessKeys || [
+        'totalBlocks',
+        'completedJobs',
+        'inspectedBytes',
+        'tempoApiStatus',
+      ],
+      rebindKeys: backendContract.rebindKeys || [],
+      rebindValues: {
+        ...(backendCandidateSha ? { candidate_sha: backendCandidateSha } : {}),
+        row_id: evidence.row || manifest.rowId,
+        seat: args.seat,
+        run_id: path.basename(runDir),
+        proof_run_id: path.basename(runDir),
+        window_start_utc: new Date(start * 1000).toISOString(),
+        window_end_utc: new Date(end * 1000).toISOString(),
+        traceql_query: query,
+        query_fingerprint: fingerprintTelemetryQuery(query),
+        'reason.hash': contract.hash,
+        reason_hash: contract.hash,
+        ...(evidence.attempt_id_hash
+          ? { attempt_fingerprint: evidence.attempt_id_hash }
+          : {}),
+        ...(evidence.accepted_send_trace_id
+          ? { accepted_send_trace_id: evidence.accepted_send_trace_id }
+          : {}),
+        ...(evidence.nonce
+          ? {
+              chain_nonce_fingerprint: createHash('sha256')
+                .update(String(evidence.nonce))
+                .digest('hex')
+                .slice(0, 16),
+            }
+          : {}),
+      },
+    },
+  };
   const deadline = Date.now() + args.timeoutMs;
   let candidates = [];
   let traceId = '';
@@ -481,13 +635,13 @@ async function main() {
   let validationError = null;
 
   do {
-    candidates = await tempoSearch(args.tempoUrl, query, start, end);
+    candidates = await tempoSearch(args.tempoUrl, query, start, end, backendStatus);
     if (candidates.length > 1) {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
     if (candidates.length === 1) {
       traceId = safeHex(candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id, 32, 'search trace id');
-      trace = await fetchTrace(args.tempoUrl, traceId);
+      trace = await fetchTrace(args.tempoUrl, traceId, backendStatus);
       try {
         topology = contract.kind === 'continuation'
           ? validateTrace(trace, {
@@ -594,10 +748,23 @@ async function main() {
         }),
   };
   await writeFile(receiptOut, JSON.stringify(receipt, null, 2) + '\n');
+  backendStatus.context.rebindValues = {
+    ...backendStatus.context.rebindValues,
+    trace_id: traceId,
+    'continuation.chain.id': topology.chainId,
+    chain_id: topology.chainId,
+  };
+  const backendReceipt = await finalizeTelemetryBackendStatus(
+    backendStatus.file,
+    backendStatus.context,
+  );
   console.log(JSON.stringify({
     traceId,
     traceFile: path.basename(traceOut),
     receiptFile: path.basename(receiptOut),
+    backendStatusFile: path.basename(backendStatus.file),
+    backendDisposition: backendReceipt.status,
+    backendComplete: backendReceipt.complete,
     ...(contract.kind === 'continuation'
       ? {
           reasonHash: contract.hash,

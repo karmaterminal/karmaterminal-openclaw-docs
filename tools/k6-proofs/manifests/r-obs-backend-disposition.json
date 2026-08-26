@@ -1,7 +1,7 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-OBS-BACKEND-DISPOSITION",
-  "issue": 1254,
+  "issue": 517,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
@@ -10,11 +10,13 @@
   "mutates": false,
   "timeoutSeconds": 180,
   "scenario": {
-    "status": "construct-only",
+    "status": "runnable",
     "name": "r-obs-backend-disposition",
     "description": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence.",
-    "notes": "Construct-only. This contract is harness-side: it does not wait on OpenClaw instrumentation, it waits on harness work that is deliberately out of scope for a catalog/contract PR. During the census, identical historical Tempo searches later returned HTTP 200 live-store-only responses with no totalBlocks and zero historical matches while /ready stayed 200, and journalctl was scope-inconsistent across five hosts with a timeout on the sixth; both were recorded as unavailable rather than zero.",
-    "registryNotes": "Cross-cutting harness contract. Every telemetry-dependent row inherits its backend disposition from here, which is why it is one row rather than a repeated clause in nine."
+    "file": "r-obs-backend-disposition.js",
+    "methods": ["tempo.api.search", "loki.api.query_range"],
+    "notes": "Runnable harness-side contract. The scenario queries only explicitly configured public-safe TraceQL/LogQL windows; absent query configuration emits unknown and cannot PASS.",
+    "registryNotes": "Docs #517 closure. Every telemetry-dependent row inherits this backend disposition and the row-list runner enforces backend-status.json before PASS."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -154,9 +156,9 @@
       "fail": "A zero-result response with missing completeness metadata was reported as an absence, a status receipt was omitted for an interaction that happened, or the rebind keys did not re-derive the same slice."
     },
     "execution": {
-      "deterministicK6": "The deterministic harness path writes backend-status.json for every telemetry fetch and refuses to emit a telemetry-dependent PASS when the status is not complete.",
+      "deterministicK6": "r-obs-backend-disposition.js writes backend-status.json for configured Tempo and Loki interactions; Node fetch adapters and the row-list runner use the same classifier and receipt schema.",
       "manual": "A manual reviewer reading a Tempo UI has no completeness metadata at all and cannot distinguish an empty window from a degraded one.",
-      "relationship": "Harness-side only: this row is not blocked on OpenClaw instrumentation. It is construct-only because the harness receipt does not exist yet, not because the product must change first."
+      "relationship": "Harness-side only: unit controls cover all five dispositions, while a reviewed configured run proves the target backends and rebind slice. Neither can override a non-complete backend receipt."
     }
   },
   "expectedReceipts": [
@@ -191,16 +193,16 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Construct-only remedy contract, harness-side. It is the one row in this set that does not wait on OpenClaw instrumentation; it waits on harness receipt work that is out of scope for a catalog/contract PR."
+    "notes": "Runnable harness-side remedy. PASS requires complete configured Tempo and Loki interactions plus a reviewed backend-status.json; this implementation lane does not fire live traffic."
   },
   "liveRunSafety": {
-    "classification": "construct-only",
+    "classification": "k6-runnable",
     "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": false,
     "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "construct-only",
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "backend-completeness-receipt",
       "degraded-response-classified",
@@ -208,6 +210,6 @@
       "slice-strategy-recorded"
     ],
     "foldRequiresReview": true,
-    "notes": "Construct-only rows are rejected by the live-run guard. Publication path for a future PR that lands the harness receipt is PR-NNNNNN/PROOFS/<FULL_SHA>/."
+    "notes": "No gateway or product mutation. Operators must provide public-safe TraceQL/LogQL probes and review backend-status.json; missing queries or incomplete metadata remain PARTIAL-candidate."
   }
 }

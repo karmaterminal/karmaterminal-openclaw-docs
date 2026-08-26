@@ -3,6 +3,11 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { validateTelemetryBackendStatusReceipt } from '../lib/telemetry-backend-status.js';
+import {
+  telemetryPassBlockers,
+  validateTelemetryRebind,
+} from '../lib/telemetry-rebind.js';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -24,6 +29,8 @@ export const SAFE_CANDIDATE_ARTIFACTS = new Set([
   'r-cd-2-authoritative-receipt.json',
   'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
   'r-cd-token-authoritative-receipt.json',
+  'backend-status.json', 'telemetry-disposition.json', 'row-result.json',
+  'k6-summary.json', 'EVIDENCE.md', 'gateway-events.ndjson',
   'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
   'gateway-journal-capture.json', 'gateway-journal-redaction.json',
 ]);
@@ -41,7 +48,7 @@ export function isSafeCandidateArtifact(name) {
 const ENVELOPE_KEYS = {
   root: {
     required: ['schema', 'candidateOnly', 'foldRequiresReview', 'canonicalFoldForbidden', 'candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts'],
-    optional: ['authoritativeReceipt'],
+    optional: ['authoritativeReceipt', 'telemetryRebind'],
   },
   candidate: { required: ['sha', 'docsRef'], optional: [] },
   harness: {
@@ -50,11 +57,14 @@ const ENVELOPE_KEYS = {
   },
   run: { required: ['id', 'rowId', 'seat', 'scenario', 'executionKind'], optional: [] },
   result: { required: ['outcome', 'outcomeSource', 'effectiveExitCode', 'behaviorProof'], optional: [] },
-  observability: { required: ['traceStatus', 'traceCaptured', 'correlationReceiptPresent'], optional: [] },
+  observability: {
+    required: ['traceStatus', 'traceCaptured', 'correlationReceiptPresent'],
+    optional: ['backendStatus', 'backendDisposition', 'backendComplete'],
+  },
   review: { required: ['status', 'pendingReceipts', 'complete'], optional: [] },
   artifacts: {
     required: ['manifest', 'scenario', 'runnerMetadata', 'runResult', 'files', 'tempoTraceJson', 'correlationReceipt'],
-    optional: [],
+    optional: ['backendStatus'],
   },
   authoritativeReceipt: { required: ['file', 'sha256'], optional: [] },
 };
@@ -74,14 +84,16 @@ function envelopeShapeIsCanonical(envelope) {
   }
   if (Object.prototype.hasOwnProperty.call(envelope, 'authoritativeReceipt') &&
       !hasExactKeys(envelope.authoritativeReceipt, ENVELOPE_KEYS.authoritativeReceipt)) return false;
+  if (Object.prototype.hasOwnProperty.call(envelope, 'telemetryRebind') &&
+      !validateTelemetryRebind(envelope.telemetryRebind).valid) return false;
   if (envelope.run.executionKind !== 'row-list-runner') return false;
   const artifacts = envelope.artifacts;
   if (artifacts.manifest !== COPIED_MANIFEST || artifacts.scenario !== COPIED_SCENARIO) return false;
   if (artifacts.runnerMetadata !== 'runner-metadata.json' || artifacts.runResult !== 'run-result.json') return false;
   if (!Array.isArray(artifacts.files) || !artifacts.files.every(isSafeCandidateArtifact)) return false;
-  for (const optional of ['tempoTraceJson', 'correlationReceipt']) {
+  for (const optional of ['tempoTraceJson', 'correlationReceipt', 'backendStatus']) {
     const value = artifacts[optional];
-    if (value !== null && !isSafeArtifactReference(value)) return false;
+    if (value != null && !isSafeArtifactReference(value)) return false;
   }
   return true;
 }
@@ -97,8 +109,52 @@ function artifactReferencesMatchRunResult(envelope, runResult) {
   const pairs = [
     [envelope.artifacts.tempoTraceJson, observability.tempoTraceJson],
     [envelope.artifacts.correlationReceipt, observability.correlationReceipt],
+    [envelope.artifacts.backendStatus, observability.backendStatus],
   ];
   return pairs.every(([declared, raw]) => (declared ?? null) === (raw ?? null));
+}
+
+function telemetryArtifactsMatch({ envelope, manifest, metadata, runResult, runDir }) {
+  const contract = manifest?.telemetryContract;
+  if (!contract) {
+    return !Object.hasOwn(envelope, 'telemetryRebind') &&
+      !Object.hasOwn(envelope.observability, 'backendStatus') &&
+      !Object.hasOwn(envelope.artifacts, 'backendStatus');
+  }
+  if (!Object.hasOwn(envelope, 'telemetryRebind') ||
+      !validateTelemetryRebind(runResult.telemetryRebind).valid ||
+      JSON.stringify(envelope.telemetryRebind) !== JSON.stringify(runResult.telemetryRebind)) {
+    return false;
+  }
+  if (runResult.observability?.backendStatus !== 'backend-status.json' ||
+      envelope.observability?.backendStatus !== 'backend-status.json' ||
+      envelope.artifacts?.backendStatus !== 'backend-status.json') {
+    return false;
+  }
+  let backendStatus;
+  try {
+    backendStatus = JSON.parse(readFileSync(path.join(runDir, 'backend-status.json'), 'utf8'));
+  } catch {
+    return false;
+  }
+  const validation = validateTelemetryBackendStatusReceipt(backendStatus, {
+    rowId: metadata.row,
+    candidateSha: metadata.candidateSha,
+    seat: metadata.seat,
+    proofRunId: path.basename(runDir),
+  });
+  if (!validation.valid) return false;
+  if (runResult.observability.backendDisposition !== backendStatus.status ||
+      runResult.observability.backendComplete !== backendStatus.complete ||
+      envelope.observability.backendDisposition !== backendStatus.status ||
+      envelope.observability.backendComplete !== backendStatus.complete) {
+    return false;
+  }
+  if (envelope.result?.outcome === 'PASS-candidate' &&
+      telemetryPassBlockers(envelope.telemetryRebind).length > 0) {
+    return false;
+  }
+  return true;
 }
 
 function nonEmptyString(value) {
@@ -236,6 +292,7 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
     !existsSync(path.join(runDir, authoritative.file))
   )) return false;
   if (!artifactReferencesMatchRunResult(envelope, runResult)) return false;
+  if (!telemetryArtifactsMatch({ envelope, manifest, metadata, runResult, runDir })) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
   if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;

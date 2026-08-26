@@ -9,6 +9,10 @@ import {
   resolveRcd2AuthoritativeReceipt,
   validateRcd2AuthoritativeReceipt,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  buildTelemetryBackendStatusReceipt,
+  classifyTelemetryBackendInteraction,
+} from '../../lib/telemetry-backend-status.js';
 
 const signingKey = 'r-cd-2-authoritative-receipt-test-key';
 const run = 'a'.repeat(16);
@@ -47,6 +51,40 @@ function correlation(overrides = {}) {
     },
     ...overrides,
   };
+}
+
+function completeBackendStatus() {
+  const requiredCompletenessKeys = [
+    'totalBlocks',
+    'completedJobs',
+    'inspectedBytes',
+    'tempoApiStatus',
+  ];
+  return buildTelemetryBackendStatusReceipt({
+    rowId: 'R-CD-2',
+    candidateSha: 'a'.repeat(40),
+    seat: 'unit',
+    proofRunId: 'unit',
+    requiredCompletenessKeys,
+    rebindKeys: [],
+    interactions: [classifyTelemetryBackendInteraction({
+      backend: 'tempo',
+      operation: 'search',
+      httpStatus: 200,
+      responseJson: {
+        metrics: {
+          totalBlocks: 1,
+          completedJobs: 1,
+          totalJobs: 1,
+          inspectedBytes: 1024,
+        },
+      },
+      resultCount: 1,
+      queryFingerprint: '1'.repeat(16),
+      backendBaseUrlEnv: 'OPENCLAW_PROOFS_TEMPO_BASE_URL',
+      requiredCompletenessKeys,
+    })],
+  });
 }
 
 test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
@@ -176,18 +214,22 @@ test('R-CD-2 writer and postprocessor accept only the authoritative receipt', as
     const receiptPath = path.join(dir, 'receipt.json');
     const logPath = path.join(dir, 'k6.log');
     const summaryPath = path.join(dir, 'summary.json');
+    const backendPath = path.join(dir, 'backend-status.json');
+    const readinessPath = path.join(dir, 'seat-readiness.json');
     await writeFile(receiptPath, JSON.stringify(receipt));
     await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"row":"R-CD-2","redacted_events":[]}\n--- END EVIDENCE ---\n');
     await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
+    await writeFile(backendPath, JSON.stringify(completeBackendStatus()));
+    await writeFile(readinessPath, '{"outcome":"PASS"}\n');
     const env = { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey };
-    const writer = await execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40), '--manifest', manifestPath, '--authoritative-receipt', receiptPath], { cwd: dir, env });
+    const writer = await execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40), '--manifest', manifestPath, '--authoritative-receipt', receiptPath, '--backend-status', backendPath, '--seat-readiness', readinessPath], { cwd: dir, env });
     const writerDir = JSON.parse(writer.stdout).runDir;
     const writerResult = JSON.parse(await readFile(path.join(dir, writerDir, 'row-result.json'), 'utf8'));
     assert.equal(writerResult.outcome, 'PASS-candidate');
     assert.equal(writerResult.verdictSource, 'r-cd-2-authoritative-receipt');
     assert.equal(writerResult.authoritativeReceipt.validated, true);
     await access(path.join(dir, writerDir, 'r-cd-2-authoritative-receipt.json'));
-    const post = await execFileAsync(process.execPath, [postprocessorPath, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', '--authoritative-receipt', receiptPath], { cwd: dir, env });
+    const post = await execFileAsync(process.execPath, [postprocessorPath, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', '--authoritative-receipt', receiptPath, '--backend-status', backendPath, '--seat-readiness', readinessPath], { cwd: dir, env });
     const postDir = JSON.parse(post.stdout).runDir;
     const postResult = JSON.parse(await readFile(path.join(postDir, 'row-result.json'), 'utf8'));
     assert.equal(postResult.outcome, 'PASS-candidate');

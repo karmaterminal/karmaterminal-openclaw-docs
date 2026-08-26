@@ -33,6 +33,7 @@ tools/k6-proofs/
   - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)
   - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
   - `OPENCLAW_EXPECTED_K6_VERSION` — expected k6 version for seat-readiness preflight (default: `v2.0.0`)
+  - `OPENCLAW_PROOFS_TEMPO_TRACEQL` / `OPENCLAW_PROOFS_LOKI_LOGQL` — public-safe bounded queries required by `R-OBS-BACKEND-DISPOSITION`; absent queries produce `unknown`, never PASS
 
 ## Usage
 
@@ -486,7 +487,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 ## Row coverage
 
-`live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.
+`live-suite` currently resolves to 35 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
@@ -521,6 +522,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-TOKEN | `r-cw-token-bracket` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-1 | `r-obs-1` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-2 | `r-obs-2` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-OBS-BACKEND-DISPOSITION | `r-obs-backend-disposition` | Tempo+Loki/read-only | PASS-candidate only when both configured interactions are complete and `backend-status.json` validates; degraded states remain PARTIAL |
 | R-OBS-STATUS | `r-obs-status` | github-source-contract/#1172 | PASS-candidate; runnable exact-SHA status-line contract requiring row review |
 | R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-RC-2 | `r-rc-2-delegate-request-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
@@ -528,6 +530,17 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-TRACE-REDACTION-1121 | `r-trace-redaction-1121` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
+
+`R-OBS-BACKEND-DISPOSITION` is the runnable harness-side remedy for docs #517.
+It stores no response bodies or log lines. Unit controls pin `complete`,
+`partial`, `unavailable`, `capped`, and `unknown`; a reviewed configured run
+binds the actual Tempo/Loki window:
+
+```bash
+OPENCLAW_PROOFS_TEMPO_TRACEQL='<public-safe bounded TraceQL>' \
+OPENCLAW_PROOFS_LOKI_LOGQL='<public-safe bounded LogQL>' \
+./run-proof.sh r-obs-backend-disposition
+```
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 

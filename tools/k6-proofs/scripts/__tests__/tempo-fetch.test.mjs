@@ -47,7 +47,13 @@ test('fetches and projects Tempo trace JSON by trace id without persisting priva
       assert.equal(receipt.fetched, true);
       assert.equal(receipt.traceId, '0123456789abcdef');
       assert.equal(receipt.spans, 1);
+      assert.equal(receipt.backendStatus, 'backend-status.json');
+      assert.equal(receipt.backendDisposition, 'unknown');
+      assert.equal(receipt.backendComplete, false);
       assert.equal(receipt.tempoUrl.includes('0123456789abcdef'), false);
+      const backend = JSON.parse(await readFile(path.join(root, 'backend-status.json'), 'utf8'));
+      assert.equal(backend.status, 'unknown');
+      assert.equal(backend.interactions.length, 1);
       const body = JSON.parse(await readFile(out, 'utf8'));
       assert.equal(body.schema, 'openclaw.k6.public-tempo-trace.v1');
       assert.equal(body.spans.length, 1);
@@ -132,10 +138,51 @@ test('uses OPENCLAW_PROOFS_TEMPO_BASE_URL when --tempo-url is omitted', async ()
         encoding: 'utf8',
         env: { ...process.env, OPENCLAW_PROOFS_TEMPO_BASE_URL: baseUrl, TEMPO_BASE_URL: 'http://unused.invalid' },
       });
+
       const receipt = JSON.parse(run.stdout);
       assert.equal(receipt.fetched, true);
       assert.equal(receipt.traceId, '1111222233334444');
       assert.equal(receipt.spans, 1);
+    });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('classifies a trace response with complete backend metadata as complete', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'tempo-fetch-complete-'));
+  try {
+    await withServer((_req, res) => {
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({
+        metrics: {
+          totalBlocks: 3,
+          completedJobs: 2,
+          totalJobs: 2,
+          inspectedBytes: 4096,
+        },
+        trace: {
+          spans: [{ spanId: '0123456789abcdef', name: 'continuation.work' }],
+        },
+      }));
+    }, async (baseUrl) => {
+      const out = path.join(root, 'trace.json');
+      const run = await runNode(process.execPath, [
+        script,
+        '--trace-id', '1111222233334444',
+        '--tempo-url', baseUrl,
+        '--out', out,
+        '--row', 'R-CW-1',
+        '--candidate-sha', 'a'.repeat(40),
+        '--seat', 'cael',
+        '--proof-run-id', 'unit-complete',
+      ], { encoding: 'utf8' });
+      const receipt = JSON.parse(run.stdout);
+      assert.equal(receipt.backendDisposition, 'complete');
+      assert.equal(receipt.backendComplete, true);
+      const backend = JSON.parse(await readFile(path.join(root, 'backend-status.json'), 'utf8'));
+      assert.equal(backend.countAuthority, true);
+      assert.equal(backend.interactions[0].totalBlocks, 3);
     });
   } finally {
     await rm(root, { recursive: true, force: true });

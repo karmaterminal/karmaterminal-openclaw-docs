@@ -229,7 +229,8 @@
         "row-result.json",
         "k6-summary.json",
         "seat-readiness.json",
-        "artifacts/compaction_accept_request_trace.json"
+        "tool-trace-correlation.json",
+        "backend-status.json"
       ]
     },
     "verdictAuthority": {

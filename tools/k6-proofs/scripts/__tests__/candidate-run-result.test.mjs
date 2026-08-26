@@ -7,6 +7,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
+import {
+  buildTelemetryBackendStatusReceipt,
+  classifyTelemetryBackendInteraction,
+} from '../../lib/telemetry-backend-status.js';
+import { telemetryRebindFrom } from '../../lib/telemetry-rebind.js';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
 
 const runNode = promisify(execFile);
@@ -151,6 +156,118 @@ test('emits a public-safe, candidate-only routing envelope for a complete candid
     assert.equal(result.observability.traceCaptured, true);
     assert.equal(result.artifacts.correlationReceipt, 'continuation-correlation.json');
     assert.deepEqual(JSON.parse(await readFile(out, 'utf8')), result);
+  } finally {
+    await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('candidate envelope binds backend status and telemetry rebind siblings', async () => {
+  const requiredCompletenessKeys = [
+    'totalBlocks',
+    'completedJobs',
+    'inspectedBytes',
+    'tempoApiStatus',
+  ];
+  const manifestValue = {
+    ...manifest(),
+    telemetryContract: {
+      schema: 'openclaw.k6.row-telemetry-contract.v1',
+      enforcement: 'advisory',
+      rebindable: false,
+      productInstrumentationPrerequisite: true,
+      prerequisiteRows: ['R-OBS-BACKEND-DISPOSITION'],
+      backendUnavailable: {
+        disposition: 'PARTIAL-candidate',
+        requiredCompletenessKeys,
+        rebindKeys: [],
+      },
+      artifact: {
+        schema: 'openclaw.k6.proof-row-result.v1',
+        requiredFiles: ['backend-status.json'],
+      },
+      verdictAuthority: { passScope: 'behavioral-only' },
+    },
+  };
+  const setup = await fixture({ manifestValue });
+  try {
+    const backendStatus = buildTelemetryBackendStatusReceipt({
+      rowId: 'R-CW-TEST',
+      candidateSha: sha,
+      seat: 'cael',
+      proofRunId: path.basename(setup.candidateDir),
+      requiredCompletenessKeys,
+      rebindKeys: [],
+      interactions: [classifyTelemetryBackendInteraction({
+        backend: 'tempo',
+        operation: 'search',
+        httpStatus: 200,
+        responseJson: {
+          metrics: {
+            totalBlocks: 1,
+            completedJobs: 1,
+            totalJobs: 1,
+            inspectedBytes: 1024,
+          },
+        },
+        resultCount: 1,
+        queryFingerprint: '1'.repeat(16),
+        backendBaseUrlEnv: 'OPENCLAW_PROOFS_TEMPO_BASE_URL',
+        requiredCompletenessKeys,
+      })],
+    });
+    const telemetryRebind = telemetryRebindFrom({
+      manifest: manifestValue,
+      receiptStatuses: [],
+      backendStatus,
+      artifactStatuses: [{ name: 'backend-status.json', status: 'present' }],
+    });
+    const result = runResult({
+      telemetryRebind,
+      observability: {
+        traceStatus: 'present',
+        traceId: 'safe-trace-id',
+        correlationReceipt: 'continuation-correlation.json',
+        backendStatus: 'backend-status.json',
+        backendDisposition: 'complete',
+        backendComplete: true,
+      },
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'backend-status.json'),
+      `${JSON.stringify(backendStatus, null, 2)}\n`,
+    );
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(result, null, 2)}\n`,
+    );
+    const envelope = JSON.parse((await invoke(setup)).stdout);
+    assert.equal(envelope.observability.backendStatus, 'backend-status.json');
+    assert.equal(envelope.observability.backendDisposition, 'complete');
+    assert.equal(envelope.telemetryRebind.backend.complete, true);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope,
+      manifest: manifestValue,
+      metadata: JSON.parse(
+        await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'),
+      ),
+      runResult: result,
+      runDir: setup.candidateDir,
+    }), true);
+
+    const unknown = buildTelemetryBackendStatusReceipt({
+      rowId: 'R-CW-TEST',
+      candidateSha: sha,
+      seat: 'cael',
+      proofRunId: path.basename(setup.candidateDir),
+      requiredCompletenessKeys,
+      rebindKeys: [],
+      interactions: [],
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'backend-status.json'),
+      `${JSON.stringify(unknown, null, 2)}\n`,
+    );
+    await assert.rejects(invoke(setup), /backend disposition disagrees/);
   } finally {
     await rm(setup.root, { recursive: true, force: true });
   }
@@ -574,6 +691,7 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     delegate_task_id_hash: h('9'), delegate_run_id_hash: h('a'),
     delegate_requester_session_hash: h('4'), delegate_child_session_hash: h('5'),
     delegate_requester_matches_origin_child: true, delegate_parent_mismatch: false,
+    delegate_correlation_strategy: 'disposable-origin-child-lineage',
     origin_task_status: 'completed', delegate_task_status: 'completed', interrupted: false,
     reason_hash: h('b'), reason_length: 42,
   };

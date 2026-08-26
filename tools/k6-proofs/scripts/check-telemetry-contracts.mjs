@@ -221,6 +221,9 @@ export function validateTelemetryContract(manifest, { file = manifest?.rowId || 
   const artifact = contract.artifact || {};
   if (!nonEmptyString(artifact.schema)) fail('telemetryContract.artifact.schema must be a non-empty string');
   if (!nonEmptyArray(artifact.requiredFiles)) fail('telemetryContract.artifact.requiredFiles must be non-empty');
+  else if (!artifact.requiredFiles.includes('backend-status.json')) {
+    fail('telemetryContract.artifact.requiredFiles must include backend-status.json');
+  }
 
   const verdict = contract.verdictAuthority || {};
   if (!PASS_SCOPES.has(verdict.passScope)) {

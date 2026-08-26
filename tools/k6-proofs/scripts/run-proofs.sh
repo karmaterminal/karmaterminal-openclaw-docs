@@ -56,6 +56,7 @@ bind_execution_roots() {
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
   R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
+  TELEMETRY_DISPOSITION_APPLIER="$SCRIPT_DIR/apply-telemetry-disposition.mjs"
 }
 bind_execution_roots
 PRIVATE_K6_LOG=""
@@ -939,6 +940,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # purge must never be able to delete evidence written by a concurrent or
     # earlier run for the same candidate/row/seat within the same second.
     RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')-${MATRIX_NONCE}"
+    export OPENCLAW_PROOF_RUN_ID="$RUN_ID"
     RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$RUN_ID"
     # Atomic: the leaf mkdir fails if anything already owns this path, so this
     # process can only ever purge a directory it created itself.
@@ -994,12 +996,25 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           --arg endedAt "$RUN_ENDED_AT" \
           '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
+        if ! node "$TELEMETRY_DISPOSITION_APPLIER" \
+            --manifest "$MANIFEST_FILE" \
+            --run-dir "$RUN_DIR" \
+            > "$RUN_DIR/telemetry-disposition.json" \
+            2> "$RUN_DIR/telemetry-disposition.error.log"; then
+          echo "[$ROW_ID] pre-dispatch backend disposition failed closed; see telemetry-disposition.error.log" >&2
+        fi
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
         continue
       fi
+      jq -n \
+        --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
+        --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+        --arg checkedAt "$RUN_STARTED_AT" \
+        '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:true,dispatched:false,verdict:"ready",checkedAt:$checkedAt}' \
+        > "$RUN_DIR/build-identity-gate.json"
       ATTEMPT_UUID="$(cat /proc/sys/kernel/random/uuid)"
       export OPENCLAW_PROOF_ATTEMPT_ID="${RUN_ID}-${ATTEMPT_UUID}"
       export OPENCLAW_ROW_NONCE="R-CD-TOKEN-${ATTEMPT_UUID}"
@@ -1034,6 +1049,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
           '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
+        if ! node "$TELEMETRY_DISPOSITION_APPLIER" \
+            --manifest "$MANIFEST_FILE" \
+            --run-dir "$RUN_DIR" \
+            > "$RUN_DIR/telemetry-disposition.json" \
+            2> "$RUN_DIR/telemetry-disposition.error.log"; then
+          echo "[$ROW_ID] pre-dispatch backend disposition failed closed; see telemetry-disposition.error.log" >&2
+        fi
         rm -f "$RUN_DIR/.started"
         ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
         ACTIVE_TOKEN_RUN_DIR=""
@@ -1146,7 +1168,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         rawLines: $rawLines
       }' > "$RUN_DIR/gateway-journal-capture.json"
 
-    find . -maxdepth 1 -type f -name '*summary.json' -newer "$RUN_DIR/.started" -print -exec mv {} "$RUN_DIR" \;
+    find . -maxdepth 1 -type f \( -name '*summary.json' -o -name 'backend-status.json' \) \
+      -newer "$RUN_DIR/.started" -print -exec mv {} "$RUN_DIR" \;
     if ! node "$EVIDENCE_EXTRACTOR" \
       --input "$PRIVATE_K6_LOG" \
       --out "$PRIVATE_EVIDENCE_FILE" \
@@ -1319,7 +1342,17 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     elif [[ -n "$TRACE_ID" ]]; then
       TEMPO_TRACE_JSON="tempo-trace-${TRACE_ID:0:12}.json"
       TEMPO_TRACE_PATH="$RUN_DIR/$TEMPO_TRACE_JSON"
-      if node scripts/fetch-tempo-trace.mjs --trace-id "$TRACE_ID" --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" --out "$TEMPO_TRACE_PATH" > "$RUN_DIR/tempo-trace-receipt.json" 2> "$RUN_DIR/tempo-trace-error.log"; then
+      if node scripts/fetch-tempo-trace.mjs \
+          --trace-id "$TRACE_ID" \
+          --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" \
+          --out "$TEMPO_TRACE_PATH" \
+          --backend-status "$RUN_DIR/backend-status.json" \
+          --row "$ROW_ID" \
+          --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+          --seat "$OPENCLAW_SEAT_NAME" \
+          --proof-run-id "$RUN_ID" \
+          > "$RUN_DIR/tempo-trace-receipt.json" \
+          2> "$RUN_DIR/tempo-trace-error.log"; then
         TRACE_STATUS="present"
         echo "[$ROW_ID] TEMPO TRACE: $TEMPO_TRACE_PATH"
       else
@@ -1486,6 +1519,40 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
       '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
+    if jq -e 'has("telemetryContract")' "$MANIFEST_FILE" >/dev/null; then
+      if node "$TELEMETRY_DISPOSITION_APPLIER" \
+          --manifest "$MANIFEST_FILE" \
+          --run-dir "$RUN_DIR" \
+          > "$RUN_DIR/telemetry-disposition.json" \
+          2> "$RUN_DIR/telemetry-disposition.error.log"; then
+        rm -f "$RUN_DIR/telemetry-disposition.error.log"
+        SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/run-result.json")"
+        SUMMARY_VERDICT_SOURCE="$(jq -r '.verdictSource // "telemetry-disposition-policy"' "$RUN_DIR/run-result.json")"
+        REVIEW_PENDING_RECEIPTS="$(jq -c '.review.pendingReceipts // []' "$RUN_DIR/run-result.json")"
+        echo "[$ROW_ID] BACKEND DISPOSITION: $(jq -r '.observability.backendDisposition' "$RUN_DIR/run-result.json")"
+      else
+        POSTPROCESS_RC=1
+        EFFECTIVE_RC=1
+        jq '
+          .postprocessExitCode = 1 |
+          .effectiveExitCode = 1 |
+          .verdict = "PARTIAL-candidate" |
+          .verdictSource = ((.verdictSource // "unknown") + "+telemetry-disposition-error") |
+          .failureClass = "backend-disposition" |
+          .reason = "telemetry disposition failed closed; inspect telemetry-disposition.error.log" |
+          .review = {
+            status: "review-pending",
+            pendingReceipts: ((.review.pendingReceipts // []) + ["backend-status"] | unique)
+          }
+        ' "$RUN_DIR/run-result.json" > "$RUN_DIR/run-result.json.tmp"
+        mv "$RUN_DIR/run-result.json.tmp" "$RUN_DIR/run-result.json"
+        cp "$RUN_DIR/run-result.json" "$RUN_DIR/row-result.json"
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="telemetry-disposition-error"
+        REVIEW_PENDING_RECEIPTS='["backend-status"]'
+        echo "[$ROW_ID] TELEMETRY DISPOSITION FAILED; candidate PASS withheld." >&2
+      fi
+    fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       jq \
         --arg endedAt "$RUN_ENDED_AT" \

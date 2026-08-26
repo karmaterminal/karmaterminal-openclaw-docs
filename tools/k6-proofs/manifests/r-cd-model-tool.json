@@ -216,7 +216,8 @@
         "EVIDENCE.md",
         "row-result.json",
         "k6-summary.json",
-        "seat-readiness.json"
+        "seat-readiness.json",
+        "backend-status.json"
       ]
     },
     "verdictAuthority": {

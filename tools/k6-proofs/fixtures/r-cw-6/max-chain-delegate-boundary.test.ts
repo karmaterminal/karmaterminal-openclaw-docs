@@ -100,7 +100,7 @@ it("proves the selected max-chain delegate boundary before spawn and fails the r
     config: runtimeConfig,
   });
 
-  const failedFlows = [...mockFlows.values()].filter((flow) => flow.status === "failed");
+  const failedFlows = [...mockTaskFlows.values()].filter((flow) => flow.status === "failed");
   const capNoticeObserved = enqueueSystemEventMock.mock.calls.some(([message]) =>
     String(message).includes("chain-capped"),
   );

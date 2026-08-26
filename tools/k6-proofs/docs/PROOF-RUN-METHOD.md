@@ -208,7 +208,9 @@ later. Rows record that gap explicitly rather than implying it is absent:
 - the manifest's `telemetryContract` names the spans/attributes the claim rests
   on and whether the product emits them today;
 - `row-result.json` carries a `telemetryRebind` block with the unproven rebind
-  receipts;
+  receipts on both the single-summary and row-list paths;
+- every Tempo/Loki interaction writes `backend-status.json`; a non-complete
+  disposition or a missing declared telemetry artifact withholds PASS;
 - a row may only claim `rebindable:true` (and the
   `behavioral-and-telemetry-rebindable` pass scope) when origin, session, turn,
   run identity and the proof-run marker are all product-emitted. No committed

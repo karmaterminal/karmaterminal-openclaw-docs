@@ -6,10 +6,11 @@ Row contracts derived from the continuation telemetry census,
 - Census report commit: `39803b297bd4786db3971eb82a3a7fd0b29bc643`
 - Exact product basis observed: `6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955`
 
-> **None of the product instrumentation described here exists yet.** This page
-> defines the contract. Every attribute and span marked `emittedByProduct:false`
-> in a manifest is owed work on `karmaterminal/openclaw`, not something a reader
-> can go and query today.
+> **None of the product instrumentation described here exists yet.** Every
+> attribute and span marked `emittedByProduct:false` is owed work on
+> `karmaterminal/openclaw`. The exception is the harness-side backend
+> disposition receipt: `R-OBS-BACKEND-DISPOSITION` is implemented here and does
+> not claim that any missing product instrumentation exists.
 
 ## What the census established
 
@@ -56,8 +57,9 @@ observer could ever re-derive it from.
 
 Four concerns are cross-cutting: they apply to `continue_work`,
 `continue_delegate` and `request_compaction` alike, and no single behavioral row
-can honestly own any of them. Each becomes one construct-only remedy row, and
-each concern is owned by **exactly one** row (enforced by
+can honestly own any of them. Three remain construct-only product rows and one
+is a runnable harness row. Each concern is owned by **exactly one** row
+(enforced by
 `scripts/check-telemetry-contracts.mjs`).
 
 | Row | Concern | Product instrumentation prerequisite | Owns |
@@ -68,9 +70,10 @@ each concern is owned by **exactly one** row (enforced by
 | `R-OBS-BACKEND-DISPOSITION` | `backend-disposition` | **no** (harness-side) | Explicit unavailable/partial/capped classification plus the rebind key set |
 
 `R-OBS-BACKEND-DISPOSITION` is the one row in the set that is not waiting on
-OpenClaw. It is construct-only because the harness receipt does not exist yet,
-not because the product must change first. Keeping that distinction visible is
-the point of the `productInstrumentationPrerequisite` flag.
+OpenClaw. Its shared classifier, atomic writer, Tempo/Loki adapters, runnable k6
+scenario, row-list policy, postprocessor policy, and candidate-envelope checks
+now exist. A configured run still needs review; this implementation does not
+turn old corpus bytes into PASS evidence.
 
 Everything else stayed in the behavioral row that already owns it. Nine existing
 rows gained a `telemetryContract` block rather than a new sibling row:
@@ -143,52 +146,43 @@ harness infrastructure (exit 78) and never synthesizes a row verdict.
   `FAIL-candidate`, and `treatZeroAsAbsence` must be `false`.
 - Each census remedy concern is owned by exactly one row.
 
-## What the post-processor refuses
+## What the result pipeline refuses
 
-`scripts/postprocess-k6-summary.mjs` writes a `telemetryRebind` block into every
-`row-result.json` for a row that declares a contract, so the debt is durable in
-the artifact rather than implied. It also withholds a summary-derived
-`PASS-candidate` in three cases:
+`scripts/postprocess-k6-summary.mjs` and `scripts/run-proofs.sh` write the same
+`telemetryRebind` block into telemetry-dependent row results. They withhold
+`PASS-candidate` when:
 
-- a receipt required by **either** `expectedReceipts[].required` or
-  `liveRunSafety.requiredReceipts` is explicitly reported `missing`
-  (`failureClass: missing-receipt`);
-- a row with `enforcement: blocking` has a rebind receipt that is not explicitly
-  `present` (`failureClass: telemetry-rebind-unproven`);
-- a row claims `rebindable: true` or the rebindable pass scope and its rebind
-  status is not `proven`, regardless of the declared `enforcement`.
+- a receipt required by either manifest receipt list is explicitly missing;
+- blocking/rebindable telemetry receipts are not proven;
+- `backend-status.json` is absent, invalid, `partial`, `unavailable`, `capped`,
+  or `unknown`;
+- any file declared in `telemetryContract.artifact.requiredFiles` is absent or
+  empty.
 
-Rows that declare a signed authoritative receipt (`R-CD-2`) keep that receipt as
-their sole verdict authority and are not re-judged here.
+Rows with signed authoritative receipts keep those receipts as the sole
+positive behavior authority. Backend and artifact policy may withhold that
+PASS, but no summary, count, or telemetry helper can replace an explicit signed
+non-PASS.
 
-### Scope and known limits of that gate
+### Backend receipt boundary
 
-Three limits are stated here rather than implied:
+Every Tempo search, Tempo trace-by-id fetch, and Loki range query records one
+public-safe interaction in `backend-status.json`, including successful
+responses. The receipt carries only:
 
-1. **The gate is on the summary-driven path.** `postprocess-k6-summary.mjs` is
-   the single-row path documented in `README.md` and `docs/PROOF-RUN-METHOD.md`.
-   The row-list runner `scripts/run-proofs.sh` builds its own `run-result.json`
-   inline and does not call the post-processor, so runner artifacts do not carry
-   `telemetryRebind` yet. Wiring the contract into the runner's verdict policy is
-   follow-up work.
-2. **No committed row can trigger the blocking downgrade today.** The only rows
-   with `enforcement: blocking` are the four `R-OBS-*` remedy rows, and they are
-   `construct-only`, so their outcome is `construct-only` before any PASS can
-   exist. The nine behavioral rows are `advisory` by design. The blocking path is
-   therefore a forward guarantee, exercised by tests, not a currently active
-   downgrade.
-3. **Receipt status is self-asserted.** A receipt is `present` because the row's
-   own k6 summary said so; nothing yet cross-checks that claim against
-   `artifact.requiredFiles`, the Tempo projection, or
-   `backendUnavailable.requiredCompletenessKeys`. That corroboration is owed
-   alongside the product instrumentation, and it is why these rows remain
-   `foldRequiresReview: true`.
+- backend and operation enums;
+- HTTP/API disposition;
+- `totalBlocks`, `completedJobs`, and `inspectedBytes` when supplied;
+- result count/limit and `resultCapped`;
+- UTC window bounds, slice strategy, and a query fingerprint;
+- manifest-declared public rebind keys.
 
-`enforcement` is `advisory` on the nine existing behavioral rows: the rebind
-debt is recorded, and their behavioral verdict is unchanged. It flips to
-`blocking` when the row's prerequisite remedy rows land, at which point an
-unproven rebind receipt caps the row at `PARTIAL-candidate`. This change
-publishes no new live verdicts and moves no `PROOFS/INDEX.json`.
+Raw response bodies, log lines, headers, endpoint URLs, session keys, and
+process output are forbidden. An HTTP 200 response with no completeness
+metadata is `unknown`, never a healthy zero. A result at the backend limit is
+`capped`; its slice strategy is retained and its count has no authority.
+Candidate-envelope validation re-reads the receipt and siblings, so a
+hand-edited sidecar cannot suppress the raw non-PASS.
 
 ## Publishing evidence for a future product PR
 
@@ -207,7 +201,12 @@ abbreviation. That path is separate from the continuation corpus at
 
 ```bash
 node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-node --test tools/k6-proofs/scripts/__tests__/telemetry-contract.test.mjs
+node --test \
+  tools/k6-proofs/scripts/__tests__/telemetry-contract.test.mjs \
+  tools/k6-proofs/scripts/__tests__/telemetry-backend-status.test.mjs \
+  tools/k6-proofs/scripts/__tests__/backend-disposition-pipeline.test.mjs \
+  tools/k6-proofs/scripts/__tests__/tempo-fetch.test.mjs \
+  tools/k6-proofs/scripts/__tests__/loki-fetch.test.mjs
 ```
 
 ## See also

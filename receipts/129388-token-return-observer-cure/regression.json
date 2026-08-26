@@ -1,0 +1,99 @@
+{
+  "schema": "openclaw.project81.129388-token-return-observer-cure.regression.v1",
+  "recordedAt": "2026-08-26T22:08:59Z",
+  "issue": "karmaterminal/karmaterminal-openclaw-docs#103",
+  "ownerClassification": "docs-harness",
+  "invariant": "After the disposable origin initial-run cursor, exactly one public assistant session.message on that origin must contain the exact nonce sentinel and have run id announce:v1:<accepted delegate child session>:<accepted delegate run>; stale origin and later root events cannot substitute.",
+  "compositionBoundary": [
+    "sessions.create",
+    "sessions.send",
+    "fully-paginated stable tasks.list",
+    "origin sessions.messages.subscribe",
+    "initial-origin sessions.get cursor",
+    "public assistant session.message",
+    "R-CD-TOKEN evidence classifier",
+    "HMAC-signed row receipt",
+    "candidate envelope"
+  ],
+  "classification": {
+    "productSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "productEmittedPublicNormalOriginAssistantEvent": true,
+    "internalAnnounceInputPubliclyHiddenByDesign": true,
+    "observerRequiredHiddenTextHeader": true,
+    "productIssueRequired": false,
+    "privateLogAuthorityUsed": false
+  },
+  "frozenRun": {
+    "runId": 33014309397,
+    "artifactId": 9624150623,
+    "workflowHeadSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+    "artifactZipSha256": "a1d7064a247f8cdbd91eea2d40c37ec474ab3cae7e01bc2a75739eb5da84a894",
+    "k6LogSha256": "d3e6024de0a9630362f00b4be5d15c196dbad09b7e5bba63f5bf41676a3f2228",
+    "authoritativeReceiptSha256": "84276d46fc7c2468328ca4b1a7ea295d03011c97ae09f4df2dc2cae0063b5e6a",
+    "privateGatewayLogSha256": "a2e717f399cd540ceb0983b0ab0fc4d95355e94c6e37ed3b4bc770a5ec58f2f5",
+    "privateOriginTranscriptArchiveSha256": "02a8ed808a0c6fb59ac4c6fe031c4a41fb76c312adef13398994827d0e83967d",
+    "originalVerdict": "PARTIAL-candidate",
+    "originalFailureCategory": "incomplete-or-nonunique-lifecycle",
+    "delegateReturnObserved": false,
+    "returnHashesNull": true,
+    "fixture": "tools/k6-proofs/tests/fixtures/r-cd-token-run-33014309397.json",
+    "fixturePrivateIdentifiersRemoved": true
+  },
+  "negativeControl": {
+    "rejectedHarnessSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+    "rejectedParserBlob": "46aad0fb67df07af4e1724c26d14bef31130a378",
+    "moduleByteIdenticalBeforeTest": true,
+    "command": "node --test tools/k6-proofs/scripts/__tests__/r-cd-token-contract.test.mjs",
+    "exitCode": 1,
+    "failedForExpectedReason": "the assistant-role normal-origin event resolved to actual:null",
+    "logSha256": "8a12618f87c764396780df540f619247ad1d6f8f29a24f91a8c5bc45b566e607"
+  },
+  "successor": {
+    "implementationSha": "476ee9346495e9db991539fdc3c10bb34474ed9c",
+    "successorParserBlob": "0cc06b653e14c14d92bb4cf781462f93df6eb7af",
+    "localTrackingServerEqual": true,
+    "sameExactRunAssertionPasses": true,
+    "focusedTests": {
+      "count": 133,
+      "passed": 133,
+      "serialized": true,
+      "logSha256": "c2ba3ceb7e124590017ceeadfc6d7d7c97248c8bf12bc5d01cb72e8caa98bcc7"
+    },
+    "catalogValidatorsPassed": true,
+    "catalogLogSha256": "c1b221445c3d2463baedc2127a3de8f475f231f6330f8b339b5f0f2ffa908614",
+    "directReview": "complete parser, scenario lifecycle, signed resolver/validator, candidate-envelope caller, manifest, fixture, and adjacent authority paths; no unresolved finding",
+    "ciPath": "focused-only"
+  },
+  "rejectionCases": {
+    "wrongSession": true,
+    "wrongNonce": true,
+    "wrongOrConflictingRun": true,
+    "staleCursor": true,
+    "duplicateReturn": true,
+    "rootOnlyReturn": true,
+    "logOnlyText": true,
+    "missingPublicEvent": true,
+    "cursorSnapshotFailure": true,
+    "eventBufferOverflow": true
+  },
+  "recovery": {
+    "persistence": "The observer is bounded and in-memory; persistent authority is the sanitized evidence, signed receipt, and candidate envelope.",
+    "rollback": "The rejected parser deterministically returns null for the exact normal-origin fixture event.",
+    "restart": "Interrupted attempts remain structured non-retriable PARTIAL-candidate; no restart inference or retry was added.",
+    "partialFailure": "Subscription, cursor, event-buffer, duplicate, or missing-event failures remain non-PASS.",
+    "nearestSibling": "R-CD-CHAINED-DEPTH-2 uses direct session/run/message-sequence authority; R-CD-2 remains lifecycle-based and unchanged.",
+    "alternatePath": "message-body and unknown seat surfaces remain PARTIAL-candidate."
+  },
+  "scope": {
+    "liveDispatches": 0,
+    "automaticRetries": 0,
+    "productTouched": false,
+    "presentationTouched": false,
+    "docsMainTouched": false,
+    "proofCorpusTouched": false,
+    "proofIndexTouched": false,
+    "pullRequestOpened": false,
+    "issueClosed": false,
+    "refireRequired": "R-CD-TOKEN only"
+  }
+}

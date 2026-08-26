@@ -7,6 +7,10 @@
   "transport": "websocket",
   "mutates": false,
   "timeoutSeconds": 180,
+  "continuationRequirements": {
+    "requiredSpawnDepth": 2,
+    "reason": "The depth-1 model-observation child must spawn the depth-2 alternate-model child."
+  },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"

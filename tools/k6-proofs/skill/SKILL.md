@@ -6,7 +6,7 @@ Build, run, and maintain k6 proof-row scenarios for the OpenClaw continuation fe
 ## Components
 
 ### Infrastructure (resolve per seat before proof-standard runs)
-- **k6** — proof-standard expectation is `v2.0.0`; run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json` on the target seat before folding evidence.
+- **k6** — proof-standard expectation is `v2.0.0`; run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json --rows <selected-rows>` on the target seat before folding evidence. Nested rows are rejected before traffic unless effective `agents.defaults.subagents.maxSpawnDepth` meets their manifest requirement.
 - **Prometheus** — metrics store for candidate rows; set `OPENCLAW_PROOFS_PROMETHEUS_BASE_URL` / `OPENCLAW_PROOFS_PROMETHEUS_RW_URL` for non-fleet runs (fleet default: `prometheus.dandelion.cult`).
 - **Grafana** — dashboards (contract in `tools/k6-proofs/METRICS.md`; JSON in `tools/k6-proofs/dashboards/k6-proofs.json`).
 - **Loki** — log aggregation for nonce-correlated journal receipts; set `OPENCLAW_PROOFS_LOKI_BASE_URL` for non-fleet runs.
@@ -179,6 +179,17 @@ fixtures, not live fleet mutation:
 Only a future row whose manifest and runbook explicitly authorize live config
 mutation may lower `openclaw.json`; that row must record originals, arm a
 failure-safe restore, apply/reload, hit the cap, restore, and verify baseline.
+
+### Isolated Nested-Row Profile
+
+Nested live rows declare `continuationRequirements.requiredSpawnDepth` in the
+row manifest. Build a fresh isolated config with
+`scripts/provision-isolated-proof-config.mjs`; it preserves the supplied private
+template, explicitly sets the reviewed proof profile depth to `5`, and emits a
+public-safe configured/effective/required-depth receipt. Then require
+`seat-readiness-preflight.mjs --rows ... --expected-max-spawn-depth 5` before
+smoke or row traffic. Omitted depth resolves to product default `1`; malformed,
+unknown, or insufficient depth fails closed.
 
 ### Custom Metrics Naming
 Prefix all custom metrics with the row name (underscores, lowercase):

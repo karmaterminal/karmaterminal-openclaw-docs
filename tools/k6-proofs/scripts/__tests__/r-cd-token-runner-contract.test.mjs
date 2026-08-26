@@ -41,6 +41,7 @@ test('workflow forwards exact isolated runtime, seat, telemetry, and service ide
   const runner = await read('scripts/run-proofs.sh');
   for (const input of [
     'runtime_build_sha:',
+    'expected_max_spawn_depth:',
     'seat_class:',
     'otel_service_name:',
     'gateway_unit:',
@@ -50,6 +51,8 @@ test('workflow forwards exact isolated runtime, seat, telemetry, and service ide
     assert.match(workflow, new RegExp(`^      ${input}`, 'm'));
   }
   assert.match(workflow, /OPENCLAW_RUNTIME_BUILD_SHA: \$\{\{ inputs\.runtime_build_sha \}\}/);
+  assert.match(workflow, /OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH: \$\{\{ inputs\.expected_max_spawn_depth \}\}/);
+  assert.match(workflow, /expected_max_spawn_depth must be an integer from 1 through 5/);
   assert.match(workflow, /OPENCLAW_SEAT_CLASS: \$\{\{ inputs\.seat_class \}\}/);
   assert.match(workflow, /OPENCLAW_PROOFS_OTEL_SERVICE_NAME: \$\{\{ inputs\.otel_service_name \}\}/);
   assert.match(workflow, /OPENCLAW_PROOFS_GATEWAY_UNIT: \$\{\{ inputs\.gateway_unit \}\}/);
@@ -92,6 +95,7 @@ test('manifest required and expected receipt surfaces are identical and fail clo
   assert.ok(manifest.expectedReceipts.every((receipt) => receipt.required === true));
   assert.equal(manifest.invocation.originSurface, 'raw-final-text');
   assert.equal(manifest.invocation.delaySeconds, 10);
+  assert.equal(manifest.continuationRequirements.requiredSpawnDepth, 2);
   assert.equal(manifest.liveRunSafety.requiresDisposableSession, true);
   assert.ok(manifest.scenario.methods.includes('sessions.create'));
   assert.doesNotMatch(JSON.stringify(manifest), /HONEST-LIMIT-candidate/);

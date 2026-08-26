@@ -1,7 +1,7 @@
 {
   "schema": "openclaw.k6.seat-readiness-policy.v1",
   "name": "k6 PROOFS seat readiness policy",
-  "version": "2026-07-07",
+  "version": "2026-08-26",
   "k6": {
     "expectedVersion": "v2.0.0",
     "binaryCandidates": [
@@ -59,6 +59,18 @@
       "required": false,
       "secret": false,
       "purpose": "manifest path for a specific row run"
+    },
+    {
+      "name": "OPENCLAW_SELECTED_ROWS",
+      "required": false,
+      "secret": false,
+      "purpose": "comma-separated selected row ids whose continuation depth is validated before dispatch"
+    },
+    {
+      "name": "OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH",
+      "required": false,
+      "secret": false,
+      "purpose": "optional exact isolated proof-profile maxSpawnDepth expectation"
     },
     {
       "name": "OPENCLAW_GATEWAY_RESTART_CMD",

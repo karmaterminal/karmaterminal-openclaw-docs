@@ -10,10 +10,19 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  evaluateContinuationDepth,
+  parseExpectedMaxSpawnDepth,
+  parseSelectedRows,
+  PRODUCT_DEFAULT_MAX_SPAWN_DEPTH,
+  PROOF_PROFILE_MAX_SPAWN_DEPTH,
+  resolveContinuationDepthRequirements,
+} from '../lib/continuation-depth-contract.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '../../..');
 const DEFAULT_POLICY_PATH = join(REPO_ROOT, 'tools/k6-proofs/seat-readiness.policy.json');
+const DEFAULT_MANIFESTS_DIR = join(REPO_ROOT, 'tools/k6-proofs/manifests');
 const SECRET_NAME_PATTERN = /(?:TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL|COOKIE|AUTH)/i;
 
 function loadPolicy(policyPath = DEFAULT_POLICY_PATH) {
@@ -28,6 +37,9 @@ function parseArgs(argv) {
     if (arg === '--json') out.json = true;
     else if (arg === '--no-gateway') out.gateway = false;
     else if (arg === '--expected-k6-version') out.expectedK6Version = argv[++i];
+    else if (arg === '--expected-max-spawn-depth') out.expectedMaxSpawnDepth = argv[++i];
+    else if (arg === '--rows') out.rows = argv[++i];
+    else if (arg === '--manifests-dir') out.manifestsDir = argv[++i];
     else if (arg === '--policy') out.policyPath = argv[++i];
     else if (arg === '--help' || arg === '-h') out.help = true;
     else throw new Error(`unknown arg: ${arg}`);
@@ -36,7 +48,7 @@ function parseArgs(argv) {
 }
 
 function usage() {
-  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--policy path] [--expected-k6-version v2.0.0]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json.`);
+  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--policy path] [--expected-k6-version v2.0.0] [--expected-max-spawn-depth 5] [--rows R-CD-CHAINED-DEPTH-2,R-CD-TOKEN]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json; selected-row depth comes from the row manifests.`);
 }
 
 function commandOrNull(cmd, args) {
@@ -138,16 +150,29 @@ function redactRawVersion(rawVersion) {
   return rawVersion.replace(/(token|secret|password|authorization|bearer)=[^\s]+/gi, '$1=<redacted>');
 }
 
-function readContinuationConfig() {
-  const out = jsonCommandOrNull('openclaw', ['config', 'get', 'agents.defaults.continuation', '--json']);
-  const config = out.data && typeof out.data === 'object' ? out.data : null;
+function readAgentDefaultsConfig() {
+  const out = jsonCommandOrNull('openclaw', ['config', 'get', 'agents.defaults', '--json']);
+  const defaults = out.data && typeof out.data === 'object' && !Array.isArray(out.data)
+    ? out.data
+    : null;
   return {
-    mode: out.ok ? 'checked' : 'unavailable',
+    mode: out.ok && defaults ? 'checked' : 'unavailable',
+    defaults,
+    error: out.ok && !defaults ? 'json-shape-invalid' : out.error,
+  };
+}
+
+function readContinuationConfig(agentDefaults) {
+  const config = agentDefaults.defaults?.continuation;
+  const available = agentDefaults.mode === 'checked' &&
+    config && typeof config === 'object' && !Array.isArray(config);
+  return {
+    mode: available ? 'checked' : 'unavailable',
     enabled: typeof config?.enabled === 'boolean' ? config.enabled : null,
     maxChainLengthPresent: config && Object.prototype.hasOwnProperty.call(config, 'maxChainLength'),
     maxDelegatesPerTurnPresent: config && Object.prototype.hasOwnProperty.call(config, 'maxDelegatesPerTurn'),
     costCapTokensPresent: config && Object.prototype.hasOwnProperty.call(config, 'costCapTokens'),
-    error: out.error,
+    error: available ? null : agentDefaults.error || 'continuation-config-missing',
   };
 }
 
@@ -157,6 +182,7 @@ function printText(report) {
   console.log(`k6: ${report.k6.version || 'missing'} at ${report.k6.path || '(not found)'} (expected ${report.expectedK6Version})`);
   console.log(`gateway: ${report.gateway.mode}; health=${report.gateway.healthReachable}; status=${report.gateway.statusReachable}; url=${report.gateway.url}`);
   console.log(`continuation: ${report.continuation.mode}; enabled=${report.continuation.enabled}; defaults=${report.continuation.defaultsPresent}`);
+  console.log(`continuation depth: configured=${report.continuationDepth.configuredMaxSpawnDepth ?? 'omitted'}; effective=${report.continuationDepth.effectiveMaxSpawnDepth ?? 'unknown'}; required=${report.continuationDepth.requiredMaxSpawnDepth ?? 'unknown'}; sufficient=${report.continuationDepth.sufficient}`);
   console.log(`candidate sha: ${report.candidate.valid40Hex ? 'valid' : 'missing/invalid'}`);
   console.log(`seat: ${report.seat.name}; session scope: ${report.session.scope}`);
   console.log(`concurrency: ${report.concurrency.safeToRunConcurrently ? 'safe' : 'serialized'} — ${report.concurrency.reason}`);
@@ -194,8 +220,55 @@ async function main() {
     };
   }
 
-  const continuation = readContinuationConfig();
+  const selectedRowsInput = args.rows ?? process.env.OPENCLAW_SELECTED_ROWS ?? '';
+  let selectedRows = [];
+  let requirements = null;
+  let depthContractError = null;
+  try {
+    selectedRows = parseSelectedRows(selectedRowsInput);
+    requirements = resolveContinuationDepthRequirements({
+      rows: selectedRows,
+      manifestsDir: args.manifestsDir || DEFAULT_MANIFESTS_DIR,
+    });
+  } catch (error) {
+    depthContractError = error?.code || 'required-depth-unknown';
+  }
+
+  let expectedMaxSpawnDepth = null;
+  try {
+    expectedMaxSpawnDepth = parseExpectedMaxSpawnDepth(
+      args.expectedMaxSpawnDepth ?? process.env.OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH ?? '',
+    );
+  } catch (error) {
+    depthContractError = error?.code || 'expected-depth-invalid';
+  }
+
+  const agentDefaults = readAgentDefaultsConfig();
+  const continuation = readContinuationConfig(agentDefaults);
   continuation.defaultsPresent = Boolean(continuation.maxChainLengthPresent && continuation.maxDelegatesPerTurnPresent && continuation.costCapTokensPresent);
+  let continuationDepth = evaluateContinuationDepth({
+    config: agentDefaults.defaults ? { agents: { defaults: agentDefaults.defaults } } : null,
+    configAvailable: agentDefaults.mode === 'checked',
+    requirements,
+    expectedMaxSpawnDepth,
+  });
+  if (depthContractError) {
+    continuationDepth = {
+      ...continuationDepth,
+      configuredMaxSpawnDepth: null,
+      effectiveMaxSpawnDepth: null,
+      requiredMaxSpawnDepth: requirements?.requiredMaxSpawnDepth ?? null,
+      expectedMaxSpawnDepth,
+      productDefaultMaxSpawnDepth: PRODUCT_DEFAULT_MAX_SPAWN_DEPTH,
+      proofProfileMaxSpawnDepth: PROOF_PROFILE_MAX_SPAWN_DEPTH,
+      selectedRows,
+      nestedRows: requirements?.nestedRows ?? [],
+      source: 'unknown',
+      sufficient: false,
+      expectationMatched: expectedMaxSpawnDepth === null ? null : false,
+      reason: depthContractError,
+    };
+  }
 
   const candidateSha = process.env.OPENCLAW_CANDIDATE_SHA || null;
   const env = envReport(policy);
@@ -205,15 +278,27 @@ async function main() {
   else if (!k6.matchesExpected) notes.push(`k6 version mismatch: expected ${expectedK6Version}, got ${k6.version}.`);
   if (gateway.mode === 'checked' && (!gateway.healthReachable || !gateway.statusReachable)) notes.push('gateway health/status not reachable from this seat.');
   if (gateway.mode === 'skipped-no-token') notes.push('gateway reachability skipped because OPENCLAW_GATEWAY_TOKEN is absent; token value was not printed.');
-  if (continuation.mode !== 'checked') notes.push('continuation config could not be read with openclaw config get agents.defaults.continuation --json.');
+  if (continuation.mode !== 'checked') notes.push('continuation config could not be read from openclaw config get agents.defaults --json.');
   else if (continuation.enabled !== true) notes.push('agents.defaults.continuation.enabled is not true; live continuation proof rows must not run.');
   else if (!continuation.defaultsPresent) notes.push('continuation config is missing one or more required default fields.');
+  if (!continuationDepth.sufficient) {
+    if (continuationDepth.reason === 'effective-depth-insufficient') {
+      notes.push(`selected rows require agents.defaults.subagents.maxSpawnDepth >= ${continuationDepth.requiredMaxSpawnDepth}; effective depth is ${continuationDepth.effectiveMaxSpawnDepth}.`);
+    } else if (continuationDepth.reason === 'proof-profile-depth-mismatch') {
+      notes.push(`effective maxSpawnDepth does not match the expected isolated proof profile depth ${continuationDepth.expectedMaxSpawnDepth}.`);
+    } else {
+      notes.push(`continuation depth validation failed closed: ${continuationDepth.reason || 'unknown-depth'}.`);
+    }
+  }
   if (requiredMissing.length) notes.push(`missing required env: ${requiredMissing.join(', ')}.`);
 
   const valid40Hex = typeof candidateSha === 'string' && /^[0-9a-f]{40}$/.test(candidateSha);
   if (!valid40Hex) notes.push('OPENCLAW_CANDIDATE_SHA is missing or not a 40-char lowercase hex SHA.');
 
-  const continuationReady = continuation.mode === 'checked' && continuation.enabled === true && continuation.defaultsPresent;
+  const continuationReady = continuation.mode === 'checked' &&
+    continuation.enabled === true &&
+    continuation.defaultsPresent &&
+    continuationDepth.sufficient;
   const pass = k6.ok && k6.matchesExpected && continuationReady && valid40Hex && requiredMissing.length === 0 && (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
 
   const report = {
@@ -229,6 +314,7 @@ async function main() {
     k6,
     gateway,
     continuation,
+    continuationDepth,
     candidate: { sha: candidateSha, valid40Hex },
     seat: {
       name: process.env.OPENCLAW_SEAT_NAME || policy.seat?.defaultName || 'unknown-seat',

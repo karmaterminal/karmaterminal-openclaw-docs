@@ -416,7 +416,17 @@ const APPROVED_TOKEN = 'harness-provenance-test-token-do-not-log';
  * provenance emission with stubbed tooling. R-CW-5A is runnable but
  * static-preflight-only, so no live k6 row is dispatched.
  */
-async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null } = {}) {
+async function withApprovedMatrix(fn, {
+  afterCommit = null,
+  beforeCommit = null,
+  rows = 'R-CW-5A',
+  nodeShim = null,
+  nodeShimFor = null,
+  journalShimFor = null,
+  k6ShimFor = null,
+  openclawShimFor = null,
+  envFor = null,
+} = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
@@ -437,7 +447,12 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
 
   try {
     await executable('k6', k6ShimFor ? k6ShimFor(harness) : "#!/bin/sh\nif [ \"${1:-}\" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi\nexit 0\n");
-    await executable('openclaw', '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
+    await executable(
+      'openclaw',
+      openclawShimFor
+        ? openclawShimFor(harness)
+        : '#!/bin/sh\nprintf \'%s\\n\' \'{"continuation":{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3},"subagents":{"maxSpawnDepth":5}}\'\n',
+    );
     await executable('hostname', "#!/bin/sh\nprintf '%s\\n' contract-seat\n");
     const shimSource = nodeShimFor ? nodeShimFor(harness) : nodeShim;
     if (shimSource) await executable('node', shimSource);
@@ -478,6 +493,50 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
     await rm(root, { recursive: true, force: true });
   }
 }
+
+test('insufficient nested-row depth fails before scenario dispatch', async () => {
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
+      const readiness = JSON.parse(
+        await readFile(path.join(harness.out, 'seat-readiness.json'), 'utf8'),
+      );
+      assert.equal(readiness.outcome, 'PARTIAL-candidate');
+      assert.equal(readiness.continuationDepth.configuredMaxSpawnDepth, null);
+      assert.equal(readiness.continuationDepth.effectiveMaxSpawnDepth, 1);
+      assert.equal(readiness.continuationDepth.requiredMaxSpawnDepth, 2);
+      assert.equal(readiness.continuationDepth.reason, 'effective-depth-insufficient');
+
+      const receipt = JSON.parse(
+        await readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'),
+      );
+      assert.equal(receipt.stage, 'seat-readiness');
+      assert.equal(receipt.rowsExecuted, 0);
+      assert.equal(receipt.rowVerdictsSynthesized, false);
+      assert.equal(receipt.detail.check, 'selected-row-continuation-depth');
+      assert.deepEqual(receipt.detail.selectedRows, [
+        'R-CD-CHAINED-DEPTH-2',
+        'R-CD-TOKEN',
+      ]);
+      await assert.rejects(
+        readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
+        /ENOENT/,
+      );
+    },
+    {
+      rows: 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN',
+      openclawShimFor: () => '#!/bin/sh\nprintf \'%s\\n\' \'{"continuation":{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}}\'\n',
+      k6ShimFor: (harness) => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+        `printf '%s\\n' dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
+        'exit 0',
+        '',
+      ].join('\n'),
+    },
+  );
+});
 
 test('the catalog preflight log is public-safe: no credentials, no local paths', async () => {
   await withApprovedMatrix(async (harness) => {
@@ -682,6 +741,10 @@ test('an approved live run freezes the docs ref and records the exact harness di
       assert.equal(provenance.runtimeIdentity.candidateMatchesRuntime, true);
       assert.equal(provenance.runtimeIdentity.seatReadinessReceipt, 'seat-readiness.json');
       assert.match(provenance.runtimeIdentity.seatReadinessSha256, /^[a-f0-9]{64}$/);
+      assert.equal(provenance.runtimeIdentity.continuationDepth.configuredMaxSpawnDepth, 5);
+      assert.equal(provenance.runtimeIdentity.continuationDepth.effectiveMaxSpawnDepth, 5);
+      assert.equal(provenance.runtimeIdentity.continuationDepth.requiredMaxSpawnDepth, 1);
+      assert.equal(provenance.runtimeIdentity.continuationDepth.sufficient, true);
       assert.equal(provenance.runnerScript, 'tools/k6-proofs/scripts/run-proofs.sh');
       assert.match(provenance.runnerScriptSha256, /^[a-f0-9]{64}$/);
       assert.equal(provenance.candidateOnly, true);

@@ -13,6 +13,7 @@
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { validateManifestContinuationRequirements } from '../lib/continuation-depth-contract.mjs';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
@@ -51,6 +52,9 @@ for (const file of manifestFiles()) {
   const existing = runnableRef ? scenarioBasenames.has(runnableRef) : false;
 
   rows.push({ file, rowId: manifest.rowId, status, runnableRef, expectedRef, existing });
+  for (const failure of validateManifestContinuationRequirements(manifest)) {
+    failures.push(`${file}: ${failure}`);
+  }
 
   if (!validStatuses.has(status)) {
     failures.push(`${file}: scenario.status must be one of ${[...validStatuses].join(', ')}`);

@@ -27,6 +27,14 @@ into `PROOFS/<sha>/` without back-and-forth.
    unreachable checked gateway is `PARTIAL-candidate` / setup failure — not
    product behavior evidence. The report prints env presence booleans only; no
    token/secret values, prompt bodies, or raw gateway payloads are allowed.
+   A row that spawns below depth 1 must declare
+   `continuationRequirements.requiredSpawnDepth` in its manifest. The live
+   runner resolves the maximum requirement for the selected matrix and refuses
+   to dispatch when the target's effective
+   `agents.defaults.subagents.maxSpawnDepth` is lower. For isolated nested-row
+   fixtures, generate the private config with
+   `scripts/provision-isolated-proof-config.mjs`; do not patch product defaults
+   or a live seat config.
 3. **Verify the gateway you fire against is actually deployed to the corpus-pin SHA.**
    This is a PRE-FIRE gate the validator CANNOT do for you: `validate-corpus.mjs`
    checks that your *artifacts* are consistent with a SHA, but it cannot verify your

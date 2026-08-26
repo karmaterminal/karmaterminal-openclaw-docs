@@ -9,6 +9,10 @@
   "toolSurface": "typed-tool",
   "mutates": false,
   "timeoutSeconds": 360,
+  "continuationRequirements": {
+    "requiredSpawnDepth": 2,
+    "reason": "The depth-1 child must spawn one depth-2 grandchild."
+  },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"

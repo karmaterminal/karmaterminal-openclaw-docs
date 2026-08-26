@@ -126,12 +126,33 @@ The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret va
 - k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
 - every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
 - gateway health/status reachability shape
-- continuation config readiness from `openclaw config get agents.defaults.continuation --json`, including `enabled=true` and presence of `maxChainLength`, `maxDelegatesPerTurn`, and `costCapTokens`
+- continuation config readiness from `openclaw config get agents.defaults --json`, including `enabled=true` and presence of `maxChainLength`, `maxDelegatesPerTurn`, and `costCapTokens`
+- configured, effective, and selected-row-required `agents.defaults.subagents.maxSpawnDepth`; omitted config resolves to the reviewed product default `1`, while malformed or unreadable depth fails closed
 - candidate SHA validity, seat name/class, and coarse session scope
 - required env-var presence as booleans only, plus public-safe purpose strings from the policy
 - whether the check is safe to run concurrently
 
 If k6 is missing, the version differs, continuation is disabled/missing, required env is absent, or gateway health/status is unreachable, treat row output as `PARTIAL-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway and live continuation rows need continuation enabled.
+
+Nested rows declare `continuationRequirements.requiredSpawnDepth` in their
+manifests. The row-list runner passes the complete selected set to readiness and
+exits before k6/model traffic when effective depth is insufficient. For a fresh
+isolated Project-81 gateway, derive the private config from an already-isolated
+base template rather than editing a live seat config:
+
+```bash
+node tools/k6-proofs/scripts/provision-isolated-proof-config.mjs \
+  --base-config "$PRIVATE_ROOT/config/openclaw.base.json" \
+  --output "$PRIVATE_ROOT/config/openclaw.json" \
+  --receipt "$PUBLIC_RECEIPTS/isolated-proof-config.json" \
+  --rows R-CD-CHAINED-DEPTH-2,R-CD-TOKEN
+```
+
+The fixed reviewed profile writes explicit `maxSpawnDepth=5` (the product
+schema ceiling). The public receipt records only selected rows and
+base/configured/effective/required depths; paths, credentials, config payloads,
+and private identifiers are excluded. After startup, run readiness with the
+same rows and `--expected-max-spawn-depth 5` before any smoke or proof traffic.
 
 ### 2. Preflight check
 

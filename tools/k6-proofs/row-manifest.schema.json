@@ -67,6 +67,23 @@
       "additionalProperties": true,
       "description": "Row-specific fire parameters consumed by the scenario (tool, forms, delay, prompt template, idempotency prefix)."
     },
+    "continuationRequirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Minimum runtime continuation depth needed before this row may dispatch. Omitted rows resolve to the product default depth of 1.",
+      "required": ["requiredSpawnDepth"],
+      "properties": {
+        "requiredSpawnDepth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "seatClassExpectation": {
       "type": "object",
       "additionalProperties": true,

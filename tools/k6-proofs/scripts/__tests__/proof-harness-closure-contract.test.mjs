@@ -34,6 +34,7 @@ test('R-CD-CHAINED-DEPTH-2 restores post-leaf recovery and structured root autho
   ]);
   const manifest = JSON.parse(manifestRaw);
   assert.equal(manifest.invocation.fanoutMode, 'tree');
+  assert.equal(manifest.continuationRequirements.requiredSpawnDepth, 2);
   assert.match(manifest.invocation.promptTemplate, /continue_work/);
   assert.match(manifest.invocation.promptTemplate, /CHILD-SAW-GRANDCHILD/);
   assert.ok(manifest.liveRunSafety.requiredReceipts.includes('depth1-recovery-wake'));
@@ -48,6 +49,7 @@ test('R-CD-CHAINED-DEPTH-2 restores post-leaf recovery and structured root autho
   assert.match(scenario, /scheduleTaskSnapshot\(socket\)/);
   assert.match(scenario, /structured post-return root consumption observed/);
   assert.match(runner, /R_CD_CHAIN_RECEIPT_RESOLVER/);
+  assert.match(runner, /selected-row-continuation-depth/);
   assert.match(candidate, /r-cd-chained-depth-2-row-scoped-resolver/);
   assert.doesNotMatch(scenario, /socket\.setTimeout\(\(\) => socket\.close\(\), 150000\)/);
 });

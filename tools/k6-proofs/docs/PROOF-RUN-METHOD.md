@@ -89,10 +89,21 @@ OPENCLAW_CANDIDATE_SHA=<40-char-sha> \
 OPENCLAW_SEAT_NAME=<seat> \
 OPENCLAW_SESSION_KEY=<scratch-or-disposable-session> \
 OPENCLAW_GATEWAY_TOKEN=*** \
-node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
+node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json \
+  --rows <comma-separated-selected-rows>
 ```
 
 A missing k6 binary/version mismatch, disabled continuation config, missing required env, or unreachable gateway is `PARTIAL-candidate` / setup failure until fixed.
+
+For nested rows, readiness also resolves each manifest's
+`continuationRequirements.requiredSpawnDepth` and compares the maximum with the
+effective `agents.defaults.subagents.maxSpawnDepth`. Omission resolves to
+product default `1`; malformed/unreadable depth and insufficient depth fail
+before k6 or model traffic. Isolated Project-81 profiles use
+`scripts/provision-isolated-proof-config.mjs`, which writes explicit depth `5`
+and a public-safe configured/effective/required-depth receipt. Pass
+`--expected-max-spawn-depth 5` (or workflow input
+`expected_max_spawn_depth=5`) when that exact isolated profile is required.
 
 ### 4. Dry-run the selected set
 

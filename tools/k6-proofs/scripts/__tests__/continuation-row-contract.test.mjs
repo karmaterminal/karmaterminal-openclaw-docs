@@ -115,7 +115,7 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
   });
 
   try {
-    await writeExecutable(path.join(bin, 'openclaw'), '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
+    await writeExecutable(path.join(bin, 'openclaw'), '#!/bin/sh\nprintf \'%s\\n\' \'{"continuation":{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3},"subagents":{"maxSpawnDepth":5}}\'\n');
     await writeExecutable(path.join(bin, 'hostname'), '#!/bin/sh\nprintf \'%s\\n\' cael-dgx\n');
     await writeExecutable(path.join(bin, 'journalctl'), '#!/bin/sh\ncase " $* " in *" --show-cursor "*) printf \'%s\\n\' \'-- cursor: runner-contract\' ;; esac\n');
     await writeExecutable(path.join(bin, 'k6'), `#!/bin/sh\nif [ "${'${1:-}'}" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi\nprintf '%s %s\\n' '=== K6-PROOF-EVIDENCE ===' '${JSON.stringify(evidence)}'\n`);
@@ -270,7 +270,7 @@ async function runChainRunnerFixture() {
   try {
     await writeExecutable(
       path.join(bin, 'openclaw'),
-      '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n',
+      '#!/bin/sh\nprintf \'%s\\n\' \'{"continuation":{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3},"subagents":{"maxSpawnDepth":5}}\'\n',
     );
     await writeExecutable(path.join(bin, 'hostname'), '#!/bin/sh\nprintf \'%s\\n\' ronan\n');
     await writeExecutable(
@@ -424,6 +424,7 @@ test('depth-2 row composes exactly-once tasks with structured root consumption a
   assert.match(runner, /R_CD_CHAIN_RECEIPT_RESOLVER/);
   assert.match(candidate, /r-cd-chained-depth-2-authoritative-receipt\.json/);
   assert.ok(manifest.liveRunSafety.requiredReceipts.includes('exactly-once-chain-completion'));
+  assert.equal(manifest.continuationRequirements.requiredSpawnDepth, 2);
   assert.ok(
     manifest.liveRunSafety.requiredReceipts.includes(
       'r-cd-chained-depth-2-authoritative-receipt',
@@ -503,6 +504,13 @@ test('depth-2 chain dispatch uses the exact committed manifest task', async () =
   const source = await readFile(path.join(scenariosDir, 'r-cd-chained-depth-2.js'), 'utf8');
   assert.match(source, /const task = inv\.promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g, chainNonce\)/);
   assert.match(source, /task=\$\{JSON\.stringify\(task\)\}/);
+});
+
+test('nested token and model-chain rows declare their runtime spawn depth', async () => {
+  for (const file of ['r-cd-token.json', 'r-cd-model-chained-alt.json']) {
+    const manifest = JSON.parse(await readFile(path.join(manifestsDir, file), 'utf8'));
+    assert.equal(manifest.continuationRequirements.requiredSpawnDepth, 2, file);
+  }
 });
 
 test('row runner keeps private acquisition transient and publishes sanitized evidence', async () => {

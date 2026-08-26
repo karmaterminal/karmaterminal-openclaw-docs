@@ -272,6 +272,8 @@
     </Mandate>
     <Mandate id="continuation-readiness">
       <Rule>Live continuation proof batches MUST include a precursor seat-readiness receipt proving agents.defaults.continuation.enabled=true.</Rule>
+      <Rule>Selected nested rows MUST declare continuationRequirements.requiredSpawnDepth; readiness records configured/effective/required maxSpawnDepth and fails before traffic when effective depth is unknown, malformed, or insufficient.</Rule>
+      <Rule>Fresh isolated nested-row profiles use scripts/provision-isolated-proof-config.mjs and explicit maxSpawnDepth=5; ordinary non-nested rows retain product defaults.</Rule>
       <Reason>A disabled continuation subsystem is setup state/HONEST-LIMIT, not product behavior evidence.</Reason>
     </Mandate>
     <Mandate id="corpus-fold">

@@ -9,6 +9,10 @@
   "toolSurface": "bracket-token",
   "mutates": false,
   "timeoutSeconds": 120,
+  "continuationRequirements": {
+    "requiredSpawnDepth": 2,
+    "reason": "The disposable depth-1 raw-final-text origin must spawn one token-scheduled delegate."
+  },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"

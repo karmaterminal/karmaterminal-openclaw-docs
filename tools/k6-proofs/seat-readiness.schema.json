@@ -13,6 +13,7 @@
     "k6",
     "gateway",
     "continuation",
+    "continuationDepth",
     "candidate",
     "seat",
     "session",
@@ -314,6 +315,78 @@
           ]
         }
       }
+    },
+    "continuationDepth": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "configuredMaxSpawnDepth",
+          "effectiveMaxSpawnDepth",
+          "requiredMaxSpawnDepth",
+          "expectedMaxSpawnDepth",
+          "productDefaultMaxSpawnDepth",
+          "proofProfileMaxSpawnDepth",
+          "selectedRows",
+          "nestedRows",
+          "source",
+          "sufficient",
+          "expectationMatched",
+          "reason"
+        ],
+        "properties": {
+          "mode": {
+            "enum": ["checked", "unavailable"]
+          },
+          "configuredMaxSpawnDepth": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "maximum": 5
+          },
+          "effectiveMaxSpawnDepth": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "maximum": 5
+          },
+          "requiredMaxSpawnDepth": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "maximum": 5
+          },
+          "expectedMaxSpawnDepth": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "maximum": 5
+          },
+          "productDefaultMaxSpawnDepth": {
+            "const": 1
+          },
+          "proofProfileMaxSpawnDepth": {
+            "const": 5
+          },
+          "selectedRows": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[A-Z0-9][A-Z0-9._-]*$" },
+            "uniqueItems": true
+          },
+          "nestedRows": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[A-Z0-9][A-Z0-9._-]*$" },
+            "uniqueItems": true
+          },
+          "source": {
+            "enum": ["explicit", "product-default", "invalid", "unknown"]
+          },
+          "sufficient": {
+            "type": "boolean"
+          },
+          "expectationMatched": {
+            "type": ["boolean", "null"]
+          },
+          "reason": {
+            "type": ["string", "null"]
+          }
+        }
+      }
     }
   }
-}

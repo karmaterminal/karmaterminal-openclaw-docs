@@ -33,7 +33,12 @@ and folded later.
 `R-OBS-BACKEND-DISPOSITION` differs from the other three because it protects the
 proof harness itself. A Tempo or Loki HTTP 200 with zero results and no
 completeness metadata cannot masquerade as complete evidence. Removing that row
-would weaken evidence integrity, so it remains required.
+would weaken evidence integrity, so it remains required. Its acceptance is
+two-level: backend status and count authority remain exactly as observed, while
+the row may PASS when a partial/capped disposition is valid, non-authoritative,
+public-safe, receipt-complete, and rebind-complete. Unknown/unavailable status,
+failed queries, missing/invalid receipts, contradictory authority, unsafe data,
+or incomplete rebind remain non-PASS.
 
 ## Machine shape
 

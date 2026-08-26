@@ -1,11 +1,13 @@
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { validateTelemetryBackendStatusReceipt } from '../lib/telemetry-backend-status.js';
 import {
   telemetryPassBlockers,
+  telemetryReceiptStatuses,
+  telemetryRebindFrom,
   validateTelemetryRebind,
 } from '../lib/telemetry-rebind.js';
 
@@ -59,7 +61,13 @@ const ENVELOPE_KEYS = {
   result: { required: ['outcome', 'outcomeSource', 'effectiveExitCode', 'behaviorProof'], optional: [] },
   observability: {
     required: ['traceStatus', 'traceCaptured', 'correlationReceiptPresent'],
-    optional: ['backendStatus', 'backendDisposition', 'backendComplete'],
+    optional: [
+      'backendStatus',
+      'backendDisposition',
+      'backendComplete',
+      'backendCountAuthority',
+      'dispositionContractStatus',
+    ],
   },
   review: { required: ['status', 'pendingReceipts', 'complete'], optional: [] },
   artifacts: {
@@ -142,13 +150,54 @@ function telemetryArtifactsMatch({ envelope, manifest, metadata, runResult, runD
     candidateSha: metadata.candidateSha,
     seat: metadata.seat,
     proofRunId: path.basename(runDir),
+    requiredCompletenessKeys:
+      contract.backendUnavailable?.requiredCompletenessKeys,
+    rebindKeys: contract.backendUnavailable?.rebindKeys,
   });
   if (!validation.valid) return false;
   if (runResult.observability.backendDisposition !== backendStatus.status ||
       runResult.observability.backendComplete !== backendStatus.complete ||
+      runResult.observability.backendCountAuthority !== backendStatus.countAuthority ||
+      runResult.observability.dispositionContractStatus !==
+        (runResult.telemetryRebind?.dispositionContract?.status || 'not-applicable') ||
       envelope.observability.backendDisposition !== backendStatus.status ||
-      envelope.observability.backendComplete !== backendStatus.complete) {
+      envelope.observability.backendComplete !== backendStatus.complete ||
+      envelope.observability.backendCountAuthority !== backendStatus.countAuthority ||
+      envelope.observability.dispositionContractStatus !==
+        (runResult.telemetryRebind?.dispositionContract?.status || 'not-applicable')) {
     return false;
+  }
+  if (contract.verdictAuthority?.passScope === 'backend-disposition-contract') {
+    let summary;
+    try {
+      summary = JSON.parse(readFileSync(path.join(runDir, 'k6-summary.json'), 'utf8'));
+    } catch {
+      return false;
+    }
+    const artifactStatuses = (contract.artifact?.requiredFiles || []).map((name) => {
+      try {
+        const details = statSync(path.join(runDir, name));
+        return {
+          name,
+          status: details.isFile() && details.size > 0 ? 'present' : 'missing',
+        };
+      } catch {
+        return { name, status: 'missing' };
+      }
+    });
+    const expectedRebind = telemetryRebindFrom({
+      manifest,
+      receiptStatuses: telemetryReceiptStatuses({
+        manifest,
+        summary,
+        backendStatus,
+      }),
+      backendStatus,
+      artifactStatuses,
+    });
+    if (JSON.stringify(runResult.telemetryRebind) !== JSON.stringify(expectedRebind)) {
+      return false;
+    }
   }
   if (envelope.result?.outcome === 'PASS-candidate' &&
       telemetryPassBlockers(envelope.telemetryRebind).length > 0) {

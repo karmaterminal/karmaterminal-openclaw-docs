@@ -198,7 +198,9 @@ test('no committed row claims a telemetry-rebindable PASS, because no product at
     assert.equal(contract.rebindable, false, `${file} claims rebindable=true`);
     assert.equal(
       contract.verdictAuthority.passScope,
-      'behavioral-only',
+      manifest.rowId === 'R-OBS-BACKEND-DISPOSITION'
+        ? 'backend-disposition-contract'
+        : 'behavioral-only',
       `${file} claims a telemetry-rebindable pass scope`,
     );
   }
@@ -238,6 +240,53 @@ test('the one harness-side remedy row is the only one that does not wait on prod
   for (const rowId of ['R-OBS-CONT-PROVENANCE', 'R-OBS-PROOF-MARKER', 'R-OBS-TERMINAL-OUTCOME']) {
     assert.equal(byRowId.get(rowId).telemetryContract.productInstrumentationPrerequisite, true, rowId);
   }
+});
+
+test('backend-disposition pass scope is reserved and pins the two-level row contract', async () => {
+  const row = JSON.parse(
+    await readFile(path.join(manifestsDir, 'r-obs-backend-disposition.json'), 'utf8'),
+  );
+  assert.deepEqual(validateTelemetryContract(row), []);
+  assert.deepEqual(row.telemetryContract.verdictAuthority.backendDispositionContract, {
+    requiredBackends: ['tempo', 'loki'],
+    rowPassStatuses: ['complete', 'partial', 'capped'],
+    requireNonAuthoritativeZero: true,
+    requireCompleteRebind: true,
+  });
+
+  const driftedStatuses = structuredClone(row);
+  driftedStatuses.telemetryContract.verdictAuthority
+    .backendDispositionContract.rowPassStatuses.push('unknown');
+  assert.ok(
+    validateTelemetryContract(driftedStatuses).some((failure) =>
+      /rowPassStatuses must be exactly complete,partial,capped/.test(failure)),
+  );
+
+  const missingReceipt = structuredClone(row);
+  missingReceipt.telemetryContract.rebindReceipts =
+    missingReceipt.telemetryContract.rebindReceipts
+      .filter((name) => name !== 'slice-strategy-recorded');
+  assert.ok(
+    validateTelemetryContract(missingReceipt).some((failure) =>
+      /slice-strategy-recorded.*must be required/.test(failure)),
+  );
+
+  const unrelated = manifestFixture({
+    verdictAuthority: {
+      passScope: 'backend-disposition-contract',
+      backendDispositionContract:
+        row.telemetryContract.verdictAuthority.backendDispositionContract,
+      pass: 'p',
+      partial: 'q',
+      fail: 'r',
+    },
+  });
+  assert.ok(
+    validateTelemetryContract(unrelated).some((failure) =>
+      /backend-disposition-contract.*reserved for R-OBS-BACKEND-DISPOSITION/.test(
+        failure,
+      )),
+  );
 });
 
 test('a telemetry-dependent row cannot omit the contract', () => {
@@ -386,7 +435,7 @@ test('a product prerequisite must name real remedy rows and cannot name itself',
   );
 });
 
-test('a degraded backend may never be declared as an absence or as a pass', () => {
+test('degraded backend health may never be declared as absence or complete', () => {
   const zeroIsAbsence = validateTelemetryContract(
     manifestFixture({
       backendUnavailable: {

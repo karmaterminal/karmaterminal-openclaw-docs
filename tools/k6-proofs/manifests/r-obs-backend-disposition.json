@@ -33,7 +33,8 @@
     "rebindReceipts": [
       "backend-completeness-receipt",
       "degraded-response-classified",
-      "rebind-key-set-published"
+      "rebind-key-set-published",
+      "slice-strategy-recorded"
     ],
     "expectedTelemetry": {
       "spans": [
@@ -121,8 +122,8 @@
     },
     "controls": {
       "positive": "A healthy backend returns telemetry.backend.status=complete with totalBlocks and completed jobs present, and the published rebind keys re-derive an identical result set on a second issue of the same query.",
-      "negative": "A backend that answers HTTP 200 with no completeness metadata, a capped result set, or an unreachable endpoint must classify as partial/capped/unavailable and must not yield a zero-result finding. A row whose only evidence is such a response cannot reach PASS.",
-      "notes": "This inverts the census failure mode directly: the degraded searches returned 200 and zero, and only the completeness metadata distinguished them from a genuinely empty window."
+      "negative": "A backend that answers HTTP 200 with missing completeness metadata, reaches a result cap, or cannot execute must retain its partial/capped/unavailable status and must not yield an authoritative zero. Unknown disposition, a failed query, contradictory count authority, or an incomplete receipt withholds the row PASS.",
+      "notes": "This inverts the census failure mode directly: the degraded searches returned 200 and zero, and only honest disposition distinguished them from a genuinely empty window. A valid partial or capped receipt may prove this row contract without claiming complete backend health."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -150,15 +151,21 @@
       "notes": "backend-status.json is the sibling receipt every other telemetry-dependent row cites; it is written even when the backend is healthy so an absent file is itself a defect rather than an assumption of health."
     },
     "verdictAuthority": {
-      "passScope": "behavioral-only",
-      "pass": "Every backend interaction in the row window produced a status receipt with the declared completeness keys, degraded and capped responses were classified as such, and the published rebind keys re-derived an identical result set.",
-      "partial": "A backend was unavailable, partial, or capped, or a completeness key was missing. This is the expected disposition on a degraded fleet and is not a product finding.",
-      "fail": "A zero-result response with missing completeness metadata was reported as an absence, a status receipt was omitted for an interaction that happened, or the rebind keys did not re-derive the same slice."
+      "passScope": "backend-disposition-contract",
+      "backendDispositionContract": {
+        "requiredBackends": ["tempo", "loki"],
+        "rowPassStatuses": ["complete", "partial", "capped"],
+        "requireNonAuthoritativeZero": true,
+        "requireCompleteRebind": true
+      },
+      "pass": "Every required backend interaction produced a valid public-safe receipt; complete, partial, and capped responses retained their observed status and count authority; all classifier controls and four required receipts passed; and the complete rebind key set identifies the same slice. PASS is the row-contract verdict, not a claim of complete backend health.",
+      "partial": "A receipt is missing or invalid, the observed disposition is unknown or unavailable, a query failed, count authority contradicts backend completeness, a degraded zero is authoritative, a required classifier/receipt control is absent, or the rebind key set is incomplete.",
+      "fail": "A degraded or capped response was laundered into complete backend health or authoritative absence, unsafe material entered a public receipt, or a candidate envelope disagreed with its backend-status sibling."
     },
     "execution": {
       "deterministicK6": "r-obs-backend-disposition.js writes backend-status.json for configured Tempo and Loki interactions; Node fetch adapters and the row-list runner use the same classifier and receipt schema.",
       "manual": "A manual reviewer reading a Tempo UI has no completeness metadata at all and cannot distinguish an empty window from a degraded one.",
-      "relationship": "Harness-side only: unit controls cover all five dispositions, while a reviewed configured run proves the target backends and rebind slice. Neither can override a non-complete backend receipt."
+      "relationship": "Harness-side only: unit controls cover all five backend dispositions, while a reviewed configured run proves the row's honest-classification contract and rebind slice. A row PASS never changes partial/capped backend health or grants count authority."
     }
   },
   "expectedReceipts": [
@@ -170,7 +177,7 @@
     {
       "name": "degraded-response-classified",
       "required": true,
-      "description": "A 200-with-no-completeness-metadata, capped, or unreachable response classifies as partial/capped/unavailable and never as zero"
+      "description": "A 200 with incomplete metadata classifies as partial, a 200 with no usable metadata as unknown, a capped response as capped, and an unreachable/failed query as unavailable; none becomes authoritative absence"
     },
     {
       "name": "rebind-key-set-published",
@@ -193,7 +200,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Runnable harness-side remedy. PASS requires complete configured Tempo and Loki interactions plus a reviewed backend-status.json; this implementation lane does not fire live traffic."
+    "notes": "Runnable harness-side remedy. PASS requires a complete disposition contract and reviewed backend-status.json; backend health and count authority remain exactly as observed. This implementation lane does not refire live traffic."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -210,6 +217,6 @@
       "slice-strategy-recorded"
     ],
     "foldRequiresReview": true,
-    "notes": "No gateway or product mutation. Operators must provide public-safe TraceQL/LogQL probes and review backend-status.json; missing queries or incomplete metadata remain PARTIAL-candidate."
+    "notes": "No gateway or product mutation. Operators must provide public-safe TraceQL/LogQL probes and review backend-status.json. A valid partial/capped classification may PASS this row without authorizing counts; missing queries, failed queries, unknown disposition, invalid receipts, and incomplete rebind remain non-PASS."
   }
 }

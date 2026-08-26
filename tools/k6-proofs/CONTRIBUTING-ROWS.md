@@ -124,8 +124,13 @@ Every `PROOFS/<sha>/<row>/<seat>/k6-run-<ts>/` directory must contain:
   declares a `telemetryContract`, both the summary-driven path
   (`postprocess-k6-summary.mjs`) and row-list runner (`scripts/run-proofs.sh`)
   carry a `telemetryRebind` block and a validated `backend-status.json`.
-  Non-complete backend disposition or a missing declared artifact withholds
-  PASS. See
+  Ordinary telemetry rows require a complete backend before PASS.
+  `R-OBS-BACKEND-DISPOSITION` is the narrow exception: its row verdict grades
+  whether partial/capped backend health was classified honestly, without
+  changing `backendComplete` or `countAuthority`. Missing/invalid receipts,
+  unknown/unavailable disposition, failed queries, contradictory authority,
+  unsafe data, incomplete rebind, or a missing declared artifact still
+  withholds PASS. See
   [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md).
 - Trace JSON (e.g. Tempo dump) under `artifacts/` if the row produced one. Trace
   evidence is required before a continuation row can be folded as `pass`.

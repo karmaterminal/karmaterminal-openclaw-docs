@@ -237,7 +237,7 @@
     <Row id="R-OBS-BACKEND-DISPOSITION" owner="unclaimed" forms="external" issue="517" acceptance="required">
       <Behavior>A degraded telemetry backend produces explicit unavailable/partial/capped evidence plus the rebind key set, never a zero that reads as absence</Behavior>
       <Evidence>backend-status.json per interaction carrying totalBlocks/completedJobs/inspectedBytes/status; published rebind keys re-derive an identical slice</Evidence>
-      <Constraint>runnable, harness-side: every Tempo/Loki interaction writes backend-status.json; this is the one remedy row that does NOT wait on product instrumentation</Constraint>
+      <Constraint>runnable, harness-side: every Tempo/Loki interaction writes backend-status.json; this is the one remedy row that does NOT wait on product instrumentation. Its row PASS grades disposition integrity and never changes backend health or count authority.</Constraint>
       <Manifest>tools/k6-proofs/manifests/r-obs-backend-disposition.json</Manifest>
     </Row>
     <Row id="R-CONFIG-DEFAULTS" owner="emeric" forms="config" issue="104">
@@ -288,7 +288,7 @@
       <Rule>A row whose required receipts include a telemetry receipt (trace-id, tempo-trace-json, continuation-trace-correlation, trace-or-session-correlation, reason-telemetry-redaction-review) MUST declare a telemetryContract in its manifest</Rule>
       <Rule>A row may claim rebindable=true only when origin, session, turn, run identity AND the proof-run marker are all declared emittedByProduct=true; missing origin/session/turn/proof marker cannot become a telemetry-rebindable PASS</Rule>
       <Rule>backendUnavailable.treatZeroAsAbsence is always false: a degraded backend answering 200 with zero results is unavailable/partial evidence, never absence</Rule>
-      <Rule>Every telemetry contract requires backend-status.json; missing, invalid, partial, unavailable, capped, or unknown backend disposition withholds PASS on both row-list and summary-driven result paths</Rule>
+      <Rule>Every telemetry contract requires backend-status.json. Ordinary telemetry-dependent rows require complete backend metadata. R-OBS-BACKEND-DISPOSITION instead grades the honesty of the disposition itself: a validated partial or capped receipt may PASS that row while backend complete/countAuthority remain false. Missing or invalid receipts, unknown/unavailable disposition, failed queries, contradictory authority, unsafe data, incomplete rebind, or missing row controls withhold PASS on both result paths.</Rule>
       <Validator>node tools/k6-proofs/scripts/check-telemetry-contracts.mjs</Validator>
       <Doc>tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md</Doc>
       <Reason>Continuation telemetry census karmaterminal/openclaw#1254 (report 39803b297bd4786db3971eb82a3a7fd0b29bc643, product basis 6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955): rows can execute real behavior and remain impossible to rebind or correlate later</Reason>

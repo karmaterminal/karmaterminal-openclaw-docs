@@ -11,7 +11,10 @@ import {
   buildTelemetryBackendStatusReceipt,
   classifyTelemetryBackendInteraction,
 } from '../../lib/telemetry-backend-status.js';
-import { telemetryRebindFrom } from '../../lib/telemetry-rebind.js';
+import {
+  telemetryReceiptStatuses,
+  telemetryRebindFrom,
+} from '../../lib/telemetry-rebind.js';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
 
 const runNode = promisify(execFile);
@@ -22,6 +25,9 @@ const docsRef = 'b'.repeat(40);
 const repository = 'karmaterminal/karmaterminal-openclaw-docs';
 const scenarioSource = 'export default function scenario() { return true; }\n';
 const gatewayKey = 'candidate-test-gateway-key';
+const exactPartialReceipt = path.resolve(
+  'tools/k6-proofs/scripts/__tests__/fixtures/run-32956764849-backend-status.json',
+);
 
 function digest(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -73,9 +79,14 @@ function harnessMetadata({ manifestBody, scenario = scenarioSource, rowFile = 'r
   };
 }
 
-async function fixture({ result = runResult(), metadata = null, manifestValue = manifest() } = {}) {
+async function fixture({
+  result = runResult(),
+  metadata = null,
+  manifestValue = manifest(),
+  candidateDirName = 'candidate',
+} = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'candidate-run-result-'));
-  const candidateDir = path.join(root, 'candidate');
+  const candidateDir = path.join(root, candidateDirName);
   await mkdir(candidateDir);
   const manifestPath = path.join(root, 'manifest.json');
   const manifestBody = `${JSON.stringify(manifestValue, null, 2)}\n`;
@@ -215,6 +226,7 @@ test('candidate envelope binds backend status and telemetry rebind siblings', as
         requiredCompletenessKeys,
       })],
     });
+
     const telemetryRebind = telemetryRebindFrom({
       manifest: manifestValue,
       receiptStatuses: [],
@@ -230,6 +242,8 @@ test('candidate envelope binds backend status and telemetry rebind siblings', as
         backendStatus: 'backend-status.json',
         backendDisposition: 'complete',
         backendComplete: true,
+        backendCountAuthority: true,
+        dispositionContractStatus: 'not-applicable',
       },
     });
     await writeFile(
@@ -243,6 +257,8 @@ test('candidate envelope binds backend status and telemetry rebind siblings', as
     const envelope = JSON.parse((await invoke(setup)).stdout);
     assert.equal(envelope.observability.backendStatus, 'backend-status.json');
     assert.equal(envelope.observability.backendDisposition, 'complete');
+    assert.equal(envelope.observability.backendCountAuthority, true);
+    assert.equal(envelope.observability.dispositionContractStatus, 'not-applicable');
     assert.equal(envelope.telemetryRebind.backend.complete, true);
     assert.equal(candidateEnvelopeMatchesSiblings({
       envelope,
@@ -288,6 +304,171 @@ test('candidate envelope binds backend status and telemetry rebind siblings', as
       `${JSON.stringify(unknown, null, 2)}\n`,
     );
     await assert.rejects(invoke(setup), /backend disposition disagrees/);
+  } finally {
+    await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('candidate envelope preserves partial backend health for a proven disposition-row PASS', async () => {
+  const backendStatus = JSON.parse(await readFile(exactPartialReceipt, 'utf8'));
+  const manifestValue = {
+    schema: 'openclaw.k6.proof-row-manifest.v1',
+    rowId: backendStatus.rowId,
+    candidateSha: backendStatus.candidateSha,
+    seat: backendStatus.seat,
+    scenario: { name: 'r-obs-backend-disposition' },
+    review: { candidateOnly: true, foldRequiresReview: true },
+    liveRunSafety: { expectedArtifactClass: 'PASS-candidate' },
+    expectedReceipts: [
+      { name: 'backend-completeness-receipt', required: true },
+      { name: 'degraded-response-classified', required: true },
+      { name: 'rebind-key-set-published', required: true },
+      { name: 'slice-strategy-recorded', required: true },
+    ],
+    telemetryContract: {
+      schema: 'openclaw.k6.row-telemetry-contract.v1',
+      enforcement: 'blocking',
+      rebindable: false,
+      productInstrumentationPrerequisite: false,
+      rebindReceipts: [
+        'backend-completeness-receipt',
+        'degraded-response-classified',
+        'rebind-key-set-published',
+        'slice-strategy-recorded',
+      ],
+      backendUnavailable: {
+        disposition: 'PARTIAL-candidate',
+        requiredCompletenessKeys: backendStatus.requiredCompletenessKeys,
+        rebindKeys: backendStatus.rebind.declaredKeys,
+      },
+      artifact: {
+        schema: backendStatus.schema,
+        requiredFiles: ['EVIDENCE.md', 'row-result.json', 'backend-status.json'],
+      },
+      verdictAuthority: {
+        passScope: 'backend-disposition-contract',
+        backendDispositionContract: {
+          requiredBackends: ['tempo', 'loki'],
+          rowPassStatuses: ['complete', 'partial', 'capped'],
+          requireNonAuthoritativeZero: true,
+          requireCompleteRebind: true,
+        },
+      },
+    },
+  };
+  const summary = {
+    row: backendStatus.rowId,
+    verdict: 'PASS-candidate',
+    classificationControls: {
+      complete: 'complete',
+      partial: 'partial',
+      unavailable: 'unavailable',
+      capped: 'capped',
+      unknown: 'unknown',
+    },
+    proof_receipts: Object.fromEntries(
+      manifestValue.expectedReceipts.map(({ name }) => [name, true]),
+    ),
+  };
+  const setup = await fixture({
+    manifestValue,
+    candidateDirName: backendStatus.proofRunId,
+    metadata: {
+      row: backendStatus.rowId,
+      candidateSha: backendStatus.candidateSha,
+      seat: backendStatus.seat,
+      scenario: 'r-obs-backend-disposition.js',
+      manifestPath: 'tools/k6-proofs/manifests/r-obs-backend-disposition.json',
+      scenarioPath: 'tools/k6-proofs/scenarios/r-obs-backend-disposition.js',
+    },
+  });
+  try {
+    const telemetryRebind = telemetryRebindFrom({
+      manifest: manifestValue,
+      receiptStatuses: telemetryReceiptStatuses({
+        manifest: manifestValue,
+        summary,
+        backendStatus,
+      }),
+      backendStatus,
+      artifactStatuses: manifestValue.telemetryContract.artifact.requiredFiles
+        .map((name) => ({ name, status: 'present' })),
+    });
+    const result = runResult({
+      telemetryRebind,
+      observability: {
+        traceStatus: 'not-required',
+        traceId: null,
+        correlationReceipt: null,
+        backendStatus: 'backend-status.json',
+        backendDisposition: 'partial',
+        backendComplete: false,
+        backendCountAuthority: false,
+        dispositionContractStatus: 'proven',
+      },
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'backend-status.json'),
+      `${JSON.stringify(backendStatus, null, 2)}\n`,
+    );
+    await writeFile(
+      path.join(setup.candidateDir, 'k6-summary.json'),
+      `${JSON.stringify(summary, null, 2)}\n`,
+    );
+    await writeFile(path.join(setup.candidateDir, 'EVIDENCE.md'), '# disposition\n');
+    await writeFile(
+      path.join(setup.candidateDir, 'row-result.json'),
+      `${JSON.stringify(result, null, 2)}\n`,
+    );
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(result, null, 2)}\n`,
+    );
+
+    const envelope = JSON.parse((await invoke(setup)).stdout);
+    const metadata = JSON.parse(
+      await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'),
+    );
+    assert.equal(envelope.result.outcome, 'PASS-candidate');
+    assert.equal(envelope.observability.backendDisposition, 'partial');
+    assert.equal(envelope.observability.backendComplete, false);
+    assert.equal(envelope.observability.backendCountAuthority, false);
+    assert.equal(envelope.observability.dispositionContractStatus, 'proven');
+    assert.equal(envelope.telemetryRebind.status, 'proven');
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope,
+      manifest: manifestValue,
+      metadata,
+      runResult: result,
+      runDir: setup.candidateDir,
+    }), true);
+
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope: {
+        ...envelope,
+        observability: {
+          ...envelope.observability,
+          backendCountAuthority: true,
+        },
+      },
+      manifest: manifestValue,
+      metadata,
+      runResult: result,
+      runDir: setup.candidateDir,
+    }), false);
+
+    const tampered = structuredClone(result);
+    tampered.telemetryRebind.dispositionContract.status = 'unproven';
+    tampered.telemetryRebind.passBlockers.backend = true;
+    tampered.observability.dispositionContractStatus = 'unproven';
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(tampered, null, 2)}\n`,
+    );
+    await assert.rejects(
+      invoke(setup),
+      /telemetryRebind disagrees with backend disposition receipts/,
+    );
   } finally {
     await rm(setup.root, { recursive: true, force: true });
   }

@@ -12,6 +12,10 @@ import {
 
 const runNode = promisify(execFile);
 const script = path.resolve('tools/k6-proofs/scripts/apply-telemetry-disposition.mjs');
+const postprocessor = path.resolve('tools/k6-proofs/scripts/postprocess-k6-summary.mjs');
+const dispositionManifestPath = path.resolve(
+  'tools/k6-proofs/manifests/r-obs-backend-disposition.json',
+);
 const exactPartialReceipt = path.resolve(
   'tools/k6-proofs/scripts/__tests__/fixtures/run-32956764849-backend-status.json',
 );
@@ -134,6 +138,86 @@ async function apply(setup) {
     '--manifest', setup.manifestPath,
     '--run-dir', setup.runDir,
   ], { encoding: 'utf8' });
+}
+
+async function exactDispositionFixture({
+  backendStatus: suppliedBackendStatus = null,
+  summaryMutation = null,
+  writeBackend = true,
+} = {}) {
+  const backendStatus = suppliedBackendStatus ||
+    JSON.parse(await readFile(exactPartialReceipt, 'utf8'));
+  const root = await mkdtemp(path.join(os.tmpdir(), 'backend-disposition-verdict-'));
+  const runDir = path.join(root, backendStatus.proofRunId);
+  const manifestPath = path.join(root, 'manifest.json');
+  const manifestValue = JSON.parse(await readFile(dispositionManifestPath, 'utf8'));
+  manifestValue.candidateSha = backendStatus.candidateSha;
+  manifestValue.seat = backendStatus.seat;
+  manifestValue.artifactDestination = {
+    root: 'PROOFS',
+    sha: backendStatus.candidateSha,
+    row: backendStatus.rowId,
+    seat: backendStatus.seat,
+    runDirPrefix: 'k6-run',
+  };
+  const summary = {
+    row: backendStatus.rowId,
+    verdict: 'PASS-candidate',
+    backendDisposition: backendStatus.status,
+    backendComplete: backendStatus.complete,
+    backendCountAuthority: backendStatus.countAuthority,
+    classificationControls: {
+      complete: 'complete',
+      partial: 'partial',
+      unavailable: 'unavailable',
+      capped: 'capped',
+      unknown: 'unknown',
+    },
+    proof_receipts: Object.fromEntries(
+      manifestValue.expectedReceipts.map(({ name }) => [name, true]),
+    ),
+  };
+  summaryMutation?.(summary);
+
+  await mkdir(runDir);
+  await writeFile(manifestPath, `${JSON.stringify(manifestValue, null, 2)}\n`);
+  await writeFile(
+    path.join(runDir, 'runner-metadata.json'),
+    `${JSON.stringify({
+      row: backendStatus.rowId,
+      candidateSha: backendStatus.candidateSha,
+      seat: backendStatus.seat,
+      docsRef: 'b'.repeat(40),
+    })}\n`,
+  );
+  await writeFile(
+    path.join(runDir, 'run-result.json'),
+    `${JSON.stringify({
+      effectiveExitCode: 0,
+      verdict: 'PASS-candidate',
+      verdictSource: 'summary-file',
+      candidateOnly: true,
+      foldRequiresReview: true,
+      observability: {
+        traceStatus: 'not-required',
+        traceId: null,
+        tempoTraceJson: null,
+        correlationReceipt: null,
+      },
+      review: { status: 'ready-for-human-review', pendingReceipts: [] },
+    }, null, 2)}\n`,
+  );
+  await writeFile(
+    path.join(runDir, 'r-obs-backend-disposition-summary.json'),
+    `${JSON.stringify(summary, null, 2)}\n`,
+  );
+  if (writeBackend) {
+    await writeFile(
+      path.join(runDir, 'backend-status.json'),
+      `${JSON.stringify(backendStatus, null, 2)}\n`,
+    );
+  }
+  return { root, runDir, manifestPath, manifestValue, summary, backendStatus };
 }
 
 test('row-list result preserves PASS only with a complete backend and required files', async () => {
@@ -279,121 +363,231 @@ test('backend disposition scenario emits one extractable public record with Loki
   assert.ok(source.indexOf('function lokiResultCount', responseJsonEnd) < defaultFunction);
   assert.match(source, /console\.log\(`PUBLIC_EVIDENCE \$\{JSON\.stringify\(\{/);
   assert.match(source, /zeroResultAuthoritative: entry\.zeroResultAuthoritative/);
+  assert.match(source, /evaluateTelemetryBackendDispositionContract/);
+  assert.match(source, /verdict: rowContractPass \? 'PASS-candidate'/);
+  assert.match(source, /backendCountAuthority: backendStatus\.countAuthority/);
+  assert.doesNotMatch(
+    source,
+    /verdict: backendStatus\.complete \? 'PASS-candidate'/,
+  );
 });
 
 test('run 32956764849 complete partial receipt passes the disposition row without count authority', async () => {
-  const backendStatus = JSON.parse(await readFile(exactPartialReceipt, 'utf8'));
-  const root = await mkdtemp(path.join(os.tmpdir(), 'backend-disposition-verdict-'));
-  const runDir = path.join(root, backendStatus.proofRunId);
-  const manifestPath = path.join(root, 'manifest.json');
-  const manifestValue = {
-    schema: 'openclaw.k6.proof-row-manifest.v1',
-    rowId: backendStatus.rowId,
-    candidateSha: backendStatus.candidateSha,
-    seat: backendStatus.seat,
-    expectedReceipts: [
-      { name: 'backend-completeness-receipt', required: true },
-      { name: 'degraded-response-classified', required: true },
-      { name: 'rebind-key-set-published', required: true },
-      { name: 'slice-strategy-recorded', required: true },
-    ],
-    telemetryContract: {
-      schema: 'openclaw.k6.row-telemetry-contract.v1',
-      enforcement: 'blocking',
-      rebindable: false,
-      productInstrumentationPrerequisite: false,
-      rebindReceipts: [
-        'backend-completeness-receipt',
-        'degraded-response-classified',
-        'rebind-key-set-published',
-        'slice-strategy-recorded',
-      ],
-      backendUnavailable: {
-        disposition: 'PARTIAL-candidate',
-        treatZeroAsAbsence: false,
-        requiredCompletenessKeys: backendStatus.requiredCompletenessKeys,
-        rebindKeys: backendStatus.rebind.declaredKeys,
-      },
-      artifact: {
-        schema: backendStatus.schema,
-        requiredFiles: ['EVIDENCE.md', 'row-result.json', 'backend-status.json'],
-      },
-      verdictAuthority: {
-        passScope: 'backend-disposition-contract',
-        backendDispositionContract: {
-          requiredBackends: ['tempo', 'loki'],
-          rowPassStatuses: ['complete', 'partial', 'capped'],
-          requireNonAuthoritativeZero: true,
-          requireCompleteRebind: true,
-        },
-      },
-    },
-  };
-  const summary = {
-    row: backendStatus.rowId,
-    verdict: 'PASS-candidate',
-    backendDisposition: backendStatus.status,
-    backendComplete: backendStatus.complete,
-    classificationControls: {
-      complete: 'complete',
-      partial: 'partial',
-      unavailable: 'unavailable',
-      capped: 'capped',
-      unknown: 'unknown',
-    },
-    proof_receipts: Object.fromEntries(
-      manifestValue.expectedReceipts.map(({ name }) => [name, true]),
-    ),
-  };
-
+  const setup = await exactDispositionFixture();
   try {
-    await mkdir(runDir);
-    await writeFile(manifestPath, `${JSON.stringify(manifestValue, null, 2)}\n`);
-    await writeFile(
-      path.join(runDir, 'runner-metadata.json'),
-      `${JSON.stringify({
-        row: backendStatus.rowId,
-        candidateSha: backendStatus.candidateSha,
-        seat: backendStatus.seat,
-        docsRef: 'b'.repeat(40),
-      })}\n`,
+    const applied = JSON.parse((await apply(setup)).stdout);
+    const result = JSON.parse(
+      await readFile(path.join(setup.runDir, 'run-result.json'), 'utf8'),
     );
-    await writeFile(
-      path.join(runDir, 'run-result.json'),
-      `${JSON.stringify({
-        effectiveExitCode: 0,
-        verdict: 'PASS-candidate',
-        verdictSource: 'summary-file',
-        candidateOnly: true,
-        foldRequiresReview: true,
-        observability: {
-          traceStatus: 'not-required',
-          traceId: null,
-          tempoTraceJson: null,
-          correlationReceipt: null,
-        },
-        review: { status: 'ready-for-human-review', pendingReceipts: [] },
-      }, null, 2)}\n`,
-    );
-    await writeFile(
-      path.join(runDir, 'r-obs-backend-disposition-summary.json'),
-      `${JSON.stringify(summary, null, 2)}\n`,
-    );
-    await writeFile(
-      path.join(runDir, 'backend-status.json'),
-      `${JSON.stringify(backendStatus, null, 2)}\n`,
-    );
-
-    const applied = JSON.parse((await apply({ manifestPath, runDir })).stdout);
-    const result = JSON.parse(await readFile(path.join(runDir, 'run-result.json'), 'utf8'));
     assert.equal(applied.verdict, 'PASS-candidate');
     assert.equal(applied.backendDisposition, 'partial');
+    assert.equal(applied.backendCountAuthority, false);
+    assert.equal(applied.dispositionContractStatus, 'proven');
     assert.equal(result.verdict, 'PASS-candidate');
     assert.equal(result.observability.backendDisposition, 'partial');
     assert.equal(result.observability.backendComplete, false);
+    assert.equal(result.observability.backendCountAuthority, false);
+    assert.equal(result.observability.dispositionContractStatus, 'proven');
     assert.equal(result.telemetryRebind.backend.countAuthority, false);
     assert.equal(result.telemetryRebind.status, 'proven');
+    assert.equal(result.telemetryRebind.dispositionContract.status, 'proven');
   } finally {
-    await rm(root, { recursive: true, force: true });
+    await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('disposition row withholds PASS for incomplete or dishonest candidate receipts', async (t) => {
+  const exact = JSON.parse(await readFile(exactPartialReceipt, 'utf8'));
+  const expectPartial = async (label, options, expectedBlocker) => {
+    await t.test(label, async () => {
+      const setup = await exactDispositionFixture(options);
+      try {
+        const applied = JSON.parse((await apply(setup)).stdout);
+        const result = JSON.parse(
+          await readFile(path.join(setup.runDir, 'run-result.json'), 'utf8'),
+        );
+        assert.equal(applied.verdict, 'PARTIAL-candidate');
+        assert.equal(result.verdict, 'PARTIAL-candidate');
+        assert.match(result.reason, expectedBlocker);
+        assert.notEqual(result.telemetryRebind.status, 'proven');
+      } finally {
+        await rm(setup.root, { recursive: true, force: true });
+      }
+    });
+  };
+
+  await expectPartial(
+    'actual missing backend-status receipt',
+    { writeBackend: false },
+    /backend disposition row contract is unproven/,
+  );
+
+  await expectPartial(
+    'missing required row receipt',
+    {
+      summaryMutation(summary) {
+        summary.proof_receipts['slice-strategy-recorded'] = false;
+      },
+    },
+    /slice-strategy-recorded=missing/,
+  );
+
+  const unknown = structuredClone(exact);
+  for (const interaction of unknown.interactions) {
+    interaction.status = 'unknown';
+    interaction.totalBlocks = null;
+    interaction.completedJobs = null;
+    interaction.inspectedBytes = null;
+  }
+  unknown.status = 'unknown';
+  await expectPartial(
+    'unknown backend disposition',
+    { backendStatus: unknown },
+    /unknown is not row-passable/,
+  );
+
+  const unavailable = structuredClone(exact);
+  for (const interaction of unavailable.interactions) {
+    interaction.status = 'unavailable';
+    interaction.httpStatus = null;
+    interaction.apiStatus = 'unavailable';
+    interaction.tempoApiStatus =
+      interaction.backend === 'tempo' ? 'unavailable' : null;
+    interaction.lokiApiStatus =
+      interaction.backend === 'loki' ? 'unavailable' : null;
+    interaction.totalBlocks = null;
+    interaction.completedJobs = null;
+    interaction.inspectedBytes = null;
+  }
+  unavailable.status = 'unavailable';
+  await expectPartial(
+    'failed backend query',
+    { backendStatus: unavailable },
+    /unavailable is not row-passable/,
+  );
+
+  const incompleteRebind = structuredClone(exact);
+  delete incompleteRebind.rebind.values.proof_run_id;
+  incompleteRebind.rebind.missingKeys = ['proof_run_id'];
+  incompleteRebind.rebind.complete = false;
+  await expectPartial(
+    'incomplete rebind key set',
+    { backendStatus: incompleteRebind },
+    /rebind key set is incomplete/,
+  );
+
+  for (const [label, mutate, expected] of [
+    [
+      'contradictory count authority',
+      (receipt) => { receipt.countAuthority = true; },
+      /complete\/countAuthority disagree/,
+    ],
+    [
+      'unsafe public data',
+      (receipt) => { receipt.interactions[0].operation = '/home/operator/private-query'; },
+      /operation is not public-safe/,
+    ],
+  ]) {
+    await t.test(label, async () => {
+      const invalid = structuredClone(exact);
+      mutate(invalid);
+      const setup = await exactDispositionFixture({ backendStatus: invalid });
+      try {
+        await assert.rejects(apply(setup), expected);
+        const result = JSON.parse(
+          await readFile(path.join(setup.runDir, 'run-result.json'), 'utf8'),
+        );
+        assert.equal(result.verdict, 'PASS-candidate');
+        assert.equal(
+          Object.hasOwn(result, 'telemetryRebind'),
+          false,
+          'invalid receipt must fail before a success-shaped disposition is written',
+        );
+      } finally {
+        await rm(setup.root, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test('partial backend still withholds PASS for ordinary telemetry rows', async () => {
+  const setup = await fixture();
+  try {
+    const partial = classifyTelemetryBackendInteraction({
+      backend: 'tempo',
+      operation: 'search',
+      httpStatus: 200,
+      responseJson: {
+        metrics: {
+          totalBlocks: 2,
+          completedJobs: 0,
+          totalJobs: 1,
+          inspectedBytes: 2048,
+        },
+      },
+      resultCount: 0,
+      queryFingerprint: '1'.repeat(16),
+      backendBaseUrlEnv: 'OPENCLAW_PROOFS_TEMPO_BASE_URL',
+      requiredCompletenessKeys,
+    });
+    const backendStatus = buildTelemetryBackendStatusReceipt({
+      rowId: 'R-BACKEND-TEST',
+      candidateSha,
+      seat: 'cael',
+      proofRunId: path.basename(setup.runDir),
+      requiredCompletenessKeys,
+      rebindKeys: ['candidate_sha', 'row_id', 'seat', 'run_id'],
+      rebindValues: {
+        candidate_sha: candidateSha,
+        row_id: 'R-BACKEND-TEST',
+        seat: 'cael',
+        run_id: path.basename(setup.runDir),
+      },
+      interactions: [partial],
+    });
+    await writeFile(
+      path.join(setup.runDir, 'backend-status.json'),
+      `${JSON.stringify(backendStatus, null, 2)}\n`,
+    );
+    await apply(setup);
+    const result = JSON.parse(
+      await readFile(path.join(setup.runDir, 'run-result.json'), 'utf8'),
+    );
+    assert.equal(result.verdict, 'PARTIAL-candidate');
+    assert.equal(result.telemetryRebind.passBlockers.backend, true);
+    assert.equal(
+      Object.hasOwn(result.telemetryRebind, 'dispositionContract'),
+      false,
+    );
+  } finally {
+    await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('summary postprocessor accepts the exact partial receipt only as a disposition-row PASS', async () => {
+  const setup = await exactDispositionFixture();
+  const outRoot = path.join(setup.root, 'postprocessed');
+  const summaryPath = path.join(setup.root, 'summary.json');
+  try {
+    await writeFile(summaryPath, `${JSON.stringify(setup.summary, null, 2)}\n`);
+    const run = await runNode(process.execPath, [
+      postprocessor,
+      '--manifest', setup.manifestPath,
+      '--summary', summaryPath,
+      '--backend-status', path.join(setup.runDir, 'backend-status.json'),
+      '--out-root', outRoot,
+      '--run-id', setup.backendStatus.proofRunId,
+    ], { encoding: 'utf8' });
+    const printed = JSON.parse(run.stdout);
+    const result = JSON.parse(
+      await readFile(path.join(printed.runDir, 'row-result.json'), 'utf8'),
+    );
+    assert.equal(result.outcome, 'PASS-candidate');
+    assert.equal(result.observability.backendDisposition, 'partial');
+    assert.equal(result.observability.backendComplete, false);
+    assert.equal(result.observability.backendCountAuthority, false);
+    assert.equal(result.telemetryRebind.dispositionContract.status, 'proven');
+  } finally {
+    await rm(setup.root, { recursive: true, force: true });
   }
 });

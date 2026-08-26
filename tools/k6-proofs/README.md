@@ -188,6 +188,7 @@ GitHub Actions workflow choices. Current workflow-runnable basenames are:
 - `r-cw-multi`
 - `r-cw-delegate-self-continuation`
 - `r-cw-token-bracket`
+- `r-obs-backend-disposition`
 - `r-obs-status`
 - `r-regression-trap-tests`
 - `r-trace-redaction-1121`
@@ -522,7 +523,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-TOKEN | `r-cw-token-bracket` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-1 | `r-obs-1` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-2 | `r-obs-2` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
-| R-OBS-BACKEND-DISPOSITION | `r-obs-backend-disposition` | Tempo+Loki/read-only | PASS-candidate only when both configured interactions are complete and `backend-status.json` validates; degraded states remain PARTIAL |
+| R-OBS-BACKEND-DISPOSITION | `r-obs-backend-disposition` | Tempo+Loki/read-only | PASS-candidate when the two-level disposition contract is complete; valid partial/capped backend health remains explicit and count authority remains false |
 | R-OBS-STATUS | `r-obs-status` | github-source-contract/#1172 | PASS-candidate; runnable exact-SHA status-line contract requiring row review |
 | R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-RC-2 | `r-rc-2-delegate-request-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
@@ -541,6 +542,16 @@ OPENCLAW_PROOFS_TEMPO_TRACEQL='<public-safe bounded TraceQL>' \
 OPENCLAW_PROOFS_LOKI_LOGQL='<public-safe bounded LogQL>' \
 ./run-proof.sh r-obs-backend-disposition
 ```
+
+This row has two verdict levels. `backend-status.json` always preserves observed
+backend health and `countAuthority`; a partial or capped response is never
+rewritten as complete and never authorizes zero. The row itself may emit
+`PASS-candidate` when both backend interactions are present, their dispositions
+are valid and public-safe, all five classifier controls and all four required
+receipts pass, and every rebind key is present. Unknown/unavailable disposition,
+a failed query, a missing or invalid receipt, contradictory count authority,
+unsafe data, or incomplete rebind remains non-PASS. Other telemetry-dependent
+rows still require complete backend metadata for their own PASS.
 
 It remains one of the 38 required continuation acceptance rows. The separate
 product telemetry contracts `R-OBS-CONT-PROVENANCE`,

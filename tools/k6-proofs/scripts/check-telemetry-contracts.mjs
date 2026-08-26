@@ -59,7 +59,19 @@ export const REMEDY_CONCERNS = [
 const CENSUS_ISSUE = 'karmaterminal/openclaw#1254';
 const CENSUS_REPORT_COMMIT = '39803b297bd4786db3971eb82a3a7fd0b29bc643';
 const CENSUS_PRODUCT_BASIS = '6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955';
-const PASS_SCOPES = new Set(['behavioral-only', 'behavioral-and-telemetry-rebindable']);
+const BACKEND_DISPOSITION_ROW = 'R-OBS-BACKEND-DISPOSITION';
+const BACKEND_DISPOSITION_PASS_SCOPE = 'backend-disposition-contract';
+const BACKEND_DISPOSITION_RECEIPTS = [
+  'backend-completeness-receipt',
+  'degraded-response-classified',
+  'rebind-key-set-published',
+  'slice-strategy-recorded',
+];
+const PASS_SCOPES = new Set([
+  'behavioral-only',
+  'behavioral-and-telemetry-rebindable',
+  BACKEND_DISPOSITION_PASS_SCOPE,
+]);
 const BACKEND_DISPOSITIONS = new Set(['PARTIAL-candidate', 'FAIL-candidate']);
 const ENFORCEMENTS = new Set(['advisory', 'blocking']);
 
@@ -234,6 +246,80 @@ export function validateTelemetryContract(manifest, { file = manifest?.rowId || 
   }
   if (verdict.passScope === 'behavioral-and-telemetry-rebindable' && contract.rebindable !== true) {
     fail('telemetryContract.verdictAuthority.passScope=behavioral-and-telemetry-rebindable requires rebindable=true');
+  }
+  const dispositionVerdict = verdict.backendDispositionContract;
+  if (manifest.rowId === BACKEND_DISPOSITION_ROW) {
+    if (verdict.passScope !== BACKEND_DISPOSITION_PASS_SCOPE) {
+      fail(
+        `${BACKEND_DISPOSITION_ROW} must use ` +
+        `telemetryContract.verdictAuthority.passScope=${BACKEND_DISPOSITION_PASS_SCOPE}`,
+      );
+    }
+    if (contract.remedyConcern !== 'backend-disposition') {
+      fail(`${BACKEND_DISPOSITION_ROW} must own remedyConcern=backend-disposition`);
+    }
+    if (contract.enforcement !== 'blocking' ||
+        contract.rebindable !== false ||
+        contract.productInstrumentationPrerequisite !== false) {
+      fail(
+        `${BACKEND_DISPOSITION_ROW} disposition contract must be blocking, ` +
+        'harness-side, and non-rebindable',
+      );
+    }
+    if (JSON.stringify(dispositionVerdict?.requiredBackends) !==
+        JSON.stringify(['tempo', 'loki'])) {
+      fail(
+        'telemetryContract.verdictAuthority.backendDispositionContract.' +
+        'requiredBackends must be exactly tempo,loki',
+      );
+    }
+    if (JSON.stringify(dispositionVerdict?.rowPassStatuses) !==
+        JSON.stringify(['complete', 'partial', 'capped'])) {
+      fail(
+        'telemetryContract.verdictAuthority.backendDispositionContract.' +
+        'rowPassStatuses must be exactly complete,partial,capped',
+      );
+    }
+    if (dispositionVerdict?.requireNonAuthoritativeZero !== true) {
+      fail(
+        'telemetryContract.verdictAuthority.backendDispositionContract.' +
+        'requireNonAuthoritativeZero must be true',
+      );
+    }
+    if (dispositionVerdict?.requireCompleteRebind !== true) {
+      fail(
+        'telemetryContract.verdictAuthority.backendDispositionContract.' +
+        'requireCompleteRebind must be true',
+      );
+    }
+    const expectedByName = new Map(
+      (manifest.expectedReceipts || []).map((receipt) => [receipt?.name, receipt]),
+    );
+    const liveRequired = new Set(manifest.liveRunSafety?.requiredReceipts || []);
+    const rebindRequired = new Set(contract.rebindReceipts || []);
+    for (const receiptName of BACKEND_DISPOSITION_RECEIPTS) {
+      if (expectedByName.get(receiptName)?.required !== true ||
+          !liveRequired.has(receiptName) ||
+          !rebindRequired.has(receiptName)) {
+        fail(
+          `${BACKEND_DISPOSITION_ROW} receipt '${receiptName}' must be required ` +
+          'by expectedReceipts, liveRunSafety, and rebindReceipts',
+        );
+      }
+    }
+  } else {
+    if (verdict.passScope === BACKEND_DISPOSITION_PASS_SCOPE) {
+      fail(
+        `telemetryContract.verdictAuthority.passScope=${BACKEND_DISPOSITION_PASS_SCOPE} ` +
+        `is reserved for ${BACKEND_DISPOSITION_ROW}`,
+      );
+    }
+    if (dispositionVerdict !== undefined) {
+      fail(
+        'telemetryContract.verdictAuthority.backendDispositionContract is reserved ' +
+        `for ${BACKEND_DISPOSITION_ROW}`,
+      );
+    }
   }
 
   const execution = contract.execution || {};

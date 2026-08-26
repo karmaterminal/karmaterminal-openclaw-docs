@@ -20,6 +20,8 @@ import {
 import { validateTelemetryBackendStatusReceipt } from '../lib/telemetry-backend-status.js';
 import {
   telemetryPassBlockers,
+  telemetryReceiptStatuses,
+  telemetryRebindFrom,
   validateTelemetryRebind,
 } from '../lib/telemetry-rebind.js';
 
@@ -201,25 +203,55 @@ async function requireTelemetryArtifacts(manifest, metadata, runResult, candidat
   }
   if (runResult.observability?.backendStatus !== 'backend-status.json' ||
       runResult.observability?.backendDisposition !== backendStatus.status ||
-      runResult.observability?.backendComplete !== backendStatus.complete) {
+      runResult.observability?.backendComplete !== backendStatus.complete ||
+      runResult.observability?.backendCountAuthority !== backendStatus.countAuthority ||
+      runResult.observability?.dispositionContractStatus !==
+        (runResult.telemetryRebind?.dispositionContract?.status || 'not-applicable')) {
     throw new Error('run result backend disposition disagrees with backend-status.json');
   }
   const missing = [];
+  const artifactStatuses = [];
   for (const name of manifest.telemetryContract.artifact?.requiredFiles || []) {
     if (typeof name !== 'string' || !name || path.isAbsolute(name) ||
         name.includes('..') || name.includes('\\')) {
       missing.push(name);
+      artifactStatuses.push({ name, status: 'missing' });
       continue;
     }
     try {
       const details = await stat(path.join(candidateDir, name));
-      if (!details.isFile() || details.size === 0) missing.push(name);
+      const present = details.isFile() && details.size > 0;
+      artifactStatuses.push({ name, status: present ? 'present' : 'missing' });
+      if (!present) missing.push(name);
     } catch {
       missing.push(name);
+      artifactStatuses.push({ name, status: 'missing' });
     }
   }
   if (missing.length > 0) {
     throw new Error(`required telemetry artifact(s) missing: ${missing.join(', ')}`);
+  }
+  if (manifest.telemetryContract.verdictAuthority?.passScope ===
+      'backend-disposition-contract') {
+    const summary = await readJson(
+      path.join(candidateDir, 'k6-summary.json'),
+      'normalized k6 summary',
+    );
+    const expectedRebind = telemetryRebindFrom({
+      manifest,
+      receiptStatuses: telemetryReceiptStatuses({
+        manifest,
+        summary,
+        backendStatus,
+      }),
+      backendStatus,
+      artifactStatuses,
+    });
+    if (JSON.stringify(runResult.telemetryRebind) !== JSON.stringify(expectedRebind)) {
+      throw new Error(
+        'run result telemetryRebind disagrees with backend disposition receipts',
+      );
+    }
   }
   if (runResult.verdict === 'PASS-candidate') {
     const blockers = telemetryPassBlockers(runResult.telemetryRebind);
@@ -340,6 +372,10 @@ async function main() {
             backendStatus: 'backend-status.json',
             backendDisposition: backendStatus.status,
             backendComplete: backendStatus.complete,
+            backendCountAuthority: backendStatus.countAuthority,
+            dispositionContractStatus:
+              runResult.telemetryRebind?.dispositionContract?.status ||
+              'not-applicable',
           }
         : {}),
     },

@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   buildTelemetryBackendStatusReceipt,
   classifyTelemetryBackendInteraction,
+  evaluateTelemetryBackendDispositionContract,
   telemetryBackendStatusBlocksPass,
   unknownTelemetryBackendInteraction,
   validateTelemetryBackendStatusReceipt,
@@ -36,6 +37,15 @@ const context = {
     run_id: 'unit-run',
   },
 };
+const dispositionContract = {
+  requiredBackends: ['tempo', 'loki'],
+  rowPassStatuses: ['complete', 'partial', 'capped'],
+  requireNonAuthoritativeZero: true,
+  requireCompleteRebind: true,
+};
+const exactPartialReceiptPath = path.resolve(
+  'tools/k6-proofs/scripts/__tests__/fixtures/run-32956764849-backend-status.json',
+);
 
 function interaction(overrides = {}) {
   return classifyTelemetryBackendInteraction({
@@ -97,6 +107,178 @@ test('a 200 zero without completeness metadata never authorizes absence', () => 
   assert.equal(receipt.complete, false);
   assert.equal(receipt.countAuthority, false);
   assert.equal(telemetryBackendStatusBlocksPass(receipt), true);
+});
+
+test('run 32956764849 partial receipt proves the row contract but not backend counts', async () => {
+    const receipt = JSON.parse(await readFile(exactPartialReceiptPath, 'utf8'));
+    const rowContract = evaluateTelemetryBackendDispositionContract(
+      receipt,
+      dispositionContract,
+    );
+    assert.equal(validateTelemetryBackendStatusReceipt(receipt).valid, true);
+    assert.equal(receipt.status, 'partial');
+    assert.equal(receipt.complete, false);
+    assert.equal(receipt.countAuthority, false);
+    assert.equal(rowContract.status, 'proven');
+    assert.deepEqual(rowContract.failures, []);
+    assert.equal(
+      telemetryBackendStatusBlocksPass(receipt),
+      true,
+      'the same partial receipt must still block PASS for ordinary telemetry rows',
+    );
+  });
+
+  test('disposition row rejects unknown, failed, incomplete, contradictory, and unsafe receipts', async (t) => {
+    const exact = JSON.parse(await readFile(exactPartialReceiptPath, 'utf8'));
+    const buildWith = (interactions, rebindValues = exact.rebind.values) =>
+      buildTelemetryBackendStatusReceipt({
+        rowId: exact.rowId,
+        candidateSha: exact.candidateSha,
+        seat: exact.seat,
+        proofRunId: exact.proofRunId,
+        generatedAt: exact.generatedAt,
+        requiredCompletenessKeys: exact.requiredCompletenessKeys,
+        rebindKeys: exact.rebind.declaredKeys,
+        rebindValues,
+        interactions,
+      });
+    const classified = (backend, status) => {
+      const source = exact.interactions.find((entry) => entry.backend === backend);
+      const completeResponse = backend === 'tempo'
+        ? {
+            metrics: {
+              totalBlocks: 1,
+              completedJobs: 1,
+              totalJobs: 1,
+              inspectedBytes: 1,
+            },
+          }
+        : {
+            status: 'success',
+            data: {
+              stats: {
+                summary: {
+                  totalBlocks: 1,
+                  completedJobs: 1,
+                  totalJobs: 1,
+                  inspectedBytes: 1,
+                },
+              },
+            },
+          };
+      return classifyTelemetryBackendInteraction({
+        backend,
+        operation: source.operation,
+        transportOk: status !== 'unavailable',
+        responseParsed: status !== 'unavailable',
+        httpStatus: status === 'unavailable' ? null : 200,
+        responseJson: status === 'unknown' ? {} : completeResponse,
+        resultCount: status === 'capped' ? source.resultLimit : 0,
+        resultLimit: source.resultLimit,
+        resultCapped: status === 'capped',
+        windowStartUtc: source.windowStartUtc,
+        windowEndUtc: source.windowEndUtc,
+        queryFingerprint: source.queryFingerprint,
+        backendBaseUrlEnv: source.backendBaseUrlEnv,
+        sliceStrategy: source.sliceStrategy,
+        requiredCompletenessKeys: exact.requiredCompletenessKeys,
+      });
+    };
+
+    await t.test('unknown disposition', () => {
+      const receipt = buildWith([
+        classified('tempo', 'unknown'),
+        classified('loki', 'unknown'),
+      ]);
+      const result = evaluateTelemetryBackendDispositionContract(
+        receipt,
+        dispositionContract,
+      );
+      assert.equal(result.status, 'unproven');
+      assert.ok(result.failures.some((failure) => /unknown is not row-passable/.test(failure)));
+    });
+
+    await t.test('failed query', () => {
+      const receipt = buildWith([
+        classified('tempo', 'unavailable'),
+        classified('loki', 'unavailable'),
+      ]);
+      const result = evaluateTelemetryBackendDispositionContract(
+        receipt,
+        dispositionContract,
+      );
+      assert.equal(result.status, 'unproven');
+      assert.ok(
+        result.failures.some((failure) => /unavailable is not row-passable/.test(failure)),
+      );
+    });
+
+    await t.test('missing backend interaction', () => {
+      const receipt = buildWith([exact.interactions[0]]);
+      const result = evaluateTelemetryBackendDispositionContract(
+        receipt,
+        dispositionContract,
+      );
+      assert.equal(result.status, 'unproven');
+      assert.ok(result.failures.some((failure) => /required backend loki has 0/.test(failure)));
+    });
+
+    await t.test('incomplete rebind', () => {
+      const rebindValues = { ...exact.rebind.values };
+      delete rebindValues.proof_run_id;
+      const receipt = buildWith(exact.interactions, rebindValues);
+      assert.equal(validateTelemetryBackendStatusReceipt(receipt).valid, true);
+      const result = evaluateTelemetryBackendDispositionContract(
+        receipt,
+        dispositionContract,
+      );
+      assert.equal(result.status, 'unproven');
+      assert.ok(result.failures.some((failure) => /rebind key set is incomplete/.test(failure)));
+    });
+
+    await t.test('contradictory count authority', () => {
+      const receipt = structuredClone(exact);
+      receipt.countAuthority = true;
+      const validation = validateTelemetryBackendStatusReceipt(receipt);
+      assert.equal(validation.valid, false);
+      assert.ok(
+        validation.failures.some((failure) =>
+          /complete\/countAuthority disagree/.test(failure)),
+      );
+      assert.equal(
+        evaluateTelemetryBackendDispositionContract(receipt, dispositionContract).status,
+        'unproven',
+      );
+    });
+
+    await t.test('unsafe public interaction', () => {
+      const receipt = structuredClone(exact);
+      receipt.interactions[0].operation = '/home/operator/private-query';
+      const validation = validateTelemetryBackendStatusReceipt(receipt);
+      assert.equal(validation.valid, false);
+      assert.ok(
+        validation.failures.some((failure) => /operation is not public-safe/.test(failure)),
+      );
+      assert.equal(
+        evaluateTelemetryBackendDispositionContract(receipt, dispositionContract).status,
+        'unproven',
+      );
+    });
+
+    await t.test('complete and capped alternate paths remain row-passable', () => {
+      for (const status of ['complete', 'capped']) {
+        const receipt = buildWith([
+          classified('tempo', status),
+          classified('loki', status),
+        ]);
+        assert.equal(
+          evaluateTelemetryBackendDispositionContract(receipt, dispositionContract).status,
+          'proven',
+          status,
+        );
+        assert.equal(receipt.countAuthority, status === 'complete');
+      }
+    });
 });
 
 test('capped interactions retain slice strategy and block count authority', () => {

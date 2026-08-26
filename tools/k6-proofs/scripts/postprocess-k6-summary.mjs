@@ -8,7 +8,11 @@ import {
   buildTelemetryBackendStatusReceipt,
   validateTelemetryBackendStatusReceipt,
 } from '../lib/telemetry-backend-status.js';
-import { telemetryPassBlockers, telemetryRebindFrom } from '../lib/telemetry-rebind.js';
+import {
+  telemetryPassBlockers,
+  telemetryReceiptStatuses,
+  telemetryRebindFrom,
+} from '../lib/telemetry-rebind.js';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -260,7 +264,7 @@ async function main() {
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
   const checkRate = checks ? Number(checks.rate ?? 0) : null;
-  const receipts = (manifest.expectedReceipts || []).map((r) => ({
+  let receipts = (manifest.expectedReceipts || []).map((r) => ({
     name: r.name,
     required: Boolean(r.required),
     status: receiptStatusFromName(r.name, summary),
@@ -315,6 +319,12 @@ async function main() {
         name,
         status: plannedArtifacts.has(name) ? 'present' : 'missing',
       }));
+    receipts = telemetryReceiptStatuses({
+      manifest,
+      summary,
+      backendStatus,
+      fallback: receipts,
+    });
     telemetryRebind = telemetryRebindFrom({
       manifest,
       receiptStatuses: receipts,
@@ -383,6 +393,9 @@ async function main() {
         backendStatus: 'backend-status.json',
         backendDisposition: backendStatus.status,
         backendComplete: backendStatus.complete,
+        backendCountAuthority: backendStatus.countAuthority,
+        dispositionContractStatus:
+          telemetryRebind.dispositionContract?.status || 'not-applicable',
       },
     } : {}),
     liveRunSafety: manifest.liveRunSafety ? {

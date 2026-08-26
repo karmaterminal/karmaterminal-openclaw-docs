@@ -1,4 +1,6 @@
 import {
+  evaluateTelemetryBackendDispositionContract,
+  TELEMETRY_BACKEND_DISPOSITION_PASS_SCOPE,
   telemetryBackendStatusBlocksPass,
   validateTelemetryBackendStatusReceipt,
 } from './telemetry-backend-status.js';
@@ -11,6 +13,76 @@ function normalizedStatuses(values, allowed) {
     ? values.filter((entry) =>
         entry && typeof entry.name === 'string' && allowed.has(entry.status))
     : [];
+}
+
+function isBackendDispositionContract(manifest) {
+  return manifest?.telemetryContract?.verdictAuthority?.passScope ===
+    TELEMETRY_BACKEND_DISPOSITION_PASS_SCOPE;
+}
+
+function assertedReceiptPresent(summary, name) {
+  const value = summary?.proof_receipts?.[name] ?? summary?.receipts?.[name];
+  return value === true || value === 'present';
+}
+
+export function telemetryReceiptStatuses({
+  manifest,
+  summary = {},
+  backendStatus = null,
+  fallback = [],
+}) {
+  const normalizedFallback = normalizedStatuses(fallback, RECEIPT_STATUSES);
+  if (!isBackendDispositionContract(manifest)) return normalizedFallback;
+
+  const contract = manifest.telemetryContract;
+  const disposition = contract.verdictAuthority.backendDispositionContract || {};
+  const backendValidation = backendStatus
+    ? validateTelemetryBackendStatusReceipt(backendStatus)
+    : { valid: false };
+  const interactions = backendStatus?.interactions || [];
+  const requiredBackends = Array.isArray(disposition.requiredBackends)
+    ? disposition.requiredBackends
+    : [];
+  const exactBackendReceipts = backendValidation.valid &&
+    interactions.length === requiredBackends.length &&
+    requiredBackends.every((backend) =>
+      interactions.filter((interaction) => interaction.backend === backend).length === 1);
+  const controlsPass = ['complete', 'partial', 'unavailable', 'capped', 'unknown']
+    .every((status) => summary?.classificationControls?.[status] === status);
+  const known = new Map(normalizedFallback.map((entry) => [entry.name, entry]));
+  const names = new Set([
+    ...known.keys(),
+    ...(contract.rebindReceipts || []),
+  ]);
+
+  for (const name of names) {
+    let present;
+    if (name === 'backend-completeness-receipt') {
+      present = assertedReceiptPresent(summary, name) && exactBackendReceipts;
+    } else if (name === 'degraded-response-classified') {
+      present = assertedReceiptPresent(summary, name) && controlsPass;
+    } else if (name === 'rebind-key-set-published') {
+      present = assertedReceiptPresent(summary, name) &&
+        backendValidation.valid &&
+        backendStatus?.rebind?.complete === true;
+    } else if (name === 'slice-strategy-recorded') {
+      present = assertedReceiptPresent(summary, name) &&
+        backendValidation.valid &&
+        interactions.length > 0 &&
+        interactions.every((interaction) =>
+          typeof interaction.sliceStrategy === 'string' &&
+          interaction.sliceStrategy.length > 0);
+    } else {
+      continue;
+    }
+    known.set(name, {
+      ...(known.get(name) || {}),
+      name,
+      status: present ? 'present' : 'missing',
+    });
+  }
+
+  return [...known.values()];
 }
 
 export function telemetryRebindFrom({
@@ -33,8 +105,15 @@ export function telemetryRebindFrom({
   const backendValidation = backendStatus
     ? validateTelemetryBackendStatusReceipt(backendStatus)
     : { valid: false, failures: ['backend-status.json is absent'] };
-  const backendBlocked = !backendStatus ||
-    telemetryBackendStatusBlocksPass(backendStatus);
+  const dispositionContract = isBackendDispositionContract(manifest)
+    ? evaluateTelemetryBackendDispositionContract(
+        backendStatus,
+        contract.verdictAuthority.backendDispositionContract,
+      )
+    : null;
+  const backendBlocked = dispositionContract
+    ? dispositionContract.status !== 'proven'
+    : !backendStatus || telemetryBackendStatusBlocksPass(backendStatus);
   const missingRequiredArtifacts = artifacts
     .filter((entry) => entry.status !== 'present')
     .map((entry) => entry.name);
@@ -86,6 +165,7 @@ export function telemetryRebindFrom({
     unprovenRebindReceipts,
     status,
     backend,
+    ...(dispositionContract ? { dispositionContract } : {}),
     requiredArtifacts: artifacts,
     missingRequiredArtifacts,
     passBlockers: {
@@ -100,12 +180,16 @@ export function telemetryPassBlockers(telemetryRebind) {
   if (!telemetryRebind) return [];
   const blockers = [];
   if (telemetryRebind.passBlockers?.backend) {
+    const dispositionFailures = telemetryRebind.dispositionContract?.failures || [];
     blockers.push({
       failureClass: 'backend-disposition',
       receipt: 'backend-status',
-      reason:
-        `telemetry backend is ${telemetryRebind.backend?.disposition || 'unknown'}; ` +
-        'complete metadata is required',
+      reason: telemetryRebind.passScope === TELEMETRY_BACKEND_DISPOSITION_PASS_SCOPE
+        ? `backend disposition row contract is unproven: ${
+            dispositionFailures.join('; ') || 'invalid or missing backend receipt'
+          }`
+        : `telemetry backend is ${telemetryRebind.backend?.disposition || 'unknown'}; ` +
+          'complete metadata is required',
     });
   }
   if (telemetryRebind.passBlockers?.requiredArtifacts) {
@@ -139,12 +223,12 @@ export function validateTelemetryRebind(value) {
     !/[\r\n]/u.test(entry) &&
     !/\bagent:[a-z0-9:_-]+\b/iu.test(entry) &&
     !/(?:^|[\s("'=])(?:\/home\/|\/root\/|~\/|[A-Za-z]:[\\/])/u.test(entry);
-  const exactKeys = (entry, keys, label) => {
+  const exactKeys = (entry, keys, label, optional = []) => {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
       failures.push(`${label} must be an object`);
       return;
     }
-    const expected = new Set(keys);
+    const expected = new Set([...keys, ...optional]);
     for (const key of Object.keys(entry)) {
       if (!expected.has(key)) failures.push(`${label} contains unknown key ${key}`);
     }
@@ -167,7 +251,7 @@ export function validateTelemetryRebind(value) {
     'requiredArtifacts',
     'missingRequiredArtifacts',
     'passBlockers',
-  ], 'telemetryRebind');
+  ], 'telemetryRebind', ['dispositionContract']);
   if (failures.length > 0) return { valid: false, failures };
   exactKeys(value.backend, [
     'file',
@@ -185,6 +269,53 @@ export function validateTelemetryRebind(value) {
     'requiredArtifacts',
     'rebind',
   ], 'telemetryRebind.passBlockers');
+  const hasDispositionContract = Object.hasOwn(value, 'dispositionContract');
+  if (value.passScope === TELEMETRY_BACKEND_DISPOSITION_PASS_SCOPE) {
+    if (!hasDispositionContract) {
+      failures.push('telemetryRebind.dispositionContract is required for disposition scope');
+    } else {
+      exactKeys(value.dispositionContract, [
+        'mode',
+        'status',
+        'requiredBackends',
+        'rowPassStatuses',
+        'requireNonAuthoritativeZero',
+        'requireCompleteRebind',
+        'failures',
+      ], 'telemetryRebind.dispositionContract');
+      if (value.dispositionContract.mode !== 'honest-backend-disposition') {
+        failures.push('telemetryRebind.dispositionContract.mode is invalid');
+      }
+      if (!['proven', 'unproven'].includes(value.dispositionContract.status)) {
+        failures.push('telemetryRebind.dispositionContract.status is invalid');
+      }
+      if (!Array.isArray(value.dispositionContract.requiredBackends) ||
+          !value.dispositionContract.requiredBackends.every((backend) =>
+            ['tempo', 'loki'].includes(backend))) {
+        failures.push('telemetryRebind.dispositionContract.requiredBackends is invalid');
+      }
+      if (!Array.isArray(value.dispositionContract.rowPassStatuses) ||
+          !value.dispositionContract.rowPassStatuses.every((status) =>
+            ['complete', 'partial', 'unavailable', 'capped', 'unknown'].includes(status))) {
+        failures.push('telemetryRebind.dispositionContract.rowPassStatuses is invalid');
+      }
+      for (const field of ['requireNonAuthoritativeZero', 'requireCompleteRebind']) {
+        if (value.dispositionContract[field] !== true) {
+          failures.push(`telemetryRebind.dispositionContract.${field} must be true`);
+        }
+      }
+      if (!Array.isArray(value.dispositionContract.failures) ||
+          !value.dispositionContract.failures.every(safeString)) {
+        failures.push('telemetryRebind.dispositionContract.failures must be public-safe');
+      }
+      if (value.passBlockers.backend !==
+          (value.dispositionContract.status !== 'proven')) {
+        failures.push('telemetryRebind backend blocker disagrees with disposition contract');
+      }
+    }
+  } else if (hasDispositionContract) {
+    failures.push('telemetryRebind.dispositionContract is only valid for disposition scope');
+  }
   for (const field of [
     'prerequisiteRows',
     'declaredRebindReceipts',
@@ -232,6 +363,11 @@ export function validateTelemetryRebind(value) {
   for (const field of ['backend', 'requiredArtifacts', 'rebind']) {
     if (typeof value.passBlockers[field] !== 'boolean') {
       failures.push(`telemetryRebind.passBlockers.${field} must be boolean`);
+    }
+  }
+  for (const field of ['validated', 'complete', 'countAuthority']) {
+    if (typeof value.backend[field] !== 'boolean') {
+      failures.push(`telemetryRebind.backend.${field} must be boolean`);
     }
   }
   return { valid: failures.length === 0, failures };

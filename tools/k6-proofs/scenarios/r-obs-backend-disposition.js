@@ -5,6 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import {
   buildTelemetryBackendStatusReceipt,
   classifyTelemetryBackendInteraction,
+  evaluateTelemetryBackendDispositionContract,
 } from '../lib/telemetry-backend-status.js';
 
 const ROW = 'R-OBS-BACKEND-DISPOSITION';
@@ -27,6 +28,12 @@ const REQUIRED = [
   'tempoApiStatus',
 ];
 const STATUS_NAMES = ['complete', 'partial', 'unavailable', 'capped', 'unknown'];
+const ROW_CONTRACT = {
+  requiredBackends: ['tempo', 'loki'],
+  rowPassStatuses: ['complete', 'partial', 'capped'],
+  requireNonAuthoritativeZero: true,
+  requireCompleteRebind: true,
+};
 
 const interactionsRun = new Counter('r_obs_backend_interactions');
 const disposition = Object.fromEntries(
@@ -379,22 +386,33 @@ export function handleSummary(data) {
   const controlsPass = STATUS_NAMES.every(
     (status) => classificationControls[status] === status,
   );
+  const dispositionContract = evaluateTelemetryBackendDispositionContract(
+    backendStatus,
+    ROW_CONTRACT,
+  );
+  const proofReceipts = {
+    'backend-completeness-receipt': backendStatus.interactions.length === 2 &&
+      ROW_CONTRACT.requiredBackends.every((backend) =>
+        backendStatus.interactions.filter((entry) => entry.backend === backend).length === 1),
+    'degraded-response-classified': controlsPass,
+    'rebind-key-set-published': backendStatus.rebind.complete,
+    'slice-strategy-recorded': controlsPass &&
+      backendStatus.interactions.every((entry) => entry.sliceStrategy.length > 0),
+  };
+  const rowContractPass = dispositionContract.status === 'proven' &&
+    Object.values(proofReceipts).every((present) => present === true);
   const summary = {
     row: ROW,
     sha: CANDIDATE_SHA || 'unset',
     seat: SEAT,
     timestamp: new Date().toISOString(),
-    verdict: backendStatus.complete ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: rowContractPass ? 'PASS-candidate' : 'PARTIAL-candidate',
     backendDisposition: backendStatus.status,
     backendComplete: backendStatus.complete,
+    backendCountAuthority: backendStatus.countAuthority,
+    dispositionContract,
     classificationControls,
-    proof_receipts: {
-      'backend-completeness-receipt': backendStatus.interactions.length === 2,
-      'degraded-response-classified': controlsPass,
-      'rebind-key-set-published': backendStatus.rebind.complete,
-      'slice-strategy-recorded': controlsPass &&
-        backendStatus.interactions.every((entry) => entry.sliceStrategy.length > 0),
-    },
+    proof_receipts: proofReceipts,
     metrics: data.metrics,
   };
   return {

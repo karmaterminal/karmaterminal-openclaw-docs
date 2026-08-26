@@ -2,6 +2,8 @@ export const TELEMETRY_BACKEND_STATUS_SCHEMA =
   'openclaw.k6.telemetry-backend-status.v1';
 export const TELEMETRY_BACKEND_INTERACTION_SCHEMA =
   'openclaw.k6.telemetry-backend-interaction.v1';
+export const TELEMETRY_BACKEND_DISPOSITION_PASS_SCOPE =
+  'backend-disposition-contract';
 export const TELEMETRY_BACKEND_STATUSES = Object.freeze([
   'complete',
   'partial',
@@ -17,6 +19,7 @@ const FINGERPRINT = /^[a-f0-9]{16}$/u;
 const SAFE_IDENTITY = /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/u;
 const SAFE_KEY = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
 const SAFE_ENV = /^[A-Z][A-Z0-9_]*$/u;
+const API_STATUS = /^(?:unavailable|http-(?:0|[1-9]\d{0,2}))$/u;
 const RECEIPT_KEYS = new Set([
   'schema',
   'rowId',
@@ -73,6 +76,20 @@ function safeIsoOrNull(value) {
   return Number.isFinite(parsed) && new Date(parsed).toISOString() === text
     ? text
     : null;
+}
+
+function isSafeIdentity(value) {
+  return typeof value === 'string' &&
+    value.length <= 256 &&
+    SAFE_IDENTITY.test(value) &&
+    !value.includes('..') &&
+    !/^file:/iu.test(value) &&
+    !/^(?:\/|~\/|[A-Za-z]:[\\/])/u.test(value);
+}
+
+function isNullableInteger(value) {
+  return value === null ||
+    (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0);
 }
 
 function firstInteger(...values) {
@@ -203,7 +220,7 @@ export function classifyTelemetryBackendInteraction({
   if (!['tempo', 'loki'].includes(backend)) {
     throw new Error(`unsupported telemetry backend: ${backend}`);
   }
-  if (typeof operation !== 'string' || !SAFE_IDENTITY.test(operation)) {
+  if (!isSafeIdentity(operation)) {
     throw new Error('telemetry backend operation must be a public-safe identifier');
   }
   if (!FINGERPRINT.test(String(queryFingerprint || ''))) {
@@ -212,7 +229,7 @@ export function classifyTelemetryBackendInteraction({
   if (!SAFE_ENV.test(String(backendBaseUrlEnv || ''))) {
     throw new Error('telemetry backend base URL must be named by a public-safe environment variable');
   }
-  if (typeof sliceStrategy !== 'string' || !SAFE_IDENTITY.test(sliceStrategy)) {
+  if (!isSafeIdentity(sliceStrategy)) {
     throw new Error('telemetry backend slice strategy must be a public-safe identifier');
   }
   const count = integerOrNull(resultCount);
@@ -363,11 +380,63 @@ function validateInteraction(interaction, requiredCompletenessKeys, index) {
     fail('interaction shape contains missing or unknown fields');
   }
   if (!['tempo', 'loki'].includes(interaction?.backend)) fail('invalid backend');
+  if (!isSafeIdentity(interaction?.operation)) fail('operation is not public-safe');
   if (!STATUS_SET.has(interaction?.status)) fail('invalid status');
+  if (!isNullableInteger(interaction?.httpStatus)) fail('invalid httpStatus');
+  if (!API_STATUS.test(interaction?.apiStatus || '')) fail('invalid apiStatus');
+  const expectedApiStatus = interaction?.httpStatus === null
+    ? 'unavailable'
+    : `http-${interaction.httpStatus}`;
+  if (interaction?.apiStatus !== expectedApiStatus) {
+    fail('apiStatus disagrees with httpStatus');
+  }
+  if (interaction?.tempoApiStatus !==
+      (interaction?.backend === 'tempo' ? interaction?.apiStatus : null)) {
+    fail('tempoApiStatus disagrees with backend/apiStatus');
+  }
+  if (interaction?.lokiApiStatus !==
+      (interaction?.backend === 'loki' ? interaction?.apiStatus : null)) {
+    fail('lokiApiStatus disagrees with backend/apiStatus');
+  }
+  for (const field of [
+    'totalBlocks',
+    'completedJobs',
+    'inspectedBytes',
+    'resultCount',
+    'resultLimit',
+  ]) {
+    if (!isNullableInteger(interaction?.[field])) fail(`invalid ${field}`);
+  }
+  if (typeof interaction?.resultCapped !== 'boolean') fail('resultCapped must be boolean');
+  if (typeof interaction?.zeroResultAuthoritative !== 'boolean') {
+    fail('zeroResultAuthoritative must be boolean');
+  }
   if (!FINGERPRINT.test(interaction?.queryFingerprint || '')) fail('invalid queryFingerprint');
   if (!SAFE_ENV.test(interaction?.backendBaseUrlEnv || '')) fail('invalid backendBaseUrlEnv');
+  if (!isSafeIdentity(interaction?.sliceStrategy)) fail('sliceStrategy is not public-safe');
+  for (const field of ['windowStartUtc', 'windowEndUtc']) {
+    if (interaction?.[field] !== null && safeIsoOrNull(interaction?.[field]) === null) {
+      fail(`${field} is not canonical ISO-8601`);
+    }
+  }
+  if ((interaction?.windowStartUtc === null) !== (interaction?.windowEndUtc === null)) {
+    fail('window bounds must both be present or both be null');
+  } else if (interaction?.windowStartUtc !== null &&
+      Date.parse(interaction.windowStartUtc) > Date.parse(interaction.windowEndUtc)) {
+    fail('windowStartUtc is after windowEndUtc');
+  }
+  if (interaction?.resultCapped === true && interaction?.status !== 'capped') {
+    fail('a capped result must use capped status');
+  }
+  if (interaction?.status === 'capped' && interaction?.resultCapped !== true) {
+    fail('capped status requires resultCapped=true');
+  }
   if (interaction?.zeroResultAuthoritative === true && interaction?.status !== 'complete') {
     fail('a non-complete response cannot authorize a zero result');
+  }
+  if (interaction?.zeroResultAuthoritative !==
+      (interaction?.status === 'complete' && interaction?.resultCount === 0)) {
+    fail('zeroResultAuthoritative disagrees with status/resultCount');
   }
   if (interaction?.status === 'complete' &&
       !hasAllCompleteness(interaction, requiredCompletenessKeys)) {
@@ -393,15 +462,21 @@ export function validateTelemetryBackendStatusReceipt(receipt, expected = {}) {
     fail('candidateSha must be null or a full lowercase SHA');
   }
   for (const key of ['seat', 'proofRunId']) {
-    if (typeof receipt[key] !== 'string' || !SAFE_IDENTITY.test(receipt[key])) {
+    if (!isSafeIdentity(receipt[key])) {
       fail(`${key} is not public-safe`);
     }
   }
   if (safeIsoOrNull(receipt.generatedAt) === null) fail('generatedAt is not canonical ISO-8601');
   if (!STATUS_SET.has(receipt.status)) fail('invalid aggregate status');
+  if (typeof receipt.complete !== 'boolean') fail('complete must be boolean');
+  if (typeof receipt.countAuthority !== 'boolean') {
+    fail('countAuthority must be boolean');
+  }
   if (!Array.isArray(receipt.requiredCompletenessKeys) ||
       receipt.requiredCompletenessKeys.length === 0 ||
-      !receipt.requiredCompletenessKeys.every((key) => SAFE_KEY.test(key))) {
+      !receipt.requiredCompletenessKeys.every((key) => SAFE_KEY.test(key)) ||
+      new Set(receipt.requiredCompletenessKeys).size !==
+        receipt.requiredCompletenessKeys.length) {
     fail('requiredCompletenessKeys must be a non-empty public-safe key list');
   }
   if (!Array.isArray(receipt.interactions)) {
@@ -429,8 +504,10 @@ export function validateTelemetryBackendStatusReceipt(receipt, expected = {}) {
       Object.keys(rebind || {}).some((key) => !REBIND_KEYS.has(key)) ||
       [...REBIND_KEYS].some((key) => !Object.hasOwn(rebind || {}, key)) ||
       !rebind.declaredKeys.every((key) => SAFE_KEY.test(key)) ||
+      new Set(rebind.declaredKeys).size !== rebind.declaredKeys.length ||
       !rebind.values || typeof rebind.values !== 'object' || Array.isArray(rebind.values) ||
       !Array.isArray(rebind.missingKeys) ||
+      new Set(rebind.missingKeys).size !== rebind.missingKeys.length ||
       rebind.complete !== (rebind.missingKeys.length === 0)) {
     fail('invalid rebind block');
   } else {
@@ -453,6 +530,12 @@ export function validateTelemetryBackendStatusReceipt(receipt, expected = {}) {
     if (Object.values(rebind.values).some(unsafeValue)) {
       fail('rebind values contain non-public material');
     }
+    if (Object.values(rebind.values).some((value) => {
+      const normalized = safeRebindValue(value);
+      return normalized === null || JSON.stringify(normalized) !== JSON.stringify(value);
+    })) {
+      fail('rebind values contain an unsupported public shape');
+    }
   }
   if (expected.requiredCompletenessKeys !== undefined &&
       JSON.stringify(receipt.requiredCompletenessKeys) !==
@@ -470,6 +553,86 @@ export function validateTelemetryBackendStatusReceipt(receipt, expected = {}) {
     }
   }
   return { valid: failures.length === 0, failures };
+}
+
+export function evaluateTelemetryBackendDispositionContract(receipt, contract = {}) {
+  const failures = [];
+  const requiredBackends = Array.isArray(contract.requiredBackends)
+    ? [...contract.requiredBackends]
+    : [];
+  const rowPassStatuses = Array.isArray(contract.rowPassStatuses)
+    ? [...contract.rowPassStatuses]
+    : [];
+  const unique = (values) => new Set(values).size === values.length;
+
+  if (requiredBackends.length === 0 ||
+      !unique(requiredBackends) ||
+      !requiredBackends.every((backend) => ['tempo', 'loki'].includes(backend))) {
+    failures.push('requiredBackends must be a unique non-empty Tempo/Loki list');
+  }
+  if (rowPassStatuses.length === 0 ||
+      !unique(rowPassStatuses) ||
+      !rowPassStatuses.every((status) => STATUS_SET.has(status))) {
+    failures.push('rowPassStatuses must be a unique non-empty backend-status list');
+  }
+  if (contract.requireNonAuthoritativeZero !== true) {
+    failures.push('requireNonAuthoritativeZero must be true');
+  }
+  if (contract.requireCompleteRebind !== true) {
+    failures.push('requireCompleteRebind must be true');
+  }
+
+  const validation = validateTelemetryBackendStatusReceipt(receipt);
+  failures.push(...validation.failures.map((failure) => `backend-status: ${failure}`));
+  if (validation.valid) {
+    const interactions = receipt.interactions;
+    for (const backend of requiredBackends) {
+      const count = interactions.filter((interaction) => interaction.backend === backend).length;
+      if (count !== 1) {
+        failures.push(`required backend ${backend} has ${count} interaction receipts`);
+      }
+    }
+    for (const interaction of interactions) {
+      if (!requiredBackends.includes(interaction.backend)) {
+        failures.push(`unexpected backend interaction: ${interaction.backend}`);
+      }
+      if (!rowPassStatuses.includes(interaction.status)) {
+        failures.push(
+          `${interaction.backend} disposition ${interaction.status} is not row-passable`,
+        );
+      }
+      if (interaction.status !== 'complete' &&
+          interaction.resultCount === 0 &&
+          interaction.zeroResultAuthoritative !== false) {
+        failures.push(
+          `${interaction.backend} degraded zero must remain non-authoritative`,
+        );
+      }
+    }
+    if (interactions.length !== requiredBackends.length) {
+      failures.push(
+        `expected ${requiredBackends.length} backend interactions, received ${interactions.length}`,
+      );
+    }
+    if (!rowPassStatuses.includes(receipt.status)) {
+      failures.push(`aggregate disposition ${receipt.status} is not row-passable`);
+    }
+    if (receipt.rebind.complete !== true) {
+      failures.push(
+        `rebind key set is incomplete: ${receipt.rebind.missingKeys.join(', ') || 'unknown'}`,
+      );
+    }
+  }
+
+  return {
+    mode: 'honest-backend-disposition',
+    status: failures.length === 0 ? 'proven' : 'unproven',
+    requiredBackends,
+    rowPassStatuses,
+    requireNonAuthoritativeZero: contract.requireNonAuthoritativeZero === true,
+    requireCompleteRebind: contract.requireCompleteRebind === true,
+    failures,
+  };
 }
 
 export function telemetryBackendStatusBlocksPass(receipt) {

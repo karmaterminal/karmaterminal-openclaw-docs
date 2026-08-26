@@ -264,6 +264,9 @@ const result = {
       backendStatus: 'backend-status.json',
       backendDisposition: backendStatus.status,
       backendComplete: backendStatus.complete,
+      backendCountAuthority: backendStatus.countAuthority,
+      dispositionContractStatus:
+        telemetryRebind.dispositionContract?.status || 'not-applicable',
     },
   } : {}),
   ...(telemetryBlockers.length > 0 ? {

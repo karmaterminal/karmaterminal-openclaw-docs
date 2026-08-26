@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 import { access, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { telemetryRebindFrom, telemetryPassBlockers } from '../lib/telemetry-rebind.js';
+import {
+  telemetryPassBlockers,
+  telemetryReceiptStatuses,
+  telemetryRebindFrom,
+} from '../lib/telemetry-rebind.js';
 import { ensureTelemetryBackendStatus } from './lib/telemetry-backend-status-store.mjs';
 
 function parseArgs(argv) {
@@ -107,6 +111,8 @@ function evidenceMarkdown({ manifest, metadata, result }) {
 - Verdict source: \`${result.verdictSource}\`
 - Backend disposition: \`${result.telemetryRebind?.backend?.disposition || 'not-required'}\`
 - Backend complete: ${result.telemetryRebind?.backend?.complete === true ? 'yes' : 'no'}
+- Backend count authority: ${result.telemetryRebind?.backend?.countAuthority === true ? 'yes' : 'no'}
+- Disposition row contract: \`${result.telemetryRebind?.dispositionContract?.status || 'not-applicable'}\`
 - Missing required artifacts: ${
   result.telemetryRebind?.missingRequiredArtifacts?.length
     ? result.telemetryRebind.missingRequiredArtifacts.map((name) => `\`${name}\``).join(', ')
@@ -172,7 +178,12 @@ async function receiptStatuses(manifest, runDir, runResult, backendStatus) {
     }
     statuses.push({ name, status: present ? 'present' : 'absent' });
   }
-  return statuses;
+  return telemetryReceiptStatuses({
+    manifest,
+    summary,
+    backendStatus,
+    fallback: statuses,
+  });
 }
 
 async function main() {
@@ -244,6 +255,9 @@ async function main() {
     backendStatus: 'backend-status.json',
     backendDisposition: backendStatus.status,
     backendComplete: backendStatus.complete,
+    backendCountAuthority: backendStatus.countAuthority,
+    dispositionContractStatus:
+      telemetryRebind.dispositionContract?.status || 'not-applicable',
   };
   await writeFile(runResultPath, `${JSON.stringify(runResult, null, 2)}\n`, { mode: 0o600 });
   await writeFile(path.join(runDir, 'row-result.json'), `${JSON.stringify(runResult, null, 2)}\n`, {
@@ -260,6 +274,9 @@ async function main() {
     verdict: runResult.verdict,
     backendDisposition: backendStatus.status,
     backendComplete: backendStatus.complete,
+    backendCountAuthority: backendStatus.countAuthority,
+    dispositionContractStatus:
+      telemetryRebind.dispositionContract?.status || 'not-applicable',
     blockers,
   })}\n`);
 }

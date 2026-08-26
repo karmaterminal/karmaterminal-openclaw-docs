@@ -117,7 +117,12 @@ new row defines all eight:
    response must carry, and the rebind key set.
 5. **Artifact schema** — `artifact.schema` and `artifact.requiredFiles[]`.
 6. **PASS/PARTIAL/FAIL authority** — `verdictAuthority`, including
-   `passScope`. `honestLimit` stays reserved for `R-RC-2`.
+   `passScope`. `behavioral-only` and
+   `behavioral-and-telemetry-rebindable` govern ordinary behavioral rows;
+   `backend-disposition-contract` is reserved for
+   `R-OBS-BACKEND-DISPOSITION` and carries its required backends, row-passable
+   statuses, non-authoritative-zero rule, and complete-rebind rule.
+   `honestLimit` stays reserved for `R-RC-2`.
 7. **Manual versus deterministic k6 relationship** — `execution`.
 8. **Whether product instrumentation is prerequisite** —
    `productInstrumentationPrerequisite` and, when true, `prerequisiteRows[]`.
@@ -151,13 +156,18 @@ harness infrastructure (exit 78) and never synthesizes a row verdict.
 - Any span/attribute with `emittedByProduct: false` must name a `productIssue`.
 - `backendUnavailable.disposition` may only be `PARTIAL-candidate` or
   `FAIL-candidate`, and `treatZeroAsAbsence` must be `false`.
+- `backend-disposition-contract` is reserved for
+  `R-OBS-BACKEND-DISPOSITION`. It requires exactly Tempo and Loki, permits row
+  PASS only for validated `complete`, `partial`, or `capped` status, requires
+  non-authoritative degraded zeros and complete rebind keys, and requires all
+  four row receipts in every manifest receipt list.
 - Each census remedy concern is owned by exactly one row.
 
 ## What the result pipeline refuses
 
 `scripts/postprocess-k6-summary.mjs` and `scripts/run-proofs.sh` write the same
-`telemetryRebind` block into telemetry-dependent row results. They withhold
-`PASS-candidate` when:
+`telemetryRebind` block into telemetry-dependent row results. Ordinary
+telemetry-dependent rows withhold `PASS-candidate` when:
 
 - a receipt required by either manifest receipt list is explicitly missing;
 - blocking/rebindable telemetry receipts are not proven;
@@ -165,6 +175,25 @@ harness infrastructure (exit 78) and never synthesizes a row verdict.
   or `unknown`;
 - any file declared in `telemetryContract.artifact.requiredFiles` is absent or
   empty.
+
+`R-OBS-BACKEND-DISPOSITION` has a narrower backend blocker because backend
+health is the subject being classified. Its `telemetryRebind` block carries
+both levels:
+
+- `backend.disposition`, `backend.complete`, and `backend.countAuthority`
+  preserve Tempo/Loki health exactly as observed;
+- `dispositionContract.status` records whether the row's classification
+  contract is `proven`.
+
+A validated `partial` or `capped` backend may therefore produce a row
+`PASS-candidate` while `backend.complete=false` and `countAuthority=false`.
+That PASS requires exactly one Tempo and one Loki receipt, all five classifier
+controls, all four required receipts, public-safe fields, non-authoritative
+degraded zeros, and a complete rebind key set. Missing/invalid receipts,
+`unknown`/`unavailable` disposition, failed queries, contradictory count
+authority, unsafe data, missing controls, or incomplete rebind still withhold
+PASS. The same partial/capped receipt continues to block ordinary telemetry
+rows.
 
 Rows with signed authoritative receipts keep those receipts as the sole
 positive behavior authority. Backend and artifact policy may withhold that
@@ -188,8 +217,11 @@ Raw response bodies, log lines, headers, endpoint URLs, session keys, and
 process output are forbidden. An HTTP 200 response with no completeness
 metadata is `unknown`, never a healthy zero. A result at the backend limit is
 `capped`; its slice strategy is retained and its count has no authority.
-Candidate-envelope validation re-reads the receipt and siblings, so a
-hand-edited sidecar cannot suppress the raw non-PASS.
+Candidate-envelope validation re-reads the receipt, normalized summary, four
+receipt assertions, required artifacts, and siblings. It binds backend
+disposition, backend completeness, count authority, and disposition-contract
+status independently, so a hand-edited sidecar cannot turn row PASS into a
+backend-health or count claim.
 
 ## Publishing evidence for a future product PR
 

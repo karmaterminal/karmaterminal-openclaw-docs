@@ -282,7 +282,40 @@
           "required": ["passScope", "pass", "partial", "fail"],
           "properties": {
             "passScope": {
-              "enum": ["behavioral-only", "behavioral-and-telemetry-rebindable"]
+              "enum": [
+                "behavioral-only",
+                "behavioral-and-telemetry-rebindable",
+                "backend-disposition-contract"
+              ]
+            },
+            "backendDispositionContract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requiredBackends",
+                "rowPassStatuses",
+                "requireNonAuthoritativeZero",
+                "requireCompleteRebind"
+              ],
+              "properties": {
+                "requiredBackends": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "enum": ["tempo", "loki"] }
+                },
+                "rowPassStatuses": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": ["complete", "partial", "unavailable", "capped", "unknown"]
+                  }
+                },
+                "requireNonAuthoritativeZero": { "const": true },
+                "requireCompleteRebind": { "const": true }
+              },
+              "description": "Two-level verdict policy used only by R-OBS-BACKEND-DISPOSITION. It may accept an honest degraded status as a row-contract PASS without changing backend health or count authority."
             },
             "pass": { "type": "string", "minLength": 1 },
             "partial": { "type": "string", "minLength": 1 },

@@ -223,15 +223,23 @@ later. Rows record that gap explicitly rather than implying it is absent:
   on and whether the product emits them today;
 - `row-result.json` carries a `telemetryRebind` block with the unproven rebind
   receipts on both the single-summary and row-list paths;
-- every Tempo/Loki interaction writes `backend-status.json`; a non-complete
-  disposition or a missing declared telemetry artifact withholds PASS;
+- every Tempo/Loki interaction writes `backend-status.json`; ordinary
+  telemetry-dependent rows require complete backend metadata, while
+  `R-OBS-BACKEND-DISPOSITION` may PASS its own honest-disposition contract on a
+  valid partial/capped receipt without changing backend health or count
+  authority;
 - a row may only claim `rebindable:true` (and the
   `behavioral-and-telemetry-rebindable` pass scope) when origin, session, turn,
   run identity and the proof-run marker are all product-emitted. No committed
-  row can today, so every committed row is `behavioral-only`.
+  row can today. `R-OBS-BACKEND-DISPOSITION` uses the separate
+  `backend-disposition-contract` pass scope; every other committed telemetry
+  row remains `behavioral-only`.
 
 Backend degradation is dispositioned by contract: `PARTIAL-candidate` or
-`FAIL-candidate`, never a PASS and never a zero-means-absent finding.
+`FAIL-candidate`, never backend-health PASS and never a zero-means-absent
+finding. A row-level `PASS-candidate` for `R-OBS-BACKEND-DISPOSITION` proves
+that this classification, its four receipts, public safety, and rebind keys are
+complete; it does not claim Tempo/Loki or their counts are complete.
 
 ## Accepted-compaction boundary (#331)
 

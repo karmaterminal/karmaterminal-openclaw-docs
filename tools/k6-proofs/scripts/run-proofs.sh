@@ -1351,6 +1351,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
           --seat "$OPENCLAW_SEAT_NAME" \
           --proof-run-id "$RUN_ID" \
+          --manifest "$MANIFEST_FILE" \
           > "$RUN_DIR/tempo-trace-receipt.json" \
           2> "$RUN_DIR/tempo-trace-error.log"; then
         TRACE_STATUS="present"

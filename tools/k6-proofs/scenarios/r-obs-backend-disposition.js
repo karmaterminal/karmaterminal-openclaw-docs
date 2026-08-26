@@ -94,6 +94,12 @@ function responseJson(response) {
   } catch {
     return null;
   }
+
+  function lokiResultCount(json) {
+    const result = Array.isArray(json?.data?.result) ? json.data.result : [];
+    return result.reduce((count, entry) =>
+      count + (Array.isArray(entry?.values) ? entry.values.length : 1), 0);
+  }
 }
 
 function queryTempo() {
@@ -162,7 +168,7 @@ function queryLoki() {
     responseParsed: json !== null,
     httpStatus: response.status,
     responseJson: json,
-    resultCount: Array.isArray(json?.data?.result) ? json.data.result.length : 0,
+    resultCount: lokiResultCount(json),
     resultLimit: 5000,
     resultCapped: /max_entries_limit|maximum[^a-z]+limit|limit[^a-z]+exceed/i.test(body),
     queryFingerprint,

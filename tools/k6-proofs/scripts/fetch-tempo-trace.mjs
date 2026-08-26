@@ -35,7 +35,7 @@ function parseArgs(argv, env = process.env) {
     const arg = argv[i];
     if (['--trace-id', '--run-dir', '--traceql', '--tempo-url', '--start', '--end',
       '--out', '--backend-status', '--row', '--candidate-sha', '--seat',
-      '--proof-run-id'].includes(arg)) {
+      '--proof-run-id', '--manifest'].includes(arg)) {
       const value = argv[i + 1];
       if (!value || value.startsWith('--')) throw new Error(`missing value for ${arg}`);
       out[arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
@@ -71,7 +71,7 @@ async function traceIdFromRunDir(runDir) {
 }
 
 
-function statusContext(args, backendStatusPath, queryFingerprint) {
+function statusContext(args, backendStatusPath, queryFingerprint, manifest) {
   const candidateSha = /^[a-f0-9]{40}$/u.test(args.candidateSha || '')
     ? args.candidateSha
     : null;
@@ -79,6 +79,28 @@ function statusContext(args, backendStatusPath, queryFingerprint) {
   const seat = args.seat || 'unbound';
   const proofRunId = args.proofRunId ||
     (args.runDir ? path.basename(path.resolve(args.runDir)) : 'standalone');
+  const backendContract = manifest?.telemetryContract?.backendUnavailable || {};
+  const requiredCompletenessKeys = backendContract.requiredCompletenessKeys || [
+    'totalBlocks',
+    'completedJobs',
+    'inspectedBytes',
+    'tempoApiStatus',
+  ];
+  const rebindKeys = backendContract.rebindKeys || [
+    'candidate_sha',
+    'row_id',
+    'seat',
+    'run_id',
+    'query_fingerprint',
+  ];
+  const knownRebindValues = {
+    ...(candidateSha ? { candidate_sha: candidateSha } : {}),
+    row_id: rowId,
+    seat,
+    run_id: proofRunId,
+    proof_run_id: proofRunId,
+    query_fingerprint: queryFingerprint,
+  };
   return {
     file: backendStatusPath,
     value: {
@@ -86,26 +108,13 @@ function statusContext(args, backendStatusPath, queryFingerprint) {
       candidateSha,
       seat,
       proofRunId,
-      requiredCompletenessKeys: [
-        'totalBlocks',
-        'completedJobs',
-        'inspectedBytes',
-        'tempoApiStatus',
-      ],
-      rebindKeys: [
-        'candidate_sha',
-        'row_id',
-        'seat',
-        'run_id',
-        'query_fingerprint',
-      ],
-      rebindValues: {
-        ...(candidateSha ? { candidate_sha: candidateSha } : {}),
-        row_id: rowId,
-        seat,
-        run_id: proofRunId,
-        query_fingerprint: queryFingerprint,
-      },
+      requiredCompletenessKeys,
+      rebindKeys,
+      rebindValues: Object.fromEntries(
+        rebindKeys
+          .filter((key) => Object.hasOwn(knownRebindValues, key))
+          .map((key) => [key, knownRebindValues[key]]),
+      ),
     },
   };
 }
@@ -229,6 +238,9 @@ async function main() {
   const queryFingerprint = fingerprintTelemetryQuery(
     args.traceql || `trace:${args.traceId || args.runDir || 'run-dir'}`,
   );
+  const manifest = args.manifest
+    ? JSON.parse(await readFile(path.resolve(args.manifest), 'utf8'))
+    : null;
   const backendStatusPath = path.resolve(
     args.backendStatus ||
     path.join(
@@ -240,7 +252,12 @@ async function main() {
       'backend-status.json',
     ),
   );
-  const status = statusContext(args, backendStatusPath, queryFingerprint);
+  const status = statusContext(
+    args,
+    backendStatusPath,
+    queryFingerprint,
+    manifest,
+  );
   const traceId = safeTraceId(args.traceId || (args.runDir
     ? await traceIdFromRunDir(args.runDir)
     : await traceIdFromTraceql(

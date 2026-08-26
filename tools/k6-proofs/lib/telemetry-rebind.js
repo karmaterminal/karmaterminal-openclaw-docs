@@ -134,6 +134,11 @@ export function telemetryPassBlockers(telemetryRebind) {
 
 export function validateTelemetryRebind(value) {
   const failures = [];
+  const safeString = (entry) =>
+    typeof entry === 'string' && entry.length > 0 && entry.length <= 256 &&
+    !/[\r\n]/u.test(entry) &&
+    !/\bagent:[a-z0-9:_-]+\b/iu.test(entry) &&
+    !/(?:^|[\s("'=])(?:\/home\/|\/root\/|~\/|[A-Za-z]:[\\/])/u.test(entry);
   const exactKeys = (entry, keys, label) => {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
       failures.push(`${label} must be an object`);
@@ -183,17 +188,46 @@ export function validateTelemetryRebind(value) {
   for (const field of [
     'prerequisiteRows',
     'declaredRebindReceipts',
-    'unprovenRebindReceipts',
-    'requiredArtifacts',
     'missingRequiredArtifacts',
   ]) {
-    if (!Array.isArray(value[field])) failures.push(`telemetryRebind.${field} must be an array`);
+    if (!Array.isArray(value[field]) || !value[field].every(safeString)) {
+      failures.push(`telemetryRebind.${field} must be a public-safe string array`);
+    }
+  }
+  for (const [field, statuses] of [
+    ['unprovenRebindReceipts', new Set(['present', 'missing', 'unknown', 'absent'])],
+    ['requiredArtifacts', new Set(['present', 'missing'])],
+  ]) {
+    if (!Array.isArray(value[field])) {
+      failures.push(`telemetryRebind.${field} must be an array`);
+      continue;
+    }
+    for (const entry of value[field]) {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry) ||
+          Object.keys(entry).length !== 2 ||
+          !Object.hasOwn(entry, 'name') || !Object.hasOwn(entry, 'status') ||
+          !safeString(entry.name) || !statuses.has(entry.status)) {
+        failures.push(`telemetryRebind.${field} contains an invalid entry`);
+      }
+    }
   }
   if (!['proven', 'unproven'].includes(value.status)) {
     failures.push('telemetryRebind.status is invalid');
   }
   if (value.backend.file !== 'backend-status.json') {
     failures.push('telemetryRebind.backend.file must be backend-status.json');
+  }
+  for (const field of [
+    'requiredCompletenessKeys',
+    'declaredRebindKeys',
+    'missingRebindKeys',
+    'validationFailures',
+  ]) {
+    if (!Array.isArray(value.backend[field]) ||
+        !value.backend[field].every((entry) =>
+          typeof entry === 'string' && entry.length <= 256 && !/[\r\n]/u.test(entry))) {
+      failures.push(`telemetryRebind.backend.${field} must be a public-safe string array`);
+    }
   }
   for (const field of ['backend', 'requiredArtifacts', 'rebind']) {
     if (typeof value.passBlockers[field] !== 'boolean') {

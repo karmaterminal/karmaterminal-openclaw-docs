@@ -218,6 +218,9 @@ async function requireTelemetryArtifacts(manifest, metadata, runResult, candidat
     candidateSha: metadata.candidateSha,
     seat: metadata.seat,
     proofRunId: path.basename(candidateDir),
+    requiredCompletenessKeys:
+      manifest.telemetryContract.backendUnavailable.requiredCompletenessKeys,
+    rebindKeys: manifest.telemetryContract.backendUnavailable.rebindKeys,
   });
   if (!backendValidation.valid) {
     throw new Error(

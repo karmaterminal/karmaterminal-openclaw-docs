@@ -185,6 +185,9 @@ if (manifest?.telemetryContract) {
     backendStatus = JSON.parse(readFileSync(args['backend-status'], 'utf8'));
     const validation = validateTelemetryBackendStatusReceipt(backendStatus, {
       rowId: args.row,
+      requiredCompletenessKeys:
+        manifest.telemetryContract.backendUnavailable.requiredCompletenessKeys,
+      rebindKeys: manifest.telemetryContract.backendUnavailable.rebindKeys,
     });
     if (!validation.valid) {
       throw new Error(

@@ -53,7 +53,7 @@ function correlation(overrides = {}) {
   };
 }
 
-function completeBackendStatus() {
+function completeBackendStatus(rebindKeys) {
   const requiredCompletenessKeys = [
     'totalBlocks',
     'completedJobs',
@@ -66,7 +66,10 @@ function completeBackendStatus() {
     seat: 'unit',
     proofRunId: 'unit',
     requiredCompletenessKeys,
-    rebindKeys: [],
+    rebindKeys,
+    rebindValues: Object.fromEntries(
+      rebindKeys.map((name) => [name, '1'.repeat(16)]),
+    ),
     interactions: [classifyTelemetryBackendInteraction({
       backend: 'tempo',
       operation: 'search',
@@ -219,7 +222,13 @@ test('R-CD-2 writer and postprocessor accept only the authoritative receipt', as
     await writeFile(receiptPath, JSON.stringify(receipt));
     await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"row":"R-CD-2","redacted_events":[]}\n--- END EVIDENCE ---\n');
     await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
-    await writeFile(backendPath, JSON.stringify(completeBackendStatus()));
+    const rowManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    await writeFile(
+      backendPath,
+      JSON.stringify(
+        completeBackendStatus(rowManifest.telemetryContract.backendUnavailable.rebindKeys),
+      ),
+    );
     await writeFile(readinessPath, '{"outcome":"PASS"}\n');
     const env = { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey };
     const writer = await execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40), '--manifest', manifestPath, '--authoritative-receipt', receiptPath, '--backend-status', backendPath, '--seat-readiness', readinessPath], { cwd: dir, env });

@@ -50,8 +50,18 @@ function instant(value) {
     const millis = String(value).length > 13 ? numeric / 1_000_000 : numeric * 1000;
     return new Date(millis).toISOString();
   }
+
   const parsed = Date.parse(String(value));
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
+}
+
+function lokiResultCount(json) {
+  const result = Array.isArray(json?.data?.result) ? json.data.result : [];
+  return result.reduce((count, entry) => {
+    if (Array.isArray(entry?.values)) return count + entry.values.length;
+    if (Array.isArray(entry?.value)) return count + 1;
+    return count + 1;
+  }, 0);
 }
 
 function context(args, queryFingerprint) {
@@ -155,6 +165,7 @@ async function main() {
     json = null;
   }
   const result = Array.isArray(json?.data?.result) ? json.data.result : [];
+  const resultCount = lokiResultCount(json);
   const resultCapped =
     /max_entries_limit|maximum[^a-z]+limit|limit[^a-z]+exceed/iu.test(text);
   const interaction = classifyTelemetryBackendInteraction({
@@ -163,7 +174,7 @@ async function main() {
     httpStatus: response.status,
     responseParsed: json !== null,
     responseJson: json,
-    resultCount: result.length,
+    resultCount,
     resultLimit: args.limit,
     resultCapped,
     queryFingerprint,
@@ -185,7 +196,7 @@ async function main() {
   const receipt = {
     schema: 'openclaw.k6.loki-query-fetch.v1',
     queryFingerprint,
-    resultCount: result.length,
+    resultCount,
     backendStatus: path.basename(backendStatusPath),
     backendDisposition: backendStatus.status,
     backendComplete: backendStatus.complete,

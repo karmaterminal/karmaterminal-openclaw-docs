@@ -32,6 +32,9 @@ function assertIdentity(receipt, context) {
   if (!sameArray(receipt.requiredCompletenessKeys, context.requiredCompletenessKeys)) {
     throw new Error('backend-status required completeness keys changed mid-run');
   }
+  if (!sameArray(receipt.rebind?.declaredKeys, context.rebindKeys)) {
+    throw new Error('backend-status rebind keys changed mid-run');
+  }
 }
 
 async function atomicWrite(file, receipt) {

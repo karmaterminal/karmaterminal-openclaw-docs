@@ -154,6 +154,14 @@ test('store refuses corrupt persistence and cross-run identity reuse', async () 
       ),
       /identity mismatch/,
     );
+    await assert.rejects(
+      recordTelemetryBackendInteraction(
+        file,
+        { ...context, rebindKeys: ['different_key'] },
+        interaction(),
+      ),
+      /rebind keys changed/,
+    );
   } finally {
     await rm(root, { recursive: true, force: true });
   }

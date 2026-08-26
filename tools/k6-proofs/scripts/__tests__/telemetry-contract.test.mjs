@@ -118,19 +118,15 @@ function manifestFixture(contractOverrides = {}, manifestOverrides = {}) {
 }
 
 async function writeCompleteBackend(dir, rowId = 'PREFLIGHT') {
-  const requiredCompletenessKeys = [
-    'totalBlocks',
-    'completedJobs',
-    'inspectedBytes',
-    'tempoApiStatus',
-  ];
+  const requiredCompletenessKeys = ['totalBlocks'];
   const receipt = buildTelemetryBackendStatusReceipt({
     rowId,
     candidateSha: null,
     seat: 'unit',
     proofRunId: 'postprocess-unit',
     requiredCompletenessKeys,
-    rebindKeys: [],
+    rebindKeys: ['candidate_sha'],
+    rebindValues: { candidate_sha: 'a'.repeat(40) },
     interactions: [classifyTelemetryBackendInteraction({
       backend: 'tempo',
       operation: 'search',

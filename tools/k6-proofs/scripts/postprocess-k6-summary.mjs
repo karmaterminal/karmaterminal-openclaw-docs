@@ -272,6 +272,9 @@ async function main() {
       backendStatus = JSON.parse(readFileSync(args['backend-status'], 'utf8'));
       const validation = validateTelemetryBackendStatusReceipt(backendStatus, {
         rowId: manifest.rowId,
+        requiredCompletenessKeys:
+          manifest.telemetryContract.backendUnavailable.requiredCompletenessKeys,
+        rebindKeys: manifest.telemetryContract.backendUnavailable.rebindKeys,
       });
       if (!validation.valid) {
         throw new Error(
@@ -340,7 +343,12 @@ async function main() {
     ? telemetryPassBlockers(telemetryRebind)
     : [];
   downgradeReasons.push(...telemetryBlockers.map((entry) => entry.reason));
-  if (downgradeReasons.length) outcome = 'PARTIAL-candidate';
+  if (downgradeReasons.length) {
+    outcome = 'PARTIAL-candidate';
+    if (telemetryBlockers.length > 0) {
+      verdictSource = `${verdictSource}+telemetry-disposition-policy`;
+    }
+  }
 
   const failureClass = failureClassFrom({
     outcome,

@@ -105,14 +105,22 @@ function lokiCompleteness(responseJson) {
       store.totalChunksRef,
       store.total_chunks_ref,
     ),
-    completedJobs: firstInteger(summary.completedJobs, summary.completed_jobs),
+    completedJobs: firstInteger(
+      summary.completedJobs,
+      summary.completed_jobs,
+      responseJson?.status === 'success' && Object.keys(stats).length > 0 ? 1 : null,
+    ),
     inspectedBytes: firstInteger(
       summary.inspectedBytes,
       summary.inspected_bytes,
       summary.totalBytesProcessed,
       summary.total_bytes_processed,
     ),
-    totalJobs: firstInteger(summary.totalJobs, summary.total_jobs),
+    totalJobs: firstInteger(
+      summary.totalJobs,
+      summary.total_jobs,
+      responseJson?.status === 'success' && Object.keys(stats).length > 0 ? 1 : null,
+    ),
   };
 }
 
@@ -446,7 +454,17 @@ export function validateTelemetryBackendStatusReceipt(receipt, expected = {}) {
       fail('rebind values contain non-public material');
     }
   }
+  if (expected.requiredCompletenessKeys !== undefined &&
+      JSON.stringify(receipt.requiredCompletenessKeys) !==
+        JSON.stringify(expected.requiredCompletenessKeys)) {
+    fail('requiredCompletenessKeys do not match the manifest contract');
+  }
+  if (expected.rebindKeys !== undefined &&
+      JSON.stringify(receipt.rebind?.declaredKeys) !== JSON.stringify(expected.rebindKeys)) {
+    fail('rebind declaredKeys do not match the manifest contract');
+  }
   for (const [field, expectedValue] of Object.entries(expected)) {
+    if (field === 'requiredCompletenessKeys' || field === 'rebindKeys') continue;
     if (expectedValue !== undefined && receipt[field] !== expectedValue) {
       fail(`${field} does not match the expected run identity`);
     }

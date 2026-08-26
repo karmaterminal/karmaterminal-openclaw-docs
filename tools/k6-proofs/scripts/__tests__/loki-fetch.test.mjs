@@ -30,7 +30,7 @@ test('writes a complete public-safe Loki backend receipt', async () => {
         status: 'success',
         data: {
           resultType: 'streams',
-          result: [],
+          result: [{ stream: { job: 'openclaw' }, values: [['1', 'a'], ['2', 'b']] }],
           stats: {
             summary: {
               totalBlocks: 2,
@@ -58,8 +58,9 @@ test('writes a complete public-safe Loki backend receipt', async () => {
       const receipt = JSON.parse(stdout);
       assert.equal(receipt.backendDisposition, 'complete');
       assert.equal(receipt.backendComplete, true);
+      assert.equal(receipt.resultCount, 2);
       const status = JSON.parse(await readFile(backend, 'utf8'));
-      assert.equal(status.interactions[0].zeroResultAuthoritative, true);
+      assert.equal(status.interactions[0].zeroResultAuthoritative, false);
       assert.doesNotMatch(JSON.stringify(status), /job="openclaw"/);
     });
   } finally {

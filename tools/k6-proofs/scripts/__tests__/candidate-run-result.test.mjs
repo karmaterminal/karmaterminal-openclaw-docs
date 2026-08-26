@@ -253,6 +253,26 @@ test('candidate envelope binds backend status and telemetry rebind siblings', as
       runResult: result,
       runDir: setup.candidateDir,
     }), true);
+    const smuggled = {
+      ...envelope,
+      telemetryRebind: {
+        ...envelope.telemetryRebind,
+        requiredArtifacts: [{
+          name: 'backend-status.json',
+          status: 'present',
+          rawResponse: 'not-public',
+        }],
+      },
+    };
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope: smuggled,
+      manifest: manifestValue,
+      metadata: JSON.parse(
+        await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'),
+      ),
+      runResult: result,
+      runDir: setup.candidateDir,
+    }), false);
 
     const unknown = buildTelemetryBackendStatusReceipt({
       rowId: 'R-CW-TEST',

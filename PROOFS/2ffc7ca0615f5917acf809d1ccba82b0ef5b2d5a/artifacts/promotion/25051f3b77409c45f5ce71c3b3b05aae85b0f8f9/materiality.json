@@ -112,16 +112,25 @@
   "proof_sensitive_input_comparison": {
     "continuation_source_slices": {
       "system_prompt_continuation_sha256": {
+        "source_path": "src/agents/system-prompt.ts",
+        "ancestor_blob": "f2c3f3b959f533ba25e67c73a2dd507a85c729d8",
+        "candidate_blob": "1aed2ad2235b8b52987c7c5ecd9917ecd40c73be",
         "proof": "a07e924ebc1fb471938d74b1677ad66e2c98d9073bfb30a2768681c37496f82e",
         "candidate": "a07e924ebc1fb471938d74b1677ad66e2c98d9073bfb30a2768681c37496f82e",
         "equal": true
       },
       "embedded_prompt_forwarding_sha256": {
+        "source_path": "src/agents/embedded-agent-runner/system-prompt.ts",
+        "ancestor_blob": "c4625e8bb0a94611047f36f88ae579eab1a2c34b",
+        "candidate_blob": "5025f8387471559d76d5dc70c3bff58c13dd4e17",
         "proof": "6e39f9929ec1d20c97f4e00c437b6266feb124a849947ab212f19d721d7e35d4",
         "candidate": "6e39f9929ec1d20c97f4e00c437b6266feb124a849947ab212f19d721d7e35d4",
         "equal": true
       },
       "attempt_prompt_enablement_sha256": {
+        "source_path": "src/agents/embedded-agent-runner/run/attempt.ts",
+        "ancestor_blob": "c51161e8ed14bc15a467e352f725987e222c29a0",
+        "candidate_blob": "86252084ff2c368875ef1a38b5d6dbd67baabcb3",
         "proof": "1d6fdcd01148fadaabfc580052d83ea8ac258499950467915d17e604a548f2ad",
         "candidate": "1d6fdcd01148fadaabfc580052d83ea8ac258499950467915d17e604a548f2ad",
         "equal": true
@@ -195,6 +204,33 @@
     },
     "inherited_first_parent_files": 312,
     "conflict_resolution_files": 4
+  },
+  "published_receipts": {
+    "owner_686": {
+      "path": "owner-686.log",
+      "sha256": "39f2b50e343cdad9206e0dd9ec706692284d06582ffe3027b44ee0fe60a56d88",
+      "files": 11,
+      "assertions": 686,
+      "result": "pass"
+    },
+    "scribe_subset_544": {
+      "path": "affected-slice.log",
+      "sha256": "669b1b1019ebc553daf4ad11fff5d7aaf2fd007dcc17401f8294cfbd332b0cf5",
+      "files": 11,
+      "assertions": 544,
+      "result": "pass"
+    },
+    "static_types_build": {
+      "path": "static-types-build.log",
+      "sha256": "90877c78b536dbdbf072f9052ab697a1b0c12c7c69a1c5fa8e2d411bce55cc94",
+      "commands": [
+        "pnpm tsgo:prod",
+        "pnpm check:test-types",
+        "pnpm build"
+      ],
+      "result": "pass",
+      "tracked_status": 0
+    }
   },
   "ci_path": "focused-only",
   "verdict": "affected-slice-rerun",

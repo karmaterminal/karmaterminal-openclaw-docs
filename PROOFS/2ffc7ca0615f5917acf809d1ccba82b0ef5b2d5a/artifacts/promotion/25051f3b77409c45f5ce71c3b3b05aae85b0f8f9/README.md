@@ -17,5 +17,10 @@ objects before presentation credit is granted.
 
 | Artifact | SHA-256 |
 |---|---|
-| `materiality.json` | `57eb2921217f7513f414d9e6bef2e25835c2eaf3522e89975c91ffdf7f3ad3e0` |
 | `affected-slice.log` | `669b1b1019ebc553daf4ad11fff5d7aaf2fd007dcc17401f8294cfbd332b0cf5` |
+| `owner-686.log` | `39f2b50e343cdad9206e0dd9ec706692284d06582ffe3027b44ee0fe60a56d88` |
+| `static-types-build.log` | `90877c78b536dbdbf072f9052ab697a1b0c12c7c69a1c5fa8e2d411bce55cc94` |
+
+`materiality.json` binds the three proof-sensitive hashes to their source
+paths and ancestor/warm blob OIDs, and binds every claimed validation result to
+the raw receipt and its digest. Its own digest is recorded in `SHA256SUMS`.

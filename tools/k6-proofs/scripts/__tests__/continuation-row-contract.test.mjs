@@ -150,6 +150,176 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
   }
 }
 
+async function runChainRunnerFixture() {
+  const root = await mkdtemp(path.join(tmpdir(), 'r-cd-chain-runner-contract-'));
+  const bin = path.join(root, 'bin');
+  const out = path.join(root, 'out');
+  await Promise.all([mkdir(bin, { recursive: true }), mkdir(out, { recursive: true })]);
+  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  const manifest = JSON.parse(
+    await readFile(path.join(manifestsDir, 'r-cd-chained-depth-2.json'), 'utf8'),
+  );
+  const nonce = 'R-CD-CHAIN-RUNNER-CONTRACT-NONCE';
+  const reason = manifest.invocation.promptTemplate.replaceAll('{{nonce}}', nonce);
+  const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
+  const rootSessionKey = 'agent:main:runner-chain-root';
+  const childSessionKey = 'agent:main:subagent:runner-chain-child';
+  const grandchildSessionKey = 'agent:main:subagent:runner-chain-grandchild';
+  const taskLedger = {
+    schema: 'openclaw.k6.r-cd-chained-depth-2.task-ledger.v1',
+    nonce,
+    rootSessionKey,
+    childSessionKey,
+    grandchildSessionKey,
+    taskIds: ['runner-chain-task-child', 'runner-chain-task-grandchild'],
+    runIds: ['runner-chain-run-child', 'runner-chain-run-grandchild'],
+    taskCount: 2,
+    completedTaskCount: 2,
+    deliveredTaskCount: 2,
+    maxDepth: 2,
+    recoveryWakeScheduled: true,
+    dispatchAcceptedAtMs: 50,
+    completedAtMs: 100,
+  };
+  const evidence = {
+    row: 'R-CD-CHAINED-DEPTH-2',
+    nonce,
+    candidateSha,
+    runtimeBuildSha: candidateSha,
+    started: new Date().toISOString(),
+    ended: new Date().toISOString(),
+    dispatch_accepted_at_ms: Date.now(),
+    session_created: true,
+    parent_dispatch_accepted: true,
+    dispatch_run_captured: true,
+    accepted_dispatch_run_id: 'runner-chain-dispatch',
+    task_pagination_exhausted: true,
+    tasks_list_rejected: 0,
+    task_snapshot_stable_count: 2,
+    task_snapshot_digest: 'a'.repeat(16),
+    child_spawned: true,
+    grandchild_spawned: true,
+    child_waiting_sentinel: true,
+    depth1_recovery_wake_scheduled: true,
+    child_done_sentinel: true,
+    grandchild_done_sentinel: true,
+    chain_return_received: true,
+    max_depth_observed: 2,
+    child_session: childSessionKey,
+    grandchild_session: grandchildSessionKey,
+    reason_hash: reasonHash,
+    reason_length: reason.length,
+    delegate_mode: 'silent-wake',
+    task_ledger_receipt: taskLedger,
+    root_return_receipt: {
+      authority: 'structured-post-return-consumption',
+      rootSessionKey,
+      nonce,
+      childSessionKey,
+      grandchildSessionKey,
+      taskIds: taskLedger.taskIds,
+      runIds: taskLedger.runIds,
+      consumptionRunId: 'runner-chain-consumption',
+      taskCompletedAtMs: 100,
+      consumptionRunStartedAtMs: 101,
+      consumptionInputAtMs: 102,
+      consumptionAcceptedAtMs: 103,
+      consumptionTerminalAtMs: 104,
+      inputMessageSeq: 10,
+      acceptedMessageSeq: 11,
+      assistantSentinelObserved: false,
+    },
+    redacted_events: [{
+      ts: Date.now(),
+      kind: 'response',
+      method: 'tasks.list',
+      event: null,
+      ok: true,
+      data: null,
+    }],
+  };
+  const trace = rcd2Trace({ reasonHash, reasonLength: reason.length });
+  const tempo = await listen((req, res) => {
+    if (req.url.startsWith('/health') || req.url.startsWith('/status')) {
+      res.writeHead(200).end('{}');
+    } else if (req.url.startsWith('/api/search')) {
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        traces: [{ traceID: traceId }],
+        metrics: {
+          totalBlocks: 1,
+          completedJobs: 1,
+          totalJobs: 1,
+          inspectedBytes: 1024,
+        },
+      }));
+    } else if (req.url.startsWith(`/api/traces/${traceId}`)) {
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        ...trace,
+        metrics: {
+          totalBlocks: 1,
+          completedJobs: 1,
+          totalJobs: 1,
+          inspectedBytes: 1024,
+        },
+      }));
+    } else {
+      res.writeHead(404).end();
+    }
+  });
+
+  try {
+    await writeExecutable(
+      path.join(bin, 'openclaw'),
+      '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n',
+    );
+    await writeExecutable(path.join(bin, 'hostname'), '#!/bin/sh\nprintf \'%s\\n\' ronan\n');
+    await writeExecutable(
+      path.join(bin, 'journalctl'),
+      '#!/bin/sh\ncase " $* " in *" --show-cursor "*) printf \'%s\\n\' \'-- cursor: chain-runner-contract\' ;; esac\n',
+    );
+    await writeExecutable(path.join(bin, 'k6'), `#!/bin/sh
+if [ "${'${1:-}'}" = version ]; then printf '%s\\n' 'k6 v2.0.0'; exit 0; fi
+printf '%s\\n' '{"row":"R-CD-CHAINED-DEPTH-2","verdict":"PASS-candidate","metrics":{"proof_failures":{"values":{"count":0}},"checks":{"values":{"rate":1}}}}' > r-cd-chained-depth-2-summary.json
+printf '%s %s\\n' '=== K6-PROOF-EVIDENCE ===' '${JSON.stringify(evidence)}'
+`);
+    const env = {
+      ...process.env,
+      PATH: `${bin}:${process.env.PATH}`,
+      K6_BIN: path.join(bin, 'k6'),
+      OPENCLAW_GATEWAY_TOKEN: 'runner-contract-token',
+      OPENCLAW_GATEWAY_WS: tempo.baseUrl.replace(/^http/, 'ws'),
+      OPENCLAW_PROOFS_TEMPO_BASE_URL: tempo.baseUrl,
+      OPENCLAW_CANDIDATE_SHA: candidateSha,
+      OPENCLAW_RUNTIME_BUILD_SHA: candidateSha,
+      OPENCLAW_SESSION_KEY: 'main',
+      OPENCLAW_SEAT_NAME: 'ronan',
+    };
+    const result = await run('bash', [
+      'scripts/run-proofs.sh',
+      '--live',
+      '--docs-ref',
+      harness.docsRef,
+      '--out-dir',
+      out,
+      'R-CD-CHAINED-DEPTH-2',
+      candidateSha,
+    ], {
+      cwd: path.join(harness.checkout, 'tools/k6-proofs'),
+      env,
+      timeout: 60_000,
+    });
+    const runBase = path.join(out, candidateSha, 'R-CD-CHAINED-DEPTH-2', 'ronan');
+    const [runId] = await readdir(runBase);
+    const runDir = path.join(runBase, runId);
+    return { root, runDir, result };
+  } catch (error) {
+    await rm(root, { recursive: true, force: true });
+    throw error;
+  } finally {
+    await new Promise((resolve) => tempo.server.close(resolve));
+  }
+}
+
 test('every trace-required continue_delegate row persists the safe fingerprint contract', async () => {
   const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json'));
   const rows = [];
@@ -219,6 +389,87 @@ test('R-CD-2 dispatch turn requires an exact post-tool terminal sentinel', async
   assert.match(scenario, /dispatchLifecycleActive/);
   assert.match(scenario, /wakeLifecycleObserved:\s*evidence\.wake_lifecycle_observed/);
   assert.doesNotMatch(scenario, /execute the tool call immediately, no other action needed/);
+});
+
+test('depth-2 row composes exactly-once tasks with structured root consumption authority', async () => {
+  const [scenario, resolver, runner, candidate, manifestRaw] = await Promise.all([
+    readFile(path.join(scenariosDir, 'r-cd-chained-depth-2.js'), 'utf8'),
+    readFile(
+      path.join(
+        repoRoot,
+        'tools/k6-proofs/lib/r-cd-chained-depth-2-authoritative-receipt.mjs',
+      ),
+      'utf8',
+    ),
+    readFile(path.join(repoRoot, 'tools/k6-proofs/scripts/run-proofs.sh'), 'utf8'),
+    readFile(
+      path.join(repoRoot, 'tools/k6-proofs/scripts/candidate-run-result-contract.mjs'),
+      'utf8',
+    ),
+    readFile(path.join(manifestsDir, 'r-cd-chained-depth-2.json'), 'utf8'),
+  ]);
+  const manifest = JSON.parse(manifestRaw);
+  assert.match(scenario, /rCdChainTaskLedgerReceipt\(/);
+  assert.match(scenario, /nextCursor/);
+  assert.match(scenario, /tasks\.get/);
+  assert.match(scenario, /task_snapshot_stable_count/);
+  assert.match(scenario, /scheduleTaskSnapshot\(socket\)/);
+  assert.doesNotMatch(scenario, /\[8000,\s*20000,\s*40000,\s*60000,\s*90000,\s*120000\]/);
+  assert.match(scenario, /rCdChainRootReturnReceipt\(/);
+  assert.match(scenario, /structured post-return root consumption observed/);
+  assert.match(resolver, /rootStructuredInputObserved:\s*true/);
+  assert.match(resolver, /rootToolResultAccepted:\s*true/);
+  assert.match(resolver, /rootLifecycleEndObserved:\s*true/);
+  assert.match(resolver, /assistantSentinelObserved:\s*consumption\.assistantSentinelObserved/);
+  assert.match(runner, /R_CD_CHAIN_RECEIPT_RESOLVER/);
+  assert.match(candidate, /r-cd-chained-depth-2-authoritative-receipt\.json/);
+  assert.ok(manifest.liveRunSafety.requiredReceipts.includes('exactly-once-chain-completion'));
+  assert.ok(
+    manifest.liveRunSafety.requiredReceipts.includes(
+      'r-cd-chained-depth-2-authoritative-receipt',
+    ),
+  );
+  assert.match(manifest.review.notes, /ROOT-CHAIN-ACK is supplemental/);
+});
+
+test('depth-2 row-list runner publishes the signed structured authority', async () => {
+  const fixture = await runChainRunnerFixture();
+  try {
+    const files = await readdir(fixture.runDir);
+    const rawResult = await readFile(path.join(fixture.runDir, 'run-result.json'), 'utf8');
+    const validationError = files.includes('candidate-run-result-validation.error.log')
+      ? await readFile(
+          path.join(fixture.runDir, 'candidate-run-result-validation.error.log'),
+          'utf8',
+        )
+      : '';
+    const traceError = files.includes('continuation-trace-collector.error.log')
+      ? await readFile(
+          path.join(fixture.runDir, 'continuation-trace-collector.error.log'),
+          'utf8',
+        )
+      : '';
+    assert.ok(
+      files.includes('candidate-run-result.json'),
+      `${fixture.result.stdout}\n${fixture.result.stderr}\n${validationError}\n${traceError}\n${rawResult}`,
+    );
+    const result = JSON.parse(rawResult);
+    const envelope = JSON.parse(
+      await readFile(path.join(fixture.runDir, 'candidate-run-result.json'), 'utf8'),
+    );
+    const receipt = JSON.parse(await readFile(
+      path.join(fixture.runDir, 'r-cd-chained-depth-2-authoritative-receipt.json'),
+      'utf8',
+    ));
+    assert.equal(result.verdict, 'PASS-candidate');
+    assert.equal(result.verdictSource, 'r-cd-chained-depth-2-authoritative-receipt');
+    assert.equal(result.authoritativeReceipt.validated, true);
+    assert.equal(receipt.lifecycle.assistantSentinelObserved, false);
+    assert.equal(envelope.authoritativeReceipt.file, result.authoritativeReceipt.file);
+    assert.equal(envelope.authoritativeReceipt.sha256, result.authoritativeReceipt.sha256);
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
 });
 
 test('every trace-required continue_work row persists the safe fingerprint contract', async () => {

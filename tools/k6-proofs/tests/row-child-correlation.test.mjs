@@ -96,6 +96,15 @@ test('accepts a direct spawn record that binds its child key and task nonce', ()
   assert.equal(childSessionKeyForRow(spawnEvent, 'R-CD-MODEL-TOOL-new'), 'luna-child-for-current-row');
 });
 
+test('accepts a tasks.get record through its full prompt when title truncates the nonce', () => {
+  const rowNonce = 'R-CD-CHAIN-1787755189005-r7hilojz';
+  assert.equal(childSessionKeyForRow({
+    childSessionKey: 'chain-child',
+    title: '[continuation:chain-hop:1] Delegated task (turn 1/200): Proof chain nonce',
+    prompt: `Proof chain nonce ${rowNonce}: create the depth-2 child`,
+  }, rowNonce), 'chain-child');
+});
+
 test('selects the one nested record whose own payload carries the current nonce', () => {
   const aggregateEvent = {
     records: [

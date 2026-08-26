@@ -9,6 +9,9 @@ import { readFile, writeFile, readdir, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  validateRcdChainAuthoritativeReceipt,
+} from '../lib/r-cd-chained-depth-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import {
   COPIED_MANIFEST,
@@ -157,6 +160,13 @@ function authoritativeReceiptContract(rowId) {
       file: 'r-cd-2-authoritative-receipt.json',
       verdictSource: 'r-cd-2-authoritative-receipt',
       validate: validateRcd2AuthoritativeReceipt,
+    };
+  }
+  if (rowId === 'R-CD-CHAINED-DEPTH-2') {
+    return {
+      file: 'r-cd-chained-depth-2-authoritative-receipt.json',
+      verdictSource: 'r-cd-chained-depth-2-authoritative-receipt',
+      validate: validateRcdChainAuthoritativeReceipt,
     };
   }
   if (rowId === 'R-CD-TOKEN') {
@@ -322,11 +332,11 @@ async function main() {
     authoritativeReceipt = JSON.parse(raw);
     const integrity = authoritative.validate(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
     if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`${rowId} authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
-    if (rowId === 'R-CD-TOKEN' && (
+    if ((rowId === 'R-CD-TOKEN' || rowId === 'R-CD-CHAINED-DEPTH-2') && (
       authoritativeReceipt.binding?.candidateSha !== candidateSha ||
       authoritativeReceipt.binding?.runtimeBuildSha !== requireSha(metadata.runtimeBuildSha, 'runner metadata runtimeBuildSha') ||
       authoritativeReceipt.binding.runtimeBuildSha !== candidateSha
-    )) throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
+    )) throw new Error(`${rowId} authoritative receipt build identity mismatch`);
   }
   const artifacts = {
     manifest: COPIED_MANIFEST,

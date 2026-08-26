@@ -29,6 +29,10 @@ test('removes identity fields and scrubs their values recursively', () => {
     child_session: sessionKey,
     reason_hash: 'adfa6bb5a86112ed',
     reason_length: 139,
+    task_ledger_receipt: {
+      taskIds: ['private-task-id', 'private-grandchild-task-id'],
+      runIds: [`run-${nonce}`, `grandchild-run-${nonce}`],
+    },
     redacted_events: [{
       ts: 1783882863334,
       kind: 'event',
@@ -51,6 +55,8 @@ test('removes identity fields and scrubs their values recursively', () => {
   assert.equal('nonce' in sanitized[0], false);
   assert.equal('sessionKey' in sanitized[0], false);
   assert.equal('run_id' in sanitized[0], false);
+  assert.equal('taskIds' in sanitized[0].task_ledger_receipt, false);
+  assert.equal('runIds' in sanitized[0].task_ledger_receipt, false);
   assert.equal('redacted_events' in sanitized[0], false);
   assert.deepEqual(sanitized[0].gatewayEventReceipts, [{
     ts: 1783882863334,
@@ -76,6 +82,13 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     reason_hash: 'adfa6bb5a86112ed',
     reason_length: 139,
     expected_return_sentinel: `CD1-DONE ${nonce}`,
+    task_ledger_receipt: {
+      taskIds: ['private-array-task-id'],
+      runIds: ['private-array-run-id'],
+    },
+    root_return_candidate: {
+      toolCallId: 'private-heartbeat-tool-call-id',
+    },
     redacted_events: [{
       ts: 1783882863334,
       kind: 'response',
@@ -99,6 +112,8 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     k6Line(`[k6-proof-harness] Call continue_delegate task="Proof nonce ${nonce}" session=${sessionKey}`),
     k6Line('\n--- R-CD-1 EVIDENCE SUMMARY ---'),
     k6Line(JSON.stringify(evidence, null, 2)),
+    k6Line('continuation task private-array-task-id run private-array-run-id'),
+    k6Line('continuation heartbeat tool call private-heartbeat-tool-call-id'),
     k6Line('--- END EVIDENCE ---'),
   ].join('\n'));
   await writeFile(serviceLogInput, [
@@ -106,6 +121,8 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     `Jul 12 19:42:01 host openclaw[123]: Model override "github-copilot/claude-sonnet-4.6" is not allowed for agent "main" nonce=${nonce}`,
     'Jul 12 19:42:02 host openclaw[123]: OPENCLAW_GATEWAY_TOKEN=super-secret-gateway-token failure',
     `Jul 12 19:42:02 host openclaw[123]: continuation:delegate-spawned task=Proof nonce ${nonce}: read your runtime context/current model identity`,
+    'Jul 12 19:42:02 host openclaw[123]: continuation task private-array-task-id run private-array-run-id',
+    'Jul 12 19:42:02 host openclaw[123]: continuation heartbeat tool call private-heartbeat-tool-call-id',
     'Jul 12 19:42:03 host openclaw[123]: unrelated routine heartbeat',
   ].join('\n'));
 
@@ -134,6 +151,8 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
       const text = await readFile(file, 'utf8');
       assert.doesNotMatch(text, new RegExp(nonce));
       assert.doesNotMatch(text, new RegExp(sessionKey));
+      assert.doesNotMatch(text, /private-array-(?:task|run)-id/);
+      assert.doesNotMatch(text, /private-heartbeat-tool-call-id/);
     }
     assert.match(await readFile(logOutput, 'utf8'), /\[k6-proof-harness\] <redacted-dispatch>/);
     assert.match(await readFile(linesOutput, 'utf8'), /PUBLIC_EVIDENCE/);

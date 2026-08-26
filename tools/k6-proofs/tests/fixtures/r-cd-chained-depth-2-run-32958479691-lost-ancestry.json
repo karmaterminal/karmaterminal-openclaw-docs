@@ -1,0 +1,44 @@
+{
+  "schema": "openclaw.k6.r-cd-chained-depth-2.characterization.v1",
+  "source": {
+    "runId": 32958479691,
+    "artifactId": 9603030118,
+    "artifactName": "project81-k6-proof-32958479691",
+    "candidateSha": "6aca9d1d9294376d0466cc8cc608ba731220aab9",
+    "harnessSha": "a1b52de161185efcd4e503e9b1e962e76c67a7b0",
+    "artifactZipSha256": "ed1e36f60e2212893ea715b5f7560f104342cfd7d4a6efc04d9a4b2063ec196c",
+    "rowResultSha256": "bed4adb7454d013d92d63dbf55b633f05c985c210ea3a69101a7e8082e16bba7",
+    "k6LogSha256": "e50bee84d6b1838138e06bac3fd8d367e62fedc6647817ccf5783ccbeffd250c",
+    "gatewayEventsSha256": "ece8c6fe049ba7b7d20b9c023c6ad5bcb5c063caeeac27fb342ff42f1365d743"
+  },
+  "rejectedPublicEvidence": {
+    "verdict": "PARTIAL-candidate",
+    "verdictSource": "vu-log",
+    "effectiveExitCode": 99,
+    "parent_dispatch_accepted": true,
+    "child_spawned": true,
+    "grandchild_spawned": true,
+    "child_done_sentinel": true,
+    "child_waiting_sentinel": true,
+    "depth1_recovery_wake_scheduled": true,
+    "grandchild_done_sentinel": true,
+    "chain_return_received": false,
+    "root_return_candidate": null,
+    "root_return_receipt": null,
+    "dispatch_accepted_at_ms": 1787740250695,
+    "grandchild_observed_at_ms": 1787740265210,
+    "observation_phase": "root-return-timeout",
+    "observation_deadline_at_ms": 1787740385210,
+    "terminal_reason": "root-return-observation-window-expired",
+    "max_depth_observed": 2,
+    "reason_hash": "97a3a552f330d1ac",
+    "reason_length": 915,
+    "delegate_mode": "silent-wake",
+    "duration_ms": 135302
+  },
+  "structuredControl": {
+    "taskLedgerReceipt": null,
+    "rootConsumptionReceipt": null,
+    "classification": "lost-ancestry-return-not-delivered"
+  }
+}

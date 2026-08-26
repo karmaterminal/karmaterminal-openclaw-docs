@@ -6,6 +6,9 @@ import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import {
+  resolveRcdChainAuthoritativeReceipt,
+} from '../../lib/r-cd-chained-depth-2-authoritative-receipt.mjs';
 import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
 import {
   buildTelemetryBackendStatusReceipt,
@@ -910,6 +913,155 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   };
   const receipt = resolveRcdTokenAuthoritativeReceipt({
     evidence, correlation, attemptState, metadata, signingKey: gatewayKey,
+  });
+
+  await test('R-CD-CHAINED-DEPTH-2 candidate envelope requires structured signed authority', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'candidate-chain-'));
+    const candidateDir = path.join(root, 'candidate');
+    await mkdir(candidateDir);
+    const manifestPath = path.join(root, 'manifest.json');
+    const chainManifestBody = `${JSON.stringify({
+      schema: 'openclaw.k6.proof-row-manifest.v1',
+      rowId: 'R-CD-CHAINED-DEPTH-2',
+      candidateSha: sha,
+      scenario: { name: 'r-cd-chained-depth-2' },
+      review: { candidateOnly: true, foldRequiresReview: true },
+      liveRunSafety: { expectedArtifactClass: 'PASS-candidate' },
+    }, null, 2)}\n`;
+    const metadata = {
+      row: 'R-CD-CHAINED-DEPTH-2',
+      candidateSha: sha,
+      runtimeBuildSha: sha,
+      seat: 'ronan',
+      scenario: 'r-cd-chained-depth-2.js',
+      ...harnessMetadata({
+        manifestBody: chainManifestBody,
+        rowFile: 'r-cd-chained-depth-2',
+      }),
+    };
+    const nonce = 'candidate-chain-envelope-nonce';
+    const taskLedger = {
+      schema: 'openclaw.k6.r-cd-chained-depth-2.task-ledger.v1',
+      nonce,
+      rootSessionKey: 'agent:main:root',
+      childSessionKey: 'agent:main:subagent:child',
+      grandchildSessionKey: 'agent:main:subagent:grandchild',
+      taskIds: ['task-child', 'task-grandchild'],
+      runIds: ['run-child', 'run-grandchild'],
+      taskCount: 2,
+      completedTaskCount: 2,
+      deliveredTaskCount: 2,
+      maxDepth: 2,
+      recoveryWakeScheduled: true,
+      dispatchAcceptedAtMs: 50,
+      completedAtMs: 100,
+    };
+    const evidence = {
+      row: 'R-CD-CHAINED-DEPTH-2',
+      candidateSha: sha,
+      runtimeBuildSha: sha,
+      parent_dispatch_accepted: true,
+      dispatch_run_captured: true,
+      task_pagination_exhausted: true,
+      tasks_list_rejected: 0,
+      task_snapshot_stable_count: 2,
+      accepted_dispatch_run_id: 'dispatch-run',
+      child_spawned: true,
+      grandchild_spawned: true,
+      child_waiting_sentinel: true,
+      depth1_recovery_wake_scheduled: true,
+      child_done_sentinel: true,
+      grandchild_done_sentinel: true,
+      chain_return_received: true,
+      max_depth_observed: 2,
+      child_session: taskLedger.childSessionKey,
+      grandchild_session: taskLedger.grandchildSessionKey,
+      reason_hash: '1'.repeat(16),
+      reason_length: 42,
+      task_ledger_receipt: taskLedger,
+      root_return_receipt: {
+        authority: 'structured-post-return-consumption',
+        rootSessionKey: taskLedger.rootSessionKey,
+        nonce,
+        childSessionKey: taskLedger.childSessionKey,
+        grandchildSessionKey: taskLedger.grandchildSessionKey,
+        taskIds: taskLedger.taskIds,
+        runIds: taskLedger.runIds,
+        consumptionRunId: 'consumption-run',
+        taskCompletedAtMs: 100,
+        consumptionRunStartedAtMs: 101,
+        consumptionInputAtMs: 102,
+        consumptionAcceptedAtMs: 103,
+        consumptionTerminalAtMs: 104,
+        inputMessageSeq: 10,
+        acceptedMessageSeq: 11,
+        assistantSentinelObserved: false,
+      },
+    };
+    const correlation = {
+      row: 'R-CD-CHAINED-DEPTH-2',
+      traceId: '2'.repeat(32),
+      chainId: 'chain-envelope',
+      dispatchSpanId: '3'.repeat(16),
+      fireSpanId: '4'.repeat(16),
+      toolSpanIds: ['5'.repeat(16)],
+      reason: { hash: '1'.repeat(16), length: 42 },
+      continuation: { tool: 'continue_delegate' },
+      delegate: { mode: 'silent-wake' },
+    };
+    const receipt = resolveRcdChainAuthoritativeReceipt({
+      evidence,
+      correlation,
+      signingKey: gatewayKey,
+    });
+    const raw = `${JSON.stringify(receipt, null, 2)}\n`;
+    const receiptDigest = createHash('sha256').update(raw).digest('hex');
+    const receiptFile = 'r-cd-chained-depth-2-authoritative-receipt.json';
+    const runResultValue = {
+      effectiveExitCode: 0,
+      verdict: 'PASS-candidate',
+      verdictSource: 'r-cd-chained-depth-2-authoritative-receipt',
+      candidateOnly: true,
+      foldRequiresReview: true,
+      authoritativeReceipt: {
+        file: receiptFile,
+        sha256: receiptDigest,
+        validated: true,
+        source: 'r-cd-chained-depth-2-row-scoped-resolver',
+      },
+      observability: {
+        traceStatus: 'present',
+        traceId: correlation.traceId,
+        correlationReceipt: 'continuation-trace-correlation.json',
+      },
+      review: { status: 'ready-for-human-review', pendingReceipts: [] },
+    };
+    await writeFile(manifestPath, chainManifestBody);
+    await writeHarnessSources(candidateDir, chainManifestBody);
+    await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
+    await writeFile(path.join(candidateDir, receiptFile), raw);
+    await writeFile(
+      path.join(candidateDir, 'run-result.json'),
+      `${JSON.stringify(runResultValue, null, 2)}\n`,
+    );
+    try {
+      const good = JSON.parse((await invoke({ manifestPath, candidateDir })).stdout);
+      assert.equal(good.authoritativeReceipt.file, receiptFile);
+      assert.equal(good.authoritativeReceipt.sha256, receiptDigest);
+      assert.ok(good.artifacts.files.includes(receiptFile));
+
+      await writeFile(
+        path.join(candidateDir, 'runner-metadata.json'),
+        `${JSON.stringify({ ...metadata, runtimeBuildSha: 'f'.repeat(40) })}\n`,
+      );
+      await assert.rejects(invoke({ manifestPath, candidateDir }), /build identity mismatch/);
+      await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
+
+      await writeFile(path.join(candidateDir, receiptFile), raw.replace('"maxDepth": 2', '"maxDepth": 1'));
+      await assert.rejects(invoke({ manifestPath, candidateDir }), /digest mismatch/);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
   const raw = `${JSON.stringify(receipt, null, 2)}\n`;
   const receiptDigest = createHash('sha256').update(raw).digest('hex');

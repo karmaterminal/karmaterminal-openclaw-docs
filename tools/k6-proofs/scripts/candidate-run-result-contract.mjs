@@ -2,6 +2,9 @@ import path from 'node:path';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  validateRcdChainAuthoritativeReceipt,
+} from '../lib/r-cd-chained-depth-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { validateTelemetryBackendStatusReceipt } from '../lib/telemetry-backend-status.js';
 import {
@@ -29,6 +32,7 @@ export const SAFE_CANDIDATE_ARTIFACTS = new Set([
   COPIED_MANIFEST, COPIED_SCENARIO, 'runner-metadata.json', 'run-result.json',
   'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
   'r-cd-2-authoritative-receipt.json',
+  'r-cd-chained-depth-2-authoritative-receipt.json',
   'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
   'r-cd-token-authoritative-receipt.json',
   'backend-status.json', 'telemetry-disposition.json', 'row-result.json',
@@ -299,6 +303,14 @@ function authoritativeReceiptContract(rowId) {
       validate: validateRcd2AuthoritativeReceipt,
     };
   }
+  if (rowId === 'R-CD-CHAINED-DEPTH-2') {
+    return {
+      file: 'r-cd-chained-depth-2-authoritative-receipt.json',
+      source: 'r-cd-chained-depth-2-row-scoped-resolver',
+      verdictSource: 'r-cd-chained-depth-2-authoritative-receipt',
+      validate: validateRcdChainAuthoritativeReceipt,
+    };
+  }
   if (rowId === 'R-CD-TOKEN') {
     return {
       file: 'r-cd-token-authoritative-receipt.json',
@@ -364,7 +376,7 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
       const receipt = JSON.parse(raw.toString('utf8'));
       const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
       if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
-      if (rowId === 'R-CD-TOKEN' && (
+      if ((rowId === 'R-CD-TOKEN' || rowId === 'R-CD-CHAINED-DEPTH-2') && (
         receipt.binding?.candidateSha !== candidateSha ||
         receipt.binding?.runtimeBuildSha !== candidateSha ||
         metadata.runtimeBuildSha !== candidateSha

@@ -1,0 +1,167 @@
+{
+  "schema": "openclaw.k6.r-cd-chained-depth-2.characterization.v1",
+  "source": {
+    "runId": 32981265676,
+    "artifactId": 9612027467,
+    "artifactName": "project81-k6-proof-32981265676",
+    "candidateSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+    "harnessSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+    "artifactZipSha256": "0505d580b8a59da3b8c81a8fde417fadd779e08faf004dc5c1bf113904523794",
+    "rowResultSha256": "4a4a1152ec190778553d78a4334e2c10513bdccae5b929edde2e55bc0b0da989",
+    "k6LogSha256": "14196a8b45eee24b95497566c96ffa095229a2fdd0688fc644357f3106298960",
+    "gatewayEventsSha256": "05929f322fb54d5d097c97a072a19d9c33f68616dd02d6c348723583f38c3e65",
+    "manifestSha256": "16e456ab74edb606bd5876f3ac6011a7e636020d580085fd293da8452d09c520",
+    "scenarioSha256": "b305e967d2b2dc7cff012ab4d8c8214ee904765607b986d1ae5e29ee27760119"
+  },
+  "rejectedPublicEvidence": {
+    "verdict": "PARTIAL-candidate",
+    "verdictSource": "vu-log",
+    "effectiveExitCode": 99,
+    "parent_dispatch_accepted": true,
+    "child_spawned": true,
+    "grandchild_spawned": true,
+    "child_done_sentinel": true,
+    "child_waiting_sentinel": true,
+    "depth1_recovery_wake_scheduled": true,
+    "grandchild_done_sentinel": true,
+    "chain_return_received": false,
+    "root_return_candidate": null,
+    "root_return_receipt": null,
+    "dispatch_accepted_at_ms": 1787755189770,
+    "grandchild_observed_at_ms": 1787755203946,
+    "observation_phase": "root-return-timeout",
+    "observation_deadline_at_ms": 1787755323946,
+    "terminal_reason": "root-return-observation-window-expired",
+    "max_depth_observed": 2,
+    "gatewayEventReceiptCount": 403,
+    "sessionMessageTimestamps": [
+      1787755189853,
+      1787755203945,
+      1787755203947,
+      1787755203949,
+      1787755234931,
+      1787755234932,
+      1787755266781,
+      1787755266783
+    ]
+  },
+  "structuredControl": {
+    "nonce": "R-CD-CHAIN-RUN-32981265676",
+    "rootSessionKey": "agent:main:r-cd-chain-run-32981265676",
+    "childSessionKey": "agent:main:subagent:run-32981265676-child",
+    "grandchildSessionKey": "agent:main:subagent:run-32981265676-grandchild",
+    "dispatchRunId": "run-32981265676-dispatch",
+    "taskLedgerReceipt": {
+      "schema": "openclaw.k6.r-cd-chained-depth-2.task-ledger.v1",
+      "nonce": "R-CD-CHAIN-RUN-32981265676",
+      "rootSessionKey": "agent:main:r-cd-chain-run-32981265676",
+      "childSessionKey": "agent:main:subagent:run-32981265676-child",
+      "grandchildSessionKey": "agent:main:subagent:run-32981265676-grandchild",
+      "taskIds": [
+        "task-run-32981265676-child",
+        "task-run-32981265676-grandchild"
+      ],
+      "runIds": [
+        "subagent-run-32981265676-child",
+        "subagent-run-32981265676-grandchild"
+      ],
+      "taskCount": 2,
+      "completedTaskCount": 2,
+      "deliveredTaskCount": 2,
+      "maxDepth": 2,
+      "recoveryWakeScheduled": true,
+      "dispatchAcceptedAtMs": 1787755189770,
+      "completedAtMs": 1787755220181
+    },
+    "lifecycleStartEvent": {
+      "observedAtMs": 1787755258037,
+      "eventName": "agent",
+      "eventData": {
+        "sessionKey": "agent:main:r-cd-chain-run-32981265676",
+        "runId": "run-32981265676-post-return",
+        "stream": "lifecycle",
+        "data": {
+          "phase": "start",
+          "status": "running"
+        }
+      }
+    },
+    "consumptionInputEvent": {
+      "observedAtMs": 1787755266781,
+      "eventName": "session.message",
+      "eventData": {
+        "sessionKey": "agent:main:r-cd-chain-run-32981265676",
+        "runId": "run-32981265676-post-return",
+        "messageSeq": 12,
+        "message": {
+          "role": "assistant",
+          "stopReason": "toolUse",
+          "timestamp": 1787755266775,
+          "content": [
+            {
+              "type": "toolCall",
+              "id": "heartbeat-run-32981265676",
+              "name": "heartbeat_respond",
+              "arguments": {
+                "outcome": "continue",
+                "notify": false,
+                "summary": "Structured root completion receipt",
+                "reason": "GRANDCHILD-DONE R-CD-CHAIN-RUN-32981265676",
+                "scratch": "CHILD-DONE R-CD-CHAIN-RUN-32981265676 CHILD-SAW-GRANDCHILD"
+              },
+              "input": {
+                "outcome": "continue",
+                "notify": false,
+                "summary": "Structured root completion receipt",
+                "reason": "GRANDCHILD-DONE R-CD-CHAIN-RUN-32981265676",
+                "scratch": "CHILD-DONE R-CD-CHAIN-RUN-32981265676 CHILD-SAW-GRANDCHILD"
+              }
+            }
+          ],
+          "__openclaw": {
+            "runId": "run-32981265676-post-return"
+          }
+        }
+      }
+    },
+    "acceptedEvent": {
+      "observedAtMs": 1787755266783,
+      "eventName": "session.message",
+      "eventData": {
+        "sessionKey": "agent:main:r-cd-chain-run-32981265676",
+        "runId": "run-32981265676-post-return",
+        "messageSeq": 13,
+        "message": {
+          "role": "toolResult",
+          "toolCallId": "heartbeat-run-32981265676",
+          "toolName": "heartbeat_respond",
+          "timestamp": 1787755266776,
+          "content": [
+           {
+             "type": "toolResult",
+             "toolCallId": "heartbeat-run-32981265676",
+             "toolName": "heartbeat_respond",
+             "content": "{\"status\":\"accepted\",\"outcome\":\"continue\",\"notify\":false,\"summary\":\"Structured root completion receipt\",\"reason\":\"GRANDCHILD-DONE R-CD-CHAIN-RUN-32981265676\"}"
+           }
+          ],
+          "__openclaw": {
+           "runId": "run-32981265676-post-return"
+          }
+        }
+      }
+    },
+    "lifecycleEndEvent": {
+      "observedAtMs": 1787755266797,
+      "eventName": "agent",
+      "eventData": {
+        "sessionKey": "agent:main:r-cd-chain-run-32981265676",
+        "runId": "run-32981265676-post-return",
+        "stream": "lifecycle",
+        "data": {
+          "phase": "end",
+          "status": "ok"
+        }
+      }
+    }
+  }
+}

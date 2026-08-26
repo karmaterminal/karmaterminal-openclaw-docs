@@ -15,12 +15,13 @@
   },
   "scenario": {
     "name": "r-cd-chained-depth-2",
-    "description": "Depth-2 delegate chain: parent→child→grandchild→depth-1 recovery wake→root return. The proven composition uses fanoutMode=tree and a depth-1 continue_work wake after the leaf instead of returning immediately.",
+    "description": "Depth-2 delegate chain: parent→child→grandchild→depth-1 recovery wake→root return→structured root consumption. The proven composition uses fanoutMode=tree, exactly two completed/delivered task rows, and a post-return root run that consumes both results.",
     "methods": [
       "sessions.create",
       "sessions.send",
       "sessions.messages.subscribe",
-      "tasks.list"
+      "tasks.list",
+      "tasks.get"
     ],
     "subtests": [
       "chain-1-uptree-silent-wake",
@@ -47,7 +48,7 @@
     {
       "name": "child-spawns",
       "required": true,
-      "description": "Post-dispatch, non-harness session event contains strict CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED sentinel"
+      "description": "The fully resolved root task binds one distinct depth-1 child and its first result contains strict CHILD-WAITING {{nonce}} CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED"
     },
     {
       "name": "child-fires-grandchild",
@@ -62,7 +63,7 @@
     {
       "name": "grandchild-spawns",
       "required": true,
-      "description": "Post-dispatch, non-harness session event contains strict GRANDCHILD-DONE sentinel"
+      "description": "The fully resolved depth-1 task binds one distinct depth-2 grandchild"
     },
     {
       "name": "grandchild-returns",
@@ -70,9 +71,19 @@
       "description": "A nonce-bound grandchild identity and exact GRANDCHILD-DONE sentinel are observed after dispatch acceptance"
     },
     {
+      "name": "exactly-once-chain-completion",
+      "required": true,
+      "description": "A fully paginated tasks.list snapshot plus nonce-bound tasks.get details exposes exactly one root→child row and one child→grandchild row; both have unique task/run identities, status=completed, deliveryStatus=delivered, and depth exactly 2"
+    },
+    {
       "name": "root-consumes-chain-return",
       "required": true,
-      "description": "After consuming the prompt-only descendant completion, the exact root session emits assistant acknowledgement ROOT-CHAIN-ACK {{nonce}}, bound to distinct child and grandchild identities"
+      "description": "After both task rows complete, one root lifecycle run supplies the child marker in heartbeat_respond scratch and the grandchild marker in reason, receives status=accepted for that exact tool call, and ends successfully; ROOT-CHAIN-ACK {{nonce}} is supplemental only"
+    },
+    {
+      "name": "r-cd-chained-depth-2-authoritative-receipt",
+      "required": true,
+      "description": "HMAC-sealed public-safe row receipt binds candidate/runtime identity, exactly-once task completion, structured root consumption, and the typed-tool trace"
     },
     {
       "name": "trace-id",
@@ -90,7 +101,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Depth-2 chain proof. PASS-candidate requires strict child/grandchild sentinels, two distinct nonce-bound hop identities, and exact assistant acknowledgement ROOT-CHAIN-ACK {{nonce}} from the root after it consumes the prompt-only return. Grandchild output alone is not return authority."
+    "notes": "Depth-2 chain proof. PASS-candidate requires exactly two completed/delivered nonce-bound task rows and a later root lifecycle run whose structured heartbeat_respond input contains both return markers, whose exact tool call is accepted, and whose lifecycle ends successfully. ROOT-CHAIN-ACK is supplemental, never verdict authority."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -186,18 +197,22 @@
       ]
     },
     "redaction": {
-      "rule": "Hop identities are published as nonce-bound fingerprints. Chain task text, grandchild prompt bodies, raw session keys, and tokens never enter the artifact.",
+      "rule": "Hop identities are published as nonce-bound fingerprints. Chain task text, heartbeat inputs, grandchild prompt bodies, raw session/task/run/tool-call keys, and tokens never enter the artifact.",
       "forbiddenInArtifacts": [
         "chain task text",
+        "heartbeat input",
         "prompt body",
         "raw session key",
+        "raw task id",
+        "raw run id",
+        "raw tool-call id",
         "gateway token"
       ]
     },
     "controls": {
-      "positive": "Strict child and grandchild sentinels are observed, two distinct nonce-bound hop identities exist, and the exact root emits ROOT-CHAIN-ACK {{nonce}} after consuming the return.",
-      "negative": "Prompt echoes and ordinary grandchild output do not satisfy the root receipt; descendant output alone is never return authority.",
-      "notes": "Depth is currently established by sentinels and hop identities, not by telemetry."
+      "positive": "Exactly two nonce-bound task rows form root→child→grandchild, both complete and deliver once, and a later root lifecycle run submits both markers through structured heartbeat_respond fields, receives status=accepted for the same tool-call id, and ends successfully.",
+      "negative": "Prompt echoes, phrase-only ROOT-CHAIN-ACK, descendant output, rejected or mismatched heartbeat calls, incomplete/duplicate task rows, and structured delivery without a later successful same-run lifecycle end never satisfy the receipt.",
+      "notes": "Depth is established by the task-ledger relationship and distinct identities; ROOT-CHAIN-ACK remains supplemental."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -230,17 +245,18 @@
         "gateway-events.ndjson",
         "seat-readiness.json",
         "continuation-trace-correlation.json",
+        "r-cd-chained-depth-2-authoritative-receipt.json",
         "backend-status.json"
       ]
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "Both hop sentinels, two distinct nonce-bound hop identities, and the explicit root-session consumption acknowledgement. Behavioral only.",
+      "pass": "Exactly two completed/delivered task rows at depth 2 plus a later structured root heartbeat input, matching accepted tool result, and successful same-run lifecycle end. Behavioral only.",
       "partial": "A hop identity or the trace receipt is unavailable, or the telemetry backend is degraded or partial.",
-      "fail": "The root session never acknowledges consuming the grandchild return, or the two hop identities collapse into one."
+      "fail": "The root lacks the structured post-return consumption boundary, either return is absent/duplicated, task/run identities or nonce do not bind, candidate identity differs, or depth is not exactly 2."
     },
     "execution": {
-      "deterministicK6": "r-cd-chained-depth-2.js fires the exact committed manifest task and asserts both hops.",
+      "deterministicK6": "r-cd-chained-depth-2.js fires the exact committed manifest task; the row-scoped resolver signs the exactly-once task ledger and same-run root consumption receipt.",
       "manual": "Per-seat cross-walk runs (TEST-1/2/3) remain manual and are filed under the row’s canonical path with their substitution recorded.",
       "relationship": "The deterministic row is the verdict authority for chain shape; manual cross-walks add seat coverage and never substitute for a missing hop receipt."
     }
@@ -261,10 +277,12 @@
       "depth1-recovery-wake",
       "grandchild-spawns",
       "grandchild-returns",
+      "exactly-once-chain-completion",
       "root-consumes-chain-return",
+      "r-cd-chained-depth-2-authoritative-receipt",
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. The depth-1 task must use fanoutMode=tree and a continue_work recovery wake; immediate return after scheduling is the committed negative control. Root return receives a fresh post-grandchild observation window."
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. The depth-1 task must use fanoutMode=tree and a continue_work recovery wake; immediate return after scheduling is the committed negative control. Root return receives a fresh post-grandchild observation window. The signed structured receipt, not ROOT-CHAIN-ACK wording, owns the candidate verdict."
   }
 }

@@ -60,9 +60,29 @@ function sensitiveCategory(key) {
   if (normalized.includes('nonce')) return 'nonce';
   if (normalized.includes('sessionkey') || normalized.endsWith('session')) return 'session-key';
   if (normalized.includes('runid')) return 'run-id';
+  if (normalized.includes('taskid')) return 'task-id';
+  if (normalized.includes('toolcallid') || normalized.includes('tooluseid')) {
+    return 'tool-call-id';
+  }
   if (normalized.includes('idempotencykey')) return 'idempotency-key';
   if (RAW_PAYLOAD_KEYS.has(normalized)) return 'payload';
   return null;
+}
+
+function collectSensitiveDescendants(value, category, tokens) {
+  if (Array.isArray(value)) {
+    value.forEach((child) => collectSensitiveDescendants(child, category, tokens));
+    return;
+  }
+  if (value && typeof value === 'object') {
+    Object.values(value).forEach((child) => (
+      collectSensitiveDescendants(child, category, tokens)
+    ));
+    return;
+  }
+  if (typeof value !== 'string' && typeof value !== 'number') return;
+  const token = String(value);
+  if (token.length >= 6) tokens.set(token, `<redacted-${category}>`);
 }
 
 function collectSensitiveTokens(value, tokens) {
@@ -72,6 +92,10 @@ function collectSensitiveTokens(value, tokens) {
     if (category && (typeof child === 'string' || typeof child === 'number')) {
       const token = String(child);
       if (token.length >= 6) tokens.set(token, `<redacted-${category}>`);
+      continue;
+    }
+    if (category && category !== 'payload') {
+      collectSensitiveDescendants(child, category, tokens);
       continue;
     }
     if (!category) collectSensitiveTokens(child, tokens);

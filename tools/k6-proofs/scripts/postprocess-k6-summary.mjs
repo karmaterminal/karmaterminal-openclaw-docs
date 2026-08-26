@@ -5,6 +5,9 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import {
+  validateRcdChainAuthoritativeReceipt,
+} from '../lib/r-cd-chained-depth-2-authoritative-receipt.mjs';
+import {
   buildTelemetryBackendStatusReceipt,
   validateTelemetryBackendStatusReceipt,
 } from '../lib/telemetry-backend-status.js';
@@ -19,6 +22,28 @@ function usage() {
   --manifest tools/k6-proofs/manifests/preflight.example.json \\
   --summary /tmp/k6-summary.json \\
   [--out-root PROOFS] [--run-id k6-run-YYYYMMDDTHHMMSSZ]`);
+}
+
+function authoritativeReceiptContract(rowId) {
+  if (rowId === 'R-CD-2') {
+    return {
+      file: 'r-cd-2-authoritative-receipt.json',
+      source: 'r-cd-2-row-scoped-resolver',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+      bindsCandidate: false,
+    };
+  }
+  if (rowId === 'R-CD-CHAINED-DEPTH-2') {
+    return {
+      file: 'r-cd-chained-depth-2-authoritative-receipt.json',
+      source: 'r-cd-chained-depth-2-row-scoped-resolver',
+      verdictSource: 'r-cd-chained-depth-2-authoritative-receipt',
+      validate: validateRcdChainAuthoritativeReceipt,
+      bindsCandidate: true,
+    };
+  }
+  return null;
 }
 
 function parseArgs(argv) {
@@ -249,16 +274,38 @@ async function main() {
   let authoritativeReceiptDigest = null;
   let authoritativeReceiptRaw = null;
   let authoritativeReceipt = null;
-  if (manifest.rowId === 'R-CD-2') {
-    if (!args['authoritative-receipt']) throw new Error('R-CD-2 requires --authoritative-receipt');
+  const receiptContract = authoritativeReceiptContract(manifest.rowId);
+  if (receiptContract) {
+    if (!args['authoritative-receipt']) {
+      throw new Error(`${manifest.rowId} requires --authoritative-receipt`);
+    }
     authoritativeReceiptRaw = readFileSync(args['authoritative-receipt']);
     const receipt = JSON.parse(authoritativeReceiptRaw.toString('utf8'));
-    const validation = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-    if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+    const validation = receiptContract.validate(
+      receipt,
+      process.env.OPENCLAW_GATEWAY_TOKEN,
+    );
+    if (!validation.valid) {
+      throw new Error(
+        `${manifest.rowId} authoritative receipt rejected: ${validation.reason}`,
+      );
+    }
+    if (receiptContract.bindsCandidate && (
+      receipt.binding?.candidateSha !== manifest.candidateSha ||
+      receipt.binding?.runtimeBuildSha !== manifest.candidateSha
+    )) {
+      throw new Error(
+        `${manifest.rowId} authoritative receipt candidate identity mismatch`,
+      );
+    }
     outcome = receipt.verdict;
-    verdictSource = 'r-cd-2-authoritative-receipt';
+    verdictSource = receiptContract.verdictSource;
     authoritativeReceiptDigest = createHash('sha256').update(authoritativeReceiptRaw).digest('hex');
-    authoritativeReceipt = { schema: receipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver' };
+    authoritativeReceipt = {
+      schema: receipt.schema,
+      validated: true,
+      source: receiptContract.source,
+    };
   }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
@@ -325,7 +372,7 @@ async function main() {
       'row-result.json',
       'k6-summary.json',
       'backend-status.json',
-      ...(authoritativeReceiptRaw ? ['r-cd-2-authoritative-receipt.json'] : []),
+      ...(authoritativeReceiptRaw ? [receiptContract.file] : []),
       ...(args['seat-readiness'] ? ['seat-readiness.json'] : []),
     ]);
     const artifactStatuses =
@@ -394,7 +441,13 @@ async function main() {
     transport: manifest.transport,
     outcome,
     verdictSource,
-    ...(authoritativeReceiptDigest ? { authoritativeReceipt: { ...authoritativeReceipt, file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest } } : {}),
+    ...(authoritativeReceiptDigest ? {
+      authoritativeReceipt: {
+        ...authoritativeReceipt,
+        file: receiptContract.file,
+        sha256: authoritativeReceiptDigest,
+      },
+    } : {}),
     metrics: {
       proofFailures: failureCount,
       checksRate: checkRate,
@@ -449,7 +502,9 @@ async function main() {
       `${JSON.stringify(backendStatus, null, 2)}\n`,
     );
   }
-  if (authoritativeReceiptRaw) await writeFile(path.join(runDir, 'r-cd-2-authoritative-receipt.json'), authoritativeReceiptRaw);
+  if (authoritativeReceiptRaw) {
+    await writeFile(path.join(runDir, receiptContract.file), authoritativeReceiptRaw);
+  }
   if (args['seat-readiness']) {
     await copyFile(args['seat-readiness'], path.join(runDir, 'seat-readiness.json'));
   }

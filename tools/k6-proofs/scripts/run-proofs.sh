@@ -52,6 +52,7 @@ bind_execution_roots() {
   EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
   CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
+  R_CD_CHAIN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-chained-depth-2-authoritative-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
@@ -1404,6 +1405,28 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       fi
     fi
 
+    R_CD_CHAIN_RECEIPT=""
+    R_CD_CHAIN_RECEIPT_SHA256=""
+    if [[ "$ROW_ID" == "R-CD-CHAINED-DEPTH-2" ]]; then
+      R_CD_CHAIN_RECEIPT="r-cd-chained-depth-2-authoritative-receipt.json"
+      CHAIN_RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        CHAIN_RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if node "$R_CD_CHAIN_RECEIPT_RESOLVER" "${CHAIN_RESOLVER_ARGS[@]}" \
+          > "$RUN_DIR/r-cd-chained-depth-2-authoritative-resolution.json"; then
+        SUMMARY_VERDICT="$(jq -r '.verdict // "PARTIAL-candidate"' "$RUN_DIR/$R_CD_CHAIN_RECEIPT")"
+        SUMMARY_VERDICT_SOURCE="r-cd-chained-depth-2-authoritative-receipt"
+        SUMMARY_FILE_VERDICT="$SUMMARY_VERDICT"
+        VU_LOG_VERDICT=""
+        R_CD_CHAIN_RECEIPT_SHA256="$(sha256sum "$RUN_DIR/$R_CD_CHAIN_RECEIPT" | cut -d' ' -f1)"
+      else
+        SUMMARY_VERDICT="PARTIAL-candidate"
+        SUMMARY_VERDICT_SOURCE="r-cd-chained-depth-2-authoritative-receipt-missing"
+        POSTPROCESS_RC=1
+      fi
+    fi
+
     R_CD_TOKEN_RECEIPT=""
     R_CD_TOKEN_RECEIPT_SHA256=""
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
@@ -1492,6 +1515,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       AUTHORITATIVE_RECEIPT="$R_CD_2_RECEIPT"
       AUTHORITATIVE_RECEIPT_SHA256="$R_CD_2_RECEIPT_SHA256"
       AUTHORITATIVE_RECEIPT_SOURCE="r-cd-2-row-scoped-resolver"
+    elif [[ "$ROW_ID" == "R-CD-CHAINED-DEPTH-2" ]]; then
+      AUTHORITATIVE_RECEIPT="$R_CD_CHAIN_RECEIPT"
+      AUTHORITATIVE_RECEIPT_SHA256="$R_CD_CHAIN_RECEIPT_SHA256"
+      AUTHORITATIVE_RECEIPT_SOURCE="r-cd-chained-depth-2-row-scoped-resolver"
     elif [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       AUTHORITATIVE_RECEIPT="$R_CD_TOKEN_RECEIPT"
       AUTHORITATIVE_RECEIPT_SHA256="$R_CD_TOKEN_RECEIPT_SHA256"

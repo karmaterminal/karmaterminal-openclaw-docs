@@ -29,6 +29,9 @@ import { join } from 'node:path';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import {
+  validateRcdChainAuthoritativeReceipt,
+} from '../lib/r-cd-chained-depth-2-authoritative-receipt.mjs';
+import {
   buildTelemetryBackendStatusReceipt,
   validateTelemetryBackendStatusReceipt,
 } from '../lib/telemetry-backend-status.js';
@@ -55,6 +58,28 @@ function stamp() {
 function usage() {
   console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
   process.exit(2);
+}
+
+function authoritativeReceiptContract(rowId) {
+  if (rowId === 'R-CD-2') {
+    return {
+      file: 'r-cd-2-authoritative-receipt.json',
+      source: 'r-cd-2-row-scoped-resolver',
+      verdictSource: 'r-cd-2-authoritative-receipt',
+      validate: validateRcd2AuthoritativeReceipt,
+      bindsCandidate: false,
+    };
+  }
+  if (rowId === 'R-CD-CHAINED-DEPTH-2') {
+    return {
+      file: 'r-cd-chained-depth-2-authoritative-receipt.json',
+      source: 'r-cd-chained-depth-2-row-scoped-resolver',
+      verdictSource: 'r-cd-chained-depth-2-authoritative-receipt',
+      validate: validateRcdChainAuthoritativeReceipt,
+      bindsCandidate: true,
+    };
+  }
+  return null;
 }
 
 // --- Main ---
@@ -113,14 +138,30 @@ try {
   process.exit(1);
 }
 
+const receiptContract = authoritativeReceiptContract(args.row);
 let authoritativeReceipt = null;
-if (args.row === 'R-CD-2') {
+if (receiptContract) {
   if (!args['authoritative-receipt']) {
-    throw new Error('R-CD-2 requires --authoritative-receipt; generic evidence cannot promote this row');
+    throw new Error(
+      `${args.row} requires --authoritative-receipt; generic evidence cannot promote this row`,
+    );
   }
   authoritativeReceipt = JSON.parse(readFileSync(args['authoritative-receipt'], 'utf8'));
-  const validation = validateRcd2AuthoritativeReceipt(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-  if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
+  const validation = receiptContract.validate(
+    authoritativeReceipt,
+    process.env.OPENCLAW_GATEWAY_TOKEN,
+  );
+  if (!validation.valid) {
+    throw new Error(`${args.row} authoritative receipt rejected: ${validation.reason}`);
+  }
+  if (receiptContract.bindsCandidate && (
+    authoritativeReceipt.binding?.candidateSha !== args.sha ||
+    authoritativeReceipt.binding?.runtimeBuildSha !== args.sha ||
+    evidence.candidateSha !== args.sha ||
+    evidence.runtimeBuildSha !== args.sha
+  )) {
+    throw new Error(`${args.row} authoritative receipt candidate identity mismatch`);
+  }
 }
 
 // --- REDACTION BOUNDARY ---
@@ -145,18 +186,12 @@ let authoritativeReceiptDigest = null;
 if (authoritativeReceipt) {
   const raw = readFileSync(args['authoritative-receipt']);
   authoritativeReceiptDigest = createHash('sha256').update(raw).digest('hex');
-  writeFileSync(join(outDir, 'r-cd-2-authoritative-receipt.json'), raw);
+  writeFileSync(join(outDir, receiptContract.file), raw);
 }
 
 if (args['seat-readiness']) {
   copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
 }
-if (authoritativeReceipt) {
-  // Carry the signed authority alongside every public candidate surface so a
-  // report/envelope cannot cite an uninspectable generic PASS.
-  copyFileSync(args['authoritative-receipt'], join(outDir, 'r-cd-2-authoritative-receipt.json'));
-}
-
 // Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
 writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
 
@@ -217,7 +252,7 @@ if (manifest?.telemetryContract) {
     'row-result.json',
     'k6-summary.json',
     'backend-status.json',
-    ...(authoritativeReceipt ? ['r-cd-2-authoritative-receipt.json'] : []),
+    ...(authoritativeReceipt ? [receiptContract.file] : []),
     ...(args['seat-readiness'] ? ['seat-readiness.json'] : []),
     ...(safeEvents.length > 0 ? ['gateway-events.ndjson'] : []),
   ]);
@@ -250,13 +285,13 @@ const result = {
   seat: args.seat,
   outcome: verdict,
   verdictSource: `${authoritativeReceipt
-    ? 'r-cd-2-authoritative-receipt'
+    ? receiptContract.verdictSource
     : 'generic-evidence'}${telemetryBlockers.length
     ? '+telemetry-disposition-policy'
     : ''}`,
   ...(authoritativeReceiptDigest ? { authoritativeReceipt: {
-    schema: authoritativeReceipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver',
-    file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest,
+    schema: authoritativeReceipt.schema, validated: true, source: receiptContract.source,
+    file: receiptContract.file, sha256: authoritativeReceiptDigest,
   } } : {}),
   ...(telemetryRebind ? { telemetryRebind } : {}),
   ...(backendStatus ? {

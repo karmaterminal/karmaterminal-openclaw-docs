@@ -22,12 +22,18 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { gatewayLifecyclePhase, gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 import {
+  rCdChainRootAckObserved,
+  rCdChainRootLifecycleStart,
+  rCdChainRootReturnAcceptance,
   rCdChainRootReturnCandidate,
   rCdChainObservationState,
   rCdChainRootReturnReceipt,
+  rCdChainTaskListPage,
+  rCdChainTaskLedgerReceipt,
+  rCdChainTaskSnapshotDelay,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 
 export const options = {
@@ -56,10 +62,10 @@ const DEFAULTS = {
   delaySeconds: 1,
   idempotencyKeyPrefix: 'R-CD-CHAIN',
 };
-const HARNESS_MARKER = '[k6-proof-harness]';
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_CHAIN_EVIDENCE_DELAY_MS || 1500);
 const DESCENDANT_OBSERVATION_MS = Number(__ENV.OPENCLAW_CHAIN_DESCENDANT_OBSERVATION_MS || 180000);
 const ROOT_RETURN_OBSERVATION_MS = Number(__ENV.OPENCLAW_CHAIN_ROOT_RETURN_OBSERVATION_MS || 120000);
+const TASK_SNAPSHOT_POLL_MS = Number(__ENV.OPENCLAW_CHAIN_TASK_SNAPSHOT_POLL_MS || 5000);
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -108,6 +114,7 @@ export default function () {
     session_created: false,
     created_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
+    runtimeBuildSha: __ENV.OPENCLAW_RUNTIME_BUILD_SHA || 'unset',
     started: new Date().toISOString(),
     // Chain progression
     parent_dispatch_accepted: false,
@@ -118,8 +125,17 @@ export default function () {
     depth1_recovery_wake_scheduled: false,
     grandchild_done_sentinel: false,
     chain_return_received: false,
+    task_ledger_receipt: null,
     root_return_candidate: null,
+    root_return_acceptance: null,
     root_return_receipt: null,
+    root_ack_sentinel_observed: false,
+    dispatch_run_captured: false,
+    accepted_dispatch_run_id: null,
+    task_pagination_exhausted: false,
+    tasks_list_rejected: 0,
+    task_snapshot_stable_count: 0,
+    task_snapshot_digest: null,
     dispatch_accepted_at_ms: null,
     grandchild_observed_at_ms: null,
     observation_phase: 'not-dispatched',
@@ -141,6 +157,10 @@ export default function () {
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     let rootReturnTimerStarted = false;
+    let descendantTimerStarted = false;
+    let taskSnapshotPollPending = false;
+    let taskSnapshot = null;
+    const rootObservationEvents = [];
 
     function updateObservationState() {
       if (!evidence.dispatch_accepted_at_ms) return null;
@@ -160,39 +180,246 @@ export default function () {
     function startRootReturnObservationWindow(socket) {
       if (rootReturnTimerStarted || evidence.grandchild_observed_at_ms === null) return;
       rootReturnTimerStarted = true;
-      updateObservationState();
+      const initialState = updateObservationState();
+      const remainingMs = initialState?.deadlineAtMs === null
+        ? ROOT_RETURN_OBSERVATION_MS
+        : Math.max(0, initialState.deadlineAtMs - Date.now());
       socket.setTimeout(() => {
         const state = updateObservationState();
         if (state?.phase === 'root-return-timeout') {
           evidence.terminal_reason = 'root-return-observation-window-expired';
           socket.close();
         }
-      }, ROOT_RETURN_OBSERVATION_MS);
+      }, remainingMs);
     }
 
-    function finalizeRootReturnReceipt() {
-      evidence.root_return_receipt = rCdChainRootReturnReceipt(
-        evidence.root_return_candidate,
-        {
-          childSessionKey: evidence.child_session,
-          grandchildSessionKey: evidence.grandchild_session,
-        },
-      );
-      evidence.chain_return_received = evidence.root_return_receipt !== null;
+    function startDescendantObservationWindow(socket) {
+      if (descendantTimerStarted || !evidence.dispatch_accepted_at_ms) return;
+      descendantTimerStarted = true;
+      const schedule = () => {
+        const state = updateObservationState();
+        if (state?.phase === 'descendant-timeout') {
+          evidence.terminal_reason = 'descendant-observation-window-expired';
+          socket.close();
+          return;
+        }
+        if (state?.phase !== 'awaiting-descendants' || state.deadlineAtMs === null) return;
+        socket.setTimeout(schedule, Math.max(0, state.deadlineAtMs - Date.now()));
+      };
+      schedule();
     }
 
-    function observeChainSession(observedSessionKey) {
-      if (!observedSessionKey || observedSessionKey === sessionKey) return;
-      if (!evidence.child_session) {
-        evidence.child_session = observedSessionKey;
+    function taskId(task) {
+      const ids = [task?.id, task?.taskId]
+        .filter((value) => typeof value === 'string' && value.length > 0);
+      const unique = [...new Set(ids)];
+      return unique.length === 1 ? unique[0] : null;
+    }
+
+    function taskCreatedAtMs(task) {
+      const numeric = Number(task?.createdAt);
+      if (Number.isFinite(numeric)) return numeric;
+      const parsed = Date.parse(task?.createdAt);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function scheduleTaskSnapshot(socket, delayMs = TASK_SNAPSHOT_POLL_MS) {
+      const nextDelayMs = rCdChainTaskSnapshotDelay({
+        now: Date.now(),
+        dispatchAcceptedAt: evidence.dispatch_accepted_at_ms,
+        descendantTimeoutMs: DESCENDANT_OBSERVATION_MS,
+        requestedDelayMs: delayMs,
+        hasLedgerReceipt: evidence.task_ledger_receipt !== null,
+        snapshotInFlight: taskSnapshot !== null,
+        pollPending: taskSnapshotPollPending,
+      });
+      if (nextDelayMs === null) return;
+      taskSnapshotPollPending = true;
+      socket.setTimeout(() => {
+        taskSnapshotPollPending = false;
+        requestTaskSnapshot(socket);
+      }, nextDelayMs);
+    }
+
+    function rejectTaskSnapshot(socket, reason) {
+      evidence.tasks_list_rejected += 1;
+      evidence.task_pagination_exhausted = false;
+      taskSnapshot = null;
+      console.warn(`✗ task snapshot rejected: ${reason}`);
+      scheduleTaskSnapshot(socket);
+    }
+
+    function requestNextTaskDetail(socket) {
+      if (!taskSnapshot) return;
+      const nextTaskId = taskSnapshot.detailQueue.shift();
+      if (!nextTaskId) {
+        const details = taskSnapshot.details
+          .slice()
+          .sort((left, right) => taskId(left).localeCompare(taskId(right)));
+        const digest = crypto.sha256(JSON.stringify(details), 'hex').slice(0, 16);
+        evidence.task_snapshot_stable_count =
+          evidence.task_snapshot_digest === digest
+            ? evidence.task_snapshot_stable_count + 1
+            : 1;
+        evidence.task_snapshot_digest = digest;
+        evidence.task_pagination_exhausted = true;
+        const taskLedgerReceipt = rCdChainTaskLedgerReceipt(details, {
+          rootSessionKey: sessionKey,
+          nonce: chainNonce,
+          dispatchAcceptedAtMs: evidence.dispatch_accepted_at_ms,
+        });
+        taskSnapshot = null;
+        if (!taskLedgerReceipt || evidence.task_snapshot_stable_count < 2) {
+          scheduleTaskSnapshot(socket);
+          return;
+        }
+        if (Date.now() >= evidence.dispatch_accepted_at_ms + DESCENDANT_OBSERVATION_MS) {
+          evidence.terminal_reason = 'descendant-observation-window-expired';
+          socket.close();
+          return;
+        }
+        evidence.task_ledger_receipt = taskLedgerReceipt;
+        evidence.child_session = taskLedgerReceipt.childSessionKey;
+        evidence.grandchild_session = taskLedgerReceipt.grandchildSessionKey;
         evidence.child_spawned = true;
-        if (evidence.max_depth_observed < 1) evidence.max_depth_observed = 1;
-      } else if (observedSessionKey !== evidence.child_session && !evidence.grandchild_session) {
-        evidence.grandchild_session = observedSessionKey;
         evidence.grandchild_spawned = true;
-        if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
+        evidence.child_waiting_sentinel = true;
+        evidence.depth1_recovery_wake_scheduled = true;
+        evidence.grandchild_done_sentinel = true;
+        evidence.max_depth_observed = taskLedgerReceipt.maxDepth;
+        evidence.grandchild_observed_at_ms = taskLedgerReceipt.completedAtMs;
+        startRootReturnObservationWindow(socket);
+        reconcileRootConsumption();
+        console.log('✓ stable, fully paginated exactly-once depth-2 task ledger observed');
+        return;
       }
-      finalizeRootReturnReceipt();
+      taskSnapshot.currentDetailId = nextTaskId;
+      tracker.send(socket, 'tasks.get', { taskId: nextTaskId });
+    }
+
+    function finishTaskListPagination(socket) {
+      if (!taskSnapshot) return;
+      const rootTasks = taskSnapshot.tasks.filter((task) => (
+        task?.sessionKey === sessionKey &&
+        typeof task?.childSessionKey === 'string' &&
+        taskCreatedAtMs(task) !== null &&
+        taskCreatedAtMs(task) >= evidence.dispatch_accepted_at_ms
+      ));
+      const childKeys = new Set(rootTasks.map((task) => task.childSessionKey));
+      const candidates = taskSnapshot.tasks.filter((task) => (
+        rootTasks.includes(task) ||
+        (
+          childKeys.has(task?.sessionKey) &&
+          typeof task?.childSessionKey === 'string' &&
+          taskCreatedAtMs(task) !== null &&
+          taskCreatedAtMs(task) >= evidence.dispatch_accepted_at_ms
+        )
+      ));
+      const ids = candidates.map(taskId);
+      if (ids.some((value) => !value) || new Set(ids).size !== ids.length) {
+        rejectTaskSnapshot(
+          socket,
+          'duplicate or invalid task identity across paginated snapshot',
+        );
+        return;
+      }
+      taskSnapshot.detailQueue = ids;
+      taskSnapshot.details = [];
+      requestNextTaskDetail(socket);
+    }
+
+    function requestTaskSnapshot(socket) {
+      if (taskSnapshot ||
+          evidence.task_ledger_receipt ||
+          !evidence.parent_dispatch_accepted ||
+          Date.now() >= evidence.dispatch_accepted_at_ms + DESCENDANT_OBSERVATION_MS) {
+        return;
+      }
+      taskSnapshot = {
+        tasks: [],
+        seenCursors: [''],
+        detailQueue: [],
+        details: [],
+        currentDetailId: null,
+      };
+      evidence.task_pagination_exhausted = false;
+      tracker.send(socket, 'tasks.list', { limit: 100 });
+    }
+
+    function reconcileRootConsumption() {
+      if (!evidence.task_ledger_receipt || !evidence.accepted_dispatch_run_id) return;
+      const lifecycleStarts = new Map();
+      let candidate = null;
+      let acceptance = null;
+      let receipt = null;
+      let assistantSentinelObserved = false;
+      for (const event of rootObservationEvents) {
+        const lifecycleStart = rCdChainRootLifecycleStart({
+          eventName: event.eventName,
+          eventData: event.eventData,
+          rootSessionKey: sessionKey,
+          taskLedgerReceipt: evidence.task_ledger_receipt,
+          dispatchRunId: evidence.accepted_dispatch_run_id,
+          observedAtMs: event.observedAtMs,
+        });
+        if (lifecycleStart) {
+          lifecycleStarts.set(lifecycleStart.runId, lifecycleStart.startedAtMs);
+        }
+        if (!candidate) {
+          for (const [lifecycleRunId, lifecycleStartedAtMs] of lifecycleStarts) {
+            candidate = rCdChainRootReturnCandidate({
+              eventName: event.eventName,
+              eventData: event.eventData,
+              rootSessionKey: sessionKey,
+              nonce: chainNonce,
+              taskLedgerReceipt: evidence.task_ledger_receipt,
+              dispatchRunId: evidence.accepted_dispatch_run_id,
+              lifecycleRunId,
+              lifecycleStartedAtMs,
+              observedAtMs: event.observedAtMs,
+            });
+            if (candidate) break;
+          }
+        }
+        if (candidate && !acceptance) {
+          acceptance = rCdChainRootReturnAcceptance(candidate, {
+            eventName: event.eventName,
+            eventData: event.eventData,
+            observedAtMs: event.observedAtMs,
+          });
+        }
+        if (candidate && rCdChainRootAckObserved({
+          eventName: event.eventName,
+          eventData: event.eventData,
+          rootSessionKey: sessionKey,
+          nonce: chainNonce,
+          lifecycleRunId: candidate.runId,
+        })) {
+          assistantSentinelObserved = true;
+        }
+        if (acceptance) {
+          receipt = rCdChainRootReturnReceipt(acceptance, {
+            childSessionKey: evidence.child_session,
+            grandchildSessionKey: evidence.grandchild_session,
+            eventName: event.eventName,
+            eventData: event.eventData,
+            observedAtMs: event.observedAtMs,
+            assistantSentinelObserved,
+          });
+          if (receipt) break;
+        }
+      }
+      evidence.root_return_candidate = candidate;
+      evidence.root_return_acceptance = acceptance;
+      evidence.root_return_receipt = receipt;
+      evidence.chain_return_received = receipt !== null;
+      if (receipt) {
+        evidence.child_done_sentinel = true;
+        evidence.grandchild_done_sentinel = true;
+        evidence.root_ack_sentinel_observed = receipt.assistantSentinelObserved;
+        evidence.terminal_reason = 'structured-root-consumption-received';
+        updateObservationState();
+      }
     }
 
     function startProofFlow(socket) {
@@ -215,7 +442,8 @@ export default function () {
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${chainNonce}". ` +
           `After the tool result reports scheduled, reply exactly ROOT-READY ${chainNonce}. ` +
           `On a later turn, only after an internal task completion contains CHILD-DONE ${chainNonce} CHILD-SAW-GRANDCHILD, ` +
-          `reply exactly ROOT-CHAIN-ACK ${chainNonce}.`;
+          `consume that completion in the normal structured heartbeat response. ` +
+          `ROOT-CHAIN-ACK ${chainNonce} is optional supplemental confirmation.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -223,23 +451,6 @@ export default function () {
         });
       }, 500);
 
-      // Optional context: poll task ledger at intervals.
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 8000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 20000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 40000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 90000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 120000);
-
-      // Descendant progression owns its own deadline. Once the leaf appears,
-      // root-return observation gets a fresh window and this timer stands down.
-      socket.setTimeout(() => {
-        const state = updateObservationState();
-        if (state?.phase === 'descendant-timeout') {
-          evidence.terminal_reason = 'descendant-observation-window-expired';
-          socket.close();
-        }
-      }, DESCENDANT_OBSERVATION_MS);
     }
 
     socket.on('open', () => {
@@ -293,7 +504,11 @@ export default function () {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            evidence.accepted_dispatch_run_id = gatewayLifecycleRunId(classified.payload);
+            evidence.dispatch_run_captured = Boolean(evidence.accepted_dispatch_run_id);
             updateObservationState();
+            startDescendantObservationWindow(socket);
+            scheduleTaskSnapshot(socket, 8000);
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for depth-2 chain');
           } else {
@@ -302,66 +517,69 @@ export default function () {
           }
         }
 
-        // Optional TaskFlow ledger context. Absence here is not a failure:
-        // continue_delegate uses pending-delegate/subagent surfaces.
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
-          for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (!taskStr.includes(chainNonce)) continue;
-            observeChainSession(task.sessionKey);
-            observeChainSession(task.childSessionKey);
-            if (task.traceId) evidence.trace_id = task.traceId;
+          if (!taskSnapshot) {
+            evidence.tasks_list_rejected += 1;
+          } else if (!classified.ok) {
+            rejectTaskSnapshot(socket, 'tasks.list request failed');
+          } else {
+            const page = rCdChainTaskListPage(
+              {
+                tasks: taskSnapshot.tasks,
+                seenCursors: taskSnapshot.seenCursors,
+              },
+              classified.payload,
+            );
+            if (!page.ok) {
+              rejectTaskSnapshot(socket, page.reason);
+            } else {
+              taskSnapshot.tasks = page.state.tasks;
+              taskSnapshot.seenCursors = page.state.seenCursors;
+              if (page.complete) {
+                finishTaskListPagination(socket);
+              } else {
+                tracker.send(socket, 'tasks.list', {
+                  limit: 100,
+                  cursor: page.nextCursor,
+                });
+              }
+            }
           }
         }
 
-        // Chain progression on subscribed session events. These are the primary
-        // public proof surface for continue_delegate chains; task registry rows
-        // are only optional context.
+        if (classified.kind === 'response' && classified.method === 'tasks.get') {
+          if (!taskSnapshot || !taskSnapshot.currentDetailId) {
+            evidence.tasks_list_rejected += 1;
+          } else if (!classified.ok ||
+              taskId(classified.payload?.task) !== taskSnapshot.currentDetailId) {
+            rejectTaskSnapshot(socket, 'tasks.get response did not match requested task');
+          } else {
+            taskSnapshot.details.push(classified.payload.task);
+            taskSnapshot.currentDetailId = null;
+            requestNextTaskDetail(socket);
+          }
+        }
+
+        // Replay root transcript and lifecycle events against the completed task
+        // ledger so evidence arriving before the second stable poll is retained.
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
-          const eventStr = JSON.stringify(eventData);
-          observeChainSession(childSessionKeyForRow(eventData, chainNonce));
-          if (eventStr.includes(chainNonce)) {
-            if (eventStr.includes(HARNESS_MARKER)) {
-              console.log('ℹ Ignoring harness prompt echo event');
-            } else if (evidence.parent_dispatch_accepted && evidence.dispatch_accepted_at_ms) {
-              const elapsed = Date.now() - evidence.dispatch_accepted_at_ms;
-              if (elapsed >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-                if (eventStr.includes(
-                  `CHILD-WAITING ${chainNonce} CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED`,
-                )) {
-                  evidence.child_waiting_sentinel = true;
-                  evidence.depth1_recovery_wake_scheduled = true;
-                  console.log('✓ depth-1 delegate and recovery wake scheduled');
-                }
-                if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-SAW-GRANDCHILD`)) {
-                  evidence.child_done_sentinel = true;
-                  console.log('✓ depth-1 returned only after observing grandchild');
-                }
-                if (eventStr.includes(`GRANDCHILD-DONE ${chainNonce}`)) {
-                  evidence.grandchild_done_sentinel = true;
-                  if (evidence.grandchild_observed_at_ms === null) {
-                    evidence.grandchild_observed_at_ms = Date.now();
-                    startRootReturnObservationWindow(socket);
-                  }
-                  console.log('✓ GRANDCHILD-DONE sentinel observed post-dispatch');
-                }
-                const rootReturnCandidate = rCdChainRootReturnCandidate({
-                  eventName,
-                  eventData,
-                  rootSessionKey: sessionKey,
-                  nonce: chainNonce,
-                });
-                if (rootReturnCandidate) {
-                  evidence.root_return_candidate = rootReturnCandidate;
-                  finalizeRootReturnReceipt();
-                  evidence.terminal_reason = 'root-return-received';
-                  updateObservationState();
-                  console.log('✓ explicit nonce-bound root consumption ack observed');
-                }
-              }
+          const afterDispatchGate = evidence.parent_dispatch_accepted &&
+            evidence.dispatch_accepted_at_ms &&
+            Date.now() - evidence.dispatch_accepted_at_ms >=
+              POST_DISPATCH_EVIDENCE_GATE_MS;
+          if (afterDispatchGate &&
+              (eventName === 'session.message' ||
+                (eventName === 'agent' && gatewayLifecyclePhase(eventData)))) {
+            rootObservationEvents.push({
+              eventName,
+              eventData,
+              observedAtMs: Date.now(),
+            });
+            reconcileRootConsumption();
+            if (evidence.root_return_receipt) {
+              console.log('✓ structured post-return root consumption observed');
             }
           }
         }
@@ -395,16 +613,19 @@ export default function () {
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'parent dispatch accepted': () => evidence.parent_dispatch_accepted,
+    'dispatch run identity captured': () => evidence.dispatch_run_captured,
+    'exactly-once depth-2 task ledger observed': () => evidence.task_ledger_receipt !== null,
     'child sentinel observed post-dispatch': () => evidence.child_done_sentinel,
     'depth-1 recovery wake scheduled': () => evidence.depth1_recovery_wake_scheduled,
     'grandchild sentinel observed post-dispatch': () => evidence.grandchild_done_sentinel,
     'nonce-bound child identity observed': () => evidence.child_session !== null,
     'nonce-bound grandchild identity observed': () => evidence.grandchild_session !== null,
-    'explicit root consumption ack observed': () => evidence.root_return_receipt !== null,
+    'structured post-return root consumption observed': () => evidence.root_return_receipt !== null,
     'max depth >= 2': () => evidence.max_depth_observed >= 2,
   });
 
-  if (!evidence.parent_dispatch_accepted || !evidence.child_done_sentinel ||
+  if (!evidence.parent_dispatch_accepted || !evidence.dispatch_run_captured ||
+      !evidence.task_ledger_receipt || !evidence.child_done_sentinel ||
       !evidence.depth1_recovery_wake_scheduled ||
       !evidence.grandchild_done_sentinel || !evidence.child_session ||
       !evidence.grandchild_session || !evidence.root_return_receipt) {
@@ -413,6 +634,8 @@ export default function () {
 
   const passed = (!createDisposableSession || evidence.session_created) &&
     evidence.parent_dispatch_accepted &&
+    evidence.dispatch_run_captured &&
+    evidence.task_ledger_receipt !== null &&
     evidence.depth1_recovery_wake_scheduled &&
     evidence.child_done_sentinel &&
     evidence.grandchild_done_sentinel &&

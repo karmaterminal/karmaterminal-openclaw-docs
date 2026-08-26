@@ -1,6 +1,7 @@
-// Spawn events expose row text as task/text; tasks.list exposes it as title.
+// Spawn events expose row text as task/text; tasks.list exposes it as title,
+// while tasks.get supplies the full prompt when bounded titles truncate.
 // Routing keys identify sessions and must never supply row-nonce authority.
-const DIRECT_ROW_IDENTITY_FIELDS = ['task', 'text', 'title'];
+const DIRECT_ROW_IDENTITY_FIELDS = ['task', 'text', 'title', 'prompt'];
 const TASK_RECORD_FIELDS = ['task'];
 const TASK_RECORD_COLLECTION_FIELDS = ['tasks', 'records'];
 const TASK_IDENTITY_NONCE_SUFFIX_CHARS = 16;

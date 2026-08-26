@@ -19,18 +19,36 @@ test('R-CW-6 generated boundary follows current product ownership and retains di
   assert.match(runner, /selectedDelegateDiagnostics/);
 });
 
-test('R-CD-CHAINED-DEPTH-2 restores the proven post-leaf recovery boundary', async () => {
-  const [manifestRaw, scenario] = await Promise.all([
+test('R-CD-CHAINED-DEPTH-2 restores post-leaf recovery and structured root authority', async () => {
+  const [manifestRaw, scenario, runner, candidate] = await Promise.all([
     read('manifests/r-cd-chained-depth-2.json'),
     read('scenarios/r-cd-chained-depth-2.js'),
+    read('scripts/run-proofs.sh'),
+    read('scripts/candidate-run-result-contract.mjs'),
+  ]);
+  await Promise.all([
+    access(path.join(root, 'lib/r-cd-chained-depth-2-authority.mjs')),
+    access(path.join(root, 'lib/r-cd-chained-depth-2-authoritative-receipt.mjs')),
+    access(path.join(root, 'scripts/resolve-r-cd-chained-depth-2-authoritative-receipt.mjs')),
+    access(path.join(root, 'tests/fixtures/r-cd-chained-depth-2-run-32981265676.json')),
   ]);
   const manifest = JSON.parse(manifestRaw);
   assert.equal(manifest.invocation.fanoutMode, 'tree');
   assert.match(manifest.invocation.promptTemplate, /continue_work/);
   assert.match(manifest.invocation.promptTemplate, /CHILD-SAW-GRANDCHILD/);
   assert.ok(manifest.liveRunSafety.requiredReceipts.includes('depth1-recovery-wake'));
+  assert.ok(manifest.liveRunSafety.requiredReceipts.includes('exactly-once-chain-completion'));
   assert.match(scenario, /ROOT_RETURN_OBSERVATION_MS/);
   assert.match(scenario, /startRootReturnObservationWindow/);
+  assert.match(scenario, /startDescendantObservationWindow\(socket\)/);
+  assert.match(scenario, /state\.deadlineAtMs - Date\.now\(\)/);
+  assert.match(scenario, /rCdChainTaskLedgerReceipt/);
+  assert.match(scenario, /task_pagination_exhausted/);
+  assert.match(scenario, /tasks\.get/);
+  assert.match(scenario, /scheduleTaskSnapshot\(socket\)/);
+  assert.match(scenario, /structured post-return root consumption observed/);
+  assert.match(runner, /R_CD_CHAIN_RECEIPT_RESOLVER/);
+  assert.match(candidate, /r-cd-chained-depth-2-row-scoped-resolver/);
   assert.doesNotMatch(scenario, /socket\.setTimeout\(\(\) => socket\.close\(\), 150000\)/);
 });
 

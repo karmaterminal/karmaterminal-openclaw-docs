@@ -151,7 +151,8 @@
       <Evidence>bracketIdx=0; delegate spawns from bracket-parse path (origin=bracket)</Evidence>
     </Row>
     <Row id="R-CD-CHAINED-DEPTH-2" owner="ronan" forms="tool" issue="119">
-      <Behavior>Depth-2 chain: parent→child→grandchild→return</Behavior>
+      <Behavior>Depth-2 chain: parent→child→grandchild→exactly-once return→structured root consumption</Behavior>
+      <Evidence>Exactly two completed/delivered nonce-bound task rows form root→child→grandchild; after both complete, one root lifecycle run submits both returns in structured heartbeat_respond fields, receives status=accepted for the same tool call, and ends successfully. ROOT-CHAIN-ACK prose is supplemental only.</Evidence>
       <SubTests>
         <Test id="Chain-1">up-tree silent-wake</Test>
         <Test id="Chain-2">inter-session return</Test>

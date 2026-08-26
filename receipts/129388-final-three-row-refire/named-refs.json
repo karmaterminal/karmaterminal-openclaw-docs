@@ -1,0 +1,68 @@
+{
+  "schema": "openclaw.project81.129388-final-three-row-refire.named-refs.v1",
+  "recordedAt": "2026-08-26T19:55:29Z",
+  "proofRowsFired": false,
+  "refs": {
+    "productRuntimeComposite": {
+      "namedRef": "karmaterminal/openclaw:codeagent/129388-runtime-composite-final-cures@0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "resolvedSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "localSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "trackingSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "serverSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "trackedClean": true,
+      "equal": true
+    },
+    "safeLane": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-final-three-row-refire",
+      "resolvedSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "localSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "trackingSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "serverSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "unchangedBranchPublishedBeforeEvidence": true,
+      "equal": true
+    },
+    "ciWorkflow": {
+      "namedRef": ".github/workflows/project81-k6-proof.yml from codeagent/129388-final-three-row-refire",
+      "resolvedSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "localSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "trackingSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "serverSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "workflowBlob": "c08b7b5556e604feb62b981b3c41dfec4cb013ea",
+      "workflowSha256": "6b7cb215cc64ae250c748561e9023f2b602bdf7e3fafa3b9532d1a65703d8c1a",
+      "equal": true
+    },
+    "presentation": {
+      "namedRef": "karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates@4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "resolvedSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "localSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "trackingSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "serverSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "readOnly": true,
+      "equal": true
+    },
+    "docsProofHarnessBase": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs@85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "resolvedSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "localSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "trackingSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "serverSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "equal": true
+    },
+    "failedPredecessorEvidence": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs@dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed",
+      "resolvedSha": "dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed",
+      "localSha": "dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed",
+      "trackingSha": null,
+      "trackingDisposition": "N/A (immutable commit/run/artifact)",
+      "serverSha": "dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed",
+      "runId": 32981265676,
+      "runHeadSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "runConclusion": "failure",
+      "artifactId": 9612027467,
+      "artifactName": "project81-k6-proof-32981265676",
+      "artifactExpired": false,
+      "equal": true
+    }
+  },
+  "allApplicableRefsEqual": true
+}

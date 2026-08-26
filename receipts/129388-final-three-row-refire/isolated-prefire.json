@@ -1,0 +1,150 @@
+{
+  "schema": "openclaw.project81.129388-final-three-row-refire.isolated-prefire.v1",
+  "recordedAt": "2026-08-26T20:07:30Z",
+  "outcome": "PASS-candidate",
+  "proofRowsFired": false,
+  "host": {
+    "seat": "ronan",
+    "architecture": "aarch64",
+    "nodeVersion": "v25.9.0",
+    "k6Version": "v2.0.0"
+  },
+  "runtime": {
+    "candidateSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "treeSha": "aa2cf494b7a859dbcdfaf33a279830033d2c6f36",
+    "trackedClean": true,
+    "buildAuthority": "frozen final-composite receipt",
+    "buildInfo": {
+      "commit": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "sha256": "35fae0fa29607c7801082a374d58ead0daa1cf39350489f201a3dd43431fc329"
+    },
+    "cliIdentity": "OpenClaw 2026.8.1 (0c033c4)",
+    "dist": {
+      "fileCount": 12145,
+      "preTrafficSha256": "df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453",
+      "postSmokeSha256": "df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453",
+      "unchanged": true
+    }
+  },
+  "dependencies": {
+    "sameHost": true,
+    "dependencyCloneSha": "2f9b9b7a90988190a149208cbbad68558d1d7daa",
+    "packageJsonSha256": "f381882c5299390ea74a7d095a512e50b4914e7eb380bf26f0c6b5b28976899d",
+    "pnpmLockSha256": "688c9780ded8ee8c83d4f0375d25213c26c02e36b12f6e7659d6c594c3b554e6",
+    "pnpmWorkspaceSha256": "178d57f60d7a3fa7e679ef07be87d168570c1756557b367d6dc06d3445136b58",
+    "candidateAndDependencyCloneInstallInputsEqual": true,
+    "projectInstallRunInLinkedWorktree": false
+  },
+  "isolation": {
+    "unit": "openclaw-proof-129388-final-three-row-refire.service",
+    "pid": 160460,
+    "processStartTicks": "58378290",
+    "pgid": 160460,
+    "sid": 160460,
+    "commandSha256": "403c7ff91dd7590715ced1ad84c73b4680c8ba0f2b5fcb7f74d101fa643e28e6",
+    "launcherSha256": "de931e5bbf6147ff4464799ed83547ad188bcb84e13cb44a6d69df16040186c2",
+    "configSha256": "25820fd87aa18b5911dc49a6ddfe969489c61ff877989f69ecd46d6826703364",
+    "loopbackListeners": [
+      "127.0.0.1:19892",
+      "[::1]:19892"
+    ],
+    "separateConfig": true,
+    "separateState": true,
+    "separateDatabase": true,
+    "separateWorkspace": true,
+    "separateHome": true,
+    "separateLogs": true,
+    "channelsConfigured": 0,
+    "liveSessionsCopied": false,
+    "priorProofSessionsCopied": false,
+    "preSmokeSessionTranscriptFiles": 0,
+    "postSmokeSessionTranscriptFiles": 1
+  },
+  "credentialRoute": {
+    "sharedStoreOwnership": "state-db",
+    "profilesCopied": 1,
+    "provider": "openai",
+    "type": "oauth",
+    "profileIdPublished": false,
+    "profileIdFingerprint": "0b65c92fa836e1d98f1793ebe8708f6aa7f98ba1d029ead5707877c7d4b6c1cb",
+    "authRuntimeStateRowsBeforeSmoke": 0,
+    "authRuntimeStateRowsAfterSmoke": 0
+  },
+  "telemetry": {
+    "plugin": "diagnostics-otel",
+    "enabled": true,
+    "endpoint": "http://otel.dandelion.cult:4318",
+    "protocol": "http/protobuf",
+    "serviceName": "ronan-isolated-129388-0c033c46",
+    "traces": true,
+    "metrics": false,
+    "logs": false,
+    "sampleRate": 1,
+    "captureContent": false
+  },
+  "seatReadiness": {
+    "outcome": "PASS-candidate",
+    "receiptSha256": "3821ca046a2a92db5995a03097491ba10d678cb673195e1dd1832387ab3d0ae6",
+    "gatewayHealthReachable": true,
+    "gatewayStatusReachable": true,
+    "continuationEnabled": true,
+    "continuationDefaultsPresent": true,
+    "seatClass": "raw-final-text"
+  },
+  "setupClassification": {
+    "initialReadinessOutcome": "PARTIAL-candidate",
+    "category": "infrastructure-config",
+    "cause": "control UI was disabled, so the readiness status route returned HTTP 404",
+    "correction": "enabled the isolated control UI and allowed the non-restarting transient unit to exit cleanly before relaunch",
+    "proofTrafficBeforeCorrection": false,
+    "finalReadinessOutcome": "PASS-candidate"
+  },
+  "boundedSmoke": {
+    "status": "ok",
+    "provider": "openai",
+    "actualModelCalls": 1,
+    "canonicalPayloadExactSentinel": true,
+    "nonceSha256": "e231397f288c292f3d609b58c73231d16122dc3e3619783135da190040cfd1d0",
+    "privateResultSha256": "cbcd88178c7214befc4ddc1fc9557197520b9738bdc207a791c8b393579d56a6",
+    "preModelClientRejection": {
+      "classifiedAs": "infrastructure-client-input",
+      "cause": "unsupported minimal thinking level",
+      "gatewayTraffic": false,
+      "modelTraffic": false
+    },
+    "tempo": {
+      "httpStatus": 200,
+      "traceql": "{ resource.service.name=\"ronan-isolated-129388-0c033c46\" }",
+      "traceCount": 24,
+      "rootServiceNames": [
+        "ronan-isolated-129388-0c033c46"
+      ],
+      "rootTraceNames": [
+        "openclaw.diagnostic.phase",
+        "openclaw.harness.run",
+        "openclaw.model.usage"
+      ],
+      "completedJobs": 1,
+      "totalJobs": 1,
+      "inspectedBytes": "167547",
+      "totalBlocks": null,
+      "backendDisposition": "partial",
+      "countAuthority": false,
+      "searchArtifactSha256": "b186cf52f30a671d612b3e33ed99edce03dba5cff0866cdef29ca9c8276e188c"
+    }
+  },
+  "livePrinceBaseline": {
+    "unit": "openclaw-gateway.service",
+    "pid": 2272093,
+    "processStartTicks": "50957076",
+    "commandSha256": "625b1d970affb48bd776b16083037c7992886aeaaf459864902b672b59751bf0",
+    "configSha256": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "unchangedBeforeDispatch": true
+  },
+  "foreignProofBaseline": {
+    "unit": "openclaw-proof-a0aa4ec-hold.service",
+    "pid": 2498654,
+    "processStartTicks": "51871376",
+    "unchangedBeforeDispatch": true
+  }
+}

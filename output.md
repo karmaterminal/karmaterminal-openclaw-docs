@@ -1,266 +1,263 @@
-# R-CD-CHAINED-DEPTH-2 acknowledgment authority cure
-
-Bound issue: #119
+# PR #129388 final isolated three-row refire
 
 ## Outcome
 
-The harness cure is complete on reviewed harness checkpoint
-`f14fbd7895744ee596d1a5a30b09a2cec03dc3c0`; the core implementation is
-`6ddf5aa911596c4a0e557a5fcd196cf82bcd8680`. The historical artifact from
-Project-81 run `32981265676` remains immutable and retains its recorded
-`PARTIAL-candidate` verdict; it was not rewritten, folded, or rerun.
+Status: **TROUBLE; required outcome not met**.
 
-The row still requires root model consumption after both depth-2 returns. It no
-longer treats exact prose `ROOT-CHAIN-ACK` as that consumption authority.
-Candidate PASS instead requires all of the following:
+Exact Project-81 run
+[33008913520](https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/33008913520)
+executed only the three authorized rows on runtime
+`0c033c46c6365929c669bb7eff60a58ec914dbdd` and reviewed harness
+`85a783f4ef0352e64b37748f4164d5fdee96ceb4`. All three HMAC-validated
+authorities are `PARTIAL-candidate`, so the required all-PASS result is absent.
 
-1. A fully paginated task snapshot and nonce-bound `tasks.get` details resolve
-   exactly two unique tasks forming root -> child -> grandchild.
-2. Both tasks are `completed`, `deliveryStatus=delivered`, postdate dispatch,
-   carry unique task/run identities, and establish depth exactly 2.
-3. The depth-1 task records the committed `continue_work` recovery wake and the
-   depth-2 task records the exact grandchild marker.
-4. A later, non-dispatch root lifecycle run supplies the exact child marker and
-   grandchild marker through structured `heartbeat_respond` input fields.
-5. The matching heartbeat tool-call id receives `status=accepted`.
-6. The same root lifecycle run ends successfully.
-7. The typed `continue_delegate` trace correlation, candidate/runtime identity,
-   required artifacts, and public-safety checks all validate.
+| Row | Signed verdict | Classification |
+|---|---|---|
+| `R-CD-2` | `PARTIAL-candidate` | Product recurrence: typed call completed, but dispatch/fire still lack the originating `openclaw.tool.execution` parent |
+| `R-CD-CHAINED-DEPTH-2` | `PARTIAL-candidate` | Isolated-fixture infrastructure: nested spawn rejected at product default `maxSpawnDepth=1` |
+| `R-CD-TOKEN` | `PARTIAL-candidate` | Isolated-fixture infrastructure: raw-final origin completed, but its nested delegate was rejected at `maxSpawnDepth=1` |
 
-`ROOT-CHAIN-ACK` is retained only as supplemental evidence.
+The workflow conclusion is `failure`. No row was retried, no candidate envelope
+was promoted, and no artifact was folded into the corpus.
 
-## Named refs
+Acceptance path: **focused-only plus named Project-81 live run
+`33008913520`**. Mode-B, Gate 3g, a monolithic local suite, and
+Crabbox/Testbox were not used or claimed.
 
-The unchanged safe lane was published before contract evidence was evaluated.
-Exact commits and immutable run metadata are used where no branch ref applies.
+## Named-ref contract
 
-| Category | Required ref | Resolved identity | Equality |
-|---|---|---|---|
-| Product/runtime evidence | `karmaterminal/openclaw@a5db13ad6297721cbf43af445d5a4a9b9bb0ad67` | Server commit and exact read-only product worktree `a5db13ad6297721cbf43af445d5a4a9b9bb0ad67` | Requested = server = inspected source; product tree tracked-clean |
-| Safe lane/base | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-depth-ack-harness-cure` from `821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512` | Before evidence: local/tracking/server `821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512`; reviewed harness checkpoint `f14fbd7895744ee596d1a5a30b09a2cec03dc3c0` | Unchanged branch published before evidence; reviewed checkpoint local = tracking = server after push |
-| CI/workflow | N/A | N/A | Focused harness tests only; live workflow dispatch prohibited by the workorder |
-| Presentation | `karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates@4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | Server branch and commit `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | Requested branch tip = requested commit = server; read-only |
-| Docs/proof evidence | Report handoff `dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed`; run `32981265676`; artifact `9612027467` | Handoff local/server `dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed`; run head `821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512`; non-expired artifact `project81-k6-proof-32981265676` | Handoff local = server; required run/artifact identities match |
+The unchanged safe lane was published before any candidate evidence. The
+executed workflow head remained the reviewed harness commit; the final
+report-only successor changes no workflow, harness, scenario, manifest,
+`PROOFS/`, or product byte.
 
-The final output-only branch child is the SHA in the required COMPLETE receipt.
-It changes no harness, scenario, manifest, product, workflow, or proof corpus
-byte.
+| Category | Required ref | Resolved SHA | Local | Tracking | Server | Equality / use |
+|---|---|---|---|---|---|---|
+| Product/runtime composite | `karmaterminal/openclaw:codeagent/129388-runtime-composite-final-cures@0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | local = tracking = server; tracked-clean |
+| Safe lane, pre-evidence/executed | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-final-three-row-refire` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | unchanged branch published; local = tracking = server |
+| CI/workflow | `.github/workflows/project81-k6-proof.yml` from exact safe-lane ref | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | run head equal; blob `c08b7b5556e604feb62b981b3c41dfec4cb013ea`, SHA-256 `6b7cb215cc64ae250c748561e9023f2b602bdf7e3fafa3b9532d1a65703d8c1a` |
+| Presentation | `karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates@4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | local = tracking = server; read-only |
+| Docs/proof harness base | `karmaterminal/karmaterminal-openclaw-docs@85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` | local = harness tracking = harness server |
+| Failed predecessor evidence | `karmaterminal/karmaterminal-openclaw-docs@dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed`; run `32981265676`; artifact `9612027467` | `dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed` | `dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed` | N/A (immutable commit/run/artifact) | `dc6bffc8f55692a9fc6131d67c77a4e9b116a4ed` | local = server; predecessor ZIP SHA-256 `0505d580b8a59da3b8c81a8fde417fadd779e08faf004dc5c1bf113904523794` |
 
-## Steward restart and invalidated delegated reviews
+Machine receipt:
+`receipts/129388-final-three-row-refire/named-refs.json`.
 
-Two delegated code-review runs, `depth-ack-review` and
-`depth-ack-rereview`, were invoked contrary to the lane's no-subagent rule.
-Both reviews, every finding they emitted, and every conclusion attributed to
-them were invalidated with zero evidentiary credit. The steward restart at
-`2026-08-26T09:11:52-07:00` was reported to `#sprites`. No later subagent,
-review agent, Explore agent, or other AI delegate was used.
+## Exact runtime and isolated gateway
 
-Every retained change was then re-derived in this GPT-5.6 session from the exact
-artifact, preserved read-only state, exact product source, production protocol
-schemas, and deterministic tests. The complete diff was reviewed directly
-after those derivations.
-
-## Contract classification
-
-The exact run establishes classifications 2 and 3 from the workorder:
-
-- A post-return root model run did occur.
-- The model consumed structured evidence from both returns.
-- The exact assistant phrase was only a nondeterministic proxy for that stronger
-  structured boundary.
-
-This is not a delivery-only downgrade. Delivery is necessary but insufficient:
-completed task rows without a later root input, an accepted matching tool
-result, and a successful same-run lifecycle end remain non-PASS.
-
-### Exact run chronology
-
-Public-safe timing and count facts from the preserved isolated state:
-
-| Boundary | Exact observation |
+| Check | Receipt |
 |---|---|
-| Parent dispatch accepted | `1787755189770` ms |
-| Depth-1 task | Created `1787755206391`; ended `1787755217483`; `completed`/`delivered`; recovery tool `continue_work` |
-| Depth-2 task | Created `1787755217512`; ended `1787755220181`; `completed`/`delivered` |
-| Frozen fanout targets | Depth 1: one root target; depth 2: two targets (child and root) |
-| Root consumption lifecycle | Started `1787755258037`; structured heartbeat input `1787755266775`; accepted result `1787755266776`; lifecycle ended successfully at `1787755266794` |
-| Structured marker ownership | Exact child marker appears once in heartbeat `scratch`; exact grandchild marker appears once in heartbeat `reason` |
-| Assistant prose ACK | Absent |
+| Host/tooling | Ronan `aarch64`; Node `v25.9.0`; k6 `v2.0.0` |
+| Source | Tracked-clean exact checkout `0c033c46c6365929c669bb7eff60a58ec914dbdd`; tree `aa2cf494b7a859dbcdfaf33a279830033d2c6f36` |
+| Dependencies | Same-host `node_modules`; dependency clone `2f9b9b7a90988190a149208cbbad68558d1d7daa`; package, workspace, and lock bytes equal; no install or reconciliation in the linked worktree |
+| Build identity | `dist/build-info.json` commit `0c033c46...`, SHA-256 `35fae0fa29607c7801082a374d58ead0daa1cf39350489f201a3dd43431fc329`; CLI `OpenClaw 2026.8.1 (0c033c4)` |
+| Stable dist | 12,145 files; SHA-256 `df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453` before smoke, after smoke, after row traffic, and after shutdown |
+| Isolation | Separate private config, state, SQLite databases, workspace, home, logs, token file, and disposable sessions; zero live/prior sessions copied |
+| Auth route | One OpenAI OAuth profile copied into the isolated shared state DB; profile id withheld and fingerprinted; zero auth runtime-state rows before and after smoke |
+| Service | `openclaw-proof-129388-final-three-row-refire.service`; final prefire PID/PGID/SID `160460`; loopback `127.0.0.1:19892` and `[::1]:19892` only |
+| OTel | `diagnostics-otel`; direct `http://otel.dandelion.cult:4318`; `http/protobuf`; traces on; metrics/logs off; `captureContent=false`; sample `1.0`; service `ronan-isolated-129388-0c033c46` |
+| Readiness | Final prefire `PASS-candidate`; authenticated health/status; continuation defaults present; raw-final-text seat |
+| Model smoke | One actual OpenAI model call returned the exact bounded sentinel; private result SHA-256 `cbcd88178c7214befc4ddc1fc9557197520b9738bdc207a791c8b393579d56a6` |
+| Tempo smoke | 24 traces under the unique service before dispatch; root names include `openclaw.model.usage`; HTTP 200 |
+| Backend honesty | Tempo omitted `totalBlocks`; retained as `partial`, `complete=false`, `countAuthority=false` |
 
-The earlier root heartbeat did not carry both exact nonce-bound phrases and is
-rejected by the successor predicate. Bare substring checks were also rejected:
-`CHILD-DONE` is a substring of `GRANDCHILD-DONE`, so every control uses the full
-nonce-bound phrases.
+The first readiness probe classified a local setup fault before model traffic:
+Control UI was disabled, so `/status` returned 404. Enabling that isolated
+surface caused the non-restarting transient unit to exit cleanly; the same named
+unit was relaunched and the final readiness receipt passed. A first smoke client
+invocation was likewise rejected before gateway/model traffic because
+`minimal` thinking is unsupported for `openai/gpt-5.6-sol`; the one actual
+model call used supported `low` thinking.
 
-## Independent derivations
+The remaining isolated-fixture mistake was not covered by seat readiness:
+`agents.defaults.subagents.maxSpawnDepth` was omitted. Product therefore used
+its documented default `1`, while Ronan's proof profile requires `5`. This
+deterministically invalidated the two rows that need a nested spawn.
 
-| Retained change | Direct derivation |
+Machine receipt:
+`receipts/129388-final-three-row-refire/isolated-prefire.json`.
+
+## Project-81 workflow and artifact
+
+| Field | Value |
 |---|---|
-| Bounded task title handling | Exact product `src/tasks/task-status.ts` blob `f7ce7c1f2c1d175597b04ddc4d3c71577a1e8ba7` caps titles at 80 characters. In the exact run, nonce offsets were 74 and 73; both rendered titles omitted the full nonce. Exact `tasks.get` returns the bounded full prompt, so task authority uses that prompt rather than a truncated title. |
-| Full pagination | Exact product tasks handler blob `83ab298f95730348bc60f247a558d78365da4414` returns numeric `nextCursor` offsets from `tasks.list` and full prompt/result details from `tasks.get`. The scenario exhausts every cursor, rejects repeats/duplicate ids, resolves candidate details, and requires two identical complete snapshots. |
-| Standalone candidate binding | `evidence-writer.mjs` chooses its destination from `--sha`; `postprocess-k6-summary.mjs` chooses from the manifest. Without an explicit comparison, a valid signed receipt could be copied under another target. Both paths now require receipt candidate/runtime identity to equal their destination identity. |
-| Descendant deadline | The original descendant timer was installed before the delayed `sessions.send` acceptance even though its deadline was computed from acceptance. The successor arms from acceptance and re-evaluates the exact remaining duration. |
-| Heartbeat acceptance | Exact product heartbeat tool blob `89ff33bd91ceb55a4f862f83beebcacfaf9d152b` emits JSON `status:"accepted"` only after schema validation and one-shot acceptance. The row binds the model's structured tool input to the matching accepted tool-call id and same lifecycle end. |
-| Receipt integrity | Writer/postprocessor paths copy receipt bytes publicly. The successor HMAC signs every top-level field except `integrity`, enforces exact top-level/binding/lifecycle/integrity keys, and rejects added or altered fields before copy. |
-| Recursive public redaction | Task/run/tool-call identities occur in arrays and nested receipt objects. The sanitizer now collects scalar descendants of sensitive fields before dropping them, then scrubs the same values from k6 and service logs. |
-| Snapshot rearming | The descendant contract permits 180 seconds and requires two stable snapshots. Polling now rearms after every complete or rejected snapshot until the computed descendant deadline, rather than ending at a fixed 120-second schedule. |
+| Run | [33008913520](https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/33008913520) |
+| Workflow head | `85a783f4ef0352e64b37748f4164d5fdee96ceb4` |
+| Product/runtime input | `0c033c46c6365929c669bb7eff60a58ec914dbdd` |
+| Conclusion | `failure` |
+| Artifact | ID `9622119639`, `project81-k6-proof-33008913520`, 99 files |
+| Artifact ZIP SHA-256 | `dbeb2af72e45e2d1a857f8d7ba09f42bddd046c2750c4d6b086579f1c39cbb08` |
+| Extracted checksum-manifest SHA-256 | `107f98ff4f00290aebd44a8913587aec71c7d6ec0b737d2dc39c29574a419c7c` |
+| Harness provenance | Matrix `20260826T200923Z-85a783f4ef03-71d35f5f`; identity verified; runner SHA-256 `0cbe17db11c17f6487c6a96aeb61866dcdde5121fe5407f19c323dc6092873d3` |
+| Workflow seat readiness | `PASS-candidate`; SHA-256 `36527a9920d7788dc09d0471785b30a2ea3c410d0d971622eb87ec218c3ec34c` |
 
-## Owning composition boundary
+The workflow YAML was read at the exact executed ref. Every supplied input name
+exists there, and every copied row manifest/scenario matches both
+`runner-metadata.json` and the immutable Git blob at `85a783f4...`.
 
-The owner is the proof-harness composition:
+All three row receipts independently validate with
+`hmac-sha256-gateway-token-v1`. No `candidate-run-result.json` was emitted:
+R-CD-2 retains pending trace receipts, while the other two rows have nonzero
+effective exits.
+
+Machine receipt:
+`receipts/129388-final-three-row-refire/project81-run-33008913520.json`.
+
+## Row classifications
+
+### `R-CD-2` — product recurrence
+
+The signed authority is `PARTIAL-candidate`,
+`missing-continuation-topology`, SHA-256
+`c67150f8c0c38dcaf29118ef7377ec53ab760f85671ba2b4affce4d648de82aa`.
+
+Behavior completed:
+
+- the isolated transcript contains one successful typed
+  `continue_delegate` tool result;
+- the durable child task is `succeeded`/`delivered`;
+- direct journal evidence records one spawn and one enrichment return;
+- the row-bound `continuation.delegate.dispatch` and
+  `continuation.delegate.fire` are on one trace/chain with status OK.
+
+Direct Tempo inspection after workflow completion still found no
+`openclaw.tool.execution` span for the row's typed call. The dispatch parent is
+an `openclaw.run` span. The same process later emitted a correctly parented
+`openclaw.tool.execution` span for the depth-2 row, excluding blanket exporter
+absence or simple late arrival.
+
+This repeats predecessor run `32981265676` (receipt SHA-256
+`94fa0439efa6a28cf5e17ba51d64910566f73a204715499f11f4b62289c2db05`).
+The final-cure integration test manually constructs the delegate tool span for
+its round trip and composes a real wrapped typed tool only for
+`continue_work`; it does not exercise the live Codex app-server
+`continue_delegate` route.
+
+Owner boundary:
 
 ```text
-fully paginated tasks.list
-  -> nonce-bound tasks.get details
-  -> exact two-task chain receipt
-  -> post-completion root agent lifecycle start
-  -> root session.message heartbeat toolCall input
-  -> same-run/session matching accepted toolResult
-  -> same-run successful agent lifecycle end
-  -> HMAC-sealed public-safe row receipt
-  -> runner/writer/postprocessor/candidate-envelope consumers
+Codex item/tool/call
+  -> OpenClaw dynamic-tool request controller
+  -> wrapped tool.execution.started child context
+  -> continue_delegate dispatch traceparent
+  -> continuation.delegate.dispatch
+  -> continuation.delegate.fire
 ```
 
-The row-scoped resolver is the sole candidate verdict authority. Generic k6
-summary text cannot promote this row.
+Exact upstream Codex `0.149.1` source at
+`ff29a44391deccde0aba0f8390337d7f3c319ea4` confirms Codex emits one
+dynamic-tool request and waits for OpenClaw's response; span ownership remains
+in OpenClaw.
 
-## Regression completeness
+Issue update:
+[karmaterminal/openclaw#1251](https://github.com/karmaterminal/openclaw/issues/1251#issuecomment-5430773327).
 
-| Requirement | Receipt |
-|---|---|
-| Exact rejected control | Run `32981265676`, artifact `9612027467`; artifact ZIP SHA-256 `0505d580b8a59da3b8c81a8fde417fadd779e08faf004dc5c1bf113904523794`; rejected row-result SHA-256 `4a4a1152ec190778553d78a4334e2c10513bdccae5b929edde2e55bc0b0da989` |
-| Pre-fix negative | On the unchanged harness implementation, the new exact characterization exited 1: actual structured authority was `undefined`, expected `structured-post-return-consumption`. Log SHA-256 `1d6553802b5ff1a508e784a01319cc3b700a9fc36842f150bf274e8ecb54c1c8`. |
-| Successor positive | The same run-32981265676 characterization passes through task lineage, lifecycle start, structured heartbeat input, accepted matching result, and successful lifecycle end without `ROOT-CHAIN-ACK`. Log SHA-256 `bc1f30a35ffa9c70c7c228ac7760c252ce5f4434d56cc1449a9f900e495c184e`. |
-| Old lost ancestry | Predecessor run `32958479691`, artifact `9603030118`, stays `PARTIAL-candidate` with failure category `missing-or-invalid-task-ledger`; artifact ZIP SHA-256 `ed1e36f60e2212893ea715b5f7560f104342cfd7d4a6efc04d9a4b2063ec196c`. |
-| Phrase-only ACK | Assistant `ROOT-CHAIN-ACK` without task ledger, structured heartbeat input, accepted result, and lifecycle end is rejected. |
-| One return / intermediate only | Missing child or grandchild delivery, wrong root requester, or one task row is rejected. |
-| Duplicate | Duplicate task ids, run ids, task markers, prompt nonces, return markers, cursors, or additional nonce-bound task rows are rejected. |
-| Stale/preexisting | Tasks created before dispatch, nonce only in nested metadata, old prompt nonce, early root input, or a reused dispatch run are rejected. |
-| Wrong depth/identity | Collapsed child/grandchild identities, a root-owned second task, wrong candidate/runtime SHA, wrong mode/tool/trace, or mismatched tool-call id is rejected. |
-| Partial failure | Rejected heartbeat result, failed lifecycle end, missing trace, missing required artifact, pagination error, unstable snapshot, or incomplete public projection withholds PASS. |
-| Nearest sibling | R-CD-2 remains lifecycle-owned for silent wake and R-CD-4 remains target-session-owned; neither can substitute for this row's exact two-task depth and post-return root-consumption composition. |
-| Persistence/recovery | Authority is read from the exact run's durable task registry through public gateway methods and two stable snapshots. Candidate-envelope persistence/re-read coverage is included; product restart recovery is not claimed. |
-| Rollback/restart | N/A. This docs harness change mutates no gateway config, product state, runtime, or corpus. No restart or rollback was performed. |
+### `R-CD-CHAINED-DEPTH-2` — infrastructure-invalidated
 
-## Public safety and artifact closure
+The signed authority is `PARTIAL-candidate`,
+`missing-or-invalid-task-ledger`, SHA-256
+`5d43a418ed594dcc0739879d438e4cbc435c4e690b2a785ccff5af7342e863fd`.
 
-- Raw nonce, prompt, heartbeat input, session keys, task ids, run ids,
-  tool-call ids, gateway token, and private paths do not enter the public
-  receipt.
-- Public identity fields are SHA-256-16 fingerprints under an exact signed
-  schema.
-- Sensitive scalar descendants are collected before arrays/objects are removed,
-  so copies in k6 and gateway logs are scrubbed too.
-- The candidate envelope revalidates the HMAC, receipt digest, candidate/runtime
-  identity, harness source digests, required artifacts, and sibling raw result.
-- Missing `EVIDENCE.md`, row result, summary, gateway events, seat readiness,
-  trace correlation, signed receipt, or backend status remains fail-closed.
-- Protected `PROOFS/`, `PROOFS/INDEX.json`, `.github/`, docs main, product code,
-  presentation refs, and prior artifacts are unchanged.
+The root typed dispatch has the correct tool-parented trace. Its depth-1 task
+then succeeded and delivered, but its required grandchild spawn was rejected:
 
-## Changed paths and LOC
-
-Implementation checkpoint `6ddf5aa911596c4a0e557a5fcd196cf82bcd8680`:
-23 files, `+3106/-234` lines.
-
-| Surface | Paths |
-|---|---|
-| Row authority | Scenario, manifest, pipeline registry, task correlation helper, structured authority helper, signed receipt helper |
-| Result pipeline | Row resolver, row-list runner, evidence writer, summary postprocessor, candidate emitter and sibling validator, sanitizer |
-| Regression controls | Exact rejected-run characterization, lost-ancestry characterization, authority tests, resolver tests, sanitizer tests, runner/candidate/closure contracts |
-
-Follow-up checkpoint `f14fbd7895744ee596d1a5a30b09a2cec03dc3c0`
-changes one title-truncation test literal from a private nonce to a synthetic
-equivalent. The final child replaces only this report.
-
-## Focused validation
-
-Acceptance path: **focused-only**. No Mode-B run, Gate 3g fallback, live
-Project-81 fire, corpus fold, product test suite, or Crabbox/Testbox run was
-performed or claimed.
-
-Focused owner command:
-
-```bash
-node --test \
-  tools/k6-proofs/tests/row-child-correlation.test.mjs \
-  tools/k6-proofs/tests/r-cd-chained-depth-2-authority.test.mjs \
-  tools/k6-proofs/tests/r-cd-chained-depth-2-artifact.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-cd-chained-depth-2-authoritative-receipt.test.mjs \
-  tools/k6-proofs/scripts/__tests__/backend-disposition-pipeline.test.mjs \
-  tools/k6-proofs/scripts/__tests__/telemetry-backend-status.test.mjs \
-  tools/k6-proofs/scripts/__tests__/candidate-run-result.test.mjs \
-  tools/k6-proofs/scripts/__tests__/telemetry-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/tempo-fetch.test.mjs \
-  tools/k6-proofs/scripts/__tests__/loki-fetch.test.mjs \
-  tools/k6-proofs/scripts/__tests__/collect-continuation-trace.test.mjs \
-  tools/k6-proofs/scripts/__tests__/proof-harness-closure-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/golden-path.test.mjs \
-  tools/k6-proofs/scripts/__tests__/continuation-row-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-cd-2-authoritative-receipt.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-rc-2-honest-limit-policy.test.mjs \
-  tools/k6-proofs/scripts/__tests__/observability-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-cd-token-runner-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/review-debt.test.mjs \
-  tools/k6-proofs/scripts/__tests__/report-render.test.mjs \
-  tools/k6-proofs/scripts/__tests__/sanitize-k6-artifacts.test.mjs \
-  tools/k6-proofs/scripts/__tests__/check-proof-row-manifests.test.mjs \
-  tools/k6-proofs/scripts/__tests__/continuation-acceptance-matrix.test.mjs \
-  tools/k6-proofs/scripts/__tests__/matrix-continuation-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/proof-matrix-provenance-negative-control.test.mjs \
-  tools/k6-proofs/scripts/__tests__/live-run-guard.test.mjs
+```text
+sessions_spawn is not allowed at this depth
+(current depth: 1, max: 1; agents.defaults.subagents.maxSpawnDepth).
 ```
 
-Result: tests `269`, pass `269`, fail `0`.
+No grandchild task exists, so exact depth 2, both returns, frozen child/root
+targets, and structured root consumption cannot be evaluated. This is not a
+recurrence of the predecessor producer bug: run `32981265676` did establish
+real depth 2 and both returns before stopping on the old prose-ack proxy.
 
-Additional gates:
+Issue update:
+[#119](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/119#issuecomment-5430773486).
 
-```bash
-node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
-node tools/k6-proofs/scripts/check-scenario-alignment.mjs
-node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
-node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-node tools/k6-proofs/scripts/validate-corpus.mjs --current
-k6 version
-k6 inspect tools/k6-proofs/scenarios/r-cd-chained-depth-2.js
-node --check <all changed JS/MJS entry points>
-bash -n tools/k6-proofs/scripts/run-proofs.sh
-git diff --check
-```
+### `R-CD-TOKEN` — infrastructure-invalidated
 
-Results:
+The signed authority is `PARTIAL-candidate`,
+`incomplete-or-nonunique-lifecycle`, SHA-256
+`410ed60b4b1e2d2b730000ebc18317c23dac0550bcf8573c98586cc9ea4cd2ab`.
 
-- Manifest registry: 42 manifests, 36 scenario files.
-- Scenario alignment: `ok=true`.
-- Manifest coverage and telemetry contracts: passed.
-- Current corpus validation: 4 passed, 0 failed; unchanged acceptance remains
-  incomplete.
-- k6: `v2.0.0`; one VU, one iteration, `maxDuration=6m0s`.
-- Syntax, shell, patch-hygiene, protected-path, and private-identity scans:
-  passed.
+Exact candidate/runtime identity, raw-final-text, disposable-origin, prompt
+injection, and send acceptance gates passed. One origin task exists and is
+`succeeded`/`delivered`; its terminal bracket was parsed and armed a delegate.
+That depth-2 spawn then hit the same `maxSpawnDepth=1` rejection. The durable
+ledger therefore contains zero delegate tasks, no normal origin return, and no
+root-substituted return; the rejected dispatch span is status ERROR.
+
+Predecessor run `32981265676` had one durable delegate and a root-substituted
+return. This run stops earlier and does not evaluate the final origin-owner
+cure.
+
+Issue updates:
+[#103](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/103#issuecomment-5430773661)
+and
+[karmaterminal/openclaw#1054](https://github.com/karmaterminal/openclaw/issues/1054#issuecomment-5430773777).
+
+## Backend disposition
+
+Every row's `backend-status.json` is `partial`, `complete=false`, and
+`countAuthority=false` because Tempo's HTTP-200 responses omitted
+`totalBlocks`. No zero was interpreted as absence. This backend limitation is
+independent from:
+
+- R-CD-2's directly observed wrong parent topology;
+- the depth-2 and token rows' durable `maxSpawnDepth` rejection;
+- the HMAC authorities' non-PASS verdicts.
 
 ## Direct review
 
-After the steward restart, the complete implementation and all callers,
-consumers, sibling receipt patterns, production gateway/task/heartbeat schemas,
-manifest policy, sanitizer, fixtures, and focused tests were reviewed directly
-in this GPT-5.6 session. The final direct review found no remaining
-high-confidence correctness, false-PASS, identity-binding, or public-safety
-defect.
+No Explore agent, task agent, code-review agent, Opus, autoreview, or other AI
+subagent was used.
 
-## Exact row-only refire handoff
+Direct inspection covered the exact workflow bytes, all three scenarios and
+manifests, result resolver/validator contracts, signed receipts, copied-source
+digests, run artifact, predecessor artifact, isolated state DB, agent
+transcripts, Codex rollouts, raw unit journal, direct Tempo search/trace JSON,
+the tool wrapper and diagnostic child-context owner, the OTel continuation
+adapter, the Codex dynamic-tool request controller, adjacent tests, and exact
+upstream Codex protocol/runtime source.
 
-No live refire was dispatched. A future owner must first re-establish the same
-isolated, exact-product gateway and reviewed bounded public-safe TraceQL/LogQL.
-Then dispatch only this row against the final reviewed harness branch:
+No docs harness or product source was repaired in this lane. The two fixture
+reds have a deterministic configuration cause, but the independent R-CD-2
+product recurrence requires a product successor and regression at the live
+Codex composition boundary. The workorder therefore requires STOP rather than
+a redispatch.
+
+## Cleanup
+
+- Only `openclaw-proof-129388-final-three-row-refire.service` was stopped.
+  PID/PGID/SID `160460` is absent, the transient unit is unloaded, and port
+  `19892` is free.
+- Live prince `openclaw-gateway.service` remained active with PID `2272093`,
+  start ticks `50957076`, and config SHA-256
+  `541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f`.
+- Foreign held proof service `openclaw-proof-a0aa4ec-hold.service` remained
+  active with PID `2498654`, start ticks `51871376`, and both listeners on
+  `19891`.
+- Candidate dist remains
+  `df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453`;
+  the product worktree is tracked-clean.
+- Private ZIPs, raw journals, direct Tempo captures, transcripts, and isolated
+  SQLite state remain outside the repository.
+- `PROOFS/`, `PROOFS/INDEX.json`, `.github/`, `tools/k6-proofs/`, docs `main`,
+  product branches, and presentation remain untouched.
+- No PR was opened; no issue was closed.
+
+Machine receipt:
+`receipts/129388-final-three-row-refire/cleanup.json`.
+
+## Exact dispatch
 
 ```bash
 gh workflow run project81-k6-proof.yml \
   --repo karmaterminal/karmaterminal-openclaw-docs \
-  --ref codeagent/129388-depth-ack-harness-cure \
-  -f rows=R-CD-CHAINED-DEPTH-2 \
-  -f candidate_sha=a5db13ad6297721cbf43af445d5a4a9b9bb0ad67 \
-  -f runtime_build_sha=a5db13ad6297721cbf43af445d5a4a9b9bb0ad67 \
+  --ref codeagent/129388-final-three-row-refire \
+  -f rows=R-CD-2,R-CD-CHAINED-DEPTH-2,R-CD-TOKEN \
+  -f candidate_sha=0c033c46c6365929c669bb7eff60a58ec914dbdd \
+  -f runtime_build_sha=0c033c46c6365929c669bb7eff60a58ec914dbdd \
   -f dry_run=false \
   -f 'runner_labels_json=["self-hosted","ronan"]' \
   -f gateway_ws=ws://127.0.0.1:19892 \
@@ -269,16 +266,20 @@ gh workflow run project81-k6-proof.yml \
   -f seat_class=raw-final-text \
   -f create_disposable_sessions=true \
   -f metrics_push=false \
-  -f otel_service_name=ronan-isolated-129388-a5db13ad \
-  -f gateway_unit=openclaw-proof-129388-cured-row-refire.service \
-  -f 'tempo_traceql=<reviewed bounded public-safe TraceQL>' \
-  -f 'loki_logql=<reviewed bounded public-safe LogQL>'
+  -f otel_service_name=ronan-isolated-129388-0c033c46 \
+  -f gateway_unit=openclaw-proof-129388-final-three-row-refire.service \
+  -f 'tempo_traceql={ resource.service.name="ronan-isolated-129388-0c033c46" }' \
+  -f 'loki_logql={service_name="ronan-isolated-129388-0c033c46"}'
 ```
 
-Review the signed
-`r-cd-chained-depth-2-authoritative-receipt.json`,
-`run-result.json`, `candidate-run-result.json`, `backend-status.json`, copied
-manifest/scenario digests, and every required artifact together. A behavioral
-PASS still requires the existing telemetry and artifact policy; do not infer a
-corpus fold from the row receipt. Keep #119 and the product issue open until a
-separately reviewed live result is accepted.
+## Fold handoff
+
+**Blocked.** Do not fold this artifact, update docs main/index, move
+presentation, close issues, or treat either infrastructure-invalidated row as a
+product verdict. A successor must first:
+
+1. repair R-CD-2 at the live Codex dynamic-tool/tool-span composition boundary
+   with a deterministic rejected-SHA control;
+2. provision the isolated proof profile with
+   `agents.defaults.subagents.maxSpawnDepth=5`;
+3. run a newly authorized exact-row refire.

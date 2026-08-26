@@ -1,0 +1,50 @@
+{
+  "schema": "openclaw.project81.129388-final-three-row-refire.cleanup.v1",
+  "recordedAt": "2026-08-26T20:34:22Z",
+  "isolatedGateway": {
+    "unit": "openclaw-proof-129388-final-three-row-refire.service",
+    "pid": 160460,
+    "pgid": 160460,
+    "sid": 160460,
+    "processStopped": true,
+    "nodeOrLauncherProcessesAfter": 0,
+    "port": 19892,
+    "portFreeAfter": true,
+    "unitLoadStateAfter": "not-found"
+  },
+  "runtime": {
+    "candidateSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "distSha256BeforeTraffic": "df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453",
+    "distSha256AfterSmoke": "df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453",
+    "distSha256AfterTraffic": "df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453",
+    "distSha256AfterShutdown": "df69f1f13969f71a5ce6c6e363daa2689f924e2f1b33bce325683356807ea453",
+    "distUnchanged": true,
+    "trackedCleanAfter": true
+  },
+  "livePrince": {
+    "unit": "openclaw-gateway.service",
+    "pidBefore": 2272093,
+    "pidAfter": 2272093,
+    "startTicksBefore": "50957076",
+    "startTicksAfter": "50957076",
+    "configSha256Before": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "configSha256After": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "unchanged": true
+  },
+  "foreignProofService": {
+    "unit": "openclaw-proof-a0aa4ec-hold.service",
+    "pidBefore": 2498654,
+    "pidAfter": 2498654,
+    "startTicksBefore": "51871376",
+    "startTicksAfter": "51871376",
+    "unchanged": true
+  },
+  "privateEvidencePreserved": true,
+  "productCodeTouched": false,
+  "presentationTouched": false,
+  "docsMainTouched": false,
+  "proofCorpusTouched": false,
+  "proofIndexTouched": false,
+  "pullRequestOpened": false,
+  "issuesClosed": false
+}

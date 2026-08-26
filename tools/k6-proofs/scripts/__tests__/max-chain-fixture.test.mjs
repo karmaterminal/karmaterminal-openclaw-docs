@@ -9,11 +9,16 @@ import path from 'node:path';
 async function writeCandidateFixture(source, lock = 'lockfileVersion: 9.0\n') {
   await mkdir(path.join(source, 'src/auto-reply/continuation'), { recursive: true });
   await mkdir(path.join(source, 'src/agents/command'), { recursive: true });
+  await mkdir(path.join(source, 'src/agents/subagents/spawn'), { recursive: true });
+  await mkdir(path.join(source, 'src/infra'), { recursive: true });
   await writeFile(path.join(source, 'pnpm-lock.yaml'), lock);
   await writeFile(path.join(source, 'src/auto-reply/continuation/scheduler.ts'), 'export const clean = true;\n');
   await writeFile(path.join(source, 'src/auto-reply/continuation/work-dispatch.ts'), '// marker\n');
+  await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-taskflow-registry.test-harness.ts'), '// marker\n');
   await writeFile(path.join(source, 'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts'), '// marker\n');
   await writeFile(path.join(source, 'src/agents/command/attempt-execution.ts'), '// marker\n');
+  await writeFile(path.join(source, 'src/agents/subagents/spawn/subagent-spawn.ts'), '// marker\n');
+  await writeFile(path.join(source, 'src/infra/system-event-ownership.ts'), '// marker\n');
   await writeFile(path.join(source, 'package.json'), '{"name":"r-cw-6-test","packageManager":"pnpm@11.2.2"}\n');
 }
 
@@ -27,6 +32,7 @@ import {
   buildReadiness,
   candidateLocalExecutables,
   installCandidateDependencies,
+  generatedTestDiagnostics,
   parseArgs,
   parsePinnedPnpmPackageManager,
   prepareArtifactDir,
@@ -362,7 +368,38 @@ test('R-CW-6 delegate template uses the selected maximum and proves reject-befor
   assert.match(rendered, /rejectedBeforeSecondSpawn/);
   assert.match(rendered, /rejectedFlowStatus/);
   assert.match(rendered, /chainCappedNoticeObserved/);
+  assert.match(rendered, /agents\/subagents\/spawn\/subagent-spawn\.js/);
+  assert.match(rendered, /enqueueSystemEventRaw/);
+  assert.match(rendered, /delegate-taskflow-registry\.test-harness\.js/);
+  assert.doesNotMatch(rendered, /agents\/subagent-spawn\.js/);
+  assert.doesNotMatch(rendered, /enqueueSystemEvent:\s*/);
   assert.doesNotMatch(rendered, /__RCW6_MAX_CHAIN_LENGTH__/);
+});
+
+test('R-CW-6 preserves a public-safe failure summary when the generated test exits early', () => {
+  const diagnostics = generatedTestDiagnostics({
+    ok: false,
+    exitCode: 1,
+    stdout: ' FAIL  /private/candidate/test.ts\nFailed to load url ../../src/agents/subagent-spawn.js',
+    stderr: 'Cannot find module /private/candidate/src/agents/subagent-spawn.js',
+  }, false);
+  assert.equal(diagnostics.classification, 'module-ownership-drift');
+  assert.equal(diagnostics.receiptPresent, false);
+  assert.equal(diagnostics.moduleResolutionFailure, true);
+  assert.match(diagnostics.diagnosticFingerprint, /^[a-f0-9]{64}$/);
+  assert.doesNotMatch(JSON.stringify(diagnostics), /private|subagent-spawn/);
+  assert.doesNotThrow(() => assertPublicArtifactSafe(diagnostics));
+});
+
+test('R-CW-6 diagnostics distinguish a receipt-bearing recovery from early exit', () => {
+  const diagnostics = generatedTestDiagnostics({
+    ok: true,
+    exitCode: 0,
+    stdout: '1 passed',
+    stderr: '',
+  }, true);
+  assert.equal(diagnostics.classification, 'complete');
+  assert.equal(diagnostics.receiptPresent, true);
 });
 
 test('R-CW-6 renders every runtime layer at the selected max chain length', async () => {

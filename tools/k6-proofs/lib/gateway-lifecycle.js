@@ -22,7 +22,13 @@ export function gatewayLifecyclePhase(value) {
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
   const status = String(value.data?.status || value.status || '').toLowerCase();
-  return !['error', 'failed', 'failure', 'aborted'].includes(status) && value.data?.replayInvalid !== true;
+  return !['error', 'failed', 'failure', 'aborted'].includes(status);
+}
+
+// replayInvalid describes whether the completed turn can be replayed safely. It
+// is diagnostic metadata, not the terminal status of the turn that just ran.
+export function gatewayLifecycleReplayInvalid(value) {
+  return gatewayLifecyclePhase(value) === 'end' && value.data?.replayInvalid === true;
 }
 
 export function gatewayWakeRunId(value, acceptedRunId) {

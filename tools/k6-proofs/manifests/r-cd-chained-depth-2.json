@@ -8,14 +8,14 @@
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 180,
+  "timeoutSeconds": 360,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
     "name": "r-cd-chained-depth-2",
-    "description": "Depth-2 delegate chain: parent→child→grandchild→return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
+    "description": "Depth-2 delegate chain: parent→child→grandchild→depth-1 recovery wake→root return. The proven composition uses fanoutMode=tree and a depth-1 continue_work wake after the leaf instead of returning immediately.",
     "methods": [
       "sessions.create",
       "sessions.send",
@@ -33,8 +33,9 @@
   "invocation": {
     "tool": "continue_delegate",
     "mode": "silent-wake",
+    "fanoutMode": "tree",
     "delaySeconds": 1,
-    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. Fire your own continue_delegate(mode='silent-wake', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After the nested continue_delegate tool result reports scheduled, reply exactly CHILD-DONE {{nonce}} CHILD-DELEGATE-SCHEDULED.",
+    "promptTemplate": "Proof chain nonce {{nonce}}: you are depth-1. First call continue_delegate(mode='silent-wake', fanoutMode='tree', task='Grandchild nonce {{nonce}}: reply exactly GRANDCHILD-DONE {{nonce}} only after you arrive. Do not mutate files.'). After that tool reports scheduled, call continue_work(reason='R-CD-CHAIN {{nonce}} wake depth1 after leaf return', delaySeconds=15). On this first turn reply exactly CHILD-WAITING {{nonce}} CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED. On the continuation wake, inspect the completed child return. Only after it contains GRANDCHILD-DONE {{nonce}}, reply exactly CHILD-DONE {{nonce}} CHILD-SAW-GRANDCHILD. If the leaf is not complete, call continue_work once more with the same reason and do not emit CHILD-DONE.",
     "idempotencyKeyPrefix": "R-CD-CHAIN"
   },
   "expectedReceipts": [
@@ -51,7 +52,12 @@
     {
       "name": "child-fires-grandchild",
       "required": true,
-      "description": "CHILD-DONE sentinel confirms depth-1 delegate executed the nested continue_delegate instruction"
+      "description": "CHILD-WAITING sentinel confirms depth-1 scheduled both its nested continue_delegate and its post-leaf continue_work recovery wake"
+    },
+    {
+      "name": "depth1-recovery-wake",
+      "required": true,
+      "description": "Depth-1 wakes after the leaf, verifies GRANDCHILD-DONE, and only then emits CHILD-DONE CHILD-SAW-GRANDCHILD"
     },
     {
       "name": "grandchild-spawns",
@@ -250,12 +256,13 @@
       "parent-dispatch-accepted",
       "child-spawns",
       "child-fires-grandchild",
+      "depth1-recovery-wake",
       "grandchild-spawns",
       "grandchild-returns",
       "root-consumes-chain-return",
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Detector ignores prompt echoes and ordinary GRANDCHILD-DONE descendant output; PASS requires distinct hop identities plus the exact root assistant acknowledgement ROOT-CHAIN-ACK {{nonce}} after return consumption."
+    "notes": "Live depth-2 chain row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. The depth-1 task must use fanoutMode=tree and a continue_work recovery wake; immediate return after scheduling is the committed negative control. Root return receives a fresh post-grandchild observation window."
   }
 }

@@ -26,6 +26,7 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { childSessionKeyForRow } from '../lib/row-child-correlation.mjs';
 import {
   rCdChainRootReturnCandidate,
+  rCdChainObservationState,
   rCdChainRootReturnReceipt,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 
@@ -35,12 +36,12 @@ export const options = {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
-      maxDuration: '180s',
+      maxDuration: '360s',
     },
   },
   thresholds: {
     proof_failures: ['count==0'],
-    r_cd_chain_duration: ['p(95)<150000'],
+    r_cd_chain_duration: ['p(95)<330000'],
   },
 };
 
@@ -57,6 +58,8 @@ const DEFAULTS = {
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_CHAIN_EVIDENCE_DELAY_MS || 1500);
+const DESCENDANT_OBSERVATION_MS = Number(__ENV.OPENCLAW_CHAIN_DESCENDANT_OBSERVATION_MS || 180000);
+const ROOT_RETURN_OBSERVATION_MS = Number(__ENV.OPENCLAW_CHAIN_ROOT_RETURN_OBSERVATION_MS || 120000);
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -111,11 +114,17 @@ export default function () {
     child_spawned: false,
     grandchild_spawned: false,
     child_done_sentinel: false,
+    child_waiting_sentinel: false,
+    depth1_recovery_wake_scheduled: false,
     grandchild_done_sentinel: false,
     chain_return_received: false,
     root_return_candidate: null,
     root_return_receipt: null,
     dispatch_accepted_at_ms: null,
+    grandchild_observed_at_ms: null,
+    observation_phase: 'not-dispatched',
+    observation_deadline_at_ms: null,
+    terminal_reason: 'observation-window-open',
     // Depth tracking
     max_depth_observed: 0,
     child_session: null,
@@ -131,6 +140,35 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let rootReturnTimerStarted = false;
+
+    function updateObservationState() {
+      if (!evidence.dispatch_accepted_at_ms) return null;
+      const state = rCdChainObservationState({
+        now: Date.now(),
+        dispatchAcceptedAt: evidence.dispatch_accepted_at_ms,
+        grandchildObservedAt: evidence.grandchild_observed_at_ms,
+        rootReturnReceipt: evidence.root_return_receipt,
+        descendantTimeoutMs: DESCENDANT_OBSERVATION_MS,
+        rootReturnTimeoutMs: ROOT_RETURN_OBSERVATION_MS,
+      });
+      evidence.observation_phase = state.phase;
+      evidence.observation_deadline_at_ms = state.deadlineAtMs;
+      return state;
+    }
+
+    function startRootReturnObservationWindow(socket) {
+      if (rootReturnTimerStarted || evidence.grandchild_observed_at_ms === null) return;
+      rootReturnTimerStarted = true;
+      updateObservationState();
+      socket.setTimeout(() => {
+        const state = updateObservationState();
+        if (state?.phase === 'root-return-timeout') {
+          evidence.terminal_reason = 'root-return-observation-window-expired';
+          socket.close();
+        }
+      }, ROOT_RETURN_OBSERVATION_MS);
+    }
 
     function finalizeRootReturnReceipt() {
       evidence.root_return_receipt = rCdChainRootReturnReceipt(
@@ -172,11 +210,11 @@ export default function () {
         evidence.delegate_mode = inv.mode;
         const agentInstruction =
           `[k6-proof-harness] Chain proof nonce ${chainNonce}. ` +
-          `Call continue_delegate with: mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
+          `Call continue_delegate with: mode="${inv.mode}", fanoutMode="tree", delaySeconds=${inv.delaySeconds}, ` +
           `task=${JSON.stringify(task)}, ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${chainNonce}". ` +
           `After the tool result reports scheduled, reply exactly ROOT-READY ${chainNonce}. ` +
-          `On a later turn, only after an internal task completion contains GRANDCHILD-DONE ${chainNonce}, ` +
+          `On a later turn, only after an internal task completion contains CHILD-DONE ${chainNonce} CHILD-SAW-GRANDCHILD, ` +
           `reply exactly ROOT-CHAIN-ACK ${chainNonce}.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
@@ -193,8 +231,15 @@ export default function () {
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 90000);
       socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 120000);
 
-      // Extended timeout for depth-2 chain completion.
-      socket.setTimeout(() => socket.close(), 150000);
+      // Descendant progression owns its own deadline. Once the leaf appears,
+      // root-return observation gets a fresh window and this timer stands down.
+      socket.setTimeout(() => {
+        const state = updateObservationState();
+        if (state?.phase === 'descendant-timeout') {
+          evidence.terminal_reason = 'descendant-observation-window-expired';
+          socket.close();
+        }
+      }, DESCENDANT_OBSERVATION_MS);
     }
 
     socket.on('open', () => {
@@ -248,6 +293,7 @@ export default function () {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            updateObservationState();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for depth-2 chain');
           } else {
@@ -283,12 +329,23 @@ export default function () {
             } else if (evidence.parent_dispatch_accepted && evidence.dispatch_accepted_at_ms) {
               const elapsed = Date.now() - evidence.dispatch_accepted_at_ms;
               if (elapsed >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-                if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED`)) {
+                if (eventStr.includes(
+                  `CHILD-WAITING ${chainNonce} CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED`,
+                )) {
+                  evidence.child_waiting_sentinel = true;
+                  evidence.depth1_recovery_wake_scheduled = true;
+                  console.log('✓ depth-1 delegate and recovery wake scheduled');
+                }
+                if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-SAW-GRANDCHILD`)) {
                   evidence.child_done_sentinel = true;
-                  console.log('✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch');
+                  console.log('✓ depth-1 returned only after observing grandchild');
                 }
                 if (eventStr.includes(`GRANDCHILD-DONE ${chainNonce}`)) {
                   evidence.grandchild_done_sentinel = true;
+                  if (evidence.grandchild_observed_at_ms === null) {
+                    evidence.grandchild_observed_at_ms = Date.now();
+                    startRootReturnObservationWindow(socket);
+                  }
                   console.log('✓ GRANDCHILD-DONE sentinel observed post-dispatch');
                 }
                 const rootReturnCandidate = rCdChainRootReturnCandidate({
@@ -300,6 +357,8 @@ export default function () {
                 if (rootReturnCandidate) {
                   evidence.root_return_candidate = rootReturnCandidate;
                   finalizeRootReturnReceipt();
+                  evidence.terminal_reason = 'root-return-received';
+                  updateObservationState();
                   console.log('✓ explicit nonce-bound root consumption ack observed');
                 }
               }
@@ -310,6 +369,7 @@ export default function () {
         // Early close only on strict post-dispatch sentinels.
         if (evidence.parent_dispatch_accepted &&
             evidence.child_done_sentinel &&
+            evidence.depth1_recovery_wake_scheduled &&
             evidence.grandchild_done_sentinel &&
             evidence.child_session &&
             evidence.grandchild_session &&
@@ -336,6 +396,7 @@ export default function () {
   check(null, {
     'parent dispatch accepted': () => evidence.parent_dispatch_accepted,
     'child sentinel observed post-dispatch': () => evidence.child_done_sentinel,
+    'depth-1 recovery wake scheduled': () => evidence.depth1_recovery_wake_scheduled,
     'grandchild sentinel observed post-dispatch': () => evidence.grandchild_done_sentinel,
     'nonce-bound child identity observed': () => evidence.child_session !== null,
     'nonce-bound grandchild identity observed': () => evidence.grandchild_session !== null,
@@ -344,6 +405,7 @@ export default function () {
   });
 
   if (!evidence.parent_dispatch_accepted || !evidence.child_done_sentinel ||
+      !evidence.depth1_recovery_wake_scheduled ||
       !evidence.grandchild_done_sentinel || !evidence.child_session ||
       !evidence.grandchild_session || !evidence.root_return_receipt) {
     failures.add(1);
@@ -351,6 +413,7 @@ export default function () {
 
   const passed = (!createDisposableSession || evidence.session_created) &&
     evidence.parent_dispatch_accepted &&
+    evidence.depth1_recovery_wake_scheduled &&
     evidence.child_done_sentinel &&
     evidence.grandchild_done_sentinel &&
     evidence.child_session !== null &&

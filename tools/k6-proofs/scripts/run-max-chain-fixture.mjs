@@ -27,8 +27,11 @@ const DEFAULT_MAX_CHAIN_LENGTH = 3;
 const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
   'src/auto-reply/continuation/work-dispatch.ts',
+  'src/auto-reply/continuation/delegate-taskflow-registry.test-harness.ts',
   'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts',
+  'src/agents/subagents/spawn/subagent-spawn.ts',
   'src/agents/command/attempt-execution.ts',
+  'src/infra/system-event-ownership.ts',
   'package.json',
   'pnpm-lock.yaml',
 ];
@@ -511,6 +514,39 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
+export function generatedTestDiagnostics(runResult, receiptPresent) {
+  const primary = String(runResult?.stdout || '');
+  const diagnostic = String(runResult?.stderr || '');
+  const captured = `${primary}\n${diagnostic}`;
+  const moduleResolutionFailure =
+    /Failed to load url|Cannot find module|No ".+" export is defined|does not provide an export named/u.test(
+      captured,
+    );
+  const testCollectionFailure = /No test files found|Failed Suites?\s+\d+/u.test(captured);
+  const assertionFailure = /AssertionError|expected .+ to /u.test(captured);
+  let classification = 'complete';
+  if (!receiptPresent) {
+    if (moduleResolutionFailure) classification = 'module-ownership-drift';
+    else if (testCollectionFailure) classification = 'test-collection-failure';
+    else if (assertionFailure) classification = 'assertion-failure-before-receipt';
+    else classification = 'test-exited-before-receipt';
+  } else if (!runResult?.ok) {
+    classification = 'test-failed-after-receipt';
+  }
+  return {
+    schema: 'openclaw.project81.generated-test-diagnostics.v1',
+    phase: 'selected-delegate-boundary',
+    classification,
+    exitCode: Number.isInteger(runResult?.exitCode) ? runResult.exitCode : 1,
+    receiptPresent: receiptPresent === true,
+    moduleResolutionFailure,
+    testCollectionFailure,
+    assertionFailure,
+    capturedByteCount: Buffer.byteLength(captured),
+    diagnosticFingerprint: createHash('sha256').update(captured).digest('hex'),
+  };
+}
+
 function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxChainLength }) {
   for (const template of [TOOL_SURFACE_TEMPLATE, DELEGATE_BOUNDARY_TEMPLATE]) {
     if (!existsSync(template)) throw new Error(`fixture template missing: ${template}`);
@@ -634,9 +670,11 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
         env: { ...isolatedEnv, RCW6_DELEGATE_RECEIPT_PATH: rawDelegateReceiptPath },
       },
     );
-    const selectedDelegateReceipt = selectedDelegateRun.ok
-      ? readJsonIfValid(rawDelegateReceiptPath)
-      : null;
+    const selectedDelegateReceipt = readJsonIfValid(rawDelegateReceiptPath);
+    const selectedDelegateDiagnostics = generatedTestDiagnostics(
+      selectedDelegateRun,
+      selectedDelegateReceipt !== null,
+    );
 
     const test = run(
       verifiedDependencies.executables.vitest,
@@ -672,6 +710,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       dispatchAssertions,
       selectedDelegateRun,
       selectedDelegateReceipt,
+      selectedDelegateDiagnostics,
       runtimeReceipt,
       typedReceipt,
       candidateRuntime,
@@ -757,6 +796,7 @@ export function runFixture(args) {
   const dispatchRun = runtimeSurface.dispatchRun;
   const dispatchAssertions = runtimeSurface.dispatchAssertions;
   const selectedDelegateReceipt = runtimeSurface.selectedDelegateReceipt;
+  const selectedDelegateDiagnostics = runtimeSurface.selectedDelegateDiagnostics;
   const selectedDelegateAssertions = {
     selectedMaximum: selectedDelegateReceipt?.configuredMaximum === args.maxChainLength,
     startsOneBelowMaximum:
@@ -787,6 +827,7 @@ export function runFixture(args) {
     configuredMaximum: args.maxChainLength,
     selectedBoundary: {
       ...selectedDelegateReceipt,
+      diagnostics: selectedDelegateDiagnostics,
       passed: selectedDelegatePassed,
       asserted: selectedDelegateAssertions,
       command: [

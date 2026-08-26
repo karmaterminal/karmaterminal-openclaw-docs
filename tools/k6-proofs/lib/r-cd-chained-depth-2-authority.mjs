@@ -73,3 +73,44 @@ export function rCdChainRootReturnReceipt(
   if (childSessionKey === grandchildSessionKey) return null;
   return { ...candidate, childSessionKey, grandchildSessionKey };
 }
+
+/**
+ * Own the observation deadline at the boundary that creates it. Descendant
+ * progression gets one bounded window; once the grandchild is observed, root
+ * return gets a fresh bounded window instead of inheriting the nearly-expired
+ * dispatch timer.
+ */
+export function rCdChainObservationState({
+  now,
+  dispatchAcceptedAt,
+  grandchildObservedAt,
+  rootReturnReceipt,
+  descendantTimeoutMs,
+  rootReturnTimeoutMs,
+}) {
+  const current = Number(now);
+  const dispatch = Number(dispatchAcceptedAt);
+  const grandchild = grandchildObservedAt == null ? null : Number(grandchildObservedAt);
+  if (!Number.isFinite(current) || !Number.isFinite(dispatch) ||
+      !Number.isFinite(descendantTimeoutMs) || descendantTimeoutMs <= 0 ||
+      !Number.isFinite(rootReturnTimeoutMs) || rootReturnTimeoutMs <= 0) {
+    return { phase: 'invalid', deadlineAtMs: null, timedOut: true };
+  }
+  if (rootReturnReceipt) {
+    return { phase: 'complete', deadlineAtMs: null, timedOut: false };
+  }
+  if (grandchild === null || !Number.isFinite(grandchild)) {
+    const deadlineAtMs = dispatch + descendantTimeoutMs;
+    return {
+      phase: current >= deadlineAtMs ? 'descendant-timeout' : 'awaiting-descendants',
+      deadlineAtMs,
+      timedOut: current >= deadlineAtMs,
+    };
+  }
+  const deadlineAtMs = grandchild + rootReturnTimeoutMs;
+  return {
+    phase: current >= deadlineAtMs ? 'root-return-timeout' : 'awaiting-root-return',
+    deadlineAtMs,
+    timedOut: current >= deadlineAtMs,
+  };
+}

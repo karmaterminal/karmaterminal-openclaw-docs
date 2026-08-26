@@ -15,7 +15,7 @@
   },
   "scenario": {
     "name": "r-cd-token-bracket-delegate",
-    "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+    "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one structurally owned token-scheduled delegate, completion, return, and Tempo topology.",
     "methods": [
       "sessions.create",
       "sessions.send",
@@ -24,7 +24,7 @@
     ],
     "status": "runnable",
     "expectedFile": "r-cd-token-bracket-delegate.js",
-    "registryNotes": "Issue #426 runnable repair: runner owns the attempt/nonce before launch; scenario requires a disposable raw-final-text origin and exactly one nonce-bound origin/delegate task identity through a settle window.",
+    "registryNotes": "Issue #426/#517 runnable repair: runner owns the attempt/nonce before launch; the unlabeled token task is correlated by the unique disposable origin-child requester lineage and optional parentTaskId, never title prose.",
     "file": "r-cd-token-bracket-delegate.js"
   },
   "seatClassExpectation": {
@@ -61,7 +61,7 @@
     {
       "name": "queue-identity",
       "required": true,
-      "description": "Exactly one token delegate task identity appears in the authoritative task ledger"
+      "description": "Exactly one subagent task owned by the newly-created disposable origin child appears in the authoritative task ledger; title/label text is not required"
     },
     {
       "name": "child-spawned",

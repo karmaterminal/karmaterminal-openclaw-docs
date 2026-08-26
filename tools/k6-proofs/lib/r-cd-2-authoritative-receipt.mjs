@@ -10,6 +10,7 @@ const FAILURE_CATEGORIES = new Set([
   'send-run-mismatch',
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
+  'silent-channel-delivery',
   'missing-terminal-sentinel',
   'send-topology-mismatch',
   'missing-continuation-topology',
@@ -18,6 +19,7 @@ const FAILURE_CATEGORIES = new Set([
 const CONCLUSIVE_FAILURE_CATEGORIES = new Set([
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
+  'silent-channel-delivery',
   'missing-terminal-sentinel',
 ]);
 
@@ -50,7 +52,7 @@ function seal(receipt, key) {
   };
 }
 
-function evidencePasses(evidence) {
+function successfulLifecycleFacts(evidence) {
   return evidence?.session_created === true &&
     evidence?.session_unbound_confirmed === true &&
     evidence?.send_accepted === true &&
@@ -62,11 +64,25 @@ function evidencePasses(evidence) {
     evidence?.wake_lifecycle_observed === true &&
     evidence?.post_wake_quiet === true &&
     evidence?.channel_message_observed === false &&
-    evidence?.dispatch_failure_observed !== true &&
     hex(evidence?.send_run_fingerprint, 16) &&
     hex(evidence?.row_nonce_fingerprint, 16) &&
     evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
     hex(evidence?.accepted_send_trace_id, 32);
+}
+
+// Older acquisition code promoted replayInvalid into a terminal failure even
+// when the same accepted run reached its sentinel, completed the typed delegate,
+// woke the parent, and stayed quiet. Reconcile only that fully-proven conflict;
+// an incomplete or genuinely failed lifecycle remains conclusive non-PASS.
+function replayDiagnosticIsReconciled(evidence) {
+  return evidence?.dispatch_failure_observed === true &&
+    evidence?.failureCategory === 'delegate-replay-unsafe' &&
+    successfulLifecycleFacts(evidence);
+}
+
+function evidencePasses(evidence) {
+  return successfulLifecycleFacts(evidence) &&
+    (evidence?.dispatch_failure_observed !== true || replayDiagnosticIsReconciled(evidence));
 }
 
 function topologyPasses(correlation) {
@@ -103,7 +119,9 @@ function sameRowBinding(evidence, correlation) {
 }
 
 function categoryFor(evidence, correlation) {
-  if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
+  if (evidence?.channel_message_observed === true) return 'silent-channel-delivery';
+  if (evidence?.failureCategory === 'delegate-replay-unsafe' &&
+      !replayDiagnosticIsReconciled(evidence)) return 'delegate-replay-unsafe';
   if (evidence?.failureCategory === 'missing-terminal-sentinel') return 'missing-terminal-sentinel';
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
   if (evidence?.send_run_captured &&
@@ -140,6 +158,8 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
         typedDelegate: evidence?.typed_delegate_success_same_run === true,
         quiet: evidence?.post_wake_quiet === true,
         failed: evidence?.dispatch_failure_observed === true,
+        replayDiagnostic: evidence?.replay_invalid_observed === true ||
+          evidence?.failureCategory === 'delegate-replay-unsafe',
       }),
       topologyFingerprint: binding({
         trace: correlation?.traceId || null,
@@ -183,6 +203,8 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       wakeLifecycleObserved: true,
       unboundSessionVerified: true,
       noChannelVerified: true,
+      replayDiagnosticObserved: evidence?.replay_invalid_observed === true ||
+        evidence?.failureCategory === 'delegate-replay-unsafe',
       traceFingerprint: fingerprint(correlation.traceId),
       acceptedSendTraceFingerprint: fingerprint(evidence.accepted_send_trace_id),
       acceptedSendRunFingerprint: fingerprint(evidence.send_run_fingerprint),
@@ -209,6 +231,7 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
   const life = receipt.lifecycle;
   const pass = receipt.verdict === 'PASS-candidate' && life?.typedTool === 'continue_delegate' && life.mode === 'silent-wake' &&
     ['sameTrace', 'sameChain', 'typedToolObserved', 'dispatchObserved', 'fireObserved', 'dispatchTerminalSentinelObserved', 'dispatchTerminalSentinelSameRunWindow', 'terminalSuccessSameRun', 'wakeLifecycleObserved', 'unboundSessionVerified', 'noChannelVerified'].every((key) => life[key] === true) &&
+    typeof life.replayDiagnosticObserved === 'boolean' &&
     hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
     life.traceFingerprint === life.acceptedSendTraceFingerprint &&
     hex(life.acceptedSendRunFingerprint, 16) && hex(life.rowNonceFingerprint, 16) &&

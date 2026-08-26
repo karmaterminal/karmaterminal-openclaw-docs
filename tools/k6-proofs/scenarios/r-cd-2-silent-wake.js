@@ -23,7 +23,13 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import {
+  gatewayLifecycleRunId,
+  gatewayLifecyclePhase,
+  gatewayLifecycleReplayInvalid,
+  gatewayLifecycleSucceeded,
+  gatewayWakeRunId,
+} from '../lib/gateway-lifecycle.js';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 
 export const options = {
@@ -142,6 +148,7 @@ export default function () {
     post_wake_quiet: false,
     post_wake_quiet_timer_started: false,
     dispatch_failure_observed: false,
+    replay_invalid_observed: false,
     send_run_mismatch: false,
     task_created: false,
     task_mode: null,
@@ -337,9 +344,10 @@ export default function () {
               if (!sameRun) evidence.send_run_mismatch = true;
               else if (!gatewayLifecycleSucceeded(eventData)) {
                 evidence.dispatch_failure_observed = true;
-                evidence.failureCategory = eventData.data?.replayInvalid === true
-                  ? 'delegate-replay-unsafe' : 'provider-or-turn-failure';
+                evidence.failureCategory = 'provider-or-turn-failure';
               } else {
+                evidence.replay_invalid_observed =
+                  evidence.replay_invalid_observed || gatewayLifecycleReplayInvalid(eventData);
                 evidence.send_run_success_end_observed = true;
                 maybeRecordDispatchTerminalSuccess();
               }

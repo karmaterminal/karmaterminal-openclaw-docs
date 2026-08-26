@@ -1,4 +1,21 @@
-# Continuation telemetry remedy rows — `karmaterminal/openclaw#1254`
+# PR #129388 proof-harness closure
+
+## Named-ref contract
+
+Resolved before evidence review on 2026-08-25. The safe lane was published
+unchanged before its identity gate.
+
+| Category | Named ref | Full SHA | Local / tracking / server identity |
+|---|---|---|---|
+| Product/base | `karmaterminal/karmaterminal-openclaw-docs@0e75318a68d7145c0c5b99e8b11bda304f4f9fd2` | `0e75318a68d7145c0c5b99e8b11bda304f4f9fd2` | local object and GitHub server commit equal |
+| Safe lane | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-proof-harness-closure` | `0e75318a68d7145c0c5b99e8b11bda304f4f9fd2` (initial publication) | local = tracking = server |
+| CI/workflow | focused docs harness/unit/contract validation; broad Mode-B N/A | N/A | N/A |
+| Presentation | `openclaw/openclaw#129388`, head `codeagent/85651-upstream-1ba243c8-gates` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | local N/A; tracking N/A; GitHub PR head resolved on server |
+| Docs/proof | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-proof-transpose-aff980` | `c083eae1cb6b52c5e50f75d785a039c332172aca` | local object = tracking = server |
+
+---
+
+# Prior continuation telemetry remedy report
 
 Branch: `codeagent/continuation-telemetry-remedy-rows`
 Base: `ead47a618c539c535e6845c52207f7a16b23d677` (docs `main`)

@@ -100,6 +100,7 @@ export function resolveRcdTokenAuthoritativeReceipt({
         returnSource: evidence?.return_source_session_hash || null,
         reason: evidence?.reason_hash || null,
         length: evidence?.reason_length || null,
+        delegateCorrelationStrategy: evidence?.delegate_correlation_strategy || null,
       }),
       topologyFingerprint: digest({
         trace: correlation?.traceId || null,
@@ -140,6 +141,7 @@ export function resolveRcdTokenAuthoritativeReceipt({
       parserDetected: true,
       exactlyOneOriginTask: true,
       exactlyOneTokenDelegateTask: true,
+      delegateCorrelationStrategy: 'disposable-origin-child-lineage',
       taskLedgerFullyPaginated: true,
       childCompleted: true,
       parentReturnObserved: true,
@@ -200,6 +202,7 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
     'traceFingerprint', 'chainFingerprint',
   ];
   const pass = lifecycle?.surfaceClass === 'raw-final-text' &&
+    lifecycle?.delegateCorrelationStrategy === 'disposable-origin-child-lineage' &&
     requiredTrue.every((name) => lifecycle[name] === true) &&
     hashes.every((name) => hex(lifecycle?.[name], 16)) &&
     lifecycle.originRunIdHash !== lifecycle.delegateRunIdHash &&

@@ -107,6 +107,13 @@ executable contract, and post-install/post-proof worktree integrity checks.
 Any failed install, lockfile/tree/version alignment, SHA/state check, or
 cleanup fails closed. Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 
+The selected delegate boundary follows the candidate's current ownership
+surfaces (`agents/subagents/spawn/subagent-spawn`, `enqueueSystemEventRaw`, and
+the revision-fenced delegate TaskFlow test harness). If that generated test
+exits before writing its receipt, `dispatch-boundary-suite.json` retains only a
+public-safe diagnostic class, byte count, booleans, exit code, and SHA-256
+fingerprint; raw process output and private paths remain excluded.
+
 ## Required receipts
 
 - `fixture-readiness.json`

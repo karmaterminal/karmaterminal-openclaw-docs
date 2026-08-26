@@ -64,7 +64,7 @@
     {
       "name": "dispatch-boundary-suite",
       "required": true,
-      "description": "The production delegate dispatcher is exercised at the selected fixture maximum, proving one at-limit dispatch, first-over rejection before a second spawn, and failed rejected-flow state; the candidate regression suite also passes."
+      "description": "The production delegate dispatcher is exercised at the selected fixture maximum using the candidate's current spawn, system-event ownership, and revision-fenced TaskFlow test harness. One at-limit dispatch, first-over rejection before a second spawn, and failed rejected-flow state are required; an early exit retains a sanitized diagnostic summary."
     },
     {
       "name": "cleanup",

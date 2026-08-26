@@ -256,7 +256,7 @@ export default function () {
       evidence.task_snapshot_consistent =
         evidence.task_snapshot_stable_count >= REQUIRED_STABLE_TASK_SNAPSHOTS;
       observeTokenTaskLedger(ledger, {
-        tasks: taskSnapshot, originTitle, delegateMarker,
+        tasks: taskSnapshot, originTitle,
         parentSessionKey: sessionKey, pages: taskSnapshotPages, hash,
       });
       maybeSubscribeOrigin();

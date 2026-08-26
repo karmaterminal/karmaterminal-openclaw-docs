@@ -41,6 +41,7 @@ const evidence = {
   delegate_child_session_hash: h('5'),
   delegate_requester_matches_origin_child: true,
   delegate_parent_mismatch: false,
+  delegate_correlation_strategy: 'disposable-origin-child-lineage',
   origin_task_status: 'completed',
   delegate_task_status: 'completed',
   interrupted: false,

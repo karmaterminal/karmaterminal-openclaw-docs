@@ -15,7 +15,6 @@ import {
 const hash = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
 const parentSessionKey = 'agent:main:proof-parent';
 const originTitle = 'RCDT-O-0123456789abcdef';
-const delegateMarker = 'D-0123456789ab';
 const returnSentinel = 'RCDT-RETURN-0123456789abcdef';
 const originChild = 'agent:main:subagent:origin-child';
 const delegateChild = 'agent:main:subagent:delegate-child';
@@ -45,8 +44,7 @@ function wireTasks(status = 'completed') {
     }),
     taskSummary({
       id: 'delegate-id', runId: 'delegate-run', childSessionKey: delegateChild,
-      title: `[continuation:chain-hop:1] Delegated from sub-agent (depth 1): ${delegateMarker}`
-        .replace(/\s+/g, ' ').trim().slice(0, 80),
+      title: '',
       sessionKey: originChild, parentTaskId: 'origin-id', status,
     }),
   ];
@@ -57,7 +55,6 @@ function completeEvidence(overrides = {}) {
   observeTokenTaskLedger(ledger, {
     hash,
     originTitle,
-    delegateMarker,
     parentSessionKey,
     pages: 2,
     tasks: wireTasks(),
@@ -86,10 +83,10 @@ function completeEvidence(overrides = {}) {
 test('accepts the real public TaskSummary shape and normalizes completed status', () => {
   const ledger = createTokenLedger({ surfaceClass: 'raw-final-text-seat' });
   observeTokenTaskLedger(ledger, {
-    tasks: wireTasks('running'), originTitle, delegateMarker, parentSessionKey, pages: 2, hash,
+    tasks: wireTasks('running'), originTitle, parentSessionKey, pages: 2, hash,
   });
   observeTokenTaskLedger(ledger, {
-    tasks: wireTasks('completed'), originTitle, delegateMarker, parentSessionKey, pages: 2, hash,
+    tasks: wireTasks('completed'), originTitle, parentSessionKey, pages: 2, hash,
   });
   const summary = summarizeTokenLedger(ledger);
   assert.equal(summary.origin_task_unique_count, 1);
@@ -102,24 +99,49 @@ test('accepts the real public TaskSummary shape and normalizes completed status'
   assert.equal(tokenLedgerHasTerminalTasks(ledger), true);
 });
 
-test('bounded public titles are joined by short markers plus requester lineage, not raw task text', () => {
+test('unlabeled token tasks are joined by disposable origin-child ownership', () => {
   const ledger = createTokenLedger({ surfaceClass: 'raw-final-text' });
   const tasks = wireTasks();
-  const productionTask = `[continuation:chain-hop:1] Delegated from sub-agent (depth 1): ${delegateMarker} reply exactly ${returnSentinel}`;
-  tasks[1].title = productionTask.replace(/\s+/g, ' ').trim().slice(0, 80);
-  assert.equal('[continuation:chain-hop:1] Delegated from sub-agent (depth 1): '.length, 63);
-  assert.equal(tasks[1].title.length, 80);
-  assert.equal(tasks[1].title.includes(delegateMarker), true);
+  assert.equal(tasks[1].title, '');
   observeTokenTaskLedger(ledger, {
-    tasks, originTitle, delegateMarker, parentSessionKey, pages: 1, hash,
+    tasks, originTitle, parentSessionKey, pages: 1, hash,
   });
-  assert.equal(summarizeTokenLedger(ledger).delegate_task_unique_count, 1);
+  const summary = summarizeTokenLedger(ledger);
+  assert.equal(summary.delegate_task_unique_count, 1);
+  assert.equal(summary.delegate_correlation_strategy, 'disposable-origin-child-lineage');
   const wrongOwner = createTokenLedger({ surfaceClass: 'raw-final-text' });
   tasks[1].sessionKey = 'agent:main:subagent:unrelated';
   observeTokenTaskLedger(wrongOwner, {
-    tasks, originTitle, delegateMarker, parentSessionKey, pages: 1, hash,
+    tasks, originTitle, parentSessionKey, pages: 1, hash,
   });
   assert.equal(summarizeTokenLedger(wrongOwner).delegate_task_unique_count, 0);
+});
+
+test('unlabeled lineage correlation fails closed on duplicates and parent mismatch', () => {
+  const duplicateLedger = createTokenLedger({ surfaceClass: 'raw-final-text' });
+  const tasks = wireTasks();
+  tasks.push(taskSummary({
+    id: 'delegate-id-2',
+    runId: 'delegate-run-2',
+    childSessionKey: 'agent:main:subagent:delegate-child-2',
+    title: '',
+    sessionKey: originChild,
+    parentTaskId: 'origin-id',
+  }));
+  observeTokenTaskLedger(duplicateLedger, {
+    tasks, originTitle, parentSessionKey, pages: 1, hash,
+  });
+  assert.equal(summarizeTokenLedger(duplicateLedger).delegate_task_unique_count, 2);
+
+  const mismatchedLedger = createTokenLedger({ surfaceClass: 'raw-final-text' });
+  const mismatched = wireTasks();
+  mismatched[1].parentTaskId = 'unrelated-origin';
+  observeTokenTaskLedger(mismatchedLedger, {
+    tasks: mismatched, originTitle, parentSessionKey, pages: 1, hash,
+  });
+  const mismatch = summarizeTokenLedger(mismatchedLedger);
+  assert.equal(mismatch.delegate_task_unique_count, 0);
+  assert.equal(mismatch.delegate_parent_mismatch, true);
 });
 
 test('disposable origin gate rejects disabled, failed, missing, and fallback creation', () => {

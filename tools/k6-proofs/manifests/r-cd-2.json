@@ -165,7 +165,7 @@
     },
     "controls": {
       "positive": "The dispatch turn reaches its exact post-tool terminal sentinel inside its own run window, one topology-scoped typed continue_delegate completes, and a distinct same-session wake lifecycle is observed.",
-      "negative": "No channel message is delivered for the silent-wake return, generic delayed messages do not satisfy the lifecycle receipt, and a trace carrying older unrelated activity does not satisfy the topology receipt.",
+      "negative": "No channel message is delivered for the silent-wake return, generic delayed messages do not satisfy the lifecycle receipt, a trace carrying older unrelated activity does not satisfy the topology receipt, and replayInvalid is diagnostic unless the same bound lifecycle is actually incomplete.",
       "notes": "The negative control is an absence proof. Without a canonical terminal outcome it cannot distinguish suppressed delivery from delivery that never happened."
     },
     "backendUnavailable": {
@@ -206,7 +206,7 @@
       "passScope": "behavioral-only",
       "pass": "Only the validated row-scoped authoritative receipt can produce PASS-candidate, and only for the observed behavior. It is not a claim that the silent wake is re-identifiable from telemetry.",
       "partial": "Topology, wake lifecycle, or trace receipts are unavailable without a conclusive failed lifecycle, including when the telemetry backend is degraded or partial.",
-      "fail": "A channel message is delivered for the silent-wake return, or the accepted dispatch lifecycle conclusively fails, becomes replay-unsafe, or does not reach its terminal sentinel."
+      "fail": "A channel message is delivered for the silent-wake return, or the accepted dispatch lifecycle conclusively fails or does not reach its terminal sentinel. replayInvalid alone is not terminal authority after the same run proves typed dispatch, completion, wake, and quiet."
     },
     "execution": {
       "deterministicK6": "r-cd-2-silent-wake.js plus the row-scoped resolver produce the signed receipt; the runner withholds the envelope if the digest does not match.",

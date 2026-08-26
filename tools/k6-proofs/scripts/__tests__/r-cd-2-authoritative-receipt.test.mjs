@@ -88,11 +88,32 @@ test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce',
   }
 });
 
-test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology', () => {
+test('R-CD-2 reconciles the rejected-base replay diagnostic only with a complete bound lifecycle', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      dispatch_failure_observed: true,
+      failureCategory: 'delegate-replay-unsafe',
+      replay_invalid_observed: true,
+    }),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.equal(receipt.lifecycle.replayDiagnosticObserved, true);
+  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+});
+
+test('R-CD-2 rejects an actual replay failure, wrong mode, and mismatched trace topology', () => {
   const replay = resolveRcd2AuthoritativeReceipt({
-    evidence: evidence({ dispatch_failure_observed: true, failureCategory: 'delegate-replay-unsafe' }),
+    evidence: evidence({
+      dispatch_failure_observed: true,
+      failureCategory: 'delegate-replay-unsafe',
+      typed_delegate_success_same_run: false,
+      wake_lifecycle_observed: false,
+    }),
     correlation: correlation(), signingKey,
   });
+
   assert.deepEqual(
     [replay.verdict, replay.failureCategory],
     ['FAIL-candidate', 'delegate-replay-unsafe'],
@@ -102,6 +123,18 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
   }
+});
+
+test('R-CD-2 treats explicit silent-channel delivery as a conclusive failure', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ channel_message_observed: true }),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.deepEqual(
+    [receipt.verdict, receipt.failureCategory],
+    ['FAIL-candidate', 'silent-channel-delivery'],
+  );
 });
 
 test('R-CD-2 rejects a successful lifecycle end without the exact post-tool sentinel', () => {

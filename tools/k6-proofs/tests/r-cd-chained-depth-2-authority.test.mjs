@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   rCdChainRootReturnCandidate,
+  rCdChainObservationState,
   rCdChainRootReturnReceipt,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 
@@ -93,4 +94,49 @@ test('depth-2 chain withholds return authority without two distinct hop identiti
     childSessionKey: 'agent:main:subagent:same',
     grandchildSessionKey: 'agent:main:subagent:same',
   }), null);
+});
+
+test('depth-2 chain gives root return a fresh post-grandchild observation window', () => {
+  const dispatchAcceptedAt = 1_000;
+  const grandchildObservedAt = 149_000;
+  const waiting = rCdChainObservationState({
+    now: 150_001,
+    dispatchAcceptedAt,
+    grandchildObservedAt,
+    rootReturnReceipt: null,
+    descendantTimeoutMs: 150_000,
+    rootReturnTimeoutMs: 120_000,
+  });
+  assert.deepEqual(waiting, {
+    phase: 'awaiting-root-return',
+    deadlineAtMs: 269_000,
+    timedOut: false,
+  });
+  assert.equal(rCdChainObservationState({
+    now: 269_000,
+    dispatchAcceptedAt,
+    grandchildObservedAt,
+    rootReturnReceipt: null,
+    descendantTimeoutMs: 150_000,
+    rootReturnTimeoutMs: 120_000,
+  }).phase, 'root-return-timeout');
+});
+
+test('depth-2 chain distinguishes descendant timeout, root timeout, and recovery', () => {
+  assert.equal(rCdChainObservationState({
+    now: 151_000,
+    dispatchAcceptedAt: 1_000,
+    grandchildObservedAt: null,
+    rootReturnReceipt: null,
+    descendantTimeoutMs: 150_000,
+    rootReturnTimeoutMs: 120_000,
+  }).phase, 'descendant-timeout');
+  assert.equal(rCdChainObservationState({
+    now: 200_000,
+    dispatchAcceptedAt: 1_000,
+    grandchildObservedAt: 50_000,
+    rootReturnReceipt: { marker: 'bound' },
+    descendantTimeoutMs: 150_000,
+    rootReturnTimeoutMs: 120_000,
+  }).phase, 'complete');
 });

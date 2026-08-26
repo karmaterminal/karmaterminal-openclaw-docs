@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { gatewayLifecyclePhase, gatewayLifecycleRunId, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../../lib/gateway-lifecycle.js';
+import {
+  gatewayLifecyclePhase,
+  gatewayLifecycleReplayInvalid,
+  gatewayLifecycleRunId,
+  gatewayLifecycleSucceeded,
+  gatewayWakeRunId,
+} from '../../lib/gateway-lifecycle.js';
 
 test('R-CD-2 accepts only the documented top-level gateway lifecycle runId', () => {
   assert.equal(gatewayLifecycleRunId({ runId: 'send-run-1', stream: 'lifecycle' }), 'send-run-1');
@@ -23,4 +29,18 @@ test('uses only top-level lifecycle envelopes for terminal and wake identity', (
   assert.equal(gatewayWakeRunId(wake, 'send-run-1'), 'wake-run-2');
   assert.equal(gatewayWakeRunId({ stream: 'lifecycle', data: { phase: 'start', runId: 'nested' } }, 'send-run-1'), null);
   assert.equal(gatewayWakeRunId({ runId: 'send-run-1', stream: 'lifecycle', data: { phase: 'start' } }, 'send-run-1'), null);
+});
+
+test('keeps replay-invalid metadata diagnostic when the lifecycle itself succeeded', () => {
+  const terminal = {
+    runId: 'send-run-1',
+    stream: 'lifecycle',
+    data: { phase: 'end', status: 'ok', replayInvalid: true },
+  };
+  assert.equal(gatewayLifecycleSucceeded(terminal), true);
+  assert.equal(gatewayLifecycleReplayInvalid(terminal), true);
+  assert.equal(gatewayLifecycleSucceeded({
+    ...terminal,
+    data: { ...terminal.data, status: 'failed' },
+  }), false);
 });

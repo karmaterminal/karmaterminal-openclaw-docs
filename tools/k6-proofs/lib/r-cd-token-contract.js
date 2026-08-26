@@ -65,6 +65,7 @@ function rememberTask({ task, seen, hash }) {
 export function createTokenLedger({ surfaceClass }) {
   return {
     surfaceClass: normalizedSurface(surfaceClass),
+    delegateCorrelationStrategy: 'disposable-origin-child-lineage',
     originTasks: {},
     delegateTasks: {},
     tasksListAccepted: 0,
@@ -77,13 +78,14 @@ export function createTokenLedger({ surfaceClass }) {
 
 /**
  * Consume one complete tasks.list snapshot (all pages). TaskSummary.title is
- * bounded to 80 characters, so the caller supplies short opaque markers that
- * survive the public gateway projection. The delegate must be owned by the
- * one origin child's session; title text alone is never enough to join it.
+ * bounded to 80 characters and token-created tasks can be unlabeled. The
+ * stable public join is the one newly-created disposable origin child's
+ * requester identity, plus parentTaskId when the projection supplies it.
+ * Exactly-once accounting below fails closed on any second owned subagent task.
  */
 export function observeTokenTaskLedger(
   ledger,
-  { tasks, originTitle, delegateMarker, parentSessionKey, pages, hash },
+  { tasks, originTitle, parentSessionKey, pages, hash },
 ) {
   if (!ledger || typeof hash !== 'function') return;
   ledger.tasksListAccepted += 1;
@@ -100,9 +102,11 @@ export function observeTokenTaskLedger(
   const origin = oneTask(ledger.originTasks);
   if (!origin?.childSessionKey) return;
   for (const task of Array.isArray(tasks) ? tasks : []) {
-    const title = String(task?.title || '');
-    if (!title.includes(delegateMarker)) continue;
     if (String(task?.sessionKey || '') !== origin.childSessionKey) continue;
+    const kind = String(task?.kind || '').toLowerCase();
+    const runtime = String(task?.runtime || '').toLowerCase();
+    if (kind !== 'subagent' && runtime !== 'subagent') continue;
+    if (taskId(task) === origin.taskId) continue;
     if (task?.parentTaskId && String(task.parentTaskId) !== origin.taskId) {
       ledger.delegateParentMismatch = true;
       continue;
@@ -135,6 +139,8 @@ export function summarizeTokenLedger(ledger) {
   const delegate = oneTask(ledger?.delegateTasks);
   return {
     surface_class: ledger?.surfaceClass || 'unknown',
+    delegate_correlation_strategy:
+      ledger?.delegateCorrelationStrategy || 'unknown',
     tasks_list_accepted: ledger?.tasksListAccepted || 0,
     tasks_list_rejected: ledger?.tasksListRejected || 0,
     task_pages_accepted: ledger?.taskPagesAccepted || 0,
@@ -216,6 +222,7 @@ export function classifyTokenEvidence(evidence) {
     evidence.delegate_return_observed === true &&
     evidence.task_pagination_exhausted === true &&
     evidence.task_snapshot_consistent === true &&
+    evidence.delegate_correlation_strategy === 'disposable-origin-child-lineage' &&
     Number(evidence.task_snapshot_stable_count || 0) >= 3 &&
     evidence.tasks_list_rejected === 0 &&
     exactOnce && identities &&

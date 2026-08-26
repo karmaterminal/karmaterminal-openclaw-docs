@@ -7,17 +7,15 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearRuntimeConfigSnapshot } from "../../src/config/config.js";
 import { resetContinuationTracer } from "../../src/infra/continuation-tracer.js";
 
-const mockFlows = new Map<string, Record<string, unknown>>();
 const enqueueSystemEventMock = vi.fn();
 const spawnSubagentDirectMock = vi.fn();
-let flowIdCounter = 0;
 
-vi.mock("../../src/agents/subagent-spawn.js", () => ({
+vi.mock("../../src/agents/subagents/spawn/subagent-spawn.js", () => ({
   spawnSubagentDirect: (...args: unknown[]) => spawnSubagentDirectMock(...args),
 }));
 
 vi.mock("../../src/infra/system-events.js", () => ({
-  enqueueSystemEvent: (text: string, options: unknown) => enqueueSystemEventMock(text, options),
+  enqueueSystemEventRaw: (text: string, options: unknown) => enqueueSystemEventMock(text, options),
 }));
 
 vi.mock("../../src/logging/subsystem.js", () => {
@@ -37,67 +35,21 @@ vi.mock("../../src/logging/subsystem.js", () => {
   return { createSubsystemLogger: () => logger };
 });
 
-vi.mock("../../src/tasks/task-flow-registry.js", () => ({
-  createManagedTaskFlow: vi.fn((params: Record<string, unknown>) => {
-    const flowId = `flow-${++flowIdCounter}`;
-    const flow = {
-      flowId,
-      syncMode: "managed",
-      ownerKey: params.ownerKey,
-      controllerId: params.controllerId,
-      status: "queued",
-      stateJson: params.stateJson,
-      goal: params.goal,
-      currentStep: params.currentStep,
-      revision: 0,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    mockFlows.set(flowId, flow);
-    return flow;
-  }),
-  listTaskFlowsForOwnerKey: vi.fn((ownerKey: string) =>
-    [...mockFlows.values()].filter((flow) => flow.ownerKey === ownerKey),
-  ),
-  getTaskFlowById: vi.fn((flowId: string) => mockFlows.get(flowId)),
-  updateFlowRecordByIdExpectedRevision: vi.fn(
-    (params: { flowId: string; expectedRevision: number; patch: Record<string, unknown> }) => {
-      const flow = mockFlows.get(params.flowId);
-      if (!flow || flow.revision !== params.expectedRevision) {
-        return {
-          applied: false,
-          reason: flow ? "revision_conflict" : "not_found",
-          current: flow ? { ...flow } : undefined,
-        };
-      }
-      Object.assign(flow, params.patch);
-      flow.revision = Number(flow.revision) + 1;
-      return { applied: true, flow: { ...flow } };
-    },
-  ),
-  finishFlow: vi.fn((params: { flowId: string; expectedRevision: number }) => {
-    const flow = mockFlows.get(params.flowId);
-    if (!flow || flow.revision !== params.expectedRevision) {
-      return { applied: false, reason: flow ? "revision_conflict" : "not_found" };
-    }
-    flow.status = "succeeded";
-    flow.revision = Number(flow.revision) + 1;
-    return { applied: true, flow: { ...flow } };
-  }),
-  failFlow: vi.fn((params: { flowId: string }) => {
-    const flow = mockFlows.get(params.flowId);
-    if (flow) flow.status = "failed";
-    return { applied: Boolean(flow) };
-  }),
-  deleteTaskFlowRecordById: vi.fn((flowId: string) => {
-    mockFlows.delete(flowId);
-  }),
-}));
+vi.mock("../../src/tasks/task-flow-registry.js", async () => {
+  const harness = await import(
+    "../../src/auto-reply/continuation/delegate-taskflow-registry.test-harness.js"
+  );
+  return harness.createTaskFlowRegistryMock();
+});
 
 import {
   dispatchToolDelegates,
   resetDelegateDispatchHedgesForTests,
 } from "../../src/auto-reply/continuation/delegate-dispatch.js";
+import {
+  mockTaskFlows,
+  resetMockTaskFlows,
+} from "../../src/auto-reply/continuation/delegate-taskflow-registry.test-harness.js";
 import { enqueuePendingDelegate } from "../../src/auto-reply/continuation/delegate-store.js";
 import { resetContinuationStateForTests } from "../../src/auto-reply/continuation/state.js";
 
@@ -116,10 +68,9 @@ const runtimeConfig = {
 };
 
 beforeEach(() => {
-  mockFlows.clear();
+  resetMockTaskFlows();
   enqueueSystemEventMock.mockClear();
   spawnSubagentDirectMock.mockReset().mockResolvedValue({ status: "accepted" });
-  flowIdCounter = 0;
   vi.useFakeTimers();
 });
 
@@ -128,7 +79,7 @@ afterEach(() => {
   resetContinuationStateForTests();
   resetContinuationTracer();
   clearRuntimeConfigSnapshot();
-  mockFlows.clear();
+  resetMockTaskFlows();
   vi.useRealTimers();
 });
 

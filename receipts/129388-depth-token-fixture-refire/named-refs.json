@@ -1,0 +1,63 @@
+{
+  "schema": "openclaw.project81.129388-depth-token-fixture-refire.named-refs.v1",
+  "recordedAt": "2026-08-26T21:29:36Z",
+  "proofRowsFired": true,
+  "refs": {
+    "productRuntime": {
+      "namedRef": "karmaterminal/openclaw:codeagent/129388-runtime-composite-final-cures",
+      "resolvedSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "localSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "trackingSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "serverSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+      "equal": true
+    },
+    "safeLaneAtEvidence": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-depth-token-fixture-refire",
+      "baseReportHead": "98d2f8c4d5bce0e626bb286c0bf50ef4744cfcd7",
+      "resolvedSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "localSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "trackingSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "serverSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "publishedBeforeEvidence": true,
+      "equal": true
+    },
+    "ciWorkflow": {
+      "namedRef": ".github/workflows/project81-k6-proof.yml from the exact safe-lane evidence ref",
+      "resolvedSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "localSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "trackingSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "serverSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "workflowBlob": "0c9ef45da6aa3ce08b1c3e3381b0255324258e68",
+      "workflowSha256": "5cc7d7c2e599393082836267cbf6ffecf5e1e91e2d4a681434cc14424ccaef7a",
+      "runId": 33014309397,
+      "runHeadSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+      "equal": true
+    },
+    "presentation": {
+      "namedRef": "karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates",
+      "resolvedSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "localSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "trackingSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "serverSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "readOnly": true,
+      "equal": true
+    },
+    "docsProofReviewedHarness": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-depth-ack-harness-cure",
+      "resolvedSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "localSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "trackingSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "serverSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "ancestorOfSuccessor": true,
+      "equal": true
+    },
+    "rejectedRun": {
+      "namedRef": "workflow run 33008913520, artifact 9622119639",
+      "trackingSha": null,
+      "trackingDisposition": "N/A (immutable workflow run and artifact)",
+      "runHeadSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+      "artifactZipSha256": "dbeb2af72e45e2d1a857f8d7ba09f42bddd046c2750c4d6b086579f1c39cbb08"
+    }
+  },
+  "allApplicableRefsEqual": true
+}

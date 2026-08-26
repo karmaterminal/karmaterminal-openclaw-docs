@@ -1,0 +1,59 @@
+{
+  "schema": "openclaw.project81.129388-depth-token-fixture-refire.cleanup.v1",
+  "recordedAt": "2026-08-26T21:29:36Z",
+  "isolatedGateway": {
+    "unit": "openclaw-proof-129388-depth-token-refire.service",
+    "pid": 234961,
+    "processStartTicks": "58777066",
+    "processStopped": true,
+    "rootProcessesAfter": 0,
+    "port": 19892,
+    "portListenersAfter": 0,
+    "portFreeAfter": true,
+    "unitLoadStateAfter": "not-found"
+  },
+  "discardedFirstRoot": {
+    "pid": 232124,
+    "processStartTicks": "58750828",
+    "processStoppedBeforeFinalRoot": true,
+    "rootPreserved": true,
+    "rootReused": false,
+    "proofRowsFired": false
+  },
+  "runtime": {
+    "candidateSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "distSha256BeforeTraffic": "83c7f3a93042c2aa031740c7efec1bb7926922c0bacc45c7032b3859b6ed4ce2",
+    "distSha256AfterTraffic": "83c7f3a93042c2aa031740c7efec1bb7926922c0bacc45c7032b3859b6ed4ce2",
+    "distSha256AfterShutdown": "83c7f3a93042c2aa031740c7efec1bb7926922c0bacc45c7032b3859b6ed4ce2",
+    "distUnchanged": true,
+    "trackedCleanAfter": true
+  },
+  "livePrince": {
+    "unit": "openclaw-gateway.service",
+    "pidBefore": 2272093,
+    "pidAfter": 2272093,
+    "startTicksBefore": "50957076",
+    "startTicksAfter": "50957076",
+    "configSha256Before": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "configSha256After": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "unchanged": true
+  },
+  "foreignProofService": {
+    "unit": "openclaw-proof-a0aa4ec-hold.service",
+    "pidBefore": 2498654,
+    "pidAfter": 2498654,
+    "startTicksBefore": "51871376",
+    "startTicksAfter": "51871376",
+    "listenerCountAfter": 2,
+    "port": 19891,
+    "unchanged": true
+  },
+  "privateEvidencePreserved": true,
+  "productCodeTouched": false,
+  "presentationTouched": false,
+  "docsMainTouched": false,
+  "proofCorpusTouched": false,
+  "proofIndexTouched": false,
+  "pullRequestOpened": false,
+  "issuesClosed": false
+}

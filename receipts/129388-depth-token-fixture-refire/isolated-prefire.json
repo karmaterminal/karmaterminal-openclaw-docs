@@ -1,0 +1,121 @@
+{
+  "schema": "openclaw.project81.129388-depth-token-fixture-refire.isolated-prefire.v1",
+  "recordedAt": "2026-08-26T21:29:36Z",
+  "outcome": "PASS-candidate",
+  "proofRowsFiredAtReceiptReview": true,
+  "host": {
+    "seat": "ronan",
+    "architecture": "aarch64",
+    "nodeVersion": "v25.9.0",
+    "k6Version": "v2.0.0"
+  },
+  "runtime": {
+    "candidateSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "treeSha": "aa2cf494b7a859dbcdfaf33a279830033d2c6f36",
+    "trackedClean": true,
+    "buildInfoSha256": "35fae0fa29607c7801082a374d58ead0daa1cf39350489f201a3dd43431fc329",
+    "cliIdentity": "OpenClaw 2026.8.1 (0c033c4)",
+    "distFileCount": 12145,
+    "distSha256Before": "83c7f3a93042c2aa031740c7efec1bb7926922c0bacc45c7032b3859b6ed4ce2",
+    "distSha256After": "83c7f3a93042c2aa031740c7efec1bb7926922c0bacc45c7032b3859b6ed4ce2",
+    "distUnchanged": true
+  },
+  "dependencies": {
+    "sameHost": true,
+    "dependencyCloneSha": "2f9b9b7a90988190a149208cbbad68558d1d7daa",
+    "packageJsonSha256": "f381882c5299390ea74a7d095a512e50b4914e7eb380bf26f0c6b5b28976899d",
+    "pnpmLockSha256": "688c9780ded8ee8c83d4f0375d25213c26c02e36b12f6e7659d6c594c3b554e6",
+    "pnpmWorkspaceSha256": "178d57f60d7a3fa7e679ef07be87d168570c1756557b367d6dc06d3445136b58",
+    "candidateAndDependencyCloneInstallInputsEqual": true,
+    "projectInstallRunInLinkedWorktree": false
+  },
+  "isolation": {
+    "unit": "openclaw-proof-129388-depth-token-refire.service",
+    "pid": 234961,
+    "processStartTicks": "58777066",
+    "port": 19892,
+    "loopbackListenerCount": 2,
+    "separateConfig": true,
+    "separateState": true,
+    "separateDatabase": true,
+    "separateWorkspace": true,
+    "separateHome": true,
+    "separateLogs": true,
+    "liveSessionsCopied": false,
+    "priorProofSessionsCopied": false
+  },
+  "config": {
+    "sha256": "6d304601bf40f2943a411561675504c9a423f6f75c24fd3a45756064e65d714d",
+    "configuredMaxSpawnDepth": 5,
+    "effectiveMaxSpawnDepth": 5,
+    "requiredMaxSpawnDepth": 2,
+    "provisionReceiptSha256": "c1b98ac376d0874a21f057f332a66c75eb9426db06ad97ee23002a0add2168ff",
+    "validationReceiptSha256": "ea5794f2031d9de24f90dbe16181d44376b9573bcbb731a04b1c04a17586b8a2"
+  },
+  "credentialRoute": {
+    "sharedStoreOwnership": "state-db",
+    "profilesCopied": 1,
+    "provider": "openai",
+    "type": "oauth",
+    "profileIdPublished": false,
+    "profileIdFingerprint": "0b65c92fa836e1d98f1793ebe8708f6aa7f98ba1d029ead5707877c7d4b6c1cb",
+    "transferReceiptSha256": "9458b693d12d412cdd3a0a56dd77c69aa113eeae42bec694161e8e318659180d",
+    "authRuntimeStateRowsCopied": 0,
+    "sessionRuntimeRowsCopied": 0,
+    "profileVisibleBeforeLaunch": true
+  },
+  "telemetry": {
+    "plugin": "diagnostics-otel",
+    "endpoint": "http://otel.dandelion.cult:4318",
+    "protocol": "http/protobuf",
+    "serviceName": "ronan-isolated-129388-depth-token-0c033c46",
+    "traces": true,
+    "metrics": false,
+    "logs": false,
+    "captureContent": false,
+    "sampleRate": 1
+  },
+  "seatReadiness": {
+    "outcome": "PASS-candidate",
+    "receiptSha256": "1ecd4cc3152d49ad4e38f2849d94f522617e0fec03ab23e5c74b9ffe569c08e3",
+    "healthReachable": true,
+    "statusReachable": true,
+    "continuationEnabled": true,
+    "continuationDefaultsPresent": true,
+    "configuredMaxSpawnDepth": 5,
+    "effectiveMaxSpawnDepth": 5,
+    "requiredMaxSpawnDepth": 2,
+    "seatClass": "raw-final-text"
+  },
+  "boundedSmoke": {
+    "status": "ok",
+    "model": "openai/gpt-5.6-sol",
+    "thinking": "low",
+    "actualModelCalls": 1,
+    "canonicalPayloadExactSentinel": true,
+    "receiptSha256": "41b6dd9d5dd60461b72fceb54f27ab23780bb3da24af4a602a588068cb1c8f47",
+    "tempoReceiptSha256": "b9aa7c267ca5eaaeb45fe785276871a112af81f36baf0d3cac8cf84b5cd23b4a",
+    "tempoHttpStatus": 200,
+    "tempoTraceCount": 13,
+    "tempoUniqueService": true,
+    "tempoModelUsageRootObserved": true,
+    "backendDisposition": "partial",
+    "countAuthority": false
+  },
+  "discardedSetupAttempts": [
+    {
+      "stage": "config-validation",
+      "cause": "unsupported discovery.wideArea.enabled key",
+      "modelTraffic": false,
+      "proofTraffic": false
+    },
+    {
+      "stage": "bounded-smoke",
+      "cause": "seeded database was above the runtime-owned OPENCLAW_STATE_DIR/state/openclaw.sqlite path",
+      "httpResult": "401 missing authorization",
+      "modelHttpRequests": 1,
+      "proofTraffic": false,
+      "rootReused": false
+    }
+  ]
+}

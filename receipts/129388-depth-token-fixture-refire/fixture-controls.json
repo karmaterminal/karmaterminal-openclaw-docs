@@ -1,0 +1,78 @@
+{
+  "schema": "openclaw.project81.129388-depth-token-fixture-refire.fixture-controls.v1",
+  "recordedAt": "2026-08-26T21:29:36Z",
+  "repair": {
+    "commit": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+    "invariant": "A selected nested Project-81 row cannot dispatch unless the exact runtime config has a known, valid effective maxSpawnDepth at least as large as every selected row requirement.",
+    "compositionBoundary": [
+      "workflow row selection",
+      "row manifests",
+      "continuation depth contract",
+      "isolated config provisioner",
+      "runtime config",
+      "seat readiness",
+      "run-proofs pre-dispatch gate",
+      "scenario"
+    ],
+    "proofProfileMaxSpawnDepth": 5,
+    "productDefaultMaxSpawnDepth": 1,
+    "targetRequiredMaxSpawnDepth": 2,
+    "fleetDefaultsChanged": false
+  },
+  "negativeControl": {
+    "rejectedHarnessSha": "85a783f4ef0352e64b37748f4164d5fdee96ceb4",
+    "configShape": "agents.defaults.continuation present; agents.defaults.subagents.maxSpawnDepth omitted",
+    "expectedRejectExit": 2,
+    "observedOldExit": 0,
+    "testExit": 1,
+    "failedForExpectedReason": "old readiness incorrectly accepted the omitted-depth nested selection",
+    "logSha256": "539fb32ce289e3730b71235a3ae8c99cda132834fd9180af75eb0926abb70a63"
+  },
+  "successorControls": {
+    "omittedDepthNested": {
+      "exit": 2,
+      "configured": null,
+      "effective": 1,
+      "required": 2,
+      "reason": "effective-depth-insufficient"
+    },
+    "explicitDepthOneNested": {
+      "exit": 2,
+      "configured": 1,
+      "effective": 1,
+      "required": 2
+    },
+    "explicitProfileDepthFive": {
+      "exit": 0,
+      "configured": 5,
+      "effective": 5,
+      "required": 2
+    },
+    "nonNestedSiblingDefault": {
+      "row": "R-CD-2",
+      "exit": 0,
+      "configured": null,
+      "effective": 1,
+      "required": 1
+    },
+    "malformedDepthFailsClosed": true,
+    "unknownDepthFailsClosed": true,
+    "unknownRowFailsClosed": true,
+    "failedPreflightRowsExecuted": 0,
+    "failedPreflightK6DispatchObserved": false,
+    "generatedConfigMode": "0600",
+    "generatedReceiptPublicSafe": true
+  },
+  "focusedValidation": {
+    "coreNodeTests": 19,
+    "affectedOwnerNodeTests": 60,
+    "serialized": true,
+    "manifestScenarioValidator": "pass",
+    "scenarioAlignmentValidator": "pass",
+    "proofRowManifestValidator": "pass",
+    "telemetryContractValidator": "pass",
+    "currentCorpusValidator": "pass",
+    "fullSuiteUsed": false,
+    "ciPath": "focused-only"
+  }
+}

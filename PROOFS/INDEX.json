@@ -29,7 +29,7 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Full self-contained copy from source corpus 2ffc7ca0 to warm target 25051f3b. Qualification mode is affected-slice-materiality: 11 owner files / 686 assertions and an independent 11-file / 544-assertion subset, production and full test types, build, and three current generated snapshots. Ancestor Mode-B runs 32895790947 on 2ffc7ca0 and 32911065508 on c7131791 remain failures and are not target Mode-B. Historical live execution remains 37300f29; exact live proof on runtime a0aa4ec8 is pending. Rollup remains 32 pass, 4 partial, 1 honest limit, 4 missing, 0 fail.",
+  "disposition_note": "Full self-contained copy from source corpus 2ffc7ca0 to warm target 25051f3b. Qualification mode is affected-slice-materiality: 11 owner files / 686 assertions and an independent 11-file / 544-assertion subset, production and full test types, build, and three current generated snapshots. Ancestor Mode-B runs 32895790947 on 2ffc7ca0 and 32911065508 on c7131791 remain failures and are not target Mode-B. Historical broad live execution remains 37300f29. Exact descendant runtime a0aa4ec8 has functional R-CW-1 PASS-candidate evidence with OTel/Tempo receipt debt. Rollup remains 32 pass, 4 partial, 1 honest limit, 4 missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-25",
   "generated_by": "frond-scribe",
@@ -43,8 +43,9 @@
     "qualification_mode": "affected-slice-materiality",
     "exact_target_execution": false,
     "exact_target_mode_b": false,
-    "pending_runtime_composite_sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
-    "pending_runtime_exact_live_proof": true
+    "runtime_composite_sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+    "pending_runtime_exact_live_proof": false,
+    "runtime_exact_live_proof_status": "functional-pass-observability-partial"
   },
   "qualification_mode": "affected-slice-materiality",
   "exact_target_execution": false,

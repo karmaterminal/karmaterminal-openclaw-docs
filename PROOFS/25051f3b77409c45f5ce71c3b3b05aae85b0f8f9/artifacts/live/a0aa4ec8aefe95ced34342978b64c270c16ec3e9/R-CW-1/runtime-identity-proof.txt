@@ -1,0 +1,8 @@
+candidate_sha=a0aa4ec8aefe95ced34342978b64c270c16ec3e9
+cli_version=OpenClaw 2026.8.1 (a0aa4ec)
+unit=openclaw-proof-a0aa4ec.service
+pid=2466249
+cwd=/home/figs/.openclaw/proofs/a0aa4ec8aefe95ced34342978b64c270c16ec3e9/openclaw
+cmdline=/home/figs/.nvm/versions/node/v25.9.0/bin/node /home/figs/.openclaw/proofs/a0aa4ec8aefe95ced34342978b64c270c16ec3e9/openclaw/dist/index.js gateway --dev --auth token --bind loopback --tailscale off --port 19891 --ws-log compact 
+dist_index_sha256=d6c2baca8f3a467bd6aa71a9ca4a34391a7763cbb103311ff423bee42598e871
+listener=127.0.0.1:19891

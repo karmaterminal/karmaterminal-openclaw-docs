@@ -1,8 +1,8 @@
 # PR #129388 warm-target proof corpus
 
 Warm pure target SHA: `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9`.
-Qualification mode: **affected-slice-materiality**. The warm target intentionally
-has no exact-target Mode-B and no exact live execution.
+Qualification mode: **affected-slice-materiality**. The warm pure target
+intentionally has no exact-target Mode-B and was not executed standalone.
 
 The complete immediate source corpus remains
 `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`. Frozen qualified basis
@@ -13,9 +13,9 @@ target. Their execution and qualification identities are not relabeled.
 Historical live execution remains
 `37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains historical source
 proof SHA `80311e8aa07fd560cb957475517c5ea18164541c`; neither identity is a warm
-execution claim. Pending runtime composite
-`a0aa4ec8aefe95ced34342978b64c270c16ec3e9` contains the warm target but has
-no Ronan exact-live receipt.
+execution claim. Runtime composite `a0aa4ec8aefe95ced34342978b64c270c16ec3e9`
+contains the warm target and has an exact R-CW-1 functional
+`PASS-candidate` receipt. Its OTel/Tempo receipt remains partial.
 
 ## Transposition and applicability
 
@@ -105,8 +105,8 @@ These are ancestor Mode-B runs, not target Mode-B.
 - Live rows are historical execution-composite evidence from `37300f29…`, not
   exact warm-target or descendant-composite execution claims.
 - Warm `25051f3b…` has no exact-target Mode-B; qualification is compositional.
-- Exact live execution on pending runtime composite `a0aa4ec8…` awaits Ronan's
-  receipt.
+- Exact descendant runtime `a0aa4ec8…` passed functional R-CW-1 scheduling and
+  wake behavior; OTel/Tempo correlation remains explicit receipt debt.
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.
 - R-CW-6 remains partial because the docs-generated selected delegate fixture is stale; its direct product surfaces passed.

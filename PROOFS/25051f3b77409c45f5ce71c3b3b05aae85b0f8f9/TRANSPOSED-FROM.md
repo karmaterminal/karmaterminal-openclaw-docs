@@ -9,7 +9,7 @@
 | Pinned upstream parent | `80985b9663252da97bf8d67dd2cbeba0fa03aeea` |
 | Historical evidence source | `80311e8aa07fd560cb957475517c5ea18164541c` |
 | Historical live execution composite | `37300f29a7ec1f731575343c2aa73ae25f1d0efb` |
-| Pending exact-live runtime composite | `a0aa4ec8aefe95ced34342978b64c270c16ec3e9` |
+| Exact-live runtime composite | `a0aa4ec8aefe95ced34342978b64c270c16ec3e9` |
 
 Warm target `25051f3b…` is the ordinary no-fast-forward merge of frozen basis
 `c7131791…` and pinned upstream parent `80985b96…`. The c713 basis itself
@@ -25,5 +25,6 @@ applicability packet are vendored under this target subtree.
 Warm qualification is compositional: ancestor runs `32895790947` and
 `32911065508` remain ancestor runs, while exact target Mode-B and exact target
 execution are both absent. Historical live rows remain attributed to
-`37300f29…`; exact live proof on runtime `a0aa4ec8…` stays pending until Ronan
-supplies the receipt.
+`37300f29…`. Runtime `a0aa4ec8…` now has an exact functional R-CW-1
+`PASS-candidate` receipt; OTel/Tempo correlation remains partial and is not
+promoted to a campaign-wide pass.

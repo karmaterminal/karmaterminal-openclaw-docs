@@ -1722,5 +1722,28 @@
     "source_files": 544,
     "target_files_mapped": 544,
     "missing": 0
+  },
+  "runtime_composite_execution": {
+    "sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
+    "warm_pure_ancestor": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "exact_runtime_identity": true,
+    "harness_docs_sha": "0e75318a68d7145c0c5b99e8b11bda304f4f9fd2",
+    "row": "R-CW-1",
+    "functional_verdict": "PASS-candidate",
+    "observability_verdict": "PARTIAL-candidate",
+    "functional_receipts": {
+      "session_created": true,
+      "tool_invoke_accepted": true,
+      "continue_work_scheduled": true,
+      "delayed_wake_observed": true
+    },
+    "observability": {
+      "trace_status": "missing",
+      "gateway_trace_id": null,
+      "tempo_trace": null,
+      "reason": "No authorized OTel collector was configured for the isolated gateway; Tempo query ingress was not an OTLP intake endpoint.",
+      "product_defect_established": false
+    },
+    "receipt_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/artifacts/live/a0aa4ec8aefe95ced34342978b64c270c16ec3e9/R-CW-1/"
   }
 }

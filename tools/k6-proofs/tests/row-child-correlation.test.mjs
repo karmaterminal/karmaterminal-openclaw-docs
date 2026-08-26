@@ -97,7 +97,7 @@ test('accepts a direct spawn record that binds its child key and task nonce', ()
 });
 
 test('accepts a tasks.get record through its full prompt when title truncates the nonce', () => {
-  const rowNonce = 'R-CD-CHAIN-1787755189005-r7hilojz';
+  const rowNonce = 'R-CD-CHAIN-9999999999999-synthetic';
   assert.equal(childSessionKeyForRow({
     childSessionKey: 'chain-child',
     title: '[continuation:chain-hop:1] Delegated task (turn 1/200): Proof chain nonce',

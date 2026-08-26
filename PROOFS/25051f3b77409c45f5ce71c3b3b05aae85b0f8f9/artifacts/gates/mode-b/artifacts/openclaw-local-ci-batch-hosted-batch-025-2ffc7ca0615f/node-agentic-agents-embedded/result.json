@@ -1,0 +1,12 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "kind": "node-core",
+  "shard_group": "node-core",
+  "shard": "agentic-agents-embedded",
+  "check_name": "checks-node-agentic-agents-embedded",
+  "rc": 1,
+  "conclusion": "failure"
+}

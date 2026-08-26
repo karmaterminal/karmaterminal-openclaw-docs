@@ -1,0 +1,56 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-25T10:10:31Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cw-token-bracket-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-TOKEN",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "started": "2026-08-25T10:10:17.888Z",
+    "parent_dispatch_accepted": true,
+    "subagent_spawn_requested": true,
+    "subagent_spawn_accepted": true,
+    "token_emitted_or_stripped": true,
+    "hop_2_executed": true,
+    "parent_return": true,
+    "dispatch_accepted_at_ms": 1787652618841,
+    "hop_2_at_ms": 1787652631025,
+    "trace_id": null,
+    "ended": "2026-08-25T10:10:31.025Z",
+    "duration_ms": 13137
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

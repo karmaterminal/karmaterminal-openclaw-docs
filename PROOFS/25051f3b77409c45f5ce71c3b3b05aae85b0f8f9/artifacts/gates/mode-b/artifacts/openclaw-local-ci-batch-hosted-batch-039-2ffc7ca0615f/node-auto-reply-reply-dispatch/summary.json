@@ -1,0 +1,34 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "auto-reply-reply-dispatch",
+  "configs": [
+    "test/vitest/vitest.auto-reply-reply.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (auto-reply-reply-dispatch)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 873
+    }
+  ],
+  "tests": {
+    "passed": 1336,
+    "failed": 1
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (auto-reply-reply-dispatch)",
+      "kind": "test",
+      "detail": "auto-reply-reply  src/auto-reply/reply/dispatch-from-config.test.ts > dispatchReplyFromConfig > seeds direct fast-abort prefixes from the session-selected model"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

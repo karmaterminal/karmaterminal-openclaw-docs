@@ -1,0 +1,257 @@
+[test] starting test/vitest/vitest.commands.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-034/shard-1-agentic-commands-agent-channel[39m
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent-via-gateway.test.ts [2m([22m[2m105 tests[22m[2m)[22m[33m 15910[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps ordinary 'configured remote gateway' runs least-privilege [33m 402[2mms[22m[39m
+     [33m[2m✓[22m[39m aborts while waiting for a transient gateway retry [33m 356[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.test.ts [2m([22m[2m47 tests[22m[2m)[22m[33m 36950[2mms[22m[39m
+     [33m[2m✓[22m[39m carries an external cwd into the direct agent session skill snapshot [33m 2144[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the recorded canonical workspace for a managed-worktree skill snapshot [33m 988[2mms[22m[39m
+     [33m[2m✓[22m[39m does not discover skills for literal dollar input: Echo $PATH exactly. [33m 1210[2mms[22m[39m
+     [33m[2m✓[22m[39m does not discover skills for literal dollar input: Keep \$release_notes literal. [33m 655[2mms[22m[39m
+     [33m[2m✓[22m[39m renders a Claude bundle command template on Gateway ingress [33m 587[2mms[22m[39m
+     [33m[2m✓[22m[39m expands a skill 'dollar reference' on Gateway ingress [33m 551[2mms[22m[39m
+     [33m[2m✓[22m[39m expands a skill 'leading slash invocation' on Gateway ingress [33m 560[2mms[22m[39m
+     [33m[2m✓[22m[39m expands an explicitly referenced skill hidden from model invocation [33m 545[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an explicitly referenced skill hidden by the agent allowlist [33m 379[2mms[22m[39m
+     [33m[2m✓[22m[39m expands an explicit reference when the skills prompt catalog is unavailable [33m 539[2mms[22m[39m
+     [33m[2m✓[22m[39m strips private recovery identity from runtime-shaped public ingress [33m 566[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a missing harness-owned session before local CLI dispatch [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a missing harness-owned session through embedded ingress [33m 501[2mms[22m[39m
+     [33m[2m✓[22m[39m continues an existing locked harness-owned session [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m enforces stored workspace permissions through public agent ingress [33m 3773[2mms[22m[39m
+     [33m[2m✓[22m[39m reuses a Discord voice session after one stale-session rollover [33m 806[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects archived sessions selected by session id [33m 702[2mms[22m[39m
+     [33m[2m✓[22m[39m reloads archive state after asynchronous command preparation [33m 380[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a restored session restored after asynchronous command preparation [33m 472[2mms[22m[39m
+     [33m[2m✓[22m[39m excludes an initiating agent turn from its own lifecycle interruption [33m 525[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies lifecycle interruption as a restart abort [33m 394[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a stale requested session id after command preparation [33m 310[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the selected agent thinkingDefault for fresh ingress runs [33m 450[2mms[22m[39m
+     [33m[2m✓[22m[39m persists local overrides [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers embedded replies without re-persisting them [33m 465[2mms[22m[39m
+     [33m[2m✓[22m[39m does not load the full model catalog for trusted explicit overrides without an allowlist [33m 659[2mms[22m[39m
+     [33m[2m✓[22m[39m bypasses ACP sessions for one-shot model runs [33m 740[2mms[22m[39m
+     [33m[2m✓[22m[39m borrows session lookup data without returning cached mutable store objects [33m 698[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps synthetic direct-DM delivery mode out of existing CLI binding facts [33m 336[2mms[22m[39m
+     [33m[2m✓[22m[39m passes resolved session-id resume files to embedded runs [33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m does not duplicate agent events from embedded runs [33m 433[2mms[22m[39m
+     [33m[2m✓[22m[39m probes the configured primary first for origin-backed auto session model overrides [33m 1613[2mms[22m[39m
+     [33m[2m✓[22m[39m does not probe or fall back from a locked stored model [33m 614[2mms[22m[39m
+     [33m[2m✓[22m[39m clears legacy auto session model overrides without origin metadata [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m does not repair locked legacy auto session model overrides [33m 566[2mms[22m[39m
+     [33m[2m✓[22m[39m does not use fallback list for user session model overrides [33m 601[2mms[22m[39m
+     [33m[2m✓[22m[39m clears disallowed stored override fields [33m 1786[2mms[22m[39m
+     [33m[2m✓[22m[39m allows a locked disallowed stored override to run without clearing it [33m 690[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects one-off model overrides for locked sessions [33m 367[2mms[22m[39m
+     [33m[2m✓[22m[39m handles one-off provider/model overrides and validates override values [33m 1129[2mms[22m[39m
+     [33m[2m✓[22m[39m passes routing context to embedded runs [33m 843[2mms[22m[39m
+     [33m[2m✓[22m[39m routes explicit agent recipients through channel session contracts [33m 1025[2mms[22m[39m
+     [33m[2m✓[22m[39m uses explicit session keys for embedded runs [33m 1493[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects agent-scoped to session selectors that conflict with the requested agent [33m 348[2mms[22m[39m
+     [33m[2m✓[22m[39m does not forward agent-scoped to session selectors as delivery targets [33m 602[2mms[22m[39m
+     [33m[2m✓[22m[39m scopes bare explicit session keys to the default agent for embedded runs [33m 2658[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.add.test.ts [2m([22m[2m46 tests[22m[2m)[22m[33m 5559[2mms[22m[39m
+     [33m[2m✓[22m[39m fails fast before guided setup when no interactive terminal is available [33m 394[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps an omitted hosted selector on the shared picker path [33m 368[2mms[22m[39m
+     [33m[2m✓[22m[39m preselects an installable catalog channel from the external-chat selector [33m 323[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.add.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 9143[2mms[22m[39m
+     [33m[2m✓[22m[39m reports only auth profiles persisted to the new agent store with legacy-main shared auth [33m 1123[2mms[22m[39m
+     [33m[2m✓[22m[39m reports only auth profiles persisted to the new agent store with state-db shared auth [33m 1506[2mms[22m[39m
+     [33m[2m✓[22m[39m does not copy accepted portable auth when the guided wizard is cancelled [33m 462[2mms[22m[39m
+     [33m[2m✓[22m[39m does not persist prepared provider auth when a later prompt is cancelled [33m 362[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps guided auth while applying portable profiles without overwriting [33m 1609[2mms[22m[39m
+     [33m[2m✓[22m[39m persists staged provider auth only at the agent config commit edge [33m 1105[2mms[22m[39m
+     [33m[2m✓[22m[39m publishes no agent when staged provider auth cannot persist atomically [33m 384[2mms[22m[39m
+     [33m[2m✓[22m[39m retains existing-agent auth after config publication when later output fails [33m 673[2mms[22m[39m
+     [33m[2m✓[22m[39m rolls existing-agent auth back when config publication fails [33m 501[2mms[22m[39m
+[90mstderr[2m | src/commands/agent-exec.test.ts[2m > [22m[2magent exec command composition[2m > [22m[2mpublishes no config env values when the config load fails
+[22m[39mInvalid config at /home/runner/.oc-ci-tmp/oc2604-1.cz1D4x/tmp/openclaw-agent-exec-badenv-YOhqZM/openclaw.json:
+- agents.defaults.sandbox.mode: Invalid input (allowed: "off", "non-main", "all")
+
+[90mstderr[2m | src/commands/agent-exec.test.ts[2m > [22m[2magent exec base config resolution[2m > [22m[2mrejects a missing or invalid pinned config instead of falling back
+[22m[39mFailed to read config at /home/runner/.oc-ci-tmp/oc2604-1.cz1D4x/tmp/openclaw-agent-exec-seed-guHSDI/openclaw.json: JSON5: invalid character 'i' at 1:8
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent-exec.test.ts [2m([22m[2m51 tests[22m[2m)[22m[33m 29704[2mms[22m[39m
+     [33m[2m✓[22m[39m writes plain final text to stdout when diagnostics are routed to stderr [33m 18678[2mms[22m[39m
+     [33m[2m✓[22m[39m maps structured thrown timeouts to exit code 2 [33m 738[2mms[22m[39m
+     [33m[2m✓[22m[39m maps embedded terminal-outcome timeouts to exit code 2 [33m 434[2mms[22m[39m
+     [33m[2m✓[22m[39m creates and removes ephemeral state for a configless run [33m 408[2mms[22m[39m
+     [33m[2m✓[22m[39m flushes opted-in identity evidence through its owned direct-local writer [33m 1308[2mms[22m[39m
+     [33m[2m✓[22m[39m discovers operator-installed plugins while run state stays ephemeral [33m 901[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps operator-installed plugins hidden under --isolated [33m 333[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies cleanup failures before emitting the JSON envelope [33m 352[2mms[22m[39m
+     [33m[2m✓[22m[39m threads --cwd to both workspace and tool cwd [33m 333[2mms[22m[39m
+     [33m[2m✓[22m[39m emits the small stable JSON envelope [33m 368[2mms[22m[39m
+     [33m[2m✓[22m[39m honors ordered fallbacks with an explicit primary model [33m 331[2mms[22m[39m
+     [33m[2m✓[22m[39m undoes environment mutations made by loading the config [33m 914[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves no runtime config snapshot behind when the caller had none [33m 370[2mms[22m[39m
+     [33m[2m✓[22m[39m restores a caller's runtime config snapshot after the run [33m 341[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves an explicit state directory untouched [33m 348[2mms[22m[39m
+     [33m[2m✓[22m[39m skips external Codex CLI credentials under --auth-env-only [33m 335[2mms[22m[39m
+     [33m[2m✓[22m[39m reads stored credentials from the configured agent directory [33m 871[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks direct persisted credential reads under --auth-env-only [33m 557[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the normal stored auth profile when auth-env-only is disabled [33m 755[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/plugin-install.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 702[2mms[22m[39m
+     [33m[2m✓[22m[39m installs from npm and enables the plugin [33m 408[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.delete.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 4641[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses deleting main even when another agent is default [33m 857[2mms[22m[39m
+     [33m[2m✓[22m[39m deletes main normally after shared auth ownership moves to state SQLite [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an unrepresentable id before targeting or deleting an agent [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces 'request timeout after dispatch' without replaying deletion locally [33m 312[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces 'established WebSocket close' without replaying deletion locally [33m 315[2mms[22m[39m
+     [33m[2m✓[22m[39m falls back to local deletion when the optional Gateway probe needs credentials [33m 388[2mms[22m[39m
+     [33m[2m✓[22m[39m purges deleted agent entries from the session store [33m 371[2mms[22m[39m
+     [33m[2m✓[22m[39m removes only the deleted agent's cron jobs during offline deletion [33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m deregisters the agent database after offline deletion [33m 514[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.adds-non-default-telegram-account.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 763[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.list.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.delete.workspace.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3660[2mms[22m[39m
+     [33m[2m✓[22m[39m deletes workspace state after local workspace removal [33m 559[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses deleting the sole configured agent [33m 352[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves canonical main-agent keys when deleting another agent [33m 318[2mms[22m[39m
+     [33m[2m✓[22m[39m skips workspace removal when another agent shares the same workspace (#70890) [33m 394[2mms[22m[39m
+     [33m[2m✓[22m[39m skips workspace removal when another agent workspace overlaps a child path (#70890) [33m 428[2mms[22m[39m
+     [33m[2m✓[22m[39m skips workspace removal when deleting a parent workspace that contains another agent workspace (#70890) [33m 382[2mms[22m[39m
+     [33m[2m✓[22m[39m skips workspace removal when another agent reaches the same directory through a symlink (#70890) [33m 366[2mms[22m[39m
+     [33m[2m✓[22m[39m trashes workspace when no other agent shares it [33m 351[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.status.command-flow.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/message.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 434[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.runtime-config.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 565[2mms[22m[39m
+     [33m[2m✓[22m[39m derives a fresh session from --to [33m 486[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels/capabilities.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.acp.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 5401[2mms[22m[39m
+     [33m[2m✓[22m[39m routes ACP sessions and preserves exact transcript text [33m 1532[2mms[22m[39m
+     [33m[2m✓[22m[39m streams ACP visible text deltas [33m 549[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps no-reply ACP turns silent [33m 685[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed for ACP-shaped session keys missing ACP metadata [33m 511[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks ACP turns when disabled by policy [33m 1065[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks ACP turns when ACP agent is disallowed by policy [33m 510[2mms[22m[39m
+     [33m[2m✓[22m[39m allows ACP turns for kimi when policy allowlists kimi [33m 547[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.providers.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.bind.commands.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 352[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.identity.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.session.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 4289[2mms[22m[39m
+     [33m[2m✓[22m[39m creates a stable session key for explicit session-id-only runs [33m 512[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the resumed session agent scope when sessionId resolves to another agent store [33m 586[2mms[22m[39m
+     [33m[2m✓[22m[39m finds a session-id-only target in another explicit agent store [33m 359[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves duplicate cross-agent sessionIds deterministically [33m 345[2mms[22m[39m
+     [33m[2m✓[22m[39m handles terminal main sessions whose transcript is newer than the registry [33m 1526[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves explicit session-id resumes for stale terminal main rows [33m 327[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards resolved outbound session context when resuming by sessionId [33m 393[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent/session.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/channel-plugin-resolution.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/trusted-catalog.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.remove.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 618[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.config-only-status-output.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 16053[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves exact config-only status filtering for 'bundled channel aliases' [33m 15769[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.logs.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/workspace-shadow-bypass.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 399[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.delivery.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.commands.list.test.ts [2m([22m[2m6 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.resolve.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+ [31m❯[39m [30m[42m commands [49m[39m src/commands/agent.worktree-race.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 189605[2mms[22m[39m
+[31m     [31m×[31m holds the lease through workspace preparation so a racing removal is rejected[39m[33m 185084[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed before workspace setup when the session's bound worktree was removed [33m 4520[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-setup/discovery.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent-exec.state-lock.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1054[2mms[22m[39m
+     [33m[2m✓[22m[39m holds and releases the embedded state lock around the run [33m 523[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.surfaces-signal-runtime-errors-channels-status-output.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels.status.external-env.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent-local-audit.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1225[2mms[22m[39m
+     [33m[2m✓[22m[39m persists runtime receipts for an opted-in direct CLI run and clears its sink [33m 1224[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channel-account-context.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/channels/dead-letters.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1131[2mms[22m[39m
+     [33m[2m✓[22m[39m lists retained failures as JSON [33m 575[2mms[22m[39m
+     [33m[2m✓[22m[39m resubmits through the queue API and reports completed events as terminal [33m 556[2mms[22m[39m
+[90mstderr[2m | src/commands/agent-exec.agent-owner.test.ts[2m > [22m[2magent exec owner selection[2m > [22m[2muses 'a migrated legacy default' for the run and its SQLite store scope
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2604-1.cz1D4x/tmp/openclaw-agent-exec-default-agent-jf28Lf/openclaw.json): Materialized legacy per-surface agent ownership.
+Config (/home/runner/.oc-ci-tmp/oc2604-1.cz1D4x/tmp/openclaw-agent-exec-default-agent-jf28Lf/openclaw.json): Removed retired agents.entries.*.default markers.
+
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent-exec.agent-owner.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 2802[2mms[22m[39m
+     [33m[2m✓[22m[39m uses 'a migrated legacy default' for the run and its SQLite store scope [33m 2401[2mms[22m[39m
+     [33m[2m✓[22m[39m uses 'the canonical system-agent owner' for the run and its SQLite store scope [33m 401[2mms[22m[39m
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agents.bind.matrix.integration.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m commands [49m[39m src/commands/agent.worktree-race.test.ts[2m > [22magent command worktree admission[2m > [22mholds the lease through workspace preparation so a racing removal is rejected
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/commands/agent.worktree-race.test.ts:[2m112:3[22m[39m
+    [90m110|[39m   })[33m;[39m
+    [90m111|[39m
+    [90m112|[39m   it("holds the lease through workspace preparation so a racing remova…
+    [90m   |[39m   [31m^[39m
+    [90m113|[39m     [35mawait[39m [34mwithTempHome[39m([35masync[39m (home) [33m=>[39m {
+    [90m114|[39m       [35mconst[39m storePath [33m=[39m path[33m.[39m[34mjoin[39m(home[33m,[39m [32m"sessions.json"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: managed worktree was removed: cde7cbb6-b6c4-4495-8553-f9fb400a93c1[39m
+[36m [2m❯[22m env.env src/agents/worktrees/registry.ts:[2m575:15[22m[39m
+    [90m573|[39m       [35mconst[39m worktreePath [33m=[39m record[33m?.[39mpath [33m??[39m params[33m.[39mworktreeId[33m;[39m
+    [90m574|[39m       [35mif[39m ([33m![39mrecord [33m||[39m record[33m.[39mremoved_at [33m!=[39m [35mnull[39m) {
+    [90m575|[39m         throw new Error(`managed worktree was removed: ${worktreePath}…
+    [90m   |[39m               [31m^[39m
+    [90m576|[39m       }
+    [90m577|[39m       const { removingToken } = collectLiveRunLeases(db, k, scope, par…
+[90m [2m❯[22m src/state/openclaw-state-db.ts:[2m706:16[22m[39m
+[90m [2m❯[22m runSqliteTransactionSync src/infra/sqlite-transaction.ts:[2m263:14[22m[39m
+[90m [2m❯[22m runSqliteImmediateTransactionSync src/infra/sqlite-transaction.ts:[2m316:10[22m[39m
+[90m [2m❯[22m runOpenClawStateWriteTransaction src/state/openclaw-state-db.ts:[2m697:14[22m[39m
+[90m [2m❯[22m admitWorktreeRunLeaseRow src/agents/worktrees/registry.ts:[2m561:3[22m[39m
+[90m [2m❯[22m acquireWorktreeRunLease src/agents/worktrees/run-lease.ts:[2m260:3[22m[39m
+[90m [2m❯[22m Module.prepareAgentCommandExecution src/agents/command/prepare.ts:[2m352:33[22m[39m
+
+[31mThis error originated in "[1msrc/commands/agent.worktree-race.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfails closed before workspace setup when the session's bound worktree was removed[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m39 passed[39m[22m[90m (40)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m653 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (655)[39m
+[2m     Errors [22m [1m[31m1 error[39m[22m
+[2m   Start at [22m 20:37:12
+[2m   Duration [22m 384.87s[2m (transform 49.43s, setup 2.31s, import 49.09s, tests 332.16s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-034/shard-1-agentic-commands-agent-channel/src/agents/worktrees/registry.ts,title=Unhandled error,line=575,column=15::Error: managed worktree was removed: cde7cbb6-b6c4-4495-8553-f9fb400a93c1%0A ❯ env.env src/agents/worktrees/registry.ts:575:15%0A ❯ src/state/openclaw-state-db.ts:706:16%0A ❯ runSqliteTransactionSync src/infra/sqlite-transaction.ts:263:14%0A ❯ runSqliteImmediateTransactionSync src/infra/sqlite-transaction.ts:316:10%0A ❯ runOpenClawStateWriteTransaction src/state/openclaw-state-db.ts:697:14%0A ❯ admitWorktreeRunLeaseRow src/agents/worktrees/registry.ts:561:3%0A ❯ acquireWorktreeRunLease src/agents/worktrees/run-lease.ts:260:3%0A ❯ Module.prepareAgentCommandExecution src/agents/command/prepare.ts:352:33%0A%0AThis error originated in "src/commands/agent.worktree-race.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.%0AThe latest test that might've caused the error is "fails closed before workspace setup when the session's bound worktree was removed". It might mean one of the following:%0A- The error was thrown, while Vitest was running this test.%0A- If the error occurred after the test had been completed, this was the last documented test before it was thrown.%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-034/shard-1-agentic-commands-agent-channel/src/commands/agent.worktree-race.test.ts,title=[commands] src/commands/agent.worktree-race.test.ts > agent command worktree admission > holds the lease through workspace preparation so a racing removal is rejected,line=112,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/commands/agent.worktree-race.test.ts:112:3%0A%0A
+::error::[vitest] UNHANDLED ERRORS (1): src/commands/agent.worktree-race.test.ts — Error: managed worktree was removed: cde7cbb6-b6c4-4495-8553-f9fb400a93c1
+[vitest] UNHANDLED ERRORS (1): src/commands/agent.worktree-race.test.ts — Error: managed worktree was removed: cde7cbb6-b6c4-4495-8553-f9fb400a93c1
+[test] failed 1 Vitest shard in 387.48s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-034/shard-1-agentic-commands-agent-channel[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+ [32m✓[39m [30m[42m commands [49m[39m src/commands/agent.worktree-race.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 115667[2mms[22m[39m
+     [33m[2m✓[22m[39m holds the lease through workspace preparation so a racing removal is rejected [33m 114973[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed before workspace setup when the session's bound worktree was removed [33m 690[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 20:43:40
+[2m   Duration [22m 138.16s[2m (transform 15.15s, setup 972ms, import 21.21s, tests 115.67s, environment 0ms)[22m
+

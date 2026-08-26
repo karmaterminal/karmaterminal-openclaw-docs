@@ -1,0 +1,36 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "agentic-agents-core-subagents",
+  "configs": [
+    "test/vitest/vitest.agents-core.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (agentic-agents-core-subagents)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 2897
+    }
+  ],
+  "tests": {
+    "passed": 894,
+    "failed": 2
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (agentic-agents-core-subagents)",
+      "kind": "test",
+      "detail": "agents-core  src/agents/subagent-announce.crosssession-gate.test.ts > continuation cross-session targeting bracket gate > case 7: disabled rejects bracket target syntax with a disabled span and system event"
+    }
+  ],
+  "flakes_greened_count": 1,
+  "flakes_greened": [
+    "agents-core  src/agents/subagent-announce.live-tree-chain-proof.test.ts > continuation chain production composition proof (tree hop-1 + hop-2) > spawns hop-2 via tool delegate (fanout=tree) and delivers hop-2 completion by lifecycle targeted-return"
+  ]
+}

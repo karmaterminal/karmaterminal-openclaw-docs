@@ -1,0 +1,24 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+  "seat": "ronan",
+  "timestamp": "2026-08-25T10:33:23.260Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 150401,
+      "min": 150401,
+      "med": 150401,
+      "max": 150401,
+      "p(90)": 150401,
+      "p(95)": 150401
+    },
+    "failures": 1
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

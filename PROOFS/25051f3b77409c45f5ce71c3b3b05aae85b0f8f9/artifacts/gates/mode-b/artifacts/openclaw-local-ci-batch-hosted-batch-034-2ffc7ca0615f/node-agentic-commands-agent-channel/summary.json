@@ -1,0 +1,30 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "agentic-commands-agent-channel",
+  "configs": [
+    "test/vitest/vitest.commands.config.ts"
+  ],
+  "conclusion": "pass",
+  "rc": 0,
+  "gates": [
+    {
+      "name": "test shard (agentic-commands-agent-channel)",
+      "rc": 0,
+      "ok": true,
+      "seconds": 530
+    }
+  ],
+  "tests": {
+    "passed": 653,
+    "failed": 1
+  },
+  "failure_count": 0,
+  "failures": [],
+  "flakes_greened_count": 1,
+  "flakes_greened": [
+    "commands  src/commands/agent.worktree-race.test.ts > agent command worktree admission > holds the lease through workspace preparation so a racing removal is rejected"
+  ]
+}

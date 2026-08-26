@@ -1,0 +1,84 @@
+{
+  "schema": "openclaw.project81.r-cw-6.fixture-result.v1",
+  "verdict": "FAIL-fixture",
+  "candidateSha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "maxChainLength": 3,
+  "dependencyProvenance": {
+    "candidateWorktreeHead": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "candidateLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
+    "installedLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
+    "lockfileMatchesCandidate": true,
+    "candidatePackageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
+    "candidatePackageManagerVersion": "11.22.0",
+    "executingPackageManagerVersion": "11.22.0",
+    "installedPackageManager": "pnpm@11.22.0",
+    "installedPackageManagerVersion": "11.22.0",
+    "virtualStoreDir": ".pnpm",
+    "virtualStoreContainedWithinCandidateNodeModules": true,
+    "installCommand": [
+      "pnpm",
+      "install",
+      "--frozen-lockfile",
+      "--prefer-offline",
+      "--ignore-scripts"
+    ],
+    "installExitCode": 0,
+    "localExecutableContract": {
+      "tsx": {
+        "path": "node_modules/.bin/tsx",
+        "realpathWithinVerifiedDependencyTree": true
+      },
+      "vitest": {
+        "path": "node_modules/.bin/vitest",
+        "realpathWithinVerifiedDependencyTree": true
+      }
+    },
+    "worktreeIntegrity": {
+      "beforeInstall": {
+        "headMatchesCandidate": true,
+        "trackedClean": true
+      },
+      "afterInstall": {
+        "headMatchesCandidate": true,
+        "trackedClean": true
+      },
+      "afterProofSurfaces": {
+        "headMatchesCandidate": true,
+        "trackedClean": true
+      }
+    },
+    "hostToolchainHermetic": false
+  },
+  "receipts": {
+    "fixtureReadiness": "fixture-readiness.json",
+    "boundaryMatrix": "boundary-matrix.json",
+    "runtimeBoundary": "runtime-boundary.json",
+    "durableStateRecovery": "durable-state-recovery.json",
+    "typedToolSurface": "typed-tool-surface.json",
+    "dispatchBoundarySuite": "dispatch-boundary-suite.json",
+    "cleanup": "cleanup.json",
+    "publicArtifactSafety": "public-artifact-safety.json"
+  },
+  "checks": {
+    "matrixPassed": true,
+    "dispatchPassed": false,
+    "runtimeSurfacePassed": true,
+    "structuredChainCapped": true,
+    "noRejectedHopSpawn": false,
+    "durableRecoveryPassed": true,
+    "typedSurfacePassed": true,
+    "exactCandidateDisposableWorktree": true,
+    "candidatePackageManagerVersionMatchesExecuting": true,
+    "installedLockMatchesCandidate": true,
+    "verifiedDependencyTreeContainsLocalExecutables": true,
+    "worktreeIntegrityAfterInstall": true,
+    "worktreeIntegrityAfterProofSurfaces": true,
+    "publicArtifactsSafe": true
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

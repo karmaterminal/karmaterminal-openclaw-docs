@@ -1,0 +1,36 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "agentic-commands-onboard-config",
+  "configs": [
+    "test/vitest/vitest.commands.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (agentic-commands-onboard-config)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 1372
+    }
+  ],
+  "tests": {
+    "passed": 745,
+    "failed": 2
+  },
+  "failure_count": 1,
+  "failures": [
+    {
+      "gate": "test shard (agentic-commands-onboard-config)",
+      "kind": "test",
+      "detail": "commands  src/commands/auth-choice.model-check.test.ts > warnIfModelConfigLooksOff > accepts pending auth profiles collected by the current setup transaction"
+    }
+  ],
+  "flakes_greened_count": 1,
+  "flakes_greened": [
+    "commands  src/commands/onboard-custom.test.ts > promptCustomApiConfig > rejects aliases already used only by the selected agent"
+  ]
+}

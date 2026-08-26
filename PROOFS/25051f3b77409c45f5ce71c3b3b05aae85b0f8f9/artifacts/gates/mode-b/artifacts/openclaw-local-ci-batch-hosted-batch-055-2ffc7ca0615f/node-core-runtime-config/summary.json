@@ -1,0 +1,39 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "core-runtime-config",
+  "configs": [
+    "test/vitest/vitest.runtime-config.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (core-runtime-config)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 868
+    }
+  ],
+  "tests": {
+    "passed": 3552,
+    "failed": 2
+  },
+  "failure_count": 2,
+  "failures": [
+    {
+      "gate": "test shard (core-runtime-config)",
+      "kind": "test",
+      "detail": "runtime-config  src/config/io.best-effort.test.ts > readBestEffortConfig > reuses valid snapshots while preserving load-time defaults"
+    },
+    {
+      "gate": "test shard (core-runtime-config)",
+      "kind": "test",
+      "detail": "runtime-config  src/config/io.best-effort.test.ts > readBestEffortConfig > controls observation while returning source and materialized config"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

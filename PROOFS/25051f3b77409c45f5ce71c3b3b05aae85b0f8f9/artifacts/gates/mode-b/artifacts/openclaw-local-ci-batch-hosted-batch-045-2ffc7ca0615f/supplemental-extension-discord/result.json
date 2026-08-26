@@ -1,0 +1,12 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "kind": "supplemental",
+  "shard_group": "supplemental",
+  "shard": "extension-discord",
+  "check_name": "checks-node-extension-discord",
+  "rc": 0,
+  "conclusion": "success"
+}

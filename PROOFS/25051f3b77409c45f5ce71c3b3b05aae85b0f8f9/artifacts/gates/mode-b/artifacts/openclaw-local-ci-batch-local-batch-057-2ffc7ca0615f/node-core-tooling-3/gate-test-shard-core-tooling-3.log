@@ -1,0 +1,364 @@
+[test] starting test/vitest/vitest.tooling.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-057/shard-0-core-tooling-3[39m
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/tsdown-build.test.ts [2m([22m[2m156 tests[22m[2m)[22m[33m 1835[2mms[22m[39m
+     [33m[2m✓[22m[39m prints wrapper help without invoking pnpm or tsdown [33m 543[2mms[22m[39m
+     [33m[2m✓[22m[39m kills timed-out tsdown process groups when the wrapper exits first [33m 511[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves timeout grace when descendant processes exit cleanly [33m 334[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/install-ps1.test.ts [2m([22m[2m42 tests[22m[2m | [22m[33m24 skipped[39m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/release-no-push-workflow.test.ts [2m([22m[2m99 tests[22m[2m)[22m[33m 3439[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps every local reusable-workflow permission request within its caller ceiling [33m 523[2mms[22m[39m
+live stdout
+live stderr
+live stdout
+xxxxxxxxxxxx
+[stdout relay truncated after 12 bytes]
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/plugin-gateway-gauntlet.test.ts [2m([22m[2m59 tests[22m[2m)[22m[33m 5060[2mms[22m[39m
+     [33m[2m✓[22m[39m lets timed-out measured command descendants drain during kill grace [33m 536[2mms[22m[39m
+     [33m[2m✓[22m[39m rethrows parent termination received during timeout cleanup [33m 443[2mms[22m[39m
+     [33m[2m✓[22m[39m fails successful QA chunks whose summary reports failed scenarios [33m 388[2mms[22m[39m
+     [33m[2m✓[22m[39m fails successful QA chunks that do not write the requested summary [33m 390[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/plugins-assertions.test.ts [2m([22m[2m41 tests[22m[2m)[22m[33m 1935[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/build-all.test.ts [2m([22m[2m57 tests[22m[2m)[22m[33m 1509[2mms[22m[39m
+     [33m[2m✓[22m[39m prints CLI help without starting build steps [33m 1105[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects unknown CLI args without starting build steps [33m 350[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/authorized-beta-focused-evidence.test.ts [2m([22m[2m49 tests[22m[2m)[22m[33m 7259[2mms[22m[39m
+     [33m[2m✓[22m[39m 'accepts ANSI-bearing flagged Actions …' [33m 748[2mms[22m[39m
+     [33m[2m✓[22m[39m 'retries once for the exact legacy gh …' [33m 1032[2mms[22m[39m
+     [33m[2m✓[22m[39m 'propagates unrelated gh errors withou…' [33m 644[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies the policy candidate when the release checkout has diverged [33m 337[2mms[22m[39m
+     [33m[2m✓[22m[39m fetches only the exact policy candidate when the release clone does not contain it [33m 352[2mms[22m[39m
+     [33m[2m✓[22m[39m removes and prunes the candidate worktree when trusted verification fails [33m 301[2mms[22m[39m
+[90mstdout[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mcontinues allow-failures profiling after a config exits without JSON
+[22m[39m[test-group-report] failed status=1 wall=10.0ms rss=n/a report=/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-KRlOUR/reports/failed.json
+
+[90mstdout[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mcontinues allow-failures profiling after a config exits without JSON
+[22m[39m[test-group-report] passed status=0 wall=10.0ms rss=n/a report=/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-KRlOUR/reports/passed.json
+
+[90mstderr[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mcontinues allow-failures profiling after a config exits without JSON
+[22m[39m[test-group-report] missing JSON report for failed config; see /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-KRlOUR/logs/failed.log
+
+[90mstdout[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mcontinues allow-failures profiling after a config writes an empty JSON report
+[22m[39m[test-group-report] failed status=1 wall=10.0ms rss=n/a report=/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-LnePyo/reports/failed.json
+
+[90mstderr[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mcontinues allow-failures profiling after a config writes an empty JSON report
+[22m[39m[test-group-report] config failed; skipping unusable JSON report from /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-LnePyo/reports/failed.json (empty testResults array)
+
+[90mstdout[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mcontinues allow-failures profiling after a config writes an empty JSON report
+[22m[39m[test-group-report] passed status=0 wall=10.0ms rss=n/a report=/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-LnePyo/reports/passed.json
+
+[90mstdout[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mstops admitting report plans after a parallel failure
+[22m[39m[test-group-report] first status=1 wall=10.0ms rss=n/a report=/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-DXh4GH/reports/first.json
+
+[90mstdout[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mstops admitting report plans after a parallel failure
+[22m[39m[test-group-report] second status=0 wall=10.0ms rss=n/a report=/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-DXh4GH/reports/second.json
+
+[90mstderr[2m | test/scripts/test-group-report.test.ts[2m > [22m[2mscripts/test-group-report aggregation[2m > [22m[2mstops admitting report plans after a parallel failure
+[22m[39m[test-group-report] missing JSON report for failed config; see /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-test-group-report-DXh4GH/logs/first.log
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/test-group-report.test.ts [2m([22m[2m41 tests[22m[2m)[22m[33m 8194[2mms[22m[39m
+     [33m[2m✓[22m[39m fails when every allow-failures run produces no JSON report [33m 551[2mms[22m[39m
+     [33m[2m✓[22m[39m kills timed wrapper process groups without orphaning the measured process [33m 326[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the wrapper alive while timed process-group descendants await SIGKILL [33m 651[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/openclaw-npm-postpublish-verify.test.ts [2m([22m[2m53 tests[22m[2m)[22m[33m 1184[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses unbounded packaged dist scans [33m 737[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/openclaw-release-telegram-qa-workflow.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 8137[2mms[22m[39m
+     [33m[2m✓[22m[39m routes every documented workflow ref through exact direct and reusable identity [33m 335[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts only canonical exact-SHA workflow and target identities [33m 331[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts only strict signed frozen beta branch heads in both provenance blocks [33m 739[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps release provenance attribution fail-closed in both blocks [33m 668[2mms[22m[39m
+     [33m[2m✓[22m[39m binds every release context to candidate version and SHA [33m 894[2mms[22m[39m
+     [33m[2m✓[22m[39m retains only bounded, allowlisted diagnostics [33m 4245[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/release-telegram-candidate-archive.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 5571[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts unique 256-component paths within the metadata budget [33m 406[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps TarInfo cache and resident memory bounded across 100000 members [33m 1663[2mms[22m[39m
+     [33m[2m✓[22m[39m clears PAX metadata from the TarInfo cache after every member [33m 844[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/pr-prepare-gates.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 1479[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m src/scripts/test-projects.test.ts [2m([22m[2m84 tests[22m[2m)[22m[33m 9257[2mms[22m[39m
+     [33m[2m✓[22m[39m routes top-level test helpers to importing repo tests [33m 332[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/ios-release-fastlane-gates.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/dependency-guard-script.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/plugin-npm-release.test.ts [2m([22m[2m48 tests[22m[2m)[22m[33m 496[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/e2e-mock-config-limits.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 2668[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects out-of-range fixture listener ports [33m 439[2mms[22m[39m
+     [33m[2m✓[22m[39m returns a clear error when web-search mock cannot append request logs [33m 346[2mms[22m[39m
+[90mstdout[2m | test/scripts/docker-channel-promote.test.ts[2m > [22m[2mDocker channel promotion[2m > [22m[2mpreflights every source before moving and verifying aliases
+[22m[39mVerified ghcr.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified docker.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified docker.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified docker.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+
+[90mstdout[2m | test/scripts/docker-channel-promote.test.ts[2m > [22m[2mDocker channel promotion[2m > [22m[2mallows an automatic same-version promotion
+[22m[39mVerified ghcr.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+
+[90mstdout[2m | test/scripts/docker-channel-promote.test.ts[2m > [22m[2mDocker channel promotion[2m > [22m[2mallows an automatic newer-version promotion
+[22m[39mVerified ghcr.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+
+[90mstdout[2m | test/scripts/docker-channel-promote.test.ts[2m > [22m[2mDocker channel promotion[2m > [22m[2mallows an explicitly approved rollback
+[22m[39mVerified ghcr.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+
+[90mstdout[2m | test/scripts/docker-channel-promote.test.ts[2m > [22m[2mDocker channel promotion[2m > [22m[2mallows a first promotion when the target alias does not exist
+[22m[39mVerified ghcr.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+
+[90mstdout[2m | test/scripts/docker-channel-promote.test.ts[2m > [22m[2mDocker channel promotion[2m > [22m[2mpromotes the same digests whose attestations were verified
+[22m[39mVerified ghcr.io/openclaw/openclaw:extended-stable -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-slim -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+Verified ghcr.io/openclaw/openclaw:extended-stable-browser -> sha256:1111111111111111111111111111111111111111111111111111111111111111.
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/docker-channel-promote.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 164[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/test-live-shard.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 426[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/verify-clawhub-published-artifact.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/report-test-temp-creations.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 2870[2mms[22m[39m
+     [33m[2m✓[22m[39m prints help with usage, outputs, and examples [33m 653[2mms[22m[39m
+     [33m[2m✓[22m[39m reads staged source for manual helper scans [33m 943[2mms[22m[39m
+     [33m[2m✓[22m[39m exits non-zero for staged findings when requested [33m 632[2mms[22m[39m
+     [33m[2m✓[22m[39m falls back to a two-dot diff when refs have no merge base [33m 628[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/run-additional-boundary-checks.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 955[2mms[22m[39m
+     [33m[2m✓[22m[39m waits for timed-out process groups after the wrapper exits [33m 364[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/openclaw-npm-extended-stable-release.test.ts [2m([22m[2m77 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/clawhub-bootstrap-artifact.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 929[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/test-env.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1700[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps live tests on a temp HOME while copying config and auth state [33m 1602[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/control-ui-performance.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m updates the baseline from generated or explicitly measured metrics [33m 349[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/run-with-env.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1478[2mms[22m[39m
+     [33m[2m✓[22m[39m cleans up wrapped command descendants on wrapper shutdown [33m 329[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/local-check-runtime.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 187[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/prepublish-plugin-registry-artifact.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 499[2mms[22m[39m
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+ [31m❯[39m [30m[46m tooling [49m[39m test/scripts/telegram-mantis-sut.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1634[2mms[22m[39m
+     [32m✓[39m keeps stderr when a container action is terminated[32m 0[2mms[22m[39m
+     [33m[2m✓[22m[39m reports a silent container daemon exit instead of a mock-openai timeout [33m 513[2mms[22m[39m
+     [33m[2m✓[22m[39m releases the runtime claim before deadline-exposed removal [33m 1036[2mms[22m[39m
+[31m     [31m×[31m waits for the claimed runtime owner before returning from stop[39m[32m 54[2mms[22m[39m
+     [32m✓[39m relaunches the gateway only when a restart request exists[32m 30[2mms[22m[39m
+     [32m✓[39m lets the proof agent patch the complete ephemeral gateway config[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/kova-workflow-evidence.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 205[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/generate-dependency-release-evidence.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 547[2mms[22m[39m
+     [33m[2m✓[22m[39m prints CLI help without generating evidence [33m 381[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/e2e/qa-lab/runtime/update-run-package-self-upgrade.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/plugin-prerelease-telegram-shards.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 5905[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps dedicated Telegram shards inside the existing aggregate job contract [33m 5820[2mms[22m[39m
+[90mstdout[2m | test/scripts/check-env-var-count.test.ts[2m > [22m[2mcheck-env-var-count[2m > [22m[2mstill checks the budget when the base shares no reachable ancestor
+[22m[39mOPENCLAW_* count 1/1
+
+[90mstdout[2m | test/scripts/check-env-var-count.test.ts[2m > [22m[2mcheck-env-var-count[2m > [22m[2mcompares against the fork budget when the base branch later shrinks
+[22m[39mOPENCLAW_* count 2/2
+
+[90mstdout[2m | test/scripts/check-env-var-count.test.ts[2m > [22m[2mcheck-env-var-count[2m > [22m[2mpasses when the count exactly matches the budget
+[22m[39mOPENCLAW_* count 1/1
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/check-env-var-count.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 997[2mms[22m[39m
+[env-var-count] severed-base shares no reachable ancestor here; skipping the base-budget comparison
+[env-var-count] severed-base shares no reachable ancestor here; skipping the base-budget comparison
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/check-no-conflict-markers.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 607[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/upgrade-survivor-baselines.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+[90mstdout[2m | test/scripts/check-assertion-safety-ratchet.test.ts[2m > [22m[2mcheck-assertion-safety-ratchet[2m > [22m[2mcompares an explicit moving base at the branch fork
+[22m[39massertion SAFETY ratchet OK: 2 files, 2 grandfathered assertions.
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/check-assertion-safety-ratchet.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 784[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks new debt, accepts SAFETY comments, and prunes reduced counts [33m 383[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/e2e/qa-lab/media/realtime-talk-live.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/session-log-mentions.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/k8s-deploy.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/parallels-update-job-timeout.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 173[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/format-docs.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/mantis-telegram-visible-proof.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/stage-bundled-plugin-runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+[90mstderr[2m | test/scripts/ensure-cli-startup-build.test.ts[2m > [22m[2mensure-cli-startup-build[2m > [22m[2mruns the cliStartup build profile when startup metadata is missing
+[22m[39m[cli-startup-build] dist startup entry or metadata missing; running cliStartup build profile
+
+[90mstderr[2m | test/scripts/ensure-cli-startup-build.test.ts[2m > [22m[2mensure-cli-startup-build[2m > [22m[2mruns the cliStartup build profile when dist entry output is missing
+[22m[39m[cli-startup-build] dist startup entry or metadata missing; running cliStartup build profile
+
+[90mstderr[2m | test/scripts/ensure-cli-startup-build.test.ts[2m > [22m[2mensure-cli-startup-build[2m > [22m[2muses the configured cliStartup build timeout
+[22m[39m[cli-startup-build] dist startup entry or metadata missing; running cliStartup build profile
+
+[90mstderr[2m | test/scripts/ensure-cli-startup-build.test.ts[2m > [22m[2mensure-cli-startup-build[2m > [22m[2mfails when the cliStartup build profile fails
+[22m[39m[cli-startup-build] dist startup entry or metadata missing; running cliStartup build profile
+
+[90mstderr[2m | test/scripts/ensure-cli-startup-build.test.ts[2m > [22m[2mensure-cli-startup-build[2m > [22m[2mfails when spawning the cliStartup build profile fails
+[22m[39m[cli-startup-build] dist startup entry or metadata missing; running cliStartup build profile
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/ensure-cli-startup-build.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/package-git-fixture.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/helpers/stage-live-auth-profiles.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1628[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed when auth_profile_store is the only missing auth table [33m 407[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed when auth_profile_state is the only missing auth table [33m 309[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed when both auth tables are absent [33m 316[2mms[22m[39m
+     [33m[2m✓[22m[39m stages a readable store when the state row is absent [33m 596[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/e2e/qa-lab/runtime/gateway-mcp-real-transports.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/notarize-mac-artifact.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/android-release-fastlane-gates.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/watch-node.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/plugin-contract-test-plan.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 140[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/check-release-metadata-only.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 772[2mms[22m[39m
+     [33m[2m✓[22m[39m fails with an actionable timeout when git diff hangs [33m 771[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/qa-lab-up.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/check-composite-action-input-interpolation.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/onboard-log-contains.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m src/scripts/control-ui-i18n.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/ci-hydrate-testbox-env.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 35[2mms[22m[39m
+ [2m[90m↓[39m[22m [30m[46m tooling [49m[39m test/scripts/docs-i18n.test.ts [2m([22m[2m4 tests[22m[2m | [22m[33m4 skipped[39m[2m)[22m
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway] starting HTTP server...
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway] ready
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway] starting channels and sidecars...
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway] agent model: openai/gpt-5.6-sol (thinking=medium, fast=off)
+[gateway] http server listening (1 plugin: tls-discovery-proof)
+[gateway] log file: /tmp/openclaw/openclaw-2026-08-25.log
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway/channels] skipping channel start (OPENCLAW_SKIP_CHANNELS=1 or OPENCLAW_SKIP_PROVIDERS=1)
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway] startup outcomes: internal-hooks=skipped (not-configured); internal-startup-hook=skipped (no-handlers-loaded); gateway-start-hooks=skipped (no-handlers-loaded); gmail-watcher=skipped (hooks-disabled); gmail-model=skipped (not-configured)
+
+[90mstderr[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[heartbeat] scheduled heartbeats are disabled because the cron scheduler is disabled; enable cron and restart the gateway
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[heartbeat] started
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gateway] ready
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[ws] ⇄ res ✓ health 51ms cached=true conn=eda72d61…0b53 id=2:71c121f9-1…ec30
+
+[90mstderr[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[ws] closed before connect conn=ef7ff030-57a0-4da7-b0fa-c33802d3b268 peer=127.0.0.1:53224->127.0.0.1:37499 remote=127.0.0.1 fwd=n/a origin=n/a host=127.0.0.1:37499 ua=n/a code=1005 reason=n/a phase=ws_upgrade_started
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[gmail-watcher] gmail watcher stopped
+
+[90mstdout[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[shutdown] completed cleanly in 155ms
+
+[90mstderr[2m | test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts[2m > [22m[2mGateway TLS pinning evidence[2m > [22m[2mproves the live listener fingerprint and public client pin policy
+[22m[39m[agents/prepared-model-runtime] auth-triggered model runtime refresh failed: PublishedModelCatalogOwnerResolutionError: published model catalog owner did not identify one configured agent (/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/openclaw-gateway-tls-pinning-adoy0p/state/agents/main/agent)
+
+ [32m✓[39m [30m[46m tooling [49m[39m test/e2e/qa-lab/runtime/gateway-tls-pinning.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 7019[2mms[22m[39m
+     [33m[2m✓[22m[39m proves the live listener fingerprint and public client pin policy [33m 7019[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m test/scripts/codex-client-version-contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[46m tooling [49m[39m src/scripts/ci-changed-scope.contract-fixtures.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[46m tooling [49m[39m test/scripts/telegram-mantis-sut.test.ts[2m > [22mTelegram Mantis SUT[2m > [22mwaits for the claimed runtime owner before returning from stop
+[31m[1mAssertionError[22m: /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-l0Ku1K/mantis-sut-container.sh: line 244: /run/lock/openclaw-mantis-sut-network.lock: Permission denied
+/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-l0Ku1K/mantis-sut-container.sh: line 245: lock_fd: unbound variable
+: expected 1 to be +0 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m test/scripts/telegram-mantis-sut.test.ts:[2m190:55[22m[39m
+    [90m188|[39m         env: { ...process.env, PATH: `${binDir}${path.delimiter}${proc…
+    [90m189|[39m       })[33m;[39m
+    [90m190|[39m       [34mexpect[39m(result[33m.[39mstatus[33m,[39m result[33m.[39mstderr[33m.[39m[34mtoString[39m())[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m
+    [90m   |[39m                                                       [31m^[39m
+    [90m191|[39m       [34mexpect[39m(fs[33m.[39m[34mexistsSync[39m(released))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m192|[39m     } [35mfinally[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m61 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (63)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1328 passed[39m[22m[2m | [22m[33m28 skipped[39m[90m (1357)[39m
+[2m   Start at [22m 13:33:06
+[2m   Duration [22m 118.92s[2m (transform 29.01s, setup 207ms, import 28.70s, tests 89.52s, environment 0ms)[22m
+
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-057/shard-0-core-tooling-3/test/scripts/telegram-mantis-sut.test.ts,title=[tooling] test/scripts/telegram-mantis-sut.test.ts > Telegram Mantis SUT > waits for the claimed runtime owner before returning from stop,line=190,column=55::AssertionError: /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-l0Ku1K/mantis-sut-container.sh: line 244: /run/lock/openclaw-mantis-sut-network.lock: Permission denied%0A/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-l0Ku1K/mantis-sut-container.sh: line 245: lock_fd: unbound variable%0A: expected 1 to be +0 // Object.is equality%0A%0A- Expected%0A+ Received%0A%0A- 0%0A+ 1%0A%0A ❯ test/scripts/telegram-mantis-sut.test.ts:190:55%0A%0A
+[test] failed 1 Vitest shard in 119.60s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-057/shard-0-core-tooling-3[39m
+
+ [31m❯[39m [30m[46m tooling [49m[39m test/scripts/telegram-mantis-sut.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1588[2mms[22m[39m
+     [32m✓[39m keeps stderr when a container action is terminated[32m 2[2mms[22m[39m
+     [33m[2m✓[22m[39m reports a silent container daemon exit instead of a mock-openai timeout [33m 507[2mms[22m[39m
+     [33m[2m✓[22m[39m releases the runtime claim before deadline-exposed removal [33m 1013[2mms[22m[39m
+[31m     [31m×[31m waits for the claimed runtime owner before returning from stop[39m[32m 44[2mms[22m[39m
+     [32m✓[39m relaunches the gateway only when a restart request exists[32m 18[2mms[22m[39m
+     [32m✓[39m lets the proof agent patch the complete ephemeral gateway config[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[46m tooling [49m[39m test/scripts/telegram-mantis-sut.test.ts[2m > [22mTelegram Mantis SUT[2m > [22mwaits for the claimed runtime owner before returning from stop
+[31m[1mAssertionError[22m: /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-sej4Sb/mantis-sut-container.sh: line 244: /run/lock/openclaw-mantis-sut-network.lock: Permission denied
+/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-sej4Sb/mantis-sut-container.sh: line 245: lock_fd: unbound variable
+: expected 1 to be +0 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m test/scripts/telegram-mantis-sut.test.ts:[2m190:55[22m[39m
+    [90m188|[39m         env: { ...process.env, PATH: `${binDir}${path.delimiter}${proc…
+    [90m189|[39m       })[33m;[39m
+    [90m190|[39m       [34mexpect[39m(result[33m.[39mstatus[33m,[39m result[33m.[39mstderr[33m.[39m[34mtoString[39m())[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m
+    [90m   |[39m                                                       [31m^[39m
+    [90m191|[39m       [34mexpect[39m(fs[33m.[39m[34mexistsSync[39m(released))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m192|[39m     } [35mfinally[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 13:35:06
+[2m   Duration [22m 1.86s[2m (transform 68ms, setup 25ms, import 64ms, tests 1.59s, environment 0ms)[22m
+
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-057/shard-0-core-tooling-3/test/scripts/telegram-mantis-sut.test.ts,title=[tooling] test/scripts/telegram-mantis-sut.test.ts > Telegram Mantis SUT > waits for the claimed runtime owner before returning from stop,line=190,column=55::AssertionError: /home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-sej4Sb/mantis-sut-container.sh: line 244: /run/lock/openclaw-mantis-sut-network.lock: Permission denied%0A/home/figs/.oc-ci-tmp/oc2850540-0.xKL1NM/tmp/telegram-mantis-stop-sync-sej4Sb/mantis-sut-container.sh: line 245: lock_fd: unbound variable%0A: expected 1 to be +0 // Object.is equality%0A%0A- Expected%0A+ Received%0A%0A- 0%0A+ 1%0A%0A ❯ test/scripts/telegram-mantis-sut.test.ts:190:55%0A%0A
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+TEST_GATE: 1 deterministic test FAIL -> FAIL

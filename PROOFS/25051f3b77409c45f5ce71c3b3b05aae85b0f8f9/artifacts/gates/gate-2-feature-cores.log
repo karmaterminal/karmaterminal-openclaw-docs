@@ -1,0 +1,58 @@
+product_sha=2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a
+feature_parent=6b6f4db79ba5143f2a56e759abe111478bf6c8a5
+upstream_parent=4da57168d3c1970419e93e59a91e65466518231b
+workflow_tooling_sha=342cc9c6d190e1ba57d9995d29e394c993a3e79b
+command=/home/figs/.copilot/session-state/55903a98-b9b8-49d6-93cb-af5b9e04bd99/files/bootstrap-342cc9c-gates/tools/feature-cores-byte-check.sh 6b6f4db79ba5143f2a56e759abe111478bf6c8a5 2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a /home/figs/.copilot/session-state/55903a98-b9b8-49d6-93cb-af5b9e04bd99/files/bootstrap-342cc9c-gates/tools/drift-cure-gate.primitive-cores.txt --upstream 4da57168d3c1970419e93e59a91e65466518231b
+
+Gate 2 — feature-byte preservation check
+  PR_HEAD:   6b6f4db79ba
+  CANDIDATE: 2ffc7ca0615
+  UPSTREAM:  4da57168d3c
+  BASE:      1ba243c88ed
+  CORES:     /home/figs/.copilot/session-state/55903a98-b9b8-49d6-93cb-af5b9e04bd99/files/bootstrap-342cc9c-gates/tools/drift-cure-gate.primitive-cores.txt
+
+  PASS: src/agents/openclaw-tools.ts
+  PASS: src/agents/tools/continue-work-tool.ts
+  PASS: src/agents/tools/continue-work-tool.test.ts
+  PASS: src/agents/tools/continue-work-tool.boundary.test.ts
+  PASS: src/agents/tools/continue-delegate-tool.ts
+  PASS: src/agents/tools/continue-delegate-tool.test.ts
+  PASS: src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts
+  PASS: src/agents/tools/request-compaction-tool.ts
+  PASS: src/agents/tools/request-compaction-tool.test.ts
+  PASS: src/agents/tools/request-compaction-tool.callsite-threading.test.ts
+  PASS: src/agents/tools/request-compaction-tool.classifier-emission.test.ts
+  PASS: src/agents/tools/request-compaction-tool.volitional-threading.test.ts
+  PASS: src/agents/tools/continuation-tools-registration.test.ts
+  PASS: src/agents/embedded-agent-runner/compact-reasons.test.ts
+  PASS: src/agents/embedded-agent-runner/compact-reasons.ts
+  PASS: src/agents/embedded-agent-runner/compact.hooks.harness.ts
+  PASS: src/agents/embedded-agent-runner/compact.hooks.test.ts
+  PASS: src/agents/embedded-agent-runner/compact.ts
+  PASS: src/agents/embedded-agent-runner/compact.types.ts
+  PASS: src/agents/embedded-agent-runner/run.continuation-opts-forward.test.ts
+  PASS: src/agents/embedded-agent-runner/run.overflow-compaction.harness.ts
+  PASS: src/agents/embedded-agent-runner/run.overflow-compaction.loop.test.ts
+  PASS: src/agents/embedded-agent-runner/run.ts
+  PASS: src/agents/embedded-agent-runner/run/assistant-failover.ts
+  PASS: src/agents/embedded-agent-runner/run/attempt-tool-construction-plan.ts
+  PASS: src/agents/embedded-agent-runner/run/attempt.ts
+  PASS: src/agents/embedded-agent-runner/run/failover-policy.ts
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/params.ts (exact projected blob 0035f132c7a1e5326abdf970d38f097fd4ba5ab5)
+  PASS: src/agents/embedded-agent-runner/system-prompt.ts
+  PASS: src/cli/program/preaction.ts
+  PASS-TOMBSTONE: ui/src/ui/usage-helpers.ts
+  PASS: ui/src/pages/usage/helpers.ts
+  PASS-TOMBSTONE: ui/src/ui/controllers/config.ts
+  PASS-TOMBSTONE: ui/src/lib/config/index.ts
+  PASS: ui/src/lib/config/config-draft-model.ts
+  PASS: ui/src/lib/config/config-gateway-operations.ts
+  PASS: ui/src/lib/config/config-state-model.ts
+  PASS: ui/src/lib/config/config-write-coordinator.ts
+  PASS: ui/src/lib/config/runtime-config-capability.ts
+  PASS: apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntime.swift
+
+Summary: 40 primitive-core invariants; 0 FAIL; 1 exact-upstream; 3 tombstone; 0 empty-pattern
+Gate 2 PASS — all feature-core blobs are byte-identical or exact upstream projections.
+
+exit_code=0

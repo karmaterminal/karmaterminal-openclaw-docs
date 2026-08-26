@@ -1,0 +1,278 @@
+{
+  "schema": "openclaw.proofs.public-tempo.v1",
+  "resources": [
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ],
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ],
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ],
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ]
+  ],
+  "spans": [
+    {
+      "name": "continuation.work",
+      "startTimeUnixNano": "1787651727044000000",
+      "endTimeUnixNano": "1787651727044018400",
+      "attributes": []
+    },
+    {
+      "name": "openclaw.message.delivery",
+      "startTimeUnixNano": "1787651727148000000",
+      "endTimeUnixNano": "1787651727570000000",
+      "attributes": [
+        {
+          "key": "openclaw.channel",
+          "value": {
+            "stringValue": "discord"
+          }
+        },
+        {
+          "key": "openclaw.delivery.kind",
+          "value": {
+            "stringValue": "text"
+          }
+        },
+        {
+          "key": "openclaw.outcome",
+          "value": {
+            "stringValue": "completed"
+          }
+        },
+        {
+          "key": "openclaw.delivery.result_count",
+          "value": {
+            "intValue": "1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.work.fire",
+      "startTimeUnixNano": "1787651732053000000",
+      "endTimeUnixNano": "1787651732053016161",
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.usage",
+      "startTimeUnixNano": "1787651732304000000",
+      "endTimeUnixNano": "1787651737664000000",
+      "attributes": [
+        {
+          "key": "openclaw.channel",
+          "value": {
+            "stringValue": "system"
+          }
+        },
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "gen_ai.request.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.run",
+      "startTimeUnixNano": "1787651732364000000",
+      "endTimeUnixNano": "1787651737648000000",
+      "attributes": [
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "openclaw.channel",
+          "value": {
+            "stringValue": "system"
+          }
+        },
+        {
+          "key": "openclaw.trigger",
+          "value": {
+            "stringValue": "heartbeat"
+          }
+        },
+        {
+          "key": "openclaw.outcome",
+          "value": {
+            "stringValue": "completed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.harness.run",
+      "startTimeUnixNano": "1787651732364000000",
+      "endTimeUnixNano": "1787651737648000000",
+      "attributes": [
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "openclaw.channel",
+          "value": {
+            "stringValue": "system"
+          }
+        },
+        {
+          "key": "openclaw.outcome",
+          "value": {
+            "stringValue": "completed"
+          }
+        },
+        {
+          "key": "openclaw.harness.yield_detected",
+          "value": {
+            "boolValue": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.model.call",
+      "startTimeUnixNano": "1787651733094000000",
+      "endTimeUnixNano": "1787651737641000000",
+      "attributes": [
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "gen_ai.request.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "openclaw.model_call.observation_unit",
+          "value": {
+            "stringValue": "turn"
+          }
+        },
+        {
+          "key": "openclaw.model_call.request_bytes",
+          "value": {
+            "intValue": "60024"
+          }
+        }
+      ]
+    }
+  ],
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

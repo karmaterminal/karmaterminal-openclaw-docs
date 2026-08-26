@@ -1,0 +1,23 @@
+{
+  "schema": "openclaw.k6.r-cd-2-authoritative-receipt.v1",
+  "row": "R-CD-2",
+  "authoritativeSource": "r-cd-2-row-scoped-resolver",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "binding": {
+    "localEvidenceFingerprint": "83b86eaec0d2e954a692a1212bbcab38c5819a78f7ab7e4b3debf32ef252376a",
+    "topologyFingerprint": "73dbf63e5b27fb58a13e19317ebf378fbe9042cdb6091f72151e9baf5f326331"
+  },
+  "verdict": "FAIL-candidate",
+  "failureCategory": "delegate-replay-unsafe",
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "25f0af277edc710593988ecaafbcc90e63f47fc5d5a9d644b29e2ab797c104ff"
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

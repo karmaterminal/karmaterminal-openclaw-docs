@@ -1,0 +1,14 @@
+target=2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a
+upstream=4da57168d3c1970419e93e59a91e65466518231b
+
+IDENTICAL	src/auto-reply/reply/commands-learn.test.ts	0b9a458fcfde551d1c1ee4376d8157b56d32b2ec
+IDENTICAL	src/auto-reply/reply/commands-learn.ts	b18c272a156d6262fe24fc9ce28cd84f1f2440ac
+IDENTICAL	src/skills/workshop/learn-prompt.ts	1087e4fca47d0970276e2e9fe431bff781560912
+IDENTICAL	src/tui/tui-pty-local.e2e.test.ts	20a227b2b9528d2dd94e027abeeae71f80ea4a23
+IDENTICAL	packages/ai/src/internal/openai-responses-payload-policy.ts	063ec0ea82f612fa84f5ae8cadd4fc0ffe0b3f90
+IDENTICAL	packages/ai/package.json	91dfe946d45fea1bfe427aa90a37558ec1269a66
+IDENTICAL	tsdown.ai.config.ts	f822616ab57a49f0d18f94da4167850ac160f518
+IDENTICAL	package.json	0d2d47d20a9be681e4abcfbe01b6768b43bd0f63
+IDENTICAL	pnpm-lock.yaml	39244d4f3fa368d2b6b6f51ee89352b860f0dc3d
+
+failures=0

@@ -1,0 +1,49 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+  "mode": "test-shard",
+  "shard": "agentic-cli",
+  "configs": [
+    "test/vitest/vitest.cli.config.ts"
+  ],
+  "conclusion": "fail",
+  "rc": 1,
+  "gates": [
+    {
+      "name": "test shard (agentic-cli)",
+      "rc": 1,
+      "ok": false,
+      "seconds": 195
+    }
+  ],
+  "tests": {
+    "passed": 5297,
+    "failed": 4
+  },
+  "failure_count": 4,
+  "failures": [
+    {
+      "gate": "test shard (agentic-cli)",
+      "kind": "test",
+      "detail": "cli  src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > removes inherited operator overrides from the managed install environment"
+    },
+    {
+      "gate": "test shard (agentic-cli)",
+      "kind": "test",
+      "detail": "cli  src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for unknown ownership"
+    },
+    {
+      "gate": "test shard (agentic-cli)",
+      "kind": "test",
+      "detail": "cli  src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for inline reset ownership"
+    },
+    {
+      "gate": "test shard (agentic-cli)",
+      "kind": "test",
+      "detail": "cli  src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for environment-file reset ownership"
+    }
+  ],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

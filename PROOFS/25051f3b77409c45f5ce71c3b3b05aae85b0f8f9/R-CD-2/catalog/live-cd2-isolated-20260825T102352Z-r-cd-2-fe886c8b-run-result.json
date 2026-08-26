@@ -1,0 +1,47 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-08-25T10:24:16Z",
+  "verdict": "FAIL-candidate",
+  "verdictSource": "r-cd-2-authoritative-receipt",
+  "summaryFileVerdict": "FAIL-candidate",
+  "vuLogVerdict": null,
+  "summaryFiles": [
+    "r-cd-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-2",
+    "verdict": "FAIL-candidate",
+    "authoritativeReceipt": "r-cd-2-authoritative-receipt.json"
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": {
+    "file": "r-cd-2-authoritative-receipt.json",
+    "sha256": "12b8270ffa4e7ad204cfafaf4f2c8d1aca04bf87e113d957428bde05de4ed1f0",
+    "validated": true,
+    "source": "r-cd-2-row-scoped-resolver"
+  },
+  "observability": {
+    "traceStatus": "r-cd-2-authoritative-receipt",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": "r-cd-2-authoritative-receipt.json",
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

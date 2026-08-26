@@ -1,0 +1,1094 @@
+[test] starting test/vitest/vitest.cli.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli[39m
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli.test.ts [2m([22m[2m247 tests[22m[2m)[22m[33m 3062[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/run-main.exit.test.ts [2m([22m[2m241 tests[22m[2m)[22m[33m 1069[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/capability-cli.test.ts [2m([22m[2m189 tests[22m[2m)[22m[33m 5158[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps model list catalog inspection read-only [33m 3689[2mms[22m[39m
+error: unknown option '--provider-allow-insecure-path'
+error: unknown option '--provider-allow-symlink-command'
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/config-cli.test.ts [2m([22m[2m198 tests[22m[2m)[22m[33m 675[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/run-loop.test.ts [2m([22m[2m60 tests[22m[2m)[22m[33m 953[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.install.test.ts [2m([22m[2m194 tests[22m[2m)[22m[33m 6204[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/run.option-collisions.test.ts [2m([22m[2m76 tests[22m[2m)[22m[33m 591[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli.test.ts [2m([22m[2m190 tests[22m[2m)[22m[32m 200[2mms[22m[39m
+error: option '--limit <n>' argument '10ms' is invalid. --limit must be a positive integer.
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.commands.test.ts [2m([22m[2m94 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.update.test.ts [2m([22m[2m52 tests[22m[2m)[22m[33m 1219[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-secret-gateway.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 1538[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the explicit agent owner during channels resolve secret preflight [33m 1469[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/status.gather.test.ts [2m([22m[2m47 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[32m 177[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/restart-helper.test.ts [2m([22m[2m50 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[32m 158[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/status.print.test.ts [2m([22m[2m35 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/lifecycle.test.ts [2m([22m[2m45 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/devices-cli.test.ts [2m([22m[2m55 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+Local Gateway RPC unavailable; reading active systemd gateway journal instead.
+Gateway not reachable. Is it running and accessible?
+
+Hint: run `openclaw doctor`.
+Local Gateway RPC unavailable; reading active systemd gateway journal instead.
+Gateway not reachable. Is it running and accessible?
+
+Hint: run `openclaw doctor`.
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/logs-cli.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/install.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/claws-cli.test.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 797[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/mcp-cli.test.ts [2m([22m[2m35 tests[22m[2m)[22m[33m 10540[2mms[22m[39m
+     [33m[2m✓[22m[39m sets, replaces, and shows a configured MCP server [33m 839[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an existing MCP server before probing [33m 331[2mms[22m[39m
+     [33m[2m✓[22m[39m does not replace an MCP server added while probing [33m 314[2mms[22m[39m
+     [33m[2m✓[22m[39m updates approval mode without replacing saved Codex metadata [33m 481[2mms[22m[39m
+     [33m[2m✓[22m[39m requires initialize to finish within the configured probe timeout before saving [33m 590[2mms[22m[39m
+     [33m[2m✓[22m[39m updates per-server MCP tool filters [33m 423[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves sibling tool filters for 'configure' '--include' [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves sibling tool filters for 'configure' '--exclude' [33m 453[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves sibling tool filters for 'tools' '--include' [33m 432[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves sibling tool filters for 'tools' '--exclude' [33m 409[2mms[22m[39m
+     [33m[2m✓[22m[39m clears per-server MCP tool filters with tools --clear [33m 623[2mms[22m[39m
+     [33m[2m✓[22m[39m clears per-server MCP tool filters with configure --clear-tools [33m 633[2mms[22m[39m
+     [33m[2m✓[22m[39m removes pure disabled tombstones when enabling MCP servers [33m 466[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/update-command.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/exec-approvals-cli.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/register.cron-edit.test.ts [2m([22m[2m96 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/completion-cli.test.ts [2m([22m[2m123 tests[22m[2m | [22m[33m36 skipped[39m[2m)[22m[33m 1249[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-secret-targets.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/preaction.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 251[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/post-core-plugin-convergence.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/config-guard.test.ts [2m([22m[2m77 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-install-config.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 275[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/lifecycle-core.test.ts [2m([22m[2m39 tests[22m[2m)[22m[32m 144[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/completion-runtime.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 185[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/config-model-validation.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 7848[2mms[22m[39m
+     [33m[2m✓[22m[39m validates default refs in every inheriting agent catalog [33m 694[2mms[22m[39m
+     [33m[2m✓[22m[39m collects every unresolved ref in a multi-reference update [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m revalidates default and per-agent fallbacks when the default provider changes [33m 2112[2mms[22m[39m
+     [33m[2m✓[22m[39m revalidates a slash-shaped alias whose bare target changes provider [33m 879[2mms[22m[39m
+     [33m[2m✓[22m[39m does not revalidate bare fallbacks when only the default model changes [33m 304[2mms[22m[39m
+     [33m[2m✓[22m[39m revalidates fallbacks when roster repair also changes an ambiguous default provider [33m 848[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.list.test.ts [2m([22m[2m35 tests[22m[2m)[22m[33m 2345[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/shared.test.ts [2m([22m[2m86 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-authoring-command.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 5688[2mms[22m[39m
+[90mstderr[2m | src/cli/config-cli.integration.test.ts[2m > [22m[2mconfig cli integration[2m > [22m[2mwrites an absent key even when its value equals the resolved default
+[22m[39mConfig write will strip JSON5 comments from /home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-config-cli-default-equal-write-XsZA16/openclaw.json.
+
+[90mstderr[2m | src/cli/config-cli.integration.test.ts[2m > [22m[2mconfig cli integration[2m > [22m[2maccepts plugin hook conversation-access policy via config set
+[22m[39mConfig warnings:
+- plugins.entries.openclaw-mem0: plugin not found: openclaw-mem0 (stale config entry ignored; remove it from plugins config)
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/config-cli.integration.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 3431[2mms[22m[39m
+     [33m[2m✓[22m[39m redacts SecretRef ids and plugin-only sensitive fields in JSON/text order [33m 534[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects impossible provider/source refs during real config 'set' [33m 396[2mms[22m[39m
+     [33m[2m✓[22m[39m supports batch-file dry-run and then writes real config changes [33m 320[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/plugin-payload-validation.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/channels-cli.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.uninstall.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 1471[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/nodes-camera.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/exec-policy-cli.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli.coverage.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 685[2mms[22m[39m
+     [33m[2m✓[22m[39m writes 'gateway diagnostics' export with a service-owned health snapshot [33m 307[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/hooks-cli.toggle.test.ts [2m([22m[2m45 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.maintenance.test.ts [2m([22m[2m83 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/error-output.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/channel-auth.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/routes.test.ts [2m([22m[2m56 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/secrets-cli.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 140[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/message/helpers.test.ts [2m([22m[2m46 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.setup.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/qr-cli.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program.force.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/directory-cli.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.status-health-sessions.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/node-cli/daemon.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.verify.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/native-hook-relay-cli.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 904[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/completion-cli.write-state.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-path-policy.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 179[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/one-shot-exit.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 10895[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the real proxy command exit truthful for 'long help spelling consumed as a prox…' [33m 3203[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the real proxy command exit truthful for 'short help spelling consumed as a pro…' [33m 3116[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the real proxy command exit truthful for 'ordinary invalid proxy URL' [33m 3186[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the real proxy command exit truthful for 'genuine command help after a boolean …' [33m 404[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps real dual-TTY JSON clean after 'fatal unhandled rejection' [33m 313[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps real dual-TTY JSON clean after 'invalid configuration rejection' [33m 312[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/cron-pagination.gateway.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 388[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/nodes-cli.coverage.test.ts [2m([22m[2m48 tests[22m[2m)[22m[33m 572[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/resume-cli.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 16981[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an agent-qualified global session through the TUI handoff [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts a bootstrap-signed identity and rejects a mismatched signature [33m 310[2mms[22m[39m
+     [33m[2m✓[22m[39m retires the one-use bootstrap credential before a real-wire reconnect [33m 1269[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/session-ref.test.ts [2m([22m[2m65 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [31m❯[39m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 27[2mms[22m[39m
+     [32m✓[39m removes only the installer wrapper for the previous checkout[32m 4[2mms[22m[39m
+     [32m✓[39m removes only the exact PowerShell installer wrapper on Windows[32m 1[2mms[22m[39m
+     [32m✓[39m retires the wrapper before persisting and printing success[32m 4[2mms[22m[39m
+     [32m✓[39m marks and prints an error without persisting success when retirement fails[32m 3[2mms[22m[39m
+[31m     [31m×[31m removes inherited operator overrides from the managed install environment[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m skips unsafe metadata refresh for unknown ownership[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m skips unsafe metadata refresh for inline reset ownership[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m skips unsafe metadata refresh for environment-file reset ownership[39m[32m 2[2mms[22m[39m
+     [32m✓[39m exits nonzero when local changes block a Git update[32m 1[2mms[22m[39m
+     [32m✓[39m keeps a non-Git install skip successful[32m 1[2mms[22m[39m
+     [32m✓[39m restarts a managed Gateway after verified rollback recovery[32m 1[2mms[22m[39m
+     [32m✓[39m leaves a managed Gateway stopped after unverified rollback recovery[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/probe.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/exec-approvals-cli.pending-resolve.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.agent.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/proxy-cli.runtime.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 624[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/container-target.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/start-repair.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/models-cli.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.onboard.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/register.option-collisions.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.marketplace-refresh.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/root-command-descriptions.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 3205[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps catalog placeholders and registered commands in sync [33m 2327[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.marketplace-entries.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/lifecycle.external-supervision.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 107[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/config-model-validation.env.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 4441[2mms[22m[39m
+     [33m[2m✓[22m[39m redacts a fallback selected after provider expansion [33m 613[2mms[22m[39m
+     [33m[2m✓[22m[39m validates authored changes even when expansion matches the previous values [33m 535[2mms[22m[39m
+     [33m[2m✓[22m[39m redacts provider details inherited indirectly from an expanded primary [33m 813[2mms[22m[39m
+     [33m[2m✓[22m[39m redacts dependency values when authored spelling is unavailable [33m 851[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/shared.command-runner.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.tasks.test.ts [2m([22m[2m56 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-location-bridges.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli.coverage.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 705[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/restart-health-wait.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-startup-policy.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/restart-health-probe.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/connect-cli.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.workshop-cache.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 908[2mms[22m[39m
+     [33m[2m✓[22m[39m applies through the gateway process that owns the cached session skill index [33m 385[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/register.cron-simple.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.subclis.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/node-cli/register.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/pairing-cli.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/restart-health.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstderr[2m | src/cli/mcp-cli.oauth-integration.test.ts[2m > [22m[2mmcp login OAuth integration[2m > [22m[2mkeeps per-requester list, status, and doctor probes read only
+[22m[39mMCP doctor found errors.
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/mcp-cli.oauth-integration.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1409[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps per-requester list, status, and doctor probes read only [33m 687[2mms[22m[39m
+     [33m[2m✓[22m[39m clears requester credentials when the same URL changes to shared OAuth [33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m captures the browser callback, persists tokens, and closes the port [33m 326[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/attach-cli.action.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+Usage: openclaw gateway [options] [command]
+
+Run, inspect, and query the WebSocket Gateway
+
+Options:
+  --port <port>                    Port for the gateway WebSocket
+  --bind <mode>                    Bind mode
+                                   ("loopback"|"lan"|"tailnet"|"auto"|"custom").
+                                   Defaults to config gateway.bind (or
+                                   loopback).
+  --token <token>                  Shared token required in
+                                   connect.params.auth.token (default:
+                                   OPENCLAW_GATEWAY_TOKEN env if set)
+  --auth <mode>                    Gateway auth mode
+                                   ("none"|"token"|"password"|"trusted-proxy")
+  --password <password>            Password for auth mode=password
+  --password-file <path>           Read gateway password from file
+  --tailscale <mode>               Tailscale exposure mode
+                                   ("off"|"serve"|"funnel")
+  --allow-unconfigured             Allow gateway start without enforcing
+                                   gateway.mode=local in config (does not repair
+                                   config) (default: false)
+  --dev                            Create a dev config + workspace if missing
+                                   (no BOOTSTRAP.md) (default: false)
+  --ambient-channels               Allow the gateway to auto-configure channels
+                                   from ambient environment variables (default:
+                                   false)
+  --dev-ambient-channels           Deprecated alias for --ambient-channels
+                                   (default: false)
+  --reset                          Reset dev config + credentials + sessions +
+                                   workspace (requires --dev) (default: false)
+  --force                          Kill any existing listener on the target port
+                                   before starting (default: false)
+  --verbose                        Verbose logging to stdout/stderr (default:
+                                   false)
+  --cli-backend-logs               Only show CLI backend logs in the console
+                                   (includes stdout/stderr) (default: false)
+  --claude-cli-logs                Deprecated alias for --cli-backend-logs
+                                   (default: false)
+  --ws-log <style>                 WebSocket log style ("auto"|"full"|"compact")
+                                   (default: "auto")
+  --compact                        Alias for "--ws-log compact" (default: false)
+  --raw-stream                     Log raw model stream events to jsonl
+                                   (default: false)
+  --raw-stream-path <path>         Raw stream jsonl path
+  -h, --help                       display help for command
+
+Commands:
+  run [options]                    Run the WebSocket Gateway (foreground)
+  status [options]                 Show gateway service status + probe
+                                   connectivity/capability
+  install [options]                Install the Gateway service
+                                   (launchd/systemd/schtasks)
+  uninstall [options]              Uninstall the Gateway service
+                                   (launchd/systemd/schtasks)
+  start [options]                  Start the Gateway service
+                                   (launchd/systemd/schtasks)
+  stop [options]                   Stop the Gateway service
+                                   (launchd/systemd/schtasks)
+  restart [options]                Restart the Gateway service
+                                   (launchd/systemd/schtasks)
+  auth-token [options]             Reveal the configured shared Gateway token
+  call [options] <method>          Call a Gateway method
+  suspend [options]                Prepare the Gateway for cooperative host
+                                   suspension
+  resume [options] <suspensionId>  Release a cooperative Gateway suspension
+  usage-cost [options]             Fetch usage cost summary from session logs
+  health [options]                 Fetch Gateway health
+  stability [options]              Fetch payload-free Gateway stability
+                                   diagnostics
+  diagnostics                      Export local support diagnostics
+  probe [options]                  Show gateway reachability, auth capability,
+                                   and read-probe summary (local + remote)
+  discover [options]               Discover gateways via Bonjour (local +
+                                   wide-area if configured)
+
+Examples:
+  openclaw gateway run
+    Run the gateway in the foreground.
+  openclaw gateway status
+    Show service status plus connectivity/capability.
+  openclaw gateway auth-token --show
+    Reveal the shared token interactively.
+  openclaw gateway discover
+    Find local and wide-area gateway beacons.
+  openclaw gateway stability
+    Show recent stability diagnostics.
+  openclaw gateway call health
+    Call a gateway RPC method directly.
+
+Docs: https://docs.openclaw.ai/cli/gateway
+
+Usage: openclaw doctor [options]
+
+Health checks + quick fixes for the gateway and channels
+
+Options:
+  --no-workspace-suggestions     Disable workspace memory system suggestions
+  --yes                          Accept defaults without prompting (default:
+                                 false)
+  --repair                       Apply recommended repairs without prompting
+                                 (default: false)
+  --fix                          Apply recommended repairs (alias for --repair)
+                                 (default: false)
+  --force                        Apply aggressive repairs (overwrites custom
+                                 service config) (default: false)
+  --non-interactive              Run without prompts (safe migrations only)
+                                 (default: false)
+  --generate-gateway-token       Generate and configure a gateway token
+                                 (default: false)
+  --allow-exec                   Allow doctor to execute exec SecretRefs while
+                                 verifying configured secrets (default: false)
+  --deep                         Scan system services for extra gateway installs
+                                 (default: false)
+  --lint                         Run read-only health checks and report findings
+                                 (default: false)
+  --post-upgrade                 Emit plugin-compat findings only
+                                 (machine-readable with --json) (default: false)
+  --session-sqlite <mode>        Run session SQLite migration mode
+                                 (dry-run|import|validate|inspect|compact|restore|recover)
+  --state-sqlite <mode>          Run shared state SQLite maintenance mode
+                                 (compact)
+  --session-sqlite-store <path>  With --session-sqlite: inspect one session
+                                 store
+  --session-sqlite-agent <id>    With --session-sqlite: inspect one agent
+  --session-sqlite-all-agents    With --session-sqlite: inspect configured and
+                                 discovered agent stores (default: false)
+  --github-issue                 With --session-sqlite recover: prepare and
+                                 optionally create an openclaw/openclaw issue
+                                 (default: false)
+  --json                         Emit JSON; bare --json runs advisory read-only
+                                 health checks (default: false)
+  --severity-min <level>         With --lint: drop findings below this severity
+                                 (info|warning|error)
+  --all                          With --lint: run all registered checks,
+                                 including opt-in checks (default: false)
+  --skip <id>                    With --lint: skip a specific check id
+                                 (repeatable) (default: [])
+  --only <id>                    With --lint: run only the specified check id
+                                 (repeatable) (default: [])
+  -h, --help                     display help for command
+
+Docs: https://docs.openclaw.ai/cli/doctor
+
+Usage: openclaw status [options]
+
+Show channel health and recent session recipients
+
+Options:
+  --json          Output JSON instead of text (default: false)
+  --all           Full diagnosis (read-only, pasteable) (default: false)
+  --usage         Show model provider usage/quota snapshots (default: false)
+  --agent <id>    Agent id for --usage auth scope
+  --deep          Probe channels (WhatsApp Web + Telegram + Discord + Slack +
+                  Signal) (default: false)
+  --timeout <ms>  Probe timeout in milliseconds (default: "10000")
+  --verbose       Verbose logging (default: false)
+  --debug         Alias for --verbose (default: false)
+  -h, --help      display help for command
+
+Examples:
+  openclaw status
+    Show channel health + session summary.
+  openclaw status --all
+    Full diagnosis (read-only).
+  openclaw status --json
+    Machine-readable output.
+  openclaw status --usage
+    Show model provider usage/quota snapshots.
+  openclaw status --deep
+    Run channel probes (WA + Telegram + Discord + Slack + Signal).
+  openclaw status --deep --timeout 5000
+    Tighten probe timeout.
+
+Docs: https://docs.openclaw.ai/cli/status
+
+Usage: openclaw health [options]
+
+Fetch health from the running gateway
+
+Options:
+  --json          Output JSON instead of text (default: false)
+  --timeout <ms>  Connection timeout in milliseconds (default: "10000")
+  --verbose       Verbose logging (default: false)
+  --debug         Alias for --verbose (default: false)
+  -h, --help      display help for command
+
+Docs: https://docs.openclaw.ai/cli/health
+
+Usage: openclaw configure [options]
+
+Interactive configuration for credentials, channels, gateway, and agent defaults
+
+Options:
+  --section <section>  Configuration sections (repeatable). Options: workspace,
+                       model, web, gateway, daemon, channels, plugins, skills,
+                       health (default: [])
+  -h, --help           display help for command
+
+Docs: https://docs.openclaw.ai/cli/configure
+
+Usage: openclaw setup [options]
+
+Chat with OpenClaw; onboard when setup is incomplete
+
+Options:
+  --workspace <dir>                        Workspace proposal for guided setup; persisted by baseline/classic/non-interactive setup
+  --agent-name <name>                      Name for the first agent (default: main)
+  --wizard                                 Run interactive onboarding (default: false)
+  --baseline                               Create baseline config/workspace/session folders without onboarding (default: false)
+  --reset                                  Reset config + credentials + sessions before running onboarding (workspace only with --reset-scope full)
+  --reset-scope <scope>                    Reset scope: config|config+creds+sessions|full
+  --non-interactive                        Run onboarding without prompts (default: false)
+  --classic                                Use the classic multi-step setup wizard (default: false)
+  --tui                                    Use the terminal hatch instead of the browser handoff (default: false)
+  --accept-risk                            Acknowledge that agents are powerful and full system access is risky (required for --non-interactive) (default: false)
+  --flow <flow>                            Onboard flow: quickstart|advanced|manual|import
+  --mode <mode>                            Onboard mode: local|remote
+  --auth-choice <choice>                   Auth: custom-api-key|setup-token|token|apiKey|skip|alibaba-model-studio-api-key|anthropic-cli|arceeai-api-key|baseten-api-key|brave-api-key|byteplus-api-key|cerebras-api-key|openai-device-code|openai|chutes|chutes-api-key|clawrouter-api-key|cloudflare-ai-gateway-api-key|zai-cn|qwen-api-key-cn|qwen-api-key|zai-coding-cn|zai-coding-global|cohere-api-key|comfy-cloud-api-key|copilot-proxy|deepinfra-api-key|deepseek-api-key|llama-cpp-existing-server|fal-api-key|featherless-api-key|fireworks-api-key|github-copilot|github-copilot-enterprise|zai-global|gmi-api-key|gemini-api-key|google-vertex-api-key|groq-api-key|huggingface-api-key|kilocode-api-key|kimi-code-api-key|litellm-api-key|lmstudio|longcat-api-key|llama-cpp|meta-api-key|microsoft-foundry-apikey|microsoft-foundry-entra|minimax-cn-api|minimax-global-api|minimax-cn-oauth|minimax-global-oauth|mistral-api-key|moonshot-api-key|moonshot-api-key-cn|novita-api-key|nvidia-api-key|ollama|ollama-cloud|openai-api-key|opencode-go|opencode-zen|arceeai-openrouter|openrouter-api-key|openrouter-oauth|pixverse-api-key|qianfan-api-key|qwen-token-plan-cn|qwen-token-plan|runway-api-key|sglang|qwen-standard-api-key-cn|qwen-standard-api-key|stepfun-standard-api-key-cn|stepfun-standard-api-key-intl|stepfun-plan-api-key-cn|stepfun-plan-api-key-intl|synthetic-api-key|tokenhub-api-key|tokenplan-api-key|together-api-key|venice-api-key|ai-gateway-api-key|vllm|volcengine-api-key|vydra-api-key|xai-api-key|xai-device-code|xai-oauth|xiaomi-api-key|xiaomi-token-plan-cn|xiaomi-token-plan-ams|xiaomi-token-plan-sgp|zai-api-key
+  --token-provider <id>                    Token provider id (non-interactive; used with --auth-choice token)
+  --token <token>                          Token value (non-interactive; used with --auth-choice token)
+  --token-profile-id <id>                  Auth profile id (non-interactive; default: <provider>:manual)
+  --token-expires-in <duration>            Optional token expiry duration (e.g. 365d, 12h)
+  --secret-input-mode <mode>               Credential persistence mode: plaintext|ref (default: plaintext)
+  --cloudflare-ai-gateway-account-id <id>  Cloudflare Account ID
+  --cloudflare-ai-gateway-gateway-id <id>  Cloudflare AI Gateway ID
+  --alibaba-model-studio-api-key <key>     Alibaba Model Studio API key
+  --anthropic-api-key <key>                Anthropic API key
+  --arceeai-api-key <key>                  Arcee AI API key
+  --baseten-api-key <key>                  Baseten API key
+  --byteplus-api-key <key>                 BytePlus API key
+  --cerebras-api-key <key>                 Cerebras API key
+  --chutes-api-key <key>                   Chutes API key
+  --clawrouter-api-key <key>               ClawRouter proxy key
+  --cloudflare-ai-gateway-api-key <key>    Cloudflare AI Gateway API key
+  --cohere-api-key <key>                   Cohere API key
+  --comfy-api-key <key>                    Comfy Cloud API key
+  --deepinfra-api-key <key>                DeepInfra API key
+  --deepseek-api-key <key>                 DeepSeek API key
+  --fal-api-key <key>                      fal API key
+  --featherless-api-key <key>              Featherless AI API key
+  --fireworks-api-key <key>                Fireworks API key
+  --github-copilot-token <token>           GitHub Copilot OAuth token
+  --gmi-api-key <key>                      GMI Cloud API key
+  --gemini-api-key <key>                   Gemini API key
+  --groq-api-key <key>                     Groq API key
+  --huggingface-api-key <key>              Hugging Face API key (HF token)
+  --kilocode-api-key <key>                 Kilo Gateway API key
+  --kimi-code-api-key <key>                Kimi Code API key (subscription)
+  --litellm-api-key <key>                  LiteLLM API key
+  --llama-server-api-key <key>             llama-server API key
+  --lmstudio-api-key <key>                 LM Studio API key
+  --longcat-api-key <key>                  LongCat API key
+  --meta-api-key <key>                     Meta API key
+  --minimax-api-key <key>                  MiniMax API key
+  --mistral-api-key <key>                  Mistral API key
+  --moonshot-api-key <key>                 Moonshot API key
+  --novita-api-key <key>                   NovitaAI API key
+  --nvidia-api-key <key>                   NVIDIA API key
+  --ollama-cloud-api-key <key>             Ollama Cloud API key
+  --openai-api-key <key>                   OpenAI API Key
+  --opencode-zen-api-key <key>             OpenCode API key (Zen catalog)
+  --opencode-go-api-key <key>              OpenCode API key (Go catalog)
+  --openrouter-api-key <key>               OpenRouter API key
+  --pixverse-api-key <key>                 PixVerse API key
+  --qianfan-api-key <key>                  QIANFAN API key
+  --modelstudio-standard-api-key-cn <key>  Qwen Cloud standard API key (China)
+  --modelstudio-standard-api-key <key>     Qwen Cloud standard API key (Global/Intl)
+  --modelstudio-api-key-cn <key>           Qwen Cloud Coding Plan API key (China)
+  --modelstudio-api-key <key>              Qwen Cloud Coding Plan API key (Global/Intl)
+  --qwen-token-plan-api-key <key>          Qwen Token Plan API key (Global/Intl)
+  --qwen-token-plan-api-key-cn <key>       Qwen Token Plan API key (China)
+  --runway-api-key <key>                   Runway API key
+  --stepfun-api-key <key>                  StepFun API key
+  --synthetic-api-key <key>                Synthetic API key
+  --tokenhub-api-key <key>                 Tencent TokenHub API key
+  --tokenplan-api-key <key>                Tencent TokenPlan API key
+  --together-api-key <key>                 Together AI API key
+  --venice-api-key <key>                   Venice API key
+  --ai-gateway-api-key <key>               Vercel AI Gateway API key
+  --volcengine-api-key <key>               Volcano Engine API key
+  --vydra-api-key <key>                    Vydra API key
+  --xai-api-key <key>                      xAI API key
+  --xiaomi-api-key <key>                   Xiaomi MiMo pay-as-you-go API key
+  --xiaomi-token-plan-api-key <key>        Xiaomi MiMo Token Plan API key
+  --zai-api-key <key>                      Z.AI API key
+  --custom-base-url <url>                  Custom provider base URL
+  --custom-api-key <key>                   Custom provider API key (optional)
+  --custom-model-id <id>                   Custom provider model ID
+  --custom-provider-id <id>                Custom provider ID (optional; auto-derived by default)
+  --custom-compatibility <mode>            Custom provider API compatibility: openai|openai-responses|anthropic (default: openai)
+  --custom-image-input                     Mark the custom provider model as image-capable
+  --custom-text-input                      Mark the custom provider model as text-only
+  --gateway-port <port>                    Gateway port
+  --gateway-bind <mode>                    Gateway bind: loopback|tailnet|lan|auto|custom
+  --gateway-auth <mode>                    Gateway auth: token|password
+  --gateway-token <token>                  Gateway token (token auth)
+  --gateway-token-ref-env <name>           Gateway token SecretRef env var name (token auth; e.g. OPENCLAW_GATEWAY_TOKEN)
+  --gateway-password <password>            Gateway password (password auth)
+  --tailscale <mode>                       Tailscale: off|serve|funnel
+  --install-daemon                         Install gateway service
+  --no-install-daemon                      Skip gateway service install
+  --skip-daemon                            Skip gateway service install
+  --daemon-runtime <runtime>               Daemon runtime: node
+  --skip-channels                          Skip channel setup
+  --skip-skills                            Skip skills setup
+  --skip-bootstrap                         Skip creating default agent workspace files
+  --skip-search                            Skip search provider setup
+  --skip-health                            Skip health check
+  --skip-ui                                Skip Control UI/TUI launch
+  --suppress-gateway-token-output          Disable the guided Control UI handoff
+  --skip-hooks                             Accepted for onboard compatibility; hooks setup is skipped
+  --node-manager <name>                    Node manager for skills: npm|pnpm|bun
+  --import-from <provider>                 Migration provider to run during onboarding
+  --import-source <path>                   Source agent home for --import-from
+  --import-secrets                         Import supported secrets during onboarding migration (default: false)
+  --remote-url <url>                       Remote Gateway WebSocket URL
+  --remote-token <token>                   Remote Gateway token (optional)
+  --remote-password <password>             Remote Gateway password (optional)
+  -m, --message <text>                     Run one OpenClaw request
+  --yes                                    Approve persistent config writes for one --message request (default: false)
+  --json                                   Output system overview or onboarding summary as JSON (default: false)
+  -h, --help                               display help for command
+
+Examples:
+  openclaw setup
+    Chat with OpenClaw, or onboard when setup is incomplete.
+  openclaw setup -m "status"
+    Run one system-agent request.
+  openclaw setup --wizard
+    Run full onboarding.
+
+Docs: https://docs.openclaw.ai/cli/setup
+
+Usage: openclaw onboard [options] [command]
+
+Guided setup for auth, models, Gateway, workspace, channels, and skills
+
+Options:
+  --workspace <dir>                        Workspace proposal for guided setup; persisted by classic/non-interactive setup
+  --agent-name <name>                      Name for the first agent (default: main)
+  --reset                                  Reset config + credentials + sessions before running onboard (workspace only with --reset-scope full)
+  --reset-scope <scope>                    Reset scope: config|config+creds+sessions|full
+  --non-interactive                        Run without prompts (default: false)
+  --modern                                 Open inference-gated OpenClaw (kept for compatibility) (default: false)
+  --classic                                Use the classic multi-step setup wizard (default: false)
+  --tui                                    Use the terminal hatch instead of the browser handoff (default: false)
+  --accept-risk                            Acknowledge that agents are powerful and full system access is risky (required for --non-interactive) (default: false)
+  --flow <flow>                            Onboard flow: quickstart|advanced|manual|import
+  --mode <mode>                            Onboard mode: local|remote
+  --auth-choice <choice>                   Auth: custom-api-key|setup-token|token|apiKey|skip|alibaba-model-studio-api-key|anthropic-cli|arceeai-api-key|baseten-api-key|brave-api-key|byteplus-api-key|cerebras-api-key|openai-device-code|openai|chutes|chutes-api-key|clawrouter-api-key|cloudflare-ai-gateway-api-key|zai-cn|qwen-api-key-cn|qwen-api-key|zai-coding-cn|zai-coding-global|cohere-api-key|comfy-cloud-api-key|copilot-proxy|deepinfra-api-key|deepseek-api-key|llama-cpp-existing-server|fal-api-key|featherless-api-key|fireworks-api-key|github-copilot|github-copilot-enterprise|zai-global|gmi-api-key|gemini-api-key|google-vertex-api-key|groq-api-key|huggingface-api-key|kilocode-api-key|kimi-code-api-key|litellm-api-key|lmstudio|longcat-api-key|llama-cpp|meta-api-key|microsoft-foundry-apikey|microsoft-foundry-entra|minimax-cn-api|minimax-global-api|minimax-cn-oauth|minimax-global-oauth|mistral-api-key|moonshot-api-key|moonshot-api-key-cn|novita-api-key|nvidia-api-key|ollama|ollama-cloud|openai-api-key|opencode-go|opencode-zen|arceeai-openrouter|openrouter-api-key|openrouter-oauth|pixverse-api-key|qianfan-api-key|qwen-token-plan-cn|qwen-token-plan|runway-api-key|sglang|qwen-standard-api-key-cn|qwen-standard-api-key|stepfun-standard-api-key-cn|stepfun-standard-api-key-intl|stepfun-plan-api-key-cn|stepfun-plan-api-key-intl|synthetic-api-key|tokenhub-api-key|tokenplan-api-key|together-api-key|venice-api-key|ai-gateway-api-key|vllm|volcengine-api-key|vydra-api-key|xai-api-key|xai-device-code|xai-oauth|xiaomi-api-key|xiaomi-token-plan-cn|xiaomi-token-plan-ams|xiaomi-token-plan-sgp|zai-api-key
+  --token-provider <id>                    Token provider id (non-interactive; used with --auth-choice token)
+  --token <token>                          Token value (non-interactive; used with --auth-choice token)
+  --token-profile-id <id>                  Auth profile id (non-interactive; default: <provider>:manual)
+  --token-expires-in <duration>            Optional token expiry duration (e.g. 365d, 12h)
+  --secret-input-mode <mode>               Credential persistence mode: plaintext|ref (default: plaintext)
+  --cloudflare-ai-gateway-account-id <id>  Cloudflare Account ID
+  --cloudflare-ai-gateway-gateway-id <id>  Cloudflare AI Gateway ID
+  --alibaba-model-studio-api-key <key>     Alibaba Model Studio API key
+  --anthropic-api-key <key>                Anthropic API key
+  --arceeai-api-key <key>                  Arcee AI API key
+  --baseten-api-key <key>                  Baseten API key
+  --byteplus-api-key <key>                 BytePlus API key
+  --cerebras-api-key <key>                 Cerebras API key
+  --chutes-api-key <key>                   Chutes API key
+  --clawrouter-api-key <key>               ClawRouter proxy key
+  --cloudflare-ai-gateway-api-key <key>    Cloudflare AI Gateway API key
+  --cohere-api-key <key>                   Cohere API key
+  --comfy-api-key <key>                    Comfy Cloud API key
+  --deepinfra-api-key <key>                DeepInfra API key
+  --deepseek-api-key <key>                 DeepSeek API key
+  --fal-api-key <key>                      fal API key
+  --featherless-api-key <key>              Featherless AI API key
+  --fireworks-api-key <key>                Fireworks API key
+  --github-copilot-token <token>           GitHub Copilot OAuth token
+  --gmi-api-key <key>                      GMI Cloud API key
+  --gemini-api-key <key>                   Gemini API key
+  --groq-api-key <key>                     Groq API key
+  --huggingface-api-key <key>              Hugging Face API key (HF token)
+  --kilocode-api-key <key>                 Kilo Gateway API key
+  --kimi-code-api-key <key>                Kimi Code API key (subscription)
+  --litellm-api-key <key>                  LiteLLM API key
+  --llama-server-api-key <key>             llama-server API key
+  --lmstudio-api-key <key>                 LM Studio API key
+  --longcat-api-key <key>                  LongCat API key
+  --meta-api-key <key>                     Meta API key
+  --minimax-api-key <key>                  MiniMax API key
+  --mistral-api-key <key>                  Mistral API key
+  --moonshot-api-key <key>                 Moonshot API key
+  --novita-api-key <key>                   NovitaAI API key
+  --nvidia-api-key <key>                   NVIDIA API key
+  --ollama-cloud-api-key <key>             Ollama Cloud API key
+  --openai-api-key <key>                   OpenAI API Key
+  --opencode-zen-api-key <key>             OpenCode API key (Zen catalog)
+  --opencode-go-api-key <key>              OpenCode API key (Go catalog)
+  --openrouter-api-key <key>               OpenRouter API key
+  --pixverse-api-key <key>                 PixVerse API key
+  --qianfan-api-key <key>                  QIANFAN API key
+  --modelstudio-standard-api-key-cn <key>  Qwen Cloud standard API key (China)
+  --modelstudio-standard-api-key <key>     Qwen Cloud standard API key (Global/Intl)
+  --modelstudio-api-key-cn <key>           Qwen Cloud Coding Plan API key (China)
+  --modelstudio-api-key <key>              Qwen Cloud Coding Plan API key (Global/Intl)
+  --qwen-token-plan-api-key <key>          Qwen Token Plan API key (Global/Intl)
+  --qwen-token-plan-api-key-cn <key>       Qwen Token Plan API key (China)
+  --runway-api-key <key>                   Runway API key
+  --stepfun-api-key <key>                  StepFun API key
+  --synthetic-api-key <key>                Synthetic API key
+  --tokenhub-api-key <key>                 Tencent TokenHub API key
+  --tokenplan-api-key <key>                Tencent TokenPlan API key
+  --together-api-key <key>                 Together AI API key
+  --venice-api-key <key>                   Venice API key
+  --ai-gateway-api-key <key>               Vercel AI Gateway API key
+  --volcengine-api-key <key>               Volcano Engine API key
+  --vydra-api-key <key>                    Vydra API key
+  --xai-api-key <key>                      xAI API key
+  --xiaomi-api-key <key>                   Xiaomi MiMo pay-as-you-go API key
+  --xiaomi-token-plan-api-key <key>        Xiaomi MiMo Token Plan API key
+  --zai-api-key <key>                      Z.AI API key
+  --custom-base-url <url>                  Custom provider base URL
+  --custom-api-key <key>                   Custom provider API key (optional)
+  --custom-model-id <id>                   Custom provider model ID
+  --custom-provider-id <id>                Custom provider ID (optional; auto-derived by default)
+  --custom-compatibility <mode>            Custom provider API compatibility: openai|openai-responses|anthropic (default: openai)
+  --custom-image-input                     Mark the custom provider model as image-capable
+  --custom-text-input                      Mark the custom provider model as text-only
+  --gateway-port <port>                    Gateway port
+  --gateway-bind <mode>                    Gateway bind: loopback|tailnet|lan|auto|custom
+  --gateway-auth <mode>                    Gateway auth: token|password
+  --gateway-token <token>                  Gateway token (token auth)
+  --gateway-token-ref-env <name>           Gateway token SecretRef env var name (token auth; e.g. OPENCLAW_GATEWAY_TOKEN)
+  --gateway-password <password>            Gateway password (password auth)
+  --remote-url <url>                       Remote Gateway WebSocket URL
+  --remote-token <token>                   Remote Gateway token (optional)
+  --remote-password <password>             Remote Gateway password (optional)
+  --tailscale <mode>                       Tailscale: off|serve|funnel
+  --install-daemon                         Install gateway service
+  --no-install-daemon                      Skip gateway service install
+  --skip-daemon                            Skip gateway service install
+  --daemon-runtime <runtime>               Daemon runtime: node
+  --skip-channels                          Skip channel setup
+  --skip-skills                            Skip skills setup
+  --skip-bootstrap                         Skip creating default agent workspace files
+  --skip-search                            Skip search provider setup
+  --skip-health                            Skip health check
+  --skip-ui                                Skip Control UI/TUI prompts
+  --suppress-gateway-token-output          Disable the guided Control UI handoff
+  --skip-hooks                             Skip hook setup
+  --node-manager <name>                    Node manager for skills: npm|pnpm|bun
+  --import-from <provider>                 Migration provider to run during onboarding
+  --import-source <path>                   Source agent home for --import-from
+  --import-secrets                         Import supported secrets during onboarding migration (default: false)
+  --json                                   Output JSON summary (default: false)
+  -h, --help                               display help for command
+
+Commands:
+  recommendations [options]                Read the app recommendations stored during onboarding
+
+Docs: https://docs.openclaw.ai/cli/onboard
+
+Usage: openclaw agents [options] [command]
+
+Manage isolated agents (workspaces + auth + routing)
+
+Options:
+  -h, --help              display help for command
+
+Commands:
+  list [options]          List configured agents
+  bindings [options]      List routing bindings
+  bind [options]          Add routing bindings for an agent
+  unbind [options]        Remove routing bindings for an agent
+  add [options] [name]    Add a new isolated agent
+  set-identity [options]  Update an agent identity (name/theme/emoji/avatar)
+  delete [options] <id>   Delete an agent and prune workspace/state
+
+Docs: https://docs.openclaw.ai/cli/agents
+
+Usage: openclaw secrets [options] [command]
+
+Secrets runtime controls
+
+Options:
+  -h, --help           display help for command
+
+Commands:
+  store                Manage the team-scoped SQLite secret and environment
+                       store
+  reload [options]     Re-resolve secret references and atomically swap runtime
+                       snapshot
+  audit [options]      Audit plaintext secrets, unresolved refs, and precedence
+                       drift
+  configure [options]  Interactive secrets helper (provider setup + SecretRef
+                       mapping + preflight)
+  apply [options]      Apply a previously generated secrets plan
+  help [command]       display help for command
+
+Docs: https://docs.openclaw.ai/gateway/security
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/help-cold-imports.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 692[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps setup help out of setup and onboard action modules [33m 323[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps onboard help out of onboard action modules [33m 314[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/send-runtime/channel-outbound-send.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/lifecycle-core.config-guard.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/mcp-cli.oauth.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3709[2mms[22m[39m
+     [33m[2m✓[22m[39m includes OAuth credential status in MCP status output [33m 598[2mms[22m[39m
+     [33m[2m✓[22m[39m configures enablement, timeouts, and OAuth login [33m 490[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves 'per-requester identity and redirect m…' when updating OAuth scope [33m 446[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves 'auth-profile binding' when updating OAuth scope [33m 441[2mms[22m[39m
+     [33m[2m✓[22m[39m does not restore previous OAuth metadata after an explicit clear [33m 440[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/route.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.workshop.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 659[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.transcripts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 1063[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-list-command.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-dry-run-state.process.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 20463[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps malformed config immutable while producing a best-effort preview [33m 9737[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps migration-pending config and SQLite markers immutable for the shorthand [33m 4171[2mms[22m[39m
+     [33m[2m✓[22m[39m defers legacy-state migration until the updated runtime [33m 2091[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps an orphaned SQLite journal immutable when a managed handoff is refused [33m 2007[2mms[22m[39m
+     [33m[2m✓[22m[39m fences the full mutable update path before observation or action [33m 2456[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/hooks-cli.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cli-utils.test.ts [2m([22m[2m53 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli.option-collisions.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/help.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/action-reparse.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/run.supervised-lock.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+[90mstdout[2m | src/cli/update-cli/update-command-post-core.test.ts[2m > [22m[2mreadPostCorePluginInstallRecordsFile[2m > [22m[2mlive FS: corrupt handoff is not silently dropped as empty records
+[22m[39m[post-core install-records live proof] path=/home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-post-core-records-Pq9PAI/plugin-install-records.json outcome=malformed-json-rejected
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-core.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugin-install-plan.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.inspect.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.policy.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 416[2mms[22m[39m
+     [33m[2m✓[22m[39m refreshes the persisted plugin registry after enabling a plugin [33m 324[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/secrets-store-cli.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugin-registry.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/system-cli.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-secret-targets.import.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 640[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.backup.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstderr[2m | src/cli/cron-cli/trigger-options.test.ts[2m > [22m[2mcron trigger CLI options[2m > [22m[2mreads --script client-side and sends payload budgets on add
+[22m[39mNo --agent specified; the job will run with the configured default agent. Specify --agent to choose a specific agent, or set agents.defaults.systemAgent.agentId.
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/trigger-options.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-execution-startup.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/security-cli.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+│
+◇  Plugin registry ────────────────────────────────────────────────────────╮
+│                                                                          │
+│  Removed stale managed npm plugin package(s) shadowing bundled plugins:  │
+│  - codex: @openclaw/codex@2026.7.2-beta.7                                │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/post-core-plugin-convergence.retirement.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 185[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/command-registry.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-rpc.runtime.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/health-route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.message.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/progress.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/mcp-cli.login-loopback.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1116[2mms[22m[39m
+     [33m[2m✓[22m[39m binds the final redirect before printing it and exchanges the captured code [33m 611[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/acp-cli.option-collisions.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.lazy.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/status.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/telemetry-cli.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/run-main.profile-env.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/fleet-cli/register.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstderr[2m | src/cli/daemon-cli/install.integration.test.ts[2m > [22m[2mrunDaemonInstall integration[2m > [22m[2mrefuses service install when config was written by a newer OpenClaw
+[22m[39mYour OpenClaw config was written by version 9999.1.1, but this command is running 2026.8.1.
+Check: `openclaw --version`, `which openclaw`, and `openclaw gateway status --deep`.
+If unexpected, update PATH so `openclaw` points to the version you want, or reinstall the Gateway service from that same OpenClaw install.
+
+[90mstderr[2m | src/cli/daemon-cli/install.integration.test.ts[2m > [22m[2mrunDaemonInstall integration[2m > [22m[2mrefuses service install when config was written by a newer OpenClaw
+[22m[39mConfig observe anomaly: /home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-daemon-install-int-j8d0w3/openclaw.json (gateway-mode-missing-vs-last-good)
+
+[90mstderr[2m | src/cli/daemon-cli/install.integration.test.ts[2m > [22m[2mrunDaemonInstall integration[2m > [22m[2mdoes not bypass system ownership during 'normal install'
+[22m[39mConfig observe anomaly: /home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-daemon-install-int-j8d0w3/openclaw.json (missing-meta-vs-last-good, gateway-mode-missing-vs-last-good)
+
+[90mstderr[2m | src/cli/daemon-cli/install.integration.test.ts[2m > [22m[2mrunDaemonInstall integration[2m > [22m[2mdoes not bypass system ownership during 'forced reinstall'
+[22m[39mConfig observe anomaly: /home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-daemon-install-int-j8d0w3/openclaw.json (missing-meta-vs-last-good, gateway-mode-missing-vs-last-good)
+
+[90mstderr[2m | src/cli/daemon-cli/install.integration.test.ts[2m > [22m[2mrunDaemonInstall integration[2m > [22m[2mauto-mints token when no source exists without embedding it into service env
+[22m[39mConfig observe anomaly: /home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-daemon-install-int-j8d0w3/openclaw.json (missing-meta-vs-last-good, gateway-mode-missing-vs-last-good)
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/install.integration.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 15614[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed when token SecretRef is required but unresolved [33m 15002[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-install-preflight.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/fleet-cli/commands.runtime.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program.smoke.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 356[2mms[22m[39m
+     [33m[2m✓[22m[39m runs setup one-shot requests [33m 308[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/claws-cli-legacy-resume.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 266[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/clawhub-risk-acknowledgement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/webhooks-cli.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/response.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/register-restart-handoff.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/config-set-input.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 335[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts --batch-file at exactly the size limit [33m 322[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.curator.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/claw-banner.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/restart-health-external.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+error: option '--limit <n>' argument '10ms' is invalid. --limit must be a positive integer.
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-search-command.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/suspend-cli.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/deps.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/launchd-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/build-program.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/nodes-cli/register.invoke.approval-transport-timeout.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cold-command-plugin-imports.process.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 6821[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps an unrelated plugin runtime cold for 'hooks' [33m 2568[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps an unrelated plugin runtime cold for 'skills-info' [33m 2196[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps an unrelated plugin runtime cold for 'memory-status' [33m 2055[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/banner.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/proxy-cli.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/register-service-commands.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/nodes-cli/register.camera.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/claws-cli.inspect.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/claws-cli.project.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/channels-list-catalog-row-discovery.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 138[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-bootstrap.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/nodes-cli/rpc.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/invalid-config-recovery.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugin-registry-loader.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/message/register.thread.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/ports.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/private-qa-cli.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/install-policy-warning-acknowledgement.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/nodes-cli.plugin-registration.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/register.cron-scratch.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/skills-cli.formatting.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-config-resolution.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/qa-parent-watchdog.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/dns-cli.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/restart-lock-replacement.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/progress.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/claws-authoring-state.process.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1671[2mms[22m[39m
+     [33m[2m✓[22m[39m leaves migration-pending operator state unchanged for claws dev [33m 1670[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/startup-trace.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/channels-list-route-cold-imports.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/node-cli/identity.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/preaction-agent-owner.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-list-route-cold-imports.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-install-bundled-failures.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 243[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/subcli-descriptors.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 153[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/users-cli.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/cron-cli/register.cron-options.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/lifecycle-action-preflight.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 432[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/prompt.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/update-cli/restart-helper.launchd-system.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/models-status-route-cold-imports.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 319[2mms[22m[39m
+   [33m[2m✓[22m[39m does not execute an unrelated provider plugin [33m 318[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/mcp-cli.probe-exit.process.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2684[2mms[22m[39m
+     [33m[2m✓[22m[39m prints named JSON diagnostics before exiting nonzero [33m 2683[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/dev.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/root-help.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/logs-cli.runtime.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 274[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/channels-status-cold-imports.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/proxy-cli.runtime.theme.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/parent-default-help.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/models-cli.lazy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/devices-cli.lazy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/command-group-descriptors.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/devices-cli.runtime.timeout.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/context.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.migrate.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-secret-targets.agent-runtime.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/register.configure.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/daemon-cli/lifecycle-safe-restart.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/native-hook-relay-cli.import-boundary.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-source.test-helpers.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/lifecycle-import-boundary.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/command-startup-timing.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/capability-cli.lazy.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 133[2mms[22m[39m
+ [2m[90m↓[39m[22m [30m[45m cli [49m[39m src/cli/mcp-cli.path-case.windows.test.ts [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/worktrees-cli.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+[90mstderr[2m | src/cli/gateway-cli/dev.integration.test.ts[2m > [22m[2mensureDevGatewayConfig integration[2m > [22m[2mwrites the dedicated dev roster into a fresh state directory
+[22m[39mConfig (/home/figs/.oc-ci-tmp/oc1941007-0.8a0rdm/tmp/openclaw-dev-config-integration-aY8YgR/state/openclaw.json): Removed retired agents.entries.*.default markers.
+
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/gateway-cli/dev.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 296[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/startup-metadata.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/precomputed-help.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/root-help-live-config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-cli.registry.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 248[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/program/build-program.version-alias.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/outbound-send-mapping.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/session-target.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/channel-options.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/plugins-update-gateway-signal.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/attach-cli.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/model-auth-runtime-boundary.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m cli [49m[39m src/cli/run-main.import-boundary.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mremoves inherited operator overrides from the managed install environment
+[31m[1mAssertionError[22m: expected undefined to be 'managed-provider' // Object.is equality[39m
+
+[32m- Expected:[39m
+"managed-provider"
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m src/cli/update-cli/update-command-post-update.test.ts:[2m350:45[22m[39m
+    [90m348|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mOPENAI_API_KEY[39m)[33m.[39m[34mtoBeUndefined[39m()[33m;[39m
+    [90m349|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mUNSET_PROVIDER_KEY[39m)[33m.[39m[34mtoBeUndefined[39m()[33m;[39m
+    [90m350|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mANTHROPIC_API_KEY[39m)[33m.[39m[34mtoBe[39m([32m"managed-provider"[39m)[33m;[39m
+    [90m   |[39m                                             [31m^[39m
+    [90m351|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mMANAGED_VALUE[39m)[33m.[39m[34mtoBe[39m([32m"base"[39m)[33m;[39m
+    [90m352|[39m       expect(installEnv?.GEMINI_API_KEY).toBe("allowed-runtime-credent…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mskips unsafe metadata refresh for unknown ownership
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mskips unsafe metadata refresh for inline reset ownership
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mskips unsafe metadata refresh for environment-file reset ownership
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ][90m
+
+Received:
+
+[1m  1st vi.fn() call:
+
+[22m[2m  [[22m
+[32m-   ObjectContaining {[90m
+[31m+   {[90m
+[31m+     "gatewayPort": 18789,[90m
+[31m+     "invocationCwd": undefined,[90m
+[31m+     "nodeRunner": undefined,[90m
+[31m+     "opts": {},[90m
+[2m      "refreshServiceEnv": false,[22m
+[32m-     "serviceInstallEnv": null,[90m
+[32m-     "shouldRestart": true,[90m
+[31m+     "requireRunningServiceAfterRestart": false,[90m
+[31m+     "restartScriptPath": null,[90m
+[31m+     "result": {[90m
+[31m+       "durationMs": 1,[90m
+[31m+       "mode": "npm",[90m
+[31m+       "postUpdate": {[90m
+[31m+         "plugins": {[90m
+[31m+           "changed": false,[90m
+[31m+           "integrityDrifts": [],[90m
+[31m+           "npm": {[90m
+[31m+             "changed": false,[90m
+[31m+             "outcomes": [],[90m
+[31m+           },[90m
+[31m+           "status": "ok",[90m
+[31m+           "sync": {[90m
+[31m+             "changed": false,[90m
+[31m+             "errors": [],[90m
+[31m+             "switchedToBundled": [],[90m
+[31m+             "switchedToNpm": [],[90m
+[31m+             "warnings": [],[90m
+[31m+           },[90m
+[31m+           "warnings": [],[90m
+[31m+         },[90m
+[31m+       },[90m
+[31m+       "root": "/tmp/openclaw-update",[90m
+[31m+       "status": "ok",[90m
+[31m+       "steps": [],[90m
+[31m+     },[90m
+[31m+     "serviceEnv": undefined,[90m
+[31m+     "serviceInstallEnv": undefined,[90m
+[31m+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",[90m
+[31m+     "shouldRestart": false,[90m
+[31m+     "skipLegacyServiceRestart": false,[90m
+[31m+     "timeoutMs": 1000,[90m
+[2m    },[22m
+[2m  ][22m
+[31m[90m
+
+Number of calls: [1m1[22m
+[31m[39m
+[36m [2m❯[22m src/cli/update-cli/update-command-post-update.test.ts:[2m390:36[22m[39m
+    [90m388|[39m       })[33m;[39m
+    [90m389|[39m
+    [90m390|[39m       [34mexpect[39m(mocks[33m.[39mrestartService)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   |[39m                                    [31m^[39m
+    [90m391|[39m         expect[33m.[39m[34mobjectContaining[39m({
+    [90m392|[39m           shouldRestart[33m:[39m [35mtrue[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m227 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (229)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m5297 passed[39m[22m[2m | [22m[33m40 skipped[39m[90m (5341)[39m
+[2m   Start at [22m 13:44:35
+[2m   Duration [22m 188.15s[2m (transform 34.37s, setup 1.79s, import 22.60s, tests 161.44s, environment 0ms)[22m
+
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > removes inherited operator overrides from the managed install environment,line=350,column=45::AssertionError: expected undefined to be 'managed-provider' // Object.is equality%0A%0A- Expected:%0A"managed-provider"%0A%0A+ Received:%0Aundefined%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:350:45%0A%0A
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for unknown ownership,line=390,column=36::AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]%0A%0AReceived:%0A%0A  1st vi.fn() call:%0A%0A  [%0A-   ObjectContaining {%0A+   {%0A+     "gatewayPort": 18789,%0A+     "invocationCwd": undefined,%0A+     "nodeRunner": undefined,%0A+     "opts": {},%0A      "refreshServiceEnv": false,%0A-     "serviceInstallEnv": null,%0A-     "shouldRestart": true,%0A+     "requireRunningServiceAfterRestart": false,%0A+     "restartScriptPath": null,%0A+     "result": {%0A+       "durationMs": 1,%0A+       "mode": "npm",%0A+       "postUpdate": {%0A+         "plugins": {%0A+           "changed": false,%0A+           "integrityDrifts": [],%0A+           "npm": {%0A+             "changed": false,%0A+             "outcomes": [],%0A+           },%0A+           "status": "ok",%0A+           "sync": {%0A+             "changed": false,%0A+             "errors": [],%0A+             "switchedToBundled": [],%0A+             "switchedToNpm": [],%0A+             "warnings": [],%0A+           },%0A+           "warnings": [],%0A+         },%0A+       },%0A+       "root": "/tmp/openclaw-update",%0A+       "status": "ok",%0A+       "steps": [],%0A+     },%0A+     "serviceEnv": undefined,%0A+     "serviceInstallEnv": undefined,%0A+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",%0A+     "shouldRestart": false,%0A+     "skipLegacyServiceRestart": false,%0A+     "timeoutMs": 1000,%0A    },%0A  ]%0A%0A%0ANumber of calls: 1%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:390:36%0A%0A
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for inline reset ownership,line=390,column=36::AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]%0A%0AReceived:%0A%0A  1st vi.fn() call:%0A%0A  [%0A-   ObjectContaining {%0A+   {%0A+     "gatewayPort": 18789,%0A+     "invocationCwd": undefined,%0A+     "nodeRunner": undefined,%0A+     "opts": {},%0A      "refreshServiceEnv": false,%0A-     "serviceInstallEnv": null,%0A-     "shouldRestart": true,%0A+     "requireRunningServiceAfterRestart": false,%0A+     "restartScriptPath": null,%0A+     "result": {%0A+       "durationMs": 1,%0A+       "mode": "npm",%0A+       "postUpdate": {%0A+         "plugins": {%0A+           "changed": false,%0A+           "integrityDrifts": [],%0A+           "npm": {%0A+             "changed": false,%0A+             "outcomes": [],%0A+           },%0A+           "status": "ok",%0A+           "sync": {%0A+             "changed": false,%0A+             "errors": [],%0A+             "switchedToBundled": [],%0A+             "switchedToNpm": [],%0A+             "warnings": [],%0A+           },%0A+           "warnings": [],%0A+         },%0A+       },%0A+       "root": "/tmp/openclaw-update",%0A+       "status": "ok",%0A+       "steps": [],%0A+     },%0A+     "serviceEnv": undefined,%0A+     "serviceInstallEnv": undefined,%0A+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",%0A+     "shouldRestart": false,%0A+     "skipLegacyServiceRestart": false,%0A+     "timeoutMs": 1000,%0A    },%0A  ]%0A%0A%0ANumber of calls: 1%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:390:36%0A%0A
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for environment-file reset ownership,line=390,column=36::AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]%0A%0AReceived:%0A%0A  1st vi.fn() call:%0A%0A  [%0A-   ObjectContaining {%0A+   {%0A+     "gatewayPort": 18789,%0A+     "invocationCwd": undefined,%0A+     "nodeRunner": undefined,%0A+     "opts": {},%0A      "refreshServiceEnv": false,%0A-     "serviceInstallEnv": null,%0A-     "shouldRestart": true,%0A+     "requireRunningServiceAfterRestart": false,%0A+     "restartScriptPath": null,%0A+     "result": {%0A+       "durationMs": 1,%0A+       "mode": "npm",%0A+       "postUpdate": {%0A+         "plugins": {%0A+           "changed": false,%0A+           "integrityDrifts": [],%0A+           "npm": {%0A+             "changed": false,%0A+             "outcomes": [],%0A+           },%0A+           "status": "ok",%0A+           "sync": {%0A+             "changed": false,%0A+             "errors": [],%0A+             "switchedToBundled": [],%0A+             "switchedToNpm": [],%0A+             "warnings": [],%0A+           },%0A+           "warnings": [],%0A+         },%0A+       },%0A+       "root": "/tmp/openclaw-update",%0A+       "status": "ok",%0A+       "steps": [],%0A+     },%0A+     "serviceEnv": undefined,%0A+     "serviceInstallEnv": undefined,%0A+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",%0A+     "shouldRestart": false,%0A+     "skipLegacyServiceRestart": false,%0A+     "timeoutMs": 1000,%0A    },%0A  ]%0A%0A%0ANumber of calls: 1%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:390:36%0A%0A
+[test] failed 1 Vitest shard in 188.98s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli[39m
+
+ [31m❯[39m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 50[2mms[22m[39m
+     [32m✓[39m removes only the installer wrapper for the previous checkout[32m 23[2mms[22m[39m
+     [32m✓[39m removes only the exact PowerShell installer wrapper on Windows[32m 4[2mms[22m[39m
+     [32m✓[39m retires the wrapper before persisting and printing success[32m 4[2mms[22m[39m
+     [32m✓[39m marks and prints an error without persisting success when retirement fails[32m 3[2mms[22m[39m
+[31m     [31m×[31m removes inherited operator overrides from the managed install environment[39m[32m 6[2mms[22m[39m
+[31m     [31m×[31m skips unsafe metadata refresh for unknown ownership[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m skips unsafe metadata refresh for inline reset ownership[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m skips unsafe metadata refresh for environment-file reset ownership[39m[32m 1[2mms[22m[39m
+     [32m✓[39m exits nonzero when local changes block a Git update[32m 0[2mms[22m[39m
+     [32m✓[39m keeps a non-Git install skip successful[32m 0[2mms[22m[39m
+     [32m✓[39m restarts a managed Gateway after verified rollback recovery[32m 0[2mms[22m[39m
+     [32m✓[39m leaves a managed Gateway stopped after unverified rollback recovery[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mremoves inherited operator overrides from the managed install environment
+[31m[1mAssertionError[22m: expected undefined to be 'managed-provider' // Object.is equality[39m
+
+[32m- Expected:[39m
+"managed-provider"
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m src/cli/update-cli/update-command-post-update.test.ts:[2m350:45[22m[39m
+    [90m348|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mOPENAI_API_KEY[39m)[33m.[39m[34mtoBeUndefined[39m()[33m;[39m
+    [90m349|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mUNSET_PROVIDER_KEY[39m)[33m.[39m[34mtoBeUndefined[39m()[33m;[39m
+    [90m350|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mANTHROPIC_API_KEY[39m)[33m.[39m[34mtoBe[39m([32m"managed-provider"[39m)[33m;[39m
+    [90m   |[39m                                             [31m^[39m
+    [90m351|[39m       [34mexpect[39m(installEnv[33m?.[39m[33mMANAGED_VALUE[39m)[33m.[39m[34mtoBe[39m([32m"base"[39m)[33m;[39m
+    [90m352|[39m       expect(installEnv?.GEMINI_API_KEY).toBe("allowed-runtime-credent…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mskips unsafe metadata refresh for unknown ownership
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mskips unsafe metadata refresh for inline reset ownership
+[41m[1m FAIL [22m[49m [30m[45m cli [49m[39m src/cli/update-cli/update-command-post-update.test.ts[2m > [22msuccessful update finalization ordering[2m > [22mskips unsafe metadata refresh for environment-file reset ownership
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ][90m
+
+Received:
+
+[1m  1st vi.fn() call:
+
+[22m[2m  [[22m
+[32m-   ObjectContaining {[90m
+[31m+   {[90m
+[31m+     "gatewayPort": 18789,[90m
+[31m+     "invocationCwd": undefined,[90m
+[31m+     "nodeRunner": undefined,[90m
+[31m+     "opts": {},[90m
+[2m      "refreshServiceEnv": false,[22m
+[32m-     "serviceInstallEnv": null,[90m
+[32m-     "shouldRestart": true,[90m
+[31m+     "requireRunningServiceAfterRestart": false,[90m
+[31m+     "restartScriptPath": null,[90m
+[31m+     "result": {[90m
+[31m+       "durationMs": 1,[90m
+[31m+       "mode": "npm",[90m
+[31m+       "postUpdate": {[90m
+[31m+         "plugins": {[90m
+[31m+           "changed": false,[90m
+[31m+           "integrityDrifts": [],[90m
+[31m+           "npm": {[90m
+[31m+             "changed": false,[90m
+[31m+             "outcomes": [],[90m
+[31m+           },[90m
+[31m+           "status": "ok",[90m
+[31m+           "sync": {[90m
+[31m+             "changed": false,[90m
+[31m+             "errors": [],[90m
+[31m+             "switchedToBundled": [],[90m
+[31m+             "switchedToNpm": [],[90m
+[31m+             "warnings": [],[90m
+[31m+           },[90m
+[31m+           "warnings": [],[90m
+[31m+         },[90m
+[31m+       },[90m
+[31m+       "root": "/tmp/openclaw-update",[90m
+[31m+       "status": "ok",[90m
+[31m+       "steps": [],[90m
+[31m+     },[90m
+[31m+     "serviceEnv": undefined,[90m
+[31m+     "serviceInstallEnv": undefined,[90m
+[31m+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",[90m
+[31m+     "shouldRestart": false,[90m
+[31m+     "skipLegacyServiceRestart": false,[90m
+[31m+     "timeoutMs": 1000,[90m
+[2m    },[22m
+[2m  ][22m
+[31m[90m
+
+Number of calls: [1m1[22m
+[31m[39m
+[36m [2m❯[22m src/cli/update-cli/update-command-post-update.test.ts:[2m390:36[22m[39m
+    [90m388|[39m       })[33m;[39m
+    [90m389|[39m
+    [90m390|[39m       [34mexpect[39m(mocks[33m.[39mrestartService)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   |[39m                                    [31m^[39m
+    [90m391|[39m         expect[33m.[39m[34mobjectContaining[39m({
+    [90m392|[39m           shouldRestart[33m:[39m [35mtrue[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m8 passed[39m[22m[90m (12)[39m
+[2m   Start at [22m 13:47:44
+[2m   Duration [22m 4.90s[2m (transform 3.19s, setup 411ms, import 4.28s, tests 50ms, environment 0ms)[22m
+
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > removes inherited operator overrides from the managed install environment,line=350,column=45::AssertionError: expected undefined to be 'managed-provider' // Object.is equality%0A%0A- Expected:%0A"managed-provider"%0A%0A+ Received:%0Aundefined%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:350:45%0A%0A
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for unknown ownership,line=390,column=36::AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]%0A%0AReceived:%0A%0A  1st vi.fn() call:%0A%0A  [%0A-   ObjectContaining {%0A+   {%0A+     "gatewayPort": 18789,%0A+     "invocationCwd": undefined,%0A+     "nodeRunner": undefined,%0A+     "opts": {},%0A      "refreshServiceEnv": false,%0A-     "serviceInstallEnv": null,%0A-     "shouldRestart": true,%0A+     "requireRunningServiceAfterRestart": false,%0A+     "restartScriptPath": null,%0A+     "result": {%0A+       "durationMs": 1,%0A+       "mode": "npm",%0A+       "postUpdate": {%0A+         "plugins": {%0A+           "changed": false,%0A+           "integrityDrifts": [],%0A+           "npm": {%0A+             "changed": false,%0A+             "outcomes": [],%0A+           },%0A+           "status": "ok",%0A+           "sync": {%0A+             "changed": false,%0A+             "errors": [],%0A+             "switchedToBundled": [],%0A+             "switchedToNpm": [],%0A+             "warnings": [],%0A+           },%0A+           "warnings": [],%0A+         },%0A+       },%0A+       "root": "/tmp/openclaw-update",%0A+       "status": "ok",%0A+       "steps": [],%0A+     },%0A+     "serviceEnv": undefined,%0A+     "serviceInstallEnv": undefined,%0A+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",%0A+     "shouldRestart": false,%0A+     "skipLegacyServiceRestart": false,%0A+     "timeoutMs": 1000,%0A    },%0A  ]%0A%0A%0ANumber of calls: 1%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:390:36%0A%0A
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for inline reset ownership,line=390,column=36::AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]%0A%0AReceived:%0A%0A  1st vi.fn() call:%0A%0A  [%0A-   ObjectContaining {%0A+   {%0A+     "gatewayPort": 18789,%0A+     "invocationCwd": undefined,%0A+     "nodeRunner": undefined,%0A+     "opts": {},%0A      "refreshServiceEnv": false,%0A-     "serviceInstallEnv": null,%0A-     "shouldRestart": true,%0A+     "requireRunningServiceAfterRestart": false,%0A+     "restartScriptPath": null,%0A+     "result": {%0A+       "durationMs": 1,%0A+       "mode": "npm",%0A+       "postUpdate": {%0A+         "plugins": {%0A+           "changed": false,%0A+           "integrityDrifts": [],%0A+           "npm": {%0A+             "changed": false,%0A+             "outcomes": [],%0A+           },%0A+           "status": "ok",%0A+           "sync": {%0A+             "changed": false,%0A+             "errors": [],%0A+             "switchedToBundled": [],%0A+             "switchedToNpm": [],%0A+             "warnings": [],%0A+           },%0A+           "warnings": [],%0A+         },%0A+       },%0A+       "root": "/tmp/openclaw-update",%0A+       "status": "ok",%0A+       "steps": [],%0A+     },%0A+     "serviceEnv": undefined,%0A+     "serviceInstallEnv": undefined,%0A+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",%0A+     "shouldRestart": false,%0A+     "skipLegacyServiceRestart": false,%0A+     "timeoutMs": 1000,%0A    },%0A  ]%0A%0A%0ANumber of calls: 1%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:390:36%0A%0A
+
+::error file=/home/figs/actions-runner/_work/_temp/ci-batch-work-32895790947-1-local-batch-066/shard-0-agentic-cli/src/cli/update-cli/update-command-post-update.test.ts,title=[cli] src/cli/update-cli/update-command-post-update.test.ts > successful update finalization ordering > skips unsafe metadata refresh for environment-file reset ownership,line=390,column=36::AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]%0A%0AReceived:%0A%0A  1st vi.fn() call:%0A%0A  [%0A-   ObjectContaining {%0A+   {%0A+     "gatewayPort": 18789,%0A+     "invocationCwd": undefined,%0A+     "nodeRunner": undefined,%0A+     "opts": {},%0A      "refreshServiceEnv": false,%0A-     "serviceInstallEnv": null,%0A-     "shouldRestart": true,%0A+     "requireRunningServiceAfterRestart": false,%0A+     "restartScriptPath": null,%0A+     "result": {%0A+       "durationMs": 1,%0A+       "mode": "npm",%0A+       "postUpdate": {%0A+         "plugins": {%0A+           "changed": false,%0A+           "integrityDrifts": [],%0A+           "npm": {%0A+             "changed": false,%0A+             "outcomes": [],%0A+           },%0A+           "status": "ok",%0A+           "sync": {%0A+             "changed": false,%0A+             "errors": [],%0A+             "switchedToBundled": [],%0A+             "switchedToNpm": [],%0A+             "warnings": [],%0A+           },%0A+           "warnings": [],%0A+         },%0A+       },%0A+       "root": "/tmp/openclaw-update",%0A+       "status": "ok",%0A+       "steps": [],%0A+     },%0A+     "serviceEnv": undefined,%0A+     "serviceInstallEnv": undefined,%0A+     "serviceMutationSkipMessage": "service management skipped: non-default state dir or config path. Rerun with HOME set to the OS account home, without OPENCLAW_HOME, and with OPENCLAW_STATE_DIR and OPENCLAW_CONFIG_PATH either unset or pointing at the canonical paths for that account home and profile to manage the gateway service during update.",%0A+     "shouldRestart": false,%0A+     "skipLegacyServiceRestart": false,%0A+     "timeoutMs": 1000,%0A    },%0A  ]%0A%0A%0ANumber of calls: 1%0A%0A ❯ src/cli/update-cli/update-command-post-update.test.ts:390:36%0A%0A
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+TEST_GATE: 1 deterministic test FAIL -> FAIL

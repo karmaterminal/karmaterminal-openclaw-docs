@@ -1,0 +1,52 @@
+{
+  "schema": "openclaw.proofs.public-tempo.v1",
+  "resources": [
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ]
+  ],
+  "spans": [
+    {
+      "name": "continuation.queue.drain",
+      "startTimeUnixNano": "1787651732271000000",
+      "endTimeUnixNano": "1787651732271016704",
+      "attributes": [
+        {
+          "key": "queue.drained_count",
+          "value": {
+            "intValue": "0"
+          }
+        },
+        {
+          "key": "queue.drained_continuation_count",
+          "value": {
+            "intValue": "0"
+          }
+        }
+      ]
+    }
+  ],
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

@@ -1,0 +1,415 @@
+[test] starting test/vitest/vitest.unit-fast-isolated.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated[39m
+
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/node-host/invoke-system-run.test.ts [2m([22m[2m81 tests[22m[2m)[22m[33m 929[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/context-engine/context-engine.test.ts [2m([22m[2m65 tests[22m[2m)[22m[33m 536[2mms[22m[39m
+     [33m[2m✓[22m[39m delegateCompactionToRuntime returns successor sessionTarget without sessionFile [33m 336[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/trajectory/export.test.ts [2m([22m[2m48 tests[22m[2m)[22m[33m 911[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/control-plane/manager.turn-results.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 1510[2mms[22m[39m
+     [33m[2m✓[22m[39m uses startTurn terminal results instead of progress-only events for parented tasks [33m 313[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/routing/resolve-route.test.ts [2m([22m[2m70 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstderr[2m | packages/memory-host-sdk/src/host/session-files.test.ts[2m > [22m[2mlistSessionTranscriptCorpusEntriesForAgent[2m > [22m[2mkeeps legacy main aliases in a renamed default agent store
+[22m[39mConfig (/home/runner/.oc-ci-tmp/oc2387-0.X9bPgu/tmp/session-entry-test-pZSUeJ/case-20/openclaw.json): Removed retired agents.entries.*.default markers.
+
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/memory-host-sdk/src/host/session-files.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 4778[2mms[22m[39m
+     [33m[2m✓[22m[39m includes reset and deleted transcripts in session file listing [33m 330[2mms[22m[39m
+     [33m[2m✓[22m[39m uses SQLite identity for entries in a custom session store [33m 542[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps unowned archives from an agent-owned fixed session store [33m 385[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves absolute transcript paths from a fixed custom store [33m 325[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps legacy main aliases in a renamed default agent store [33m 319[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/system-agent/operations.test.ts [2m([22m[2m56 tests[22m[2m)[22m[33m 4991[2mms[22m[39m
+     [33m[2m✓[22m[39m redacts config values marked sensitive only by active plugin metadata [33m 884[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps sensitive channel callback URLs out of model-visible config reads [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m restarts its own Gateway despite hostile remote Gateway routing [33m 1215[2mms[22m[39m
+     [33m[2m✓[22m[39m applies config set through typed deps and writes an audit entry [33m 530[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/node-host/invoke-system-run-plan.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/client.test.ts [2m([22m[2m59 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/control-plane/manager.runtime-handles.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/auto-reply/reply/agent-runner-execution-cli-sessions.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 14076[2mms[22m[39m
+     [33m[2m✓[22m[39m carries prepared model and thread context facts into CLI execution [33m 13938[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/talk/agent-consult-runtime.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 572[2mms[22m[39m
+     [33m[2m✓[22m[39m binds GPT-Live delegated runs to spoken confirmation until completion [33m 364[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/pairing/setup-code.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/control-plane/manager.runtime-config.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/skills/security/scanner.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/terminal-core/src/table.test.ts [2m([22m[2m59 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/trajectory/runtime.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 2221[2mms[22m[39m
+     [33m[2m✓[22m[39m records SQLite marker runtime events without active JSONL sidecars [33m 317[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/server.startup.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 2469[2mms[22m[39m
+     [33m[2m✓[22m[39m closes a real node:sqlite DatabaseSync handle through serveAcpGateway shutdown [33m 575[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/persistent-bindings.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 670[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/auto-reply/reply/agent-runner-execution-state.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 4398[2mms[22m[39m
+     [33m[2m✓[22m[39m restarts the active prompt when a live model switch is requested [33m 3312[2mms[22m[39m
+     [33m[2m✓[22m[39m breaks out of the retry loop when LiveSessionModelSwitchError is thrown repeatedly (#58348) [32m 300[2mms[22m[39m
+     [33m[2m✓[22m[39m propagates auth profile state on bounded live model switch retries (#58348) [33m 738[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/proxy-capture/proxy-server.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1523[2mms[22m[39m
+     [33m[2m✓[22m[39m pauses the upstream response while downstream forwarding is backpressured [33m 328[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/system-agent/tui-backend.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 6029[2mms[22m[39m
+     [33m[2m✓[22m[39m runs OpenClaw inside the shared TUI shell [33m 681[2mms[22m[39m
+     [33m[2m✓[22m[39m reports the verified model without its auth profile and the effective thinking level [33m 1043[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the verified model's default thinking level [33m 915[2mms[22m[39m
+     [33m[2m✓[22m[39m launches setup handoffs after the chat TUI is disposed [33m 1221[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/flows/search-setup.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1086[2mms[22m[39m
+     [33m[2m✓[22m[39m recommends Codex hosted search first when the configured model uses Codex [33m 989[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-config-basics.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 601[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves malformed roster defaults through the shared audit helper [33m 407[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-plugins-trust.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1113[2mms[22m[39m
+     [33m[2m✓[22m[39m evaluates install metadata findings [33m 781[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/flows/channel-setup.status.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/memory-host-sdk/src/host/internal.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 152[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run/attempt-client-tools.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 903[2mms[22m[39m
+     [33m[2m✓[22m[39m advertises and invokes final callable owners after a normalized client collision [33m 886[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/auto-reply/reply/agent-runner-execution-auth-failures.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 3497[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces gateway reauth guidance without a profile id [33m 2577[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves OAuth profile guidance through failover wrappers [33m 397[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/status/status-message.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 6343[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces a live current-time line so session_status returns the date/time [33m 887[2mms[22m[39m
+     [33m[2m✓[22m[39m mirrors the text body as a titled status table with context lines [33m 999[2mms[22m[39m
+     [33m[2m✓[22m[39m shows a context meter and a pressure warning when the window runs hot [33m 867[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a stale runtime window after a same-model harness change [33m 388[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces matching runtime telemetry with a newly authored effective cap [33m 413[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a locked legacy session window [33m 382[2mms[22m[39m
+     [33m[2m✓[22m[39m caps matching unlocked runtime telemetry to the lower current window [33m 369[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores stale runtime context after a manual session model switch [33m 529[2mms[22m[39m
+     [33m[2m✓[22m[39m flags a pending live model switch on the model line [33m 479[2mms[22m[39m
+     [33m[2m✓[22m[39m shows auto-fallback override label when model differs from configured default [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m does not label a configured subagent model as auto fallback [33m 481[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m test/vitest-projects-config.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 6376[2mms[22m[39m
+     [33m[2m✓[22m[39m covers each normal full-suite test file exactly once after configs cached filtered includes [33m 6326[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/node-host/node-worker-launch-store.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 2760[2mms[22m[39m
+     [33m[2m✓[22m[39m lazily ensures the terminal expiry index for existing databases [33m 554[2mms[22m[39m
+     [33m[2m✓[22m[39m lets the exact v9 predecessor read and write a populated candidate container journal before candidate reopen [33m 360[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/system-agent/system-agent.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 6590[2mms[22m[39m
+     [33m[2m✓[22m[39m does not apply a one-shot plan after the verified route changes [33m 1045[2mms[22m[39m
+     [33m[2m✓[22m[39m rechecks one-shot authority at the persistent apply boundary [33m 2439[2mms[22m[39m
+     [33m[2m✓[22m[39m does not print a reply-only plan after its inference owner drifts [33m 912[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/entry.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 579[2mms[22m[39m
+     [33m[2m✓[22m[39m structures root help rendering failures for JSON console style [33m 553[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-extra.async.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/proxy-capture/store.sqlite.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1785[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/system-agent/assistant.configured.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 7189[2mms[22m[39m
+     [33m[2m✓[22m[39m plans through the exact verified profile instead of re-running auth selection [33m 1186[2mms[22m[39m
+     [33m[2m✓[22m[39m fails closed before planning when the verified route loses its config [33m 1580[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a model result when its owner changes during planner cleanup [33m 1941[2mms[22m[39m
+     [33m[2m✓[22m[39m plans through the configured default agent CLI route with native tools disabled [33m 842[2mms[22m[39m
+     [33m[2m✓[22m[39m plans through the configured default agent embedded runtime without tools [33m 818[2mms[22m[39m
+     [33m[2m✓[22m[39m carries the verified child runtime artifact into planning [33m 813[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/fix.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2874[2mms[22m[39m
+     [33m[2m✓[22m[39m tightens groupPolicy + filesystem perms [33m 987[2mms[22m[39m
+     [33m[2m✓[22m[39m applies allowlist per-account and seeds WhatsApp groupAllowFrom from store [33m 447[2mms[22m[39m
+     [33m[2m✓[22m[39m does not seed WhatsApp groupAllowFrom if allowFrom is set [33m 419[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/commands/status-all/format.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.session-config.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/auto-reply/reply/agent-runner-execution-runtime.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3881[2mms[22m[39m
+     [33m[2m✓[22m[39m forwards authoritative group type through CLI fallback for opaque session keys [33m 2718[2mms[22m[39m
+     [33m[2m✓[22m[39m does not pass CLI runtime overrides as embedded harness ids for fallback providers [33m 957[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/infra/outbound/message-action-routing.context.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 281[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/flows/provider-flow.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 246[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/image-generation/openai-compatible-image-provider.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 602[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/test-utils/openclaw-test-state.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 991[2mms[22m[39m
+     [33m[2m✓[22m[39m writes scenario configs and auth profile stores [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m closes only fixture-owned databases before restoring env [33m 476[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/entry.respawn.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/control-plane/manager.failover.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/tts/status-config.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/trajectory/metadata.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/node-host/plugin-node-host.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/tools/computer-tool.v2.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m test/scripts/ios-release-plan.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.session-setup.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m test/scripts/android-version.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 816[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects missing CLI option values before reading version files [33m 333[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects missing Android sync CLI root values before reading version files [33m 330[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/code-mode.agent-loop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 4102[2mms[22m[39m
+     [33m[2m✓[22m[39m returns a trusted no-start tool failure to the model for ordinary recovery [33m 1270[2mms[22m[39m
+     [33m[2m✓[22m[39m lets the model correct successive JavaScript syntax and runtime errors [33m 1029[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks another action after an earlier side effect and a later tool failure [33m 762[2mms[22m[39m
+     [33m[2m✓[22m[39m routes a partially applied mutation to restricted reconciliation without replay [33m 521[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an explicitly terminal nested action when later JavaScript fails [33m 518[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/version.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/model.provider-hooks.timeout.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 4762[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the configured timeout when the model hook rebuilds the resolved model [33m 1128[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the configured timeout when the transport hook rebuilds the resolved model [33m 569[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an explicit timeout supplied by the rebuilding model hook [33m 556[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an explicit timeout supplied by the rebuilding transport hook [33m 599[2mms[22m[39m
+     [33m[2m✓[22m[39m does not invent a timeout when a model hook rebuilds an unconfigured model [33m 596[2mms[22m[39m
+     [33m[2m✓[22m[39m does not invent a timeout when a transport hook rebuilds an unconfigured model [33m 541[2mms[22m[39m
+     [33m[2m✓[22m[39m applies the surviving configured timeout to real HTTP first-event and idle guards [33m 770[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-exec-surface.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 393[2mms[22m[39m
+     [33m[2m✓[22m[39m warns when exec approvals enable autoAllowSkills [33m 340[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/tts/openai-compatible-speech-provider.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/memory-host-sdk/src/host/embeddings-remote-fetch.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/skills/security/workspace-audit.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/commands/status-overview-rows.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/trajectory/cleanup.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/memory-host-sdk/src/host/post-json.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-sandbox-docker-config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-plugin-readonly-scope.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 396[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps configured channel owner collectors when the provided channel plugin list omits them [33m 387[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/tts/tts-config.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run/attempt.code-mode-reconciliation.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1872[2mms[22m[39m
+     [33m[2m✓[22m[39m settles a real partial bridge mutation before exposing only core read [33m 1417[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/cli/completion-cli.aliases.test.ts [2m([22m[2m30 tests[22m[2m | [22m[33m19 skipped[39m[2m)[22m[33m 9508[2mms[22m[39m
+     [33m[2m✓[22m[39m completes real PowerShell nested aliases after a global option [33m 8952[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/persistent-bindings.lifecycle.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 201[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.prompt-prefix.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-filesystem-windows.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 596[2mms[22m[39m
+     [33m[2m✓[22m[39m evaluates Windows ACL-derived filesystem findings [33m 584[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/auth-profiles/oauth-refresh-error.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 168[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/entry.version-fast-path.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 632[2mms[22m[39m
+     [33m[2m✓[22m[39m calls exit(1) via injected exit hook when resolveVersion rejects [33m 572[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/media-generation/registry.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/mcp/openclaw-tools-serve.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/logger.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.harness-auth-failover.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 9636[2mms[22m[39m
+     [33m[2m✓[22m[39m retries a permanent harness auth failure with the next automatic profile [33m 5846[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps an explicit user profile strict [33m 1244[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces the original auth failure when automatic profiles are exhausted [33m 1454[2mms[22m[39m
+     [33m[2m✓[22m[39m does not rotate profiles for an unclassified harness failure [33m 1090[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-extra.sync.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1118[2mms[22m[39m
+     [33m[2m✓[22m[39m 'small model without web/browser tools…' [33m 413[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/commands/status.command-report-data.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1388[2mms[22m[39m
+     [33m[2m✓[22m[39m builds report inputs from shared status surfaces [33m 1374[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.final-snapshots.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/model.generation-scope.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/plugin-activation-boundary.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.session-snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/commands/status-overview-surface.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/mcp/channel-server.shutdown-unhandled-rejection.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/flows/doctor-startup-channel-maintenance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/scan-paths.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/terminal-core/src/restore.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/auth-profiles/session-override.selection.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.tool-streaming.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/memory-host-sdk/src/host/batch-http.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/auth-profiles/session-override.user-pin.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-config-include-perms.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/tools/computer-tool.context.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/infra/outbound/message-action-runner.context.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/install-sh-version.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/test-helpers/state-dir-env.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.session-rate-limit.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/browser-lifecycle-cleanup.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+ [31m❯[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 141139[2mms[22m[39m
+[31m     [31m×[31m prepares the explicit main agent from 'a pre-roster config'[39m[33m 140944[2mms[22m[39m
+[31m     [31m×[31m prepares the explicit main agent from 'a sole-agent config'[39m[32m 193[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+ [31m❯[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.session-permissions.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 139996[2mms[22m[39m
+[31m     [31m×[31m prepares the exec mode with plugin-owned permission facts[39m[33m 139801[2mms[22m[39m
+[31m     [31m×[31m shares the final plugin-clamped exec mode with the outer run[39m[32m 194[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/system-agent/audit.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 284[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/security/audit-config-symlink.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 440[2mms[22m[39m
+     [33m[2m✓[22m[39m uses symlink target permissions for config checks [33m 434[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.error-kind.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/tools/computer-tool.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/test-utils/temp-home.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/tts/tts.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2209[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks explicit synthesis but preserves text delivery when TTS is cold [33m 2208[2mms[22m[39m
+ [2m[90m↓[39m[22m [30m[42m unit-fast-isolated [49m[39m src/infra/state-migrations.audit-logs.windows.test.ts [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/acp/translator.prompt-size.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.continuation-integration.test.ts [2m([22m[2m53 tests[22m[2m)[22m[33m 151671[2mms[22m[39m
+     [33m[2m✓[22m[39m revalidates reserved harness ownership after the global queue wait [33m 429[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m packages/memory-host-sdk/src/host/backend-config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.owner-policy.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts[2m > [22membedded setup inference inherited auth owner[2m > [22mprepares the explicit main agent from 'a pre-roster config'
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:[2m36:63[22m[39m
+    [90m 34|[39m     { name[33m:[39m [32m"a pre-roster config"[39m[33m,[39m source[33m:[39m {} }[33m,[39m
+    [90m 35|[39m     { name: "a sole-agent config", source: { agents: { entries: { main…
+    [90m 36|[39m   ] satisfies [33mArray[39m[33m<[39m{ name[33m:[39m string[33m;[39m source[33m:[39m [33mOpenClawConfig[39m }[33m>[39m)(
+    [90m   |[39m                                                               [31m^[39m
+    [90m 37|[39m     [32m"prepares the explicit main agent from $name"[39m[33m,[39m
+    [90m 38|[39m     [35masync[39m ({ name[33m,[39m source }) [33m=>[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts[2m > [22membedded setup inference inherited auth owner[2m > [22mprepares the explicit main agent from 'a sole-agent config'
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 2 times[39m
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m         value[33m.[39m[34mendsWith[39m(path[33m.[39m[34mjoin[39m([32m"agents"[39m[33m,[39m [32m"main"[39m[33m,[39m [32m"agent"[39m))[33m,[39m
+    [90m 56|[39m       )[33m;[39m
+    [90m 57|[39m       [34mexpect[39m(mockedRunEmbeddedAttempt)[33m.[39m[34mtoHaveBeenCalledOnce[39m()[33m;[39m
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m     }[33m,[39m
+    [90m 59|[39m   )[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.session-permissions.test.ts[2m > [22membedded run session permissions[2m > [22mprepares the exec mode with plugin-owned permission facts
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.session-permissions.test.ts:[2m16:3[22m[39m
+    [90m 14|[39m   })[33m;[39m
+    [90m 15|[39m
+    [90m 16|[39m   it("prepares the exec mode with plugin-owned permission facts", asyn…
+    [90m   |[39m   [31m^[39m
+    [90m 17|[39m     mockedRunEmbeddedAttempt.mockResolvedValueOnce(makeAttemptResult({…
+    [90m 18|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.session-permissions.test.ts[2m > [22membedded run session permissions[2m > [22mshares the final plugin-clamped exec mode with the outer run
+[31m[1mAssertionError[22m: expected { mode: 'full' } to deeply equal { mode: 'auto' }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "mode": "auto",[39m
+[31m+   "mode": "full",[39m
+[2m  }[22m
+
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.session-permissions.test.ts:[2m53:27[22m[39m
+    [90m 51|[39m     })[33m;[39m
+    [90m 52|[39m
+    [90m 53|[39m     [34mexpect[39m(execOverrides)[33m.[39m[34mtoEqual[39m({ mode[33m:[39m [32m"auto"[39m })[33m;[39m
+    [90m   |[39m                           [31m^[39m
+    [90m 54|[39m   })[33m;[39m
+    [90m 55|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m110 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (113)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1577 passed[39m[22m[2m | [22m[33m20 skipped[39m[90m (1601)[39m
+[2m   Start at [22m 20:34:59
+[2m   Duration [22m 744.66s[2m (transform 41.95s, setup 2.45s, import 159.96s, tests 566.43s, environment 11ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts > embedded setup inference inherited auth owner > prepares the explicit main agent from 'a pre-roster config',line=36,column=63::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:36:63%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts > embedded setup inference inherited auth owner > prepares the explicit main agent from 'a sole-agent config',line=57,column=40::AssertionError: expected "vi.fn()" to be called once, but got 2 times%0A ❯ src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:57:40%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.session-permissions.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.session-permissions.test.ts > embedded run session permissions > prepares the exec mode with plugin-owned permission facts,line=16,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/agents/embedded-agent-runner/run.session-permissions.test.ts:16:3%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.session-permissions.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.session-permissions.test.ts > embedded run session permissions > shares the final plugin-clamped exec mode with the outer run,line=53,column=27::AssertionError: expected { mode: 'full' } to deeply equal { mode: 'auto' }%0A%0A- Expected%0A+ Received%0A%0A  {%0A-   "mode": "auto",%0A+   "mode": "full",%0A  }%0A%0A ❯ src/agents/embedded-agent-runner/run.session-permissions.test.ts:53:27%0A%0A
+[test] failed 1 Vitest shard in 751.10s
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+ [31m❯[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 139254[2mms[22m[39m
+[31m     [31m×[31m prepares the explicit main agent from 'a pre-roster config'[39m[33m 139063[2mms[22m[39m
+[31m     [31m×[31m prepares the explicit main agent from 'a sole-agent config'[39m[32m 189[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts[2m > [22membedded setup inference inherited auth owner[2m > [22mprepares the explicit main agent from 'a pre-roster config'
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:[2m36:63[22m[39m
+    [90m 34|[39m     { name[33m:[39m [32m"a pre-roster config"[39m[33m,[39m source[33m:[39m {} }[33m,[39m
+    [90m 35|[39m     { name: "a sole-agent config", source: { agents: { entries: { main…
+    [90m 36|[39m   ] satisfies [33mArray[39m[33m<[39m{ name[33m:[39m string[33m;[39m source[33m:[39m [33mOpenClawConfig[39m }[33m>[39m)(
+    [90m   |[39m                                                               [31m^[39m
+    [90m 37|[39m     [32m"prepares the explicit main agent from $name"[39m[33m,[39m
+    [90m 38|[39m     [35masync[39m ({ name[33m,[39m source }) [33m=>[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts[2m > [22membedded setup inference inherited auth owner[2m > [22mprepares the explicit main agent from 'a sole-agent config'
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 2 times[39m
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:[2m57:40[22m[39m
+    [90m 55|[39m         value[33m.[39m[34mendsWith[39m(path[33m.[39m[34mjoin[39m([32m"agents"[39m[33m,[39m [32m"main"[39m[33m,[39m [32m"agent"[39m))[33m,[39m
+    [90m 56|[39m       )[33m;[39m
+    [90m 57|[39m       [34mexpect[39m(mockedRunEmbeddedAttempt)[33m.[39m[34mtoHaveBeenCalledOnce[39m()[33m;[39m
+    [90m   |[39m                                        [31m^[39m
+    [90m 58|[39m     }[33m,[39m
+    [90m 59|[39m   )[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m   Start at [22m 20:47:31
+[2m   Duration [22m 151.60s[2m (transform 7.68s, setup 43ms, import 12.13s, tests 139.25s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts > embedded setup inference inherited auth owner > prepares the explicit main agent from 'a pre-roster config',line=36,column=63::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:36:63%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts > embedded setup inference inherited auth owner > prepares the explicit main agent from 'a sole-agent config',line=57,column=40::AssertionError: expected "vi.fn()" to be called once, but got 2 times%0A ❯ src/agents/embedded-agent-runner/run.inherited-auth-owner.test.ts:57:40%0A%0A
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+ [31m❯[39m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.session-permissions.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 139083[2mms[22m[39m
+[31m     [31m×[31m prepares the exec mode with plugin-owned permission facts[39m[33m 138885[2mms[22m[39m
+[31m     [31m×[31m shares the final plugin-clamped exec mode with the outer run[39m[32m 196[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.session-permissions.test.ts[2m > [22membedded run session permissions[2m > [22mprepares the exec mode with plugin-owned permission facts
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.session-permissions.test.ts:[2m16:3[22m[39m
+    [90m 14|[39m   })[33m;[39m
+    [90m 15|[39m
+    [90m 16|[39m   it("prepares the exec mode with plugin-owned permission facts", asyn…
+    [90m   |[39m   [31m^[39m
+    [90m 17|[39m     mockedRunEmbeddedAttempt.mockResolvedValueOnce(makeAttemptResult({…
+    [90m 18|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m unit-fast-isolated [49m[39m src/agents/embedded-agent-runner/run.session-permissions.test.ts[2m > [22membedded run session permissions[2m > [22mshares the final plugin-clamped exec mode with the outer run
+[31m[1mAssertionError[22m: expected { mode: 'full' } to deeply equal { mode: 'auto' }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "mode": "auto",[39m
+[31m+   "mode": "full",[39m
+[2m  }[22m
+
+[36m [2m❯[22m src/agents/embedded-agent-runner/run.session-permissions.test.ts:[2m53:27[22m[39m
+    [90m 51|[39m     })[33m;[39m
+    [90m 52|[39m
+    [90m 53|[39m     [34mexpect[39m(execOverrides)[33m.[39m[34mtoEqual[39m({ mode[33m:[39m [32m"auto"[39m })[33m;[39m
+    [90m   |[39m                           [31m^[39m
+    [90m 54|[39m   })[33m;[39m
+    [90m 55|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m   Start at [22m 20:50:09
+[2m   Duration [22m 150.69s[2m (transform 7.32s, setup 42ms, import 11.40s, tests 139.08s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.session-permissions.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.session-permissions.test.ts > embedded run session permissions > prepares the exec mode with plugin-owned permission facts,line=16,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/agents/embedded-agent-runner/run.session-permissions.test.ts:16:3%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-001/shard-0-core-unit-fast-isolated/src/agents/embedded-agent-runner/run.session-permissions.test.ts,title=[unit-fast-isolated] src/agents/embedded-agent-runner/run.session-permissions.test.ts > embedded run session permissions > shares the final plugin-clamped exec mode with the outer run,line=53,column=27::AssertionError: expected { mode: 'full' } to deeply equal { mode: 'auto' }%0A%0A- Expected%0A+ Received%0A%0A  {%0A-   "mode": "auto",%0A+   "mode": "full",%0A  }%0A%0A ❯ src/agents/embedded-agent-runner/run.session-permissions.test.ts:53:27%0A%0A
+[vitest] FAILED (exit 1)
+[test] FAILED (exit 1)
+TEST_GATE: 2 deterministic test FAIL -> FAIL

@@ -1,0 +1,1131 @@
+[test] starting test/vitest/vitest.agents-core.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 3700[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 663[2mms[22m[39m
+     [33m[2m✓[22m[39m records explicit message sends only for 'the exact source route' [33m 1430[2mms[22m[39m
+     [33m[2m✓[22m[39m emits a deterministic unavailable payload when the initiating surface cannot approve [33m 679[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[33m 419[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2163[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 1167[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1784[2mms[22m[39m
+     [33m[2m✓[22m[39m drains the child session's continue_delegate queue using inherited chain state [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m fences a tool delegate cancelled after the announce drain claimed it [33m 537[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 152[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1544[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 717[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1243[2mms[22m[39m
+     [33m[2m✓[22m[39m spawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails [33m 349[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 3231[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 861[2mms[22m[39m
+     [33m[2m✓[22m[39m resumes a fresh (<2h) aborted run through the real recovery pass [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an accepted response across a consumed-receipt write failure [33m 507[2mms[22m[39m
+     [33m[2m✓[22m[39m settles the accepted source before durable remap and clears the successor receipt [33m 347[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a newer restart marker when cold-restoring a retired accepted receipt [33m 301[2mms[22m[39m
+     [33m[2m✓[22m[39m strict-remaps immediately when the accepted receipt write fails [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes only a stale predecessor when a fresh generation shares its child session [33m 313[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 301[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 4096[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 764[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 1017[2mms[22m[39m
+     [33m[2m✓[22m[39m does not safety-send a cumulative text_end reply when the suffix was sent by a messaging tool [33m 824[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2830[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 656[2mms[22m[39m
+     [33m[2m✓[22m[39m routes an explicit return past an inactive cleaned internal requester [33m 335[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers fanoutMode=tree returns after its inactive intermediate requester was cleaned up [33m 336[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reopen a cleaned explicit return target [33m 349[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reopen cleaned recipients from an all-fanout return [33m 345[2mms[22m[39m
+     [33m[2m✓[22m[39m does not fall back to a cleaned requester when every tree recipient is filtered [33m 314[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers post-compaction fanoutMode=tree returns like normal tree returns [33m 327[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1593[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 576[2mms[22m[39m
+     [33m[2m✓[22m[39m does not let legacy index fallback erase timestamp-fresh usage [33m 316[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2118[2mms[22m[39m
+     [33m[2m✓[22m[39m restores same-id and older kill state after task registration throws [33m 373[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces task registration and rollback persistence failures together [33m 336[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 556[2mms[22m[39m
+     [33m[2m✓[22m[39m suppresses message_end block replies when the message tool already sent [33m 488[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3384[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 1022[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]] [33m 411[2mms[22m[39m
+     [33m[2m✓[22m[39m stages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix) [33m 471[2mms[22m[39m
+     [33m[2m✓[22m[39m does NOT dispatch when findings contain no [[CONTINUE_DELEGATE:]] bracket [33m 332[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 586[2mms[22m[39m
+     [33m[2m✓[22m[39m silentAnnounce:true + wakeOnReturn:true → enqueues system event AND wakes parent [33m 419[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 989[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 562[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 4044[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles orphaned restored runs by pruning them from registry [33m 955[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves restored killed tombstones until bounded reconciliation [33m 697[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles stale unended restored runs that are not restart-recoverable [33m 930[2mms[22m[39m
+     [33m[2m✓[22m[39m removes attachments when pruning orphaned restored runs [33m 516[2mms[22m[39m
+     [33m[2m✓[22m[39m prefers active runs and can resolve them from persisted registry snapshots [33m 328[2mms[22m[39m
+     [33m[2m✓[22m[39m resume guard prunes orphan runs before announce retry [33m 352[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=3060)
+[vitest] process: pid=3060 ppid=3025 pgid=3060 elapsed=06:25 state=S cpu=74.9% rss_kb=3033096 wchan=futex_ comm=other
+[vitest] process tree: pgid=3060 members=1
+[vitest] process tree: pid=3060 ppid=3025 pgid=3060 elapsed=06:25 state=S cpu=74.8% rss_kb=3033200 wchan=futex_ comm=other
+[vitest] fd summary: total=65 types=A_INODE:12,CHR:1,FIFO:11,REG:39,UNIX:2
+[vitest] process group still alive after 5000ms; sending SIGKILL.
+[test] retrying test/vitest/vitest.agents-core.config.ts after no-output timeout
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 2422[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 490[2mms[22m[39m
+     [33m[2m✓[22m[39m records explicit message sends only for 'the exact source route' [33m 465[2mms[22m[39m
+     [33m[2m✓[22m[39m emits a deterministic unavailable payload when the initiating surface cannot approve [33m 494[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[33m 424[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 135[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1777[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 791[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1776[2mms[22m[39m
+     [33m[2m✓[22m[39m drains the child session's continue_delegate queue using inherited chain state [33m 743[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1586[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 761[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1389[2mms[22m[39m
+     [33m[2m✓[22m[39m spawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails [33m 466[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 3563[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 1119[2mms[22m[39m
+     [33m[2m✓[22m[39m resumes a fresh (<2h) aborted run through the real recovery pass [33m 385[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an accepted response across a consumed-receipt write failure [33m 339[2mms[22m[39m
+     [33m[2m✓[22m[39m never replays an attempted recovery after acceptance response loss and cold restore [33m 366[2mms[22m[39m
+     [33m[2m✓[22m[39m settles the accepted source before durable remap and clears the successor receipt [33m 419[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a newer restart marker when cold-restoring a retired accepted receipt [32m 300[2mms[22m[39m
+     [33m[2m✓[22m[39m strict-remaps immediately when the accepted receipt write fails [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes only a stale predecessor when a fresh generation shares its child session [33m 325[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 278[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3716[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 810[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 319[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2861[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 623[2mms[22m[39m
+     [33m[2m✓[22m[39m routes an explicit return past an inactive cleaned internal requester [33m 360[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers fanoutMode=tree returns after its inactive intermediate requester was cleaned up [33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reopen a cleaned explicit return target [33m 354[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reopen cleaned recipients from an all-fanout return [33m 320[2mms[22m[39m
+     [33m[2m✓[22m[39m does not fall back to a cleaned requester when every tree recipient is filtered [33m 332[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers post-compaction fanoutMode=tree returns like normal tree returns [33m 333[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1038[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 366[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2614[2mms[22m[39m
+     [33m[2m✓[22m[39m restores same-id and older kill state after task registration throws [33m 393[2mms[22m[39m
+     [33m[2m✓[22m[39m restores a same-id run when initial registration persistence fails [33m 322[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces task registration and rollback persistence failures together [33m 611[2mms[22m[39m
+     [33m[2m✓[22m[39m attempts external cleanup without a rollback marker when no durable row survives [33m 301[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3687[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 1312[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task | silent]] [33m 359[2mms[22m[39m
+     [33m[2m✓[22m[39m stages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix) [33m 326[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 519[2mms[22m[39m
+     [33m[2m✓[22m[39m silentAnnounce:true + wakeOnReturn:true → enqueues system event AND wakes parent [33m 347[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 864[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 447[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 3128[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles orphaned restored runs by pruning them from registry [33m 1621[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles stale unended restored runs that are not restart-recoverable [33m 351[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=4727)
+[vitest] process: pid=4727 ppid=3025 pgid=4727 elapsed=06:09 state=S cpu=97.3% rss_kb=4663196 wchan=futex_ comm=other
+[vitest] process tree: pgid=4727 members=1
+[vitest] process tree: pid=4727 ppid=3025 pgid=4727 elapsed=06:09 state=S cpu=97.3% rss_kb=4662780 wchan=futex_ comm=other
+[vitest] fd summary: total=38 types=A_INODE:12,CHR:1,FIFO:11,REG:12,UNIX:2
+[test] failed 1 Vitest shard in 760.55s
+TEST_GATE: agentic-agents-core-subagents died by signal (rc=143) - retry 2/3
+[test] starting test/vitest/vitest.agents-core.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 1536[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 308[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[32m 262[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1501[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 521[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1258[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 232[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1334[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 517[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1137[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1970[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 555[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3629[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 528[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 276[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2220[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 479[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 846[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 318[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1396[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2248[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 529[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 447[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 741[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 366[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1999[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles orphaned restored runs by pruning them from registry [33m 1001[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=4930)
+[vitest] process: pid=4930 ppid=4923 pgid=4930 elapsed=05:41 state=S cpu=103% rss_kb=4897564 wchan=futex_ comm=other
+[vitest] process tree: pgid=4930 members=1
+[vitest] process tree: pid=4930 ppid=4923 pgid=4930 elapsed=05:41 state=S cpu=103% rss_kb=4897244 wchan=futex_ comm=other
+[vitest] fd summary: total=38 types=A_INODE:12,CHR:1,FIFO:11,REG:12,UNIX:2
+[test] retrying test/vitest/vitest.agents-core.config.ts after no-output timeout
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 1527[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 310[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1493[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 518[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1241[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 209[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1335[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 520[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1134[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1909[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 536[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 145[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3339[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 529[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 184[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2160[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 449[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 822[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 321[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1394[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 178[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2247[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 518[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 456[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 745[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 371[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1287[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=5046)
+[vitest] process: pid=5046 ppid=4923 pgid=5046 elapsed=05:38 state=S cpu=103% rss_kb=4861672 wchan=futex_ comm=other
+[vitest] process tree: pgid=5046 members=1
+[vitest] process tree: pid=5046 ppid=4923 pgid=5046 elapsed=05:39 state=S cpu=103% rss_kb=4861384 wchan=futex_ comm=other
+[vitest] fd summary: total=37 types=A_INODE:12,CHR:1,FIFO:11,REG:11,UNIX:2
+[test] failed 1 Vitest shard in 681.00s
+TEST_GATE: agentic-agents-core-subagents died by signal (rc=143) - retry 3/3
+[test] starting test/vitest/vitest.agents-core.config.ts
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 1542[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 313[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[32m 264[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1544[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 566[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1262[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1335[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 517[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1145[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1995[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 545[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 147[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3370[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 540[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 190[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2192[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 479[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 787[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 332[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1357[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 180[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2239[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 521[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 452[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 733[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 362[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1261[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=5175)
+[vitest] process: pid=5175 ppid=5168 pgid=5175 elapsed=05:39 state=S cpu=103% rss_kb=3389608 wchan=futex_ comm=other
+[vitest] process tree: pgid=5175 members=1
+[vitest] process tree: pid=5175 ppid=5168 pgid=5175 elapsed=05:39 state=S cpu=103% rss_kb=3389352 wchan=futex_ comm=other
+[vitest] fd summary: total=37 types=A_INODE:12,CHR:1,FIFO:11,REG:11,UNIX:2
+[test] retrying test/vitest/vitest.agents-core.config.ts after no-output timeout
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 1551[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 312[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[32m 263[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1519[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 539[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1263[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 288[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1345[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 528[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1144[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2003[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 556[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3372[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 538[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 190[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2206[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 465[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 806[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 329[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1391[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 181[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2314[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 604[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 456[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 750[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 372[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1249[2mms[22m[39m
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=5264)
+[vitest] process: pid=5264 ppid=5168 pgid=5264 elapsed=05:39 state=S cpu=103% rss_kb=3312644 wchan=futex_ comm=other
+[vitest] process tree: pgid=5264 members=1
+[vitest] process tree: pid=5264 ppid=5168 pgid=5264 elapsed=05:39 state=S cpu=103% rss_kb=3312356 wchan=futex_ comm=other
+[vitest] fd summary: total=37 types=A_INODE:12,CHR:1,FIFO:11,REG:11,UNIX:2
+[test] failed 1 Vitest shard in 679.71s
+TEST_GATE: agentic-agents-core-subagents still crashed after regular retries - trying one direct --no-opt fallback
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.test.ts [2m([22m[2m181 tests[22m[2m)[22m[33m 1608[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers a numbered ask_user prompt with question id association [33m 341[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.subscribeembeddedagentsession.test.ts [2m([22m[2m92 tests[22m[2m)[22m[32m 221[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.lifecycle.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.chain-cost.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1500[2mms[22m[39m
+     [33m[2m✓[22m[39m threads targeted returns through the session-delivery fanout helper [33m 523[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mpasses loadFresh/persist callbacks so a hedge-fired delayed delegate advances chain state durably
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:test error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mforce-dispatches delayed child drains when the post-bracket override cannot be persisted
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:override-persist-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mdoes not fail the announce when dispatch throws
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:test: Error: spawn failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1242[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.block-reply-rejections.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.lifecycle.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-phases.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.bracket-hedge.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1339[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reserve a current-chain hop when an immediate bracket delegate is rejected [33m 522[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mspawns a delayed bracket delegate immediately (no durable enqueue) when the child chain-cost persist fails
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-fail error=session store write failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts[2m > [22m[2msubagent-announce continuation drain (F7)[2m > [22m[2mrejects a bracket delegate when the parent chain-cost persist fails and the folded basis exceeds the cap
+[22m[39m[continuation:drain-persist-failed] child=agent:main:subagent:bracket-guard error=session store write failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-drain.tool-hop-order.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1145[2mms[22m[39m
+[90mstdout[2m | src/agents/subagent-orphan-recovery.restart-integration.test.ts[2m > [22m[2msubagent orphan recovery — faithful restart path[2m > [22m[2mresumes a fresh (<2h) aborted run through the real recovery pass
+[22m[39m[proof] fresh recovery: runtimeDispatches=1
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-orphan-recovery.restart-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2066[2mms[22m[39m
+     [33m[2m✓[22m[39m finalizes a stale (>2h) aborted run instead of resuming it [33m 526[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.extract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 186[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.tools.media.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when nextChainHop <= maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-5 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows chain hop when the next shard reaches the configured boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-9 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop once the completing shard already occupies maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-10 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mblocks chain hop well beyond maxChainLength
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-15 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects child-emitted bracket fanout=all when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows child-emitted bracket fanout=tree when cross-session targeting is disabled
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config at the exact boundary
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-2 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrespects custom maxChainLength from config after the boundary is reached
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-3 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mallows continuation when accumulated tokens equal costCapTokens exactly (> not >=)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-side chain guard (maxChainLength enforcement)[2m > [22m[2mrejects continuation when accumulated tokens exceed costCapTokens by one
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstages a post-compaction bracket delegate and skips the normal chain-spawn
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.chain-guard.test.ts[2m > [22m[2mannounce-path post-compaction routing (stage at seam, skip spawn)[2m > [22m[2mstill chain-spawns a normal (non-post-compaction) bracket delegate
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-hop-1 advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.chain-guard.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 3381[2mms[22m[39m
+     [33m[2m✓[22m[39m allows chain hop when nextChainHop <= maxChainLength [33m 537[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 185[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.targeted-return.integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2204[2mms[22m[39m
+     [33m[2m✓[22m[39m writes queue file, logs targeted-return, and drains the recipient System context [33m 464[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.reasoning-delivery.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.compaction.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 846[2mms[22m[39m
+     [33m[2m✓[22m[39m raises the stored compaction count to the observed value [33m 328[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry-registration-rollback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1375[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.source-reply-suppression.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 199[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.final-tag-streaming.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.compaction-and-tool-summaries.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | silent-wake]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2menqueues a delayed bracket delegate durably instead of a volatile timer (+Ns)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mdispatches exactly once for [[CONTINUE_DELEGATE: task | target=agent:main:other]]
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce-path bracket delegate exactly-once dispatch[2m > [22m[2mstages exactly once (NOT immediate-spawn) for [[CONTINUE_DELEGATE: task | post-compaction]] (lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mbracket delegate through announce flow fires spawnSubagentDirect exactly once
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-parity-gate.test.ts[2m > [22m[2mannounce path is the sole dispatch route (no-double-fire guard)[2m > [22m[2mannounce flow with bracket does not spawn a second delegate on re-invocation guard
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:parity-gate advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-parity-gate.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2247[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches exactly once for [[CONTINUE_DELEGATE: task]] (normal) [33m 525[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.silent-wake.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 451[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 735[2mms[22m[39m
+     [33m[2m✓[22m[39m seeds bracket-origin delegates with hop 1 when no prior chain-hop prefix exists [33m 370[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.restore-recovery.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1307[2mms[22m[39m
+ [31m❯[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.crosssession-gate.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 383592[2mms[22m[39m
+[31m     [31m×[31m case 7: disabled rejects bracket target syntax with a disabled span and system event[39m[33m 378426[2mms[22m[39m
+     [33m[2m✓[22m[39m case 10: enabled allows bracket fanout=all [33m 1749[2mms[22m[39m
+     [33m[2m✓[22m[39m case 11: enabled preserves no-target delegate dispatch behavior [33m 1723[2mms[22m[39m
+     [33m[2m✓[22m[39m case 15: disabled rejects bracket fanout=all with a disabled span and system event [33m 1694[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-stream-items.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.spawn-reject-obs.test.ts[2m > [22m[2msubagent-announce chain-delegate rejection observability[2m > [22m[2msurfaces spawnResult.error in `reason=...` log line when error present
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-reject-chain advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.spawn-reject-obs.test.ts[2m > [22m[2msubagent-announce chain-delegate rejection observability[2m > [22m[2mfalls back to `reason=no reason given` when spawnResult.error is absent
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:shard-reject-chain advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.spawn-reject-obs.test.ts[2m > [22m[2msubagent-announce tool-delegate rejection observability[2m > [22m[2msurfaces spawnResult.error in `reason=...` log + markPendingDelegateFailed summary when present
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:shard-reject-tool: Error: shared delegate dispatch failed
+
+[90mstderr[2m | src/agents/subagent-announce.spawn-reject-obs.test.ts[2m > [22m[2msubagent-announce tool-delegate rejection observability[2m > [22m[2mfalls back to `delegation was not accepted.` when spawnResult.error is absent
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:shard-reject-tool: Error: shared delegate dispatch failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.spawn-reject-obs.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1152[2mms[22m[39m
+     [33m[2m✓[22m[39m surfaces spawnResult.error in `reason=...` log line when error present [33m 536[2mms[22m[39m
+ [31m❯[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.live-tree-chain-proof.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 14414[2mms[22m[39m
+[31m     [31m×[31m spawns hop-2 via tool delegate (fanout=tree) and delivers hop-2 completion by lifecycle targeted-return[39m[33m 14414[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.continuation-responses.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.continuation-tool-delegate-commit.test.ts[2m > [22m[2mannounce tool-delegate accepted spawn commits the TaskFlow row (C2)[2m > [22m[2mthreads continuationDelegateFlowId and commits the flow via markPendingDelegateSpawnAccepted
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:tool-hop-1: Error: shared delegate dispatch failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-tool-delegate-commit.test.ts[2m > [22m[2mannounce tool-delegate accepted spawn commits the TaskFlow row (C2)[2m > [22m[2mforwards typed inputs from a recovered nested delegate into the grandchild spawn
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:tool-hop-1: Error: shared delegate dispatch failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-tool-delegate-commit.test.ts[2m > [22m[2mannounce tool-delegate accepted spawn commits the TaskFlow row (C2)[2m > [22m[2mdoes not commit the flow when the spawn is rejected
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:tool-hop-1: Error: shared delegate dispatch failed
+
+[90mstderr[2m | src/agents/subagent-announce.continuation-tool-delegate-commit.test.ts[2m > [22m[2mannounce tool-delegate accepted spawn commits the TaskFlow row (C2)[2m > [22m[2mrolls back an accepted child and preserves the hop when source acceptance is stale
+[22m[39mSubagent continuation delegate drain failed for agent:main:subagent:tool-hop-1: Error: shared delegate dispatch failed
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-tool-delegate-commit.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1088[2mms[22m[39m
+     [33m[2m✓[22m[39m threads continuationDelegateFlowId and commits the flow via markPendingDelegateSpawnAccepted [33m 515[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.before-terminal-delivery.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 125[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.block-reply-flushing.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.self-continuation.test.ts[2m > [22m[2msubagent self-continuation via announce/completion flow[2m > [22m[2marms a same-session continue_work wake from the CONTINUE_WORK token in findings
+[22m[39m[continuation:self-continuation-failed] child=agent:main:subagent:952-self-cont error=child entry not found: agent:main:subagent:952-self-cont
+
+[90mstderr[2m | src/agents/subagent-announce.self-continuation.test.ts[2m > [22m[2msubagent self-continuation via announce/completion flow[2m > [22m[2mstrips the CONTINUE_WORK token from the findings announced to the parent
+[22m[39m[continuation:self-continuation-failed] child=agent:main:subagent:952-self-cont error=child entry not found: agent:main:subagent:952-self-cont
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.self-continuation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2417[2mms[22m[39m
+     [33m[2m✓[22m[39m arms a same-session continue_work wake from the CONTINUE_WORK token in findings [33m 827[2mms[22m[39m
+     [33m[2m✓[22m[39m strips the CONTINUE_WORK token from the findings announced to the parent [33m 541[2mms[22m[39m
+     [33m[2m✓[22m[39m does NOT double-arm when the spawn-init path already armed the wake [33m 529[2mms[22m[39m
+     [33m[2m✓[22m[39m does not arm a wake when findings carry no CONTINUE_WORK token [33m 519[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-registry.persistence.timing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 966[2mms[22m[39m
+[90mstderr[2m | src/agents/subagent-announce.postcompaction-route.test.ts[2m > [22m[2mannounce-path post-compaction routing[2m > [22m[2mpost-compaction bracket → stagePostCompactionDelegate, NOT chain-spawn (the lifeboat-drop fix)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:postcompaction-route advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.postcompaction-route.test.ts[2m > [22m[2mannounce-path post-compaction routing[2m > [22m[2mpost-compaction + target threads targetSessionKey into the staged payload
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:postcompaction-route advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.postcompaction-route.test.ts[2m > [22m[2mannounce-path post-compaction routing[2m > [22m[2mnormal bracket (no post-compaction) → chain-spawn, NOT staged (the inverse / mutual-exclusion)
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:postcompaction-route advanced chain state was not durably written
+
+[90mstderr[2m | src/agents/subagent-announce.postcompaction-route.test.ts[2m > [22m[2mannounce-path post-compaction routing[2m > [22m[2mpost-compaction bracket enqueues the delegate-staged-post-compaction system event
+[22m[39m[continuation:drain-persist-missing-entry] child=agent:main:subagent:postcompaction-route advanced chain state was not durably written
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.postcompaction-route.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1122[2mms[22m[39m
+     [33m[2m✓[22m[39m post-compaction bracket → stagePostCompactionDelegate, NOT chain-spawn (the lifeboat-drop fix) [33m 501[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce-descendant-wake.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.continuation-reconciliation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-session-cleanup.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-commentary.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation-return.delegate-artifacts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.tools.reconcile-thread.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.partial-reply-lifecycle.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-partial-registration-ownership.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 240[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.reply-tags.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.handlers.messages.update-source.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.continuation.runtime.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.chunking-fences.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.raw-stream.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.code-span-awareness.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/embedded-agent-subscribe.lifecycle-billing-error.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[45m agents-core [49m[39m src/agents/subagent-announce.crosssession-gate.test.ts[2m > [22mcontinuation cross-session targeting bracket gate[2m > [22mcase 7: disabled rejects bracket target syntax with a disabled span and system event
+[31m[1mError[22m: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/agents/subagent-announce.crosssession-gate.test.ts:[2m315:3[22m[39m
+    [90m313|[39m
+    [90m314|[39m [34mdescribe[39m([32m"continuation cross-session targeting bracket gate"[39m[33m,[39m () [33m=>[39m {
+    [90m315|[39m   it("case 7: disabled rejects bracket target syntax with a disabled s…
+    [90m   |[39m   [31m^[39m
+    [90m316|[39m     [35mconst[39m { tracer[33m,[39m spans } [33m=[39m [34mcreateRecordingTracer[39m()[33m;[39m
+    [90m317|[39m     [34msetContinuationTracer[39m(tracer)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[45m agents-core [49m[39m src/agents/subagent-announce.live-tree-chain-proof.test.ts[2m > [22mcontinuation chain production composition proof (tree hop-1 + hop-2)[2m > [22mspawns hop-2 via tool delegate (fanout=tree) and delivers hop-2 completion by lifecycle targeted-return
+[31m[1mError[22m: {"rootRuns":[{"runId":"run-1","childSessionKey":"agent:main:subagent:03fecf35-f057-4884-bbed-8ce0c7e3d186","requesterSessionKey":"agent:main:root","task":"[continuation:chain-hop:1] live proof hop-1","endedAt":20}],"childRuns":[],"pendingDelegates":1,"logs":[],"errors":[]}[39m
+[36m [2m❯[22m src/agents/subagent-announce.live-tree-chain-proof.test.ts:[2m250:13[22m[39m
+    [90m248|[39m       )[33m;[39m
+    [90m249|[39m     } [35mcatch[39m {
+    [90m250|[39m       [35mthrow[39m [35mnew[39m [33mError[39m(
+    [90m   |[39m             [31m^[39m
+    [90m251|[39m         [33mJSON[39m[33m.[39m[34mstringify[39m({
+    [90m252|[39m           rootRuns: listSubagentRunsForRequester(rootSessionKey).map((…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m51 passed[39m[22m[90m (53)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m894 passed[39m[22m[90m (896)[39m
+[2m   Start at [22m 21:14:12
+[2m   Duration [22m 457.06s[2m (transform 7.90s, setup 1.24s, import 26.29s, tests 428.32s, environment 0ms)[22m
+
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents/src/agents/subagent-announce.crosssession-gate.test.ts,title=[agents-core] src/agents/subagent-announce.crosssession-gate.test.ts > continuation cross-session targeting bracket gate > case 7%3A disabled rejects bracket target syntax with a disabled span and system event,line=315,column=3::Error: Test timed out in 120000ms.%0AIf this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".%0A ❯ src/agents/subagent-announce.crosssession-gate.test.ts:315:3%0A%0A
+
+::error file=/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents/src/agents/subagent-announce.live-tree-chain-proof.test.ts,title=[agents-core] src/agents/subagent-announce.live-tree-chain-proof.test.ts > continuation chain production composition proof (tree hop-1 + hop-2) > spawns hop-2 via tool delegate (fanout=tree) and delivers hop-2 completion by lifecycle targeted-return,line=250,column=13::Error: {"rootRuns":[{"runId":"run-1","childSessionKey":"agent:main:subagent:03fecf35-f057-4884-bbed-8ce0c7e3d186","requesterSessionKey":"agent:main:root","task":"[continuation:chain-hop:1] live proof hop-1","endedAt":20}],"childRuns":[],"pendingDelegates":1,"logs":[],"errors":[]}%0A ❯ src/agents/subagent-announce.live-tree-chain-proof.test.ts:250:13%0A%0A
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+[vitest] still running with no output for 30000ms.
+[vitest] still running with no output for 60000ms.
+[vitest] still running with no output for 90000ms.
+[vitest] still running with no output for 120000ms.
+[vitest] still running with no output for 150000ms.
+[vitest] still running with no output for 180000ms.
+[vitest] still running with no output for 210000ms.
+[vitest] still running with no output for 240000ms.
+[vitest] still running with no output for 270000ms.
+[vitest] no output for 300000ms; terminating stalled Vitest process group.
+[vitest] no-output process diagnostics begin (pid=5609)
+[vitest] process: pid=5609 ppid=5602 pgid=5609 elapsed=05:00 state=S cpu=105% rss_kb=2905776 wchan=futex_ comm=other
+[vitest] process tree: pgid=5609 members=1
+[vitest] process tree: pid=5609 ppid=5602 pgid=5609 elapsed=05:00 state=S cpu=105% rss_kb=2905712 wchan=futex_ comm=other
+[vitest] fd summary: total=30 types=A_INODE:12,CHR:2,FIFO:10,REG:4,UNIX:2
+[vitest] FAILED (exit 143)
+[test] FAILED (exit 143)
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/_temp/ci-batch-work-32895790947-1-hosted-batch-047/shard-0-agentic-agents-core-subagents[39m
+
+ [32m✓[39m [30m[45m agents-core [49m[39m src/agents/subagent-announce.live-tree-chain-proof.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2811[2mms[22m[39m
+     [33m[2m✓[22m[39m spawns hop-2 via tool delegate (fanout=tree) and delivers hop-2 completion by lifecycle targeted-return [33m 2808[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 21:26:51
+[2m   Duration [22m 11.21s[2m (transform 5.16s, setup 460ms, import 7.71s, tests 2.81s, environment 0ms)[22m
+
+TEST_GATE: 1 deterministic test FAIL -> FAIL

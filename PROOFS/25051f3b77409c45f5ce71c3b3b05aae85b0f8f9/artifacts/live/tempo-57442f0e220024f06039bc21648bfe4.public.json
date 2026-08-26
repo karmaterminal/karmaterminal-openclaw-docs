@@ -1,0 +1,144 @@
+{
+  "schema": "openclaw.proofs.public-tempo.v1",
+  "resources": [
+    [
+      {
+        "key": "host.name",
+        "value": {
+          "stringValue": "ronan"
+        }
+      },
+      {
+        "key": "process.pid",
+        "value": {
+          "intValue": "143630"
+        }
+      },
+      {
+        "key": "service.name",
+        "value": {
+          "stringValue": "ronan-prince"
+        }
+      }
+    ]
+  ],
+  "spans": [
+    {
+      "name": "openclaw.model.call",
+      "startTimeUnixNano": "1787651720763000000",
+      "endTimeUnixNano": "1787651726631000000",
+      "attributes": [
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "gen_ai.request.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "openclaw.model_call.observation_unit",
+          "value": {
+            "stringValue": "turn"
+          }
+        },
+        {
+          "key": "openclaw.model_call.request_bytes",
+          "value": {
+            "intValue": "59096"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.run",
+      "startTimeUnixNano": "1787651720515000000",
+      "endTimeUnixNano": "1787651727028000000",
+      "attributes": [
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "openclaw.channel",
+          "value": {
+            "stringValue": "discord"
+          }
+        },
+        {
+          "key": "openclaw.trigger",
+          "value": {
+            "stringValue": "user"
+          }
+        },
+        {
+          "key": "openclaw.outcome",
+          "value": {
+            "stringValue": "completed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.harness.run",
+      "startTimeUnixNano": "1787651720515000000",
+      "endTimeUnixNano": "1787651727029000000",
+      "attributes": [
+        {
+          "key": "openclaw.provider",
+          "value": {
+            "stringValue": "openai"
+          }
+        },
+        {
+          "key": "openclaw.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "openclaw.channel",
+          "value": {
+            "stringValue": "discord"
+          }
+        },
+        {
+          "key": "openclaw.outcome",
+          "value": {
+            "stringValue": "completed"
+          }
+        },
+        {
+          "key": "openclaw.harness.yield_detected",
+          "value": {
+            "boolValue": false
+          }
+        }
+      ]
+    }
+  ],
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

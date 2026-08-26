@@ -174,24 +174,131 @@ function contentText(message) {
     .join('\n');
 }
 
-/** Parse only the structured session.message return surface, never arbitrary JSON. */
+function asRecord(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+}
+
+function exactPhraseCount(text, phrase) {
+  if (typeof text !== 'string' || !text || typeof phrase !== 'string' || !phrase) return 0;
+  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const matches = text.match(new RegExp(
+    `(?:^|[^A-Za-z0-9_-])${escaped}(?=$|[^A-Za-z0-9_-])`,
+    'g',
+  ));
+  return matches ? matches.length : 0;
+}
+
+function directRunId(eventData) {
+  const message = asRecord(eventData?.message);
+  const metadata = asRecord(message?.__openclaw);
+  const candidates = [eventData?.runId, metadata?.runId]
+    .filter((value) => typeof value === 'string' && value.length > 0);
+  const unique = [...new Set(candidates)];
+  return unique.length === 1 ? unique[0] : null;
+}
+
+function directMessageSeq(eventData) {
+  const message = asRecord(eventData?.message);
+  const metadata = asRecord(message?.__openclaw);
+  const candidates = [eventData?.messageSeq, metadata?.seq]
+    .map(Number)
+    .filter((value) => Number.isSafeInteger(value) && value >= 0);
+  const unique = [...new Set(candidates)];
+  return unique.length === 1 ? unique[0] : null;
+}
+
+function timeMs(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value !== 'string' || !value) return null;
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) return numeric;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function tokenExpectedOriginReturnRunId(delegateChildSessionKey, delegateRunId) {
+  const child = String(delegateChildSessionKey || '').trim();
+  const run = String(delegateRunId || '').trim();
+  return child && run ? `announce:v1:${child}:${run}` : null;
+}
+
+/** Resolve the last public transcript cursor owned by the initial origin run. */
+export function tokenOriginCursorFromMessages(
+  messages,
+  { expectedOriginRunId } = {},
+) {
+  const expectedRun = String(expectedOriginRunId || '').trim();
+  if (!expectedRun) return null;
+  let cursor = null;
+  for (const message of Array.isArray(messages) ? messages : []) {
+    if (String(message?.role || '').toLowerCase() !== 'assistant') continue;
+    const eventData = { message };
+    if (directRunId(eventData) !== expectedRun) continue;
+    const messageSeq = directMessageSeq(eventData);
+    const messageTimeMs = timeMs(message?.timestamp);
+    if (messageSeq === null || messageTimeMs === null) return null;
+    if (!cursor || messageSeq > cursor.messageSeq) {
+      cursor = { messageSeq, messageTimeMs };
+    }
+  }
+  return cursor;
+}
+
+/**
+ * Bind the public normal-origin assistant event to the exact accepted delegate
+ * child/run. The inter-session input is intentionally hidden by the product's
+ * display projection, so textual provenance headers are not an event contract.
+ */
 export function parseTokenReturnEvent(
   eventData,
-  { expectedTargetSessionKey, expectedSentinel, expectedDelegateChildSessionKey, hash },
+  {
+    expectedTargetSessionKey,
+    expectedSentinel,
+    expectedDelegateChildSessionKey,
+    expectedDelegateRunId,
+    originCursor,
+    subscriptionAcceptedAtMs,
+    observedAtMs,
+    hash,
+  },
 ) {
   if (!eventData || typeof hash !== 'function') return null;
   if (String(eventData.sessionKey || '') !== String(expectedTargetSessionKey || '')) return null;
   const message = eventData.message;
-  if (!message || !['user', 'system'].includes(String(message.role || '').toLowerCase())) return null;
+  if (!message || String(message.role || '').toLowerCase() !== 'assistant') return null;
   const text = contentText(message);
-  if (!text || !text.includes(expectedSentinel) || text.includes('[k6-proof-harness]')) return null;
-  const header = text.match(/^\[Inter-session message\]([^\n]*)/);
-  if (!header || !/\bsourceTool=subagent_announce\b/.test(header[1])) return null;
-  const source = header[1].match(/\bsourceSession=([^\s]+)/)?.[1] || '';
-  if (!source || source !== String(expectedDelegateChildSessionKey || '')) return null;
+  if (!text ||
+      exactPhraseCount(text, expectedSentinel) !== 1 ||
+      text.includes('[k6-proof-harness]') ||
+      text.includes('[[CONTINUE_DELEGATE:')) return null;
+  const expectedRunId = tokenExpectedOriginReturnRunId(
+    expectedDelegateChildSessionKey,
+    expectedDelegateRunId,
+  );
+  const runId = directRunId(eventData);
+  if (!expectedRunId || runId !== expectedRunId) return null;
+  const messageSeq = directMessageSeq(eventData);
+  const cursor = originCursor;
+  const messageTimeMs = timeMs(message.timestamp);
+  const subscribedAt = timeMs(subscriptionAcceptedAtMs);
+  const observedAt = timeMs(observedAtMs);
+  if (messageSeq === null ||
+      !Number.isSafeInteger(cursor) ||
+      cursor < 0 ||
+      messageSeq <= cursor ||
+      messageTimeMs === null ||
+      subscribedAt === null ||
+      messageTimeMs < subscribedAt ||
+      observedAt === null ||
+      observedAt < subscribedAt ||
+      observedAt < messageTimeMs) return null;
   return {
     targetSessionHash: hash(String(eventData.sessionKey)),
-    sourceSessionHash: hash(source),
+    sourceSessionHash: hash(String(expectedDelegateChildSessionKey)),
+    returnRunIdHash: hash(runId),
+    messageSeq,
+    messageTimeMs,
+    observedAtMs: observedAt,
   };
 }
 
@@ -212,14 +319,21 @@ export function classifyTokenEvidence(evidence) {
     evidence.attempt_id_hash,
     evidence.return_target_session_hash,
     evidence.return_source_session_hash,
+    evidence.origin_return_run_id_hash,
   ].every((value) => typeof value === 'string' && /^[0-9a-f]{16}$/.test(value));
   const taskStates = evidence.origin_task_status === 'completed' && evidence.delegate_task_status === 'completed';
+  const originCursor = evidence.origin_return_cursor;
+  const returnMessageSeq = evidence.origin_return_message_seq;
   const complete = evidence.session_created === true &&
     evidence.disposable_origin_ready === true &&
     evidence.prompt_injected === true &&
     evidence.send_accepted === true &&
     evidence.origin_subscription_accepted === true &&
+    evidence.origin_cursor_snapshot_accepted === true &&
+    evidence.origin_cursor_snapshots_rejected === 0 &&
     evidence.delegate_return_observed === true &&
+    evidence.origin_return_event_count === 1 &&
+    evidence.root_substituted_return_count === 0 &&
     evidence.task_pagination_exhausted === true &&
     evidence.task_snapshot_consistent === true &&
     evidence.delegate_correlation_strategy === 'disposable-origin-child-lineage' &&
@@ -231,6 +345,8 @@ export function classifyTokenEvidence(evidence) {
     evidence.delegate_parent_mismatch !== true &&
     evidence.return_target_session_hash === evidence.origin_child_session_hash &&
     evidence.return_source_session_hash === evidence.delegate_child_session_hash &&
+    Number.isSafeInteger(originCursor) && originCursor >= 0 &&
+    Number.isSafeInteger(returnMessageSeq) && returnMessageSeq > originCursor &&
     taskStates && evidence.interrupted !== true;
   return complete ? 'PASS-candidate' : 'PARTIAL-candidate';
 }

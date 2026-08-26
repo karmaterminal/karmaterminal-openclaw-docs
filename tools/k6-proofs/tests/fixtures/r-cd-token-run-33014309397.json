@@ -1,0 +1,163 @@
+{
+  "schema": "openclaw.k6.r-cd-token.observer-regression-fixture.v1",
+  "source": {
+    "runId": 33014309397,
+    "artifactId": 9624150623,
+    "artifactName": "project81-k6-proof-33014309397",
+    "productSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "harnessSha": "96c0e1b59c205696806ae50cc659a08f4b79fd3d",
+    "artifactZipSha256": "a1d7064a247f8cdbd91eea2d40c37ec474ab3cae7e01bc2a75739eb5da84a894",
+    "k6LogSha256": "d3e6024de0a9630362f00b4be5d15c196dbad09b7e5bba63f5bf41676a3f2228",
+    "authoritativeReceiptSha256": "84276d46fc7c2468328ca4b1a7ea295d03011c97ae09f4df2dc2cae0063b5e6a",
+    "privateGatewayLogSha256": "a2e717f399cd540ceb0983b0ab0fc4d95355e94c6e37ed3b4bc770a5ec58f2f5",
+    "privateOriginTranscriptArchiveSha256": "02a8ed808a0c6fb59ac4c6fe031c4a41fb76c312adef13398994827d0e83967d"
+  },
+  "sanitization": {
+    "privateIdentifiersRemoved": true,
+    "timestampsRebased": true,
+    "relationshipsPreserved": true,
+    "notes": "Session, task, run, message, nonce, attempt, trace, and chain identities are deterministic aliases. Event ordinals, transcript message sequences, lifecycle ordering, verdict facts, product SHA, workflow SHA, artifact identity, and source digests are preserved."
+  },
+  "identities": {
+    "rootSessionKey": "agent:test:proof-root",
+    "originChildSessionKey": "agent:test:subagent:origin",
+    "delegateChildSessionKey": "agent:test:subagent:delegate",
+    "originRunId": "origin-run",
+    "delegateRunId": "delegate-run",
+    "originReturnRunId": "announce:v1:agent:test:subagent:delegate:delegate-run",
+    "rootResultRunId": "announce:v1:agent:test:subagent:origin:announce:v1:agent:test:subagent:delegate:delegate-run",
+    "returnSentinel": "RCDT-RETURN-sanitized-case"
+  },
+  "frozenPublicEvidence": {
+    "surface_class": "raw-final-text",
+    "session_created": true,
+    "disposable_origin_ready": true,
+    "prompt_injected": true,
+    "send_accepted": true,
+    "send_run_id_hash": "1111111111111111",
+    "row_nonce_hash": "2222222222222222",
+    "attempt_id_hash": "3333333333333333",
+    "candidateSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "runtimeBuildSha": "0c033c46c6365929c669bb7eff60a58ec914dbdd",
+    "origin_subscription_accepted": true,
+    "delegate_return_observed": false,
+    "origin_return_event_count": 0,
+    "root_substituted_return_count": 0,
+    "return_target_session_hash": null,
+    "return_source_session_hash": null,
+    "origin_return_run_id_hash": null,
+    "origin_return_cursor": null,
+    "origin_return_message_seq": null,
+    "task_pagination_exhausted": true,
+    "task_snapshot_consistent": true,
+    "task_snapshot_stable_count": 199,
+    "task_snapshot_digest": "eeeeeeeeeeeeeeee",
+    "tasks_list_rejected": 0,
+    "origin_task_unique_count": 1,
+    "delegate_task_unique_count": 1,
+    "origin_task_id_hash": "4444444444444444",
+    "origin_run_id_hash": "5555555555555555",
+    "origin_requester_session_hash": "6666666666666666",
+    "origin_child_session_hash": "7777777777777777",
+    "delegate_task_id_hash": "8888888888888888",
+    "delegate_run_id_hash": "9999999999999999",
+    "delegate_requester_session_hash": "7777777777777777",
+    "delegate_child_session_hash": "aaaaaaaaaaaaaaaa",
+    "delegate_requester_matches_origin_child": true,
+    "delegate_parent_mismatch": false,
+    "delegate_correlation_strategy": "disposable-origin-child-lineage",
+    "origin_task_status": "completed",
+    "delegate_task_status": "completed",
+    "interrupted": true,
+    "terminal_reason": "observation-window-expired",
+    "reason_hash": "bbbbbbbbbbbbbbbb",
+    "reason_length": 57
+  },
+  "window": {
+    "originSubscriptionAcceptedOrdinal": 50,
+    "originSubscriptionAcceptedAtMs": 1000,
+    "delegateTaskTerminalAtMs": 3000,
+    "originTaskTerminalAtMs": 3520,
+    "originCursor": {
+      "messageSeq": 2,
+      "messageTimeMs": 2000
+    }
+  },
+  "events": [
+    {
+      "label": "stale-origin-bracket",
+      "ordinal": 283,
+      "observedAtMs": 2010,
+      "eventName": "session.message",
+      "eventData": {
+        "sessionKey": "agent:test:subagent:origin",
+        "runId": "origin-run",
+        "messageSeq": 2,
+        "message": {
+          "role": "assistant",
+          "timestamp": 2000,
+          "content": [
+            {
+              "type": "text",
+              "text": "RCDT-HOP1-sanitized-case\n[[CONTINUE_DELEGATE: reply exactly RCDT-RETURN-sanitized-case +10s]]"
+            }
+          ],
+          "__openclaw": {
+            "seq": 2,
+            "runId": "origin-run"
+          }
+        }
+      }
+    },
+    {
+      "label": "normal-origin-return",
+      "ordinal": 447,
+      "observedAtMs": 3510,
+      "eventName": "session.message",
+      "eventData": {
+        "sessionKey": "agent:test:subagent:origin",
+        "runId": "announce:v1:agent:test:subagent:delegate:delegate-run",
+        "messageSeq": 3,
+        "message": {
+          "role": "assistant",
+          "timestamp": 3500,
+          "content": [
+            {
+              "type": "text",
+              "text": "Continuation completed with result: `RCDT-RETURN-sanitized-case`"
+            }
+          ],
+          "__openclaw": {
+            "seq": 3,
+            "runId": "announce:v1:agent:test:subagent:delegate:delegate-run"
+          }
+        }
+      }
+    },
+    {
+      "label": "later-root-result",
+      "ordinal": 505,
+      "observedAtMs": 4010,
+      "eventName": "session.message",
+      "eventData": {
+        "sessionKey": "agent:test:proof-root",
+        "runId": "announce:v1:agent:test:subagent:origin:announce:v1:agent:test:subagent:delegate:delegate-run",
+        "messageSeq": 5,
+        "message": {
+          "role": "assistant",
+          "timestamp": 4000,
+          "content": [
+            {
+              "type": "text",
+              "text": "RCDT-RETURN-sanitized-case"
+            }
+          ],
+          "__openclaw": {
+            "seq": 5,
+            "runId": "announce:v1:agent:test:subagent:origin:announce:v1:agent:test:subagent:delegate:delegate-run"
+          }
+        }
+      }
+    }
+  ]
+}

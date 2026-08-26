@@ -24,7 +24,8 @@
       "sessions.create",
       "sessions.send",
       "tasks.list",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "sessions.get"
     ],
     "status": "runnable",
     "expectedFile": "r-cd-token-bracket-delegate.js",
@@ -80,7 +81,7 @@
     {
       "name": "parent-return-event",
       "required": true,
-      "description": "The exact nonce-bound delegate return sentinel is observed on the parent"
+      "description": "Exactly one public assistant session.message on the disposable origin is newer than the initial-origin cursor and carries the exact announce:v1 run identity derived from the accepted delegate child/run; a later root result cannot substitute"
     },
     {
       "name": "tempo-trace-json",
@@ -236,8 +237,8 @@
       ]
     },
     "controls": {
-      "positive": "A disposable raw-final-text origin child emits the terminal bracket, exactly one token-scheduled delegate task identity appears in the authoritative ledger, it completes, and the nonce-bound return sentinel reaches the parent.",
-      "negative": "A message-tool-body surface cannot satisfy the row and stays PARTIAL-candidate; a typed continue_delegate tool origin in the same trace disqualifies the bracket claim; more than one nonce-bound delegate identity through the settle window fails the row.",
+      "positive": "A disposable raw-final-text origin child emits the terminal bracket, exactly one token-scheduled delegate task identity appears in the authoritative ledger, it completes, and exactly one newer public assistant event binds the nonce to announce:v1:<accepted-child-session>:<accepted-child-run> on the origin.",
+      "negative": "A message-tool-body surface cannot satisfy the row and stays PARTIAL-candidate; a typed continue_delegate tool origin in the same trace disqualifies the bracket claim; wrong-session, wrong-nonce, stale-cursor, duplicate, root-only, log-only, and missing-public-event returns remain non-PASS.",
       "notes": "The negative control is currently an absence test. R-OBS-CONT-PROVENANCE converts it into a positive origin assertion."
     },
     "backendUnavailable": {
@@ -278,9 +279,9 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "A runner-owned attempt on a raw-final-text seat with exactly one origin task and one token-scheduled delegate task, exact completion and return binding, and public Tempo topology. Behavioral only: bracket origin is established by surface declaration plus tool-span absence, not by a product origin attribute.",
+      "pass": "A runner-owned attempt on a raw-final-text seat with exactly one origin task and one token-scheduled delegate task, exact completion, one cursor-newer public normal-origin assistant return bound to the accepted delegate child/run, zero root substitution, and public Tempo topology. Behavioral only: bracket origin is established by surface declaration plus tool-span absence, not by a product origin attribute.",
       "partial": "Message-body or unknown surfaces, interruption, or a degraded/partial telemetry backend. None of these are auto-retried.",
-      "fail": "More than one nonce-bound delegate identity, a typed continue_delegate tool origin in the row trace, or a missing return binding."
+      "fail": "More than one nonce-bound delegate identity or normal-origin return, a typed continue_delegate tool origin in the row trace, a stale/root/log-only return, or a missing public return binding."
     },
     "execution": {
       "deterministicK6": "r-cd-token-bracket-delegate.js with a runner-owned attempt and nonce established before k6 launches.",

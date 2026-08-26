@@ -98,6 +98,13 @@ export function resolveRcdTokenAuthoritativeReceipt({
         delegate: evidence?.delegate_run_id_hash || null,
         returnTarget: evidence?.return_target_session_hash || null,
         returnSource: evidence?.return_source_session_hash || null,
+        returnRun: evidence?.origin_return_run_id_hash || null,
+        originCursorSnapshotAccepted: evidence?.origin_cursor_snapshot_accepted === true,
+        originCursorSnapshotsRejected: evidence?.origin_cursor_snapshots_rejected ?? null,
+        returnCursor: evidence?.origin_return_cursor ?? null,
+        returnMessageSeq: evidence?.origin_return_message_seq ?? null,
+        returnEventCount: evidence?.origin_return_event_count ?? null,
+        rootSubstitutedReturnCount: evidence?.root_substituted_return_count ?? null,
         reason: evidence?.reason_hash || null,
         length: evidence?.reason_length || null,
         delegateCorrelationStrategy: evidence?.delegate_correlation_strategy || null,
@@ -145,6 +152,11 @@ export function resolveRcdTokenAuthoritativeReceipt({
       taskLedgerFullyPaginated: true,
       childCompleted: true,
       parentReturnObserved: true,
+      normalOriginReturnObserved: true,
+      exactlyOneNormalOriginReturn: true,
+      originCursorSnapshotAccepted: true,
+      originReturnAfterInitialCursor: true,
+      rootSubstitutedReturn: false,
       returnBoundToDelegateChild: true,
       delegateOwnedByOriginChild: true,
       noTypedToolOrigin: true,
@@ -157,6 +169,9 @@ export function resolveRcdTokenAuthoritativeReceipt({
       delegateRunIdHash: evidence.delegate_run_id_hash,
       returnTargetSessionHash: evidence.return_target_session_hash,
       returnSourceSessionHash: evidence.return_source_session_hash,
+      originReturnRunIdHash: evidence.origin_return_run_id_hash,
+      originReturnCursor: evidence.origin_return_cursor,
+      originReturnMessageSeq: evidence.origin_return_message_seq,
       traceFingerprint: createHash('sha256').update(correlation.traceId).digest('hex').slice(0, 16),
       chainFingerprint: createHash('sha256').update(correlation.chainId).digest('hex').slice(0, 16),
     },
@@ -193,18 +208,25 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
   const requiredTrue = [
     'disposableOriginReady', 'parserDetected', 'exactlyOneOriginTask', 'exactlyOneTokenDelegateTask',
     'taskLedgerFullyPaginated', 'childCompleted', 'parentReturnObserved',
+    'normalOriginReturnObserved', 'exactlyOneNormalOriginReturn',
+    'originCursorSnapshotAccepted', 'originReturnAfterInitialCursor',
     'returnBoundToDelegateChild', 'delegateOwnedByOriginChild', 'noTypedToolOrigin',
     'sameTrace', 'sameChain',
   ];
   const hashes = [
     'attemptIdHash', 'rowNonceHash', 'sendRunIdHash', 'originRunIdHash',
     'delegateRunIdHash', 'returnTargetSessionHash', 'returnSourceSessionHash',
-    'traceFingerprint', 'chainFingerprint',
+    'originReturnRunIdHash', 'traceFingerprint', 'chainFingerprint',
   ];
+  const originReturnCursor = lifecycle?.originReturnCursor;
+  const originReturnMessageSeq = lifecycle?.originReturnMessageSeq;
   const pass = lifecycle?.surfaceClass === 'raw-final-text' &&
     lifecycle?.delegateCorrelationStrategy === 'disposable-origin-child-lineage' &&
     requiredTrue.every((name) => lifecycle[name] === true) &&
+    lifecycle?.rootSubstitutedReturn === false &&
     hashes.every((name) => hex(lifecycle?.[name], 16)) &&
+    Number.isSafeInteger(originReturnCursor) && originReturnCursor >= 0 &&
+    Number.isSafeInteger(originReturnMessageSeq) && originReturnMessageSeq > originReturnCursor &&
     lifecycle.originRunIdHash !== lifecycle.delegateRunIdHash &&
     lifecycle.returnTargetSessionHash !== lifecycle.returnSourceSessionHash;
   return pass

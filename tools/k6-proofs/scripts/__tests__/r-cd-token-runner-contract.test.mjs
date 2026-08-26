@@ -66,6 +66,7 @@ test('scenario paginates the public task ledger and binds a structured return', 
   const proofSend = source.indexOf("tracker.send(socket, 'sessions.send'", proofFlow);
   assert.ok(proofFlow > 0 && disposableCheck > proofFlow && proofSend > disposableCheck);
   assert.match(source, /tasks\.list/);
+  assert.match(source, /sessions\.get/);
   assert.match(source, /nextCursor/);
   assert.match(source, /TASK_PAGE_LIMIT = 500/);
   assert.match(source, /REQUIRED_STABLE_TASK_SNAPSHOTS = 3/);
@@ -76,6 +77,11 @@ test('scenario paginates the public task ledger and binds a structured return', 
   assert.match(source, /delegate_requester_matches_origin_child/);
   assert.match(source, /classified\.event === 'session\.message'/);
   assert.match(source, /parseTokenReturnEvent/);
+  assert.match(source, /tokenOriginCursorFromMessages/);
+  assert.match(source, /expectedDelegateRunId: identity\.delegateRunId/);
+  assert.match(source, /origin_return_message_seq/);
+  assert.match(source, /origin_return_event_count === 1/);
+  assert.match(source, /root_substituted_return_count === 0/);
   assert.match(source, /SETTLE_MS/);
   assert.match(source, /OPENCLAW_ROW_NONCE/);
   assert.match(source, /OPENCLAW_PROOF_ATTEMPT_ID/);
@@ -98,6 +104,7 @@ test('manifest required and expected receipt surfaces are identical and fail clo
   assert.equal(manifest.continuationRequirements.requiredSpawnDepth, 2);
   assert.equal(manifest.liveRunSafety.requiresDisposableSession, true);
   assert.ok(manifest.scenario.methods.includes('sessions.create'));
+  assert.ok(manifest.scenario.methods.includes('sessions.get'));
   assert.doesNotMatch(JSON.stringify(manifest), /HONEST-LIMIT-candidate/);
 });
 

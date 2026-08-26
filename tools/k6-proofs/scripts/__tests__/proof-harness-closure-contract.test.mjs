@@ -54,6 +54,28 @@ test('R-CD-CHAINED-DEPTH-2 restores post-leaf recovery and structured root autho
   assert.doesNotMatch(scenario, /socket\.setTimeout\(\(\) => socket\.close\(\), 150000\)/);
 });
 
+test('R-CD-TOKEN closes normal-origin return authority on the public event boundary', async () => {
+  const [manifestRaw, scenario, contract, authority] = await Promise.all([
+    read('manifests/r-cd-token.json'),
+    read('scenarios/r-cd-token-bracket-delegate.js'),
+    read('lib/r-cd-token-contract.js'),
+    read('lib/r-cd-token-authoritative-receipt.mjs'),
+  ]);
+  await access(path.join(root, 'tests/fixtures/r-cd-token-run-33014309397.json'));
+  const manifest = JSON.parse(manifestRaw);
+  assert.ok(manifest.scenario.methods.includes('sessions.messages.subscribe'));
+  assert.ok(manifest.scenario.methods.includes('sessions.get'));
+  assert.match(scenario, /tokenOriginCursorFromMessages/);
+  assert.match(scenario, /origin_return_event_count === 1/);
+  assert.match(scenario, /root_substituted_return_count === 0/);
+  assert.match(contract, /announce:v1:/);
+  assert.match(contract, /messageSeq <= cursor/);
+  assert.match(authority, /exactlyOneNormalOriginReturn/);
+  assert.match(authority, /rootSubstitutedReturn: false/);
+  assert.doesNotMatch(contract, /sourceTool=subagent_announce/);
+  assert.doesNotMatch(contract, /Continuation completed with result/);
+});
+
 test('backend disposition is runnable and wired through every result boundary', async () => {
   await Promise.all([
     access(path.join(root, 'lib/telemetry-backend-status.js')),

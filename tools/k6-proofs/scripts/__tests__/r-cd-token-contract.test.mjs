@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
   classifyTokenEvidence,
@@ -9,15 +10,24 @@ import {
   rejectTokenTaskLedgerObservation,
   summarizeTokenLedger,
   tokenDisposableOriginReady,
+  tokenExpectedOriginReturnRunId,
   tokenLedgerHasTerminalTasks,
+  tokenOriginCursorFromMessages,
 } from '../../lib/r-cd-token-contract.js';
 
+const frozenRun = JSON.parse(await readFile(
+  new URL('../../tests/fixtures/r-cd-token-run-33014309397.json', import.meta.url),
+  'utf8',
+));
 const hash = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
 const parentSessionKey = 'agent:main:proof-parent';
 const originTitle = 'RCDT-O-0123456789abcdef';
 const returnSentinel = 'RCDT-RETURN-0123456789abcdef';
 const originChild = 'agent:main:subagent:origin-child';
 const delegateChild = 'agent:main:subagent:delegate-child';
+const originRunId = 'origin-run';
+const delegateRunId = 'delegate-run';
+const originReturnRunId = tokenExpectedOriginReturnRunId(delegateChild, delegateRunId);
 
 function taskSummary({
   id, runId, childSessionKey, title, sessionKey, status = 'completed', parentTaskId,
@@ -69,7 +79,14 @@ function completeEvidence(overrides = {}) {
     row_nonce_hash: hash('nonce'),
     attempt_id_hash: hash('attempt'),
     origin_subscription_accepted: true,
+    origin_cursor_snapshot_accepted: true,
+    origin_cursor_snapshots_rejected: 0,
     delegate_return_observed: true,
+    origin_return_event_count: 1,
+    root_substituted_return_count: 0,
+    origin_return_run_id_hash: hash(originReturnRunId),
+    origin_return_cursor: 2,
+    origin_return_message_seq: 3,
     task_snapshot_consistent: true,
     task_snapshot_stable_count: 3,
     task_snapshot_digest: hash('stable-task-snapshot'),
@@ -178,7 +195,17 @@ test('interruption, unstable pagination, missing return, and incomplete identiti
     { task_snapshot_consistent: false },
     { task_snapshot_stable_count: 2 },
     { origin_subscription_accepted: false },
+    { origin_cursor_snapshot_accepted: false },
+    { origin_cursor_snapshots_rejected: 1 },
     { delegate_return_observed: false },
+    { origin_return_event_count: 0 },
+    { origin_return_event_count: 2 },
+    { root_substituted_return_count: 1 },
+    { origin_return_run_id_hash: null },
+    { origin_return_cursor: null },
+    { origin_return_cursor: '2' },
+    { origin_return_message_seq: 2 },
+    { origin_return_message_seq: '3' },
     { delegate_run_id_hash: null },
     { delegate_task_status: 'running' },
     { delegate_run_id_hash: completeEvidence().origin_run_id_hash },
@@ -200,49 +227,178 @@ test('complete raw-final-text task ledger and bound return are PASS-candidate', 
 test('structured return parser binds target and source sessions', () => {
   const event = {
     sessionKey: originChild,
+    runId: originReturnRunId,
+    messageSeq: 3,
     message: {
-      role: 'user',
+      role: 'assistant',
+      timestamp: 3000,
       content: [{
         type: 'text',
-        text: `[Inter-session message] sourceSession=${delegateChild} sourceChannel=internal sourceTool=subagent_announce isUser=false\n${returnSentinel}`,
+        text: `Continuation completed with result: \`${returnSentinel}\``,
       }],
+      __openclaw: { runId: originReturnRunId, seq: 3 },
     },
   };
   assert.deepEqual(parseTokenReturnEvent(event, {
     expectedTargetSessionKey: originChild,
     expectedDelegateChildSessionKey: delegateChild,
+    expectedDelegateRunId: delegateRunId,
     expectedSentinel: returnSentinel,
+    originCursor: 2,
+    subscriptionAcceptedAtMs: 1000,
+    observedAtMs: 3010,
     hash,
   }), {
     targetSessionHash: hash(originChild),
     sourceSessionHash: hash(delegateChild),
+    returnRunIdHash: hash(originReturnRunId),
+    messageSeq: 3,
+    messageTimeMs: 3000,
+    observedAtMs: 3010,
   });
 });
 
-test('prompt echo, arbitrary event text, wrong session, and wrong delegate are rejected', () => {
+test('origin cursor is the last assistant message owned by the initial origin run', () => {
+  assert.deepEqual(tokenOriginCursorFromMessages([
+    { role: 'user', timestamp: 1000, __openclaw: { seq: 1 } },
+    { role: 'assistant', timestamp: 2000, __openclaw: { seq: 2, runId: originRunId } },
+    { role: 'assistant', timestamp: 3000, __openclaw: { seq: 3, runId: 'unrelated-run' } },
+  ], { expectedOriginRunId: originRunId }), {
+    messageSeq: 2,
+    messageTimeMs: 2000,
+  });
+  assert.equal(tokenOriginCursorFromMessages([
+    { role: 'assistant', timestamp: 2000, __openclaw: { seq: 2, runId: 'other-run' } },
+  ], { expectedOriginRunId: originRunId }), null);
+});
+
+test('frozen run 33014309397 binds the normal origin assistant event, not the stale bracket or root result', () => {
+  const identities = frozenRun.identities;
+  const normal = frozenRun.events.find((event) => event.label === 'normal-origin-return');
+  const receipt = parseTokenReturnEvent(normal.eventData, {
+    expectedTargetSessionKey: identities.originChildSessionKey,
+    expectedDelegateChildSessionKey: identities.delegateChildSessionKey,
+    expectedDelegateRunId: identities.delegateRunId,
+    expectedSentinel: identities.returnSentinel,
+    originCursor: frozenRun.window.originCursor.messageSeq,
+    subscriptionAcceptedAtMs: frozenRun.window.originSubscriptionAcceptedAtMs,
+    observedAtMs: normal.observedAtMs,
+    hash,
+  });
+  assert.deepEqual(receipt, {
+    targetSessionHash: hash(identities.originChildSessionKey),
+    sourceSessionHash: hash(identities.delegateChildSessionKey),
+    returnRunIdHash: hash(identities.originReturnRunId),
+    messageSeq: 3,
+    messageTimeMs: 3500,
+    observedAtMs: 3510,
+  });
+  assert.ok(normal.observedAtMs > frozenRun.window.delegateTaskTerminalAtMs);
+
+  for (const rejected of frozenRun.events.filter((event) => event !== normal)) {
+    assert.equal(parseTokenReturnEvent(rejected.eventData, {
+      expectedTargetSessionKey: identities.originChildSessionKey,
+      expectedDelegateChildSessionKey: identities.delegateChildSessionKey,
+      expectedDelegateRunId: identities.delegateRunId,
+      expectedSentinel: identities.returnSentinel,
+      originCursor: frozenRun.window.originCursor.messageSeq,
+      subscriptionAcceptedAtMs: frozenRun.window.originSubscriptionAcceptedAtMs,
+      observedAtMs: rejected.observedAtMs,
+      hash,
+    }), null, rejected.label);
+  }
+});
+
+test('frozen artifact remains an explicit pre-fix negative and contains no private identifiers', () => {
+  assert.equal(classifyTokenEvidence(frozenRun.frozenPublicEvidence), 'PARTIAL-candidate');
+  const serialized = JSON.stringify(frozenRun);
+  assert.doesNotMatch(serialized, /02244baac04f1755|ecfae93c|b9a70ed6|b739ecda/);
+  assert.doesNotMatch(serialized, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  assert.equal(frozenRun.sanitization.privateIdentifiersRemoved, true);
+});
+
+test('wrong session, nonce, run, cursor, duplicate identity, and non-event text are rejected', () => {
   const base = {
     sessionKey: originChild,
+    runId: originReturnRunId,
+    messageSeq: 3,
     message: {
-      role: 'user',
+      role: 'assistant',
+      timestamp: 3000,
       content: [{
         type: 'text',
-        text: `[Inter-session message] sourceSession=${delegateChild} sourceTool=subagent_announce\n${returnSentinel}`,
+        text: `Continuation completed with result: ${returnSentinel}`,
       }],
+      __openclaw: { runId: originReturnRunId, seq: 3 },
     },
   };
   const variants = [
     { ...base, sessionKey: 'agent:main:unrelated' },
     { ...base, message: { ...base.message, content: [{ type: 'text', text: `[k6-proof-harness] ${returnSentinel}` }] } },
-    { ...base, message: { ...base.message, content: [{ type: 'text', text: `random ${returnSentinel}` }] } },
-    { ...base, message: { ...base.message, content: [{ type: 'text', text: `[Inter-session message] sourceSession=agent:main:other sourceTool=subagent_announce\n${returnSentinel}` }] } },
+    { ...base, message: { ...base.message, content: [{ type: 'text', text: 'Continuation completed with result: RCDT-RETURN-wrong' }] } },
+    { ...base, runId: 'wrong-run', message: { ...base.message, __openclaw: { runId: 'wrong-run', seq: 3 } } },
+    { ...base, message: { ...base.message, __openclaw: { runId: 'conflicting-run', seq: 3 } } },
+    { ...base, messageSeq: 2, message: { ...base.message, __openclaw: { runId: originReturnRunId, seq: 2 } } },
+    { ...base, message: { ...base.message, timestamp: 500 } },
   ];
   for (const event of variants) {
     assert.equal(parseTokenReturnEvent(event, {
       expectedTargetSessionKey: originChild,
       expectedDelegateChildSessionKey: delegateChild,
+      expectedDelegateRunId: delegateRunId,
       expectedSentinel: returnSentinel,
+      originCursor: 2,
+      subscriptionAcceptedAtMs: 1000,
+      observedAtMs: 3010,
       hash,
     }), null);
+  }
+  assert.equal(parseTokenReturnEvent({
+    log: `Continuation completed with result: ${returnSentinel}`,
+  }, {
+    expectedTargetSessionKey: originChild,
+    expectedDelegateChildSessionKey: delegateChild,
+    expectedDelegateRunId: delegateRunId,
+    expectedSentinel: returnSentinel,
+    originCursor: 2,
+    subscriptionAcceptedAtMs: 1000,
+    observedAtMs: 3010,
+    hash,
+  }), null);
+  for (const originCursor of [null, '2']) {
+    assert.equal(parseTokenReturnEvent(base, {
+      expectedTargetSessionKey: originChild,
+      expectedDelegateChildSessionKey: delegateChild,
+      expectedDelegateRunId: delegateRunId,
+      expectedSentinel: returnSentinel,
+      originCursor,
+      subscriptionAcceptedAtMs: 1000,
+      observedAtMs: 3010,
+      hash,
+    }), null);
+  }
+});
+
+test('duplicate, root-only, log-only, and missing-public-event evidence cannot PASS', () => {
+  for (const overrides of [
+    { origin_return_event_count: 2 },
+    {
+      delegate_return_observed: false,
+      origin_return_event_count: 0,
+      return_target_session_hash: hash(parentSessionKey),
+    },
+    {
+      delegate_return_observed: false,
+      origin_return_event_count: 0,
+      terminal_reason: `log-only ${returnSentinel}`,
+    },
+    {
+      delegate_return_observed: false,
+      origin_return_event_count: 0,
+      origin_return_run_id_hash: null,
+    },
+  ]) {
+    assert.equal(classifyTokenEvidence(completeEvidence(overrides)), 'PARTIAL-candidate');
   }
 });
 

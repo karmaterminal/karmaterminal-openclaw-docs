@@ -507,6 +507,15 @@ The bracket scanner fires only on scanned-final-text (terminal position). Seats 
 
 This is **declared in the manifest before the run**, not a post-hoc excuse. The `seatClassExpectation` block in `r-cd-token.json` states the expected outcome per seat class.
 
+Return authority is also public-event-only. The scenario subscribes to the
+disposable origin, snapshots the initial origin run's message cursor with
+`sessions.get`, and accepts exactly one newer assistant `session.message` whose
+run id is `announce:v1:<accepted delegate child>:<accepted delegate run>`.
+The product intentionally hides the internal announce input from display
+projection, so private transcript text, log text, a stale bracket message, or a
+later root result cannot substitute for that event. The observer remains open
+through the settle window to reject duplicate returns.
+
 ## Row coverage
 
 `live-suite` currently resolves to 35 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.

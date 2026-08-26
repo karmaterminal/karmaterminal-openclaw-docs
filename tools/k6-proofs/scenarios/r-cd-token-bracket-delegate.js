@@ -15,6 +15,7 @@ import {
   tokenDisposableOriginReady,
   tokenLedgerHasTerminalTasks,
   tokenLedgerRuntimeIdentity,
+  tokenOriginCursorFromMessages,
 } from '../lib/r-cd-token-contract.js';
 
 export const options = {
@@ -35,6 +36,7 @@ const DEFAULTS = {
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 const TASK_POLL_MS = Number(__ENV.OPENCLAW_TOKEN_TASK_POLL_MS || 750);
+const ORIGIN_CURSOR_POLL_MS = Number(__ENV.OPENCLAW_TOKEN_CURSOR_POLL_MS || 500);
 const SETTLE_MS = Number(__ENV.OPENCLAW_TOKEN_SETTLE_MS || 5000);
 const TASK_PAGE_LIMIT = 500;
 const REQUIRED_STABLE_TASK_SNAPSHOTS = 3;
@@ -94,6 +96,11 @@ export default function () {
     send_run_id_hash: null, row_nonce_hash: hash(rowNonce), attempt_id_hash: hash(attemptId),
     reason_hash: hash(delegateTask), reason_length: delegateTask.length, delegate_mode: 'normal',
     origin_subscription_accepted: false, delegate_return_observed: false,
+    origin_cursor_snapshot_accepted: false, origin_cursor_snapshots_rejected: 0,
+    origin_return_cursor: null, origin_return_cursor_time_ms: null,
+    origin_return_event_count: 0, origin_return_run_id_hash: null,
+    origin_return_message_seq: null, origin_return_message_time_ms: null,
+    origin_return_observed_at_ms: null, root_substituted_return_count: 0,
     return_target_session_hash: null, return_source_session_hash: null,
     interrupted: true, terminal_reason: 'observation-window-open',
     dispatch_accepted_at_ms: null, trace_id: null, event_receipt_kinds: [],
@@ -112,30 +119,102 @@ export default function () {
     let settleStartedAt = null;
     let originSubscriptionRequestId = null;
     let originSubscriptionTarget = null;
+    let originSubscriptionAcceptedAtMs = null;
+    let originCursorPollPending = false;
+    let originCursorPollScheduled = false;
     const pendingReturnEvents = [];
 
-    function tryReturnEvent(eventData) {
+    function returnBindingReady() {
       const identity = tokenLedgerRuntimeIdentity(ledger);
-      if (!identity.originChildSessionKey || !identity.delegateChildSessionKey) return false;
+      return Boolean(
+        identity.originChildSessionKey &&
+        identity.delegateChildSessionKey &&
+        identity.delegateRunId &&
+        evidence.origin_cursor_snapshot_accepted &&
+        Number.isSafeInteger(evidence.origin_return_cursor) &&
+        originSubscriptionAcceptedAtMs,
+      );
+    }
+
+    function tryReturnEvent({ eventData, observedAtMs }) {
+      const identity = tokenLedgerRuntimeIdentity(ledger);
+      if (!returnBindingReady()) return false;
       const receipt = parseTokenReturnEvent(eventData, {
         expectedTargetSessionKey: identity.originChildSessionKey,
         expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
+        expectedDelegateRunId: identity.delegateRunId,
         expectedSentinel: returnSentinel,
+        originCursor: evidence.origin_return_cursor,
+        subscriptionAcceptedAtMs: originSubscriptionAcceptedAtMs,
+        observedAtMs,
         hash,
       });
       if (!receipt) return false;
-      evidence.delegate_return_observed = true;
-      evidence.return_target_session_hash = receipt.targetSessionHash;
-      evidence.return_source_session_hash = receipt.sourceSessionHash;
+      evidence.origin_return_event_count += 1;
+      evidence.delegate_return_observed = evidence.origin_return_event_count === 1;
+      if (evidence.origin_return_event_count === 1) {
+        evidence.return_target_session_hash = receipt.targetSessionHash;
+        evidence.return_source_session_hash = receipt.sourceSessionHash;
+        evidence.origin_return_run_id_hash = receipt.returnRunIdHash;
+        evidence.origin_return_message_seq = receipt.messageSeq;
+        evidence.origin_return_message_time_ms = receipt.messageTimeMs;
+        evidence.origin_return_observed_at_ms = receipt.observedAtMs;
+      }
       evidence.event_receipt_kinds.push('bound-session-message-return');
       return true;
     }
 
     function reconcilePendingReturns() {
-      for (const eventData of pendingReturnEvents) {
-        if (tryReturnEvent(eventData)) break;
+      if (!returnBindingReady()) return;
+      const observations = pendingReturnEvents.splice(0);
+      for (const observation of observations) tryReturnEvent(observation);
+    }
+
+    function scheduleOriginCursorPoll(delay = ORIGIN_CURSOR_POLL_MS) {
+      if (closed ||
+          !evidence.origin_subscription_accepted ||
+          evidence.origin_cursor_snapshot_accepted ||
+          originCursorPollPending ||
+          originCursorPollScheduled) return;
+      originCursorPollScheduled = true;
+      socket.setTimeout(() => {
+        originCursorPollScheduled = false;
+        if (closed ||
+            evidence.origin_cursor_snapshot_accepted ||
+            originCursorPollPending) return;
+        const identity = tokenLedgerRuntimeIdentity(ledger);
+        if (!identity.originChildSessionKey || !identity.originRunId) {
+          scheduleOriginCursorPoll();
+          return;
+        }
+        originCursorPollPending = true;
+        tracker.send(socket, 'sessions.get', {
+          key: identity.originChildSessionKey,
+          limit: 50,
+        });
+      }, delay);
+    }
+
+    function consumeOriginCursorSnapshot(classified) {
+      originCursorPollPending = false;
+      if (!classified.ok || !Array.isArray(classified.payload?.messages)) {
+        evidence.origin_cursor_snapshots_rejected += 1;
+        scheduleOriginCursorPoll();
+        return;
       }
-      if (evidence.delegate_return_observed) pendingReturnEvents.length = 0;
+      const identity = tokenLedgerRuntimeIdentity(ledger);
+      const cursor = tokenOriginCursorFromMessages(classified.payload.messages, {
+        expectedOriginRunId: identity.originRunId,
+      });
+      if (!cursor) {
+        scheduleOriginCursorPoll();
+        return;
+      }
+      evidence.origin_cursor_snapshot_accepted = true;
+      evidence.origin_return_cursor = cursor.messageSeq;
+      evidence.origin_return_cursor_time_ms = cursor.messageTimeMs;
+      reconcilePendingReturns();
+      closeComplete();
     }
 
     function maybeSubscribeOrigin() {
@@ -157,7 +236,11 @@ export default function () {
         summary.delegate_parent_mismatch !== true &&
         evidence.task_snapshot_consistent === true &&
         evidence.task_snapshot_stable_count >= REQUIRED_STABLE_TASK_SNAPSHOTS &&
-        evidence.origin_subscription_accepted && evidence.delegate_return_observed;
+        evidence.origin_subscription_accepted &&
+        evidence.origin_cursor_snapshot_accepted &&
+        evidence.origin_return_event_count === 1 &&
+        evidence.root_substituted_return_count === 0 &&
+        evidence.delegate_return_observed;
     }
 
     function closeComplete() {
@@ -167,6 +250,14 @@ export default function () {
           summary.delegate_parent_mismatch) {
         evidence.interrupted = false;
         evidence.terminal_reason = 'duplicate-or-mislinked-task-identity-observed';
+        closed = true;
+        socket.close();
+        return;
+      }
+      if (evidence.origin_return_event_count > 1) {
+        evidence.delegate_return_observed = false;
+        evidence.interrupted = false;
+        evidence.terminal_reason = 'duplicate-normal-origin-return-observed';
         closed = true;
         socket.close();
         return;
@@ -260,6 +351,7 @@ export default function () {
         parentSessionKey: sessionKey, pages: taskSnapshotPages, hash,
       });
       maybeSubscribeOrigin();
+      scheduleOriginCursorPoll(0);
       reconcilePendingReturns();
       closeComplete();
       scheduleTaskPoll();
@@ -331,6 +423,8 @@ export default function () {
           if (classified.ok && classified.payload?.subscribed === true &&
               classified.payload?.key === originSubscriptionTarget) {
             evidence.origin_subscription_accepted = true;
+            originSubscriptionAcceptedAtMs = Date.now();
+            scheduleOriginCursorPoll(0);
           } else {
             evidence.terminal_reason = 'origin-session-subscription-rejected';
             failures.add(1);
@@ -363,10 +457,21 @@ export default function () {
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
           consumeTaskPage(classified);
         }
+        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+          consumeOriginCursorSnapshot(classified);
+        }
         if (classified.kind === 'event' && classified.event === 'session.message') {
           const eventData = classified.data || {};
-          if (pendingReturnEvents.length < 20) pendingReturnEvents.push(eventData);
-          tryReturnEvent(eventData);
+          if (pendingReturnEvents.length < 50) {
+            pendingReturnEvents.push({ eventData, observedAtMs: Date.now() });
+          } else {
+            evidence.interrupted = false;
+            evidence.terminal_reason = 'return-event-buffer-overflow';
+            failures.add(1);
+            closed = true;
+            socket.close();
+          }
+          reconcilePendingReturns();
           closeComplete();
         }
       } catch (error) {
@@ -397,7 +502,11 @@ export default function () {
     'token delegate task exactly once': () => evidence.delegate_task_unique_count === 1,
     'delegate owned by origin child': () => evidence.delegate_requester_matches_origin_child,
     'origin child subscription accepted': () => evidence.origin_subscription_accepted,
+    'origin initial-run cursor captured': () => evidence.origin_cursor_snapshot_accepted &&
+      evidence.origin_cursor_snapshots_rejected === 0,
     'bound delegate return observed': () => evidence.delegate_return_observed,
+    'normal origin return exactly once': () => evidence.origin_return_event_count === 1 &&
+      evidence.root_substituted_return_count === 0,
     'run not interrupted': () => evidence.interrupted === false,
   });
   if (verdict !== 'PASS-candidate') failures.add(1);

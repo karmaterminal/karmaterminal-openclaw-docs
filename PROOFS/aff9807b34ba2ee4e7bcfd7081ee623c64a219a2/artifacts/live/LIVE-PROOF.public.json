@@ -1,7 +1,7 @@
 {
   "schema": "frond-scribe.pr85651-live-proof.v1",
   "execution_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
-  "pure_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "pure_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
   "pickup_heads": {
     "pr124337": "d81272c117ef7a2ac765450d682309a941d58463",
     "pr121204": "5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938"
@@ -199,7 +199,7 @@
   ],
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "target_corpus_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

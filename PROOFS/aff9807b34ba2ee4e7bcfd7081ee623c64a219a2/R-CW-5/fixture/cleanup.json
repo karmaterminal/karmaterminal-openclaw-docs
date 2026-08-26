@@ -7,7 +7,7 @@
   "sourceTrackedCleanAfter": true,
   "executionWorktreeIntegrity": {
     "beforeInstall": {
-      "head": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "head": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
       "trackedClean": true,
       "candidateFileSha256": {
         "package.json": "74d961e40a8fe6d5c013bfa0e749554f20102cc68de9cc567f3ddb10b0b29eb8",
@@ -15,7 +15,7 @@
       }
     },
     "afterInstall": {
-      "head": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "head": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
       "trackedClean": true,
       "candidateFileSha256": {
         "package.json": "74d961e40a8fe6d5c013bfa0e749554f20102cc68de9cc567f3ddb10b0b29eb8",
@@ -23,7 +23,7 @@
       }
     },
     "afterExecution": {
-      "head": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+      "head": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
       "trackedClean": true,
       "candidateFileSha256": {
         "package.json": "74d961e40a8fe6d5c013bfa0e749554f20102cc68de9cc567f3ddb10b0b29eb8",
@@ -36,7 +36,7 @@
   "result": "source-only fixture left no gateway/config/state process to restore",
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "target_corpus_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

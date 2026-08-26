@@ -32,9 +32,9 @@
       "continuation.queue.drain": true
     },
     "source_files": {
-      "traceTree": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-2/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json",
-      "spanTree": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-2/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt",
-      "spanCounts": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/R-OBS-2/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json"
+      "traceTree": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/R-OBS-2/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json",
+      "spanTree": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/R-OBS-2/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt",
+      "spanCounts": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/R-OBS-2/source-evidence/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json"
     },
     "ended": "2026-08-25T10:10:43.655Z",
     "duration_ms": 0,
@@ -60,7 +60,7 @@
   },
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "target_corpus_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

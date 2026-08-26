@@ -1,41 +1,47 @@
-# PR #129388 warm-target proof corpus
+# PR #129388 final-presentation proof corpus
 
-Warm pure target SHA: `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9`.
-Qualification mode: **affected-slice-materiality**. The warm pure target
-intentionally has no exact-target Mode-B and was not executed standalone.
+Final presentation pure target SHA:
+`aff9807b34ba2ee4e7bcfd7081ee623c64a219a2`.
+Qualification mode: **maintenance-materiality-reuse**. The final target has no
+exact-target Mode-B and no exact standalone or live execution.
 
-The complete immediate source corpus remains
-`2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a`. Frozen qualified basis
-`c7131791a6d33ab83d1a820c7cdb81c1b1384931` and pinned upstream parent
-`80985b9663252da97bf8d67dd2cbeba0fa03aeea` are the two parents of the warm
-target. Their execution and qualification identities are not relabeled.
+The complete immediate source corpus and frozen warm basis is
+`25051f3b77409c45f5ce71c3b3b05aae85b0f8f9`. Final `aff9807b...` descends from
+ordinary merge `353d76c565c4da43693d41f3454825d48c38e354`, whose parents are that
+warm basis and pinned upstream `c841a9958abc8344b37ce5c6c5a06bec4cfa6b91`,
+plus three test-only semantic merge-repair commits. Their execution and
+qualification identities are not relabeled.
 
 Historical live execution remains
 `37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains historical source
-proof SHA `80311e8aa07fd560cb957475517c5ea18164541c`; neither identity is a warm
-execution claim. Runtime composite `a0aa4ec8aefe95ced34342978b64c270c16ec3e9`
-contains the warm target and has an exact R-CW-1 functional
-`PASS-candidate` receipt. Its OTel/Tempo receipt remains partial.
+proof SHA `80311e8aa07fd560cb957475517c5ea18164541c`. Runtime composite
+`a0aa4ec8aefe95ced34342978b64c270c16ec3e9` contains warm basis `25051f3b...`,
+not final `aff9807b...`; its exact R-CW-1 functional verdict remains
+`PASS-candidate` and its OTel/Tempo verdict remains `PARTIAL-candidate`.
 
 ## Transposition and applicability
 
-All 544 regular files from source corpus `2ffc7ca0...` at docs commit
-`e19110e419b67118fd8e890f1f3075c51acd8e4d` were copied into this subtree.
-Target paths and candidate identity were rebound locally; ancestor Mode-B,
-review, historical execution, and raw promotion receipts retain their original
-identities.
+All 595 regular files from source corpus `25051f3b...` at docs commit
+`b502fa7c445d45d0d31bde81f7a1d3cb3c9bed32` were copied into this subtree
+without symlinks. Target paths and presentation identity were rebound locally;
+ancestor Mode-B, warm qualification, historical execution, exact a0aa runtime,
+and raw promotion receipts retain their original identities.
 
-The independent applicability packet is vendored at
-[`artifacts/promotion/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/`](artifacts/promotion/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/).
-It records 11 owner files / 686 assertions, an independent 11 files / 544
-assertions subset, production types, full test types, build, and three current
-generated snapshots. Every raw output in that packet is content-addressed.
+The final maintenance applicability packet is vendored at
+[`artifacts/promotion/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/`](artifacts/promotion/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/).
+Its report SHA-256 is
+`da25ae8ec270dc2797fde6c56f9b35a5c799d718d76c3067a09c45f57465037e`.
+It records 39/40 feature-core blobs unchanged, the sole changed core as an
+exact-upstream projection, all three proof-sensitive inputs byte-identical,
+three test-only merge-seam repairs, exact-head focused owners at 84/84, and
+passing production types/build. The prior warm affected-slice packet remains
+exact to `25051f3b...`.
 
 | Disposition | Result |
 |---|---|
-| `REUSE` | Immutable historical row corpus plus bounded structural applicability. |
-| `INVALIDATE` | Ancestor execution cannot transfer into an exact warm-target execution claim. |
-| `UNKNOWN` | None within the declared affected slice after the docs `e19110e4...` receipt closure. |
+| `REUSE` | Immutable historical row corpus plus bounded final maintenance applicability. |
+| `INVALIDATE` | Ancestor and a0aa execution cannot transfer into an exact aff execution claim. |
+| `UNKNOWN` | None within the declared final maintenance slice. |
 
 ## Ancestor qualification
 
@@ -46,7 +52,12 @@ generated snapshots. Every raw output in that packet is content-addressed.
   167,237 passed / 21 failed / 3 load flakes / 18 deterministic; authoritative
   conclusion `failure`.
 - The independent `APPROVE` review and 40/40 focused proof are bound only to
-  exact c713 qualification identity. They are not a review of warm 25051.
+  exact c713 qualification identity.
+- Warm basis `25051f3b...`: affected-slice qualification remains exactly 11
+  owner files / 686 assertions, an independent 11-file / 544-assertion subset,
+  production types, full test types, build, and three generated snapshots.
+- Final `aff9807b...`: applicability is established only by the checksum-pinned
+  maintenance materiality report. It has no exact Mode-B or execution receipt.
 
 These are ancestor Mode-B runs, not target Mode-B.
 
@@ -102,11 +113,14 @@ These are ancestor Mode-B runs, not target Mode-B.
 
 ## Honest limits
 
-- Live rows are historical execution-composite evidence from `37300f29…`, not
-  exact warm-target or descendant-composite execution claims.
-- Warm `25051f3b…` has no exact-target Mode-B; qualification is compositional.
-- Exact descendant runtime `a0aa4ec8…` passed functional R-CW-1 scheduling and
-  wake behavior; OTel/Tempo correlation remains explicit receipt debt.
+- Live rows are historical execution-composite evidence from `37300f29...`, not
+  exact final-target execution claims.
+- Final `aff9807b...` has no exact-target Mode-B or execution; qualification mode
+  is `maintenance-materiality-reuse`.
+- Warm `25051f3b...` affected-slice receipts remain exact to that basis.
+- Runtime `a0aa4ec8...` passed exact functional R-CW-1 scheduling and wake
+  behavior on a runtime that contains 250 but not aff; OTel/Tempo remains
+  `PARTIAL-candidate`.
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.
 - R-CW-6 remains partial because the docs-generated selected delegate fixture is stale; its direct product surfaces passed.

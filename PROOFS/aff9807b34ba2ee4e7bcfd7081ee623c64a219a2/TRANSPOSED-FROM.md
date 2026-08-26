@@ -2,29 +2,29 @@
 
 | Field | Value |
 |---|---|
-| Immediate source corpus | `2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a` |
-| Warm target corpus | `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9` |
-| Source docs commit | `e19110e419b67118fd8e890f1f3075c51acd8e4d` |
-| Frozen qualified basis | `c7131791a6d33ab83d1a820c7cdb81c1b1384931` |
-| Pinned upstream parent | `80985b9663252da97bf8d67dd2cbeba0fa03aeea` |
+| Immediate source corpus / frozen warm basis | `25051f3b77409c45f5ce71c3b3b05aae85b0f8f9` |
+| Final target corpus | `aff9807b34ba2ee4e7bcfd7081ee623c64a219a2` |
+| Source docs commit | `b502fa7c445d45d0d31bde81f7a1d3cb3c9bed32` |
+| Ordinary merge | `353d76c565c4da43693d41f3454825d48c38e354` |
+| Pinned upstream parent | `c841a9958abc8344b37ce5c6c5a06bec4cfa6b91` |
+| Qualification mode | `maintenance-materiality-reuse` |
 | Historical evidence source | `80311e8aa07fd560cb957475517c5ea18164541c` |
 | Historical live execution composite | `37300f29a7ec1f731575343c2aa73ae25f1d0efb` |
 | Exact-live runtime composite | `a0aa4ec8aefe95ced34342978b64c270c16ec3e9` |
 
-Warm target `25051f3b…` is the ordinary no-fast-forward merge of frozen basis
-`c7131791…` and pinned upstream parent `80985b96…`. The c713 basis itself
-descends from source corpus target `2ffc7ca0…` and absorbed upstream
-`df9b7a5fbe9b94b0ab25dc404db7784797feadca`.
+Final target `aff9807b...` descends from ordinary merge `353d76c...`, whose
+parents are warm basis `25051f3b...` and pinned upstream `c841a995...`, plus
+three test-only semantic merge-repair commits.
 
-The complete 544-file source subtree was copied here without links. Target
+The complete 595-file warm source subtree was copied here without links. Target
 paths and candidate identity were rebound; historical source, execution,
-ancestor Mode-B, and c713 review identities were not rewritten. The c713
-qualification aggregate, red shard packets, review, and existing warm
-applicability packet are vendored under this target subtree.
+ancestor Mode-B, c713 review, warm qualification, and exact a0aa runtime
+identities were not rewritten. The prior source mapping remains immutable, and
+the 250-to-aff mapping is a separate content-addressed artifact.
 
-Warm qualification is compositional: ancestor runs `32895790947` and
-`32911065508` remain ancestor runs, while exact target Mode-B and exact target
-execution are both absent. Historical live rows remain attributed to
-`37300f29…`. Runtime `a0aa4ec8…` now has an exact functional R-CW-1
-`PASS-candidate` receipt; OTel/Tempo correlation remains partial and is not
-promoted to a campaign-wide pass.
+Final applicability comes only from the vendored materiality report at SHA-256
+`da25ae8ec270dc2797fde6c56f9b35a5c799d718d76c3067a09c45f57465037e`.
+Exact target Mode-B and exact target execution are both absent. Historical live
+rows remain attributed to `37300f29...`. Runtime `a0aa4ec8...` retains exact
+functional R-CW-1 `PASS-candidate` evidence and `PARTIAL-candidate`
+observability on a runtime that contains 250 but not aff.

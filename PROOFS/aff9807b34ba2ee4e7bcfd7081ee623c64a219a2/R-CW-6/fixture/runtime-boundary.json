@@ -47,7 +47,7 @@
   },
   "passed": true,
   "fixtureKind": "production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork",
-  "candidateWorktreeHead": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+  "candidateWorktreeHead": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
   "candidateLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
   "installedLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
   "lockfileMatchesCandidate": true,
@@ -93,7 +93,7 @@
   "hostToolchainHermetic": false,
   "transposition": {
     "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "target_corpus_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
     "kind": "full-subtree ancestry/materiality transposition",
     "exact_target_execution": false
   }

@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
-  "current_sha_short": "25051f3b",
+  "current_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
+  "current_sha_short": "aff9807b",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw 2026.8.1 (25051f3b)",
-  "corpus_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/",
-  "manifest_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/proofs-manifest.json",
-  "readme_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/README.md",
-  "clawsweeper_path": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/CLAWSSWEEPER.md",
+  "build_string": "OpenClaw 2026.8.1 (aff9807b)",
+  "corpus_path": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/",
+  "manifest_path": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/proofs-manifest.json",
+  "readme_path": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/README.md",
+  "clawsweeper_path": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/CLAWSSWEEPER.md",
   "entrypoints": {
-    "clawsweeper": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/CLAWSSWEEPER.md",
-    "manifest": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/proofs-manifest.json",
-    "readme": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/README.md",
-    "method": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/METHOD.md",
-    "resolved_sha": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/RESOLVED-SHA.md",
-    "artifacts": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/ARTIFACTS.md",
-    "transposition": "PROOFS/25051f3b77409c45f5ce71c3b3b05aae85b0f8f9/TRANSPOSED-FROM.md"
+    "clawsweeper": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/proofs-manifest.json",
+    "readme": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/README.md",
+    "method": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/METHOD.md",
+    "resolved_sha": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/ARTIFACTS.md",
+    "transposition": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/TRANSPOSED-FROM.md"
   },
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
@@ -29,30 +29,58 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Full self-contained copy from source corpus 2ffc7ca0 to warm target 25051f3b. Qualification mode is affected-slice-materiality: 11 owner files / 686 assertions and an independent 11-file / 544-assertion subset, production and full test types, build, and three current generated snapshots. Ancestor Mode-B runs 32895790947 on 2ffc7ca0 and 32911065508 on c7131791 remain failures and are not target Mode-B. Historical broad live execution remains 37300f29. Exact descendant runtime a0aa4ec8 has functional R-CW-1 PASS-candidate evidence with OTel/Tempo receipt debt. Rollup remains 32 pass, 4 partial, 1 honest limit, 4 missing, 0 fail.",
+  "disposition_note": "Complete self-contained copy from frozen warm basis 25051f3b to final target aff9807b. Qualification mode is maintenance-materiality-reuse: the final receipt records 39/40 feature-core blobs unchanged, src/cli/program/preaction.ts exact-upstream, all three proof-sensitive inputs byte-identical, three test-only merge repairs, exact-head focused owners 84/84, and passing production types/build. Final aff has no exact Mode-B or execution. Historical execution remains 37300f29. Exact runtime a0aa4ec8 retains functional R-CW-1 PASS-candidate evidence and PARTIAL-candidate observability on a runtime containing 250, not aff. Rollup remains 32 pass, 4 partial, 1 honest limit, 4 missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-25",
   "generated_by": "frond-scribe",
   "transposition": {
-    "source_corpus_sha": "2ffc7ca0615f5917acf809d1ccba82b0ef5b2d5a",
-    "target_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
-    "source_docs_commit": "e19110e419b67118fd8e890f1f3075c51acd8e4d",
-    "frozen_qualified_basis_sha": "c7131791a6d33ab83d1a820c7cdb81c1b1384931",
-    "pinned_upstream_parent_sha": "80985b9663252da97bf8d67dd2cbeba0fa03aeea",
+    "source_corpus_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "target_corpus_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
+    "source_docs_commit": "b502fa7c445d45d0d31bde81f7a1d3cb3c9bed32",
+    "frozen_warm_basis_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "ordinary_merge_sha": "353d76c565c4da43693d41f3454825d48c38e354",
+    "pinned_upstream_parent_sha": "c841a9958abc8344b37ce5c6c5a06bec4cfa6b91",
+    "repair_commits": [
+      "2cb924533fc81af29ff46ab0a9cb6edb2b3e8e9a",
+      "7a9bfac9afb7f711c8cec9cca067c639a161af12",
+      "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2"
+    ],
     "historical_evidence_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "qualification_mode": "affected-slice-materiality",
+    "qualification_mode": "maintenance-materiality-reuse",
     "exact_target_execution": false,
     "exact_target_mode_b": false,
     "runtime_composite_sha": "a0aa4ec8aefe95ced34342978b64c270c16ec3e9",
-    "pending_runtime_exact_live_proof": false,
+    "runtime_contains_source_not_target": true,
     "runtime_exact_live_proof_status": "functional-pass-observability-partial"
   },
-  "qualification_mode": "affected-slice-materiality",
+  "qualification_mode": "maintenance-materiality-reuse",
   "exact_target_execution": false,
+  "target_execution": {
+    "exact": false,
+    "standalone": false,
+    "live": false,
+    "note": "No execution receipt is exact to aff9807b."
+  },
   "target_mode_b": {
     "exact": false,
     "run": null,
     "note": "No exact-target Mode-B was run."
+  },
+  "maintenance_materiality": {
+    "basis_sha": "25051f3b77409c45f5ce71c3b3b05aae85b0f8f9",
+    "target_sha": "aff9807b34ba2ee4e7bcfd7081ee623c64a219a2",
+    "receipt_path": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/artifacts/promotion/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/materiality-report.md",
+    "sha256": "da25ae8ec270dc2797fde6c56f9b35a5c799d718d76c3067a09c45f57465037e",
+    "verdict": "reuse",
+    "unknown_within_declared_maintenance_slice": []
+  },
+  "source_mapping": {
+    "path": "PROOFS/aff9807b34ba2ee4e7bcfd7081ee623c64a219a2/artifacts/transposition/SOURCE-MAPPING-25051-TO-AFF980.tsv",
+    "source_files": 595,
+    "target_files_mapped": 595,
+    "byte_identical": 376,
+    "target_rebound": 219,
+    "missing": 0
   },
   "ancestor_mode_b": [
     {

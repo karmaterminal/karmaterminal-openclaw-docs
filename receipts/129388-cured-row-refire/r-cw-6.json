@@ -1,0 +1,40 @@
+{
+  "schema": "openclaw.project81.129388-cured-row-refire.r-cw-6.v1",
+  "row": "R-CW-6",
+  "verdict": "PASS-candidate",
+  "candidateSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+  "maxChainLength": 3,
+  "artifactFileCount": 9,
+  "checksumManifestSha256": "197930ded7057aa30df37822d51f5b393769da9269f1a083ab8d223fbdc56524",
+  "candidateLockfileSha256": "688c9780ded8ee8c83d4f0375d25213c26c02e36b12f6e7659d6c594c3b554e6",
+  "installedLockfileSha256": "688c9780ded8ee8c83d4f0375d25213c26c02e36b12f6e7659d6c594c3b554e6",
+  "candidatePackageManagerVersion": "11.22.0",
+  "executingPackageManagerVersion": "11.22.0",
+  "installedPackageManagerVersion": "11.22.0",
+  "hostToolchainHermetic": false,
+  "receipts": {
+    "fixtureReadiness": true,
+    "boundaryMatrix": true,
+    "runtimeBoundary": true,
+    "durableStateRecovery": true,
+    "typedToolSurface": true,
+    "dispatchBoundarySuite": true,
+    "cleanup": true,
+    "publicArtifactSafety": true,
+    "fixtureResult": true
+  },
+  "checks": {
+    "belowLimitHop2Scheduled": true,
+    "atLimitHop3Scheduled": true,
+    "firstOverLimitHop4ChainCapped": true,
+    "noRejectedHopSpawn": true,
+    "durableRecoveryPassed": true,
+    "typedToolSurfacePassed": true,
+    "selectedDelegateBoundaryPassed": true,
+    "candidateRegressionPassed": true,
+    "disposableWorktreeRemoved": true,
+    "sourceTrackedCleanAfter": true,
+    "publicArtifactsSafe": true
+  },
+  "corpusFolded": false
+}

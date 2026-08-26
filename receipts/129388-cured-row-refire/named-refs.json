@@ -1,0 +1,64 @@
+{
+  "schema": "openclaw.project81.129388-cured-row-refire.named-refs.v1",
+  "proofRowsFired": false,
+  "refs": {
+    "productRuntimeComposite": {
+      "namedRef": "karmaterminal/openclaw@a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "resolvedSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "localSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "trackingSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "serverBranchSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "serverImmutableSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "equal": true
+    },
+    "safeLane": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-cured-row-refire",
+      "resolvedSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "localSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "trackingSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "serverSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "unchangedBranchPublished": true,
+      "equal": true
+    },
+    "ciWorkflow": {
+      "namedRef": ".github/workflows/project81-k6-proof.yml from codeagent/129388-cured-row-refire",
+      "resolvedSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "localSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "trackingSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "serverSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "workflowBlob": "c08b7b5556e604feb62b981b3c41dfec4cb013ea",
+      "workflowSha256": "6b7cb215cc64ae250c748561e9023f2b602bdf7e3fafa3b9532d1a65703d8c1a",
+      "equal": true
+    },
+    "presentation": {
+      "namedRef": "karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates@4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "resolvedSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "localSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "trackingSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "serverBranchSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "serverImmutableSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "readOnly": true,
+      "equal": true
+    },
+    "docsProofBase": {
+      "namedRef": "karmaterminal/karmaterminal-openclaw-docs@821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "resolvedSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "localSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "trackingSha": null,
+      "trackingDisposition": "N/A (immutable commit)",
+      "serverSha": "821ad107e5ef8e2d5b2bb9dc74da6a9c9e177512",
+      "equal": true
+    }
+  },
+  "ancestry": {
+    "harnessClosureSha": "45cf1ae59ba0f32031a90dde193fe2d48d494e25",
+    "harnessClosureIsAncestorOfDocsBase": true,
+    "harnessClosureDocsBaseMergeBase": "45cf1ae59ba0f32031a90dde193fe2d48d494e25",
+    "productParents": [
+      "6aca9d1d9294376d0466cc8cc608ba731220aab9",
+      "2f9b9b7a90988190a149208cbbad68558d1d7daa"
+    ],
+    "discardedObservabilityOverlaySha": "2a42f96a3e9579caf04a2c203ce2ffc27ffaa0b8",
+    "discardedObservabilityOverlayIsAncestor": false
+  }
+}

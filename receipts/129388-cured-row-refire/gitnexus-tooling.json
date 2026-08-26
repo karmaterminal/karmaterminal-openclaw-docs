@@ -1,0 +1,19 @@
+{
+  "schema": "openclaw.project81.129388-cured-row-refire.gitnexus-tooling.v1",
+  "fork": "karmaterminal/GitNexus",
+  "version": "1.6.5",
+  "installPath": "/home/figs/src/gitnexus/gitnexus",
+  "forkSha": "3c1e686edfc1acaac882927cada121ddd7c47bcc",
+  "commandPath": "/home/figs/.local/bin/gitnexus",
+  "commandSha256": "8309aeb6858023f5cb3ff4ae8416b64c1989e4fe04d82dd822964127ed1355ca",
+  "exactCandidateSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+  "exactCandidateIndexAvailable": false,
+  "availableOpenclawIndexApplicable": false,
+  "stockNpxOrNpmSubstituted": false,
+  "fallback": [
+    "direct exact-source inspection",
+    "isolated durable SQLite state",
+    "isolated transcript events",
+    "raw Tempo query"
+  ]
+}

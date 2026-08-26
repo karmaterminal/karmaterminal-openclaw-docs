@@ -1,0 +1,46 @@
+{
+  "schema": "openclaw.project81.129388-cured-row-refire.cleanup.v1",
+  "isolatedGateway": {
+    "unit": "openclaw-proof-129388-cured-row-refire.service",
+    "pid": 3990716,
+    "pgid": 3990716,
+    "sid": 3990716,
+    "processStopped": true,
+    "port": 19892,
+    "portFreeAfter": true
+  },
+  "runtime": {
+    "candidateSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+    "distSha256BeforeTraffic": "822b9665d27d463469edb70f034a96c0dc8cb3cefc9227865e653ce5ec5beae3",
+    "distSha256AfterTraffic": "822b9665d27d463469edb70f034a96c0dc8cb3cefc9227865e653ce5ec5beae3",
+    "distSha256AfterShutdown": "822b9665d27d463469edb70f034a96c0dc8cb3cefc9227865e653ce5ec5beae3",
+    "distUnchanged": true,
+    "trackedCleanAfter": true
+  },
+  "livePrince": {
+    "unit": "openclaw-gateway.service",
+    "pidBefore": 2272093,
+    "pidAfter": 2272093,
+    "startTicksBefore": "50957076",
+    "startTicksAfter": "50957076",
+    "configSha256Before": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "configSha256After": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "unchanged": true
+  },
+  "foreignProofService": {
+    "unit": "openclaw-proof-a0aa4ec-hold.service",
+    "pidBefore": 2498654,
+    "pidAfter": 2498654,
+    "startTicksBefore": "51871376",
+    "startTicksAfter": "51871376",
+    "unchanged": true
+  },
+  "privateEvidencePreserved": true,
+  "productCodeTouched": false,
+  "presentationTouched": false,
+  "docsMainTouched": false,
+  "proofCorpusTouched": false,
+  "proofIndexTouched": false,
+  "pullRequestOpened": false,
+  "productIssueClosed": false
+}

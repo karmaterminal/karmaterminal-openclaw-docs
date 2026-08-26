@@ -1,0 +1,127 @@
+{
+  "schema": "openclaw.project81.129388-cured-row-refire.isolated-prefire.v1",
+  "outcome": "PASS-candidate",
+  "proofRowsFired": false,
+  "host": {
+    "seat": "ronan",
+    "architecture": "aarch64",
+    "nodeVersion": "v25.9.0",
+    "k6Version": "v2.0.0"
+  },
+  "runtime": {
+    "candidateSha": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+    "trackedClean": true,
+    "buildSucceeded": true,
+    "buildInfo": {
+      "commit": "a5db13ad6297721cbf43af445d5a4a9b9bb0ad67",
+      "sha256": "9d7049b6bca9ec1bbb85b1571763e10a21caeaa9d0f5748a3cf040fb11445eec"
+    },
+    "dist": {
+      "fileCount": 12147,
+      "preTrafficSha256": "822b9665d27d463469edb70f034a96c0dc8cb3cefc9227865e653ce5ec5beae3",
+      "postSmokeSha256": "822b9665d27d463469edb70f034a96c0dc8cb3cefc9227865e653ce5ec5beae3",
+      "unchanged": true
+    }
+  },
+  "dependencies": {
+    "sameHost": true,
+    "dependencyCloneSha": "6aca9d1d9294376d0466cc8cc608ba731220aab9",
+    "candidateAndDependencyCloneManifestBytesEqual": true,
+    "packageJsonSha256": "f381882c5299390ea74a7d095a512e50b4914e7eb380bf26f0c6b5b28976899d",
+    "pnpmWorkspaceSha256": "178d57f60d7a3fa7e679ef07be87d168570c1756557b367d6dc06d3445136b58",
+    "candidateLockSha256": "688c9780ded8ee8c83d4f0375d25213c26c02e36b12f6e7659d6c594c3b554e6",
+    "installedLockSha256": "688c9780ded8ee8c83d4f0375d25213c26c02e36b12f6e7659d6c594c3b554e6",
+    "installedLockMatchesCandidate": true,
+    "packageManager": "pnpm@11.22.0",
+    "packageManagerScope": "lane-local stable cache and store",
+    "workspaceNodeModulesLinks": 17,
+    "projectInstallRunInLinkedWorktree": false
+  },
+  "isolation": {
+    "unit": "openclaw-proof-129388-cured-row-refire.service",
+    "pid": 3990716,
+    "processStartTicks": "56380392",
+    "commandSha256": "6f797b527ecfc3b84ab91bec342c709666fd8ce163d822be18ba7a651769cad6",
+    "configSha256": "77817e53fe68a9bbed9b2ded2e3f3ba3081a7f038bacc6fe07128d62a3495ed8",
+    "loopbackListeners": [
+      "127.0.0.1:19892",
+      "[::1]:19892"
+    ],
+    "separateConfig": true,
+    "separateState": true,
+    "separateDatabase": true,
+    "separateWorkspace": true,
+    "separateHome": true,
+    "separateLogs": true,
+    "channelsConfigured": 0,
+    "backgroundChannelsDisabled": true,
+    "liveSessionsCopied": false,
+    "priorProofSessionsCopied": false
+  },
+  "credentialRoute": {
+    "sharedStoreOwnership": "state-db",
+    "profilesCopied": 1,
+    "provider": "openai",
+    "type": "oauth",
+    "profileIdPublished": false,
+    "profileIdFingerprint": "0b65c92fa836e1d98f1793ebe8708f6aa7f98ba1d029ead5707877c7d4b6c1cb",
+    "runtimeStateTablesChecked": 21,
+    "nonemptyRuntimeStateTablesBeforeSmoke": 0
+  },
+  "telemetry": {
+    "plugin": "diagnostics-otel",
+    "enabled": true,
+    "endpoint": "http://otel.dandelion.cult:4318",
+    "protocol": "http/protobuf",
+    "serviceName": "ronan-isolated-129388-a5db13ad",
+    "traces": true,
+    "metrics": false,
+    "logs": false,
+    "sampleRate": 1,
+    "captureContent": false
+  },
+  "seatReadiness": {
+    "outcome": "PASS-candidate",
+    "gatewayHealthReachable": true,
+    "gatewayStatusReachable": true,
+    "continuationEnabled": true,
+    "continuationDefaultsPresent": true,
+    "seatClass": "raw-final-text"
+  },
+  "boundedSmoke": {
+    "status": "ok",
+    "provider": "openai",
+    "canonicalPayloadExactSentinel": true,
+    "rawFinalTextExactSentinel": true,
+    "nonceSha256": "9423d29c09ed58a559d249f7b38bdc33f5bad4b242384aa110dacc896fc5caa0",
+    "tempo": {
+      "httpStatus": 200,
+      "traceql": "{ resource.service.name=\"ronan-isolated-129388-a5db13ad\" }",
+      "traceCount": 13,
+      "rootServiceNames": [
+        "ronan-isolated-129388-a5db13ad"
+      ],
+      "rootTraceNames": [
+        "openclaw.diagnostic.phase",
+        "openclaw.harness.run",
+        "openclaw.model.usage"
+      ],
+      "completedJobs": 1,
+      "totalJobs": 1,
+      "inspectedBytes": "39177",
+      "totalBlocks": null,
+      "backendDisposition": "partial",
+      "countAuthority": false,
+      "searchArtifactSha256": "7ee2f56bdd60a94585a3e20fed3af39f7046ca4e5d60fdfdaa43695d1cf76e9a"
+    }
+  },
+  "livePrinceBaseline": {
+    "unit": "openclaw-gateway.service",
+    "pid": 2272093,
+    "processStartTicks": "50957076",
+    "commandSha256": "625b1d970affb48bd776b16083037c7992886aeaaf459864902b672b59751bf0",
+    "configSha256": "541f1838b549ccf53199a5b00f3607bf05588c7721577c3efd6b0fd446ee799f",
+    "listener": "127.0.0.1:18789 and [::1]:18789",
+    "unchangedBeforeDispatch": true
+  }
+}

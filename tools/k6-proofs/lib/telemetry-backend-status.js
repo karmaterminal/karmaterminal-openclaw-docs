@@ -455,7 +455,7 @@ export function validateTelemetryBackendStatusReceipt(receipt, expected = {}) {
       [...RECEIPT_KEYS].some((key) => !Object.hasOwn(receipt, key))) {
     fail('backend-status shape contains missing or unknown fields');
   }
-  if (typeof receipt.rowId !== 'string' || !SAFE_IDENTITY.test(receipt.rowId)) {
+  if (!isSafeIdentity(receipt.rowId)) {
     fail('rowId is not public-safe');
   }
   if (receipt.candidateSha !== null && !SHA.test(receipt.candidateSha || '')) {
@@ -565,15 +565,14 @@ export function evaluateTelemetryBackendDispositionContract(receipt, contract = 
     : [];
   const unique = (values) => new Set(values).size === values.length;
 
-  if (requiredBackends.length === 0 ||
-      !unique(requiredBackends) ||
-      !requiredBackends.every((backend) => ['tempo', 'loki'].includes(backend))) {
-    failures.push('requiredBackends must be a unique non-empty Tempo/Loki list');
+  if (JSON.stringify(requiredBackends) !== JSON.stringify(['tempo', 'loki']) ||
+      !unique(requiredBackends)) {
+    failures.push('requiredBackends must be exactly tempo,loki');
   }
-  if (rowPassStatuses.length === 0 ||
-      !unique(rowPassStatuses) ||
-      !rowPassStatuses.every((status) => STATUS_SET.has(status))) {
-    failures.push('rowPassStatuses must be a unique non-empty backend-status list');
+  if (JSON.stringify(rowPassStatuses) !==
+      JSON.stringify(['complete', 'partial', 'capped']) ||
+      !unique(rowPassStatuses)) {
+    failures.push('rowPassStatuses must be exactly complete,partial,capped');
   }
   if (contract.requireNonAuthoritativeZero !== true) {
     failures.push('requireNonAuthoritativeZero must be true');

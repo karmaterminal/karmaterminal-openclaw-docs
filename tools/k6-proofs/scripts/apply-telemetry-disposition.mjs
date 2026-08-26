@@ -112,7 +112,11 @@ function evidenceMarkdown({ manifest, metadata, result }) {
 - Backend disposition: \`${result.telemetryRebind?.backend?.disposition || 'not-required'}\`
 - Backend complete: ${result.telemetryRebind?.backend?.complete === true ? 'yes' : 'no'}
 - Backend count authority: ${result.telemetryRebind?.backend?.countAuthority === true ? 'yes' : 'no'}
-- Disposition row contract: \`${result.telemetryRebind?.dispositionContract?.status || 'not-applicable'}\`
+- Disposition row contract: \`${
+  result.telemetryRebind?.dispositionContract
+    ? result.telemetryRebind.status
+    : 'not-applicable'
+}\`
 - Missing required artifacts: ${
   result.telemetryRebind?.missingRequiredArtifacts?.length
     ? result.telemetryRebind.missingRequiredArtifacts.map((name) => `\`${name}\``).join(', ')
@@ -257,7 +261,9 @@ async function main() {
     backendComplete: backendStatus.complete,
     backendCountAuthority: backendStatus.countAuthority,
     dispositionContractStatus:
-      telemetryRebind.dispositionContract?.status || 'not-applicable',
+      telemetryRebind.dispositionContract
+        ? telemetryRebind.status
+        : 'not-applicable',
   };
   await writeFile(runResultPath, `${JSON.stringify(runResult, null, 2)}\n`, { mode: 0o600 });
   await writeFile(path.join(runDir, 'row-result.json'), `${JSON.stringify(runResult, null, 2)}\n`, {
@@ -276,7 +282,9 @@ async function main() {
     backendComplete: backendStatus.complete,
     backendCountAuthority: backendStatus.countAuthority,
     dispositionContractStatus:
-      telemetryRebind.dispositionContract?.status || 'not-applicable',
+      telemetryRebind.dispositionContract
+        ? telemetryRebind.status
+        : 'not-applicable',
     blockers,
   })}\n`);
 }

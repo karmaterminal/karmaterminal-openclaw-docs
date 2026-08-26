@@ -206,7 +206,9 @@ async function requireTelemetryArtifacts(manifest, metadata, runResult, candidat
       runResult.observability?.backendComplete !== backendStatus.complete ||
       runResult.observability?.backendCountAuthority !== backendStatus.countAuthority ||
       runResult.observability?.dispositionContractStatus !==
-        (runResult.telemetryRebind?.dispositionContract?.status || 'not-applicable')) {
+        (runResult.telemetryRebind?.dispositionContract
+          ? runResult.telemetryRebind.status
+          : 'not-applicable')) {
     throw new Error('run result backend disposition disagrees with backend-status.json');
   }
   const missing = [];
@@ -374,8 +376,9 @@ async function main() {
             backendComplete: backendStatus.complete,
             backendCountAuthority: backendStatus.countAuthority,
             dispositionContractStatus:
-              runResult.telemetryRebind?.dispositionContract?.status ||
-              'not-applicable',
+              runResult.telemetryRebind?.dispositionContract
+                ? runResult.telemetryRebind.status
+                : 'not-applicable',
           }
         : {}),
     },

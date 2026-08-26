@@ -460,6 +460,7 @@ test('candidate envelope preserves partial backend health for a proven dispositi
     const tampered = structuredClone(result);
     tampered.telemetryRebind.dispositionContract.status = 'unproven';
     tampered.telemetryRebind.passBlockers.backend = true;
+    tampered.telemetryRebind.status = 'unproven';
     tampered.observability.dispositionContractStatus = 'unproven';
     await writeFile(
       path.join(setup.candidateDir, 'run-result.json'),

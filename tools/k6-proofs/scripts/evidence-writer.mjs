@@ -266,7 +266,9 @@ const result = {
       backendComplete: backendStatus.complete,
       backendCountAuthority: backendStatus.countAuthority,
       dispositionContractStatus:
-        telemetryRebind.dispositionContract?.status || 'not-applicable',
+        telemetryRebind.dispositionContract
+          ? telemetryRebind.status
+          : 'not-applicable',
     },
   } : {}),
   ...(telemetryBlockers.length > 0 ? {

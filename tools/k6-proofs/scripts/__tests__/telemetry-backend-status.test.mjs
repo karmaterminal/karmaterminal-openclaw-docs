@@ -279,6 +279,26 @@ test('run 32956764849 partial receipt proves the row contract but not backend co
         assert.equal(receipt.countAuthority, status === 'complete');
       }
     });
+
+    await t.test('runtime contract drift cannot make unknown row-passable', () => {
+      const receipt = buildWith([
+        classified('tempo', 'unknown'),
+        classified('loki', 'unknown'),
+      ]);
+      const driftedContract = {
+        ...dispositionContract,
+        rowPassStatuses: [...dispositionContract.rowPassStatuses, 'unknown'],
+      };
+      const result = evaluateTelemetryBackendDispositionContract(
+        receipt,
+        driftedContract,
+      );
+      assert.equal(result.status, 'unproven');
+      assert.ok(
+        result.failures.some((failure) =>
+          /rowPassStatuses must be exactly complete,partial,capped/.test(failure)),
+      );
+    });
 });
 
 test('capped interactions retain slice strategy and block count authority', () => {

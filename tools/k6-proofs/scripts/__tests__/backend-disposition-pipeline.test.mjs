@@ -410,6 +410,7 @@ test('disposition row withholds PASS for incomplete or dishonest candidate recei
         assert.equal(result.verdict, 'PARTIAL-candidate');
         assert.match(result.reason, expectedBlocker);
         assert.notEqual(result.telemetryRebind.status, 'proven');
+        assert.equal(result.observability.dispositionContractStatus, 'unproven');
       } finally {
         await rm(setup.root, { recursive: true, force: true });
       }
@@ -587,6 +588,22 @@ test('summary postprocessor accepts the exact partial receipt only as a disposit
     assert.equal(result.observability.backendComplete, false);
     assert.equal(result.observability.backendCountAuthority, false);
     assert.equal(result.telemetryRebind.dispositionContract.status, 'proven');
+
+    const wrongRun = structuredClone(setup.backendStatus);
+    wrongRun.proofRunId = 'different-proof-run';
+    const wrongRunPath = path.join(setup.root, 'wrong-run-backend-status.json');
+    await writeFile(wrongRunPath, `${JSON.stringify(wrongRun, null, 2)}\n`);
+    await assert.rejects(
+      runNode(process.execPath, [
+        postprocessor,
+        '--manifest', setup.manifestPath,
+        '--summary', summaryPath,
+        '--backend-status', wrongRunPath,
+        '--out-root', path.join(setup.root, 'wrong-run-output'),
+        '--run-id', setup.backendStatus.proofRunId,
+      ], { encoding: 'utf8' }),
+      /proofRunId does not match the expected run identity/,
+    );
   } finally {
     await rm(setup.root, { recursive: true, force: true });
   }

@@ -182,8 +182,10 @@ both levels:
 
 - `backend.disposition`, `backend.complete`, and `backend.countAuthority`
   preserve Tempo/Loki health exactly as observed;
-- `dispositionContract.status` records whether the row's classification
-  contract is `proven`.
+- `dispositionContract` records the backend-disposition evaluator and its
+  failures;
+- the enclosing `telemetryRebind.status` records whether the complete row
+  contract, including required receipts and artifacts, is `proven`.
 
 A validated `partial` or `capped` backend may therefore produce a row
 `PASS-candidate` while `backend.complete=false` and `countAuthority=false`.

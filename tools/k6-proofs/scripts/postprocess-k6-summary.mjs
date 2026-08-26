@@ -274,12 +274,26 @@ async function main() {
   if (manifest.telemetryContract) {
     if (args['backend-status']) {
       backendStatus = JSON.parse(readFileSync(args['backend-status'], 'utf8'));
-      const validation = validateTelemetryBackendStatusReceipt(backendStatus, {
+      const expectedBackend = {
         rowId: manifest.rowId,
         requiredCompletenessKeys:
           manifest.telemetryContract.backendUnavailable.requiredCompletenessKeys,
         rebindKeys: manifest.telemetryContract.backendUnavailable.rebindKeys,
-      });
+        ...(manifest.telemetryContract.verdictAuthority?.passScope ===
+          'backend-disposition-contract'
+          ? {
+              candidateSha: /^[a-f0-9]{40}$/u.test(manifest.candidateSha || '')
+                ? manifest.candidateSha
+                : null,
+              seat: manifest.seat,
+              proofRunId: runId,
+            }
+          : {}),
+      };
+      const validation = validateTelemetryBackendStatusReceipt(
+        backendStatus,
+        expectedBackend,
+      );
       if (!validation.valid) {
         throw new Error(
           `backend-status receipt rejected: ${validation.failures.join('; ')}`,
@@ -395,7 +409,9 @@ async function main() {
         backendComplete: backendStatus.complete,
         backendCountAuthority: backendStatus.countAuthority,
         dispositionContractStatus:
-          telemetryRebind.dispositionContract?.status || 'not-applicable',
+          telemetryRebind.dispositionContract
+            ? telemetryRebind.status
+            : 'not-applicable',
       },
     } : {}),
     liveRunSafety: manifest.liveRunSafety ? {

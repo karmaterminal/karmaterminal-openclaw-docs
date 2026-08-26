@@ -159,12 +159,16 @@ function telemetryArtifactsMatch({ envelope, manifest, metadata, runResult, runD
       runResult.observability.backendComplete !== backendStatus.complete ||
       runResult.observability.backendCountAuthority !== backendStatus.countAuthority ||
       runResult.observability.dispositionContractStatus !==
-        (runResult.telemetryRebind?.dispositionContract?.status || 'not-applicable') ||
+        (runResult.telemetryRebind?.dispositionContract
+          ? runResult.telemetryRebind.status
+          : 'not-applicable') ||
       envelope.observability.backendDisposition !== backendStatus.status ||
       envelope.observability.backendComplete !== backendStatus.complete ||
       envelope.observability.backendCountAuthority !== backendStatus.countAuthority ||
       envelope.observability.dispositionContractStatus !==
-        (runResult.telemetryRebind?.dispositionContract?.status || 'not-applicable')) {
+        (runResult.telemetryRebind?.dispositionContract
+          ? runResult.telemetryRebind.status
+          : 'not-applicable')) {
     return false;
   }
   if (contract.verdictAuthority?.passScope === 'backend-disposition-contract') {

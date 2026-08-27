@@ -77,7 +77,6 @@ export function targetReadinessBindingErrors(actual, expected, { requireComplete
     if (!SHA.test(actual.docsHead || '')) errors.push('docs-head-invalid');
     if (!SHA.test(actual.candidateSha || '')) errors.push('candidate-sha-invalid');
     if (!SHA.test(actual.runtimeBuildSha || '')) errors.push('runtime-build-sha-invalid');
-    if (actual.candidateSha !== actual.runtimeBuildSha) errors.push('candidate-runtime-mismatch');
   }
   return [...new Set(errors)];
 }

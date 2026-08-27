@@ -109,6 +109,12 @@ The live helper obtains continuation config through authenticated `config.get`
 on `OPENCLAW_GATEWAY_WS`; host config can provide authentication but never the
 target depth. Its public observation binds only a credential-free gateway
 fingerprint plus seat, unit, docs, candidate/runtime, rows, and depth contract.
+Candidate and runtime are separate 40-character identities and may differ at
+this readiness layer. The runner records that state as
+`candidateMatchesRuntime:false`; readiness does not promote it to exact-target
+evidence. Rows that require exact execution, including R-CD-TOKEN and
+R-CD-CHAINED-DEPTH-2, retain their row-specific equal-build gates, and the
+candidate-envelope validator withholds exact PASS authority on mismatch.
 
 ### 4. Dry-run the selected set
 

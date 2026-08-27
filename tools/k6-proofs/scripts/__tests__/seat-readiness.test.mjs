@@ -319,6 +319,47 @@ test('D: target observation rejects wrong gateway, seat, candidate, and row bind
   assert.deepEqual(publicTarget, publicGatewayTarget('ws://127.0.0.1:19893'));
 });
 
+test('complete target binding preserves distinct valid candidate and runtime identities', async () => {
+  const candidateSha = 'b'.repeat(40);
+  const runtimeBuildSha = 'c'.repeat(40);
+  const source = {
+    gatewayWs: 'ws://127.0.0.1:19893',
+    seat: 'target-seat',
+    gatewayUnit: 'openclaw-gateway-isolated',
+    docsHead: 'a'.repeat(40),
+    candidateSha,
+    runtimeBuildSha,
+    selectedRows: ['R-CD-2'],
+    requiredMaxSpawnDepth: 1,
+    expectedMaxSpawnDepth: null,
+  };
+  const binding = buildTargetReadinessBinding(source);
+  assert.deepEqual(
+    targetReadinessBindingErrors(binding, binding, { requireComplete: true }),
+    [],
+  );
+
+  await withTmp(async (dir) => {
+    const tools = await writeFakeSeatTools(dir);
+    const run = runPreflight(
+      ['--json', '--no-gateway', '--require-target-binding', '--rows', 'R-CD-2'],
+      {
+        ...readyEnv(tools),
+        OPENCLAW_CANDIDATE_SHA: candidateSha,
+        OPENCLAW_RUNTIME_BUILD_SHA: runtimeBuildSha,
+        OPENCLAW_PROOFS_DOCS_REF: source.docsHead,
+      },
+    );
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    const report = JSON.parse(run.stdout);
+    assert.equal(report.outcome, 'PASS-candidate');
+    assert.equal(report.targetObservation.bindingValid, true);
+    assert.deepEqual(report.targetObservation.bindingErrors, []);
+    assert.equal(report.targetObservation.binding.candidateSha, candidateSha);
+    assert.equal(report.targetObservation.binding.runtimeBuildSha, runtimeBuildSha);
+  });
+});
+
 test('seat readiness schema tracks policy, continuation readiness, checked k6 candidates, and env purposes', async () => {
   const parsed = JSON.parse(await readFile(schema, 'utf8'));
   assert.ok(parsed.required.includes('policy'));

@@ -66,6 +66,7 @@ test('R-CD-TOKEN closes normal-origin return authority on the public event bound
   assert.ok(manifest.scenario.methods.includes('sessions.messages.subscribe'));
   assert.ok(manifest.scenario.methods.includes('sessions.get'));
   assert.match(scenario, /tokenOriginCursorFromMessages/);
+  assert.match(scenario, /tokenOriginCursorSnapshotDispatch/);
   assert.match(scenario, /origin_return_event_count === 1/);
   assert.match(scenario, /root_substituted_return_count === 0/);
   assert.match(contract, /announce:v1:/);

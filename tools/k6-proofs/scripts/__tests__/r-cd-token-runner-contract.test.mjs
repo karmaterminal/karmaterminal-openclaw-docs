@@ -77,7 +77,17 @@ test('scenario paginates the public task ledger and binds a structured return', 
   assert.match(source, /delegate_requester_matches_origin_child/);
   assert.match(source, /classified\.event === 'session\.message'/);
   assert.match(source, /parseTokenReturnEvent/);
+  assert.match(source, /parseTokenReturnTranscriptMessage/);
   assert.match(source, /tokenOriginCursorFromMessages/);
+  assert.match(source, /tokenOriginCursorSnapshotDispatch/);
+  assert.match(source, /rememberTokenReturnReceipt/);
+  assert.match(source, /OPENCLAW_TOKEN_CURSOR_POLL_MS \|\| 500/);
+  assert.match(source, /!\(Number\(delay\) > 0\)/);
+  assert.doesNotMatch(source, /socket\.setTimeout\([^,]+,\s*0\s*\)/);
+  const firstGet = source.indexOf('tracker.send(socket, dispatch.method, dispatch.params)');
+  const requestFn = source.indexOf('function requestOriginCursorSnapshot()');
+  const scheduleFn = source.indexOf('function scheduleOriginCursorPoll(');
+  assert.ok(requestFn > 0 && firstGet > requestFn && firstGet < scheduleFn);
   assert.match(source, /expectedDelegateRunId: identity\.delegateRunId/);
   assert.match(source, /origin_return_message_seq/);
   assert.match(source, /origin_return_event_count === 1/);

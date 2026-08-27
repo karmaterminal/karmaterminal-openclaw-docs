@@ -198,6 +198,34 @@ function consumptionReceipt({
   });
 }
 
+test('byte-identical progressSummary/result aliases count as one marker', () => {
+  const aliased = chainTasks();
+  aliased[0].result = aliased[0].progressSummary;
+  aliased[1].result = aliased[1].progressSummary;
+  assert.equal(taskReceipt(aliased)?.taskCount, 2);
+  assert.equal(taskReceipt(aliased)?.recoveryWakeScheduled, true);
+});
+
+test('a repeated marker inside one public detail field remains rejected', () => {
+  const repeatedChild = chainTasks();
+  repeatedChild[0].progressSummary = `CHILD-DONE ${nonce} CHILD-DONE ${nonce}`;
+  assert.equal(taskReceipt(repeatedChild), null);
+  const repeatedGrandchild = chainTasks();
+  repeatedGrandchild[1].progressSummary = `GRANDCHILD-DONE ${nonce} GRANDCHILD-DONE ${nonce}`;
+  assert.equal(taskReceipt(repeatedGrandchild), null);
+});
+
+test('distinct non-identical detail fields that each contain the marker remain rejected', () => {
+  const distinctChild = chainTasks();
+  distinctChild[0].progressSummary = `CHILD-DONE ${nonce}`;
+  distinctChild[0].result = `completed CHILD-DONE ${nonce} extra`;
+  assert.equal(taskReceipt(distinctChild), null);
+  const distinctGrandchild = chainTasks();
+  distinctGrandchild[1].progressSummary = `GRANDCHILD-DONE ${nonce}`;
+  distinctGrandchild[1].terminalSummary = `finished GRANDCHILD-DONE ${nonce}`;
+  assert.equal(taskReceipt(distinctGrandchild), null);
+});
+
 test('depth-2 task ledger binds exactly one delivered root-child-grandchild chain', () => {
   assert.deepEqual(taskReceipt(), {
     schema: R_CD_CHAIN_TASK_LEDGER_SCHEMA,

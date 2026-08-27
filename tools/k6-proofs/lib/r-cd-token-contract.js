@@ -245,6 +245,55 @@ export function tokenOriginCursorFromMessages(
 }
 
 /**
+ * Decide the first public cursor recovery action. The first sessions.get must
+ * fire synchronously once subscription and exact origin lineage are ready.
+ * Positive-delay timers are only for later recovery polls; delay <= 0 is idle.
+ */
+export function tokenOriginCursorSnapshotDispatch({
+  closed = false,
+  originSubscriptionAccepted = false,
+  originCursorSnapshotAccepted = false,
+  originReturnEventCount = 0,
+  originCursorPollPending = false,
+  originChildSessionKey = null,
+  originRunId = null,
+  recoveryPollDelayMs = null,
+} = {}) {
+  if (closed === true ||
+      originSubscriptionAccepted !== true ||
+      originCursorPollPending === true ||
+      (originCursorSnapshotAccepted === true &&
+        Number(originReturnEventCount) > 0)) {
+    return { action: 'idle' };
+  }
+  const originKey = String(originChildSessionKey || '').trim();
+  const originRun = String(originRunId || '').trim();
+  if (originKey && originRun) {
+    return {
+      action: 'sessions.get',
+      method: 'sessions.get',
+      params: { key: originKey, limit: 50 },
+    };
+  }
+  const delayMs = Number(recoveryPollDelayMs);
+  if (!Number.isFinite(delayMs) || delayMs <= 0) return { action: 'idle' };
+  return { action: 'schedule', delayMs };
+}
+
+export function createTokenReturnObservationState() {
+  return { seen: Object.create(null), count: 0 };
+}
+
+export function rememberTokenReturnReceipt(state, receipt) {
+  if (!state || !receipt) return false;
+  const seq = receipt.messageSeq;
+  if (!Number.isSafeInteger(seq) || seq < 0 || state.seen[seq]) return false;
+  state.seen[seq] = true;
+  state.count += 1;
+  return true;
+}
+
+/**
  * Bind the public normal-origin assistant event to the exact accepted delegate
  * child/run. The inter-session input is intentionally hidden by the product's
  * display projection, so textual provenance headers are not an event contract.

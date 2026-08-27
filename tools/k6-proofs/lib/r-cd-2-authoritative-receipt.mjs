@@ -67,7 +67,8 @@ function successfulLifecycleFacts(evidence) {
     hex(evidence?.send_run_fingerprint, 16) &&
     hex(evidence?.row_nonce_fingerprint, 16) &&
     evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
-    hex(evidence?.accepted_send_trace_id, 32);
+    (evidence?.accepted_send_trace_id == null ||
+      hex(evidence.accepted_send_trace_id, 32));
 }
 
 // Older acquisition code promoted replayInvalid into a terminal failure even
@@ -98,13 +99,24 @@ function topologyPasses(correlation) {
     correlation.dispatchSpanId !== correlation.fireSpanId &&
     hex(correlation?.rowBinding?.acceptedSendRunFingerprint, 16) &&
     hex(correlation?.rowBinding?.nonceFingerprint, 16) &&
-    hex(correlation?.rowBinding?.acceptedSendTraceId, 32);
+    hex(correlation?.rowBinding?.acceptedSendTraceId, 32) &&
+    new Set(['sessions-send-response', 'unique-reason-bound-trace'])
+      .has(correlation?.rowBinding?.acceptedSendTraceSource);
 }
 
-// The accepted sessions.send response is the authority for this row's turn.
-// Do not combine its lifecycle with a separately-valid continuation trace.
+// sessions.send currently returns the accepted run ID but not its OTel trace
+// ID. Prefer a response trace when available; otherwise accept only the one
+// trace selected by the collector's nonce-derived reason contract.
 function sameAcceptedTrace(evidence, correlation) {
-  return evidence?.accepted_send_trace_id === correlation?.traceId;
+  if (hex(evidence?.accepted_send_trace_id, 32)) {
+    return correlation?.rowBinding?.acceptedSendTraceSource ===
+        'sessions-send-response' &&
+      evidence.accepted_send_trace_id === correlation?.traceId;
+  }
+  return evidence?.accepted_send_trace_id == null &&
+    correlation?.rowBinding?.acceptedSendTraceSource ===
+      'unique-reason-bound-trace' &&
+    correlation?.rowBinding?.acceptedSendTraceId === correlation?.traceId;
 }
 
 // A matching Tempo trace alone is not a sufficient join: a reused/shared
@@ -115,7 +127,7 @@ function sameAcceptedTrace(evidence, correlation) {
 function sameRowBinding(evidence, correlation) {
   return evidence?.send_run_fingerprint === correlation?.rowBinding?.acceptedSendRunFingerprint &&
     evidence?.row_nonce_fingerprint === correlation?.rowBinding?.nonceFingerprint &&
-    evidence?.accepted_send_trace_id === correlation?.rowBinding?.acceptedSendTraceId;
+    sameAcceptedTrace(evidence, correlation);
 }
 
 function categoryFor(evidence, correlation) {
@@ -206,7 +218,10 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       replayDiagnosticObserved: evidence?.replay_invalid_observed === true ||
         evidence?.failureCategory === 'delegate-replay-unsafe',
       traceFingerprint: fingerprint(correlation.traceId),
-      acceptedSendTraceFingerprint: fingerprint(evidence.accepted_send_trace_id),
+      acceptedSendTraceFingerprint:
+        fingerprint(correlation.rowBinding.acceptedSendTraceId),
+      acceptedSendTraceSource:
+        correlation.rowBinding.acceptedSendTraceSource,
       acceptedSendRunFingerprint: fingerprint(evidence.send_run_fingerprint),
       rowNonceFingerprint: fingerprint(evidence.row_nonce_fingerprint),
       chainFingerprint: fingerprint(correlation.chainId),
@@ -234,6 +249,8 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
     typeof life.replayDiagnosticObserved === 'boolean' &&
     hex(life.traceFingerprint, 16) && hex(life.acceptedSendTraceFingerprint, 16) &&
     life.traceFingerprint === life.acceptedSendTraceFingerprint &&
+    new Set(['sessions-send-response', 'unique-reason-bound-trace'])
+      .has(life.acceptedSendTraceSource) &&
     hex(life.acceptedSendRunFingerprint, 16) && hex(life.rowNonceFingerprint, 16) &&
     hex(life.chainFingerprint, 16) && hex(life.delegateFingerprint, 16);
   return pass ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-pass-lifecycle' };

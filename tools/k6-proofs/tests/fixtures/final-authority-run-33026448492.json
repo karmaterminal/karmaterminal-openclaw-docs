@@ -1,0 +1,125 @@
+{
+  "sourceRunId": "33026448492",
+  "sanitization": {
+    "privateSessionKeysReplaced": true,
+    "privateRunIdsReplaced": true,
+    "privateTaskIdsReplaced": true,
+    "rowNonceReplaced": true,
+    "publicTempoTraceRetained": true
+  },
+  "rCd2": {
+    "evidence": {
+      "session_created": true,
+      "session_unbound_confirmed": true,
+      "send_accepted": true,
+      "send_run_captured": true,
+      "dispatch_terminal_sentinel_observed": true,
+      "dispatch_terminal_sentinel_same_run_window": true,
+      "terminal_success_same_run": true,
+      "typed_delegate_success_same_run": true,
+      "wake_lifecycle_observed": true,
+      "post_wake_quiet": true,
+      "channel_message_observed": false,
+      "dispatch_failure_observed": false,
+      "send_run_fingerprint": "ee44e9cf7b8d702a",
+      "terminal_run_fingerprint": "ee44e9cf7b8d702a",
+      "wake_run_fingerprint": "ee44e9cf7b8d702a",
+      "row_nonce_fingerprint": "9ee2becf0dc8dc53",
+      "accepted_send_trace_id": null
+    },
+    "correlation": {
+      "continuation": {
+        "tool": "continue_delegate"
+      },
+      "delegate": {
+        "mode": "silent-wake"
+      },
+      "sameTrace": true,
+      "sameChain": true,
+      "toolSpanIds": [
+        "1111111111111111"
+      ],
+      "traceId": "f4d5476b8de870bd6f90982de569060e",
+      "chainId": "sanitized-chain",
+      "dispatchSpanId": "2222222222222222",
+      "fireSpanId": "3333333333333333",
+      "rowBinding": {
+        "acceptedSendRunFingerprint": "ee44e9cf7b8d702a",
+        "nonceFingerprint": "9ee2becf0dc8dc53",
+        "acceptedSendTraceId": "f4d5476b8de870bd6f90982de569060e",
+        "acceptedSendTraceSource": "unique-reason-bound-trace"
+      }
+    }
+  },
+  "depth": {
+    "rootSessionKey": "agent:main:sanitized-depth-root",
+    "nonce": "R-CD-CHAIN-SANITIZED-33026448492",
+    "dispatchAcceptedAtMs": 100,
+    "tasks": [
+      {
+        "taskId": "sanitized-depth-child-task",
+        "runId": "sanitized-depth-child-run",
+        "sessionKey": "agent:main:sanitized-depth-root",
+        "childSessionKey": "agent:main:subagent:sanitized-depth-child",
+        "prompt": "Use R-CD-CHAIN-SANITIZED-33026448492 for CHILD-WAITING R-CD-CHAIN-SANITIZED-33026448492 and CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492. Preserve R-CD-CHAIN-SANITIZED-33026448492 through recovery. Verify R-CD-CHAIN-SANITIZED-33026448492 twice, then return R-CD-CHAIN-SANITIZED-33026448492 and close R-CD-CHAIN-SANITIZED-33026448492.",
+        "status": "completed",
+        "deliveryStatus": "delivered",
+        "createdAt": 110,
+        "endedAt": 200,
+        "lastToolName": "continue_work",
+        "progressSummary": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492"
+      },
+      {
+        "taskId": "sanitized-depth-grandchild-task",
+        "runId": "sanitized-depth-grandchild-run",
+        "sessionKey": "agent:main:subagent:sanitized-depth-child",
+        "childSessionKey": "agent:main:subagent:sanitized-depth-grandchild",
+        "prompt": "Return GRANDCHILD-DONE R-CD-CHAIN-SANITIZED-33026448492 for R-CD-CHAIN-SANITIZED-33026448492.",
+        "status": "completed",
+        "deliveryStatus": "delivered",
+        "createdAt": 120,
+        "endedAt": 190,
+        "progressSummary": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492\nGRANDCHILD-DONE R-CD-CHAIN-SANITIZED-33026448492"
+      }
+    ]
+  },
+  "token": {
+    "targetSessionKey": "agent:main:subagent:sanitized-token-origin",
+    "delegateChildSessionKey": "agent:main:subagent:sanitized-token-delegate",
+    "originRunId": "sanitized-token-origin-run",
+    "delegateRunId": "sanitized-token-delegate-run",
+    "sentinel": "RCDT-RETURN-SANITIZED-33026448492",
+    "subscriptionAcceptedAtMs": 4000,
+    "observedAtMs": 5000,
+    "messages": [
+      {
+        "role": "assistant",
+        "timestamp": 2000,
+        "content": [
+          {
+            "type": "text",
+            "text": "origin task accepted"
+          }
+        ],
+        "__openclaw": {
+          "runId": "sanitized-token-origin-run",
+          "seq": 2
+        }
+      },
+      {
+        "role": "assistant",
+        "timestamp": 3000,
+        "content": [
+          {
+            "type": "text",
+            "text": "Continuation completed with result: RCDT-RETURN-SANITIZED-33026448492"
+          }
+        ],
+        "__openclaw": {
+          "runId": "announce:v1:agent:main:subagent:sanitized-token-delegate:sanitized-token-delegate-run",
+          "seq": 3
+        }
+      }
+    ]
+  }
+}

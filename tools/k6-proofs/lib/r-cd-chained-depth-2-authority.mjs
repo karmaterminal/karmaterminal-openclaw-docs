@@ -315,7 +315,7 @@ function taskResultText(task) {
 
 function taskPromptHasNonce(task, nonce) {
   return typeof task?.prompt === 'string' &&
-    exactPhraseCount(task.prompt, nonce) === 1;
+    exactPhraseCount(task.prompt, nonce) >= 1;
 }
 
 /**
@@ -374,8 +374,7 @@ export function rCdChainTaskLedgerReceipt(
     return null;
   }
 
-  const recoveryMarker =
-    `CHILD-WAITING ${nonce} CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED`;
+  const recoveryMarker = `CHILD-DONE ${nonce}`;
   const grandchildMarker = `GRANDCHILD-DONE ${nonce}`;
   if (rootTask?.lastToolName !== 'continue_work' ||
       exactPhraseCount(taskResultText(rootTask), recoveryMarker) !== 1 ||

@@ -1,176 +1,133 @@
-# R-CD-TOKEN normal-origin return observer cure
+# PR #129388 final authority harness cure
 
 ## Verdict
 
-**Owner: docs harness.** Product SHA
-`0c033c46c6365929c669bb7eff60a58ec914dbdd` emitted the normal origin
-assistant event required by the row. The rejected harness accepted only a
-user/system event carrying a textual `[Inter-session message]` header, but the
-product intentionally suppresses that internal announce input from the public
-display projection. The later assistant event is public and carries the exact
-run and message-sequence identities needed for authority.
+**Owner: docs harness.** Corrected run `33026448492` exercised the intended
+product behavior at runtime SHA
+`5d79066ea4926c69fcf7ac8376688a0babbf7797`, but all three rows remained
+`PARTIAL-candidate` because their authority observers rejected public evidence
+that the product had emitted or durably projected.
 
-Implementation checkpoint
-`476ee9346495e9db991539fdc3c10bb34474ed9c` is pushed with local, tracking,
-and server equality. The exact frozen run remains `PARTIAL-candidate`; this
-lane performed no live refire and does not retroactively promote artifact
-`9624150623`.
+This branch repairs those three observation contracts without changing product
+code, the proof corpus, the protected presentation branch, or any existing run
+artifact. Run `33026448492` remains an immutable historical partial; only a new
+exact three-row refire may produce successor signed receipts.
 
-Bound issue: #103.
+Branch:
+`codeagent/129388-final-authority-harness-cure`
 
-## Named refs
+Base:
+`a10dbd095432c22b94fac243fbffe3f0d8a1339d`
 
-The pre-evidence identity receipt is
-`receipts/129388-token-return-observer-cure/named-refs.md`.
+## Failure classification and cure
 
-| Category | Named ref | Resolved SHA | Local | Tracking | Server | Verdict |
-|---|---|---|---|---|---|---|
-| Docs/base | `karmaterminal/karmaterminal-openclaw-docs@fd4d323bc396c044890dd732b7d10c7ad346415e` | `fd4d323bc396c044890dd732b7d10c7ad346415e` | same | safe lane initially published at same | commit object same | equal before evidence |
-| Safe lane implementation | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-token-return-observer-cure` | `476ee9346495e9db991539fdc3c10bb34474ed9c` | same | same | same | equal and pushed |
-| Product/runtime evidence | `karmaterminal/openclaw:codeagent/129388-runtime-composite-final-cures` | `0c033c46c6365929c669bb7eff60a58ec914dbdd` | same | same | same | equal, read-only |
-| CI/workflow | Focused harness tests only | N/A | N/A | N/A | N/A | focused-only; no live dispatch |
-| Presentation | `karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates` | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | same | same | same | equal, read-only |
-| Docs/proof ref | Immutable run `33014309397` head | `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | commit object same | source branch has advanced | run head same; source branch has advanced | immutable run identity exact; mutable branch not credited |
-| Run/artifact | Run `33014309397`, artifact `9624150623` | `96c0e1b59c205696806ae50cc659a08f4b79fd3d` | run head object same | N/A | Actions run head same | equal |
+### R-CD-2: accepted run to unique continuation trace
 
-## Product versus observer classification
+The gateway's `sessions.send` response exposes the accepted run ID but does not
+expose its OTel trace ID. The rejected resolver nevertheless required
+`accepted_send_trace_id`, so it rejected the exact public Tempo trace
+`f4d5476b8de870bd6f90982de569060e`, which contains one
+`openclaw.tool.execution(continue_delegate)` followed by one
+`continuation.delegate.dispatch` and one `continuation.delegate.fire`.
 
-The exact product paths were inspected read-only.
+The collector already fails closed when its nonce-derived reason query returns
+zero or multiple traces and validates the exact tool/dispatch/fire topology.
+It now records one of two explicit trace-binding sources:
 
-1. `sessions.messages.subscribe` is a live-only subscription. Its schema has no
-   replay cursor, while emitted `session.message` payloads carry `messageSeq`,
-   message metadata, and `runId`.
-2. Normal continuation delivery derives the requester turn id as
-   `announce:v1:<child session>:<child run>`.
-3. The public display projection intentionally hides the inter-session
-   `subagent_announce` user input. It still emits the origin assistant reply.
-4. The preserved run ordering is delegate result, then the origin's normal
-   `Continuation completed with result` assistant turn, then a later root
-   result. The subscriber was active before both later events.
-5. The old parser rejected the origin event solely because its role was
-   `assistant` and it had no textual provenance header. This is classification
-   1 from the workorder: product emitted the normal return event, but the docs
-   observer correlated the wrong projection.
+- `sessions-send-response` when a response trace exists;
+- `unique-reason-bound-trace` when the response omits it and the collector
+  selects exactly one nonce/reason-bound trace.
 
-No product issue was filed. No private log or transcript text was admitted as
-PASS authority.
+The signed resolver still requires the accepted send-run fingerprint, row-nonce
+fingerprint, exact trace identity, one typed tool span, one dispatch/fire chain,
+and silent-wake mode. Unknown source, wrong run, wrong nonce, wrong trace,
+multiple traces, or multiple tool spans cannot PASS.
 
-## Repaired invariant and composition boundary
+### R-CD-CHAINED-DEPTH-2: current recovered task ledger
 
-**Invariant:** after the disposable origin's initial-run cursor, exactly one
-public assistant `session.message` on that origin must contain the exact nonce
-sentinel and have run id
-`announce:v1:<accepted delegate child session>:<accepted delegate run>`.
-Neither the stale bracket-bearing origin response nor the later root response
-may substitute.
+The public task records from the corrected run were completed and delivered,
+but the observer required the row nonce to occur exactly once in each full task
+prompt. The actual deterministic instructions legitimately repeated the same
+nonce seven times in the depth-1 prompt and twice in the depth-2 prompt.
 
-The owning composition boundary is:
+The observer also required the pre-recovery
+`CHILD-WAITING ... CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED` marker after
+the product cure had advanced the terminal task state to `CHILD-DONE`.
 
-`sessions.create` -> `sessions.send` -> fully paginated stable `tasks.list` ->
-origin `sessions.messages.subscribe` -> initial-origin `sessions.get` cursor ->
-public assistant event -> row evidence classifier -> HMAC-signed row receipt ->
-candidate envelope.
+The receipt now requires:
 
-The observer subscribes before taking the cursor snapshot, buffers live events
-while the snapshot is pending, and derives the cursor only from assistant
-messages owned by the initial origin run. That closes both gaps:
+- the same nonce at least once in both full `tasks.get` prompts;
+- exactly two distinct tasks and run IDs;
+- root -> child -> grandchild ownership;
+- both tasks completed and delivered after dispatch;
+- depth-1 `lastToolName=continue_work`;
+- exactly one final `CHILD-DONE <nonce>`;
+- exactly one final `GRANDCHILD-DONE <nonce>`.
 
-- an event arriving after task terminal but within the settle window remains
-  eligible;
-- an event arriving before the cursor response remains eligible if its
-  sequence is newer than the initial origin run.
+Repeated use of one exact row nonce is accepted; duplicate tasks, duplicate
+runs, duplicate terminal markers, stale/wrong nonce, wrong ownership, wrong
+depth, or pre-dispatch records remain rejected.
 
-Any rejected cursor snapshot, missing cursor, buffer overflow, duplicate normal
-return, missing event, wrong target, wrong nonce, conflicting run identity, or
-stale sequence withholds PASS.
+### R-CD-TOKEN: public transcript recovery
 
-## Exact artifact negative and successor
+The normal origin return was durably present as a public assistant transcript
+message with the exact run ID
+`announce:v1:<accepted delegate child>:<accepted delegate run>`, but it occurred
+before the observer's origin subscription was accepted. The live event parser
+correctly rejected that pre-subscription event and the scenario had no durable
+recovery path.
 
-The deterministic fixture is
-`tools/k6-proofs/tests/fixtures/r-cd-token-run-33014309397.json`.
-It freezes run/artifact identity, source digests, the original public
-`delegate_return_observed=false` result, subscription/event ordinals,
-transcript sequence relationships, and accepted-child run composition.
-Private session, task, run, message, nonce, attempt, trace, and chain values are
-replaced with deterministic aliases.
+The scenario now reuses public `sessions.get` snapshots to recover the exact
+post-origin-cursor assistant message. The durable parser requires:
 
-The artifact did not persist raw websocket payloads. The fixture therefore
-combines the exact artifact's public evidence with the preserved origin
-transcript's relational projection and source digests. It does not infer a
-historical PASS: `frozenPublicEvidence` remains `PARTIAL-candidate`.
+- the disposable origin session;
+- the exact nonce sentinel once;
+- the exact accepted delegate child/run announce ID;
+- a message sequence newer than the initial origin-run cursor;
+- public assistant content, not a hidden inter-session input or private log;
+- observation time at or after the public message timestamp.
 
-| Control | Receipt |
-|---|---|
-| Rejected harness | `96c0e1b59c205696806ae50cc659a08f4b79fd3d` |
-| Rejected parser blob | `46aad0fb67df07af4e1724c26d14bef31130a378` |
-| Negative command | `node --test tools/k6-proofs/scripts/__tests__/r-cd-token-contract.test.mjs` with the byte-identical rejected parser |
-| Negative result | exit `1`; exact normal-origin assertion received `actual: null` |
-| Negative log SHA-256 | `8a12618f87c764396780df540f619247ad1d6f8f29a24f91a8c5bc45b566e607` |
-| Successor implementation | `476ee9346495e9db991539fdc3c10bb34474ed9c` |
-| Successor parser blob | `0cc06b653e14c14d92bb4cf781462f93df6eb7af` |
-| Successor result | the same exact-run assertion passes |
+Live and transcript observations are deduplicated by message sequence. A second
+distinct matching return remains a duplicate failure. Polling stops after the
+one bound return; wrong session, wrong run, stale cursor, root-only result,
+private-log-only evidence, missing return, or duplicate return remains
+non-PASS.
 
-The fixture proves these distinct projections:
+## Exact-run regression fixture
 
-| Event | Public relation | Disposition |
-|---|---|---|
-| Initial origin response | origin session, initial origin run, sequence `2`, bracket embeds sentinel | reject as stale cursor/run |
-| Normal origin return | origin session, accepted-child announce run, sequence `3`, exact sentinel once | accept exactly once |
-| Later root result | root session, nested announce run, sequence `5`, exact sentinel | reject as root substitution |
+`tools/k6-proofs/tests/fixtures/final-authority-run-33026448492.json` is a
+sanitized projection of the three rejected authority shapes from run
+`33026448492`.
 
-## Regression coverage
+Private session keys, run IDs, task IDs, and row nonce are replaced. The public
+Tempo trace identity and public-safe send/nonce fingerprints are retained. The
+fixture proves:
 
-The focused tests cover:
+1. R-CD-2 binds the trace only through the unique nonce/reason collector path.
+2. Depth accepts the completed two-task ledger with repeated same-nonce prompt
+   use and final recovery markers.
+3. Token's live parser rejects the pre-subscription message while public
+   transcript recovery accepts the exact same post-cursor return.
 
-- exactly one normal return bound to the disposable origin;
-- zero root-substituted acceptance;
-- return arrival after delegate terminal and within settle;
-- wrong session, wrong nonce, wrong/contradictory run, stale cursor, duplicate
-  return, root-only return, log-only text, and missing public event;
-- raw-final seat, task-ledger pagination/stability, accepted-child lineage,
-  trace/reason binding, signed receipt, and candidate-envelope requirements;
-- private identifier removal and k6/service-log sanitization;
-- interruption as structured non-retriable `PARTIAL-candidate`;
-- manifest/scenario, workflow, matrix, telemetry, and proof-closure contracts.
-
-| Recovery concern | Disposition |
-|---|---|
-| Persistence | The bounded observer is intentionally in-memory; persistent authority is the sanitized evidence plus HMAC-signed receipt and candidate envelope. |
-| Rollback | Reverting the implementation returns the exact fixture assertion to `actual: null`; no success fallback exists. |
-| Restart/recovery | An interrupted websocket attempt writes the existing non-retriable interruption packet; this lane adds no retry or restart inference. |
-| Partial failure | Subscription/cursor rejection, missing public event, or event-buffer overflow remains non-PASS. |
-| Nearest sibling | `R-CD-CHAINED-DEPTH-2` already uses direct session/run/message-sequence authority; `R-CD-2` remains lifecycle-based and unchanged. |
-| Alternate seat path | `message-body` and unknown surfaces remain `PARTIAL-candidate`. |
+The fixture contains no UUID-shaped private identifier.
 
 ## Validation
 
-Acceptance path: **focused-only**. No Mode-B run, Gate 3g fallback, live gateway
-dispatch, or monolithic product suite was used.
+Full proof-harness contract suite:
 
-Focused command:
+```bash
+node --test \
+  tools/k6-proofs/scripts/__tests__/*.test.mjs \
+  tools/k6-proofs/tests/*.test.mjs
+```
+
+Result: `517/517` pass.
+
+Static and catalog checks:
 
 ```bash
 node --check tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js
-node --test --test-concurrency=1 \
-  tools/k6-proofs/scripts/__tests__/r-cd-token-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-cd-token-authoritative-receipt.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-cd-token-runner-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/r-cd-token-interruption.test.mjs \
-  tools/k6-proofs/scripts/__tests__/candidate-run-result.test.mjs \
-  tools/k6-proofs/scripts/__tests__/sanitize-k6-artifacts.test.mjs \
-  tools/k6-proofs/scripts/__tests__/continuation-row-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/matrix-continuation-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/continuation-acceptance-matrix.test.mjs \
-  tools/k6-proofs/scripts/__tests__/harness-provenance-runner.test.mjs \
-  tools/k6-proofs/scripts/__tests__/proof-harness-closure-contract.test.mjs
-```
-
-Result: `133/133` pass, serialized. Log SHA-256:
-`c2ba3ceb7e124590017ceeadfc6d7d7c97248c8bf12bc5d01cb72e8caa98bcc7`.
-
-Catalog commands:
-
-```bash
+node --check tools/k6-proofs/scripts/collect-continuation-trace.mjs
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
@@ -179,73 +136,35 @@ node tools/k6-proofs/scripts/validate-corpus.mjs --current
 git diff --check
 ```
 
-Catalog log SHA-256:
-`c1b221445c3d2463baedc2127a3de8f475f231f6330f8b339b5f0f2ffa908614`.
+All pass. The current corpus validator correctly reports the pre-refire state as
+acceptance-incomplete; this lane does not rewrite or promote that corpus.
 
-## Public safety and scope
+## Scope and public safety
 
-Direct review covered the complete changed parser, scenario lifecycle, signed
-resolver/validator, candidate-envelope caller, manifest, frozen fixture, and
-the adjacent `R-CD-CHAINED-DEPTH-2` message-sequence and `R-CD-2` lifecycle
-authorities. No unresolved correctness or scope finding remained.
+No private gateway token, session key, task ID, run ID, transcript, database
+row, or raw private log was committed. The isolated runtime and its private
+state remain outside this repository.
 
-The behavioral implementation checkpoint changes 11 files, `+653/-34`.
-The separate pre-evidence named-ref receipt adds one file and 11 lines.
+No live proof was fired, no automatic retry was armed, no product issue was
+closed, and no presentation branch moved.
 
-| Behavioral path | + | - |
-|---|---:|---:|
-| `tools/k6-proofs/README.md` | 9 | 0 |
-| `tools/k6-proofs/lib/r-cd-token-authoritative-receipt.mjs` | 23 | 1 |
-| `tools/k6-proofs/lib/r-cd-token-contract.js` | 125 | 9 |
-| `tools/k6-proofs/manifests/r-cd-token.json` | 7 | 6 |
-| `tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js` | 120 | 11 |
-| `tools/k6-proofs/scripts/__tests__/candidate-run-result.test.mjs` | 4 | 0 |
-| `tools/k6-proofs/scripts/__tests__/proof-harness-closure-contract.test.mjs` | 22 | 0 |
-| `tools/k6-proofs/scripts/__tests__/r-cd-token-authoritative-receipt.test.mjs` | 10 | 0 |
-| `tools/k6-proofs/scripts/__tests__/r-cd-token-contract.test.mjs` | 163 | 7 |
-| `tools/k6-proofs/scripts/__tests__/r-cd-token-runner-contract.test.mjs` | 7 | 0 |
-| `tools/k6-proofs/tests/fixtures/r-cd-token-run-33014309397.json` | 163 | 0 |
+## Refire handoff
 
-Raw private runtime logs, databases, transcripts, tokens, and identifiers remain
-outside the repository. The sanitized fixture rejects the known private nonce,
-session fragments, run fragments, and UUID shapes, and the repository sanitizer
-tests pass.
+After this branch is committed, pushed, server-equal, and the isolated unit
+again passes readiness and exact-model smoke, refire exactly:
 
-Product, presentation, docs main, `PROOFS/`, `PROOFS/INDEX.json`, and the
-runtime were not modified. No PR was opened, no live proof was fired, no
-automatic retry was armed, and #103 was not closed.
+- `R-CD-2`
+- `R-CD-CHAINED-DEPTH-2`
+- `R-CD-TOKEN`
 
-Machine receipt:
-`receipts/129388-token-return-observer-cure/regression.json`.
+against:
 
-## R-CD-TOKEN-only refire handoff
+- product/runtime
+  `5d79066ea4926c69fcf7ac8376688a0babbf7797`;
+- isolated depth `5`;
+- the reviewed isolated gateway unit and unique OTel service;
+- this server-equal docs branch head.
 
-After review, refire **only** `R-CD-TOKEN` against product
-`0c033c46c6365929c669bb7eff60a58ec914dbdd`, using the same isolated
-raw-final-text profile and the final server-equal safe-lane branch:
-
-```bash
-gh workflow run project81-k6-proof.yml \
-  --repo karmaterminal/karmaterminal-openclaw-docs \
-  --ref codeagent/129388-token-return-observer-cure \
-  -f rows=R-CD-TOKEN \
-  -f candidate_sha=0c033c46c6365929c669bb7eff60a58ec914dbdd \
-  -f runtime_build_sha=0c033c46c6365929c669bb7eff60a58ec914dbdd \
-  -f expected_max_spawn_depth=5 \
-  -f dry_run=false \
-  -f 'runner_labels_json=["self-hosted","ronan"]' \
-  -f gateway_ws="ws://127.0.0.1:${REVIEWED_ISOLATED_PORT}" \
-  -f session_selector=main \
-  -f seat_name="${REVIEWED_ISOLATED_SEAT}" \
-  -f seat_class=raw-final-text \
-  -f create_disposable_sessions=true \
-  -f metrics_push=false \
-  -f otel_service_name="${REVIEWED_ISOLATED_SERVICE}" \
-  -f gateway_unit="${REVIEWED_ISOLATED_UNIT}"
-```
-
-Do not reuse run `33014309397`, retry automatically, fire
-`R-CD-CHAINED-DEPTH-2`, or fold the corpus. A successful refire must produce one
-signed normal-origin return with
-`originReturnMessageSeq > originReturnCursor`,
-`exactlyOneNormalOriginReturn=true`, and `rootSubstitutedReturn=false`.
+There is no automatic retry after a behavioral red. Fold the 38-row corpus only
+after all three new HMAC-signed authorities independently return
+`PASS-candidate`.

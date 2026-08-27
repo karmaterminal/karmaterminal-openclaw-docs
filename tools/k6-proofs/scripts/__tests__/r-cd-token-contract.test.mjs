@@ -7,6 +7,7 @@ import {
   createTokenLedger,
   observeTokenTaskLedger,
   parseTokenReturnEvent,
+  parseTokenReturnTranscriptMessage,
   rejectTokenTaskLedgerObservation,
   summarizeTokenLedger,
   tokenDisposableOriginReady,
@@ -255,6 +256,46 @@ test('structured return parser binds target and source sessions', () => {
     messageSeq: 3,
     messageTimeMs: 3000,
     observedAtMs: 3010,
+  });
+
+  test('durable transcript recovery binds a return emitted before subscription', () => {
+    const message = {
+      role: 'assistant',
+      timestamp: 3000,
+      content: [{
+        type: 'text',
+        text: `Continuation completed with result: \`${returnSentinel}\``,
+      }],
+      __openclaw: { runId: originReturnRunId, seq: 3 },
+    };
+    assert.deepEqual(parseTokenReturnTranscriptMessage(message, {
+      expectedTargetSessionKey: originChild,
+      expectedDelegateChildSessionKey: delegateChild,
+      expectedDelegateRunId: delegateRunId,
+      expectedSentinel: returnSentinel,
+      originCursor: 2,
+      observedAtMs: 5000,
+      hash,
+    }), {
+      targetSessionHash: hash(originChild),
+      sourceSessionHash: hash(delegateChild),
+      returnRunIdHash: hash(originReturnRunId),
+      messageSeq: 3,
+      messageTimeMs: 3000,
+      observedAtMs: 5000,
+    });
+    assert.equal(parseTokenReturnTranscriptMessage(
+      { ...message, __openclaw: { runId: 'wrong-run', seq: 3 } },
+      {
+        expectedTargetSessionKey: originChild,
+        expectedDelegateChildSessionKey: delegateChild,
+        expectedDelegateRunId: delegateRunId,
+        expectedSentinel: returnSentinel,
+        originCursor: 2,
+        observedAtMs: 5000,
+        hash,
+      },
+    ), null);
   });
 });
 

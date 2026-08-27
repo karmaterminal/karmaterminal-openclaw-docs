@@ -48,6 +48,7 @@ function correlation(overrides = {}) {
       acceptedSendRunFingerprint: run,
       nonceFingerprint: 'e'.repeat(16),
       acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
     },
     ...overrides,
   };
@@ -97,6 +98,23 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   assert.doesNotMatch(JSON.stringify(receipt), /private-chain-id|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/);
 });
 
+test('R-CD-2 binds the accepted run to its unique nonce-reason trace when sessions.send omits traceId', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ accepted_send_trace_id: null }),
+    correlation: correlation({
+      rowBinding: {
+        acceptedSendRunFingerprint: run,
+        nonceFingerprint: 'e'.repeat(16),
+        acceptedSendTraceId: 'b'.repeat(32),
+        acceptedSendTraceSource: 'unique-reason-bound-trace',
+      },
+    }),
+    signingKey,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+});
+
 test('R-CD-2 rejects outer-send acceptance plus an unrelated delayed message', () => {
   const receipt = resolveRcd2AuthoritativeReceipt({
     evidence: evidence({ terminal_success_same_run: false, wake_lifecycle_observed: false, send_run_mismatch: true }),
@@ -117,8 +135,8 @@ test('R-CD-2 rejects individually valid lifecycle and topology receipts from dif
 
 test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce', () => {
   for (const rowBinding of [
-    { acceptedSendRunFingerprint: 'f'.repeat(16), nonceFingerprint: 'e'.repeat(16), acceptedSendTraceId: 'b'.repeat(32) },
-    { acceptedSendRunFingerprint: run, nonceFingerprint: 'f'.repeat(16), acceptedSendTraceId: 'b'.repeat(32) },
+    { acceptedSendRunFingerprint: 'f'.repeat(16), nonceFingerprint: 'e'.repeat(16), acceptedSendTraceId: 'b'.repeat(32), acceptedSendTraceSource: 'sessions-send-response' },
+    { acceptedSendRunFingerprint: run, nonceFingerprint: 'f'.repeat(16), acceptedSendTraceId: 'b'.repeat(32), acceptedSendTraceSource: 'sessions-send-response' },
   ]) {
     const receipt = resolveRcd2AuthoritativeReceipt({
       evidence: evidence(),
@@ -126,6 +144,30 @@ test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce',
       signingKey,
     });
     assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-topology-mismatch']);
+  }
+});
+
+test('R-CD-2 rejects an unbound fallback trace and a mismatched unique trace', () => {
+  for (const rowBinding of [
+    {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'e'.repeat(16),
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'unknown',
+    },
+    {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'e'.repeat(16),
+      acceptedSendTraceId: 'f'.repeat(32),
+      acceptedSendTraceSource: 'unique-reason-bound-trace',
+    },
+  ]) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence({ accepted_send_trace_id: null }),
+      correlation: correlation({ rowBinding }),
+      signingKey,
+    });
+    assert.equal(receipt.verdict, 'PARTIAL-candidate');
   }
 });
 

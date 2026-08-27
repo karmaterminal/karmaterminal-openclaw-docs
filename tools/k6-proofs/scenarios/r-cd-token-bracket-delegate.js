@@ -10,6 +10,7 @@ import {
   createTokenLedger,
   observeTokenTaskLedger,
   parseTokenReturnEvent,
+  parseTokenReturnTranscriptMessage,
   rejectTokenTaskLedgerObservation,
   summarizeTokenLedger,
   tokenDisposableOriginReady,
@@ -123,6 +124,7 @@ export default function () {
     let originCursorPollPending = false;
     let originCursorPollScheduled = false;
     const pendingReturnEvents = [];
+    const observedReturnMessageSeqs = {};
 
     function returnBindingReady() {
       const identity = tokenLedgerRuntimeIdentity(ledger);
@@ -136,20 +138,9 @@ export default function () {
       );
     }
 
-    function tryReturnEvent({ eventData, observedAtMs }) {
-      const identity = tokenLedgerRuntimeIdentity(ledger);
-      if (!returnBindingReady()) return false;
-      const receipt = parseTokenReturnEvent(eventData, {
-        expectedTargetSessionKey: identity.originChildSessionKey,
-        expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
-        expectedDelegateRunId: identity.delegateRunId,
-        expectedSentinel: returnSentinel,
-        originCursor: evidence.origin_return_cursor,
-        subscriptionAcceptedAtMs: originSubscriptionAcceptedAtMs,
-        observedAtMs,
-        hash,
-      });
-      if (!receipt) return false;
+    function rememberReturnReceipt(receipt, kind) {
+      if (!receipt || observedReturnMessageSeqs[receipt.messageSeq]) return false;
+      observedReturnMessageSeqs[receipt.messageSeq] = true;
       evidence.origin_return_event_count += 1;
       evidence.delegate_return_observed = evidence.origin_return_event_count === 1;
       if (evidence.origin_return_event_count === 1) {
@@ -160,8 +151,23 @@ export default function () {
         evidence.origin_return_message_time_ms = receipt.messageTimeMs;
         evidence.origin_return_observed_at_ms = receipt.observedAtMs;
       }
-      evidence.event_receipt_kinds.push('bound-session-message-return');
+      evidence.event_receipt_kinds.push(kind);
       return true;
+    }
+
+    function tryReturnEvent({ eventData, observedAtMs }) {
+      const identity = tokenLedgerRuntimeIdentity(ledger);
+      if (!returnBindingReady()) return false;
+      return rememberReturnReceipt(parseTokenReturnEvent(eventData, {
+        expectedTargetSessionKey: identity.originChildSessionKey,
+        expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
+        expectedDelegateRunId: identity.delegateRunId,
+        expectedSentinel: returnSentinel,
+        originCursor: evidence.origin_return_cursor,
+        subscriptionAcceptedAtMs: originSubscriptionAcceptedAtMs,
+        observedAtMs,
+        hash,
+      }), 'bound-session-message-return');
     }
 
     function reconcilePendingReturns() {
@@ -173,14 +179,16 @@ export default function () {
     function scheduleOriginCursorPoll(delay = ORIGIN_CURSOR_POLL_MS) {
       if (closed ||
           !evidence.origin_subscription_accepted ||
-          evidence.origin_cursor_snapshot_accepted ||
+          (evidence.origin_cursor_snapshot_accepted &&
+            evidence.origin_return_event_count > 0) ||
           originCursorPollPending ||
           originCursorPollScheduled) return;
       originCursorPollScheduled = true;
       socket.setTimeout(() => {
         originCursorPollScheduled = false;
         if (closed ||
-            evidence.origin_cursor_snapshot_accepted ||
+            (evidence.origin_cursor_snapshot_accepted &&
+              evidence.origin_return_event_count > 0) ||
             originCursorPollPending) return;
         const identity = tokenLedgerRuntimeIdentity(ledger);
         if (!identity.originChildSessionKey || !identity.originRunId) {
@@ -203,18 +211,33 @@ export default function () {
         return;
       }
       const identity = tokenLedgerRuntimeIdentity(ledger);
-      const cursor = tokenOriginCursorFromMessages(classified.payload.messages, {
-        expectedOriginRunId: identity.originRunId,
-      });
-      if (!cursor) {
-        scheduleOriginCursorPoll();
-        return;
+      if (!evidence.origin_cursor_snapshot_accepted) {
+        const cursor = tokenOriginCursorFromMessages(classified.payload.messages, {
+          expectedOriginRunId: identity.originRunId,
+        });
+        if (!cursor) {
+          scheduleOriginCursorPoll();
+          return;
+        }
+        evidence.origin_cursor_snapshot_accepted = true;
+        evidence.origin_return_cursor = cursor.messageSeq;
+        evidence.origin_return_cursor_time_ms = cursor.messageTimeMs;
       }
-      evidence.origin_cursor_snapshot_accepted = true;
-      evidence.origin_return_cursor = cursor.messageSeq;
-      evidence.origin_return_cursor_time_ms = cursor.messageTimeMs;
+      const observedAtMs = Date.now();
+      for (const message of classified.payload.messages) {
+        rememberReturnReceipt(parseTokenReturnTranscriptMessage(message, {
+          expectedTargetSessionKey: identity.originChildSessionKey,
+          expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
+          expectedDelegateRunId: identity.delegateRunId,
+          expectedSentinel: returnSentinel,
+          originCursor: evidence.origin_return_cursor,
+          observedAtMs,
+          hash,
+        }), 'bound-session-transcript-return');
+      }
       reconcilePendingReturns();
       closeComplete();
+      scheduleOriginCursorPoll();
     }
 
     function maybeSubscribeOrigin() {

@@ -36,8 +36,7 @@ function chainTasks() {
       createdAt: 110,
       endedAt: 200,
       lastToolName: 'continue_work',
-      progressSummary:
-        `CHILD-WAITING ${nonce} CHILD-DELEGATE-SCHEDULED CHILD-WAKE-SCHEDULED`,
+      progressSummary: `CHILD-DONE ${nonce}`,
     },
     {
       id: 'task-grandchild',
@@ -350,15 +349,20 @@ test('depth-2 chain rejects duplicate tasks, duplicate runs, and duplicate retur
   const duplicateTaskMarker = chainTasks();
   duplicateTaskMarker[1].progressSummary += ` GRANDCHILD-DONE ${nonce}`;
   assert.equal(taskReceipt(duplicateTaskMarker), null);
-  const duplicatePromptNonce = chainTasks();
-  duplicatePromptNonce[0].prompt += ` ${nonce}`;
-  assert.equal(taskReceipt(duplicatePromptNonce), null);
   const duplicateMarker = toolCallEvent();
   duplicateMarker.message.content[0].arguments.reason +=
     ` CHILD-DONE ${nonce} CHILD-SAW-GRANDCHILD`;
   duplicateMarker.message.content[0].input.reason =
     duplicateMarker.message.content[0].arguments.reason;
   assert.equal(consumptionCandidate(duplicateMarker), null);
+});
+
+test('depth-2 chain accepts repeated use of the same row nonce in task instructions', () => {
+  const repeatedPromptNonce = chainTasks();
+  repeatedPromptNonce[0].prompt +=
+    ` require CHILD-DONE ${nonce}; retain lineage ${nonce}`;
+  repeatedPromptNonce[1].prompt += ` return GRANDCHILD-DONE ${nonce}`;
+  assert.equal(taskReceipt(repeatedPromptNonce)?.taskCount, 2);
 });
 
 test('depth-2 chain rejects stale, wrong-nonce, and wrong-depth records', () => {

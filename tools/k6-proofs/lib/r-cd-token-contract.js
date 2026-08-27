@@ -262,6 +262,62 @@ export function parseTokenReturnEvent(
     hash,
   },
 ) {
+  return parseTokenReturn({
+    eventData,
+    expectedTargetSessionKey,
+    expectedSentinel,
+    expectedDelegateChildSessionKey,
+    expectedDelegateRunId,
+    originCursor,
+    subscriptionAcceptedAtMs,
+    observedAtMs,
+    hash,
+    requireLiveSubscription: true,
+  });
+}
+
+/**
+ * Recover the same public assistant return from the durable session transcript.
+ * This closes the subscribe-after-return race without consulting private logs.
+ */
+export function parseTokenReturnTranscriptMessage(
+  message,
+  {
+    expectedTargetSessionKey,
+    expectedSentinel,
+    expectedDelegateChildSessionKey,
+    expectedDelegateRunId,
+    originCursor,
+    observedAtMs,
+    hash,
+  },
+) {
+  return parseTokenReturn({
+    eventData: { sessionKey: expectedTargetSessionKey, message },
+    expectedTargetSessionKey,
+    expectedSentinel,
+    expectedDelegateChildSessionKey,
+    expectedDelegateRunId,
+    originCursor,
+    subscriptionAcceptedAtMs: null,
+    observedAtMs,
+    hash,
+    requireLiveSubscription: false,
+  });
+}
+
+function parseTokenReturn({
+  eventData,
+  expectedTargetSessionKey,
+  expectedSentinel,
+  expectedDelegateChildSessionKey,
+  expectedDelegateRunId,
+  originCursor,
+  subscriptionAcceptedAtMs,
+  observedAtMs,
+  hash,
+  requireLiveSubscription,
+}) {
   if (!eventData || typeof hash !== 'function') return null;
   if (String(eventData.sessionKey || '') !== String(expectedTargetSessionKey || '')) return null;
   const message = eventData.message;
@@ -287,11 +343,12 @@ export function parseTokenReturnEvent(
       cursor < 0 ||
       messageSeq <= cursor ||
       messageTimeMs === null ||
-      subscribedAt === null ||
-      messageTimeMs < subscribedAt ||
       observedAt === null ||
-      observedAt < subscribedAt ||
       observedAt < messageTimeMs) return null;
+  if (requireLiveSubscription &&
+      (subscribedAt === null ||
+       messageTimeMs < subscribedAt ||
+       observedAt < subscribedAt)) return null;
   return {
     targetSessionHash: hash(String(eventData.sessionKey)),
     sourceSessionHash: hash(String(expectedDelegateChildSessionKey)),

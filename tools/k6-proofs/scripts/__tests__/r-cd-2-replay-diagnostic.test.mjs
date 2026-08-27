@@ -40,6 +40,7 @@ test('a replay diagnostic cannot override the complete bound silent-wake lifecyc
         acceptedSendRunFingerprint: run,
         nonceFingerprint: nonce,
         acceptedSendTraceId: trace,
+        acceptedSendTraceSource: 'sessions-send-response',
       },
     },
   });

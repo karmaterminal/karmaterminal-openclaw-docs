@@ -656,6 +656,7 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
       acceptedSendRunFingerprint: 'a'.repeat(16),
       nonceFingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
       acceptedSendTraceId: traceId,
+      acceptedSendTraceSource: 'sessions-send-response',
     });
     assert.doesNotMatch(receiptText, /R-CD-2-example/);
   } finally {

@@ -1,7 +1,7 @@
 {
   "schema": "openclaw.k6.seat-readiness-policy.v1",
   "name": "k6 PROOFS seat readiness policy",
-  "version": "2026-08-26",
+  "version": "2026-08-27",
   "k6": {
     "expectedVersion": "v2.0.0",
     "binaryCandidates": [

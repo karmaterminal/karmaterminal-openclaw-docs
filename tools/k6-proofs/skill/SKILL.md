@@ -188,8 +188,10 @@ row manifest. Build a fresh isolated config with
 template, explicitly sets the reviewed proof profile depth to `5`, and emits a
 public-safe configured/effective/required-depth receipt. Then require
 `seat-readiness-preflight.mjs --rows ... --expected-max-spawn-depth 5` before
-smoke or row traffic. Omitted depth resolves to product default `1`; malformed,
-unknown, or insufficient depth fails closed.
+smoke or row traffic. Live readiness reads config from the authenticated
+`OPENCLAW_GATEWAY_WS` target, never from ambient host config. Omitted depth
+resolves to product default `1`; malformed, unknown, or insufficient depth
+fails closed.
 
 ### Custom Metrics Naming
 Prefix all custom metrics with the row name (underscores, lowercase):

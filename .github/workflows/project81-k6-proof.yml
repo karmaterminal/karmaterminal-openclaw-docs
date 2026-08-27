@@ -213,8 +213,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # The runner executes ON the prince's own host, so the authoritative
-          # token for THIS seat's gateway is the one in that seat's own config.
+          # Host config is an authentication source only. Target readiness and
+          # continuation depth are always read from inputs.gateway_ws by RPC.
           # A single shared secret cannot authenticate against six gateways that
           # each hold a different token -- it only ever matched one seat, and
           # every other seat failed at `connect`, surfacing later and confusingly

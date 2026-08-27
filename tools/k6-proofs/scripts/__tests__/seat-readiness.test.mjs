@@ -4,7 +4,13 @@ import { readFile, mkdtemp, rm, writeFile, chmod } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdir } from 'node:fs/promises';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
+import {
+  buildTargetReadinessBinding,
+  publicGatewayTarget,
+  targetReadinessBindingErrors,
+} from '../../lib/target-readiness-binding.mjs';
 
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/seat-readiness-preflight.mjs');
@@ -72,6 +78,82 @@ function readyEnv({ bin, fakeK6, token = 'CANARY-TOKEN-VALUE-DO-NOT-PRINT' }) {
   };
 }
 
+async function withTargetGateway(dir, config, fn) {
+  const fixture = join(dir, 'target-gateway.mjs');
+  await writeFile(fixture, `
+import { createHash } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+
+function frame(payload) {
+  const body = Buffer.from(JSON.stringify(payload));
+  return body.length < 126
+    ? Buffer.concat([Buffer.from([0x81, body.length]), body])
+    : Buffer.concat([Buffer.from([0x81, 126, body.length >> 8, body.length & 0xff]), body]);
+}
+
+function decode(buffer) {
+  const masked = (buffer[1] & 0x80) !== 0;
+  let length = buffer[1] & 0x7f;
+  let offset = 2;
+  if (length === 126) {
+    length = buffer.readUInt16BE(offset);
+    offset += 2;
+  }
+  const mask = masked ? buffer.subarray(offset, offset + 4) : null;
+  if (masked) offset += 4;
+  const body = Buffer.from(buffer.subarray(offset, offset + length));
+  if (mask) for (let i = 0; i < body.length; i += 1) body[i] ^= mask[i % 4];
+  return JSON.parse(body.toString('utf8'));
+}
+
+const config = ${JSON.stringify(config)};
+const counts = { configRpc: 0, rowOrModelTraffic: 0 };
+const countsPath = ${JSON.stringify(join(dir, 'target-counts.json'))};
+const saveCounts = () => writeFileSync(countsPath, JSON.stringify(counts));
+saveCounts();
+const server = createServer((req, res) => {
+  if (req.url === '/counts') {
+    res.writeHead(200);
+    res.end(JSON.stringify(counts));
+  } else {
+    res.writeHead(req.url === '/health' || req.url === '/status' ? 200 : 404);
+    res.end('{}');
+  }
+});
+server.on('upgrade', (req, socket) => {
+  const accept = createHash('sha1')
+    .update(req.headers['sec-websocket-key'] + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')
+    .digest('base64');
+  socket.write('HTTP/1.1 101 Switching Protocols\\r\\nUpgrade: websocket\\r\\nConnection: Upgrade\\r\\nSec-WebSocket-Accept: ' + accept + '\\r\\n\\r\\n');
+  socket.on('data', (data) => {
+    const request = decode(data);
+    if (request.method === 'connect') {
+      socket.write(frame({ type: 'res', id: request.id, ok: true, payload: { type: 'hello-ok' } }));
+    } else if (request.method === 'config.get') {
+      counts.configRpc += 1;
+      saveCounts();
+      socket.write(frame({ type: 'res', id: request.id, ok: true, payload: { config } }));
+    } else {
+      counts.rowOrModelTraffic += 1;
+      saveCounts();
+    }
+  });
+});
+server.listen(0, '127.0.0.1', () => console.log(server.address().port));
+`);
+  const child = spawn(process.execPath, [fixture], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const [chunk] = await once(child.stdout, 'data');
+  try {
+    return await fn(Number(String(chunk).trim()));
+  } finally {
+    if (child.exitCode === null) {
+      child.kill('SIGTERM');
+      await once(child, 'exit');
+    }
+  }
+}
+
 test('seat readiness policy keeps the k6 proof-standard version in one place', async () => {
   const parsed = JSON.parse(await readFile(policy, 'utf8'));
   assert.equal(parsed.schema, 'openclaw.k6.seat-readiness-policy.v1');
@@ -128,6 +210,107 @@ test('seat readiness JSON contains no env secret values and reports booleans onl
     );
     assert.equal(report.session.scope, 'main-agent-session');
   });
+});
+
+test('target readiness A/B/C selects only authenticated target depth', async (t) => {
+  const targetDefaults = (maxSpawnDepth) => ({
+    agents: {
+      defaults: {
+        continuation: {
+          enabled: true,
+          maxChainLength: 200,
+          maxDelegatesPerTurn: 500,
+          costCapTokens: 500000,
+        },
+        ...(maxSpawnDepth === undefined ? {} : { subagents: { maxSpawnDepth } }),
+      },
+    },
+  });
+
+  await t.test('A: host unknown and target depth 5 passes required 2 expected 5', async () => {
+    await withTmp(async (dir) => {
+      const tools = await writeFakeSeatTools(dir, { openclawFails: true });
+      await withTargetGateway(dir, targetDefaults(5), async (port) => {
+        const run = runPreflight(
+          ['--json', '--rows', 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN', '--expected-max-spawn-depth', '5'],
+          {
+            ...readyEnv(tools),
+            OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${port}`,
+          },
+        );
+        assert.equal(run.status, 0, run.stderr || run.stdout);
+        const report = JSON.parse(run.stdout);
+        assert.equal(report.outcome, 'PASS-candidate');
+        assert.equal(report.continuationDepth.configuredMaxSpawnDepth, 5);
+        assert.equal(report.continuationDepth.effectiveMaxSpawnDepth, 5);
+        assert.equal(report.continuationDepth.requiredMaxSpawnDepth, 2);
+        assert.equal(report.continuationDepth.expectedMaxSpawnDepth, 5);
+        assert.equal(report.targetObservation.source, 'authenticated-gateway-config-rpc');
+        assert.equal(report.targetObservation.bindingValid, true);
+        assert.deepEqual(JSON.parse(await readFile(join(dir, 'target-counts.json'), 'utf8')), {
+          configRpc: 1,
+          rowOrModelTraffic: 0,
+        });
+      });
+    });
+  });
+
+  for (const fixture of [
+    { label: 'B: host depth 5 and target depth unknown stops', targetDepth: null, reason: 'configured-depth-unknown' },
+    { label: 'C: host depth 5 and target depth 1 stops', targetDepth: 1, reason: 'effective-depth-insufficient' },
+  ]) {
+    await t.test(fixture.label, async () => {
+      await withTmp(async (dir) => {
+        const tools = await writeFakeSeatTools(dir, { maxSpawnDepth: 5 });
+        const targetConfig = fixture.targetDepth === null ? {} : targetDefaults(fixture.targetDepth);
+        await withTargetGateway(dir, targetConfig, async (port) => {
+          const run = runPreflight(
+            ['--json', '--rows', 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN', '--expected-max-spawn-depth', '5'],
+            { ...readyEnv(tools), OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${port}` },
+          );
+          assert.equal(run.status, 2, run.stderr || run.stdout);
+          const report = JSON.parse(run.stdout);
+          assert.equal(report.outcome, 'PARTIAL-candidate');
+          assert.equal(report.continuationDepth.reason, fixture.reason);
+          assert.deepEqual(JSON.parse(await readFile(join(dir, 'target-counts.json'), 'utf8')), {
+            configRpc: 1,
+            rowOrModelTraffic: 0,
+          });
+        });
+      });
+    });
+  }
+});
+
+test('D: target observation rejects wrong gateway, seat, candidate, and row binding', () => {
+  const source = {
+    gatewayWs: 'ws://127.0.0.1:19893',
+    seat: 'target-seat',
+    gatewayUnit: 'openclaw-gateway-isolated',
+    docsHead: 'a'.repeat(40),
+    candidateSha: 'b'.repeat(40),
+    runtimeBuildSha: 'b'.repeat(40),
+    selectedRows: ['R-CD-2', 'R-CD-TOKEN'],
+    requiredMaxSpawnDepth: 2,
+    expectedMaxSpawnDepth: 5,
+  };
+  const expected = buildTargetReadinessBinding(source);
+  for (const mutation of [
+    { gatewayUrlFingerprint: '0'.repeat(64) },
+    { seat: 'wrong-seat' },
+    { candidateSha: 'c'.repeat(40) },
+    { selectedRows: ['R-CD-2'] },
+  ]) {
+    assert.notDeepEqual(
+      targetReadinessBindingErrors({ ...expected, ...mutation }, expected, { requireComplete: true }),
+      [],
+    );
+  }
+  const secret = 'URL-CREDENTIAL-CANARY';
+  const publicTarget = publicGatewayTarget(`ws://user:${secret}@127.0.0.1:19893/?token=${secret}`);
+  assert.equal(publicTarget.url, 'ws://127.0.0.1:19893');
+  assert.doesNotMatch(JSON.stringify(publicTarget), new RegExp(secret));
+  assert.deepEqual(publicTarget, publicGatewayTarget('ws://127.0.0.1:19893'));
 });
 
 test('seat readiness schema tracks policy, continuation readiness, checked k6 candidates, and env purposes', async () => {

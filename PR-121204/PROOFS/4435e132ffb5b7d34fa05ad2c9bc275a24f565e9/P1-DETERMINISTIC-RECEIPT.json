@@ -1,0 +1,31 @@
+{
+  "schema": "openclaw.pr121204.p1-deterministic-receipt.v1",
+  "productSha": "4435e132ffb5b7d34fa05ad2c9bc275a24f565e9",
+  "command": "node scripts/run-vitest.mjs run --config vitest.config.ts --maxWorkers=1 src/channels/message/ingress-drain-pending-disposition.test.ts",
+  "result": {
+    "filesPassed": 1,
+    "filesFailed": 0,
+    "testsPassed": 4,
+    "testsFailed": 0
+  },
+  "observerFailureForms": [
+    "synchronous-throw",
+    "rejected-promise"
+  ],
+  "protectedInvariants": [
+    "stale row remains terminally failed",
+    "observer failure reaches the existing drain log path",
+    "later fresh row dispatches in the same drain"
+  ],
+  "storageBoundary": "real isolated SQLite ingress queue",
+  "acceptedSiblingRerun": {
+    "testsPassed": 88,
+    "testsFailed": 0,
+    "owners": [
+      "pending-disposition owner",
+      "generic ingress monitor",
+      "Discord",
+      "Signal"
+    ]
+  }
+}

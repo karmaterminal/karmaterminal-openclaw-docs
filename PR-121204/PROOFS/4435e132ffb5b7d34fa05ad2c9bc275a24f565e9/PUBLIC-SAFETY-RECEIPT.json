@@ -1,0 +1,40 @@
+{
+  "schema": "openclaw.pr121204.public-safety-receipt.v1",
+  "verdict": "PASS",
+  "filesScannedBeforeReceiptEmission": 7,
+  "filesScannedFinal": 8,
+  "rawPrivateControlValuesChecked": [
+    "sourceRoot",
+    "runDir",
+    "stateDir",
+    "configPath",
+    "envPath",
+    "logPath",
+    "unit",
+    "serviceName",
+    "gatewayToken",
+    "guildId",
+    "channelId",
+    "botId",
+    "authorId",
+    "staleId",
+    "freshId"
+  ],
+  "rawPrivateControlValueMatches": 0,
+  "rawChannelNonceCandidatesChecked": 1,
+  "rawChannelNonceMatches": 0,
+  "secretPatternMatches": 0,
+  "rawDiscordSnowflakeMatches": 0,
+  "uuidMatches": 0,
+  "privateFilesystemPathMatches": 0,
+  "forbiddenPayloadKeyMatches": 0,
+  "forbiddenPayloadKeys": [
+    "content",
+    "payload",
+    "rawMessage",
+    "prompt",
+    "Authorization"
+  ],
+  "jsonFilesParsed": true,
+  "gitDiffCheckPassed": true
+}

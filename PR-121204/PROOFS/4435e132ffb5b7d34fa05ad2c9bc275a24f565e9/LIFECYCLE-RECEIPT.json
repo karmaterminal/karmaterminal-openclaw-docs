@@ -1,0 +1,69 @@
+{
+  "schema": "openclaw.pr121204.redacted-lifecycle.v1",
+  "clock": "structured-gateway-log",
+  "events": [
+    {
+      "at": "2026-08-27T07:13:07.438Z",
+      "event": "stale-disposition-committed",
+      "sourceIdHash": "05b4e219b9fa120c",
+      "reason": "stale-ambient-backlog",
+      "payloadFree": true
+    },
+    {
+      "at": "2026-08-27T07:13:07.631Z",
+      "event": "fresh-ingress-observed",
+      "sourceIdHash": "646c473bfc8ebbda"
+    },
+    {
+      "at": "2026-08-27T07:13:07.728Z",
+      "event": "fresh-message-received",
+      "sourceIdHash": "646c473bfc8ebbda"
+    },
+    {
+      "at": "2026-08-27T07:13:07.733Z",
+      "event": "fresh-message-queued",
+      "sourceIdHash": "646c473bfc8ebbda"
+    },
+    {
+      "at": "2026-08-27T07:13:07.740Z",
+      "event": "fresh-dispatch-started",
+      "sourceIdHash": "646c473bfc8ebbda"
+    },
+    {
+      "at": "2026-08-27T07:13:07.860Z",
+      "event": "isolated-session-turn-created"
+    },
+    {
+      "at": "2026-08-27T07:13:09.217Z",
+      "event": "codex-run-started",
+      "provider": "openai",
+      "model": "gpt-5.6-sol"
+    },
+    {
+      "at": "2026-08-27T07:13:16.003Z",
+      "event": "codex-run-completed",
+      "stopReason": "stop"
+    },
+    {
+      "at": "2026-08-27T07:13:16.612Z",
+      "event": "visible-discord-response",
+      "responseIdHash": "d50e16a697ecc11c",
+      "nonEmpty": true
+    },
+    {
+      "at": "2026-08-27T07:13:16.779Z",
+      "event": "discord-dispatch-completed"
+    },
+    {
+      "at": "2026-08-27T07:13:16.780Z",
+      "event": "fresh-message-processed",
+      "sourceIdHash": "646c473bfc8ebbda"
+    }
+  ],
+  "claimProof": {
+    "source": "same-run lifecycle ordering",
+    "finalClaimField": null,
+    "reason": "successful completion clears transient claim metadata"
+  },
+  "rawLogPublished": false
+}

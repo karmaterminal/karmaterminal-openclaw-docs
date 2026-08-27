@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-08-23T17:12:47.770Z",
+  "row": "C-MIXED-FANIN-SEPARATION",
+  "seat": "emeric-nuc",
+  "checkout_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "build_info_commit": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "build_info_version": "2026.8.1",
+  "expected_composite_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "match": true
+}

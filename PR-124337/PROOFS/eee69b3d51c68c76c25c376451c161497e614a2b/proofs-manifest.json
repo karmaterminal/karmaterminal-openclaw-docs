@@ -1,0 +1,130 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+  "ship_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+  "proof_source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "previous_pr_head_sha": "d81272c117ef7a2ac765450d682309a941d58463",
+  "pinned_floor_sha": "6ae89b5a8ed6a1bdbd0d9b7639fc8162afbb7578",
+  "target_exact_execution": false,
+  "target_execution_receipt": null,
+  "execution_runtime_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "execution_runtime_provenance": {
+    "kind": "deployment-only composite",
+    "note": "The composite executed the source rows. It is not the source or target presentation SHA."
+  },
+  "harness_path": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/harness.mjs",
+  "harness_docs_sha": "3aeb17c1b3ec55af2aee787702aa6923f06a266b",
+  "proof_run": {
+    "repository": "karmaterminal/openclaw-bootstrap",
+    "workflow_sha": "6dd6c3a7712c8ae02937a29054525b2ddacb89c1",
+    "run_id": 32652334564,
+    "seat": "emeric-nuc",
+    "started_at": "2026-08-23T17:12:47.500Z",
+    "ended_at": "2026-08-23T17:12:47.883Z"
+  },
+  "transpose": {
+    "kind": "full-copy ancestor materiality transpose",
+    "source_file_count": 25,
+    "source_file_map": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/SOURCE-FILE-MAP.json",
+    "materiality_doc": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/MATERIALITY.md"
+  },
+  "qualification": {
+    "current_head_mode_b_run": 33032456154,
+    "exact_floor_control_run": 33033875064,
+    "details": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/TARGET-QUALIFICATION.json"
+  },
+  "method": "Reviewed source execution preserved; target qualified by full-copy ancestry, byte materiality, affected-owner Mode-B, and pinned-floor control.",
+  "required_rows": [
+    "A-GENUINE-ABANDONMENT",
+    "B-BUDGET-FREE-CANCELLATION",
+    "C-MIXED-FANIN-SEPARATION"
+  ],
+  "dispatch_allocation": [
+    {
+      "row": "A-GENUINE-ABANDONMENT",
+      "owner": "emeric-nuc",
+      "status": "fired"
+    },
+    {
+      "row": "B-BUDGET-FREE-CANCELLATION",
+      "owner": "emeric-nuc",
+      "status": "fired"
+    },
+    {
+      "row": "C-MIXED-FANIN-SEPARATION",
+      "owner": "emeric-nuc",
+      "status": "fired"
+    }
+  ],
+  "rows": [
+    {
+      "row": "A-GENUINE-ABANDONMENT",
+      "title": "Genuine pre-adoption abandonment consumes the retry budget",
+      "owner": "emeric-nuc",
+      "state": "pass",
+      "dir": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/A-GENUINE-ABANDONMENT",
+      "evidence_doc": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/A-GENUINE-ABANDONMENT/EVIDENCE.md",
+      "summary": "Attempts 0/1/2 reached retry-limit-exceeded with turn-abandoned; the same-lane follower completed.",
+      "test_cases_executed": [
+        "three genuine pre-adoption abandonments",
+        "durable retry-limit terminalization",
+        "same-lane follower adoption"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/A-GENUINE-ABANDONMENT/receipt.json",
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/A-GENUINE-ABANDONMENT/durable-state.json",
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/A-GENUINE-ABANDONMENT/journal.log"
+      ]
+    },
+    {
+      "row": "B-BUDGET-FREE-CANCELLATION",
+      "title": "Cancellation preserves prior retry facts",
+      "owner": "emeric-nuc",
+      "state": "pass",
+      "dir": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/B-BUDGET-FREE-CANCELLATION",
+      "evidence_doc": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/B-BUDGET-FREE-CANCELLATION/EVIDENCE.md",
+      "summary": "Three explicit cancellations preserved attempts, last-attempt time, and last error without a failed or claimed row.",
+      "test_cases_executed": [
+        "seeded prior retry facts",
+        "three explicit cancellation settlements",
+        "durable retry-fact equality"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/B-BUDGET-FREE-CANCELLATION/receipt.json",
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/B-BUDGET-FREE-CANCELLATION/durable-state.json",
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/B-BUDGET-FREE-CANCELLATION/journal.log"
+      ]
+    },
+    {
+      "row": "C-MIXED-FANIN-SEPARATION",
+      "title": "Mixed fan-in cancellation stays separate from genuine abandonment",
+      "owner": "emeric-nuc",
+      "state": "pass",
+      "dir": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/C-MIXED-FANIN-SEPARATION",
+      "evidence_doc": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/C-MIXED-FANIN-SEPARATION/EVIDENCE.md",
+      "summary": "Capable and legacy fan-in rows stayed attempts-neutral while separate genuine abandonment terminalized and released its follower.",
+      "test_cases_executed": [
+        "three mixed capable and legacy fan-in cancellations",
+        "same-process genuine abandonment",
+        "same-lane follower adoption"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/C-MIXED-FANIN-SEPARATION/receipt.json",
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/C-MIXED-FANIN-SEPARATION/durable-state.json",
+        "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/C-MIXED-FANIN-SEPARATION/journal.log"
+      ]
+    }
+  ],
+  "rollup": {
+    "total_rows": 3,
+    "pass": 3,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 0
+  }
+}

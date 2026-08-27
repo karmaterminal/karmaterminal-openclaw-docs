@@ -1,15 +1,17 @@
 {
   "schema": "openclaw.proofs.index.v1",
-  "purpose": "PR-124337 exact-source behavioral proof signpost.",
-  "current_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
-  "current_sha_short": "4ff99f7",
-  "capture_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "purpose": "PR-124337 protected-head proof transpose signpost.",
+  "current_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+  "current_sha_short": "eee69b3",
+  "capture_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
   "proof_source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
   "execution_runtime_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
-  "build_string": "OpenClaw 2026.8.1 (6e6da7b); PR-124337 source 4ff99f7",
-  "corpus_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/",
-  "manifest_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/proofs-manifest.json",
-  "readme_path": "PR-124337/PROOFS/4ff99f7e5c149d90214a3df932f9d5adb438b835/README.md",
+  "target_exact_execution": false,
+  "build_string": "PR-124337 target eee69b3; source execution 4ff99f7 on composite 6e6da7b",
+  "corpus_path": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/",
+  "manifest_path": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/proofs-manifest.json",
+  "readme_path": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/README.md",
+  "clawsweeper_digest_path": "PR-124337/PROOFS/eee69b3d51c68c76c25c376451c161497e614a2b/CLAW-SWEEPER-DIRECT-DIGEST.md",
   "rollup": {
     "total_rows": 3,
     "pass": 3,
@@ -19,8 +21,8 @@
     "honest_limit": 0,
     "missing": 0
   },
-  "disposition_note": "Three reviewed durable-ingress rows pass on Emeric at exact composite 6e6da7bba079b0fc50d134b96657cda683985837. Source credit remains bound to 4ff99f7e5c149d90214a3df932f9d5adb438b835.",
-  "navigation": "read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-08-23",
-  "generated_by": "frond-scribe"
+  "disposition_note": "Three reviewed source rows remain pass after full-copy ancestry and materiality review. No exact target behavioral execution is claimed.",
+  "navigation": "read INDEX.json -> manifest_path -> rows[] -> target-local evidence_doc and supporting_docs",
+  "generated": "2026-08-27",
+  "generated_by": "GPT-5.6 docs lane"
 }

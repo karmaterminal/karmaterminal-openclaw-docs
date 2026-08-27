@@ -1,0 +1,23 @@
+{
+  "repo": "karmaterminal/openclaw",
+  "ref": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "mode": "custom",
+  "shard": null,
+  "configs": [],
+  "conclusion": "pass",
+  "rc": 0,
+  "gates": [
+    {
+      "name": "custom command",
+      "rc": 0,
+      "ok": true,
+      "seconds": 2
+    }
+  ],
+  "tests": null,
+  "failure_count": 0,
+  "failures": [],
+  "flakes_greened_count": 0,
+  "flakes_greened": []
+}

@@ -2,7 +2,7 @@
   "schema": "openclaw.proofs.manifest.v1",
   "capture_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
   "ship_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
-  "proof_source_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+  "proof_source_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
   "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
   "execution_runtime_provenance": {
     "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
@@ -97,7 +97,8 @@
     "source_pure_is_ancestor": true,
     "target_is_ancestor_of_execution": false,
     "immediate_source_presentation_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-    "immediate_source_is_ancestor": true,
+    "immediate_source_is_ancestor": false,
+    "target_descends_from_immediate_source": true,
     "previous": {
       "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
       "pure_ancestor": false,

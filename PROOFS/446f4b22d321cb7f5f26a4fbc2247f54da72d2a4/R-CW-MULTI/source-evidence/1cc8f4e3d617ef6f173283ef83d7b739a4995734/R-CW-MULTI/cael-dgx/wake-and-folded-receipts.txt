@@ -1,0 +1,26 @@
+A granted wake:
+Flow: 2e235f25-326b-4ebe-aab5-1b7c5cc154fd
+Chain: 3bb8e24a-c1e1-4bbd-af77-968a1f03c744 hop 1/200
+Due at: 2026-07-04T15:46:34.489Z
+Delivered at: 2026-07-04T15:46:34.504Z
+Disposition: granted
+Prior reason: RCW_MULTI_BCA2B0B_CAEL_20260704_0846_A typed multi-continue_work proof election A; expected distinct wake marker A_WAKE if fan-out works
+Wake marker emitted: RCW_MULTI_BCA2B0B_CAEL_20260704_0846_A_WAKE
+
+B folded-active note:
+Flow: ee8fd1ff-73a7-447c-a0de-75e8377a6950
+Chain: 3bb8e24a-c1e1-4bbd-af77-968a1f03c744 hop 2/200
+Due at: 2026-07-04T15:46:39.489Z
+Folded at: 2026-07-04T15:46:39.496Z
+Disposition: folded-active
+Prior reason: RCW_MULTI_BCA2B0B_CAEL_20260704_0846_B typed multi-continue_work proof election B; expected distinct wake marker B_WAKE if fan-out works
+No B_WAKE emitted because it was not a fresh wake.
+
+C folded-active note:
+Flow: 78efa76f-e2ca-42df-b1f7-42e88ce36728
+Chain: 3bb8e24a-c1e1-4bbd-af77-968a1f03c744 hop 3/200
+Due at: 2026-07-04T15:46:44.489Z
+Folded at: 2026-07-04T15:46:44.495Z
+Disposition: folded-active
+Prior reason: RCW_MULTI_BCA2B0B_CAEL_20260704_0846_C typed multi-continue_work proof election C; expected distinct wake marker C_WAKE if fan-out works
+No C_WAKE emitted because it was not a fresh wake.

@@ -1,0 +1,27 @@
+    40	    const properties = AgentParamsSchema.properties as Record<
+    41	      string,
+    42	      { "x-openclaw-internal"?: boolean }
+    43	    >;
+    44
+    45	    expect(properties.continuationTrigger?.["x-openclaw-internal"]).toBe(true);
+    46	    expect(properties.drainsContinuationDelegateQueue?.["x-openclaw-internal"]).toBe(true);
+    47	    expect(properties.traceparent?.["x-openclaw-internal"]).toBe(true);
+    48	  });
+    49
+    50	  it("omits runner-only knobs from public generated schema copies", () => {
+    51	    const publicSchema = stripInternalProtocolFields(AgentParamsSchema);
+    52
+    53	    expect(publicSchema).not.toBe(AgentParamsSchema);
+    54	    if (!publicSchema) {
+    55	      throw new Error("expected public AgentParams schema");
+    56	    }
+    57	    expect(publicSchema.properties).not.toHaveProperty("continuationTrigger");
+    58	    expect(publicSchema.properties).not.toHaveProperty("drainsContinuationDelegateQueue");
+    59	    expect(publicSchema.properties).not.toHaveProperty("traceparent");
+    60	    expect(AgentParamsSchema.properties).toHaveProperty("continuationTrigger");
+    61	    expect(AgentParamsSchema.properties).toHaveProperty("drainsContinuationDelegateQueue");
+    62	    expect(AgentParamsSchema.properties).toHaveProperty("traceparent");
+    63	  });
+    64
+    65	  it("omits whole schemas marked internal", () => {
+    66	    const publicSchema = stripInternalProtocolFields(

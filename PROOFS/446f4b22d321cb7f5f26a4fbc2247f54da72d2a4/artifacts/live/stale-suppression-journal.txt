@@ -1,0 +1,17 @@
+Aug 25 02:41:18 ronan node[143630]: 2026-08-25T02:41:18.674-07:00 [discord] channels resolved: 1235610176883523614/1466192485440164011 (guild:figs.bot; channel:sprites-of-thornfield), 1235610176883523614/1473320126433464465 (guild:figs.bot; channel:heartbeat), 1235610176883523614/1479953009864740956 (guild:figs.bot; channel:silas-tablinum)
+Aug 25 02:41:19 ronan node[143630]: 2026-08-25T02:41:19.334-07:00 [discord] GuildPresences intent enabled — presence listener registered
+Aug 25 02:41:19 ronan node[143630]: 2026-08-25T02:41:19.335-07:00 [discord] client initialized as 1477180909848629301; awaiting gateway readiness
+Aug 25 02:41:19 ronan node[143630]: 2026-08-25T02:41:19.345-07:00 [discord] {
+Aug 25 02:41:19 ronan node[143630]:   level: 'debug',
+Aug 25 02:41:19 ronan node[143630]:   source: 'discord',
+Aug 25 02:41:19 ronan node[143630]:   accountId: 'default',
+Aug 25 02:41:19 ronan node[143630]:   eventId: '1541443384667934801',
+Aug 25 02:41:19 ronan node[143630]:   sourceEventId: '1541443384667934801',
+Aug 25 02:41:19 ronan node[143630]:   laneKey: 'channel:1466192485440164011',
+Aug 25 02:41:19 ronan node[143630]:   channelId: '1466192485440164011',
+Aug 25 02:41:19 ronan node[143630]:   receivedAt: '2026-08-25T09:23:29.833Z',
+Aug 25 02:41:19 ronan node[143630]:   ageMs: 1069503,
+Aug 25 02:41:19 ronan node[143630]:   thresholdMs: 900000,
+Aug 25 02:41:19 ronan node[143630]:   disposition: 'failed',
+Aug 25 02:41:19 ronan node[143630]:   reason: 'stale-ambient-backlog'
+Aug 25 02:41:19 ronan node[143630]: } discord ingress stale ambient backlog suppressed

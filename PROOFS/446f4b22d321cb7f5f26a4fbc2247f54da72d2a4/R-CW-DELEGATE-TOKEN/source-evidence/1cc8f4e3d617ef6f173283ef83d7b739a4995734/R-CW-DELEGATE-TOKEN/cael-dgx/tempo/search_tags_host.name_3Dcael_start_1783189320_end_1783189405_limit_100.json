@@ -1,0 +1,85 @@
+{
+  "traces": [
+    {
+      "traceID": "3310fa9145277037b83ff99c14e423d3",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.harness.run",
+      "startTimeUnixNano": "1783189377753000000",
+      "durationMs": 7576
+    },
+    {
+      "traceID": "5d97dcb7399af892cdbdff532eba5db5",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.model.usage",
+      "startTimeUnixNano": "1783189377687000000",
+      "durationMs": 7755
+    },
+    {
+      "traceID": "34feb88cd6c9beb39b893ef2bcd19be",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.harness.run",
+      "startTimeUnixNano": "1783189358036000000",
+      "durationMs": 6727
+    },
+    {
+      "traceID": "db82dde2f13030bfe5c6559ecc6d55b1",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.model.usage",
+      "startTimeUnixNano": "1783189357990000000",
+      "durationMs": 6822
+    },
+    {
+      "traceID": "18eac519c970b7b272643d474765fdf8",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "continuation.queue.drain",
+      "startTimeUnixNano": "1783189357965000000"
+    },
+    {
+      "traceID": "5085205dfadcad4696b8c679af560386",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "continuation.work.fire",
+      "startTimeUnixNano": "1783189357859000000"
+    },
+    {
+      "traceID": "782ef41852545ac6c8a89dcc35f2055",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "continuation.work",
+      "startTimeUnixNano": "1783189352855000000"
+    },
+    {
+      "traceID": "4f3d079ea6b037894c7a7d4bd2b22870",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.model.usage",
+      "startTimeUnixNano": "1783189347888000000",
+      "durationMs": 5023
+    },
+    {
+      "traceID": "6fd0ea32f3a30d66f4bb26d127361440",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.exec",
+      "startTimeUnixNano": "1783189331622000000",
+      "durationMs": 1076
+    },
+    {
+      "traceID": "aad7ba7d3b3131decb083cb506d355ed",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.model.usage",
+      "startTimeUnixNano": "1783189281301000000",
+      "durationMs": 66079
+    },
+    {
+      "traceID": "a0ead7f17dd741d27224bd5e7d08b4e5",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.message.processed",
+      "startTimeUnixNano": "1783189281168000000",
+      "durationMs": 72066
+    }
+  ],
+  "metrics": {
+    "inspectedTraces": 25,
+    "inspectedBytes": "154653",
+    "completedJobs": 1,
+    "totalJobs": 1
+  },
+  "transposition": {}
+}

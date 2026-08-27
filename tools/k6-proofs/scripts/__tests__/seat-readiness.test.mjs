@@ -170,16 +170,21 @@ test('seat readiness JSON contains no env secret values and reports booleans onl
   await withTmp(async (dir) => {
     const tools = await writeFakeSeatTools(dir, { maxSpawnDepth: 5 });
     const token = 'CANARY-TOKEN-VALUE-DO-NOT-PRINT';
+    const urlSecret = 'URL-CREDENTIAL-VALUE-DO-NOT-PRINT';
     const run = runPreflight([
       '--json',
       '--no-gateway',
       '--expected-k6-version', 'v2.0.0',
       '--expected-max-spawn-depth', '5',
       '--rows', 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN',
-    ], readyEnv({ ...tools, token }));
+    ], {
+      ...readyEnv({ ...tools, token }),
+      OPENCLAW_GATEWAY_WS: `ws://user:${urlSecret}@127.0.0.1:18789/?token=${urlSecret}`,
+    });
 
     assert.equal(run.status, 0, run.stderr || run.stdout);
     assert.doesNotMatch(run.stdout, new RegExp(token));
+    assert.doesNotMatch(run.stdout, new RegExp(urlSecret));
     const report = JSON.parse(run.stdout);
     assert.equal(report.schema, 'openclaw.k6.seat-readiness.v1');
     assert.equal(report.outcome, 'PASS-candidate');
@@ -187,6 +192,7 @@ test('seat readiness JSON contains no env secret values and reports booleans onl
     assert.equal(report.k6.path, tools.fakeK6);
     assert.equal(report.k6.version, 'v2.0.0');
     assert.equal(report.gateway.mode, 'skipped-by-flag');
+    assert.equal(report.gateway.url, 'ws://127.0.0.1:18789');
     assert.equal(report.continuation.mode, 'checked');
     assert.equal(report.continuation.enabled, true);
     assert.equal(report.continuation.defaultsPresent, true);

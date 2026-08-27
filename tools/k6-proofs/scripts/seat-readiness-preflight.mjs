@@ -54,7 +54,7 @@ function parseArgs(argv) {
 }
 
 function usage() {
-  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--policy path] [--expected-k6-version v2.0.0] [--expected-max-spawn-depth 5] [--rows R-CD-CHAINED-DEPTH-2,R-CD-TOKEN]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json; selected-row depth comes from the row manifests.`);
+  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--require-target-binding] [--policy path] [--expected-k6-version v2.0.0] [--expected-max-spawn-depth 5] [--rows R-CD-CHAINED-DEPTH-2,R-CD-TOKEN]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json; selected-row depth comes from the row manifests.`);
 }
 
 function commandOrNull(cmd, args) {
@@ -178,7 +178,7 @@ function connectFrame(token) {
       maxProtocol: 4,
       client: { id: 'gateway-client', version: '0.2.0', platform: 'linux', mode: 'backend' },
       role: 'operator',
-      scopes: ['operator.read'],
+      scopes: ['operator.read', 'operator.write', 'session.control'],
       caps: [],
       commands: [],
       permissions: {},

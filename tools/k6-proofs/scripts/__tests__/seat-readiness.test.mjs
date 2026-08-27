@@ -288,6 +288,96 @@ test('target readiness A/B/C selects only authenticated target depth', async (t)
   }
 });
 
+test('isolated Codex runtime is observed from the target config, never the host', async (t) => {
+  const preFix = JSON.parse(await readFile(
+    new URL('../../tests/fixtures/isolated-codex-runtime-missing.json', import.meta.url),
+    'utf8',
+  ));
+  const depthAndContinuation = {
+    continuation: {
+      enabled: true,
+      maxChainLength: 200,
+      maxDelegatesPerTurn: 500,
+      costCapTokens: 500000,
+    },
+    subagents: { maxSpawnDepth: 5 },
+  };
+
+  await t.test('missing Codex plugin stops before model or row traffic', async () => {
+    await withTmp(async (dir) => {
+      const tools = await writeFakeSeatTools(dir, { maxSpawnDepth: 5 });
+      await withTargetGateway(dir, preFix.targetConfig, async (port) => {
+        const run = runPreflight(
+          ['--json', '--rows', 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN', '--expected-max-spawn-depth', '5'],
+          { ...readyEnv(tools), OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${port}` },
+        );
+        assert.equal(run.status, 2, run.stderr || run.stdout);
+        const report = JSON.parse(run.stdout);
+        assert.equal(report.outcome, 'PARTIAL-candidate');
+        assert.equal(report.runtimePlugin.required, true);
+        assert.equal(report.runtimePlugin.runtime, 'codex');
+        assert.equal(report.runtimePlugin.registered, false);
+        assert.equal(report.runtimePlugin.sufficient, false);
+        assert.equal(report.runtimePlugin.reason, 'runtime-plugin-unregistered');
+        assert.equal(report.continuationDepth.sufficient, true);
+        assert.deepEqual(JSON.parse(await readFile(join(dir, 'target-counts.json'), 'utf8')), {
+          configRpc: 1,
+          rowOrModelTraffic: 0,
+        });
+      });
+    });
+  });
+
+  await t.test('registered Codex plugin on the isolated target may pass readiness', async () => {
+    await withTmp(async (dir) => {
+      const tools = await writeFakeSeatTools(dir, { openclawFails: true });
+      await withTargetGateway(dir, {
+        agents: { defaults: { model: 'openai/gpt-5.6-sol', ...depthAndContinuation } },
+        plugins: { entries: { codex: { enabled: true } } },
+      }, async (port) => {
+        const run = runPreflight(
+          ['--json', '--rows', 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN', '--expected-max-spawn-depth', '5'],
+          { ...readyEnv(tools), OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${port}` },
+        );
+        assert.equal(run.status, 0, run.stderr || run.stdout);
+        const report = JSON.parse(run.stdout);
+        assert.equal(report.outcome, 'PASS-candidate');
+        assert.equal(report.runtimePlugin.registered, true);
+        assert.equal(report.runtimePlugin.sufficient, true);
+        assert.equal(report.targetObservation.source, 'authenticated-gateway-config-rpc');
+        assert.deepEqual(JSON.parse(await readFile(join(dir, 'target-counts.json'), 'utf8')), {
+          configRpc: 1,
+          rowOrModelTraffic: 0,
+        });
+      });
+    });
+  });
+
+  await t.test('wrong plugin and ambient host registration cannot satisfy the target', async () => {
+    await withTmp(async (dir) => {
+      const tools = await writeFakeSeatTools(dir, { maxSpawnDepth: 5 });
+      await withTargetGateway(dir, {
+        agents: { defaults: { model: 'openai/gpt-5.6-sol', ...depthAndContinuation } },
+        plugins: { entries: { openai: { enabled: true } } },
+      }, async (port) => {
+        const run = runPreflight(
+          ['--json', '--rows', 'R-CD-2', '--expected-max-spawn-depth', '5'],
+          { ...readyEnv(tools), OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${port}` },
+        );
+        assert.equal(run.status, 2, run.stderr || run.stdout);
+        const report = JSON.parse(run.stdout);
+        assert.equal(report.outcome, 'PARTIAL-candidate');
+        assert.equal(report.runtimePlugin.sufficient, false);
+        assert.equal(report.runtimePlugin.source, 'isolated-target-config');
+        assert.deepEqual(JSON.parse(await readFile(join(dir, 'target-counts.json'), 'utf8')), {
+          configRpc: 1,
+          rowOrModelTraffic: 0,
+        });
+      });
+    });
+  });
+});
+
 test('D: target observation rejects wrong gateway, seat, candidate, and row binding', () => {
   const source = {
     gatewayWs: 'ws://127.0.0.1:19893',
@@ -365,6 +455,9 @@ test('seat readiness schema tracks policy, continuation readiness, checked k6 ca
   assert.ok(parsed.required.includes('policy'));
   assert.ok(parsed.required.includes('continuation'));
   assert.ok(parsed.required.includes('continuationDepth'));
+  assert.ok(parsed.required.includes('runtimePlugin'));
+  assert.ok(parsed.properties.runtimePlugin.required.includes('registered'));
+  assert.ok(parsed.properties.runtimePlugin.required.includes('sufficient'));
   assert.ok(parsed.properties.continuation.required.includes('enabled'));
   assert.ok(parsed.properties.continuation.required.includes('defaultsPresent'));
   assert.ok(parsed.properties.continuationDepth.required.includes('configuredMaxSpawnDepth'));

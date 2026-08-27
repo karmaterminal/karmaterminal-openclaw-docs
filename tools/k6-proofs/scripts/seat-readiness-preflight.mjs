@@ -23,6 +23,10 @@ import {
   publicGatewayTarget,
   targetReadinessBindingErrors,
 } from '../lib/target-readiness-binding.mjs';
+import {
+  evaluateIsolatedRuntimePlugin,
+  publicRuntimePluginReceipt,
+} from '../lib/isolated-runtime-plugin-contract.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '../../..');
@@ -164,6 +168,7 @@ function readAgentDefaultsConfig() {
   return {
     mode: out.ok && defaults ? 'checked' : 'unavailable',
     defaults,
+    config: null,
     error: out.ok && !defaults ? 'json-shape-invalid' : out.error,
   };
 }
@@ -193,7 +198,7 @@ async function readTargetAgentDefaults(gatewayWs, token) {
   try {
     socket = new WebSocket(gatewayWs);
   } catch {
-    return { mode: 'unavailable', defaults: null, error: 'target-rpc-url-invalid' };
+    return { mode: 'unavailable', defaults: null, config: null, error: 'target-rpc-url-invalid' };
   }
   return await new Promise((resolve) => {
     let settled = false;
@@ -205,36 +210,37 @@ async function readTargetAgentDefaults(gatewayWs, token) {
       resolve(result);
     };
     const timer = setTimeout(
-      () => finish({ mode: 'unavailable', defaults: null, error: 'target-rpc-timeout' }),
+      () => finish({ mode: 'unavailable', defaults: null, config: null, error: 'target-rpc-timeout' }),
       5000,
     );
     socket.onopen = () => socket.send(JSON.stringify(connectFrame(token)));
-    socket.onerror = () => finish({ mode: 'unavailable', defaults: null, error: 'target-rpc-unreachable' });
+    socket.onerror = () => finish({ mode: 'unavailable', defaults: null, config: null, error: 'target-rpc-unreachable' });
     socket.onmessage = (event) => {
       let message;
       try {
         message = JSON.parse(String(event.data));
       } catch {
-        finish({ mode: 'unavailable', defaults: null, error: 'target-rpc-json-invalid' });
+        finish({ mode: 'unavailable', defaults: null, config: null, error: 'target-rpc-json-invalid' });
         return;
       }
       if (message.type !== 'res') return;
       if (message.id === 'connect') {
         if (message.error || message.ok === false) {
-          finish({ mode: 'unavailable', defaults: null, error: 'target-auth-failed' });
+          finish({ mode: 'unavailable', defaults: null, config: null, error: 'target-auth-failed' });
           return;
         }
         socket.send(JSON.stringify({ type: 'req', id: 'config-get', method: 'config.get', params: {} }));
         return;
       }
       if (message.id !== 'config-get') return;
-      const defaults = message.payload?.config?.agents?.defaults;
+      const config = message.payload?.config;
+      const defaults = config?.agents?.defaults;
       if (message.error || message.ok === false) {
-        finish({ mode: 'unavailable', defaults: null, error: 'target-config-rpc-failed' });
+        finish({ mode: 'unavailable', defaults: null, config: null, error: 'target-config-rpc-failed' });
       } else if (!defaults || typeof defaults !== 'object' || Array.isArray(defaults)) {
-        finish({ mode: 'unavailable', defaults: null, error: 'target-config-shape-invalid' });
+        finish({ mode: 'unavailable', defaults: null, config: null, error: 'target-config-shape-invalid' });
       } else {
-        finish({ mode: 'checked', defaults, error: null });
+        finish({ mode: 'checked', defaults, config, error: null });
       }
     };
   });
@@ -261,6 +267,7 @@ function printText(report) {
   console.log(`gateway: ${report.gateway.mode}; health=${report.gateway.healthReachable}; status=${report.gateway.statusReachable}; url=${report.gateway.url}`);
   console.log(`continuation: ${report.continuation.mode}; enabled=${report.continuation.enabled}; defaults=${report.continuation.defaultsPresent}`);
   console.log(`continuation depth: configured=${report.continuationDepth.configuredMaxSpawnDepth ?? 'omitted'}; effective=${report.continuationDepth.effectiveMaxSpawnDepth ?? 'unknown'}; required=${report.continuationDepth.requiredMaxSpawnDepth ?? 'unknown'}; sufficient=${report.continuationDepth.sufficient}`);
+  console.log(`runtime plugin: required=${report.runtimePlugin.required}; runtime=${report.runtimePlugin.runtime || 'none'}; registered=${report.runtimePlugin.registered}; sufficient=${report.runtimePlugin.sufficient}`);
   console.log(`candidate sha: ${report.candidate.valid40Hex ? 'valid' : 'missing/invalid'}`);
   console.log(`seat: ${report.seat.name}; session scope: ${report.session.scope}`);
   console.log(`concurrency: ${report.concurrency.safeToRunConcurrently ? 'safe' : 'serialized'} — ${report.concurrency.reason}`);
@@ -403,11 +410,21 @@ async function main() {
   if (!valid40Hex) notes.push('OPENCLAW_CANDIDATE_SHA is missing or not a 40-char lowercase hex SHA.');
   if (bindingErrors.length) notes.push(`target readiness binding rejected: ${bindingErrors.join(', ')}.`);
 
+  const runtimePluginEvaluation = evaluateIsolatedRuntimePlugin({
+    config: agentDefaults.config || null,
+    configAvailable: agentDefaults.mode === 'checked' && Boolean(agentDefaults.config),
+  });
+  const runtimePlugin = publicRuntimePluginReceipt(runtimePluginEvaluation);
+  if (!runtimePlugin.sufficient) {
+    notes.push(`selected model runtime plugin is not observed on the isolated target: ${runtimePlugin.reason}.`);
+  }
+
   const continuationReady = continuation.mode === 'checked' &&
     continuation.enabled === true &&
     continuation.defaultsPresent &&
     continuationDepth.sufficient;
-  const pass = k6.ok && k6.matchesExpected && continuationReady && valid40Hex &&
+  const pass = k6.ok && k6.matchesExpected && continuationReady && runtimePlugin.sufficient &&
+    valid40Hex &&
     bindingErrors.length === 0 && requiredMissing.length === 0 &&
     (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
 
@@ -425,6 +442,7 @@ async function main() {
     gateway,
     continuation,
     continuationDepth,
+    runtimePlugin,
     targetObservation: {
       source: args.gateway ? 'authenticated-gateway-config-rpc' : 'local-cli-no-gateway',
       rpcMethod: args.gateway ? 'config.get' : null,

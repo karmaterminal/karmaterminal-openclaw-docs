@@ -1,0 +1,117 @@
+{
+  "schema": "openclaw.pr121204.mode-b-receipt.v1",
+  "run_id": 33033099410,
+  "run_url": "https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/33033099410",
+  "repository": "karmaterminal/openclaw",
+  "product_sha": "ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+  "workflow_repository": "karmaterminal/openclaw-bootstrap",
+  "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+  "workflow_conclusion": "failure",
+  "routing": {
+    "shards_planned": 163,
+    "shards_routed": 163,
+    "jobs_routed": 69,
+    "receipts_found": 69,
+    "receipts_valid": true,
+    "summaries_found": 164
+  },
+  "tests": {
+    "passed": 168528,
+    "failed": 28,
+    "flakes_greened": 5,
+    "deterministic_failures": 23
+  },
+  "feature_slice": {
+    "static_gates": "pass",
+    "preflight_and_build_identity": "pass",
+    "channels": {
+      "verdict": "pass",
+      "passed": 1171,
+      "failed": 0
+    },
+    "extension_discord": {
+      "verdict": "pass",
+      "passed": 3046,
+      "failed": 0
+    },
+    "extension_signal": {
+      "verdict": "pass",
+      "passed": 833,
+      "failed": 0
+    },
+    "core_tooling": {
+      "verdict": "pass",
+      "shards": 8,
+      "passed": 9317,
+      "failed": 0
+    },
+    "channel_contracts": {
+      "verdict": "pass",
+      "passed": 493,
+      "failed": 0
+    },
+    "repo_tooling": {
+      "verdict": "pass",
+      "passed": 178,
+      "failed": 0
+    }
+  },
+  "deterministic_failure_groups": [
+    {
+      "shard": "core-runtime-tui-pty",
+      "deterministic_failures": 14,
+      "path": "src/tui/tui-pty-local.e2e.test.ts",
+      "floor_blob": "20a227b2b952",
+      "target_blob": "20a227b2b952"
+    },
+    {
+      "shard": "agentic-commands-doctor",
+      "deterministic_failures": 1,
+      "path": "src/commands/doctor-lint.test.ts",
+      "floor_blob": "45578dde3a53",
+      "target_blob": "45578dde3a53"
+    },
+    {
+      "shard": "agentic-plugins",
+      "deterministic_failures": 1,
+      "path": "src/plugins/bundled-plugin-metadata.test.ts",
+      "floor_blob": "2d02612b56e9",
+      "target_blob": "2d02612b56e9"
+    },
+    {
+      "shard": "agentic-plugins",
+      "deterministic_failures": 1,
+      "path": "src/plugins/npm-install-security-scan.release.test.ts",
+      "floor_blob": "3b9a40880094",
+      "target_blob": "3b9a40880094"
+    },
+    {
+      "shard": "agentic-commands-doctor-sessions-cron",
+      "deterministic_failures": 1,
+      "path": "src/commands/doctor-session-sqlite.test.ts",
+      "floor_blob": "b6f6a4c95320",
+      "target_blob": "b6f6a4c95320"
+    },
+    {
+      "shard": "agentic-cli",
+      "deterministic_failures": 4,
+      "path": "src/cli/update-cli/update-command-post-update.test.ts",
+      "floor_blob": "f9c8befff7df",
+      "target_blob": "f9c8befff7df"
+    },
+    {
+      "shard": "extension-telegram",
+      "deterministic_failures": 1,
+      "path": "extensions/telegram/src/model-callback.loopback.integration.test.ts",
+      "floor_blob": "99cd4a1f43c5",
+      "target_blob": "99cd4a1f43c5"
+    }
+  ],
+  "classification": {
+    "all_deterministic_failure_paths_outside_24_path_feature_delta": true,
+    "all_deterministic_failure_files_byte_identical_to_floor": true,
+    "aggregate_green": false,
+    "feature_slice_green": true,
+    "behavior_execution": false
+  }
+}

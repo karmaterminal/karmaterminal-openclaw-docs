@@ -1,0 +1,8 @@
+{
+  "schema": "openclaw.pr121204.test-result.v1",
+  "runner": "package.json#scripts.test",
+  "exitCode": 0,
+  "testFilesPassed": 1,
+  "testsPassed": 1,
+  "testsSkipped": 2
+}

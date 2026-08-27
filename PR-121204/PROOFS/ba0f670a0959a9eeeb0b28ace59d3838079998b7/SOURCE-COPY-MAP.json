@@ -1,0 +1,108 @@
+{
+  "schema": "openclaw.pr121204.source-copy-map.v1",
+  "source_sha": "3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "target_sha": "ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+  "source_root": "PR-121204/PROOFS/3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "target_root": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+  "source_file_count": 18,
+  "counterpart_count": 18,
+  "byte_identical_count": 13,
+  "target_aware_metadata_count": 5,
+  "files": [
+    {
+      "path": "CORRUPT-PENDING/EVIDENCE.md",
+      "source_sha256": "70ce80b2c3c0b52543ff38edbf0d73f219362170af084008211754a0bada1039",
+      "byte_identical": true
+    },
+    {
+      "path": "CORRUPT-PENDING/gate.json",
+      "source_sha256": "2f586aab72b1dd7bdda5575d36ab2bbee21a0ef3a1e188ddc8b382cae03a4077",
+      "byte_identical": true
+    },
+    {
+      "path": "CORRUPT-PENDING/receipt.json",
+      "source_sha256": "a3ccbfa27ff660e4784638b6feeea2ad4ee8b03c15794330c9a31b5efa87e299",
+      "byte_identical": true
+    },
+    {
+      "path": "CORRUPT-PENDING/test-result.json",
+      "source_sha256": "129ec1554bd3ab7cfd10213c18b4015ae039654bce76733d62f45fe669ced7e4",
+      "byte_identical": true
+    },
+    {
+      "path": "METHOD.md",
+      "source_sha256": "0cd7bbebd13ce468601c1a75db749f658079eda8b5123521dca7cdcf7d81c1b9",
+      "byte_identical": false,
+      "reason": "target-aware transposition method"
+    },
+    {
+      "path": "NON-INTERFERENCE-MAP.md",
+      "source_sha256": "453838efb74e7d312a3e5ec8f39adc5dcff09999b53bbd869a1226e5addc4fd8",
+      "byte_identical": false,
+      "reason": "target-aware 24-path non-interference map"
+    },
+    {
+      "path": "proof-harness.test.ts",
+      "source_sha256": "368650f8f97583038cd0a9beec2488fbe67574b12a4d8df514a595a583b8f344",
+      "byte_identical": true
+    },
+    {
+      "path": "README.md",
+      "source_sha256": "eb91ca4a374d462e4f3b360760870eef8ce4f00f91e49b75ce4acc369c62ce91",
+      "byte_identical": false,
+      "reason": "target corpus entrypoint"
+    },
+    {
+      "path": "RESOLVED-SHA.md",
+      "source_sha256": "bdd78ef55cb61cb2a6e1fb952970757e0551148fd63d8b826bfd17e705bfb7f9",
+      "byte_identical": false,
+      "reason": "target and transposition identities"
+    },
+    {
+      "path": "STALE-DIRECT-OPEN/EVIDENCE.md",
+      "source_sha256": "c3f246f043680ed3f67dc300203a070f9e0fda76674471cb6c5e0277987abaf0",
+      "byte_identical": true
+    },
+    {
+      "path": "STALE-DIRECT-OPEN/gate.json",
+      "source_sha256": "2ea2afc250fcd3cb0337f019d79294dfdf8aa9f25f7f8283d93af87938ec8aaf",
+      "byte_identical": true
+    },
+    {
+      "path": "STALE-DIRECT-OPEN/receipt.json",
+      "source_sha256": "a484e4226334cf80e40945df9e4575762959e209fee5af87eb333ce758effb0e",
+      "byte_identical": true
+    },
+    {
+      "path": "STALE-DIRECT-OPEN/test-result.json",
+      "source_sha256": "a96b62679aa9756ba1058379e2cc4e25552ed248d227ea6cb833be43e295deb4",
+      "byte_identical": true
+    },
+    {
+      "path": "WATCHDOG-REPAIR/EVIDENCE.md",
+      "source_sha256": "dc0581550ff11a64220a1b2939d38b859189ee9da0a94b72a6cd9b8a096e7bae",
+      "byte_identical": true
+    },
+    {
+      "path": "WATCHDOG-REPAIR/gate.json",
+      "source_sha256": "c5cb1a6101fb9167873e760ceeff433316a6db58775715c20853a98ab486c960",
+      "byte_identical": true
+    },
+    {
+      "path": "WATCHDOG-REPAIR/receipt.json",
+      "source_sha256": "8763c5f4031271171f41994ec47f1c91a16663f0b781aa3ef33a09ffbfebf636",
+      "byte_identical": true
+    },
+    {
+      "path": "WATCHDOG-REPAIR/test-result.json",
+      "source_sha256": "129ec1554bd3ab7cfd10213c18b4015ae039654bce76733d62f45fe669ced7e4",
+      "byte_identical": true
+    },
+    {
+      "path": "manifest.json",
+      "source_sha256": "286b833e29ad09e81f56d6b913e72cf6b06f9a1548a32914a105e80e47236513",
+      "byte_identical": false,
+      "reason": "target-aware manifest preserving source execution identities"
+    }
+  ]
+}

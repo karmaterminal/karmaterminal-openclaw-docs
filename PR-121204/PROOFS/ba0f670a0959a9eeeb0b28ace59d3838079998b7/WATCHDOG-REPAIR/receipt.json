@@ -1,0 +1,153 @@
+{
+  "schema": "openclaw.pr121204.exact-source-proof-row.v1",
+  "sourceSha": "3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "executionCompositeSha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "seat": "rune",
+  "nonce": "RUNE-PR121204-R3-20260823T155236Z-994306",
+  "isolatedTestState": true,
+  "gatewayJournal": {
+    "emitted": false,
+    "reason": "The sanctioned test runner used an isolated temporary SQLite state directory."
+  },
+  "row": "watchdog-bounded-recovery-no-completed-replay",
+  "observationWindowUtc": {
+    "start": "2026-08-23T16:00:00.000Z",
+    "end": "2026-08-23T16:00:06.000Z"
+  },
+  "before": [
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-stalled",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "pending",
+      "attempts": 0,
+      "received_at": 1787500800000,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    },
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-follower",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "pending",
+      "attempts": 0,
+      "received_at": 1787500800001,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    }
+  ],
+  "afterWatchdog": [
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-stalled",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "pending",
+      "attempts": 1,
+      "received_at": 1787500800000,
+      "updated_at": 1787500805000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": 1787500805000,
+      "last_error": "Channel ingress claim→adoption stalled for event RUNE-PR121204-R3-20260823T155236Z-994306-stalled on lane channel:synthetic-proof-channel after 5000ms; applying retry policy (handler-timeout)."
+    },
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-follower",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "pending",
+      "attempts": 0,
+      "received_at": 1787500800001,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    }
+  ],
+  "afterRecovery": [
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-stalled",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "completed",
+      "attempts": 1,
+      "received_at": 1787500800000,
+      "updated_at": 1787500806000,
+      "claimed_at": null,
+      "completed_at": 1787500806000,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    },
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-follower",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "completed",
+      "attempts": 0,
+      "received_at": 1787500800001,
+      "updated_at": 1787500806000,
+      "claimed_at": null,
+      "completed_at": 1787500806000,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    }
+  ],
+  "afterReplayProbe": [
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-stalled",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "completed",
+      "attempts": 1,
+      "received_at": 1787500800000,
+      "updated_at": 1787500806000,
+      "claimed_at": null,
+      "completed_at": 1787500806000,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    },
+    {
+      "event_id": "RUNE-PR121204-R3-20260823T155236Z-994306-follower",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "completed",
+      "attempts": 0,
+      "received_at": 1787500800001,
+      "updated_at": 1787500806000,
+      "claimed_at": null,
+      "completed_at": 1787500806000,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    }
+  ],
+  "ingressDispatches": [
+    "RUNE-PR121204-R3-20260823T155236Z-994306-stalled",
+    "RUNE-PR121204-R3-20260823T155236Z-994306-stalled",
+    "RUNE-PR121204-R3-20260823T155236Z-994306-follower"
+  ],
+  "downstreamAgentExecution": {
+    "exercised": false,
+    "limit": "The core durable drain lifecycle was exercised; no downstream agent was invoked."
+  },
+  "verdict": "PASS-COMPOSITE-CONTEXT",
+  "exactSourceIsolation": false,
+  "exactSourceLimit": "The bounded retry path differs from accepted source SHA and entered the composite in replay commit c98224eefa5c05dc74727a645f634c5e0a583ec0.",
+  "actualObservationWindowUtc": {
+    "start": "2026-08-23T15:52:36Z",
+    "end": "2026-08-23T15:52:44Z"
+  }
+}

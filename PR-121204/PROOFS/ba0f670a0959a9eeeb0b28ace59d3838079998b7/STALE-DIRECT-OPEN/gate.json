@@ -1,0 +1,10 @@
+{
+  "seat": "rune",
+  "utc": "2026-08-23T15:51:50Z",
+  "installedCheckout": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "runtimeBuildCommit": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "gatewayServiceState": "not-found-or-inactive",
+  "nonce": "RUNE-PR121204-R1-20260823T155150Z-993991",
+  "command": "PR121204_PROOF_NONCE=RUNE-PR121204-R1-20260823T155150Z-993991 PR121204_PROOF_OUTPUT=<private-proof-output>/receipt.json OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test extensions/discord/src/monitor/pr121204-exact-source-proof.test.ts -t 'row 1 stale direct-open ambient does not starve fresh mention'",
+  "gatewayProcessObserved": true
+}

@@ -52,8 +52,7 @@ in the new target.
 - The only changed retained files are `ARTIFACTS.md`, `CLAWSSWEEPER.md`,
   `METHOD.md`, `README.md`, `RESOLVED-SHA.md`, `TRANSPOSED-FROM.md`, and
   `proofs-manifest.json`.
-- Full generated receipt:
-  `/home/figs/.copilot/session-state/a73c402d-d716-4453-947e-7fb796ea8052/files/inventory-hash-receipt.txt`.
+- Full generated receipt: session artifact `inventory-hash-receipt.txt`.
 
 ## Repair regression
 

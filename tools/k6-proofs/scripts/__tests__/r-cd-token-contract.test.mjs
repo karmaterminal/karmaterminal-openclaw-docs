@@ -6,14 +6,17 @@ import {
   classifyTokenEvidence,
   createTokenLedger,
   observeTokenTaskLedger,
+  createTokenReturnObservationState,
   parseTokenReturnEvent,
   parseTokenReturnTranscriptMessage,
   rejectTokenTaskLedgerObservation,
+  rememberTokenReturnReceipt,
   summarizeTokenLedger,
   tokenDisposableOriginReady,
   tokenExpectedOriginReturnRunId,
   tokenLedgerHasTerminalTasks,
   tokenOriginCursorFromMessages,
+  tokenOriginCursorSnapshotDispatch,
 } from '../../lib/r-cd-token-contract.js';
 
 const frozenRun = JSON.parse(await readFile(
@@ -268,6 +271,17 @@ test('structured return parser binds target and source sessions', () => {
       }],
       __openclaw: { runId: originReturnRunId, seq: 3 },
     };
+    const eventData = { sessionKey: originChild, message };
+    assert.equal(parseTokenReturnEvent(eventData, {
+      expectedTargetSessionKey: originChild,
+      expectedDelegateChildSessionKey: delegateChild,
+      expectedDelegateRunId: delegateRunId,
+      expectedSentinel: returnSentinel,
+      originCursor: 2,
+      subscriptionAcceptedAtMs: 4000,
+      observedAtMs: 5000,
+      hash,
+    }), null);
     assert.deepEqual(parseTokenReturnTranscriptMessage(message, {
       expectedTargetSessionKey: originChild,
       expectedDelegateChildSessionKey: delegateChild,
@@ -297,6 +311,89 @@ test('structured return parser binds target and source sessions', () => {
       },
     ), null);
   });
+});
+
+test('first sessions.get is emitted synchronously after subscription and lineage', () => {
+  const timers = [];
+  const sent = [];
+  const dispatch = tokenOriginCursorSnapshotDispatch({
+    originSubscriptionAccepted: true,
+    originChildSessionKey: originChild,
+    originRunId,
+    recoveryPollDelayMs: 500,
+  });
+  assert.equal(dispatch.action, 'sessions.get');
+  assert.deepEqual(dispatch.params, { key: originChild, limit: 50 });
+  sent.push(dispatch);
+  assert.deepEqual(timers, []);
+  assert.equal(sent.length, 1);
+  assert.equal(tokenOriginCursorSnapshotDispatch({
+    originSubscriptionAccepted: true,
+    recoveryPollDelayMs: 0,
+  }).action, 'idle');
+  assert.deepEqual(tokenOriginCursorSnapshotDispatch({
+    originSubscriptionAccepted: true,
+    recoveryPollDelayMs: 500,
+  }), { action: 'schedule', delayMs: 500 });
+  assert.equal(tokenOriginCursorSnapshotDispatch({
+    originChildSessionKey: originChild,
+    originRunId,
+    recoveryPollDelayMs: 500,
+  }).action, 'idle');
+});
+
+test('live and transcript copies of one sequence deduplicate; a second sequence fails', () => {
+  const message = {
+    role: 'assistant',
+    timestamp: 3000,
+    content: [{
+      type: 'text',
+      text: `Continuation completed with result: ${returnSentinel}`,
+    }],
+    __openclaw: { runId: originReturnRunId, seq: 3 },
+  };
+  const live = parseTokenReturnEvent({ sessionKey: originChild, message, runId: originReturnRunId, messageSeq: 3 }, {
+    expectedTargetSessionKey: originChild,
+    expectedDelegateChildSessionKey: delegateChild,
+    expectedDelegateRunId: delegateRunId,
+    expectedSentinel: returnSentinel,
+    originCursor: 2,
+    subscriptionAcceptedAtMs: 1000,
+    observedAtMs: 3010,
+    hash,
+  });
+  const transcript = parseTokenReturnTranscriptMessage(message, {
+    expectedTargetSessionKey: originChild,
+    expectedDelegateChildSessionKey: delegateChild,
+    expectedDelegateRunId: delegateRunId,
+    expectedSentinel: returnSentinel,
+    originCursor: 2,
+    observedAtMs: 3010,
+    hash,
+  });
+  const state = createTokenReturnObservationState();
+  assert.equal(rememberTokenReturnReceipt(state, live), true);
+  assert.equal(rememberTokenReturnReceipt(state, transcript), false);
+  assert.equal(state.count, 1);
+  const second = parseTokenReturnTranscriptMessage({
+    ...message,
+    __openclaw: { runId: originReturnRunId, seq: 4 },
+  }, {
+    expectedTargetSessionKey: originChild,
+    expectedDelegateChildSessionKey: delegateChild,
+    expectedDelegateRunId: delegateRunId,
+    expectedSentinel: returnSentinel,
+    originCursor: 2,
+    observedAtMs: 4010,
+    hash,
+  });
+  assert.equal(second?.messageSeq, 4);
+  assert.equal(rememberTokenReturnReceipt(state, second), true);
+  assert.equal(state.count, 2);
+  assert.equal(classifyTokenEvidence(completeEvidence({
+    origin_return_event_count: state.count,
+    origin_return_message_seq: 4,
+  })), 'PARTIAL-candidate');
 });
 
 test('origin cursor is the last assistant message owned by the initial origin run', () => {

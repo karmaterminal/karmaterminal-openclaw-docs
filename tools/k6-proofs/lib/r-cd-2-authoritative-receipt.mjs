@@ -179,6 +179,15 @@ export function rCd2AuthorityChecks(evidence, correlation) {
   };
 }
 
+/** Public-safe resolver stdout. Booleans only; HMAC receipt remains verdict authority. */
+export function rCd2PublicResolutionOutput(receipt, evidence, correlation) {
+  return {
+    verdict: receipt?.verdict || null,
+    receipt: 'r-cd-2-authoritative-receipt.json',
+    checks: rCd2AuthorityChecks(evidence, correlation),
+  };
+}
+
 function categoryFor(evidence, correlation) {
   if (evidence?.channel_message_observed === true) return 'silent-channel-delivery';
   if (evidence?.failureCategory === 'delegate-replay-unsafe' &&

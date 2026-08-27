@@ -8,15 +8,18 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import {
   classifyTokenEvidence,
   createTokenLedger,
+  createTokenReturnObservationState,
   observeTokenTaskLedger,
   parseTokenReturnEvent,
   parseTokenReturnTranscriptMessage,
   rejectTokenTaskLedgerObservation,
+  rememberTokenReturnReceipt,
   summarizeTokenLedger,
   tokenDisposableOriginReady,
   tokenLedgerHasTerminalTasks,
   tokenLedgerRuntimeIdentity,
   tokenOriginCursorFromMessages,
+  tokenOriginCursorSnapshotDispatch,
 } from '../lib/r-cd-token-contract.js';
 
 export const options = {
@@ -124,7 +127,7 @@ export default function () {
     let originCursorPollPending = false;
     let originCursorPollScheduled = false;
     const pendingReturnEvents = [];
-    const observedReturnMessageSeqs = {};
+    const returnObservations = createTokenReturnObservationState();
 
     function returnBindingReady() {
       const identity = tokenLedgerRuntimeIdentity(ledger);
@@ -139,9 +142,8 @@ export default function () {
     }
 
     function rememberReturnReceipt(receipt, kind) {
-      if (!receipt || observedReturnMessageSeqs[receipt.messageSeq]) return false;
-      observedReturnMessageSeqs[receipt.messageSeq] = true;
-      evidence.origin_return_event_count += 1;
+      if (!rememberTokenReturnReceipt(returnObservations, receipt)) return false;
+      evidence.origin_return_event_count = returnObservations.count;
       evidence.delegate_return_observed = evidence.origin_return_event_count === 1;
       if (evidence.origin_return_event_count === 1) {
         evidence.return_target_session_hash = receipt.targetSessionHash;
@@ -177,25 +179,29 @@ export default function () {
     }
 
     function requestOriginCursorSnapshot() {
-      if (closed ||
-          !evidence.origin_subscription_accepted ||
-          (evidence.origin_cursor_snapshot_accepted &&
-            evidence.origin_return_event_count > 0) ||
-          originCursorPollPending) return;
       const identity = tokenLedgerRuntimeIdentity(ledger);
-      if (!identity.originChildSessionKey || !identity.originRunId) {
-        scheduleOriginCursorPoll();
+      const dispatch = tokenOriginCursorSnapshotDispatch({
+        closed,
+        originSubscriptionAccepted: evidence.origin_subscription_accepted,
+        originCursorSnapshotAccepted: evidence.origin_cursor_snapshot_accepted,
+        originReturnEventCount: evidence.origin_return_event_count,
+        originCursorPollPending,
+        originChildSessionKey: identity.originChildSessionKey,
+        originRunId: identity.originRunId,
+        recoveryPollDelayMs: ORIGIN_CURSOR_POLL_MS,
+      });
+      if (dispatch.action === 'schedule') {
+        scheduleOriginCursorPoll(dispatch.delayMs);
         return;
       }
+      if (dispatch.action !== 'sessions.get') return;
       originCursorPollPending = true;
-      tracker.send(socket, 'sessions.get', {
-        key: identity.originChildSessionKey,
-        limit: 50,
-      });
+      tracker.send(socket, dispatch.method, dispatch.params);
     }
 
     function scheduleOriginCursorPoll(delay = ORIGIN_CURSOR_POLL_MS) {
       if (closed ||
+          !(Number(delay) > 0) ||
           !evidence.origin_subscription_accepted ||
           (evidence.origin_cursor_snapshot_accepted &&
             evidence.origin_return_event_count > 0) ||

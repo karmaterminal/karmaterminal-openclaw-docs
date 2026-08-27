@@ -2,7 +2,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
-  rCd2AuthorityChecks,
+  rCd2PublicResolutionOutput,
   resolveRcd2AuthoritativeReceipt,
 } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
@@ -29,11 +29,9 @@ async function main() {
   const receipt = resolveRcd2AuthoritativeReceipt({ evidence, correlation, signingKey: process.env.OPENCLAW_GATEWAY_TOKEN });
   const target = path.join(runDir, 'r-cd-2-authoritative-receipt.json');
   await writeFile(target, `${JSON.stringify(receipt, null, 2)}\n`);
-  process.stdout.write(`${JSON.stringify({
-    verdict: receipt.verdict,
-    receipt: path.basename(target),
-    checks: rCd2AuthorityChecks(evidence, correlation),
-  })}\n`);
+  process.stdout.write(`${JSON.stringify(
+    rCd2PublicResolutionOutput(receipt, evidence, correlation),
+  )}\n`);
 }
 
 main().catch((error) => {

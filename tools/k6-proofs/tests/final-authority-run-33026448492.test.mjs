@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
+  rCd2AuthorityChecks,
   resolveRcd2AuthoritativeReceipt,
   validateRcd2AuthoritativeReceipt,
 } from '../lib/r-cd-2-authoritative-receipt.mjs';
@@ -31,8 +32,15 @@ test('run 33026448492 R-CD-2 shape binds through the unique nonce-reason trace',
     correlation: fixture.rCd2.correlation,
     signingKey,
   });
+  const checks = rCd2AuthorityChecks(fixture.rCd2.evidence, fixture.rCd2.correlation);
   assert.equal(receipt.verdict, 'PASS-candidate');
   assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+  assert.equal(
+    ['lifecycle', 'topology', 'joins']
+      .flatMap((group) => Object.values(checks[group]))
+      .every(Boolean),
+    true,
+  );
 });
 
 test('run 33026448492 depth shape accepts the recovered final task ledger', () => {

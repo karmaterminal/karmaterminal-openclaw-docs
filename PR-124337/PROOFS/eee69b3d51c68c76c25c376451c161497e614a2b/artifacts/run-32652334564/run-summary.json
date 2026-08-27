@@ -1,0 +1,30 @@
+{
+  "schema": "openclaw.pr124337.proof-run.v1",
+  "proof_source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "execution_composite_sha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "drift_cure_candidate_sha": "d81272c117ef7a2ac765450d682309a941d58463",
+  "docs_sha": "3aeb17c1b3ec55af2aee787702aa6923f06a266b",
+  "seat": "emeric-nuc",
+  "time_window": {
+    "started_at": "2026-08-23T17:12:47.500Z",
+    "ended_at": "2026-08-23T17:12:47.883Z"
+  },
+  "rows": [
+    {
+      "row": "A-GENUINE-ABANDONMENT",
+      "verdict": "PASS-candidate",
+      "nonce": "a77318fd-0698-4dce-a4d2-512b6504881e"
+    },
+    {
+      "row": "B-BUDGET-FREE-CANCELLATION",
+      "verdict": "PASS-candidate",
+      "nonce": "31d643ba-3e59-40d2-b92f-4f4471fcb9ec"
+    },
+    {
+      "row": "C-MIXED-FANIN-SEPARATION",
+      "verdict": "PASS-candidate",
+      "nonce": "7bbdfad3-80e1-4625-876d-21bed04bf4a5"
+    }
+  ],
+  "verdict": "PASS-candidate"
+}

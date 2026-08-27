@@ -1,0 +1,99 @@
+{
+  "schema": "openclaw.proofs.target-qualification.v1",
+  "target_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+  "target_exact_execution": false,
+  "source_sha": "4ff99f7e5c149d90214a3df932f9d5adb438b835",
+  "previous_head_sha": "d81272c117ef7a2ac765450d682309a941d58463",
+  "pinned_floor_sha": "6ae89b5a8ed6a1bdbd0d9b7639fc8162afbb7578",
+  "parents": [
+    "d81272c117ef7a2ac765450d682309a941d58463",
+    "6ae89b5a8ed6a1bdbd0d9b7639fc8162afbb7578"
+  ],
+  "ancestry": {
+    "source_to_previous": "ahead",
+    "previous_to_target": "ahead",
+    "floor_to_target": "ahead"
+  },
+  "merge_tree": {
+    "sha": "8934a1d2dae2e8b6f298a52f0d16e556e9e26d90",
+    "created_at": "2026-08-27T04:29:12Z",
+    "parents": [
+      "71d4a8c3e305c623aa3ffe92696eec18f116cfc6",
+      "eee69b3d51c68c76c25c376451c161497e614a2b"
+    ],
+    "limit": "Review-time snapshot; upstream main advanced during review."
+  },
+  "owner_tests": {
+    "reported_result": "15/15",
+    "scope": "independent owner assertions",
+    "qualification": "Supporting regression evidence, not exact target behavioral execution."
+  },
+  "current_head_mode_b": {
+    "repository": "karmaterminal/openclaw-bootstrap",
+    "run_id": 33032456154,
+    "candidate_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+    "status": "completed",
+    "conclusion": "failure",
+    "affected_owners": {
+      "channels": "success",
+      "plugin_sdk": "success",
+      "feishu": "success",
+      "mattermost": "success",
+      "checks_fast_contracts_channels_a": "success",
+      "checks_fast_contracts_channels_b": "success"
+    },
+    "lane_54": {
+      "conclusion": "success",
+      "shards": 4,
+      "failures": 0,
+      "assertions_passed": 2644,
+      "assertions_failed": 0
+    },
+    "suite_tally": {
+      "passed": 162768,
+      "failed": 27,
+      "load_flakes_greened": 4
+    },
+    "limit": "Overall failure is not promoted to green; failures are outside affected owners."
+  },
+  "exact_floor_control": {
+    "repository": "karmaterminal/openclaw-bootstrap",
+    "run_id": 33033875064,
+    "candidate_sha": "6ae89b5a8ed6a1bdbd0d9b7639fc8162afbb7578",
+    "review_time_status": "in_progress",
+    "affected_owners": {
+      "channels": "success",
+      "plugin_sdk": "success",
+      "feishu": "success",
+      "mattermost": "success",
+      "checks_fast_contracts_channels_a": "success",
+      "checks_fast_contracts_channels_b": "success"
+    },
+    "lane_54": {
+      "conclusion": "success",
+      "shards": 4,
+      "failures": 0
+    },
+    "reproduced_non_owner_failures": [
+      "local(agentic-command-support,extension-telegram)",
+      "local(agentic-cli,extension-slack,...)",
+      "hosted(agentic-plugins,agentic-commands-doctor,...)",
+      "hosted(agentic-commands-doctor-sessions-cron,agentic-commands-doctor-shared,...)",
+      "core-runtime-tui-pty"
+    ],
+    "long_tail": {
+      "job": "hosted(extensions,agentic-control-plane-startup-restart-close,...)",
+      "candidate_result": "cancelled after approximately 90 minutes",
+      "floor_result_at_review": "still in progress beyond the same duration class"
+    },
+    "limit": "Control was non-terminal at review time; no terminal conclusion is invented."
+  },
+  "scope": {
+    "feature_expansion": false,
+    "schema_expansion": false,
+    "config_expansion": false,
+    "protocol_expansion": false,
+    "dependency_expansion": false
+  },
+  "gitnexus_limit": "No current OpenClaw eee69b3d graph was available in this docs lane; GitNexus evidence is intentionally omitted rather than treated as current."
+}

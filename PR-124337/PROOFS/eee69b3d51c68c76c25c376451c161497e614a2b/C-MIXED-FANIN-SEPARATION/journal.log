@@ -1,0 +1,7 @@
+2026-08-23T17:12:47.862Z mixed-fanin-cancel cycle=1
+2026-08-23T17:12:47.864Z mixed-fanin-cancel cycle=2
+2026-08-23T17:12:47.865Z mixed-fanin-cancel cycle=3
+2026-08-23T17:12:47.867Z spooled update 7bbdfad3-80e1-4625-876d-21bed04bf4a5-poison failed; keeping for retry: turn-abandoned
+2026-08-23T17:12:47.868Z spooled update 7bbdfad3-80e1-4625-876d-21bed04bf4a5-poison failed; keeping for retry: turn-abandoned
+2026-08-23T17:12:47.869Z spooled update 7bbdfad3-80e1-4625-876d-21bed04bf4a5-poison failed with non-retryable retry-limit-exceeded: turn-abandoned; dead-lettered
+2026-08-23T17:12:47.869Z spooled update 7bbdfad3-80e1-4625-876d-21bed04bf4a5-poison on lane 7bbdfad3-80e1-4625-876d-21bed04bf4a5-abandon-lane reached retry limit after 3 attempts; dead-lettered

@@ -1,0 +1,33 @@
+{
+  "schema": "openclaw.pr124337.durable-state.v1",
+  "row": "A-GENUINE-ABANDONMENT",
+  "database_sha256": "46c604c0c269562284a09c6658fd37b08f5ee09c934780ddcacea453e16c5e7c",
+  "rows": [
+    {
+      "id_role": "head",
+      "status": "failed",
+      "lane_role": "lane",
+      "attempts": 2,
+      "last_attempt_at": 10001,
+      "last_error": "turn-abandoned",
+      "fail_reason": "retry-limit-exceeded",
+      "received_at": 1,
+      "updated_at": 10002,
+      "claimed_at": null,
+      "payload_retained": true
+    },
+    {
+      "id_role": "follower",
+      "status": "completed",
+      "lane_role": "lane",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "fail_reason": null,
+      "received_at": 2,
+      "updated_at": 10003,
+      "claimed_at": null,
+      "payload_retained": false
+    }
+  ]
+}

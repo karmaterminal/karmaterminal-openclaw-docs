@@ -53,22 +53,7 @@ function seal(receipt, key) {
 }
 
 function successfulLifecycleFacts(evidence) {
-  return evidence?.session_created === true &&
-    evidence?.session_unbound_confirmed === true &&
-    evidence?.send_accepted === true &&
-    evidence?.send_run_captured === true &&
-    evidence?.dispatch_terminal_sentinel_observed === true &&
-    evidence?.dispatch_terminal_sentinel_same_run_window === true &&
-    evidence?.terminal_success_same_run === true &&
-    evidence?.typed_delegate_success_same_run === true &&
-    evidence?.wake_lifecycle_observed === true &&
-    evidence?.post_wake_quiet === true &&
-    evidence?.channel_message_observed === false &&
-    hex(evidence?.send_run_fingerprint, 16) &&
-    hex(evidence?.row_nonce_fingerprint, 16) &&
-    evidence.send_run_fingerprint === evidence.terminal_run_fingerprint &&
-    (evidence?.accepted_send_trace_id == null ||
-      hex(evidence.accepted_send_trace_id, 32));
+  return Object.values(lifecycleChecks(evidence)).every(Boolean);
 }
 
 // Older acquisition code promoted replayInvalid into a terminal failure even
@@ -87,21 +72,9 @@ function evidencePasses(evidence) {
 }
 
 function topologyPasses(correlation) {
-  // Consume the collector's public continuation schema directly.  Do not
-  // accept the old, synthetic top-level `tool`/`mode`/boolean projection: a
-  // receipt that the real collector cannot emit must never certify this row.
-  return correlation?.continuation?.tool === 'continue_delegate' &&
-    correlation?.delegate?.mode === 'silent-wake' &&
-    Array.isArray(correlation?.toolSpanIds) && correlation.toolSpanIds.length === 1 &&
-    hex(correlation.toolSpanIds[0], 16) &&
-    hex(correlation?.traceId, 32) && typeof correlation?.chainId === 'string' && correlation.chainId.length > 0 &&
-    hex(correlation?.dispatchSpanId, 16) && hex(correlation?.fireSpanId, 16) &&
-    correlation.dispatchSpanId !== correlation.fireSpanId &&
-    hex(correlation?.rowBinding?.acceptedSendRunFingerprint, 16) &&
-    hex(correlation?.rowBinding?.nonceFingerprint, 16) &&
-    hex(correlation?.rowBinding?.acceptedSendTraceId, 32) &&
-    new Set(['sessions-send-response', 'unique-reason-bound-trace'])
-      .has(correlation?.rowBinding?.acceptedSendTraceSource);
+  // Consume the collector's public continuation schema directly. Do not
+  // accept the old synthetic top-level projection.
+  return Object.values(topologyChecks(correlation)).every(Boolean);
 }
 
 // sessions.send currently returns the accepted run ID but not its OTel trace
@@ -128,6 +101,82 @@ function sameRowBinding(evidence, correlation) {
   return evidence?.send_run_fingerprint === correlation?.rowBinding?.acceptedSendRunFingerprint &&
     evidence?.row_nonce_fingerprint === correlation?.rowBinding?.nonceFingerprint &&
     sameAcceptedTrace(evidence, correlation);
+}
+
+function lifecycleChecks(evidence) {
+  return {
+    sessionCreated: evidence?.session_created === true,
+    sessionUnbound: evidence?.session_unbound_confirmed === true,
+    sendAccepted: evidence?.send_accepted === true,
+    sendRunCaptured: evidence?.send_run_captured === true,
+    dispatchTerminalSentinel:
+      evidence?.dispatch_terminal_sentinel_observed === true,
+    dispatchTerminalSentinelSameRun:
+      evidence?.dispatch_terminal_sentinel_same_run_window === true,
+    terminalSuccessSameRun: evidence?.terminal_success_same_run === true,
+    typedDelegateSuccessSameRun:
+      evidence?.typed_delegate_success_same_run === true,
+    wakeLifecycle: evidence?.wake_lifecycle_observed === true,
+    postWakeQuiet: evidence?.post_wake_quiet === true,
+    noChannelDelivery: evidence?.channel_message_observed === false,
+    sendRunFingerprint: hex(evidence?.send_run_fingerprint, 16),
+    rowNonceFingerprint: hex(evidence?.row_nonce_fingerprint, 16),
+    terminalRunMatchesSend:
+      hex(evidence?.send_run_fingerprint, 16) &&
+      evidence.send_run_fingerprint === evidence?.terminal_run_fingerprint,
+    acceptedSendTraceShape:
+      evidence?.accepted_send_trace_id == null ||
+      hex(evidence.accepted_send_trace_id, 32),
+  };
+}
+
+function topologyChecks(correlation) {
+  return {
+    typedTool: correlation?.continuation?.tool === 'continue_delegate',
+    silentWake: correlation?.delegate?.mode === 'silent-wake',
+    exactlyOneToolSpan:
+      Array.isArray(correlation?.toolSpanIds) &&
+      correlation.toolSpanIds.length === 1 &&
+      hex(correlation.toolSpanIds[0], 16),
+    traceId: hex(correlation?.traceId, 32),
+    chainId:
+      typeof correlation?.chainId === 'string' &&
+      correlation.chainId.length > 0,
+    dispatchSpan: hex(correlation?.dispatchSpanId, 16),
+    fireSpan: hex(correlation?.fireSpanId, 16),
+    distinctDispatchAndFire:
+      hex(correlation?.dispatchSpanId, 16) &&
+      hex(correlation?.fireSpanId, 16) &&
+      correlation?.dispatchSpanId !== correlation?.fireSpanId,
+    sendRunBinding:
+      hex(correlation?.rowBinding?.acceptedSendRunFingerprint, 16),
+    nonceBinding: hex(correlation?.rowBinding?.nonceFingerprint, 16),
+    acceptedTraceBinding:
+      hex(correlation?.rowBinding?.acceptedSendTraceId, 32),
+    acceptedTraceSource:
+      new Set(['sessions-send-response', 'unique-reason-bound-trace'])
+        .has(correlation?.rowBinding?.acceptedSendTraceSource),
+  };
+}
+
+export function rCd2AuthorityChecks(evidence, correlation) {
+  const lifecycle = lifecycleChecks(evidence);
+  const topology = topologyChecks(correlation);
+  const joins = {
+    acceptedTrace: sameAcceptedTrace(evidence, correlation),
+    rowBinding: sameRowBinding(evidence, correlation),
+  };
+  return {
+    lifecycle,
+    topology,
+    joins,
+    evidencePasses:
+      Object.values(lifecycle).every(Boolean) &&
+      (evidence?.dispatch_failure_observed !== true ||
+        replayDiagnosticIsReconciled(evidence)),
+    topologyPasses: Object.values(topology).every(Boolean),
+    joinsPass: Object.values(joins).every(Boolean),
+  };
 }
 
 function categoryFor(evidence, correlation) {

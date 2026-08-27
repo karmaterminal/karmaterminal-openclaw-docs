@@ -67,7 +67,8 @@
         "createdAt": 110,
         "endedAt": 200,
         "lastToolName": "continue_work",
-        "progressSummary": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492"
+        "progressSummary": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492",
+        "result": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492"
       },
       {
         "taskId": "sanitized-depth-grandchild-task",
@@ -79,7 +80,8 @@
         "deliveryStatus": "delivered",
         "createdAt": 120,
         "endedAt": 190,
-        "progressSummary": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492\nGRANDCHILD-DONE R-CD-CHAIN-SANITIZED-33026448492"
+        "progressSummary": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492\nGRANDCHILD-DONE R-CD-CHAIN-SANITIZED-33026448492",
+        "result": "CHILD-DONE R-CD-CHAIN-SANITIZED-33026448492\nGRANDCHILD-DONE R-CD-CHAIN-SANITIZED-33026448492"
       }
     ]
   },

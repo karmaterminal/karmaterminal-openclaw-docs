@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import {
+  rCd2AuthorityChecks,
   resolveRcd2AuthoritativeReceipt,
   validateRcd2AuthoritativeReceipt,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
@@ -99,20 +100,32 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
 });
 
 test('R-CD-2 binds the accepted run to its unique nonce-reason trace when sessions.send omits traceId', () => {
+  const rowEvidence = evidence({ accepted_send_trace_id: null });
+  const rowCorrelation = correlation({
+    rowBinding: {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'e'.repeat(16),
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'unique-reason-bound-trace',
+    },
+  });
   const receipt = resolveRcd2AuthoritativeReceipt({
-    evidence: evidence({ accepted_send_trace_id: null }),
-    correlation: correlation({
-      rowBinding: {
-        acceptedSendRunFingerprint: run,
-        nonceFingerprint: 'e'.repeat(16),
-        acceptedSendTraceId: 'b'.repeat(32),
-        acceptedSendTraceSource: 'unique-reason-bound-trace',
-      },
-    }),
+    evidence: rowEvidence,
+    correlation: rowCorrelation,
     signingKey,
   });
   assert.equal(receipt.verdict, 'PASS-candidate');
   assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+  assert.deepEqual(
+    {
+      evidencePasses: rCd2AuthorityChecks(rowEvidence, rowCorrelation)
+        .evidencePasses,
+      topologyPasses: rCd2AuthorityChecks(rowEvidence, rowCorrelation)
+        .topologyPasses,
+      joinsPass: rCd2AuthorityChecks(rowEvidence, rowCorrelation).joinsPass,
+    },
+    { evidencePasses: true, topologyPasses: true, joinsPass: true },
+  );
 });
 
 test('R-CD-2 rejects outer-send acceptance plus an unrelated delayed message', () => {

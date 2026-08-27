@@ -308,9 +308,10 @@ export function rCdChainTaskSnapshotDelay({
 function taskResultText(task) {
   const record = asRecord(task);
   if (!record) return '';
-  return [record.progressSummary, record.terminalSummary, record.result]
-    .filter((value) => typeof value === 'string' && value.length > 0)
-    .join('\n');
+  return [...new Set(
+    [record.progressSummary, record.terminalSummary, record.result]
+      .filter((value) => typeof value === 'string' && value.length > 0),
+  )].join('\n');
 }
 
 function taskPromptHasNonce(task, nonce) {

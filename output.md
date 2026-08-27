@@ -13,6 +13,19 @@ code, the proof corpus, the protected presentation branch, or any existing run
 artifact. Run `33026448492` remains an immutable historical partial; only a new
 exact three-row refire may produce successor signed receipts.
 
+The first successor execution, run `33028327545` at docs `71dc18ce`, is also
+preserved without retry:
+
+- R-CD-2 resolved the exact nonce/reason trace but its signed resolver returned
+  `invalid-continuation-topology`;
+- depth completed two delivered tasks but the public detail projection repeated
+  each progress summary in both `progressSummary` and `result`, causing the
+  exactly-once marker check to reject the snapshot;
+- token completed both tasks, but the zero-delay k6 timer used to initiate
+  `sessions.get` remained armed and no cursor request was sent.
+
+Artifact: `9629388466`. No result from that run is promoted or folded.
+
 Branch:
 `codeagent/129388-final-authority-harness-cure`
 
@@ -43,6 +56,11 @@ fingerprint, exact trace identity, one typed tool span, one dispatch/fire chain,
 and silent-wake mode. Unknown source, wrong run, wrong nonce, wrong trace,
 multiple traces, or multiple tool spans cannot PASS.
 
+The resolver CLI now emits receipt-safe boolean diagnostics for every lifecycle,
+topology, and join gate. It exposes no run ID, nonce, trace ID, session key, or
+raw evidence, but prevents another opaque `invalid-continuation-topology`
+classification if a later authorized execution remains non-PASS.
+
 ### R-CD-CHAINED-DEPTH-2: current recovered task ledger
 
 The public task records from the corrected run were completed and delivered,
@@ -67,6 +85,11 @@ The receipt now requires:
 Repeated use of one exact row nonce is accepted; duplicate tasks, duplicate
 runs, duplicate terminal markers, stale/wrong nonce, wrong ownership, wrong
 depth, or pre-dispatch records remain rejected.
+
+`tasks.get` intentionally projects a subagent progress summary into both
+`progressSummary` and `result`. The authority now deduplicates byte-identical
+projection fields before counting markers. A marker repeated within either
+distinct field still fails exactly-once authority.
 
 ### R-CD-TOKEN: public transcript recovery
 
@@ -93,6 +116,11 @@ one bound return; wrong session, wrong run, stale cursor, root-only result,
 private-log-only evidence, missing return, or duplicate return remains
 non-PASS.
 
+The cursor request is now issued synchronously as soon as subscription and
+task-ledger identity are both ready. Only subsequent recovery polls use a
+positive timer delay. This removes the k6 zero-delay timer deadlock observed in
+run `33028327545`.
+
 ## Exact-run regression fixture
 
 `tools/k6-proofs/tests/fixtures/final-authority-run-33026448492.json` is a
@@ -105,7 +133,7 @@ fixture proves:
 
 1. R-CD-2 binds the trace only through the unique nonce/reason collector path.
 2. Depth accepts the completed two-task ledger with repeated same-nonce prompt
-   use and final recovery markers.
+   use, duplicated public projection fields, and final recovery markers.
 3. Token's live parser rejects the pre-subscription message while public
    transcript recovery accepts the exact same post-cursor return.
 
@@ -145,13 +173,15 @@ No private gateway token, session key, task ID, run ID, transcript, database
 row, or raw private log was committed. The isolated runtime and its private
 state remain outside this repository.
 
-No live proof was fired, no automatic retry was armed, no product issue was
-closed, and no presentation branch moved.
+Run `33028327545` was the one authorized refire from the initial checkpoint. No
+automatic retry was armed after its non-PASS classification. No product issue
+was closed and no presentation branch moved.
 
 ## Refire handoff
 
-After this branch is committed, pushed, server-equal, and the isolated unit
-again passes readiness and exact-model smoke, refire exactly:
+After this successor is committed, pushed, server-equal, independently
+reviewed, and explicitly authorized for another execution, recheck the isolated
+unit's readiness and exact-model smoke, then refire exactly:
 
 - `R-CD-2`
 - `R-CD-CHAINED-DEPTH-2`

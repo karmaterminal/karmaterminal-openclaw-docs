@@ -176,6 +176,24 @@ export default function () {
       for (const observation of observations) tryReturnEvent(observation);
     }
 
+    function requestOriginCursorSnapshot() {
+      if (closed ||
+          !evidence.origin_subscription_accepted ||
+          (evidence.origin_cursor_snapshot_accepted &&
+            evidence.origin_return_event_count > 0) ||
+          originCursorPollPending) return;
+      const identity = tokenLedgerRuntimeIdentity(ledger);
+      if (!identity.originChildSessionKey || !identity.originRunId) {
+        scheduleOriginCursorPoll();
+        return;
+      }
+      originCursorPollPending = true;
+      tracker.send(socket, 'sessions.get', {
+        key: identity.originChildSessionKey,
+        limit: 50,
+      });
+    }
+
     function scheduleOriginCursorPoll(delay = ORIGIN_CURSOR_POLL_MS) {
       if (closed ||
           !evidence.origin_subscription_accepted ||
@@ -186,20 +204,7 @@ export default function () {
       originCursorPollScheduled = true;
       socket.setTimeout(() => {
         originCursorPollScheduled = false;
-        if (closed ||
-            (evidence.origin_cursor_snapshot_accepted &&
-              evidence.origin_return_event_count > 0) ||
-            originCursorPollPending) return;
-        const identity = tokenLedgerRuntimeIdentity(ledger);
-        if (!identity.originChildSessionKey || !identity.originRunId) {
-          scheduleOriginCursorPoll();
-          return;
-        }
-        originCursorPollPending = true;
-        tracker.send(socket, 'sessions.get', {
-          key: identity.originChildSessionKey,
-          limit: 50,
-        });
+        requestOriginCursorSnapshot();
       }, delay);
     }
 
@@ -374,7 +379,7 @@ export default function () {
         parentSessionKey: sessionKey, pages: taskSnapshotPages, hash,
       });
       maybeSubscribeOrigin();
-      scheduleOriginCursorPoll(0);
+      requestOriginCursorSnapshot();
       reconcilePendingReturns();
       closeComplete();
       scheduleTaskPoll();
@@ -447,7 +452,7 @@ export default function () {
               classified.payload?.key === originSubscriptionTarget) {
             evidence.origin_subscription_accepted = true;
             originSubscriptionAcceptedAtMs = Date.now();
-            scheduleOriginCursorPoll(0);
+            requestOriginCursorSnapshot();
           } else {
             evidence.terminal_reason = 'origin-session-subscription-rejected';
             failures.add(1);

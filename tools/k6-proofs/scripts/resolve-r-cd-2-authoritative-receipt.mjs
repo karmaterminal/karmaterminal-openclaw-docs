@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { resolveRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  rCd2AuthorityChecks,
+  resolveRcd2AuthoritativeReceipt,
+} from '../lib/r-cd-2-authoritative-receipt.mjs';
 
 function args(argv) {
   const out = {};
@@ -26,7 +29,11 @@ async function main() {
   const receipt = resolveRcd2AuthoritativeReceipt({ evidence, correlation, signingKey: process.env.OPENCLAW_GATEWAY_TOKEN });
   const target = path.join(runDir, 'r-cd-2-authoritative-receipt.json');
   await writeFile(target, `${JSON.stringify(receipt, null, 2)}\n`);
-  process.stdout.write(`${JSON.stringify({ verdict: receipt.verdict, receipt: path.basename(target) })}\n`);
+  process.stdout.write(`${JSON.stringify({
+    verdict: receipt.verdict,
+    receipt: path.basename(target),
+    checks: rCd2AuthorityChecks(evidence, correlation),
+  })}\n`);
 }
 
 main().catch((error) => {

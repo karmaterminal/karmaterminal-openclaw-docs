@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.pr121204.proofs.index.v1",
+  "current_sha": "ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+  "proof_source_sha": "3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "corpus_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+  "manifest_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/manifest.json",
+  "readme_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/README.md",
+  "materiality_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MATERIALITY.md",
+  "source_copy_map_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/SOURCE-COPY-MAP.json",
+  "mode_b_receipt_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MODE-B-RECEIPT.json",
+  "new_live_exact_target_execution": false
+}

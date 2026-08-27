@@ -1,47 +1,56 @@
 # Method
 
-## Authority and identity
+## Source execution
 
-Current remote `openclaw-bootstrap` `RUNBOOKS/ENTRYPOINT.md` selected
-`RUNBOOKS/PROOF-CORPUS-METHOD.md`. The current docs method and
-`frond-scribe:skills/build-openclaw-proof-corpus/SKILL.md` were also read before
-capture.
+The copied source corpus used the repository's sanctioned `pnpm test` entrypoint
+and isolated temporary SQLite state. Its exact immutable identities remain:
 
-Before each row, the worker independently recorded the Rune seat, UTC time,
-installed checkout, `dist/build-info.json` commit, non-mutating gateway state,
-nonce, and command. Both checkout identities were required to equal
-`6e6da7bba079b0fc50d134b96657cda683985837`.
+- behavior source:
+  `3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9`;
+- installed/runtime execution composite:
+  `6e6da7bba079b0fc50d134b96657cda683985837`;
+- seat and date: Rune, 2026-08-23;
+- harness SHA-256:
+  `368650f8f97583038cd0a9beec2488fbe67574b12a4d8df514a595a583b8f344`.
 
-The systemd user unit was absent or inactive while an OpenClaw gateway process
-was observed. The worker did not restart, repair, or redeploy it.
+The two source-isolating rows import production queue/drain and Discord monitor
+surfaces, operate on the real durable SQLite table, and stop at the adoption
+callback. The watchdog row remains explicitly composite-dependent.
 
-## Deterministic stimulus
+## Transposition
 
-`package.json#scripts.test` was `node --import tsx scripts/test-projects.mts`.
-Each row used that sanctioned `pnpm test` entrypoint with one selected proof
-case and one worker. Raw Vitest was not invoked.
+No behavior row was fired for this operation. Git object identity and diffs were
+used to walk:
 
-The proof-only harness is [proof-harness.test.ts](proof-harness.test.ts), SHA-256
-`368650f8f97583038cd0a9beec2488fbe67574b12a4d8df514a595a583b8f344`.
-It imports production queue/drain SDK surfaces and the production Discord
-ingress monitor. Each row creates a unique temporary state directory and the
-real `channel_ingress_events` SQLite table.
+```text
+3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9
+  -> 5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938
+  -> 2745d7617c16fbb7650c4a2fe0065ef82c1a46ff
+  -> ba0f670a0959a9eeeb0b28ace59d3838079998b7
+```
 
-For each row the harness records a public-safe projection of durable rows before
-and after processing. Payload JSON, claim tokens, claim owners, credentials, and
-operator state are excluded.
+The merge's second parent is exact floor
+`6ae89b5a8ed6a1bdbd0d9b7639fc8162afbb7578`. `git show
+--remerge-diff` identified exactly two content conflicts and exposed their
+resolved bytes. A 24-path blob walk separated unchanged proof-owner bytes from
+reviewed follow-up and upstream test/helper changes.
 
-## Boundary and limits
+At review time, upstream `main` was
+`71d4a8c3e305c623aa3ffe92696eec18f116cfc6`; GitHub merge ref
+`975c1c4ec06be37c4cb3736506584427d7552c02` had parents current main and
+`ba0f670a`, and its tree
+`67edb2ab085c46af1b8632a8aecca44022178db8` exactly matched a fresh
+`git merge-tree --write-tree` result.
 
-Rows 1 and 2 use the real Discord ingress classifier, pending-disposition logic,
-claim lifecycle, and durable SQLite queue. Their downstream dispatch callback
-only acknowledges adoption; no model or agent turn is run.
+## Evidence classes
 
-Row 3 uses the core durable drain and real SQLite queue. It forces a
-pre-adoption stall, advances the five-second watchdog, observes one durable
-retry, completes the stalled row and follower, then submits the completed ID
-again and proves no further dispatch.
+- Copied source row receipts retain their original execution authority.
+- Copied causal RED/GREEN logs prove the production-shaped stale-ambient
+  fixture failed before the repair and passed after it; they are historical
+  controls, not target execution.
+- Mode-B run `33033099410` is exact-target build/static/test evidence. Its
+  aggregate failure is retained and classified rather than painted green.
 
-Because all state is isolated test state, no deployed-gateway journal event is
-expected or claimed. The absence of a live journal excerpt is therefore by
-construction, not an inference from missing logs.
+GitNexus was unavailable in this lane. No semantic-graph claim is made; the
+receipt relies on Git ancestry, blob IDs, remerge diff, merge-tree equality,
+source test receipts, and exact-target Mode-B artifacts.

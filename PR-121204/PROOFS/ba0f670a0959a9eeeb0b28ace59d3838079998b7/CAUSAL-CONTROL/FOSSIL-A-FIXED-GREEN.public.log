@@ -1,0 +1,8 @@
+RUN  v4.1.10 <private-worktree>
+
+ ✓  extension-discord  extensions/discord/src/monitor/ingress-admission-fossil.channel-type.test.ts (1 test) 6099ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  07:48:59
+   Duration  8.26s (transform 5.87s, setup 370ms, import 1.66s, tests 6.10s, environment 0ms)

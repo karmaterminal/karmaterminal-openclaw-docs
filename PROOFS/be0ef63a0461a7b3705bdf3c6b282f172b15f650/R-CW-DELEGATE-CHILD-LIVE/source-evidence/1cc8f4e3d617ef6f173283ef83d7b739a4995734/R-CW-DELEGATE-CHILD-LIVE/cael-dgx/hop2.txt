@@ -1,0 +1,4 @@
+marker: RCW_DELEGATE_CHILD_LIVE_BCA2B0B_CAEL_20260704_0719
+wake_timestamp_pdt: 2026-07-04 07:21 PDT (from continuation wake)
+wake_metadata: continuation:wake Turn 1/200; chain started 2026-07-04T14:21:16.017Z; origin run continuation-delegate-1e5c31ad4a0cee60278f1200706b0b3e; origin turn 28335628-9400-4a8e-9d74-69570d44b1b0; due 2026-07-04T14:21:21.017Z; delivered 2026-07-04T14:21:21.037Z; disposition granted; chain 57553631-5d45-4aac-bb5e-fddcf31ca63d hop 1/200; flow 57553631-5d45-4aac-bb5e-fddcf31ca63d
+hop2-EXECUTED after child continuation wake

@@ -1,191 +1,124 @@
-# PR #129388 continuation corpus transposition
+# READY FOR SCRIBE REVIEW
 
-**Status:** READY FOR SCRIBE REVIEW
+## Delivery
 
-**Docs PR:** https://github.com/karmaterminal/karmaterminal-openclaw-docs/pull/530
+- Branch: `codeagent/129388-proofs-transpose-be0-method-correction-20260827`
+- Reviewed corpus commit: `dbebbbd1be5c033ff9ca82a3e0dd90b913171169`
+- Reviewed repository tree: `d42b723335b85fef306f7fbf2cbee2466a24928e`
+- Final report-only successor: recorded in the PR and COMPLETE receipt
+- Source corpus tree: `b879c8adc4f284d622b5d388e978928c675f1aeb`
+- Target corpus tree: `4e96989f7cfa2e3398ab5fb2aa929016b414051a`
+- Reviewed corpus commit: 401 changed files; total PR diff including this report: 402 files
+- PR: https://github.com/karmaterminal/karmaterminal-openclaw-docs/pull/531
+- CI acceptance path: `focused-only` (docs validators; no Mode-B dispatch)
 
-**CI path:** `focused-only` (docs corpus validators; no product Mode-B dispatch)
-
-**Reviewed corpus commit:** `4577c95e5ea0007ebc3dab8e3828488f0ec1e265`
-
-**Reviewed repository tree:** `fd617171d46b7049983e4e90e21c72d6a8b479b8`
-
-**Target corpus tree:** `b879c8adc4f284d622b5d388e978928c675f1aeb`
-
-## Named-ref contract
-
-The safe lane was published before evidence was credited. The reviewed corpus
-tip below was equal locally, on its tracking ref, and on the server before this
-report-only successor commit.
-
-| Category | Named ref | Local SHA | Tracking SHA | Server / authoritative SHA | Equality |
-|---|---|---|---|---|---|
-| Product/base ref | `openclaw/openclaw` source presentation commit | N/A | N/A | `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` | Server object exists; exact source-to-target merge base. |
-| This lane's safe branch ref | `karmaterminal/karmaterminal-openclaw-docs:codeagent/129388-proofs-transpose-446f-20260827` reviewed corpus tip | `4577c95e5ea0007ebc3dab8e3828488f0ec1e265` | `4577c95e5ea0007ebc3dab8e3828488f0ec1e265` | `4577c95e5ea0007ebc3dab8e3828488f0ec1e265` | Equal before report-only successor. |
-| CI/workflow ref | Docs validators only; no product workflow dispatched | N/A | N/A | N/A | N/A |
-| Presentation ref | `karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates` | N/A | N/A | `446f4b22d321cb7f5f26a4fbc2247f54da72d2a4` | Fork branch equals `openclaw/openclaw#129388` head. |
-| Docs/proof base ref | `karmaterminal/karmaterminal-openclaw-docs:main` | `f71e97238bfd8150f2eb0fe5488a25c250e257cc` | `f71e97238bfd8150f2eb0fe5488a25c250e257cc` | `f71e97238bfd8150f2eb0fe5488a25c250e257cc` | Equal. |
-| Docs/proof source corpus | `PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/` at docs `main` | tree `97f278557b2c121627804b76e440b0f2004f5e21` | same | same via equal server `main` | Equal; 403 files, 4,666,303 bytes. |
-| Docs/proof target corpus | `PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/` at reviewed corpus tip | tree `b879c8adc4f284d622b5d388e978928c675f1aeb` | same | same via equal server lane | Equal. |
-| Latest source-corpus update | docs commit `0e75318a68d7145c0c5b99e8b11bda304f4f9fd2` | reachable | reachable from `origin/main` | reachable from equal server `main` | Incorporated into canonical source bytes. |
-| Upstream PR base commit | `openclaw/openclaw#129388` base | N/A | N/A | `9bd50c803cce88f2ab387ddaf6cc29b4ef004005` | PR API authority; informational materiality boundary. |
-
-GitHub reports target presentation `446f4b22…` ahead of source presentation
-`4737afdf…` by 1,244 commits, behind by zero, with the source as the exact merge
-base. The target branch and upstream PR head were rechecked immediately before
-PR creation.
+| Category | Named ref | Exact SHA | Equality |
+|---|---|---|---|
+| Product/base ref | `karmaterminal/karmaterminal-openclaw-docs:main` | `c26a6b492beb5336fcf7af40af443d8c616f36bf` | Tracking and server refs equal; source worktree was anchored here. |
+| Safe lane ref | `codeagent/129388-proofs-transpose-be0-method-correction-20260827` reviewed corpus tip | `dbebbbd1be5c033ff9ca82a3e0dd90b913171169` | Local, tracking, and server refs were equal before the report-only successor. |
+| CI/workflow ref | N/A | N/A | Docs validators only; exact-target upstream CI is separate and pending. |
+| Presentation ref | `openclaw/openclaw#129388` head and `karmaterminal/openclaw:codeagent/85651-upstream-1ba243c8-gates` | `be0ef63a0461a7b3705bdf3c6b282f172b15f650` | Both GitHub refs equal. |
+| Docs/proof ref | Reviewed lane tip plus `PROOFS/INDEX.json` | `dbebbbd1be5c033ff9ca82a3e0dd90b913171169` | Local, tracking, server, and PR head were equal before the report-only successor. |
 
 ## Change
 
-- Copied the complete canonical 403-file source subtree to
-  `PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/`, including every row packet
-  and vendored artifact.
-- Kept 396 payload files byte-identical. Only six target-facing glue documents
-  and `proofs-manifest.json` differ from the source subtree.
-- Rebound `PROOFS/INDEX.json`, all manifest row paths, and every INDEX
-  entrypoint to the target subtree.
-- Kept `proof_source_sha` at immediate proof-bearing source `4737afdf…`;
-  presentation fields `capture_sha`, `ship_sha`, and `sha` identify target
-  `446f4b22…`.
-- Preserved original proof source `80311e8a…`, historical runtime composite
-  `37300f29…`, source docs commits, run IDs, timestamps, payloads, checksums,
-  and row dispositions.
-- Preserved exact-source Mode-B run `32859410821` and workflow SHA
-  `342cc9c6d190e1ba57d9995d29e394c993a3e79b` as historical
-  ancestry/materiality evidence only.
-- Set current `exact_target_execution=false` and
-  `exact_target_mode_b=false`; current target Mode-B is explicitly `not-run`.
-- Changed 405 repository paths relative to docs base: the 403-file target
-  subtree, `PROOFS/INDEX.json`, and this report.
+Created and indexed
+`PROOFS/be0ef63a0461a7b3705bdf3c6b282f172b15f650/` from canonical remote docs
+`main` at `c26a6b492beb5336fcf7af40af443d8c616f36bf`. Target-facing identity and
+navigation now resolve to `be0ef63a0461a7b3705bdf3c6b282f172b15f650`.
+Historical execution, row dispositions, receipts, checksums, source docs
+lineage, and Mode-B identities remain preserved.
 
-## Unchanged rollup
+The corrected active matrix is 37 rows: 32 `pass`, 4 `partial`,
+1 `honest_limit`, 0 `fail`, and 0 `missing`. The partials are `R-CD-2`,
+`R-CD-CHAINED-DEPTH-2`, `R-CD-TOKEN`, and `R-CW-6`; the sole honest limit is
+`R-RC-2`. This is not acceptance-complete.
 
-`41 total / 32 pass / 4 partial / 1 honest_limit / 0 fail / 4 missing`
+`R-OBS-BACKEND-DISPOSITION`, `R-OBS-CONT-PROVENANCE`,
+`R-OBS-PROOF-MARKER`, and `R-OBS-TERMINAL-OUTCOME` remain in the historical
+`446f4b22...` corpus and Git history. They are not PR #129388 feature
+acceptance contracts and have no row directory or active manifest/table entry
+in the new target.
 
-Every non-PASS row:
+## Inventory and hash receipts
 
-| Row | State |
-|---|---|
-| `R-CD-2` | partial |
-| `R-CD-CHAINED-DEPTH-2` | partial |
-| `R-CD-TOKEN` | partial |
-| `R-CW-6` | partial |
-| `R-RC-2` | honest_limit |
-| `R-OBS-BACKEND-DISPOSITION` | missing |
-| `R-OBS-CONT-PROVENANCE` | missing |
-| `R-OBS-PROOF-MARKER` | missing |
-| `R-OBS-TERMINAL-OUTCOME` | missing |
+- Source: 403 files; target: 399 files; zero symlinks.
+- Source-only files are exactly the four excluded rows' `EVIDENCE.md` files.
+- Retained source and target relative-inventory SHA-256:
+  `9d23f49ef197b7879e451161ff637590510c17b8c6bc8ee3c97b89a2ef60c67a`.
+- The 392 retained non-glue files have matching source and target byte-map
+  SHA-256:
+  `d458a475f53edd5f26d7511a0665b25f16085ecd78a5801aab1a2e2abc06e887`.
+- The only changed retained files are `ARTIFACTS.md`, `CLAWSSWEEPER.md`,
+  `METHOD.md`, `README.md`, `RESOLVED-SHA.md`, `TRANSPOSED-FROM.md`, and
+  `proofs-manifest.json`.
+- Full generated receipt: session artifact `inventory-hash-receipt.txt`.
 
-Source and target row IDs, states, candidate verdicts, review states, pending
-receipts, fired timestamps, summaries, and executed-test labels compare equal.
-No verdict was promoted.
+## Repair regression
+
+- Invariant and owner: `PROOFS/INDEX.json` composes the current corpus, whose
+  manifest, row directories, README table, and ClawSweeper guidance must expose
+  exactly the 37 PR #129388 feature-acceptance rows.
+- Negative control: on exact rejected docs SHA
+  `c26a6b492beb5336fcf7af40af443d8c616f36bf`, the focused test failed for the
+  expected reason: `41 !== 37`.
+- Successor proof: the same focused test passes against
+  `dbebbbd1be5c033ff9ca82a3e0dd90b913171169`, including inventory and byte
+  preservation.
+- Nearest active sibling paths: `R-OBS-1`, `R-OBS-2`, and `R-OBS-STATUS`
+  remain active feature rows; the four research rows remain accessible only in
+  the immediate source corpus.
+- Persistence/rollback: the correction is locked by the current-corpus test;
+  rollback can repoint the index to the untouched historical source corpus.
+- Restart/recovery: N/A for this docs-only composition change; no runtime,
+  gateway, persistence store, or deployment was mutated.
+- Partial failure: the four partial rows and `R-RC-2` honest limit remain
+  explicit. Exact-target execution and exact-target Mode-B remain false.
 
 ## Validation
 
-Repository-native current-corpus gates:
+- Focused owner proof:
+  `node --test tools/k6-proofs/scripts/__tests__/current-corpus-active-scope.test.mjs`
+  - pre-fix: 0/1, expected `41 !== 37`
+  - post-fix: 2/2 pass
+- Corpus:
+  `node tools/k6-proofs/scripts/validate-corpus.mjs --sha be0ef63a0461a7b3705bdf3c6b282f172b15f650`
+  and
+  `node tools/k6-proofs/scripts/validate-corpus.mjs --sha 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4`
+  - both 10/10 checks pass
+- Current/index:
+  `node tools/k6-proofs/scripts/validate-corpus.mjs --index` and
+  `node tools/k6-proofs/scripts/validate-corpus.mjs --current`
+  - both 4/4 checks pass
+- Catalog/scenario:
+  `node tools/k6-proofs/scripts/check-manifest-scenarios.mjs --repo-root "$PWD"`,
+  `node tools/k6-proofs/scripts/check-scenario-alignment.mjs --repo-root "$PWD"`,
+  and
+  `node tools/k6-proofs/scripts/check-proof-row-manifests.mjs --repo-root "$PWD"`
+  - all pass; 37 proof rows and zero missing manifests
+- Telemetry:
+  `node tools/k6-proofs/scripts/check-telemetry-contracts.mjs`
+  - pass; 13 declared contracts, 9 receipt-requiring rows, 0 rebindable PASS claims
+- Serialized integration suite:
+  `node --test --test-concurrency=1 tools/k6-proofs/scripts/__tests__/*.test.mjs tools/k6-proofs/tests/*.test.mjs`
+  - 387/387 pass
+- Structured payloads: 209 JSON files parse; 52 JSONL files are line-valid;
+  two inherited JSONL files parse as legacy whole-JSON arrays.
+- Shell syntax: all two `tools/k6-proofs/**/*.sh` files pass `bash -n`.
+- Public safety: high-confidence credential scan has zero matches; the seven
+  changed target metadata files plus `PROOFS/INDEX.json` have zero absolute-home
+  path matches.
+- Target exactness scans: no active exact-target true flag, dangling excluded
+  target path, or stale 41-row/4-missing rollup.
+- `git diff HEAD --check`: clean.
+- Tracked worktree: clean.
 
-```bash
-node tools/k6-proofs/scripts/validate-corpus.mjs --sha 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4
-node tools/k6-proofs/scripts/validate-corpus.mjs --index
-node tools/k6-proofs/scripts/validate-corpus.mjs --current
-```
+## Limits and uncertainties
 
-Receipts: target SHA report 10/10 checks; INDEX report 4/4 plus current manifest
-10/10; all exit 0. The same SHA and INDEX commands against a detached archive
-of exact docs base `f71e9723…` report the canonical 4737 source green.
-
-Catalog and contract validators:
-
-```bash
-node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
-node tools/k6-proofs/scripts/check-scenario-alignment.mjs
-node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
-node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-```
-
-Receipts: 42 manifests / 35 scenarios; alignment `ok:true`; 41 current proof
-rows with zero missing or manifest-only rows; 13 telemetry contracts with zero
-invalid rebindable-PASS claims. All exit 0.
-
-Targeted current-corpus integration tests:
-
-```bash
-node --test \
-  tools/k6-proofs/scripts/__tests__/catalog-root-contract.test.mjs \
-  tools/k6-proofs/scripts/__tests__/candidate-run-result.test.mjs \
-  tools/k6-proofs/scripts/__tests__/check-proof-row-manifests.test.mjs \
-  tools/k6-proofs/scripts/__tests__/static-evidence-source.test.mjs
-```
-
-Receipt: 46 tests, 46 pass, 0 fail.
-
-Syntax and diff gates:
-
-```bash
-bash -n tools/k6-proofs/run-proof.sh tools/k6-proofs/scripts/run-proofs.sh
-git diff --check origin/main...HEAD
-git diff --check
-```
-
-Receipts: both proof shell entrypoints parse; the copied target contains no
-`.sh` files; both diff checks exit 0.
-
-Supplementary deterministic checks:
-
-- Source and target relative inventories are identical: 403 files, zero
-  symlinks.
-- Exactly seven target files differ from source:
-  `ARTIFACTS.md`, `CLAWSSWEEPER.md`, `METHOD.md`, `README.md`,
-  `RESOLVED-SHA.md`, `TRANSPOSED-FROM.md`, and `proofs-manifest.json`.
-- All INDEX entrypoints and all 41 manifest row/evidence paths exist and remain
-  inside the target subtree.
-- All 209 `.json` files parse. Of 54 `.jsonl` files, 52 are line-valid and two
-  inherited `flow-runs-matching-full.jsonl` files are valid legacy whole-JSON
-  arrays; source and target parse dispositions are identical.
-- The retained two-line restore checksum receipt contains one identical,
-  well-formed SHA-256 digest.
-- High-confidence token, webhook, private-key, and bearer-secret patterns have
-  zero matches.
-- Canonical absolute seat-home provenance strings occur in the same 39
-  byte-identical historical files on source and target. No new private-path
-  material appears in target-facing metadata. Rewriting those signed source
-  payloads would violate the byte/checksum preservation contract.
-- The target SHA appears only in presentation/navigation metadata; no copied
-  artifact records it as `candidateSha` or `execution_runtime_sha`, and no
-  current exact-target flag is true.
-
-Informational archival scan:
-
-```bash
-node tools/k6-proofs/scripts/validate-corpus.mjs --all --json
-```
-
-The non-strict archival scan exits 0 and reports 136 directories, 55 validated,
-42 green, 81 without manifests, and 13 failed historical reports. Every failed
-historical directory and `validate-corpus.mjs` are byte-identical to exact docs
-base `f71e9723…`; the new 446f current report is green. No archival failure was
-laundered or repaired in this lane.
-
-## Independent review
-
-A read-only review found two medium provenance defects in the first metadata
-checkpoint:
-
-1. `proof_source_sha` incorrectly named the unexecuted target.
-2. `execution.immediate_source_is_ancestor` incorrectly implied that 4737 was
-   an ancestor of runtime composite 37300f29.
-
-Commit `4577c95e…` fixes both: proof source remains `4737afdf…`, the
-source-to-runtime flag is false, and target descent from 4737 is recorded
-separately. All owner validators and the 46 integration tests passed again
-after the fix.
-
-## Explicit limits
-
-- No live proof was fired at `446f4b22…`.
-- No Mode-B workflow was dispatched for `446f4b22…`.
-- Historical exact-4737 Mode-B is not exact-target acceptance.
-- Current target upstream CI is pending separately and is not folded into this
-  corpus.
-- Product presentation and runtime were not modified.
-- The docs PR must not be merged by this lane.
+No proof row was fired, no Mode-B workflow was dispatched, no product
+presentation was modified, and nothing was deployed or merged.
+`exact_target_execution=false` and `exact_target_mode_b=false` throughout the
+active corpus. Historical exact-4737 Mode-B run `32859410821` at workflow SHA
+`342cc9c6d190e1ba57d9995d29e394c993a3e79b` remains ancestry/materiality
+evidence only. Separately tracked exact-target upstream product CI
+`330963...` is pending and is not folded into this docs corpus.

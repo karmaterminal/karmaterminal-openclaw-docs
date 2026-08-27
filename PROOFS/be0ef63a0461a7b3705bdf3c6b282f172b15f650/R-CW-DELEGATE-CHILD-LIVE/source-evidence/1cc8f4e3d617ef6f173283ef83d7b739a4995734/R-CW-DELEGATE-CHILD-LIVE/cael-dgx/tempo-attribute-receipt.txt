@@ -1,0 +1,38 @@
+# Tempo attribute receipt
+
+## Parent/root trace e9e66ffebfa3f0acad6c53f6d9ddfd96
+SPAN=continuation.work
+  delay.ms=180000
+  chain.step.remaining=199
+  chain.id=5e7d4ef1-ea42-495b-82b4-14445b146dd9
+  reason.present=true
+  reason.length=276
+  reason.hash=0d2d63716698d63e
+  reason.redacted=
+SPAN=continuation.delegate.dispatch
+  delay.ms=0
+  chain.step.remaining=198
+  delegate.delivery=immediate
+  chain.id=5e7d4ef1-ea42-495b-82b4-14445b146dd9
+  delegate.mode=normal
+  reason.present=true
+  reason.length=1089
+  reason.hash=382f593ef25ec120
+  reason.redacted=
+SPAN=continuation.work
+  delay.ms=5000
+  chain.step.remaining=199
+  reason.present=true
+  reason.length=92
+  reason.hash=89302185867ecc3a
+  reason.redacted=
+
+## Child work fire trace b8cffa7170fd298491edacb3c7ffd84d
+SPAN=continuation.work.fire
+  chain.id=57553631-5d45-4aac-bb5e-fddcf31ca63d
+  chain.step.remaining=199
+  delay.ms=5000
+  reason.present=true
+  reason.length=92
+  reason.hash=89302185867ecc3a
+  reason.redacted=

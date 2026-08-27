@@ -22,6 +22,7 @@
 | Original source docs commit | `591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b` |
 | Historical live execution composite | `37300f29a7ec1f731575343c2aa73ae25f1d0efb` |
 | Historical exact-source Mode-B | run `32859410821`, product `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd`, workflow `342cc9c6d190e1ba57d9995d29e394c993a3e79b` |
+| Separate exact-target CodeQL | run `33126874671`, product `c3fc615a868dcbfcf2be38e39683a25af737270c`, conclusion `success` |
 | Exact-target live execution | **not run** |
 | Exact-target Mode-B | **not run** |
 
@@ -70,7 +71,9 @@ execution. Historical live rows remain attributed to execution composite
 ancestry/materiality evidence only. No row was fired and no Mode-B workflow was
 dispatched at `c3fc615a`.
 
-Exact-target upstream product CI is active separately and has not yet been
-folded as evidence. The active feature matrix remains
+Exact-target upstream product CI remains separate. CodeQL Critical Quality run
+`33126874671` completed successfully on exact target `c3fc615a`, but this
+external receipt is not folded into any row or acceptance claim. The active
+feature matrix remains
 `37 total / 32 pass / 4 partial / 1 honest_limit / 0 fail / 0 missing`. It is
 not acceptance-complete while four required rows remain partial.

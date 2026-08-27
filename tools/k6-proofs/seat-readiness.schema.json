@@ -14,6 +14,7 @@
     "gateway",
     "continuation",
     "continuationDepth",
+    "runtimePlugin",
     "targetObservation",
     "candidate",
     "seat",
@@ -448,6 +449,30 @@
             "type": ["string", "null"]
           }
         }
+      },
+    "runtimePlugin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "runtime",
+        "pluginId",
+        "registered",
+        "allowListed",
+        "sufficient",
+        "source",
+        "reason"
+      ],
+      "properties": {
+        "required": { "type": "boolean" },
+        "runtime": { "type": ["string", "null"] },
+        "pluginId": { "type": ["string", "null"] },
+        "registered": { "type": ["boolean", "null"] },
+        "allowListed": { "type": ["boolean", "null"] },
+        "sufficient": { "type": "boolean" },
+        "source": { "const": "isolated-target-config" },
+        "reason": { "type": "string" }
       }
+    }
     }
   }

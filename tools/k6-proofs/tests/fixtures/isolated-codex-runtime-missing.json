@@ -1,0 +1,36 @@
+{
+  "schema": "openclaw.k6.isolated-codex-runtime-fixture.v1",
+  "label": "pre-fix-missing-codex-plugin",
+  "sanitization": {
+    "authMaterialOmitted": true,
+    "privateConfigOmitted": true,
+    "hostPluginRegistryOmitted": true
+  },
+  "openaiAuthProfileCount": 1,
+  "authMigration": {
+    "planned": 1,
+    "applied": 1,
+    "kind": "auth:openai"
+  },
+  "continuationDepth": {
+    "configuredMaxSpawnDepth": 5,
+    "effectiveMaxSpawnDepth": 5,
+    "requiredMaxSpawnDepth": 2
+  },
+  "targetConfig": {
+    "agents": {
+      "defaults": {
+        "model": "openai/gpt-5.6-sol",
+        "continuation": {
+          "enabled": true,
+          "maxChainLength": 200,
+          "maxDelegatesPerTurn": 500,
+          "costCapTokens": 500000
+        },
+        "subagents": {
+          "maxSpawnDepth": 5
+        }
+      }
+    }
+  }
+}

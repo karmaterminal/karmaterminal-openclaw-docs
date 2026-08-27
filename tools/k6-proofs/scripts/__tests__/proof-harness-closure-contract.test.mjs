@@ -77,6 +77,21 @@ test('R-CD-TOKEN closes normal-origin return authority on the public event bound
   assert.doesNotMatch(contract, /Continuation completed with result/);
 });
 
+test('isolated proof provisioning observes Codex runtime from the target config', async () => {
+  const [provisioner, readiness, contract] = await Promise.all([
+    read('scripts/provision-isolated-proof-config.mjs'),
+    read('scripts/seat-readiness-preflight.mjs'),
+    read('lib/isolated-runtime-plugin-contract.mjs'),
+  ]);
+  await access(path.join(root, 'tests/fixtures/isolated-codex-runtime-missing.json'));
+  assert.match(provisioner, /applyIsolatedRuntimePlugins/);
+  assert.match(readiness, /evaluateIsolatedRuntimePlugin/);
+  assert.match(readiness, /runtimePlugin\.sufficient/);
+  assert.match(contract, /isolated-target-config/);
+  assert.match(contract, /ambientRegistry/);
+  assert.doesNotMatch(contract, /ronan|fleet|\b129388\b/i);
+});
+
 test('backend disposition is runnable and wired through every result boundary', async () => {
   await Promise.all([
     access(path.join(root, 'lib/telemetry-backend-status.js')),

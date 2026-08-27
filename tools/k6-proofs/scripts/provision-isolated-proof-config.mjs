@@ -9,6 +9,11 @@ import {
   PROOF_PROFILE_MAX_SPAWN_DEPTH,
   resolveContinuationDepthRequirements,
 } from '../lib/continuation-depth-contract.mjs';
+import {
+  applyIsolatedRuntimePlugins,
+  evaluateIsolatedRuntimePlugin,
+  publicRuntimePluginReceipt,
+} from '../lib/isolated-runtime-plugin-contract.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '../../..');
@@ -75,7 +80,7 @@ async function main() {
     rows: args.rows,
     manifestsDir: path.resolve(args.manifestsDir || defaultManifestsDir),
   });
-  const generatedConfig = applyIsolatedProofProfile(baseConfig);
+  const generatedConfig = applyIsolatedRuntimePlugins(applyIsolatedProofProfile(baseConfig));
   const depth = evaluateContinuationDepth({
     config: generatedConfig,
     requirements,
@@ -83,6 +88,13 @@ async function main() {
   });
   if (!depth.sufficient) {
     throw new Error(`isolated proof profile depth validation failed: ${depth.reason}`);
+  }
+  const runtimePlugin = evaluateIsolatedRuntimePlugin({
+    config: generatedConfig,
+    configAvailable: true,
+  });
+  if (!runtimePlugin.sufficient) {
+    throw new Error(`isolated proof profile runtime plugin validation failed: ${runtimePlugin.reason}`);
   }
 
   const receipt = {
@@ -98,6 +110,7 @@ async function main() {
     requiredMaxSpawnDepth: depth.requiredMaxSpawnDepth,
     proofProfileMaxSpawnDepth: depth.proofProfileMaxSpawnDepth,
     explicitProfileApplied: depth.source === 'explicit',
+    runtimePlugin: publicRuntimePluginReceipt(runtimePlugin),
     publicSafe: true,
   };
 

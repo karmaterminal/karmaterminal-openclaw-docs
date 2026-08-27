@@ -1,26 +1,34 @@
-# PR #85651 replacement proof corpus
+# PR #129388 continuation proof corpus
 
-Pure presentation SHA: `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd`.
+Target presentation SHA: `446f4b22d321cb7f5f26a4fbc2247f54da72d2a4`.
+Immediate source presentation:
+`4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd`.
+Original proof source:
+`80311e8aa07fd560cb957475517c5ea18164541c`.
 Historical live execution composite:
-`37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains source proof SHA
-`80311e8aa07fd560cb957475517c5ea18164541c` plus #124337 and #121204. The
-target candidate descends from that source proof SHA; it is not an ancestor of
-the historical execution composite.
+`37300f29a7ec1f731575343c2aa73ae25f1d0efb`, which contains the original
+proof source plus #124337 and #121204. The target descends from the immediate
+source presentation; neither transposed presentation is an ancestor of the
+historical execution composite.
 
 ## Transposition
 
-This is a complete in-subtree transposition of
-`PROOFS/80311e8aa07fd560cb957475517c5ea18164541c/` after the required
-conflict-bearing upstream absorb. Candidate and corpus paths are rebound to
-`4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd`; copied row evidence remains
-explicitly marked as historical ancestry/materiality evidence unless a receipt
-states that it was executed at the target SHA.
+This is a complete, self-contained copy of the canonical
+`PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/` subtree. Corpus identity and
+navigation are rebound to `446f4b22d321cb7f5f26a4fbc2247f54da72d2a4`;
+all row evidence and vendored artifacts remain local to this target subtree.
+Historical execution identities, verdicts, timestamps, receipts, payloads, and
+checksums retain their source provenance.
 
-Exact-target Mode-B run
+No live row and no Mode-B workflow ran at the current target. Historical
+exact-4737 Mode-B run
 [`32859410821`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32859410821)
-completed with 166,719 passing tests and no candidate-caused failure. Its
-non-green workflow conclusion is preserved and fully classified in
+completed with 166,719 passing tests and no candidate-caused failure; it is
+ancestry/materiality evidence only. Its non-green workflow conclusion is
+preserved and fully classified in the copied
 [`artifacts/gates/MODE-B.md`](artifacts/gates/MODE-B.md).
+Current target upstream CI is pending separately and is not folded into this
+corpus.
 
 ## Verdicts
 
@@ -74,7 +82,9 @@ non-green workflow conclusion is preserved and fully classified in
 
 ## Honest limits
 
-- Live rows are historical execution-composite evidence, not exact-target execution claims.
+- Live rows are historical execution-composite evidence, not exact-446f execution claims.
+- Exact-4737 Mode-B is historical source evidence; no exact-446f Mode-B was run.
+- Current target upstream CI is pending separately and is not corpus evidence.
 - R-CD-2 and R-CD-TOKEN retain signed/catalog partial dispositions despite byte evidence that the underlying paths executed.
 - R-CD-CHAINED-DEPTH-2 did not deliver the root return within its observation window.
 - R-CW-6 remains partial because the docs-generated selected delegate fixture is stale; its direct product surfaces passed.

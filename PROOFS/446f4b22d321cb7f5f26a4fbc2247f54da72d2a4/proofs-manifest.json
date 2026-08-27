@@ -1,24 +1,36 @@
 {
   "schema": "openclaw.proofs.manifest.v1",
-  "capture_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-  "ship_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-  "proof_source_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+  "capture_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+  "ship_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+  "proof_source_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
   "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
   "execution_runtime_provenance": {
-    "source_pure_ancestor": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "transposed_target": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "immediate_source_presentation_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "transposed_target": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
     "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "source_pure_is_ancestor_of_execution": true,
-    "target_descends_from_source_pure": true,
+    "immediate_source_descends_from_source_pure": true,
+    "target_descends_from_immediate_source": true,
+    "immediate_source_is_ancestor_of_execution": false,
     "target_is_ancestor_of_execution": false,
-    "note": "Historical live rows executed on the runtime composite containing the source proof SHA. They are ancestry/materiality evidence for the target, not exact-target execution."
+    "previous": {
+      "source_pure_ancestor": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "transposed_target": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+      "source_pure_is_ancestor_of_execution": true,
+      "target_descends_from_source_pure": true,
+      "target_is_ancestor_of_execution": false,
+      "note": "Historical live rows executed on the runtime composite containing the source proof SHA. They are ancestry/materiality evidence for the target, not exact-target execution."
+    },
+    "note": "Historical live rows executed on the runtime composite containing original proof source 80311e8a. The immediate 4737afdf corpus and target 446f4b22 are successive descendant presentations; neither was the live runtime. This corpus is ancestry/materiality evidence, not exact-target execution."
   },
   "harness_sha": "19b095ef0d356c6d68985ea26bc1bd958f53f144",
-  "fire_type": "transposed-ancestry-materiality-corpus-with-separate-target-gates",
-  "corpus": "PR #85651 replacement continuation proof corpus",
-  "sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-  "sha_short": "4737afdf",
-  "build_string": "OpenClaw 2026.8.1 (4737afdf)",
+  "fire_type": "full-self-contained-transposition-with-historical-live-and-mode-b-ancestry-evidence",
+  "corpus": "PR #129388 continuation proof corpus (transposed)",
+  "sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+  "sha_short": "446f4b22",
+  "build_string": "OpenClaw 2026.8.1 (446f4b22)",
   "method": "openclaw-bootstrap:RUNBOOKS/PROOF-CORPUS-METHOD.md",
   "required_rows": [
     "R-CD-1",
@@ -63,7 +75,7 @@
     "R-REGRESSION-TRAP-TESTS",
     "R-TRACE-REDACTION-1121"
   ],
-  "generated": "2026-08-25 (frond-scribe; full subtree transposition to conflict-cured descendant)",
+  "generated": "2026-08-27 (frond-scribe; full self-contained transposition to PR #129388 head)",
   "rollup": {
     "total_rows": 41,
     "pass": 32,
@@ -73,17 +85,30 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "notes": "Current presentation identity is 4737afdf. This is a full-subtree transposition from source corpus 80311e8a after a required conflict-bearing upstream absorb. Exact target Mode-B is complete and classified; independent exact-target reproof/review remain separate gates. Historical live rows executed on composite 37300f29, which contains source 80311e8a—not target 4737afdf—as an ancestor; they are preserved as ancestry/materiality evidence and never represented as exact-target execution. Four construct-only observability rows remain explicit missing.",
+  "notes": "Current presentation identity is 446f4b22. This is a full self-contained transposition of the canonical 4737afdf corpus. Historical live rows remain attributed to runtime composite 37300f29, whose continuation ancestor is original proof source 80311e8a. Exact-4737 Mode-B run 32859410821 is historical ancestry/materiality evidence only. No live row and no Mode-B workflow ran at 446f4b22. Row states remain 32 pass, 4 partial, 1 honest_limit, 4 missing, and 0 fail.",
   "execution": {
     "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "pure_ancestor": false,
     "pr124337": "d81272c117ef7a2ac765450d682309a941d58463",
     "pr121204": "5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938",
-    "materiality": "Historical runtime composite preserves source pure 80311e8a and adds #124337/#121204. Target 4737afdf descends from source pure through upstream absorption and reviewed repairs; live rows were not re-fired on target.",
+    "materiality": "Historical runtime composite preserves original proof source 80311e8a and adds #124337/#121204. Immediate source presentation 4737afdf descends from 80311e8a; target 446f4b22 descends from 4737afdf. Live rows were not re-fired on either transposed presentation.",
     "source_pure_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_pure_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "target_pure_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
     "source_pure_is_ancestor": true,
-    "target_is_ancestor_of_execution": false
+    "target_is_ancestor_of_execution": false,
+    "immediate_source_presentation_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "immediate_source_is_ancestor": true,
+    "previous": {
+      "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+      "pure_ancestor": false,
+      "pr124337": "d81272c117ef7a2ac765450d682309a941d58463",
+      "pr121204": "5d0426bbedfe3634a142c7a0ddfc6d33b3bc1938",
+      "materiality": "Historical runtime composite preserves source pure 80311e8a and adds #124337/#121204. Target 4737afdf descends from source pure through upstream absorption and reviewed repairs; live rows were not re-fired on target.",
+      "source_pure_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "target_pure_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "source_pure_is_ancestor": true,
+      "target_is_ancestor_of_execution": false
+    }
   },
   "rows": [
     {
@@ -91,8 +116,8 @@
       "title": "Typed continue_delegate() schedule/spawn/return.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-1/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-1/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-1/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -101,13 +126,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-1/catalog/"
+          "path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-1/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-1/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 103,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -115,20 +140,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-2",
       "title": "continue_delegate(mode='silent-wake') full path.",
       "owner": "ronan live proof suite",
       "state": "partial",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-2/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-2/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-2/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -137,9 +171,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-2/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-2/EVIDENCE.md"
       ],
-      "notes": "Two isolated signed catalog receipts classify delegate-replay-unsafe, while the same runtime trace shows one typed continue_delegate, one silent-wake dispatch/fire, completed child, enrichment return, and queue drain. Folded partial under the catalog resolver’s known false-failure shape; never promoted to PASS. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Two isolated signed catalog receipts classify delegate-replay-unsafe, while the same runtime trace shows one typed continue_delegate, one silent-wake dispatch/fire, completed child, enrichment return, and queue drain. Folded partial under the catalog resolver’s known false-failure shape; never promoted to PASS. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Two isolated signed catalog receipts classify delegate-replay-unsafe, while the same runtime trace shows one typed continue_delegate, one silent-wake dispatch/fire, completed child, enrichment return, and queue drain. Folded partial under the catalog resolver’s known false-failure shape; never promoted to PASS.",
@@ -147,20 +181,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-3",
       "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-3/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-3/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-3/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -169,9 +212,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-3/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-3/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -179,20 +222,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-4",
       "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-4/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-4/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-4/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -201,13 +253,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-4/catalog/"
+          "path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-4/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-4/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-4/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -215,20 +267,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
       "title": "Depth-2 delegate chain: parent→child→grandchild→return path.",
       "owner": "ronan live proof suite",
       "state": "partial",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-CHAINED-DEPTH-2/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -237,9 +298,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
       ],
-      "notes": "Child and grandchild both spawned and completed with depth 2 observed, but the root return did not land within the 150-second observation window. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Child and grandchild both spawned and completed with depth 2 observed, but the root return did not land within the 150-second observation window. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Child and grandchild both spawned and completed with depth 2 observed, but the root return did not land within the 150-second observation window.",
@@ -247,20 +308,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
       "title": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-COLLECTION-ON-COLLAPSE/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-COLLECTION-ON-COLLAPSE/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -269,9 +339,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -279,20 +349,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
       "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-CHAINED-ALT/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-CHAINED-ALT/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -301,9 +380,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -311,20 +390,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-MODEL-DEFAULT",
       "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-DEFAULT/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-DEFAULT/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-DEFAULT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -333,9 +421,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-DEFAULT/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-DEFAULT/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -343,20 +431,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-MODEL-TOKEN",
       "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-TOKEN/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-TOKEN/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -365,9 +462,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-TOKEN/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -375,20 +472,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-MODEL-TOOL",
       "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-TOOL/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-TOOL/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-TOOL/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -397,9 +503,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-MODEL-TOOL/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-MODEL-TOOL/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 140,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -407,20 +513,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-RETURN-OVERLAP",
       "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-RETURN-OVERLAP/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-RETURN-OVERLAP/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-RETURN-OVERLAP/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -429,9 +544,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-RETURN-OVERLAP/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-RETURN-OVERLAP/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 246,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -439,20 +554,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-SILENT",
       "title": "Typed continue_delegate(mode='silent') proof.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-SILENT/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-SILENT/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-SILENT/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-SILENT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -461,9 +585,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-SILENT/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-SILENT/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 119,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -471,20 +595,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CD-TOKEN",
       "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
       "owner": "ronan live proof suite",
       "state": "partial",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-TOKEN/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-TOKEN/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -504,9 +637,9 @@
       ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CD-TOKEN/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CD-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Exact raw-final-text run parsed the bracket in the origin child, armed/fired a hop-2 delegate, completed the delegate, and delivered the return. Catalog task correlation remained incomplete because the token-created task is unlabeled; folded partial. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Exact raw-final-text run parsed the bracket in the origin child, armed/fired a hop-2 delegate, completed the delegate, and delivered the return. Catalog task correlation remained incomplete because the token-created task is unlabeled; folded partial. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 103,
       "summary": "Exact raw-final-text run parsed the bracket in the origin child, armed/fired a hop-2 delegate, completed the delegate, and delivered the return. Catalog task correlation remained incomplete because the token-created task is unlabeled; folded partial.",
@@ -514,20 +647,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CONFIG-DEFAULTS",
       "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CONFIG-DEFAULTS/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CONFIG-DEFAULTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -536,9 +678,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CONFIG-DEFAULTS/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CONFIG-DEFAULTS/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 104,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -546,20 +688,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CONFIG-INTERSESSION",
       "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CONFIG-INTERSESSION/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CONFIG-INTERSESSION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -568,9 +719,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CONFIG-INTERSESSION/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CONFIG-INTERSESSION/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 121,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -578,20 +729,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-1",
       "title": "Typed continue_work() tool-form schedule + wake.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-1/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-1/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-1/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -600,13 +760,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-1/catalog/"
+          "path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-1/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-1/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -614,20 +774,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-2",
       "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-2/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-2/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-2/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -636,9 +805,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-2/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-2/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -646,20 +815,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-3",
       "title": "continue_work reason telemetry/redaction partial candidate.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-3/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-3/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-3/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -671,13 +849,13 @@
       ],
       "traces": [
         {
-          "path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-3/catalog/"
+          "path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-3/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-3/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-3/EVIDENCE.md"
       ],
-      "notes": "Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Schedule/wake behavior passed. The catalog trace collector rejected a shared trace with multiple continue_work spans; manual TraceQL correlation by the row’s exact reason.hash found one continuation.work and one continuation.work.fire followed by one completed wake model call.",
@@ -685,20 +863,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-4",
       "title": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-4/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-4/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-4/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -707,9 +894,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-4/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-4/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -717,20 +904,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-5",
       "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond follow-up",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
@@ -739,10 +935,10 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5/EVIDENCE.md",
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5/fixture/fixture-result.json"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5/EVIDENCE.md",
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5/fixture/fixture-result.json"
       ],
-      "notes": "Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c and passed every required surface. Transposed to target 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd by ancestry/materiality; it was not re-fired at target.",
+      "notes": "Historical source-corpus disposition: Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c and passed every required surface. Transposed to target 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd by ancestry/materiality; it was not re-fired at target. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; transposed to 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
       "issue": 117,
       "summary": "Exact-pure disposable fixture passed the boundary matrix, dispatcher, typed-tool, cleanup, and rejected-hop no-spawn contracts.",
@@ -750,20 +946,29 @@
         "R-CW-5 exact-pure cost-cap fixture"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-5A",
       "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
       "owner": "frond follow-up",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5A/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5A/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5A/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5A/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
@@ -772,9 +977,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-5A/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-5A/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -782,20 +987,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-6",
       "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond follow-up",
       "state": "partial",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
@@ -806,11 +1020,11 @@
       ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6/EVIDENCE.md",
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6/fixture/fixture-result.json",
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6/EVIDENCE.md",
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6/fixture/fixture-result.json",
         "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/516"
       ],
-      "notes": "Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c. Product-owned max-chain surfaces passed; the docs-generated selected-boundary test failed and is tracked by docs#516. Transposed to target 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd; it was not re-fired at target.",
+      "notes": "Historical source-corpus disposition: Fixture executed at source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c. Product-owned max-chain surfaces passed; the docs-generated selected-boundary test failed and is tracked by docs#516. Transposed to target 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd; it was not re-fired at target. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; transposed to 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd; harness 86b39d87e0ae4eef980496d3742e83033ee84a93)",
       "issue": 117,
       "summary": "Exact-pure fixture passed matrix, scheduler, recovery, typed-tool, and candidate delegate regression surfaces; a stale docs-generated selected delegate test exited before emitting its receipt, so the authoritative FAIL-fixture is retained and folded partial.",
@@ -818,20 +1032,29 @@
         "R-CW-6 exact-pure max-chain fixture"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-6A",
       "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
       "owner": "frond follow-up",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6A/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6A/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6A/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6A/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
@@ -840,9 +1063,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-6A/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-6A/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -850,20 +1073,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-7",
       "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-7/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-7/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-7/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-7/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -872,9 +1104,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-7/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-7/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 220,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -882,20 +1114,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-DELEGATE-CHILD-LIVE",
       "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-CHILD-LIVE/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -904,9 +1145,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 213,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -914,20 +1155,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
       "title": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-SELF-CONTINUATION/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -936,9 +1186,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 118,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -946,20 +1196,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
       "title": "Static validator for committed delegate child bare-token continuation receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-TOKEN/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -968,9 +1227,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 221,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -978,20 +1237,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-MULTI",
       "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-MULTI/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-MULTI/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1000,9 +1268,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-MULTI/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 117,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1010,20 +1278,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
       "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI-COLLAPSE/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1032,9 +1309,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 216,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1042,20 +1319,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-CW-TOKEN",
       "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-TOKEN/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-TOKEN/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-TOKEN/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1064,13 +1350,13 @@
       "pending_receipts": [],
       "traces": [
         {
-          "path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-TOKEN/catalog/"
+          "path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-TOKEN/catalog/"
         }
       ],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-CW-TOKEN/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-CW-TOKEN/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 118,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1078,20 +1364,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-1",
       "title": "Session-status-card observability via the session_status tool.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-1/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-1/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-1/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1100,9 +1395,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-1/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 1135,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1110,20 +1405,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-2",
       "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-2/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-2/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-2/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1132,9 +1436,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-2/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-2/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 233,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1142,20 +1446,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-BACKEND-DISPOSITION",
       "title": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence.",
       "owner": "frond follow-up",
       "state": "missing",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-BACKEND-DISPOSITION/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-BACKEND-DISPOSITION/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-backend-disposition.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1164,28 +1477,37 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-BACKEND-DISPOSITION/EVIDENCE.md"
       ],
-      "notes": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": null,
       "issue": 1254,
       "summary": "A degraded telemetry backend produces explicit unavailable/partial evidence plus the keys needed to rebind the same slice later, instead of a zero that reads as absence. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-CONT-PROVENANCE",
       "title": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact.",
       "owner": "frond follow-up",
       "state": "missing",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-CONT-PROVENANCE/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-CONT-PROVENANCE/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-CONT-PROVENANCE/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-CONT-PROVENANCE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-cont-provenance.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1194,28 +1516,37 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-CONT-PROVENANCE/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-CONT-PROVENANCE/EVIDENCE.md"
       ],
-      "notes": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": null,
       "issue": 1254,
       "summary": "Accepted continuation entry spans carry primitive/origin classification plus stable public-safe run, session, and turn correlation, so a typed-tool span and its accepted-entry span can be causally joined after the fact. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-PROOF-MARKER",
       "title": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref.",
       "owner": "frond follow-up",
       "state": "missing",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-PROOF-MARKER/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-PROOF-MARKER/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-PROOF-MARKER/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-PROOF-MARKER/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-proof-marker.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1224,28 +1555,37 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-PROOF-MARKER/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-PROOF-MARKER/EVIDENCE.md"
       ],
-      "notes": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": null,
       "issue": 1254,
       "summary": "Proof-originated traffic is separable from organic fleet traffic by a durable telemetry marker carrying the Project-81/k6 proof run id, the row id, the product candidate SHA, and the immutable harness ref. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-STATUS",
       "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-STATUS/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-STATUS/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-STATUS/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-STATUS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1254,9 +1594,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-STATUS/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-STATUS/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 104,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1264,20 +1604,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-OBS-TERMINAL-OUTCOME",
       "title": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure.",
       "owner": "frond follow-up",
       "state": "missing",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-TERMINAL-OUTCOME/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-TERMINAL-OUTCOME/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-terminal-outcome.json",
       "scenario_status": "construct-only",
       "live_run_classification": "construct-only",
@@ -1286,28 +1635,37 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-OBS-TERMINAL-OUTCOME/EVIDENCE.md"
       ],
-      "notes": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": null,
       "issue": 1254,
       "summary": "Continuation and finalization terminate into a canonical outcome enum on a span, replacing the log-string heuristics that are currently the only available signal for zero-payload and finalization failure. Not executed in run 32231533500; retained as an explicit missing row for refinement.",
       "test_cases_executed": [],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-RC-1",
       "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-1/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-1/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-RC-1/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-RC-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1316,9 +1674,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-1/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-RC-1/EVIDENCE.md"
       ],
-      "notes": "Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Current exact execution-composite row produced a review-ready PASS-candidate receipt. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 422,
       "summary": "Current exact execution-composite row produced a review-ready PASS-candidate receipt.",
@@ -1326,20 +1684,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-RC-2",
       "title": "Parent fires continue_delegate to a child that calls request_compaction.",
       "owner": "ronan live proof suite",
       "state": "honest_limit",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-2/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-2/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-RC-2/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-RC-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1351,9 +1718,9 @@
       ],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-RC-2/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-RC-2/EVIDENCE.md"
       ],
-      "notes": "Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 104,
       "summary": "Child invoked request_compaction and produced an authoritative rejected tool result at context_threshold=70. The accepted post-compaction path was structurally unavailable on this low-context disposable session.",
@@ -1361,20 +1728,29 @@
         "Project-81 exact execution-composite live row"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
       "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-REGRESSION-TRAP-TESTS/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1383,9 +1759,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 121,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1393,20 +1769,29 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     },
     {
       "row": "R-TRACE-REDACTION-1121",
       "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
       "owner": "ronan live proof suite",
       "state": "pass",
-      "dir": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-TRACE-REDACTION-1121/",
-      "evidence_doc": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "dir": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-TRACE-REDACTION-1121/",
+      "evidence_doc": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-TRACE-REDACTION-1121/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
@@ -1415,9 +1800,9 @@
       "pending_receipts": [],
       "traces": [],
       "supporting_docs": [
-        "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/R-TRACE-REDACTION-1121/EVIDENCE.md"
+        "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/R-TRACE-REDACTION-1121/EVIDENCE.md"
       ],
-      "notes": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so.",
+      "notes": "Historical source-corpus disposition: Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire. Target presentation SHA 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd descends from source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c; historical execution composite 37300f29a7ec1f731575343c2aa73ae25f1d0efb also contains source proof SHA 80311e8aa07fd560cb957475517c5ea18164541c, but does not contain the target. Transposed from source corpus 80311e8aa07fd560cb957475517c5ea18164541c; this row was not re-fired at 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd unless a later target receipt explicitly says so. Current transposition: immediate source corpus 4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd was copied self-contained to target presentation 446f4b22d321cb7f5f26a4fbc2247f54da72d2a4. No live row or Mode-B workflow ran at the current target, and this transposition does not change the row state.",
       "fired": "2026-08-25 (ronan, execution 37300f29a7ec1f731575343c2aa73ae25f1d0efb; catalog 19b095ef0d356c6d68985ea26bc1bd958f53f144)",
       "issue": 1121,
       "summary": "Pinned historical evidence revalidated by the exact catalog static validator; carried comparison evidence, not a new live fire.",
@@ -1425,25 +1810,61 @@
         "Project-81 pinned static-corpus validator"
       ],
       "transposition": {
-        "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-        "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+        "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+        "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+        "previous": {
+          "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+          "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+          "kind": "full-subtree ancestry/materiality transposition",
+          "exact_target_execution": false
+        },
         "kind": "full-subtree ancestry/materiality transposition",
-        "exact_target_execution": false
+        "exact_target_execution": false,
+        "exact_target_mode_b": false
       },
-      "exact_target_execution": false
+      "exact_target_execution": false,
+      "exact_target_mode_b": false
     }
   ],
   "transposition": {
-    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-    "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
+    "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+    "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "source_docs_commit": "0e75318a68d7145c0c5b99e8b11bda304f4f9fd2",
+    "canonical_source_docs_main": "f71e97238bfd8150f2eb0fe5488a25c250e257cc",
+    "original_source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
     "target_descends_from_source": true,
     "source_evidence_preserved_in_subtree": true,
     "exact_target_execution": false,
-    "reason": "Upstream drift created merge conflicts after source proof generation. The full corpus was copied in-tree; candidate/path identities were rebound to the descendant while original execution ancestry remains explicit.",
-    "exact_target_mode_b": true
+    "exact_target_mode_b": false,
+    "previous": {
+      "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
+      "target_descends_from_source": true,
+      "source_evidence_preserved_in_subtree": true,
+      "exact_target_execution": false,
+      "reason": "Upstream drift created merge conflicts after source proof generation. The full corpus was copied in-tree; candidate/path identities were rebound to the descendant while original execution ancestry remains explicit.",
+      "historical_source_exact_target_mode_b": true
+    },
+    "reason": "PR #129388 moved the presentation to a descendant of the canonical 4737afdf corpus. The full source subtree is copied in-tree; only target-facing corpus identity and navigation are rebound. Historical execution and source Mode-B identities remain explicit."
   },
   "target_mode_b": {
+    "executed": false,
+    "exact_target_mode_b": false,
+    "status": "not-run",
+    "run": null,
+    "product_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+    "workflow_sha": null,
+    "source_mode_b_run": 32859410821,
+    "note": "Current target upstream CI is pending separately and is not folded into this corpus."
+  },
+  "exact_target_execution": false,
+  "exact_target_mode_b": false,
+  "source_mode_b": {
+    "exact_source_mode_b": true,
     "run": 32859410821,
     "product_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
     "workflow_sha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
@@ -1453,6 +1874,8 @@
     "deterministic_failures": 19,
     "load_flakes_greened": 5,
     "candidate_caused_failures": 0,
-    "classification_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/artifacts/gates/MODE-B.md"
+    "classification_path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/artifacts/gates/MODE-B.md",
+    "historical_source_classification_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/artifacts/gates/MODE-B.md",
+    "evidence_scope": "Historical exact-4737 Mode-B ancestry/materiality evidence only; not exact-target Mode-B."
   }
 }

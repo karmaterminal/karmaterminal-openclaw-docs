@@ -1,23 +1,23 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-  "current_sha_short": "4737afdf",
+  "current_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+  "current_sha_short": "446f4b22",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw 2026.8.1 (4737afdf)",
-  "corpus_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/",
-  "manifest_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/proofs-manifest.json",
-  "readme_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/README.md",
-  "clawsweeper_path": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/CLAWSSWEEPER.md",
+  "build_string": "OpenClaw 2026.8.1 (446f4b22)",
+  "corpus_path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/",
+  "manifest_path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/proofs-manifest.json",
+  "readme_path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/README.md",
+  "clawsweeper_path": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/CLAWSSWEEPER.md",
   "entrypoints": {
-    "clawsweeper": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/CLAWSSWEEPER.md",
-    "manifest": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/proofs-manifest.json",
-    "readme": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/README.md",
-    "method": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/METHOD.md",
-    "resolved_sha": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/RESOLVED-SHA.md",
-    "artifacts": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/ARTIFACTS.md",
-    "transposition": "PROOFS/4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd/TRANSPOSED-FROM.md"
+    "clawsweeper": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/CLAWSSWEEPER.md",
+    "manifest": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/proofs-manifest.json",
+    "readme": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/README.md",
+    "method": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/METHOD.md",
+    "resolved_sha": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/RESOLVED-SHA.md",
+    "artifacts": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/ARTIFACTS.md",
+    "transposition": "PROOFS/446f4b22d321cb7f5f26a4fbc2247f54da72d2a4/TRANSPOSED-FROM.md"
   },
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
@@ -29,15 +29,28 @@
     "honest_limit": 1,
     "missing": 4
   },
-  "disposition_note": "Full self-contained transposition from 80311e8a to conflict-cured descendant 4737afdf. Exact-target Mode-B 32859410821 is complete with zero candidate-caused failures; historical live execution remains attributed to composite 37300f29 and source pure 80311e8a. 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
+  "disposition_note": "Full self-contained transposition of canonical 4737afdf corpus to PR #129388 head 446f4b22. No exact-target live execution and no exact-target Mode-B were performed; exact-4737 Mode-B run 32859410821 and runtime composite 37300f29 remain historical ancestry/materiality evidence only. Rollup is unchanged: 32 pass, 4 partial, 1 honest limit, 4 explicit missing, 0 fail.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
-  "generated": "2026-08-25",
+  "generated": "2026-08-27",
   "generated_by": "frond-scribe",
   "transposition": {
-    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
-    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
-    "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
+    "source_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "target_corpus_sha": "446f4b22d321cb7f5f26a4fbc2247f54da72d2a4",
+    "original_proof_source_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "execution_runtime_sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "source_docs_commit": "0e75318a68d7145c0c5b99e8b11bda304f4f9fd2",
+    "canonical_source_docs_main": "f71e97238bfd8150f2eb0fe5488a25c250e257cc",
+    "target_descends_from_source": true,
+    "source_evidence_preserved_in_subtree": true,
     "exact_target_execution": false,
-    "exact_target_mode_b": true
+    "exact_target_mode_b": false,
+    "source_mode_b_run": 32859410821,
+    "previous": {
+      "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+      "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+      "source_docs_commit": "591f8be8b7991a2ad2e7ee2b84fce5d92dfd3b8b",
+      "exact_target_execution": false,
+      "historical_source_exact_target_mode_b": true
+    }
   }
 }

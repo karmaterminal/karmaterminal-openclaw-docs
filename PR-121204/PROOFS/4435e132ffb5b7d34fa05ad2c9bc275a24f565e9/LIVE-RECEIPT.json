@@ -1,0 +1,73 @@
+{
+  "schema": "openclaw.pr121204.exact-head-live-proof.v1",
+  "verdict": "PASS",
+  "product": {
+    "sha": "4435e132ffb5b7d34fa05ad2c9bc275a24f565e9",
+    "tree": "685ac7c314566d6c8043a22ebc2749eaffdf6fd9",
+    "lockBlob": "ee207271c23169c76ca8bfd65400207e252ef699",
+    "buildCommit": "4435e132ffb5b7d34fa05ad2c9bc275a24f565e9"
+  },
+  "run": {
+    "seat": "cael",
+    "cardinality": 1,
+    "unitHash": "e3818371e4cc0908",
+    "serviceNameHash": "31bd32308461643e",
+    "stateRootWasIsolated": true,
+    "discordBindingWasIsolated": true,
+    "queueWasIsolated": true,
+    "sessionWasIsolated": true,
+    "model": "openai/gpt-5.6-sol",
+    "runtime": "codex-app-server",
+    "runtimePackageVersion": "0.149.1"
+  },
+  "ordering": {
+    "staleSourceIdHash": "05b4e219b9fa120c",
+    "freshSourceIdHash": "646c473bfc8ebbda",
+    "staleReceivedAt": 1787814722529,
+    "freshReceivedAt": 1787814722530,
+    "monotonic": true
+  },
+  "staleTerminalReceipt": {
+    "status": "failed",
+    "failedReason": "stale-ambient-backlog",
+    "attempts": 0,
+    "failedAt": 1787814787431,
+    "committedReceiptCount": 1,
+    "payloadFree": true
+  },
+  "freshVisibleResponseReceipt": {
+    "queueStatus": "completed",
+    "attempts": 0,
+    "claimedAt": null,
+    "completedAt": 1787814787858,
+    "visibleResponseCount": 1,
+    "responseIdHash": "d50e16a697ecc11c",
+    "responseTimestamp": "2026-08-27T07:13:16.612000+00:00",
+    "responseAuthorHash": "3e8beea76db915e1",
+    "nonEmptyResponse": true
+  },
+  "runtimeReceipt": {
+    "threadCount": 1,
+    "turnContextCount": 1,
+    "userEventCount": 1,
+    "assistantEventCount": 1,
+    "taskCompletionCount": 1,
+    "turnCompletedNotificationCount": 1,
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "stopReason": "stop",
+    "inputTokens": 14024,
+    "outputTokens": 27,
+    "totalTokens": 14051,
+    "samplingRows": 1,
+    "samplingRetryMarkers": 0,
+    "samplingErrorMarkers": 0
+  },
+  "selfFilteredResponseIngress": {
+    "sourceIdHash": "d50e16a697ecc11c",
+    "status": "completed",
+    "attempts": 0,
+    "modelTurnCreated": false
+  },
+  "contentPublished": false
+}

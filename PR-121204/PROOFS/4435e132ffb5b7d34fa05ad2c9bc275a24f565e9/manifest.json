@@ -1,0 +1,66 @@
+{
+  "schema": "openclaw.pr121204.exact-head-proof-manifest.v1",
+  "verdict": "PASS",
+  "product": {
+    "sha": "4435e132ffb5b7d34fa05ad2c9bc275a24f565e9",
+    "parent": "ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+    "tree": "685ac7c314566d6c8043a22ebc2749eaffdf6fd9",
+    "lockBlob": "ee207271c23169c76ca8bfd65400207e252ef699"
+  },
+  "liveExecution": {
+    "seat": "cael",
+    "gatewayStartCount": 1,
+    "behaviorRunCount": 1,
+    "queueSeedCount": 2,
+    "behaviorRetryCount": 0,
+    "reseedCount": 0,
+    "staleTerminalReason": "stale-ambient-backlog",
+    "staleAttempts": 0,
+    "committedReceiptCount": 1,
+    "committedReceiptPayloadFree": true,
+    "freshVisibleResponseCount": 1,
+    "freshVisibleResponseNonEmpty": true,
+    "modelTurnCount": 1
+  },
+  "runtime": {
+    "kind": "codex-app-server",
+    "packageVersion": "0.149.1",
+    "protocolSourceTag": "rust-v0.149.1",
+    "protocolSourceCommit": "ff29a44391deccde0aba0f8390337d7f3c319ea4",
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "terminalTurnCompletions": 1,
+    "samplingRows": 1,
+    "samplingRetryMarkers": 0,
+    "samplingErrorMarkers": 0
+  },
+  "deterministicP1": {
+    "exactHeadFilesPassed": 1,
+    "exactHeadTestsPassed": 4,
+    "throwingObserverCovered": true,
+    "rejectedPromiseObserverCovered": true,
+    "acceptedOwnerSiblingTestsPassed": 88
+  },
+  "modeB": {
+    "runId": 33043848497,
+    "workflowSha": "342cc9c6d190e1ba57d9995d29e394c993a3e79b",
+    "passed": 168518,
+    "failed": 42,
+    "loadFlakesGreened": 1,
+    "summaries": 164,
+    "failuresInP1Delta": 0
+  },
+  "artifacts": [
+    "README.md",
+    "METHOD.md",
+    "LIVE-RECEIPT.json",
+    "LIFECYCLE-RECEIPT.json",
+    "P1-DETERMINISTIC-RECEIPT.json",
+    "PUBLIC-SAFETY-RECEIPT.json",
+    "NON-INTERFERENCE.md"
+  ],
+  "contentPublished": false,
+  "rawIdentifiersPublished": false,
+  "rawLogsPublished": false,
+  "proofIndexModified": false
+}

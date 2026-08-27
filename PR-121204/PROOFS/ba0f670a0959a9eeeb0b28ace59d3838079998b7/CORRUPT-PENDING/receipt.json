@@ -1,0 +1,90 @@
+{
+  "schema": "openclaw.pr121204.exact-source-proof-row.v1",
+  "sourceSha": "3bf1ca1d211f4f303ca1bfec9e47daef8f4192f9",
+  "executionCompositeSha": "6e6da7bba079b0fc50d134b96657cda683985837",
+  "seat": "rune",
+  "nonce": "RUNE-PR121204-R2-20260823T155221Z-994186",
+  "isolatedTestState": true,
+  "gatewayJournal": {
+    "emitted": false,
+    "reason": "The sanctioned test runner used an isolated temporary SQLite state directory."
+  },
+  "row": "corrupt-pending-vs-fresh-addressed",
+  "observationWindowUtc": {
+    "start": "2026-08-23T15:00:00.000Z",
+    "end": "2026-08-23T16:00:00.000Z"
+  },
+  "before": [
+    {
+      "event_id": "RUNE-PR121204-R2-20260823T155221Z-994186-corrupt",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "pending",
+      "attempts": 0,
+      "received_at": 1787497200000,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    },
+    {
+      "event_id": "RUNE-PR121204-R2-20260823T155221Z-994186-fresh",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "pending",
+      "attempts": 0,
+      "received_at": 1787500800000,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    }
+  ],
+  "after": [
+    {
+      "event_id": "RUNE-PR121204-R2-20260823T155221Z-994186-corrupt",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "failed",
+      "attempts": 0,
+      "received_at": 1787497200000,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": null,
+      "failed_at": 1787500800000,
+      "failed_reason": "invalid-event",
+      "last_attempt_at": null,
+      "last_error": "Discord ingress payload RUNE-PR121204-R2-20260823T155221Z-994186-corrupt is invalid"
+    },
+    {
+      "event_id": "RUNE-PR121204-R2-20260823T155221Z-994186-fresh",
+      "lane_key": "channel:synthetic-proof-channel",
+      "status": "completed",
+      "attempts": 0,
+      "received_at": 1787500800000,
+      "updated_at": 1787500800000,
+      "claimed_at": null,
+      "completed_at": 1787500800000,
+      "failed_at": null,
+      "failed_reason": null,
+      "last_attempt_at": null,
+      "last_error": null
+    }
+  ],
+  "ingressDispatches": [
+    "RUNE-PR121204-R2-20260823T155221Z-994186-fresh"
+  ],
+  "downstreamAgentExecution": {
+    "exercised": false,
+    "limit": "The real Discord durable ingress boundary was exercised; downstream agent execution was replaced by an adoption callback."
+  },
+  "verdict": "PASS",
+  "exactSourceIsolation": true,
+  "actualObservationWindowUtc": {
+    "start": "2026-08-23T15:52:21Z",
+    "end": "2026-08-23T15:52:29Z"
+  }
+}

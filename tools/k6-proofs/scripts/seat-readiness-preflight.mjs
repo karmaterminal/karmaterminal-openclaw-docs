@@ -18,6 +18,11 @@ import {
   PROOF_PROFILE_MAX_SPAWN_DEPTH,
   resolveContinuationDepthRequirements,
 } from '../lib/continuation-depth-contract.mjs';
+import {
+  buildTargetReadinessBinding,
+  publicGatewayTarget,
+  targetReadinessBindingErrors,
+} from '../lib/target-readiness-binding.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '../../..');
@@ -41,6 +46,7 @@ function parseArgs(argv) {
     else if (arg === '--rows') out.rows = argv[++i];
     else if (arg === '--manifests-dir') out.manifestsDir = argv[++i];
     else if (arg === '--policy') out.policyPath = argv[++i];
+    else if (arg === '--require-target-binding') out.requireTargetBinding = true;
     else if (arg === '--help' || arg === '-h') out.help = true;
     else throw new Error(`unknown arg: ${arg}`);
   }
@@ -48,7 +54,7 @@ function parseArgs(argv) {
 }
 
 function usage() {
-  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--policy path] [--expected-k6-version v2.0.0] [--expected-max-spawn-depth 5] [--rows R-CD-CHAINED-DEPTH-2,R-CD-TOKEN]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json; selected-row depth comes from the row manifests.`);
+  console.log(`Usage: node tools/k6-proofs/scripts/seat-readiness-preflight.mjs [--json] [--no-gateway] [--require-target-binding] [--policy path] [--expected-k6-version v2.0.0] [--expected-max-spawn-depth 5] [--rows R-CD-CHAINED-DEPTH-2,R-CD-TOKEN]\n\nEmits no secret values. Exit 0 only for PASS-candidate. Version/env defaults come from tools/k6-proofs/seat-readiness.policy.json; selected-row depth comes from the row manifests.`);
 }
 
 function commandOrNull(cmd, args) {
@@ -162,6 +168,78 @@ function readAgentDefaultsConfig() {
   };
 }
 
+function connectFrame(token) {
+  return {
+    type: 'req',
+    id: 'connect',
+    method: 'connect',
+    params: {
+      minProtocol: 3,
+      maxProtocol: 4,
+      client: { id: 'gateway-client', version: '0.2.0', platform: 'linux', mode: 'backend' },
+      role: 'operator',
+      scopes: ['operator.read', 'operator.write', 'session.control'],
+      caps: [],
+      commands: [],
+      permissions: {},
+      auth: { token },
+      userAgent: 'k6-proof-seat-readiness/0.1.0',
+    },
+  };
+}
+
+async function readTargetAgentDefaults(gatewayWs, token) {
+  let socket;
+  try {
+    socket = new WebSocket(gatewayWs);
+  } catch {
+    return { mode: 'unavailable', defaults: null, error: 'target-rpc-url-invalid' };
+  }
+  return await new Promise((resolve) => {
+    let settled = false;
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      resolve(result);
+    };
+    const timer = setTimeout(
+      () => finish({ mode: 'unavailable', defaults: null, error: 'target-rpc-timeout' }),
+      5000,
+    );
+    socket.onopen = () => socket.send(JSON.stringify(connectFrame(token)));
+    socket.onerror = () => finish({ mode: 'unavailable', defaults: null, error: 'target-rpc-unreachable' });
+    socket.onmessage = (event) => {
+      let message;
+      try {
+        message = JSON.parse(String(event.data));
+      } catch {
+        finish({ mode: 'unavailable', defaults: null, error: 'target-rpc-json-invalid' });
+        return;
+      }
+      if (message.type !== 'res') return;
+      if (message.id === 'connect') {
+        if (message.error || message.ok === false) {
+          finish({ mode: 'unavailable', defaults: null, error: 'target-auth-failed' });
+          return;
+        }
+        socket.send(JSON.stringify({ type: 'req', id: 'config-get', method: 'config.get', params: {} }));
+        return;
+      }
+      if (message.id !== 'config-get') return;
+      const defaults = message.payload?.config?.agents?.defaults;
+      if (message.error || message.ok === false) {
+        finish({ mode: 'unavailable', defaults: null, error: 'target-config-rpc-failed' });
+      } else if (!defaults || typeof defaults !== 'object' || Array.isArray(defaults)) {
+        finish({ mode: 'unavailable', defaults: null, error: 'target-config-shape-invalid' });
+      } else {
+        finish({ mode: 'checked', defaults, error: null });
+      }
+    };
+  });
+}
+
 function readContinuationConfig(agentDefaults) {
   const config = agentDefaults.defaults?.continuation;
   const available = agentDefaults.mode === 'checked' &&
@@ -206,16 +284,26 @@ async function main() {
   k6.checked = k6.checked.map((item) => ({ ...item, rawVersion: redactRawVersion(item.rawVersion) }));
 
   const gatewayWs = process.env.OPENCLAW_GATEWAY_WS || policy.gateway.defaultWsUrl || 'ws://127.0.0.1:18789';
+  const publicGateway = publicGatewayTarget(gatewayWs);
   const gatewayBase = httpBaseFromWs(gatewayWs);
   const token = process.env.OPENCLAW_GATEWAY_TOKEN;
-  let gateway = { url: gatewayWs, healthReachable: false, statusReachable: false, mode: 'skipped-by-flag' };
+  let gateway = {
+    url: publicGateway.url,
+    urlFingerprint: publicGateway.fingerprint,
+    healthReachable: false,
+    statusReachable: false,
+    configRpc: 'skipped',
+    mode: 'skipped-by-flag',
+  };
   if (args.gateway && !token) {
     gateway = { ...gateway, mode: 'skipped-no-token' };
   } else if (args.gateway) {
     gateway = {
-      url: gatewayWs,
+      url: publicGateway.url,
+      urlFingerprint: publicGateway.fingerprint,
       healthReachable: await fetchOk(`${gatewayBase}/health`, token),
       statusReachable: await fetchOk(`${gatewayBase}/status`, token),
+      configRpc: 'pending',
       mode: 'checked',
     };
   }
@@ -243,7 +331,10 @@ async function main() {
     depthContractError = error?.code || 'expected-depth-invalid';
   }
 
-  const agentDefaults = readAgentDefaultsConfig();
+  const agentDefaults = args.gateway && token
+    ? await readTargetAgentDefaults(gatewayWs, token)
+    : readAgentDefaultsConfig();
+  if (args.gateway && token) gateway.configRpc = agentDefaults.mode;
   const continuation = readContinuationConfig(agentDefaults);
   continuation.defaultsPresent = Boolean(continuation.maxChainLengthPresent && continuation.maxDelegatesPerTurnPresent && continuation.costCapTokensPresent);
   let continuationDepth = evaluateContinuationDepth({
@@ -271,6 +362,20 @@ async function main() {
   }
 
   const candidateSha = process.env.OPENCLAW_CANDIDATE_SHA || null;
+  const binding = buildTargetReadinessBinding({
+    gatewayWs,
+    seat: process.env.OPENCLAW_SEAT_NAME || policy.seat?.defaultName || 'unknown-seat',
+    gatewayUnit: process.env.OPENCLAW_PROOFS_GATEWAY_UNIT || 'openclaw-gateway',
+    docsHead: process.env.OPENCLAW_PROOFS_DOCS_REF || process.env.DOCS_REF || null,
+    candidateSha,
+    runtimeBuildSha: process.env.OPENCLAW_RUNTIME_BUILD_SHA || null,
+    selectedRows,
+    requiredMaxSpawnDepth: continuationDepth.requiredMaxSpawnDepth,
+    expectedMaxSpawnDepth,
+  });
+  const bindingErrors = targetReadinessBindingErrors(binding, binding, {
+    requireComplete: args.requireTargetBinding === true,
+  });
   const env = envReport(policy);
   const requiredMissing = env.filter((e) => e.required && !e.present).map((e) => e.name);
   const notes = [];
@@ -278,7 +383,9 @@ async function main() {
   else if (!k6.matchesExpected) notes.push(`k6 version mismatch: expected ${expectedK6Version}, got ${k6.version}.`);
   if (gateway.mode === 'checked' && (!gateway.healthReachable || !gateway.statusReachable)) notes.push('gateway health/status not reachable from this seat.');
   if (gateway.mode === 'skipped-no-token') notes.push('gateway reachability skipped because OPENCLAW_GATEWAY_TOKEN is absent; token value was not printed.');
-  if (continuation.mode !== 'checked') notes.push('continuation config could not be read from openclaw config get agents.defaults --json.');
+  if (continuation.mode !== 'checked') notes.push(args.gateway
+    ? 'continuation config could not be read from the authenticated target gateway config.get RPC.'
+    : 'continuation config could not be read from openclaw config get agents.defaults --json.');
   else if (continuation.enabled !== true) notes.push('agents.defaults.continuation.enabled is not true; live continuation proof rows must not run.');
   else if (!continuation.defaultsPresent) notes.push('continuation config is missing one or more required default fields.');
   if (!continuationDepth.sufficient) {
@@ -294,12 +401,15 @@ async function main() {
 
   const valid40Hex = typeof candidateSha === 'string' && /^[0-9a-f]{40}$/.test(candidateSha);
   if (!valid40Hex) notes.push('OPENCLAW_CANDIDATE_SHA is missing or not a 40-char lowercase hex SHA.');
+  if (bindingErrors.length) notes.push(`target readiness binding rejected: ${bindingErrors.join(', ')}.`);
 
   const continuationReady = continuation.mode === 'checked' &&
     continuation.enabled === true &&
     continuation.defaultsPresent &&
     continuationDepth.sufficient;
-  const pass = k6.ok && k6.matchesExpected && continuationReady && valid40Hex && requiredMissing.length === 0 && (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
+  const pass = k6.ok && k6.matchesExpected && continuationReady && valid40Hex &&
+    bindingErrors.length === 0 && requiredMissing.length === 0 &&
+    (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
 
   const report = {
     schema: 'openclaw.k6.seat-readiness.v1',
@@ -315,6 +425,13 @@ async function main() {
     gateway,
     continuation,
     continuationDepth,
+    targetObservation: {
+      source: args.gateway ? 'authenticated-gateway-config-rpc' : 'local-cli-no-gateway',
+      rpcMethod: args.gateway ? 'config.get' : null,
+      binding,
+      bindingValid: bindingErrors.length === 0,
+      bindingErrors,
+    },
     candidate: { sha: candidateSha, valid40Hex },
     seat: {
       name: process.env.OPENCLAW_SEAT_NAME || policy.seat?.defaultName || 'unknown-seat',

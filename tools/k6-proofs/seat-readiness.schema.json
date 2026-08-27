@@ -14,6 +14,7 @@
     "gateway",
     "continuation",
     "continuationDepth",
+    "targetObservation",
     "candidate",
     "seat",
     "session",
@@ -116,13 +117,19 @@
       "additionalProperties": false,
       "required": [
         "url",
+        "urlFingerprint",
         "healthReachable",
         "statusReachable",
+        "configRpc",
         "mode"
       ],
       "properties": {
         "url": {
           "type": "string"
+        },
+        "urlFingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
         },
         "healthReachable": {
           "type": "boolean"
@@ -130,12 +137,66 @@
         "statusReachable": {
           "type": "boolean"
         },
+        "configRpc": {
+          "enum": ["checked", "unavailable", "skipped", "pending"]
+        },
         "mode": {
           "enum": [
             "checked",
             "skipped-no-token",
             "skipped-by-flag"
           ]
+        }
+      }
+    },
+    "targetObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "rpcMethod", "binding", "bindingValid", "bindingErrors"],
+      "properties": {
+        "source": {
+          "enum": ["authenticated-gateway-config-rpc", "local-cli-no-gateway"]
+        },
+        "rpcMethod": {
+          "type": ["string", "null"]
+        },
+        "bindingValid": {
+          "type": "boolean"
+        },
+        "bindingErrors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gatewayUrlFingerprint",
+            "seat",
+            "gatewayUnit",
+            "docsHead",
+            "candidateSha",
+            "runtimeBuildSha",
+            "selectedRows",
+            "requiredMaxSpawnDepth",
+            "expectedMaxSpawnDepth"
+          ],
+          "properties": {
+            "gatewayUrlFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "seat": { "type": "string", "minLength": 1 },
+            "gatewayUnit": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.@:-]*$" },
+            "docsHead": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+            "candidateSha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+            "runtimeBuildSha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+            "selectedRows": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^[A-Z0-9][A-Z0-9._-]*$" },
+              "uniqueItems": true
+            },
+            "requiredMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+            "expectedMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 }
+          }
         }
       }
     },

@@ -56,6 +56,9 @@ test('workflow forwards exact isolated runtime, seat, telemetry, and service ide
   assert.match(workflow, /OPENCLAW_SEAT_CLASS: \$\{\{ inputs\.seat_class \}\}/);
   assert.match(workflow, /OPENCLAW_PROOFS_OTEL_SERVICE_NAME: \$\{\{ inputs\.otel_service_name \}\}/);
   assert.match(workflow, /OPENCLAW_PROOFS_GATEWAY_UNIT: \$\{\{ inputs\.gateway_unit \}\}/);
+  assert.match(workflow, /Host config is an authentication source only/);
+  assert.match(runner, /seat-readiness-preflight\.mjs --json --require-target-binding/);
+  assert.match(runner, /export OPENCLAW_PROOFS_DOCS_REF="\$DOCS_REF"/);
   assert.match(runner, /OPENCLAW_SEAT_NAME="\$\{OPENCLAW_SEAT_NAME:-\$\(hostname\)\}"/);
 });
 

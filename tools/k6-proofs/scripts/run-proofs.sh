@@ -664,6 +664,7 @@ fi
 ROW_SELECTION_JSON="$(printf '%s' "$ROWS" | jq -R 'split(",") | map(ascii_upcase)')"
 IFS=',' read -ra ROW_ARRAY <<< "$ROWS"
 export OPENCLAW_SELECTED_ROWS="$ROWS"
+export OPENCLAW_PROOFS_DOCS_REF="$DOCS_REF"
 echo "Rows: $ROWS"
 
 if [[ "$DRY_RUN" == "false" ]]; then
@@ -789,7 +790,7 @@ SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
 SEAT_READINESS_SHA256=""
 if [[ "$DRY_RUN" == "false" ]]; then
   echo "Running seat-readiness preflight (k6/tooling/gateway/continuation config)..."
-  if ! node scripts/seat-readiness-preflight.mjs --json --rows "$ROWS" > "$SEAT_READINESS_JSON"; then
+  if ! node scripts/seat-readiness-preflight.mjs --json --require-target-binding --rows "$ROWS" > "$SEAT_READINESS_JSON"; then
     echo "SEAT READINESS FAILED: $SEAT_READINESS_JSON" >&2
     jq -r '.outcome as $out | "outcome=\($out) continuation=\(.continuation.enabled) defaults=\(.continuation.defaultsPresent) configuredDepth=\(.continuationDepth.configuredMaxSpawnDepth) effectiveDepth=\(.continuationDepth.effectiveMaxSpawnDepth) requiredDepth=\(.continuationDepth.requiredMaxSpawnDepth) notes=\(.notes|join("; "))"' "$SEAT_READINESS_JSON" >&2 || true
     SEAT_READINESS_DETAIL="$(
@@ -801,6 +802,8 @@ if [[ "$DRY_RUN" == "false" ]]; then
         configuredMaxSpawnDepth:(.continuationDepth.configuredMaxSpawnDepth // null),
         effectiveMaxSpawnDepth:(.continuationDepth.effectiveMaxSpawnDepth // null),
         requiredMaxSpawnDepth:(.continuationDepth.requiredMaxSpawnDepth // null),
+        expectedMaxSpawnDepth:(.continuationDepth.expectedMaxSpawnDepth // null),
+        targetObservation:(.targetObservation // null),
         reason:(.continuationDepth.reason // null),
         receipt:"seat-readiness.json"
       }' "$SEAT_READINESS_JSON" 2>/dev/null ||
@@ -822,8 +825,10 @@ HARNESS_PROVENANCE_JSON="$OUT_ROOT/harness-provenance.json"
 RUNNER_SCRIPT_SHA256="$(sha256sum "$RUNNER_SCRIPT_PATH" | cut -d' ' -f1)"
 RUN_MATRIX_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 SEAT_READINESS_DEPTH_JSON="null"
+SEAT_READINESS_TARGET_JSON="null"
 if [[ -f "$SEAT_READINESS_JSON" ]]; then
   SEAT_READINESS_DEPTH_JSON="$(jq -c '.continuationDepth // null' "$SEAT_READINESS_JSON")"
+  SEAT_READINESS_TARGET_JSON="$(jq -c '.targetObservation // null' "$SEAT_READINESS_JSON")"
 fi
 # A reused artifact root must not let a later matrix overwrite the provenance of
 # rows an earlier one already wrote, so each matrix also keeps an immutable copy
@@ -872,6 +877,7 @@ jq -n \
   --arg startedAt "$RUN_MATRIX_STARTED_AT" \
   --argjson identityVerified "$HARNESS_IDENTITY_VERIFIED" \
   --argjson continuationDepth "$SEAT_READINESS_DEPTH_JSON" \
+  --argjson targetObservation "$SEAT_READINESS_TARGET_JSON" \
   --argjson rowSelection "$(safe_row_selection_json)" \
   --argjson rows "$PROVENANCE_ROWS_JSON" \
   '{
@@ -890,7 +896,8 @@ jq -n \
       candidateMatchesRuntime: ($candidate != "" and $candidate == $runtimeBuildSha),
       seatReadinessReceipt: (if $seatReadinessSha256 == "" then null else "seat-readiness.json" end),
       seatReadinessSha256: (if $seatReadinessSha256 == "" then null else $seatReadinessSha256 end),
-      continuationDepth: $continuationDepth
+      continuationDepth: $continuationDepth,
+      targetObservation: $targetObservation
     },
     runnerScript: $runnerScript,
     runnerScriptSha256: $runnerScriptSha256,

@@ -30,6 +30,29 @@ const run = promisify(execFile);
 const candidateSha = 'a'.repeat(40);
 const HARNESS_INFRA_EXIT = 78;
 
+function websocketFrame(payload) {
+  const body = Buffer.from(JSON.stringify(payload));
+  return body.length < 126
+    ? Buffer.concat([Buffer.from([0x81, body.length]), body])
+    : Buffer.concat([Buffer.from([0x81, 126, body.length >> 8, body.length & 0xff]), body]);
+}
+
+function decodeWebsocketFrame(buffer) {
+  if ((buffer[0] & 0x0f) !== 1) return null;
+  const masked = (buffer[1] & 0x80) !== 0;
+  let length = buffer[1] & 0x7f;
+  let offset = 2;
+  if (length === 126) {
+    length = buffer.readUInt16BE(offset);
+    offset += 2;
+  }
+  const mask = masked ? buffer.subarray(offset, offset + 4) : null;
+  if (masked) offset += 4;
+  const body = Buffer.from(buffer.subarray(offset, offset + length));
+  if (mask) for (let i = 0; i < body.length; i += 1) body[i] ^= mask[i % 4];
+  return JSON.parse(body.toString('utf8'));
+}
+
 async function withRunner(fn, { mutate = null, beforeCommit = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-'));
   const out = path.join(root, 'out');
@@ -426,6 +449,19 @@ async function withApprovedMatrix(fn, {
   k6ShimFor = null,
   openclawShimFor = null,
   envFor = null,
+  targetConfig = {
+    agents: {
+      defaults: {
+        continuation: {
+          enabled: true,
+          maxChainLength: 3,
+          maxDelegatesPerTurn: 3,
+          costCapTokens: 3,
+        },
+        subagents: { maxSpawnDepth: 5 },
+      },
+    },
+  },
 } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
@@ -436,6 +472,30 @@ async function withApprovedMatrix(fn, {
   if (afterCommit) await afterCommit(harness);
 
   const gateway = createServer((req, res) => res.writeHead(req.url.startsWith('/health') || req.url.startsWith('/status') ? 200 : 404).end('{}'));
+  gateway.on('upgrade', (req, socket) => {
+    const accept = createHash('sha1')
+      .update(`${req.headers['sec-websocket-key']}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
+      .digest('base64');
+    socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${accept}\r\n\r\n`);
+    socket.on('data', (data) => {
+      if ((data[0] & 0x0f) === 8) {
+        socket.end();
+        return;
+      }
+      const request = decodeWebsocketFrame(data);
+      if (!request) return;
+      if (request.method === 'connect') {
+        socket.write(websocketFrame({ type: 'res', id: request.id, ok: true, payload: { type: 'hello-ok' } }));
+      } else if (request.method === 'config.get') {
+        socket.write(websocketFrame({
+          type: 'res',
+          id: request.id,
+          ok: true,
+          payload: { config: targetConfig },
+        }));
+      }
+    });
+  });
   await new Promise((resolve) => gateway.listen(0, '127.0.0.1', resolve));
   const gatewayPort = gateway.address().port;
 
@@ -494,48 +554,61 @@ async function withApprovedMatrix(fn, {
   }
 }
 
-test('insufficient nested-row depth fails before scenario dispatch', async () => {
-  await withApprovedMatrix(
-    async (harness) => {
-      const result = await harness.invoke();
-      assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
-      const readiness = JSON.parse(
-        await readFile(path.join(harness.out, 'seat-readiness.json'), 'utf8'),
-      );
-      assert.equal(readiness.outcome, 'PARTIAL-candidate');
-      assert.equal(readiness.continuationDepth.configuredMaxSpawnDepth, null);
-      assert.equal(readiness.continuationDepth.effectiveMaxSpawnDepth, 1);
-      assert.equal(readiness.continuationDepth.requiredMaxSpawnDepth, 2);
-      assert.equal(readiness.continuationDepth.reason, 'effective-depth-insufficient');
-
-      const receipt = JSON.parse(
-        await readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'),
-      );
-      assert.equal(receipt.stage, 'seat-readiness');
-      assert.equal(receipt.rowsExecuted, 0);
-      assert.equal(receipt.rowVerdictsSynthesized, false);
-      assert.equal(receipt.detail.check, 'selected-row-continuation-depth');
-      assert.deepEqual(receipt.detail.selectedRows, [
-        'R-CD-CHAINED-DEPTH-2',
-        'R-CD-TOKEN',
-      ]);
-      await assert.rejects(
-        readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
-        /ENOENT/,
-      );
-    },
+test('unknown or insufficient target depth fails before scenario dispatch despite host depth 5', async (t) => {
+  const continuation = {
+    enabled: true,
+    maxChainLength: 3,
+    maxDelegatesPerTurn: 3,
+    costCapTokens: 3,
+  };
+  for (const fixture of [
+    { name: 'target depth unknown', config: {}, effective: null, reason: 'configured-depth-unknown' },
     {
-      rows: 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN',
-      openclawShimFor: () => '#!/bin/sh\nprintf \'%s\\n\' \'{"continuation":{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}}\'\n',
-      k6ShimFor: (harness) => [
-        '#!/bin/sh',
-        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
-        `printf '%s\\n' dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
-        'exit 0',
-        '',
-      ].join('\n'),
+      name: 'target depth 1',
+      config: { agents: { defaults: { continuation, subagents: { maxSpawnDepth: 1 } } } },
+      effective: 1,
+      reason: 'effective-depth-insufficient',
     },
-  );
+  ]) {
+    await t.test(fixture.name, async () => {
+      await withApprovedMatrix(
+        async (harness) => {
+          const result = await harness.invoke();
+          assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
+          const readiness = JSON.parse(
+            await readFile(path.join(harness.out, 'seat-readiness.json'), 'utf8'),
+          );
+          assert.equal(readiness.outcome, 'PARTIAL-candidate');
+          assert.equal(readiness.continuationDepth.effectiveMaxSpawnDepth, fixture.effective);
+          assert.equal(readiness.continuationDepth.requiredMaxSpawnDepth, 2);
+          assert.equal(readiness.continuationDepth.reason, fixture.reason);
+
+          const receipt = JSON.parse(
+            await readFile(path.join(harness.out, 'harness-control-receipt.json'), 'utf8'),
+          );
+          assert.equal(receipt.stage, 'seat-readiness');
+          assert.equal(receipt.rowsExecuted, 0);
+          assert.equal(receipt.rowVerdictsSynthesized, false);
+          assert.equal(receipt.detail.check, 'selected-row-continuation-depth');
+          await assert.rejects(
+            readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
+            /ENOENT/,
+          );
+        },
+        {
+          rows: 'R-CD-CHAINED-DEPTH-2,R-CD-TOKEN',
+          targetConfig: fixture.config,
+          k6ShimFor: (harness) => [
+            '#!/bin/sh',
+            'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+            `printf '%s\\n' dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
+            'exit 0',
+            '',
+          ].join('\n'),
+        },
+      );
+    });
+  }
 });
 
 test('the catalog preflight log is public-safe: no credentials, no local paths', async () => {
@@ -745,6 +818,11 @@ test('an approved live run freezes the docs ref and records the exact harness di
       assert.equal(provenance.runtimeIdentity.continuationDepth.effectiveMaxSpawnDepth, 5);
       assert.equal(provenance.runtimeIdentity.continuationDepth.requiredMaxSpawnDepth, 1);
       assert.equal(provenance.runtimeIdentity.continuationDepth.sufficient, true);
+      assert.equal(provenance.runtimeIdentity.targetObservation.source, 'authenticated-gateway-config-rpc');
+      assert.equal(provenance.runtimeIdentity.targetObservation.binding.docsHead, harness.docsRef);
+      assert.equal(provenance.runtimeIdentity.targetObservation.binding.candidateSha, candidateSha);
+      assert.equal(provenance.runtimeIdentity.targetObservation.binding.runtimeBuildSha, candidateSha);
+      assert.deepEqual(provenance.runtimeIdentity.targetObservation.binding.selectedRows, ['R-CW-5A']);
       assert.equal(provenance.runnerScript, 'tools/k6-proofs/scripts/run-proofs.sh');
       assert.match(provenance.runnerScriptSha256, /^[a-f0-9]{64}$/);
       assert.equal(provenance.candidateOnly, true);

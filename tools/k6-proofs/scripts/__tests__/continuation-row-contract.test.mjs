@@ -45,8 +45,69 @@ function rcd2Trace({ reasonHash, reasonLength }) {
   };
 }
 
+function websocketFrame(payload) {
+  const body = Buffer.from(JSON.stringify(payload));
+  return body.length < 126
+    ? Buffer.concat([Buffer.from([0x81, body.length]), body])
+    : Buffer.concat([Buffer.from([0x81, 126, body.length >> 8, body.length & 0xff]), body]);
+}
+
+function decodeWebsocketFrame(buffer) {
+  if ((buffer[0] & 0x0f) !== 1) return null;
+  const masked = (buffer[1] & 0x80) !== 0;
+  let length = buffer[1] & 0x7f;
+  let offset = 2;
+  if (length === 126) {
+    length = buffer.readUInt16BE(offset);
+    offset += 2;
+  }
+  const mask = masked ? buffer.subarray(offset, offset + 4) : null;
+  if (masked) offset += 4;
+  const body = Buffer.from(buffer.subarray(offset, offset + length));
+  if (mask) for (let i = 0; i < body.length; i += 1) body[i] ^= mask[i % 4];
+  return JSON.parse(body.toString('utf8'));
+}
+
 async function listen(handler) {
   const server = createServer(handler);
+  server.on('upgrade', (req, socket) => {
+    const accept = createHash('sha1')
+      .update(`${req.headers['sec-websocket-key']}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
+      .digest('base64');
+    socket.write(`HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${accept}\r\n\r\n`);
+    socket.on('data', (data) => {
+      if ((data[0] & 0x0f) === 8) {
+        socket.end();
+        return;
+      }
+      const request = decodeWebsocketFrame(data);
+      if (!request) return;
+      if (request.method === 'connect') {
+        socket.write(websocketFrame({ type: 'res', id: request.id, ok: true, payload: { type: 'hello-ok' } }));
+      } else if (request.method === 'config.get') {
+        socket.write(websocketFrame({
+          type: 'res',
+          id: request.id,
+          ok: true,
+          payload: {
+            config: {
+              agents: {
+                defaults: {
+                  continuation: {
+                    enabled: true,
+                    maxChainLength: 3,
+                    maxDelegatesPerTurn: 3,
+                    costCapTokens: 3,
+                  },
+                  subagents: { maxSpawnDepth: 5 },
+                },
+              },
+            },
+          },
+        }));
+      }
+    });
+  });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const address = server.address();
   return { server, baseUrl: `http://127.0.0.1:${address.port}` };

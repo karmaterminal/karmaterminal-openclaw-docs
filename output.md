@@ -8,7 +8,7 @@
 - Final report-only successor: recorded in the PR and COMPLETE receipt
 - Source corpus tree: `b879c8adc4f284d622b5d388e978928c675f1aeb`
 - Target corpus tree: `4e96989f7cfa2e3398ab5fb2aa929016b414051a`
-- Changed tracked files: 401
+- Reviewed corpus commit: 401 changed files; total PR diff including this report: 402 files
 - PR: https://github.com/karmaterminal/karmaterminal-openclaw-docs/pull/531
 - CI acceptance path: `focused-only` (docs validators; no Mode-B dispatch)
 

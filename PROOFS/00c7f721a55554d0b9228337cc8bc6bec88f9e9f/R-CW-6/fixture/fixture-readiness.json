@@ -1,0 +1,60 @@
+{
+  "schema": "openclaw.project81.r-cw-6.fixture-readiness.v1",
+  "candidateSha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+  "sourceHeadMatchesCandidate": true,
+  "sourceTrackedCleanBefore": true,
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "gatewayStarted": false,
+  "fixtureKind": "disposable-exact-candidate-production-runtime-boundary-plus-dispatch-suite",
+  "dependencyTree": "candidate-worktree-pnpm-install-frozen-lockfile-prefer-offline-ignore-scripts; lockfile/tree/version-aligned; source-node_modules-ignored",
+  "hostToolchainHermetic": false,
+  "candidateLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
+  "installedLockfileSha256": "22a2c6b5dffc59e1a0022da1d4e218c6ad79b0868bddba3e49fc89bb2b022e0e",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
+  "candidatePackageManagerVersion": "11.22.0",
+  "executingPackageManagerVersion": "11.22.0",
+  "installedPackageManager": "pnpm@11.22.0",
+  "installedPackageManagerVersion": "11.22.0",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "maxChainLength": 3,
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

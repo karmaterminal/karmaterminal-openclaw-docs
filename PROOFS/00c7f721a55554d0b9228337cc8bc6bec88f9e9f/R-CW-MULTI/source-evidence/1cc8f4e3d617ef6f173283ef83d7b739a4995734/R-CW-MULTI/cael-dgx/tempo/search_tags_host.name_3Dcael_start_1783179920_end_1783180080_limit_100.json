@@ -1,0 +1,43 @@
+{
+  "traces": [
+    {
+      "traceID": "c2ddbd78808e319cab34d9d2dbdaf9e0",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "continuation.queue.drain",
+      "startTimeUnixNano": "1783179994602000000"
+    },
+    {
+      "traceID": "a092b77d7e8d4700aff41ce336cf7bcf",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "continuation.work.fire",
+      "startTimeUnixNano": "1783179994504000000"
+    },
+    {
+      "traceID": "405af8e0977af27871516d4c67968903",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.model.usage",
+      "startTimeUnixNano": "1783179940874000000",
+      "durationMs": 48574
+    },
+    {
+      "traceID": "ca4470f49bdf6e9a718a6440da312e60",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "continuation.queue.drain",
+      "startTimeUnixNano": "1783179940860000000"
+    },
+    {
+      "traceID": "958e0b039d3d1aa2da887f956f976c0",
+      "rootServiceName": "cael-prince",
+      "rootTraceName": "openclaw.message.processed",
+      "startTimeUnixNano": "1783179940783000000",
+      "durationMs": 48705
+    }
+  ],
+  "metrics": {
+    "inspectedTraces": 120,
+    "inspectedBytes": "826663",
+    "completedJobs": 1,
+    "totalJobs": 1
+  },
+  "transposition": {}
+}

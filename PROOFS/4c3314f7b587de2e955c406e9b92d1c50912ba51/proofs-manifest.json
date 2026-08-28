@@ -129,7 +129,7 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "notes": "Current covenant presentation identity is 4c3314f7. This is a self-contained transposition of the canonical 4f85d997 37-row corpus. Historical live rows remain attributed to runtime composite 37300f29, and historical exact-4737 Mode-B run 32859410821 remains ancestry/materiality evidence only. No live row ran at 4c3314f7. Exact-target Mode-B run 33165923171 is currently in progress and is not row evidence; exact_target_mode_b remains false until terminal evidence is explicitly folded. The active matrix is 32 pass, 4 partial, 1 honest_limit, 0 fail, and 0 missing; it is not acceptance-complete while required rows remain partial.",
+  "notes": "Current covenant presentation identity is 4c3314f7. This is a self-contained transposition of the canonical 4f85d997 37-row corpus. Historical live rows remain attributed to runtime composite 37300f29, and historical exact-4737 Mode-B run 32859410821 remains ancestry/materiality evidence only. No live row ran at 4c3314f7. Exact-target Mode-B run 33165923171 is active separately and is not row evidence; exact_target_mode_b remains false until terminal evidence is explicitly folded. The active matrix is 32 pass, 4 partial, 1 honest_limit, 0 fail, and 0 missing; it is not acceptance-complete while required rows remain partial.",
   "execution": {
     "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
     "pure_ancestor": false,
@@ -2969,7 +2969,7 @@
     "exact_target_mode_b": false,
     "source_mode_b_run": 32859410821,
     "active_exact_target_mode_b_run": 33165923171,
-    "active_exact_target_mode_b_status": "in_progress_not_folded",
+    "active_exact_target_mode_b_status": "active_not_folded",
     "product_ancestry": {
       "accepted_covenant_checkpoint": "c2aef2172949383bbb1606682487370fb13fbac8",
       "first_absorb_ancestor": "c2aef2172949383bbb1606682487370fb13fbac8",
@@ -3052,7 +3052,7 @@
   "target_mode_b": {
     "executed": false,
     "exact_target_mode_b": false,
-    "status": "in_progress_not_folded",
+    "status": "active_not_folded",
     "run": 33165923171,
     "product_sha": "4c3314f7b587de2e955c406e9b92d1c50912ba51",
     "workflow_sha": null,

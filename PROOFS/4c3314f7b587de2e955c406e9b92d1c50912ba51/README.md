@@ -27,7 +27,7 @@ No live row ran at the current target. Historical exact-4737 Mode-B run
 [`32859410821`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/32859410821)
 remains ancestry/materiality evidence only. Exact-target Mode-B run
 [`33165923171`](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/33165923171)
-is currently in progress and is not row evidence. Until terminal evidence is
+is active separately and is not row evidence. Until terminal evidence is
 explicitly folded, `exact_target_mode_b=false`.
 
 ## Verdicts

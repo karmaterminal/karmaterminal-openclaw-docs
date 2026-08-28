@@ -11,7 +11,7 @@
 | Canonical source docs main | `1d023b1b9e48edcb409ddceda8988532ef1efc7d` |
 | Historical live execution composite | `37300f29a7ec1f731575343c2aa73ae25f1d0efb` |
 | Historical exact-source Mode-B | run `32859410821`, product `4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd` |
-| Active exact-target Mode-B | run `33165923171`, in progress and not folded |
+| Active exact-target Mode-B | run `33165923171`, active separately and not folded |
 | Exact-target live execution | **not run** |
 | Exact-target Mode-B evidence | **not folded** |
 

@@ -26,6 +26,6 @@
 - Historical live ingress, continuation, cap-boundary, Tempo, and static
   carried-row evidence retains its original execution identity and checksums.
 - No live proof ran at `4c3314f7`. Exact-target Mode-B run `33165923171` is
-  currently in progress and has not been folded; `exact_target_mode_b=false`.
+  active separately and has not been folded; `exact_target_mode_b=false`.
 - The 32 pass, 4 partial, 1 honest-limit, 0 fail, and 0 missing rollup is not
   acceptance-complete while required rows remain partial.

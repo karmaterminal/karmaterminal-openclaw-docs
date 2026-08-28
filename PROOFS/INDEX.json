@@ -29,7 +29,7 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "disposition_note": "Self-contained covenant ancestry/materiality transposition of the canonical 4f85d997 corpus to PR #129388 candidate 4c3314f7. Retained row states are 32 pass, 4 partial, 1 honest limit, 0 fail, and 0 missing. No exact-target live execution was performed. Exact-target Mode-B run 33165923171 is currently in progress and remains separate from row evidence; exact_target_mode_b is false until terminal evidence is explicitly folded. Historical exact-4737 Mode-B run 32859410821 and runtime composite 37300f29 remain historical evidence only. This is not acceptance-complete while four required rows remain partial.",
+  "disposition_note": "Self-contained covenant ancestry/materiality transposition of the canonical 4f85d997 corpus to PR #129388 candidate 4c3314f7. Retained row states are 32 pass, 4 partial, 1 honest limit, 0 fail, and 0 missing. No exact-target live execution was performed. Exact-target Mode-B run 33165923171 is active separately and remains separate from row evidence; exact_target_mode_b is false until terminal evidence is explicitly folded. Historical exact-4737 Mode-B run 32859410821 and runtime composite 37300f29 remain historical evidence only. This is not acceptance-complete while four required rows remain partial.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-08-28",
   "generated_by": "frond-scribe",
@@ -46,7 +46,7 @@
     "exact_target_mode_b": false,
     "source_mode_b_run": 32859410821,
     "active_exact_target_mode_b_run": 33165923171,
-    "active_exact_target_mode_b_status": "in_progress_not_folded",
+    "active_exact_target_mode_b_status": "active_not_folded",
     "product_ancestry": {
       "accepted_covenant_checkpoint": "c2aef2172949383bbb1606682487370fb13fbac8",
       "first_absorb_ancestor": "c2aef2172949383bbb1606682487370fb13fbac8",

@@ -18,7 +18,7 @@
 | Immediate source-corpus docs commit | `1d023b1b9e48edcb409ddceda8988532ef1efc7d` |
 | Canonical source docs `main` | `1d023b1b9e48edcb409ddceda8988532ef1efc7d` |
 | Exact-target live execution | **not run** |
-| Exact-target Mode-B | run `33165923171` **in progress; not folded** |
+| Exact-target Mode-B | run `33165923171` **active separately; not folded** |
 
 The target is a merge of `f04d8fcf...` and `df905a6c...`.
 `f04d8fcf...` is a merge of accepted covenant checkpoint `c2aef217...` and

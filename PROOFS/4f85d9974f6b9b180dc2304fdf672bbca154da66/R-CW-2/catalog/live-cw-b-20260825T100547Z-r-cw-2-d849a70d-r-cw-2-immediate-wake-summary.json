@@ -1,0 +1,40 @@
+{
+  "row": "R-CW-2",
+  "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+  "seat": "ronan",
+  "timestamp": "2026-08-25T10:06:00.620Z",
+  "verdict": "PASS-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ],
+    "notes": [
+      "No trace_id emitted; keep PASS-candidate review-pending until trace JSON is fetched or trace-missing is explicitly accepted."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "p(90)": 10394,
+      "p(95)": 10394,
+      "avg": 10394,
+      "min": 10394,
+      "med": 10394,
+      "max": 10394
+    },
+    "failures": 0
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

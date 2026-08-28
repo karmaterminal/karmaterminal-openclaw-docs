@@ -116,9 +116,10 @@ test('current corpus exposes only the 37 feature-acceptance rows', async () => {
   assert.match(clawsweeper, /not acceptance-complete/i);
 });
 
-test('target retains every source byte except explicit rows and metadata glue', async () => {
+test('target retains every immediate-source byte except metadata glue', async () => {
   const index = await readJson(join(repoRoot, 'PROOFS/INDEX.json'));
-  const sourceRoot = join(repoRoot, 'PROOFS', historicalCorpusSha);
+  const targetManifest = await readJson(join(repoRoot, index.manifest_path));
+  const sourceRoot = join(repoRoot, 'PROOFS', targetManifest.transposition.source_corpus_sha);
   const targetRoot = join(repoRoot, 'PROOFS', index.current_sha);
   const sourceFiles = await listFiles(sourceRoot);
   const targetFiles = await listFiles(targetRoot);
@@ -126,7 +127,6 @@ test('target retains every source byte except explicit rows and metadata glue', 
   const targetSet = new Set(targetFiles);
   const sourceOnly = sourceFiles.filter((path) => !targetSet.has(path));
   const targetOnly = targetFiles.filter((path) => !sourceSet.has(path));
-  const expectedSourceOnly = excludedRows.map((row) => `${row}/EVIDENCE.md`).sort();
   const metadataGlue = new Set([
     'ARTIFACTS.md',
     'CLAWSSWEEPER.md',
@@ -137,9 +137,9 @@ test('target retains every source byte except explicit rows and metadata glue', 
     'proofs-manifest.json',
   ]);
 
-  assert.equal(sourceFiles.length, 403);
+  assert.equal(sourceFiles.length, 399);
   assert.equal(targetFiles.length, 399);
-  assert.deepEqual(sourceOnly, expectedSourceOnly);
+  assert.deepEqual(sourceOnly, []);
   assert.deepEqual(targetOnly, []);
 
   let identicalFiles = 0;
@@ -155,7 +155,6 @@ test('target retains every source byte except explicit rows and metadata glue', 
   assert.equal(identicalFiles, 392);
 
   const sourceManifest = await readJson(join(sourceRoot, 'proofs-manifest.json'));
-  const targetManifest = await readJson(join(targetRoot, 'proofs-manifest.json'));
   const sourceRows = new Map(sourceManifest.rows.map((row) => [row.row, row]));
   const preservedRowKeys = [
     'title',

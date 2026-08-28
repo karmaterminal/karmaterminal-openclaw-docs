@@ -15,9 +15,10 @@ surface has no local/tracking ref in this docs-only lane.
 
 | Surface | Named ref | Local SHA | Tracking SHA | Server/object SHA | Equality |
 |---|---|---|---|---|---|
-| Product/base ref | `karmaterminal/openclaw:scribe/129388-covenant-upstream-absorb-20260828` | N/A | N/A | `7c100aede1fd9895c0ae3e3837eafc9d98ad6982` | Server safe branch equals the contract-reading checkpoint; final execution SHA is intentionally not frozen. |
+| Product/base ref | `karmaterminal/openclaw:scribe/129388-covenant-upstream-absorb-20260828` | N/A | N/A | `c1ff1b336e472f05c6b0060b3910e53ddf31723c` | Server safe branch advanced after harness construction began; this lane did not freeze or execute it as a final product candidate. |
+| Product contract-reading checkpoint | `karmaterminal/openclaw@7c100aede1fd9895c0ae3e3837eafc9d98ad6982` | N/A | N/A | `7c100aede1fd9895c0ae3e3837eafc9d98ad6982` | Exact immutable object used only to read the recipient-authority contract; no execution credit. |
 | Product absorb input | `openclaw/openclaw@babb2fc7c1363587a4e08266d59772e35a78d1c9` | N/A | N/A | `babb2fc7c1363587a4e08266d59772e35a78d1c9` | Commit object resolves on GitHub; the separate product lane owns its schema-v19 convergence. |
-| Safe lane ref | `codeagent/129388-covenant-authority-proof-harness-20260828` core checkpoint | `b23c7a4b5be675a0552ffed80e4c5600c220b484` | `b23c7a4b5be675a0552ffed80e4c5600c220b484` | `b23c7a4b5be675a0552ffed80e4c5600c220b484` | Local, tracking, and server were equal before this documentation successor. |
+| Safe lane ref | `codeagent/129388-covenant-authority-proof-harness-20260828` reviewed harness tip | `92affa163c0e14f7cd9d1ef76ac19f089d85b503` | `92affa163c0e14f7cd9d1ef76ac19f089d85b503` | `92affa163c0e14f7cd9d1ef76ac19f089d85b503` | Local, tracking, and server were equal before the final report successor. |
 | CI/workflow ref | N/A | N/A | N/A | N/A | Harness construction is focused-only; Mode-B and deployment are out of scope. |
 | Presentation ref | `openclaw/openclaw#129388` reviewed head | N/A | N/A | `00c7f721a55554d0b9228337cc8bc6bec88f9e9f` | Read-only presentation anchor; no body, label, comment, or protected branch mutation. |
 | Docs/proof ref | `karmaterminal/karmaterminal-openclaw-docs@0984dabae218000b20178f4a031e688bdf0584ac` | `0984dabae218000b20178f4a031e688bdf0584ac` | `0984dabae218000b20178f4a031e688bdf0584ac` | `0984dabae218000b20178f4a031e688bdf0584ac` | Lane base and `origin/main` were equal at dispatch. |

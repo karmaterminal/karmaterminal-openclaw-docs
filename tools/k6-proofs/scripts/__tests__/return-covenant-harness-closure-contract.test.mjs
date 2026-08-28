@@ -17,6 +17,7 @@ test('return covenant harness is complete but remains outside proof authority re
     observerSchemaRaw,
     launcher,
     supervisor,
+    mockDriver,
     workflow,
     pipeline,
     indexRaw,
@@ -29,6 +30,7 @@ test('return covenant harness is complete but remains outside proof authority re
     read('contracts/return-covenant-authority/observer.schema.json'),
     read('scripts/launch-return-covenant-driver.mjs'),
     read('scripts/run-return-covenant-sandbox.mjs'),
+    read('tests/fixtures/return-covenant-authority/mock-product-driver.mjs'),
     readFile(path.join(repoRoot, '.github/workflows/k6-proof.yml'), 'utf8'),
     read('k6-proofs-pipeline.xml'),
     readFile(path.join(repoRoot, 'PROOFS/INDEX.json'), 'utf8'),
@@ -48,7 +50,7 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(documentation, /--artifact-dir/);
   assert.match(documentation, /--log-format raw --log-output stdout/);
   assert.match(documentation, /k6-exit-code\.txt/);
-  assert.match(documentation, /b23c7a4b5be675a0552ffed80e4c5600c220b484/);
+  assert.match(documentation, /92affa163c0e14f7cd9d1ef76ac19f089d85b503/);
   assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
   assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
   await assert.rejects(
@@ -104,6 +106,15 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(supervisor, /--config/);
   assert.match(supervisor, /cwd: input\['k6-home'\]/);
   assert.match(launcher, /terminateProcessGroup/);
+  assert.match(
+    launcher,
+    /existing\.listenerFingerprints\.length > 0 &&\s+observation\.listenerFingerprints\.length === 0[\s\S]*?continue;/,
+  );
+  assert.match(launcher, /gateway listener resumed after exit/);
+  assert.match(
+    mockDriver,
+    /gatewayServer\.close\(\(\) => \{\s+setTimeout\(\(\) => process\.exit\(0\), 50\);/,
+  );
   assert.match(launcher, /git'?,?\s*\[\s*'clone'|git[\s\S]*clone/);
   assert.match(launcher, /randomBytes\(32\)/);
   assert.match(launcher, /OPENCLAW_RETURN_COVENANT_PHASE_KEY/);

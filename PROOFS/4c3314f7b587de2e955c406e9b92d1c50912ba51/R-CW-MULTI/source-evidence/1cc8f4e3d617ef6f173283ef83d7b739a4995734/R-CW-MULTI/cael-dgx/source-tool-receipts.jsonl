@@ -1,0 +1,3 @@
+{"reason":"RCW_MULTI_BCA2B0B_CAEL_20260704_0846_A typed multi-continue_work proof election A; expected distinct wake marker A_WAKE if fan-out works","delaySeconds":5,"receipt":{"status":"scheduled","delaySeconds":5}}
+{"reason":"RCW_MULTI_BCA2B0B_CAEL_20260704_0846_B typed multi-continue_work proof election B; expected distinct wake marker B_WAKE if fan-out works","delaySeconds":10,"receipt":{"status":"scheduled","delaySeconds":10}}
+{"reason":"RCW_MULTI_BCA2B0B_CAEL_20260704_0846_C typed multi-continue_work proof election C; expected distinct wake marker C_WAKE if fan-out works","delaySeconds":15,"receipt":{"status":"scheduled","delaySeconds":15}}

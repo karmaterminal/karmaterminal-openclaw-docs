@@ -1,0 +1,71 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "docsRef": "19b095ef0d356c6d68985ea26bc1bd958f53f144"
+  },
+  "harness": {
+    "docsRef": "19b095ef0d356c6d68985ea26bc1bd958f53f144",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cw-1.json",
+    "manifestSha256": "af301b22552060aea8a4a8422d067b5e32f91ce255eff8fbe2282b0d15d93652",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cw-1-tool-schedule-wake.js",
+    "scenarioSha256": "a511f5815c9dffe1baf1d14d1a04612bcc3f86c7b0ecb0b4a2659cf39880c2f5",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260825T100515Z-r-cw-1-d849a70d",
+    "rowId": "R-CW-1",
+    "seat": "ronan",
+    "scenario": "r-cw-1-tool-schedule-wake",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cw-1-tool-schedule-wake-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-a9b36f220526.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

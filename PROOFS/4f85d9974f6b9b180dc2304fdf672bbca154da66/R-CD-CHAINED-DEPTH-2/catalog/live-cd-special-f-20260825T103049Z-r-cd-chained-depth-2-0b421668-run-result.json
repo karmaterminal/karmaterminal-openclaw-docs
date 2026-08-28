@@ -1,0 +1,61 @@
+{
+  "k6ExitCode": 99,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 99,
+  "endedAt": "2026-08-25T10:33:23Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-cd-chained-depth-2-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CD-CHAINED-DEPTH-2",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "started": "2026-08-25T10:30:52.855Z",
+    "parent_dispatch_accepted": true,
+    "child_spawned": true,
+    "grandchild_spawned": true,
+    "child_done_sentinel": true,
+    "grandchild_done_sentinel": true,
+    "chain_return_received": false,
+    "root_return_candidate": null,
+    "root_return_receipt": null,
+    "dispatch_accepted_at_ms": 1787653853838,
+    "max_depth_observed": 2,
+    "reason_hash": "ab7ee765a80f3c57",
+    "reason_length": 441,
+    "delegate_mode": "silent-wake",
+    "trace_id": null,
+    "ended": "2026-08-25T10:33:23.256Z",
+    "duration_ms": 150401
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "a4eaad5252c1ca22baa87499a5f5269b",
+    "tempoTraceJson": "tempo-trace-a4eaad5252c1.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

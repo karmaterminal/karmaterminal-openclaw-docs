@@ -1,0 +1,54 @@
+[
+  {
+    "flow_id": "d51b62a0-70de-4917-b226-619d233faeb8",
+    "owner_key": "agent:main:discord:channel:1466192485440164011",
+    "chain_id": null,
+    "controller_id": null,
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783196149595,
+    "updated_at": 1783196155408,
+    "ended_at": 1783196155408,
+    "state": null
+  },
+  {
+    "flow_id": "042699b1-5138-486c-a41c-7be8fa59f99f",
+    "owner_key": "agent:main:subagent:a10dc300-825c-44d5-8edf-94e19d3c29f9",
+    "chain_id": null,
+    "controller_id": "core/continuation-delegate",
+    "status": "succeeded",
+    "current_step": "Accepted by continuation subagent",
+    "created_at": 1783196152761,
+    "updated_at": 1783196160046,
+    "ended_at": 1783196160046,
+    "state": {
+      "kind": "continuation_delegate",
+      "task": "C leaf for R-CD-COLLECTION-ON-COLLAPSE final missing row live fire. Do not call any tools. Return the exact C sentinel: RCD_COLLECTION_BCA2B0B_CAEL_20260704_1316_C_REACHED_AFTER_B_FINAL, plus your session key/run id if visible.",
+      "delayMs": 7000,
+      "firstArmedAt": 1783196152761,
+      "fanoutMode": "tree",
+      "traceparent": "00-ecda443e0038fb9a38fc33a8b98d7d02-a003e1637047d678-01",
+      "releasedAt": 1783196159763,
+      "persistedChainState": {
+        "currentChainCount": 1,
+        "chainStartedAt": 1783196155662,
+        "accumulatedChainTokens": 0,
+        "chainId": "2e2251dd-2a8b-49ac-a5db-b1c950caa467"
+      },
+      "persistedChainStateKind": "advanced",
+      "childSessionKey": "agent:main:subagent:continuation-36a7f4834cf27002824bb6b0329ece4b"
+    }
+  },
+  {
+    "flow_id": "879b7c3c-5211-4187-9639-910088b40938",
+    "owner_key": "agent:main:subagent:a10dc300-825c-44d5-8edf-94e19d3c29f9",
+    "chain_id": null,
+    "controller_id": null,
+    "status": "succeeded",
+    "current_step": null,
+    "created_at": 1783196159896,
+    "updated_at": 1783196163634,
+    "ended_at": 1783196163634,
+    "state": null
+  }
+]

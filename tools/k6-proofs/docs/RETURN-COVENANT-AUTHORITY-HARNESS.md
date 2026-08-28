@@ -260,9 +260,12 @@ The phase order is fixed:
    final isolated gateway's resource-inspection endpoint. The request names the
    exact 24 case/form/handle set and asks independently for continuation
    delegates, continuation queue items, and temporary sessions with a
-   one-over-limit page size. The private evidence binds the unmodified response
-   bytes, SHA-256, byte length, HTTP identity, wall/monotonic timing, product
-   and runtime SHAs, run ID, and final gateway namespace PID/start identity.
+   one-over-limit page size. Redirects are disabled and the response URL must
+   remain the exact final-gateway inspection URL. The private evidence binds
+   the unmodified response bytes, SHA-256, byte length, HTTP identity,
+   wall/monotonic timing, product and runtime SHAs, run ID, and final gateway
+   namespace PID/start identity. Launcher-owned `/proc` samples must bracket
+   that observation while the same PID/start/socket is still listening.
    Only then is the evidence line emitted. k6 teardown returns the same
    idempotent cleanup-run receipt and destroys the isolated runtime.
 

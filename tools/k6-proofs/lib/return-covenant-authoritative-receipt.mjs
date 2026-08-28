@@ -1231,7 +1231,18 @@ export function validateReturnCovenantRetentionObservation({
     finalGateway?.namespaceStartFingerprint !==
       target?.namespaceStartFingerprint ||
     !finalGateway?.endpoints?.includes(target?.endpoint) ||
-    !HEX_64.test(finalGateway?.socketFingerprint || '')
+    !HEX_64.test(finalGateway?.socketFingerprint || '') ||
+    !validTimestamp(finalGateway?.firstSeenAt) ||
+    !validTimestamp(finalGateway?.lastSeenAt) ||
+    Date.parse(finalGateway.firstSeenAt) > Date.parse(timing?.requestedAt || '') ||
+    Date.parse(finalGateway.lastSeenAt) < Date.parse(timing?.observedAt || '') ||
+    (
+      finalGateway?.exitedAt !== null &&
+      (
+        !validTimestamp(finalGateway.exitedAt) ||
+        Date.parse(finalGateway.exitedAt) < Date.parse(timing?.observedAt || '')
+      )
+    )
   ) {
     addError(
       errors,
@@ -1246,12 +1257,15 @@ export function validateReturnCovenantRetentionObservation({
   if (
     !exactKeys(response, [
       'status',
+      'url',
       'contentType',
       'body',
       'bodySha256',
       'byteLength',
     ]) ||
     response?.status !== 200 ||
+    response?.url !==
+      `${target?.endpoint}/v1/return-covenant/resource-inspection` ||
     !/^application\/json(?:;|$)/iu.test(response?.contentType || '') ||
     typeof response?.body !== 'string' ||
     response.body.length === 0 ||
@@ -1963,6 +1977,11 @@ export function validateReturnCovenantCleanup({
       !Number.isFinite(entry?.exitedAtMonotonicMs) ||
       entry.firstSeenMonotonicMs > entry.lastSeenMonotonicMs ||
       entry.lastSeenMonotonicMs > entry.exitedAtMonotonicMs ||
+      !validTimestamp(entry?.firstSeenAt) ||
+      !validTimestamp(entry?.lastSeenAt) ||
+      !validTimestamp(entry?.exitedAt) ||
+      Date.parse(entry.firstSeenAt) > Date.parse(entry.lastSeenAt) ||
+      Date.parse(entry.lastSeenAt) > Date.parse(entry.exitedAt) ||
       entry?.retainedAtCleanup !== false ||
       entry?.verified !== true) ||
     new Set(gatewayListenerFingerprints).size !==

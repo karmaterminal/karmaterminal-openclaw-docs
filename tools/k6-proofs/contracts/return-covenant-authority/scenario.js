@@ -236,6 +236,7 @@ function observeResourceRetention({ evidence, target }) {
             Authorization: `Bearer ${gatewayToken}`,
             'Content-Type': 'application/json',
           },
+          redirects: 0,
           timeout: '5s',
         },
       );
@@ -249,7 +250,9 @@ function observeResourceRetention({ evidence, target }) {
     }
   }
   const observedAt = new Date().toISOString();
+  const observedAtMonotonicMs = exec.instance.currentTestRunDuration;
   const body = typeof response?.body === 'string' ? response.body : '';
+  sleep(0.25);
   return {
     schema: RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA,
     status: failureReason === null
@@ -262,10 +265,11 @@ function observeResourceRetention({ evidence, target }) {
       requestedAt,
       observedAt,
       requestedAtMonotonicMs,
-      observedAtMonotonicMs: exec.instance.currentTestRunDuration,
+      observedAtMonotonicMs,
     },
     response: {
       status: Number.isInteger(response?.status) ? response.status : null,
+      url: typeof response?.url === 'string' ? response.url : null,
       contentType:
         typeof response?.headers?.['Content-Type'] === 'string'
           ? response.headers['Content-Type']

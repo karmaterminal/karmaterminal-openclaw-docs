@@ -1018,6 +1018,7 @@ async function main() {
     const initialGatewayKey =
       `${ready.gatewayPid}:${attestation.gateway.startFingerprint}`;
     const initialSampleAt = performance.now();
+    const initialSampleWall = new Date().toISOString();
     const observedGateways = new Map([[
       initialGatewayKey,
       {
@@ -1034,6 +1035,9 @@ async function main() {
         firstSeenMonotonicMs: initialSampleAt,
         lastSeenMonotonicMs: initialSampleAt,
         exitedAtMonotonicMs: null,
+        firstSeenAt: initialSampleWall,
+        lastSeenAt: initialSampleWall,
+        exitedAt: null,
       },
     ]]);
     monitorPromise = (async () => {
@@ -1041,6 +1045,7 @@ async function main() {
         const members = await sandboxProcessMembers(child.pid);
         const memberSet = new Set(members);
         const exitObservedAt = performance.now();
+        const exitObservedWall = new Date().toISOString();
         for (const [key, observation] of observedGateways) {
           if (
             observation.exitedAtMonotonicMs === null &&
@@ -1049,6 +1054,7 @@ async function main() {
             observedGateways.set(key, {
               ...observation,
               exitedAtMonotonicMs: exitObservedAt,
+              exitedAt: exitObservedWall,
             });
           }
         }
@@ -1072,6 +1078,7 @@ async function main() {
             const key = `${observation.pid}:${observation.startFingerprint}`;
             const existing = observedGateways.get(key);
             const firstSeenAt = performance.now();
+            const firstSeenWall = new Date().toISOString();
             for (const [priorKey, prior] of observedGateways) {
               if (
                 prior.pid === observation.pid &&
@@ -1081,6 +1088,7 @@ async function main() {
                 observedGateways.set(priorKey, {
                   ...prior,
                   exitedAtMonotonicMs: exitObservedAt,
+                  exitedAt: exitObservedWall,
                 });
               }
             }
@@ -1154,6 +1162,9 @@ async function main() {
                 existing?.firstSeenMonotonicMs ?? firstSeenAt,
               lastSeenMonotonicMs: firstSeenAt,
               exitedAtMonotonicMs: null,
+              firstSeenAt: existing?.firstSeenAt ?? firstSeenWall,
+              lastSeenAt: firstSeenWall,
+              exitedAt: null,
               verificationSource:
                 existing?.verificationSource === 'direct-environ'
                   ? 'direct-environ'
@@ -1232,6 +1243,7 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 50));
     const unexpectedGroupMembers = await processGroupMembers(child.pid);
     const finalGatewaySampleAt = performance.now();
+    const finalGatewaySampleWall = new Date().toISOString();
     const gatewayLifecycle = [];
     const retainedGatewayPids = new Set();
     const knownGatewayPids = new Set();
@@ -1249,6 +1261,9 @@ async function main() {
         exitedAtMonotonicMs: retainedAtCleanup
           ? null
           : observation.exitedAtMonotonicMs ?? finalGatewaySampleAt,
+        exitedAt: retainedAtCleanup
+          ? null
+          : observation.exitedAt ?? finalGatewaySampleWall,
         retainedAtCleanup,
       });
     }

@@ -179,6 +179,9 @@
           "firstSeenMonotonicMs",
           "lastSeenMonotonicMs",
           "exitedAtMonotonicMs",
+          "firstSeenAt",
+          "lastSeenAt",
+          "exitedAt",
           "retainedAtCleanup"
         ],
         "properties": {
@@ -211,6 +214,16 @@
           "exitedAtMonotonicMs": {
             "type": ["number", "null"],
             "minimum": 0
+          },
+          "firstSeenAt": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "lastSeenAt": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "exitedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "retainedAtCleanup": { "type": "boolean" }
         }
@@ -252,6 +265,11 @@
     "retainedCount": {
       "type": ["integer", "null"],
       "minimum": 0
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
     }
   }
 }

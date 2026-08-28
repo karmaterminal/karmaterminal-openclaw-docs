@@ -148,6 +148,7 @@
       "additionalProperties": false,
       "required": [
         "status",
+        "url",
         "contentType",
         "body",
         "bodySha256",
@@ -158,6 +159,10 @@
           "type": ["integer", "null"],
           "minimum": 100,
           "maximum": 599
+        },
+        "url": {
+          "type": ["string", "null"],
+          "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?/v1/return-covenant/resource-inspection$"
         },
         "contentType": {
           "type": ["string", "null"]

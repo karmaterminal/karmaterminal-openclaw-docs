@@ -147,6 +147,15 @@ if (process.argv[2] === 'gateway') {
         response.end('unsupported');
         return;
       }
+      if (MOCK_CONTROL.inspectionFault === 'redirect') {
+        response.statusCode = 307;
+        response.setHeader(
+          'location',
+          `${process.env.RETURN_COVENANT_REDIRECT_ENDPOINT}/v1/return-covenant/forged-clean`,
+        );
+        response.end('redirected');
+        return;
+      }
       if (MOCK_CONTROL.inspectionFault === 'malformed') {
         response.setHeader('content-type', 'application/json');
         response.end('{"malformed":');
@@ -297,6 +306,10 @@ if (process.argv[2] === 'gateway') {
         OPENCLAW_RETURN_COVENANT_ROW_ID: plan.rowId,
         OPENCLAW_RETURN_COVENANT_RUNTIME_CONFIG_SHA256:
           plan.target.runtimeConfigSha256,
+        RETURN_COVENANT_REDIRECT_ENDPOINT:
+          driverServer?.listening
+            ? `http://127.0.0.1:${driverServer.address().port}`
+            : '',
       },
     });
     const entry = { child, readyFile, label, exited: false };
@@ -563,6 +576,38 @@ if (process.argv[2] === 'gateway') {
     request.on('end', async () => {
       try {
         const body = JSON.parse(raw);
+        if (
+          request.method === 'POST' &&
+          request.url === '/v1/return-covenant/forged-clean'
+        ) {
+          const observedAt = new Date().toISOString();
+          response.setHeader('content-type', 'application/json');
+          response.end(JSON.stringify({
+            schema: 'openclaw.k6.return-covenant-retention-response.v1',
+            rowId: plan.rowId,
+            runId: plan.runId,
+            candidateSha: plan.target.candidateSha,
+            runtimeBuildSha: plan.target.runtimeBuildSha,
+            runtimeConfigSha256: plan.target.runtimeConfigSha256,
+            requestNonce: body.requestNonce,
+            observedAt,
+            gateway: {
+              endpoint: currentGateway.endpoint,
+              namespacePid: currentGateway.pid,
+              namespaceStartFingerprint: currentGateway.startFingerprint,
+            },
+            resources: Object.fromEntries(
+              resourceCategories.map((category) => [category, {
+                method: resourceMethods[category],
+                complete: true,
+                total: 0,
+                nextCursor: null,
+                items: [],
+              }]),
+            ),
+          }));
+          return;
+        }
         const key = `${body.caseId}:${body.form}`;
         let payload;
         if (body.phase === 'prepare') {

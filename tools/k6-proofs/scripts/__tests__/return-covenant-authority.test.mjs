@@ -580,6 +580,7 @@ function retentionObservationFor({
     },
     response: {
       status: 200,
+      url: `${finalRestart.replacementGatewayEndpoint}/v1/return-covenant/resource-inspection`,
       contentType: 'application/json',
       body,
       bodySha256: sha256(body),
@@ -608,6 +609,7 @@ function makeRetentionUnavailable(evidence, reason = 'resource-inspection-unsupp
     failureReason: reason,
     response: {
       status: 404,
+      url: evidence.retentionObservation.response.url,
       contentType: 'text/plain',
       body,
       bodySha256: sha256(body),
@@ -790,13 +792,35 @@ function bindCleanup(cleanup, evidence, driverAttestation, plan) {
         ],
         verificationSource: 'namespace-inherited',
       })),
-  ].map((entry, index) => ({
-    ...entry,
-    firstSeenMonotonicMs: index * 10,
-    lastSeenMonotonicMs: index * 10 + 5,
-    exitedAtMonotonicMs: index * 10 + 9,
-    retainedAtCleanup: false,
-  }));
+  ].map((entry, index) => {
+    const walls = [
+      [
+        '2026-08-28T12:00:00.000Z',
+        '2026-08-28T12:03:00.000Z',
+        '2026-08-28T12:03:01.000Z',
+      ],
+      [
+        '2026-08-28T12:03:02.000Z',
+        '2026-08-28T12:08:00.000Z',
+        '2026-08-28T12:08:01.000Z',
+      ],
+      [
+        '2026-08-28T12:08:02.000Z',
+        '2026-08-28T12:09:30.500Z',
+        '2026-08-28T12:09:31.000Z',
+      ],
+    ][index];
+    return {
+      ...entry,
+      firstSeenMonotonicMs: index * 10,
+      lastSeenMonotonicMs: index * 10 + 5,
+      exitedAtMonotonicMs: index * 10 + 9,
+      firstSeenAt: walls[0],
+      lastSeenAt: walls[1],
+      exitedAt: walls[2],
+      retainedAtCleanup: false,
+    };
+  });
   const closure = deriveReturnCovenantCaseHandleClosure({
     plan,
     evidence,
@@ -1507,6 +1531,10 @@ test('stale or mismatched retention identity cannot be signed as PASS', async (t
       evidence,
       (response) => { response.observedAt = '2000-01-01T00:00:00.000Z'; },
     ),
+    'response-url': (evidence) => {
+      evidence.retentionObservation.response.url =
+        'http://127.0.0.1:18790/v1/return-covenant/resource-inspection';
+    },
   };
   for (const [name, mutate] of Object.entries(controls)) {
     await t.test(name, async () => {
@@ -2555,6 +2583,36 @@ for (const category of Object.keys(retentionResourceMethods)) {
       }
   });
 }
+
+test('trusted launcher rejects retention inspection redirected off gateway socket', async () => {
+  const result = await runTrustedLauncherFixture((source) =>
+    source
+      .replace('retainedResource: null', "retainedResource: 'delegates'")
+      .replace('inspectionFault: null', "inspectionFault: 'redirect'")
+      .replace('candidateClaimsClean: false', 'candidateClaimsClean: true'));
+  try {
+    assert.equal(result.launcherExitCode, 1);
+    assert.equal(result.candidateDiagnostic.claims.retained.delegates, 0);
+    assert.equal(
+      result.cleanup.resourceObservation.status,
+      'unverified-resource-retention',
+    );
+    assert.equal(result.cleanup.retained.delegates, null);
+    assert.equal(result.receipt.verdict, 'FAIL-candidate');
+    assert.ok(
+      result.receipt.failureCategories.includes(
+        'unverified-resource-retention',
+      ),
+    );
+    assert.equal(result.evidence.retentionObservation.response.status, 307);
+    assert.equal(
+      result.evidence.retentionObservation.response.url,
+      `${result.evidence.retentionObservation.target.endpoint}/v1/return-covenant/resource-inspection`,
+    );
+  } finally {
+    await result.dispose();
+  }
+});
 
 test('trusted launcher rejects candidate command symlinks before execution', async () => {
   const sourceDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-symlink-source-'));

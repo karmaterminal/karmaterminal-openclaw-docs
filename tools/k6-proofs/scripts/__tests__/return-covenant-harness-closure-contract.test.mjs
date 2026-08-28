@@ -161,6 +161,9 @@ test('return covenant harness is complete but remains outside proof authority re
     scenario,
     /\/v1\/return-covenant\/resource-inspection/,
   );
+  assert.match(scenario, /redirects:\s*0/);
+  assert.match(observer, /response\?\.url/);
+  assert.match(observer, /finalGateway\.lastSeenAt/);
   assert.match(scenario, /notBefore/);
   assert.match(scenario, /driverBinding/);
   assert.equal(

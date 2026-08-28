@@ -24,22 +24,28 @@
     },
     "runId": {
       "type": "string",
-      "minLength": 8
+      "pattern": "^rcv-[0-9a-f]{32}$"
     },
     "target": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["candidateSha", "runtimeBuildSha", "docsHarnessSha"],
+      "required": [
+        "candidateSha",
+        "runtimeBuildSha",
+        "docsHarnessSha",
+        "runtimeConfigSha256"
+      ],
       "properties": {
         "candidateSha": { "$ref": "#/$defs/sha" },
         "runtimeBuildSha": { "$ref": "#/$defs/sha" },
-        "docsHarnessSha": { "$ref": "#/$defs/sha" }
+        "docsHarnessSha": { "$ref": "#/$defs/sha" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" }
       }
     },
     "driver": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema", "ownership", "fixtureCommand"],
+      "required": ["schema", "ownership", "fixtureCommand", "gatewayCommand"],
       "properties": {
         "schema": {
           "const": "openclaw.k6.return-covenant-fixture-driver.v1"
@@ -56,6 +62,10 @@
             "relativePath": {
               "type": "string",
               "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
             }
           },
           "allOf": [
@@ -63,16 +73,28 @@
               "if": {
                 "properties": { "status": { "const": "available" } }
               },
-              "then": { "required": ["relativePath"] }
+              "then": { "required": ["relativePath", "sha256"] }
             }
           ]
+        },
+        "gatewayCommand": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["relativePath", "sha256", "args"],
+          "properties": {
+            "relativePath": { "type": "string", "minLength": 1 },
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "args": {
+              "const": ["gateway"]
+            }
+          }
         }
       }
     },
     "settlementWindowMs": {
       "type": "integer",
       "minimum": 1000,
-      "maximum": 120000
+      "maximum": 30000
     },
     "isolation": {
       "type": "object",
@@ -87,7 +109,7 @@
     },
     "syntheticChannelKey": {
       "type": "string",
-      "minLength": 8
+      "pattern": "^synthetic:proof:rcv-[0-9a-f]{32}:channel$"
     },
     "cases": {
       "type": "array",
@@ -100,6 +122,10 @@
     "sha": {
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
     },
     "effects": {
       "type": "object",
@@ -162,7 +188,10 @@
         "returnMode": {
           "enum": ["normal", "silent", "silent-wake", "post-compaction"]
         },
-        "logicalSessionKey": { "type": "string", "minLength": 8 },
+        "logicalSessionKey": {
+          "type": "string",
+          "pattern": "^agent:proof:rcv-[0-9a-f]{32}:[a-z0-9-]+$"
+        },
         "databaseProfile": {
           "enum": [
             "fresh-v19",
@@ -176,7 +205,11 @@
           "minItems": 2,
           "maxItems": 2,
           "uniqueItems": true,
-          "items": { "enum": ["typed-tool", "bracket-token"] }
+          "prefixItems": [
+            { "const": "typed-tool" },
+            { "const": "bracket-token" }
+          ],
+          "items": false
         },
         "expectedEffects": {
           "type": "object",

@@ -1,17 +1,19 @@
 {
   "schema": "openclaw.k6.return-covenant-observation.v1",
   "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
-  "runId": "return-covenant-fixture-run-001",
+  "runId": "rcv-00000000000000000000000000000001",
   "caseId": "forbidden-delete-recreate",
   "form": "typed-tool",
   "kind": "forbidden",
   "candidateSha": "1111111111111111111111111111111111111111",
   "runtimeBuildSha": "1111111111111111111111111111111111111111",
   "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
   "startedAt": "2026-08-28T12:01:00.000Z",
   "endedAt": "2026-08-28T12:01:06.000Z",
   "returnMode": "normal",
-  "logicalSessionKey": "agent:proof:forbidden-delete-recreate",
+  "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:forbidden-delete-recreate",
+  "caseHandle": "case-handle-forbidden-delete",
   "database": {
     "profile": "idempotent-v19-reopen",
     "sourceSchemaVersion": 19,
@@ -30,11 +32,22 @@
     "syntheticData": true
   },
   "dispatch": {
+    "caseHandle": "case-handle-forbidden-delete",
+    "prepareReceiptId": "fixture-receipt-forbidden-delete",
     "accepted": true,
     "completionHeld": true,
     "receiptId": "dispatch-receipt-forbidden-delete",
     "heldResultId": "held-result-forbidden-delete",
-    "capturedAuthorityGeneration": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    "capturedAuthorityGeneration": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "resultMarker": "RCV-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "originEvidence": {
+      "source": "product-owned",
+      "observedForm": "typed-tool",
+      "receiptId": "origin-receipt-forbidden-delete",
+      "typedToolExecutions": 1,
+      "bracketParses": 0,
+      "rawFinalText": false
+    }
   },
   "lifecycle": {
     "edge": "explicit-delete-recreate",
@@ -44,8 +57,15 @@
     "postSessionId": "session-after-forbidden-delete",
     "successorIdentity": "successor-forbidden-delete",
     "receiptId": "lifecycle-receipt-forbidden-delete",
+    "acceptedDispatchReceiptId": "dispatch-receipt-forbidden-delete",
     "generationAdvanced": true,
-    "effectiveAuthorityUnchanged": false
+    "effectiveAuthorityUnchanged": false,
+    "operations": {
+      "deletionObserved": true,
+      "deletionReceiptId": "delete-operation-receipt-forbidden-delete",
+      "recreationObserved": true,
+      "recreationReceiptId": "recreate-operation-receipt-forbidden-delete"
+    }
   },
   "authorityDiagnostic": {
     "source": "product-owned",
@@ -56,6 +76,9 @@
   "delivery": {
     "acceptedDispatchReceiptId": "dispatch-receipt-forbidden-delete",
     "heldResultAuthorityGeneration": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "caseHandle": "case-handle-forbidden-delete",
+    "transitionReceiptId": "lifecycle-receipt-forbidden-delete",
+    "releaseReceiptId": "release-receipt-forbidden-delete",
     "resultReleased": true,
     "admission": "stale",
     "queue": {
@@ -87,11 +110,26 @@
   "settlement": {
     "bounded": true,
     "complete": true,
-    "windowMs": 5000
+    "windowMs": 5000,
+    "releasedAt": "2026-08-28T12:01:00.500Z",
+    "scansCompletedAt": "2026-08-28T12:01:05.500Z",
+    "elapsedMs": 5000,
+    "monotonicElapsedMs": 5000
   },
   "scans": {
-    "successorTranscriptMatches": 0,
-    "trustedSystemEventMatches": 0
+    "resultMarker": "RCV-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "successorTranscript": {
+      "source": "product-owned",
+      "marker": "RCV-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "matches": 0,
+      "receiptId": "transcript-scan-receipt-forbidden-delete"
+    },
+    "trustedSystemEvents": {
+      "source": "product-owned",
+      "marker": "RCV-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "matches": 0,
+      "receiptId": "system-event-scan-receipt-forbidden-delete"
+    }
   },
-  "resultMarker": "RETURN-COVENANT-FORBIDDEN-DELETE-RESULT"
+  "resultMarker": "RCV-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }

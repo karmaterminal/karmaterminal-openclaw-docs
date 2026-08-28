@@ -1,9 +1,10 @@
 {
   "schema": "openclaw.k6.return-covenant-cleanup.v1",
   "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
-  "runId": "return-covenant-fixture-run-001",
+  "runId": "rcv-00000000000000000000000000000001",
   "candidateSha": "1111111111111111111111111111111111111111",
   "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
   "startedAt": "2026-08-28T12:10:00.000Z",
   "endedAt": "2026-08-28T12:10:01.000Z",
   "retained": {
@@ -18,5 +19,26 @@
   "configRemoved": true,
   "fixtureProcessStopped": false,
   "gatewayProcessStopped": true,
-  "allCaseHandlesClosed": false
+  "allCaseHandlesClosed": false,
+  "caseHandles": [],
+  "observationSetSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "phaseChainSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "driverAttestationSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "runCleanupReceiptId": "run-cleanup-receipt-failure",
+  "snapshotMatchedCandidateAfterRun": false,
+  "runRootRemoved": false,
+  "driverExitCode": 1,
+  "processGroupEmpty": false,
+  "unexpectedProcessGroupMembers": 1,
+  "gatewayLifecycle": [],
+  "k6": {
+    "version": "k6 v2.0.0",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "pathFingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "isolationFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "launcherIntegrity": {
+    "algorithm": "hmac-sha256-launch-key-v1",
+    "signature": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
 }

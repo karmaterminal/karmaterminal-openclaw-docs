@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/driver-attestation.schema.json",
+  "title": "Verified return covenant driver attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "runId",
+    "rowId",
+    "candidateSha",
+    "runtimeBuildSha",
+    "docsHarnessSha",
+    "runtimeConfigSha256",
+    "endpoint",
+    "command",
+    "gatewayCommand",
+    "source",
+    "process",
+    "gateway",
+    "revocationCapability",
+    "readyReceiptSha256",
+    "launchNonceFingerprint",
+    "attestationSha256",
+    "phaseChallenge",
+    "phaseSigningKey",
+    "phaseKeyFingerprint",
+    "launcher",
+    "isolation"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-driver-attestation.v1"
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^rcv-[0-9a-f]{32}$"
+    },
+    "rowId": { "const": "R-CD-RETURN-COVENANT-AUTHORITY" },
+    "candidateSha": { "$ref": "#/$defs/sha40" },
+    "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+    "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+    "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+    "endpoint": {
+      "type": "string",
+      "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relativePath",
+        "sha256",
+        "gitBlob",
+        "trackedAtCandidate",
+        "workingTreeMatchesCandidate"
+      ],
+      "properties": {
+        "relativePath": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "gitBlob": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "trackedAtCandidate": { "const": true },
+        "workingTreeMatchesCandidate": { "const": true }
+      }
+    },
+    "gatewayCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relativePath",
+        "sha256",
+        "gitBlob",
+        "args",
+        "trackedAtCandidate",
+        "workingTreeMatchesCandidate"
+      ],
+      "properties": {
+        "relativePath": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "gitBlob": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "args": {
+          "const": ["gateway"]
+        },
+        "trackedAtCandidate": { "const": true },
+        "workingTreeMatchesCandidate": { "const": true }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "headSha",
+        "docsHeadSha",
+        "trackedWorktreeClean",
+        "docsHarnessClean"
+      ],
+      "properties": {
+        "headSha": { "$ref": "#/$defs/sha40" },
+        "docsHeadSha": { "$ref": "#/$defs/sha40" },
+        "trackedWorktreeClean": { "const": true },
+        "docsHarnessClean": { "const": true }
+      }
+    },
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commandContainsVerifiedDriver",
+        "endpointOwnedByVerifiedProcess",
+        "commandLineFingerprint",
+        "startFingerprint",
+        "endpointSocketFingerprint"
+        ,
+        "listenerFingerprints"
+      ],
+      "properties": {
+        "commandContainsVerifiedDriver": { "const": true },
+        "endpointOwnedByVerifiedProcess": { "const": true },
+        "commandLineFingerprint": { "$ref": "#/$defs/sha256" },
+        "startFingerprint": { "$ref": "#/$defs/sha256" },
+        "endpointSocketFingerprint": { "$ref": "#/$defs/sha256" }
+        ,
+        "listenerFingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    },
+    "gateway": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processBound",
+        "commandLineFingerprint",
+        "startFingerprint",
+        "runtimeBuildSha",
+        "runtimeConfigSha256",
+        "configPathFingerprint",
+        "endpoint",
+        "socketFingerprint"
+        ,
+        "namespacePid",
+        "namespaceStartFingerprint"
+        ,
+        "listenerFingerprints"
+      ],
+      "properties": {
+        "processBound": { "const": true },
+        "commandLineFingerprint": { "$ref": "#/$defs/sha256" },
+        "startFingerprint": { "$ref": "#/$defs/sha256" },
+        "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "configPathFingerprint": { "$ref": "#/$defs/sha256" },
+        "endpoint": {
+          "type": "string",
+          "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+        },
+        "socketFingerprint": { "$ref": "#/$defs/sha256" }
+        ,
+        "namespacePid": { "type": "integer", "minimum": 1 },
+        "namespaceStartFingerprint": { "$ref": "#/$defs/sha256" }
+        ,
+        "listenerFingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    },
+    "revocationCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source",
+        "productSha",
+        "runtimeBuildSha",
+        "runtimeConfigSha256",
+        "inventoryComplete",
+        "revocationApiExposed",
+        "surface",
+        "receiptId"
+      ],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-capability-inventory.v1"
+        },
+        "source": { "const": "product-owned" },
+        "productSha": { "$ref": "#/$defs/sha40" },
+        "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "inventoryComplete": { "const": true },
+        "revocationApiExposed": { "type": "boolean" },
+        "surface": { "type": "string", "minLength": 8 },
+        "receiptId": { "type": "string", "minLength": 8 }
+      }
+    },
+    "readyReceiptSha256": { "$ref": "#/$defs/sha256" },
+    "launchNonceFingerprint": { "$ref": "#/$defs/sha256" },
+    "attestationSha256": { "$ref": "#/$defs/sha256" },
+    "phaseChallenge": { "type": "string", "minLength": 24 },
+    "phaseSigningKey": { "type": "string", "minLength": 32 },
+    "phaseKeyFingerprint": { "$ref": "#/$defs/sha256" },
+    "launcher": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdByTrustedLauncher",
+        "launcherProcessFingerprint",
+        "snapshotFingerprint",
+        "observerKeyFingerprint"
+      ],
+      "properties": {
+        "createdByTrustedLauncher": { "const": true },
+        "launcherProcessFingerprint": { "$ref": "#/$defs/sha256" },
+        "snapshotFingerprint": { "$ref": "#/$defs/sha256" },
+        "observerKeyFingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runRoot",
+        "homePath",
+        "statePath",
+        "configPath",
+        "snapshotPath",
+        "runRootFingerprint",
+        "homeFingerprint",
+        "stateFingerprint",
+        "configFingerprint",
+        "snapshotFingerprint",
+        "createdByTrustedLauncher",
+        "driverPid",
+        "gatewayPid",
+        "processGroupId",
+        "sandboxPid",
+        "sandboxStartFingerprint",
+        "namespaceDriverPid",
+        "namespaceGatewayPid",
+        "namespaceDriverStartFingerprint",
+        "namespaceGatewayStartFingerprint",
+        "driverStartFingerprint",
+        "gatewayStartFingerprint"
+      ],
+      "properties": {
+        "runRoot": { "type": "string", "minLength": 1 },
+        "homePath": { "type": "string", "minLength": 1 },
+        "statePath": { "type": "string", "minLength": 1 },
+        "configPath": { "type": "string", "minLength": 1 },
+        "snapshotPath": { "type": "string", "minLength": 1 },
+        "runRootFingerprint": { "$ref": "#/$defs/sha256" },
+        "homeFingerprint": { "$ref": "#/$defs/sha256" },
+        "stateFingerprint": { "$ref": "#/$defs/sha256" },
+        "configFingerprint": { "$ref": "#/$defs/sha256" },
+        "snapshotFingerprint": { "$ref": "#/$defs/sha256" },
+        "createdByTrustedLauncher": { "const": true },
+        "driverPid": { "type": "integer", "minimum": 2 },
+        "gatewayPid": { "type": "integer", "minimum": 2 },
+        "processGroupId": { "type": "integer", "minimum": 2 },
+        "sandboxPid": { "type": "integer", "minimum": 2 },
+        "sandboxStartFingerprint": { "$ref": "#/$defs/sha256" },
+        "namespaceDriverPid": { "type": "integer", "minimum": 1 },
+        "namespaceGatewayPid": { "type": "integer", "minimum": 1 },
+        "namespaceDriverStartFingerprint": { "$ref": "#/$defs/sha256" },
+        "namespaceGatewayStartFingerprint": { "$ref": "#/$defs/sha256" },
+        "driverStartFingerprint": { "$ref": "#/$defs/sha256" },
+        "gatewayStartFingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

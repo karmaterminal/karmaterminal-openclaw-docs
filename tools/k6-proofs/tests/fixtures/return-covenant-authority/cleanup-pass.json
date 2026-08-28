@@ -1,9 +1,10 @@
 {
   "schema": "openclaw.k6.return-covenant-cleanup.v1",
   "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
-  "runId": "return-covenant-fixture-run-001",
+  "runId": "rcv-00000000000000000000000000000001",
   "candidateSha": "1111111111111111111111111111111111111111",
   "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
   "startedAt": "2026-08-28T12:10:00.000Z",
   "endedAt": "2026-08-28T12:10:01.000Z",
   "retained": {
@@ -18,5 +19,94 @@
   "configRemoved": true,
   "fixtureProcessStopped": true,
   "gatewayProcessStopped": true,
-  "allCaseHandlesClosed": true
+  "allCaseHandlesClosed": true,
+  "caseHandles": [
+    "case-handle-allowed-ordinary-new:typed-tool",
+    "case-handle-allowed-ordinary-new:bracket-token",
+    "case-handle-allowed-ordinary-reset:typed-tool",
+    "case-handle-allowed-ordinary-reset:bracket-token",
+    "case-handle-allowed-provider-fallback:typed-tool",
+    "case-handle-allowed-provider-fallback:bracket-token",
+    "case-handle-allowed-compaction:typed-tool",
+    "case-handle-allowed-compaction:bracket-token",
+    "case-handle-allowed-gateway-restart-replay:typed-tool",
+    "case-handle-allowed-gateway-restart-replay:bracket-token",
+    "case-handle-allowed-session-id-rollover:typed-tool",
+    "case-handle-allowed-session-id-rollover:bracket-token",
+    "case-handle-allowed-late-materialization:typed-tool",
+    "case-handle-allowed-late-materialization:bracket-token",
+    "case-handle-forbidden-delete-recreate:typed-tool",
+    "case-handle-forbidden-delete-recreate:bracket-token",
+    "case-handle-forbidden-owner-reassignment:typed-tool",
+    "case-handle-forbidden-owner-reassignment:bracket-token",
+    "case-handle-forbidden-member-access-removal:typed-tool",
+    "case-handle-forbidden-member-access-removal:bracket-token",
+    "case-handle-forbidden-restrictive-visibility:typed-tool",
+    "case-handle-forbidden-restrictive-visibility:bracket-token",
+    "case-handle-forbidden-explicit-revocation:typed-tool",
+    "case-handle-forbidden-explicit-revocation:bracket-token"
+  ],
+  "observationSetSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "phaseChainSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "driverAttestationSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "runCleanupReceiptId": "run-cleanup-receipt-pass",
+  "snapshotMatchedCandidateAfterRun": true,
+  "runRootRemoved": true,
+  "driverExitCode": 0,
+  "processGroupEmpty": true,
+  "unexpectedProcessGroupMembers": 0,
+  "gatewayLifecycle": [
+    {
+      "pid": 2147483001,
+      "startFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "namespacePid": 2147483001,
+      "namespaceStartFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+      "verified": true,
+      "endpoints": ["http://127.0.0.1:18791"],
+      "socketFingerprint": "5555555555555555555555555555555555555555555555555555555555555555",
+      "listenerFingerprints": ["5555555555555555555555555555555555555555555555555555555555555555"],
+      "verificationSource": "direct-environ",
+      "firstSeenMonotonicMs": 0,
+      "lastSeenMonotonicMs": 5,
+      "exitedAtMonotonicMs": 9
+    },
+    {
+      "pid": 2147483108,
+      "startFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "namespacePid": 2147483108,
+      "namespaceStartFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+      "verified": true,
+      "endpoints": ["http://127.0.0.1:19008"],
+      "socketFingerprint": "6666666666666666666666666666666666666666666666666666666666666666",
+      "listenerFingerprints": ["6666666666666666666666666666666666666666666666666666666666666666"],
+      "verificationSource": "namespace-inherited",
+      "firstSeenMonotonicMs": 10,
+      "lastSeenMonotonicMs": 15,
+      "exitedAtMonotonicMs": 19
+    },
+    {
+      "pid": 2147483109,
+      "startFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "namespacePid": 2147483109,
+      "namespaceStartFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+      "verified": true,
+      "endpoints": ["http://127.0.0.1:19009"],
+      "socketFingerprint": "7777777777777777777777777777777777777777777777777777777777777777",
+      "listenerFingerprints": ["7777777777777777777777777777777777777777777777777777777777777777"],
+      "verificationSource": "namespace-inherited",
+      "firstSeenMonotonicMs": 20,
+      "lastSeenMonotonicMs": 25,
+      "exitedAtMonotonicMs": 29
+    }
+  ],
+  "k6": {
+    "version": "k6 v2.0.0",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "pathFingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "isolationFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "launcherIntegrity": {
+    "algorithm": "hmac-sha256-launch-key-v1",
+    "signature": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
 }

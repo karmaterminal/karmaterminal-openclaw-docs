@@ -42,8 +42,10 @@ tools/k6-proofs/
 defines the proposed `R-CD-RETURN-COVENANT-AUTHORITY` matrix for
 openclaw/openclaw#129388. The target-parameterized k6 scenario, versioned
 fixture schemas, signed observer resolver, and deterministic controls are
-present, but the row is deliberately absent from the runnable manifest/workflow
-registry. The final schema-v19 product candidate does not yet expose the
+present under
+[`contracts/return-covenant-authority/`](contracts/return-covenant-authority/),
+but the scenario is deliberately outside `scenarios/` and absent from the
+runnable manifest/workflow registry. The final schema-v19 product candidate does not yet expose the
 product-owned hold/transition/release driver or authority-generation diagnostic
 surface required to execute it.
 

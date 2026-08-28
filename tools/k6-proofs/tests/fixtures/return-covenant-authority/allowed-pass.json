@@ -1,17 +1,19 @@
 {
   "schema": "openclaw.k6.return-covenant-observation.v1",
   "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
-  "runId": "return-covenant-fixture-run-001",
+  "runId": "rcv-00000000000000000000000000000001",
   "caseId": "allowed-ordinary-new",
   "form": "typed-tool",
   "kind": "allowed",
   "candidateSha": "1111111111111111111111111111111111111111",
   "runtimeBuildSha": "1111111111111111111111111111111111111111",
   "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
   "startedAt": "2026-08-28T12:00:00.000Z",
   "endedAt": "2026-08-28T12:00:06.000Z",
   "returnMode": "silent-wake",
-  "logicalSessionKey": "agent:proof:allowed-new",
+  "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-ordinary-new",
+  "caseHandle": "case-handle-allowed-new",
   "database": {
     "profile": "fresh-v19",
     "sourceSchemaVersion": null,
@@ -30,11 +32,22 @@
     "syntheticData": true
   },
   "dispatch": {
+    "caseHandle": "case-handle-allowed-new",
+    "prepareReceiptId": "fixture-receipt-allowed-new",
     "accepted": true,
     "completionHeld": true,
     "receiptId": "dispatch-receipt-allowed-new",
     "heldResultId": "held-result-allowed-new",
-    "capturedAuthorityGeneration": "11111111-1111-4111-8111-111111111111"
+    "capturedAuthorityGeneration": "11111111-1111-4111-8111-111111111111",
+    "resultMarker": "RCV-11111111111111111111111111111111",
+    "originEvidence": {
+      "source": "product-owned",
+      "observedForm": "typed-tool",
+      "receiptId": "origin-receipt-allowed-new",
+      "typedToolExecutions": 1,
+      "bracketParses": 0,
+      "rawFinalText": false
+    }
   },
   "lifecycle": {
     "edge": "ordinary-new",
@@ -44,6 +57,7 @@
     "postSessionId": "session-after-allowed-new",
     "successorIdentity": "successor-allowed-new",
     "receiptId": "lifecycle-receipt-allowed-new",
+    "acceptedDispatchReceiptId": "dispatch-receipt-allowed-new",
     "generationAdvanced": false,
     "effectiveAuthorityUnchanged": true
   },
@@ -56,6 +70,9 @@
   "delivery": {
     "acceptedDispatchReceiptId": "dispatch-receipt-allowed-new",
     "heldResultAuthorityGeneration": "11111111-1111-4111-8111-111111111111",
+    "caseHandle": "case-handle-allowed-new",
+    "transitionReceiptId": "lifecycle-receipt-allowed-new",
+    "releaseReceiptId": "release-receipt-allowed-new",
     "resultReleased": true,
     "admission": "adopted",
     "queue": {
@@ -87,11 +104,26 @@
   "settlement": {
     "bounded": true,
     "complete": true,
-    "windowMs": 5000
+    "windowMs": 5000,
+    "releasedAt": "2026-08-28T12:00:00.500Z",
+    "scansCompletedAt": "2026-08-28T12:00:05.500Z",
+    "elapsedMs": 5000,
+    "monotonicElapsedMs": 5000
   },
   "scans": {
-    "successorTranscriptMatches": 0,
-    "trustedSystemEventMatches": 0
+    "resultMarker": "RCV-11111111111111111111111111111111",
+    "successorTranscript": {
+      "source": "product-owned",
+      "marker": "RCV-11111111111111111111111111111111",
+      "matches": 0,
+      "receiptId": "transcript-scan-receipt-allowed-new"
+    },
+    "trustedSystemEvents": {
+      "source": "product-owned",
+      "marker": "RCV-11111111111111111111111111111111",
+      "matches": 0,
+      "receiptId": "system-event-scan-receipt-allowed-new"
+    }
   },
-  "resultMarker": "RETURN-COVENANT-ALLOWED-NEW-RESULT"
+  "resultMarker": "RCV-11111111111111111111111111111111"
 }

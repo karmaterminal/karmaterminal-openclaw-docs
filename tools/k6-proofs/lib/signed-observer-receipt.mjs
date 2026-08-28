@@ -1,4 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { canonicalJson } from './canonical-json.mjs';
+
+export { canonicalJson };
 
 export const GATEWAY_HMAC_RECEIPT_ALGORITHM = 'hmac-sha256-gateway-token-v1';
 

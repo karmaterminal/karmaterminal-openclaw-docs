@@ -1,18 +1,25 @@
 {
   "schema": "openclaw.k6.return-covenant-fixture-input.v1",
   "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
-  "runId": "return-covenant-fixture-run-001",
+  "runId": "rcv-00000000000000000000000000000001",
   "target": {
     "candidateSha": "1111111111111111111111111111111111111111",
     "runtimeBuildSha": "1111111111111111111111111111111111111111",
-    "docsHarnessSha": "2222222222222222222222222222222222222222"
+    "docsHarnessSha": "2222222222222222222222222222222222222222",
+    "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5"
   },
   "driver": {
     "schema": "openclaw.k6.return-covenant-fixture-driver.v1",
     "ownership": "product",
     "fixtureCommand": {
       "status": "available",
-      "relativePath": "scripts/synthetic-return-covenant-driver.mjs"
+      "relativePath": "scripts/synthetic-return-covenant-driver.mjs",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "gatewayCommand": {
+      "relativePath": "scripts/synthetic-return-covenant-driver.mjs",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "args": ["gateway"]
     }
   },
   "settlementWindowMs": 5000,
@@ -22,14 +29,14 @@
     "config": "temporary-isolated",
     "syntheticData": true
   },
-  "syntheticChannelKey": "synthetic:channel:return-covenant",
+  "syntheticChannelKey": "synthetic:proof:rcv-00000000000000000000000000000001:channel",
   "cases": [
     {
       "id": "allowed-ordinary-new",
       "kind": "allowed",
       "lifecycleEdge": "ordinary-new",
       "returnMode": "silent-wake",
-      "logicalSessionKey": "agent:proof:allowed-new",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-ordinary-new",
       "databaseProfile": "fresh-v19",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -51,7 +58,7 @@
       "kind": "allowed",
       "lifecycleEdge": "ordinary-reset",
       "returnMode": "normal",
-      "logicalSessionKey": "agent:proof:allowed-reset",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-ordinary-reset",
       "databaseProfile": "covenant-v18-upgrade",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -73,7 +80,7 @@
       "kind": "allowed",
       "lifecycleEdge": "provider-fallback",
       "returnMode": "silent",
-      "logicalSessionKey": "agent:proof:allowed-provider-fallback",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-provider-fallback",
       "databaseProfile": "participant-v18-upgrade",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -95,7 +102,7 @@
       "kind": "allowed",
       "lifecycleEdge": "compaction",
       "returnMode": "post-compaction",
-      "logicalSessionKey": "agent:proof:allowed-compaction",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-compaction",
       "databaseProfile": "idempotent-v19-reopen",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -117,7 +124,7 @@
       "kind": "allowed",
       "lifecycleEdge": "gateway-restart-replay",
       "returnMode": "silent-wake",
-      "logicalSessionKey": "agent:proof:allowed-restart",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-gateway-restart-replay",
       "databaseProfile": "fresh-v19",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -139,7 +146,7 @@
       "kind": "allowed",
       "lifecycleEdge": "session-id-rollover",
       "returnMode": "normal",
-      "logicalSessionKey": "agent:proof:allowed-rollover",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-session-id-rollover",
       "databaseProfile": "covenant-v18-upgrade",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -161,7 +168,7 @@
       "kind": "allowed",
       "lifecycleEdge": "late-recipient-materialization",
       "returnMode": "silent-wake",
-      "logicalSessionKey": "agent:proof:allowed-late-materialization",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:allowed-late-materialization",
       "databaseProfile": "participant-v18-upgrade",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -183,7 +190,7 @@
       "kind": "forbidden",
       "lifecycleEdge": "explicit-delete-recreate",
       "returnMode": "normal",
-      "logicalSessionKey": "agent:proof:forbidden-delete-recreate",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:forbidden-delete-recreate",
       "databaseProfile": "idempotent-v19-reopen",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -205,7 +212,7 @@
       "kind": "forbidden",
       "lifecycleEdge": "effective-owner-reassignment",
       "returnMode": "silent-wake",
-      "logicalSessionKey": "agent:proof:forbidden-owner-reassignment",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:forbidden-owner-reassignment",
       "databaseProfile": "fresh-v19",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -227,7 +234,7 @@
       "kind": "forbidden",
       "lifecycleEdge": "actual-member-access-removal",
       "returnMode": "silent",
-      "logicalSessionKey": "agent:proof:forbidden-member-removal",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:forbidden-member-access-removal",
       "databaseProfile": "covenant-v18-upgrade",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -249,7 +256,7 @@
       "kind": "forbidden",
       "lifecycleEdge": "restrictive-visibility-change",
       "returnMode": "normal",
-      "logicalSessionKey": "agent:proof:forbidden-visibility",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:forbidden-restrictive-visibility",
       "databaseProfile": "participant-v18-upgrade",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {
@@ -271,7 +278,7 @@
       "kind": "forbidden",
       "lifecycleEdge": "explicit-revocation",
       "returnMode": "silent-wake",
-      "logicalSessionKey": "agent:proof:forbidden-explicit-revocation",
+      "logicalSessionKey": "agent:proof:rcv-00000000000000000000000000000001:forbidden-explicit-revocation",
       "databaseProfile": "idempotent-v19-reopen",
       "forms": ["typed-tool", "bracket-token"],
       "expectedEffects": {

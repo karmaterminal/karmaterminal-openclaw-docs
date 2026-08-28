@@ -1,0 +1,127 @@
+{
+  "schema": "openclaw.proofs.r-cw-3.manual-trace.v1",
+  "trace_id": "a9b36f2205260bd7190f6209ac12df91",
+  "reason_hash": "ddc1b35fc4f6d265",
+  "reason_length": 139,
+  "selection": "exact reason.hash plus first model call after matching fire",
+  "spans": [
+    {
+      "name": "continuation.work",
+      "startTimeUnixNano": "1787652757855000000",
+      "endTimeUnixNano": "1787652757855022416",
+      "status": {
+        "code": "STATUS_CODE_OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.step.remaining",
+          "value": {
+            "intValue": "199"
+          }
+        },
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "f9caf151-419d-44bd-9c69-d1dd4a93534b"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "139"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "ddc1b35fc4f6d265"
+          }
+        },
+        {
+          "key": "reason.redacted",
+          "value": {
+            "boolValue": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.work.fire",
+      "startTimeUnixNano": "1787652762904000000",
+      "endTimeUnixNano": "1787652762904020496",
+      "status": {
+        "code": "STATUS_CODE_OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "f9caf151-419d-44bd-9c69-d1dd4a93534b"
+          }
+        },
+        {
+          "key": "chain.step.remaining",
+          "value": {
+            "intValue": "199"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "139"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "ddc1b35fc4f6d265"
+          }
+        },
+        {
+          "key": "reason.redacted",
+          "value": {
+            "boolValue": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "openclaw.model.call",
+      "startTimeUnixNano": "1787652763396000000",
+      "endTimeUnixNano": "1787652766982000000",
+      "status": {},
+      "attributes": [
+        {
+          "key": "gen_ai.request.model",
+          "value": {
+            "stringValue": "gpt-5.6-sol"
+          }
+        },
+        {
+          "key": "gen_ai.operation.name",
+          "value": {
+            "stringValue": "invoke_agent"
+          }
+        }
+      ]
+    }
+  ],
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

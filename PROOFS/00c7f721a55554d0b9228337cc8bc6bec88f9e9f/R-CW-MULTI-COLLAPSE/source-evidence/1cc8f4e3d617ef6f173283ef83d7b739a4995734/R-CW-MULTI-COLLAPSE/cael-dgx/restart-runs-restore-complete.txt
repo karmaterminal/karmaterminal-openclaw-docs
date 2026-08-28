@@ -1,0 +1,3 @@
+completed	success	restart-gateway cael R-CW-MULTI-COLLAPSE #216 rerun3 restore original continuation delays	restart-gateway	main	workflow_dispatch	28710213668	10s	2026-07-04T15:04:53Z
+completed	success	restart-gateway cael R-CW-MULTI-COLLAPSE #216 rerun3 drive inserted stale/new rows	restart-gateway	main	workflow_dispatch	28710202772	10s	2026-07-04T15:04:28Z
+completed	success	restart-gateway cael R-CW-MULTI-COLLAPSE #216 rerun3 apply lowered continuation delays	restart-gateway	main	workflow_dispatch	28710185731	10s	2026-07-04T15:03:49Z

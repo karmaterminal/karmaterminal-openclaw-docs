@@ -1,0 +1,71 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+    "docsRef": "19b095ef0d356c6d68985ea26bc1bd958f53f144"
+  },
+  "harness": {
+    "docsRef": "19b095ef0d356c6d68985ea26bc1bd958f53f144",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-4.json",
+    "manifestSha256": "80ef74e6e5d3527950958aa9ee0bd173047f618a087296feb159e64364a3c6f9",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-4-target-session-key.js",
+    "scenarioSha256": "c4aa4be1850b18e5dd864964c6b7e3a3ddbc346ba2a12db832a329e957d4497f",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20260825T102010Z-r-cd-4-340f2c74",
+    "rowId": "R-CD-4",
+    "seat": "ronan",
+    "scenario": "r-cd-4-target-session-key",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-4-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-735a5b1dc65e.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "openclaw.k6.return-covenant-observation.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "return-covenant-fixture-run-001",
+  "caseId": "forbidden-delete-recreate",
+  "form": "typed-tool",
+  "kind": "forbidden",
+  "candidateSha": "1111111111111111111111111111111111111111",
+  "runtimeBuildSha": "1111111111111111111111111111111111111111",
+  "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "startedAt": "2026-08-28T12:01:00.000Z",
+  "endedAt": "2026-08-28T12:01:06.000Z",
+  "returnMode": "normal",
+  "logicalSessionKey": "agent:proof:forbidden-delete-recreate",
+  "database": {
+    "profile": "idempotent-v19-reopen",
+    "sourceSchemaVersion": 19,
+    "targetSchemaVersion": 19,
+    "fixtureShape": "v19-reopen",
+    "productOwnedFixture": true,
+    "canonicalFixtureReceiptId": "fixture-receipt-forbidden-delete",
+    "freshInstall": false,
+    "migrationApplied": false,
+    "reopenIdempotent": true
+  },
+  "isolation": {
+    "home": true,
+    "state": true,
+    "config": true,
+    "syntheticData": true
+  },
+  "dispatch": {
+    "accepted": true,
+    "completionHeld": true,
+    "receiptId": "dispatch-receipt-forbidden-delete",
+    "heldResultId": "held-result-forbidden-delete",
+    "capturedAuthorityGeneration": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+  },
+  "lifecycle": {
+    "edge": "explicit-delete-recreate",
+    "occurredAfterAcceptance": true,
+    "completedBeforeRelease": true,
+    "preSessionId": "session-before-forbidden-delete",
+    "postSessionId": "session-after-forbidden-delete",
+    "successorIdentity": "successor-forbidden-delete",
+    "receiptId": "lifecycle-receipt-forbidden-delete",
+    "generationAdvanced": true,
+    "effectiveAuthorityUnchanged": false
+  },
+  "authorityDiagnostic": {
+    "source": "product-owned",
+    "surface": "diagnostics/continuation/recipient-authority",
+    "capturedAuthorityGeneration": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "currentAuthorityGeneration": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+  },
+  "delivery": {
+    "acceptedDispatchReceiptId": "dispatch-receipt-forbidden-delete",
+    "heldResultAuthorityGeneration": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "resultReleased": true,
+    "admission": "stale",
+    "queue": {
+      "recordId": "queue-record-forbidden-delete",
+      "status": "stale-acknowledged",
+      "acknowledged": true,
+      "removed": true,
+      "retryScheduled": false
+    }
+  },
+  "effects": {
+    "distinguishable": true,
+    "sources": {
+      "promptAdoptions": "product-observer/prompt-adoption",
+      "wakes": "product-observer/heartbeat-wake",
+      "channelDeliveries": "product-observer/channel-delivery"
+    },
+    "expected": {
+      "promptAdoptions": 0,
+      "wakes": 0,
+      "channelDeliveries": 0
+    },
+    "observed": {
+      "promptAdoptions": 0,
+      "wakes": 0,
+      "channelDeliveries": 0
+    }
+  },
+  "settlement": {
+    "bounded": true,
+    "complete": true,
+    "windowMs": 5000
+  },
+  "scans": {
+    "successorTranscriptMatches": 0,
+    "trustedSystemEventMatches": 0
+  },
+  "resultMarker": "RETURN-COVENANT-FORBIDDEN-DELETE-RESULT"
+}

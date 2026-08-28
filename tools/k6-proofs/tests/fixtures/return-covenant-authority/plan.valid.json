@@ -1,0 +1,293 @@
+{
+  "schema": "openclaw.k6.return-covenant-fixture-input.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "return-covenant-fixture-run-001",
+  "target": {
+    "candidateSha": "1111111111111111111111111111111111111111",
+    "runtimeBuildSha": "1111111111111111111111111111111111111111",
+    "docsHarnessSha": "2222222222222222222222222222222222222222"
+  },
+  "driver": {
+    "schema": "openclaw.k6.return-covenant-fixture-driver.v1",
+    "ownership": "product",
+    "fixtureCommand": {
+      "status": "available",
+      "relativePath": "scripts/synthetic-return-covenant-driver.mjs"
+    }
+  },
+  "settlementWindowMs": 5000,
+  "isolation": {
+    "home": "temporary-isolated",
+    "state": "temporary-isolated",
+    "config": "temporary-isolated",
+    "syntheticData": true
+  },
+  "syntheticChannelKey": "synthetic:channel:return-covenant",
+  "cases": [
+    {
+      "id": "allowed-ordinary-new",
+      "kind": "allowed",
+      "lifecycleEdge": "ordinary-new",
+      "returnMode": "silent-wake",
+      "logicalSessionKey": "agent:proof:allowed-new",
+      "databaseProfile": "fresh-v19",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "allowed-ordinary-reset",
+      "kind": "allowed",
+      "lifecycleEdge": "ordinary-reset",
+      "returnMode": "normal",
+      "logicalSessionKey": "agent:proof:allowed-reset",
+      "databaseProfile": "covenant-v18-upgrade",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 1
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 1
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "allowed-provider-fallback",
+      "kind": "allowed",
+      "lifecycleEdge": "provider-fallback",
+      "returnMode": "silent",
+      "logicalSessionKey": "agent:proof:allowed-provider-fallback",
+      "databaseProfile": "participant-v18-upgrade",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 0,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 0,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "allowed-compaction",
+      "kind": "allowed",
+      "lifecycleEdge": "compaction",
+      "returnMode": "post-compaction",
+      "logicalSessionKey": "agent:proof:allowed-compaction",
+      "databaseProfile": "idempotent-v19-reopen",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "allowed-gateway-restart-replay",
+      "kind": "allowed",
+      "lifecycleEdge": "gateway-restart-replay",
+      "returnMode": "silent-wake",
+      "logicalSessionKey": "agent:proof:allowed-restart",
+      "databaseProfile": "fresh-v19",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": true
+    },
+    {
+      "id": "allowed-session-id-rollover",
+      "kind": "allowed",
+      "lifecycleEdge": "session-id-rollover",
+      "returnMode": "normal",
+      "logicalSessionKey": "agent:proof:allowed-rollover",
+      "databaseProfile": "covenant-v18-upgrade",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 1
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 1
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "allowed-late-materialization",
+      "kind": "allowed",
+      "lifecycleEdge": "late-recipient-materialization",
+      "returnMode": "silent-wake",
+      "logicalSessionKey": "agent:proof:allowed-late-materialization",
+      "databaseProfile": "participant-v18-upgrade",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 1,
+          "wakes": 1,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "forbidden-delete-recreate",
+      "kind": "forbidden",
+      "lifecycleEdge": "explicit-delete-recreate",
+      "returnMode": "normal",
+      "logicalSessionKey": "agent:proof:forbidden-delete-recreate",
+      "databaseProfile": "idempotent-v19-reopen",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "forbidden-owner-reassignment",
+      "kind": "forbidden",
+      "lifecycleEdge": "effective-owner-reassignment",
+      "returnMode": "silent-wake",
+      "logicalSessionKey": "agent:proof:forbidden-owner-reassignment",
+      "databaseProfile": "fresh-v19",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "forbidden-member-access-removal",
+      "kind": "forbidden",
+      "lifecycleEdge": "actual-member-access-removal",
+      "returnMode": "silent",
+      "logicalSessionKey": "agent:proof:forbidden-member-removal",
+      "databaseProfile": "covenant-v18-upgrade",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "forbidden-restrictive-visibility",
+      "kind": "forbidden",
+      "lifecycleEdge": "restrictive-visibility-change",
+      "returnMode": "normal",
+      "logicalSessionKey": "agent:proof:forbidden-visibility",
+      "databaseProfile": "participant-v18-upgrade",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false
+    },
+    {
+      "id": "forbidden-explicit-revocation",
+      "kind": "forbidden",
+      "lifecycleEdge": "explicit-revocation",
+      "returnMode": "silent-wake",
+      "logicalSessionKey": "agent:proof:forbidden-explicit-revocation",
+      "databaseProfile": "idempotent-v19-reopen",
+      "forms": ["typed-tool", "bracket-token"],
+      "expectedEffects": {
+        "typed-tool": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        },
+        "bracket-token": {
+          "promptAdoptions": 0,
+          "wakes": 0,
+          "channelDeliveries": 0
+        }
+      },
+      "restartBetweenAcceptanceAndRelease": false,
+      "applicability": "required-if-exposed"
+    }
+  ]
+}

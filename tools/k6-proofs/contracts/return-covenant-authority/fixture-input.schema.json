@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/fixture-input.schema.json",
+  "title": "Return covenant product-fixture input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rowId",
+    "runId",
+    "target",
+    "driver",
+    "settlementWindowMs",
+    "isolation",
+    "syntheticChannelKey",
+    "cases"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-fixture-input.v1"
+    },
+    "rowId": {
+      "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 8
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateSha", "runtimeBuildSha", "docsHarnessSha"],
+      "properties": {
+        "candidateSha": { "$ref": "#/$defs/sha" },
+        "runtimeBuildSha": { "$ref": "#/$defs/sha" },
+        "docsHarnessSha": { "$ref": "#/$defs/sha" }
+      }
+    },
+    "driver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "ownership", "fixtureCommand"],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-fixture-driver.v1"
+        },
+        "ownership": { "const": "product" },
+        "fixtureCommand": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "enum": ["available", "missing-product-seam"]
+            },
+            "relativePath": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": { "status": { "const": "available" } }
+              },
+              "then": { "required": ["relativePath"] }
+            }
+          ]
+        }
+      }
+    },
+    "settlementWindowMs": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 120000
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home", "state", "config", "syntheticData"],
+      "properties": {
+        "home": { "const": "temporary-isolated" },
+        "state": { "const": "temporary-isolated" },
+        "config": { "const": "temporary-isolated" },
+        "syntheticData": { "const": true }
+      }
+    },
+    "syntheticChannelKey": {
+      "type": "string",
+      "minLength": 8
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/case" }
+    }
+  },
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["promptAdoptions", "wakes", "channelDeliveries"],
+      "properties": {
+        "promptAdoptions": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "wakes": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "channelDeliveries": { "type": "integer", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "lifecycleEdge",
+        "returnMode",
+        "logicalSessionKey",
+        "databaseProfile",
+        "forms",
+        "expectedEffects",
+        "restartBetweenAcceptanceAndRelease"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "allowed-ordinary-new",
+            "allowed-ordinary-reset",
+            "allowed-provider-fallback",
+            "allowed-compaction",
+            "allowed-gateway-restart-replay",
+            "allowed-session-id-rollover",
+            "allowed-late-materialization",
+            "forbidden-delete-recreate",
+            "forbidden-owner-reassignment",
+            "forbidden-member-access-removal",
+            "forbidden-restrictive-visibility",
+            "forbidden-explicit-revocation"
+          ]
+        },
+        "kind": { "enum": ["allowed", "forbidden"] },
+        "lifecycleEdge": {
+          "enum": [
+            "ordinary-new",
+            "ordinary-reset",
+            "provider-fallback",
+            "compaction",
+            "gateway-restart-replay",
+            "session-id-rollover",
+            "late-recipient-materialization",
+            "explicit-delete-recreate",
+            "effective-owner-reassignment",
+            "actual-member-access-removal",
+            "restrictive-visibility-change",
+            "explicit-revocation"
+          ]
+        },
+        "returnMode": {
+          "enum": ["normal", "silent", "silent-wake", "post-compaction"]
+        },
+        "logicalSessionKey": { "type": "string", "minLength": 8 },
+        "databaseProfile": {
+          "enum": [
+            "fresh-v19",
+            "covenant-v18-upgrade",
+            "participant-v18-upgrade",
+            "idempotent-v19-reopen"
+          ]
+        },
+        "forms": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "enum": ["typed-tool", "bracket-token"] }
+        },
+        "expectedEffects": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["typed-tool", "bracket-token"],
+          "properties": {
+            "typed-tool": { "$ref": "#/$defs/effects" },
+            "bracket-token": { "$ref": "#/$defs/effects" }
+          }
+        },
+        "restartBetweenAcceptanceAndRelease": { "type": "boolean" },
+        "applicability": { "const": "required-if-exposed" }
+      }
+    }
+  }
+}

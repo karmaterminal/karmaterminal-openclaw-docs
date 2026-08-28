@@ -1,0 +1,97 @@
+{
+  "schema": "openclaw.k6.return-covenant-observation.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "return-covenant-fixture-run-001",
+  "caseId": "allowed-ordinary-new",
+  "form": "typed-tool",
+  "kind": "allowed",
+  "candidateSha": "1111111111111111111111111111111111111111",
+  "runtimeBuildSha": "1111111111111111111111111111111111111111",
+  "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "startedAt": "2026-08-28T12:00:00.000Z",
+  "endedAt": "2026-08-28T12:00:06.000Z",
+  "returnMode": "silent-wake",
+  "logicalSessionKey": "agent:proof:allowed-new",
+  "database": {
+    "profile": "fresh-v19",
+    "sourceSchemaVersion": null,
+    "targetSchemaVersion": 19,
+    "fixtureShape": "fresh",
+    "productOwnedFixture": true,
+    "canonicalFixtureReceiptId": "fixture-receipt-allowed-new",
+    "freshInstall": true,
+    "migrationApplied": false,
+    "reopenIdempotent": false
+  },
+  "isolation": {
+    "home": true,
+    "state": true,
+    "config": true,
+    "syntheticData": true
+  },
+  "dispatch": {
+    "accepted": true,
+    "completionHeld": true,
+    "receiptId": "dispatch-receipt-allowed-new",
+    "heldResultId": "held-result-allowed-new",
+    "capturedAuthorityGeneration": "11111111-1111-4111-8111-111111111111"
+  },
+  "lifecycle": {
+    "edge": "ordinary-new",
+    "occurredAfterAcceptance": true,
+    "completedBeforeRelease": true,
+    "preSessionId": "session-before-allowed-new",
+    "postSessionId": "session-after-allowed-new",
+    "successorIdentity": "successor-allowed-new",
+    "receiptId": "lifecycle-receipt-allowed-new",
+    "generationAdvanced": false,
+    "effectiveAuthorityUnchanged": true
+  },
+  "authorityDiagnostic": {
+    "source": "product-owned",
+    "surface": "diagnostics/continuation/recipient-authority",
+    "capturedAuthorityGeneration": "11111111-1111-4111-8111-111111111111",
+    "currentAuthorityGeneration": "11111111-1111-4111-8111-111111111111"
+  },
+  "delivery": {
+    "acceptedDispatchReceiptId": "dispatch-receipt-allowed-new",
+    "heldResultAuthorityGeneration": "11111111-1111-4111-8111-111111111111",
+    "resultReleased": true,
+    "admission": "adopted",
+    "queue": {
+      "recordId": "queue-record-allowed-new",
+      "status": "adopted",
+      "acknowledged": true,
+      "removed": true,
+      "retryScheduled": false
+    }
+  },
+  "effects": {
+    "distinguishable": true,
+    "sources": {
+      "promptAdoptions": "product-observer/prompt-adoption",
+      "wakes": "product-observer/heartbeat-wake",
+      "channelDeliveries": "product-observer/channel-delivery"
+    },
+    "expected": {
+      "promptAdoptions": 1,
+      "wakes": 1,
+      "channelDeliveries": 0
+    },
+    "observed": {
+      "promptAdoptions": 1,
+      "wakes": 1,
+      "channelDeliveries": 0
+    }
+  },
+  "settlement": {
+    "bounded": true,
+    "complete": true,
+    "windowMs": 5000
+  },
+  "scans": {
+    "successorTranscriptMatches": 0,
+    "trustedSystemEventMatches": 0
+  },
+  "resultMarker": "RETURN-COVENANT-ALLOWED-NEW-RESULT"
+}

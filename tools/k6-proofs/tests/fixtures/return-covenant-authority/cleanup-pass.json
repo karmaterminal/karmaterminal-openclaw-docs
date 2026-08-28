@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.k6.return-covenant-cleanup.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "return-covenant-fixture-run-001",
+  "candidateSha": "1111111111111111111111111111111111111111",
+  "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "startedAt": "2026-08-28T12:10:00.000Z",
+  "endedAt": "2026-08-28T12:10:01.000Z",
+  "retained": {
+    "delegates": 0,
+    "queueItems": 0,
+    "temporarySessions": 0,
+    "gateways": 0,
+    "fixtureProcesses": 0
+  },
+  "homeRemoved": true,
+  "stateRemoved": true,
+  "configRemoved": true,
+  "fixtureProcessStopped": true,
+  "gatewayProcessStopped": true,
+  "allCaseHandlesClosed": true
+}

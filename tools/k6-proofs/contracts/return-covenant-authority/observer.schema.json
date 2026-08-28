@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/observer.schema.json",
+  "title": "Private return covenant observation",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "rowId",
+    "runId",
+    "caseId",
+    "form",
+    "kind",
+    "candidateSha",
+    "runtimeBuildSha",
+    "docsHarnessSha",
+    "startedAt",
+    "endedAt",
+    "returnMode",
+    "logicalSessionKey",
+    "database",
+    "isolation",
+    "dispatch",
+    "lifecycle",
+    "authorityDiagnostic",
+    "delivery",
+    "effects",
+    "settlement",
+    "scans"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-observation.v1"
+    },
+    "rowId": {
+      "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+    },
+    "runId": { "type": "string", "minLength": 8 },
+    "caseId": { "type": "string", "minLength": 1 },
+    "form": { "enum": ["typed-tool", "bracket-token"] },
+    "kind": { "enum": ["allowed", "forbidden"] },
+    "candidateSha": { "$ref": "#/$defs/sha" },
+    "runtimeBuildSha": { "$ref": "#/$defs/sha" },
+    "docsHarnessSha": { "$ref": "#/$defs/sha" },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "endedAt": { "type": "string", "format": "date-time" },
+    "returnMode": {
+      "enum": ["normal", "silent", "silent-wake", "post-compaction"]
+    },
+    "logicalSessionKey": { "type": "string", "minLength": 8 },
+    "database": {
+      "type": "object",
+      "required": [
+        "profile",
+        "sourceSchemaVersion",
+        "targetSchemaVersion",
+        "fixtureShape",
+        "productOwnedFixture",
+        "canonicalFixtureReceiptId"
+      ]
+    },
+    "isolation": {
+      "type": "object",
+      "required": ["home", "state", "config", "syntheticData"]
+    },
+    "dispatch": {
+      "type": "object",
+      "required": [
+        "accepted",
+        "completionHeld",
+        "receiptId",
+        "heldResultId",
+        "capturedAuthorityGeneration"
+      ]
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": [
+        "edge",
+        "occurredAfterAcceptance",
+        "completedBeforeRelease",
+        "preSessionId",
+        "postSessionId",
+        "successorIdentity",
+        "receiptId",
+        "generationAdvanced",
+        "effectiveAuthorityUnchanged"
+      ]
+    },
+    "authorityDiagnostic": {
+      "type": "object",
+      "required": [
+        "source",
+        "surface",
+        "capturedAuthorityGeneration",
+        "currentAuthorityGeneration"
+      ]
+    },
+    "delivery": {
+      "type": "object",
+      "required": [
+        "acceptedDispatchReceiptId",
+        "heldResultAuthorityGeneration",
+        "resultReleased",
+        "admission",
+        "queue"
+      ]
+    },
+    "effects": {
+      "type": "object",
+      "required": ["distinguishable", "sources", "expected", "observed"]
+    },
+    "settlement": {
+      "type": "object",
+      "required": ["bounded", "complete", "windowMs"]
+    },
+    "scans": {
+      "type": "object",
+      "required": ["successorTranscriptMatches", "trustedSystemEventMatches"]
+    }
+  },
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "row": "R-CD-3",
+  "sha": "37300f29a7ec1f731575343c2aa73ae25f1d0efb",
+  "seat": "ronan",
+  "timestamp": "2026-08-25T10:20:07.269Z",
+  "verdict": "PASS-candidate",
+  "evidence": null,
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "avg": 16155,
+      "min": 16155,
+      "med": 16155,
+      "max": 16155,
+      "p(90)": 16155,
+      "p(95)": 16155
+    }
+  },
+  "transposition": {
+    "source_corpus_sha": "80311e8aa07fd560cb957475517c5ea18164541c",
+    "target_corpus_sha": "4737afdf7dcc5cca53f8dd1bdaaeaa122ce17bbd",
+    "kind": "full-subtree ancestry/materiality transposition",
+    "exact_target_execution": false
+  }
+}

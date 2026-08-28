@@ -36,6 +36,22 @@ tools/k6-proofs/
 
 ## Usage
 
+### Return-covenant authority harness (construction only)
+
+[`docs/RETURN-COVENANT-AUTHORITY-HARNESS.md`](docs/RETURN-COVENANT-AUTHORITY-HARNESS.md)
+defines the proposed `R-CD-RETURN-COVENANT-AUTHORITY` matrix for
+openclaw/openclaw#129388. The target-parameterized k6 scenario, versioned
+fixture schemas, signed observer resolver, and deterministic controls are
+present, but the row is deliberately absent from the runnable manifest/workflow
+registry. The final schema-v19 product candidate does not yet expose the
+product-owned hold/transition/release driver or authority-generation diagnostic
+surface required to execute it.
+
+Do not treat the scenario's presence as proof or run it against a live session.
+It becomes executable only after the missing product seam is reviewed and the
+manifest is promoted separately. No current `PROOFS/**` corpus is read or
+modified by this construction harness.
+
 ### R-CW-5: isolated typed-tool fixture
 
 `continue_work` is deliberately unavailable through the gateway/MCP loopback,

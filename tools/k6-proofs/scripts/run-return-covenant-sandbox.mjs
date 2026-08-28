@@ -2,6 +2,9 @@
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  childTerminationReason,
+} from '../lib/return-covenant-candidate-io.mjs';
 
 const EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
 
@@ -33,8 +36,9 @@ function parseArgs(argv) {
 async function waitForFile(file, child, timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) {
-      throw new Error(`product driver exited before attestation (${child.exitCode})`);
+    const termination = childTerminationReason(child);
+    if (termination) {
+      throw new Error(`product driver exited before attestation (${termination})`);
     }
     try {
       await readFile(file);
@@ -60,7 +64,7 @@ async function waitForExit(child, timeoutMs) {
 }
 
 async function stopChild(child) {
-  if (!child || child.exitCode !== null) return;
+  if (!child || childTerminationReason(child)) return;
   child.kill('SIGTERM');
   if (await waitForExit(child, 2_000) === null) {
     child.kill('SIGKILL');
@@ -106,6 +110,7 @@ async function main() {
         OPENCLAW_RETURN_COVENANT_DRIVER_ATTESTATION: input.attestation,
         OPENCLAW_RETURN_COVENANT_DRIVER_URL:
           JSON.parse(await readFile(input.attestation, 'utf8')).endpoint,
+        OPENCLAW_GATEWAY_TOKEN: process.env.OPENCLAW_GATEWAY_TOKEN || '',
       },
     });
     k6.stdout.pipe(process.stdout, { end: false });

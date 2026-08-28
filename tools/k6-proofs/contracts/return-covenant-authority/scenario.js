@@ -15,10 +15,12 @@ import { canonicalJson } from '../../lib/canonical-json.mjs';
 import {
   assertExecutableReturnCovenantPlan,
   buildReturnCovenantDriverRequest,
+  buildReturnCovenantRetentionRequest,
   buildReturnCovenantRunCleanupRequest,
   expandReturnCovenantExecutions,
   RETURN_COVENANT_DRIVER_SCHEMA,
   RETURN_COVENANT_EVIDENCE_PREFIX,
+  RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA,
   RETURN_COVENANT_TEARDOWN_PREFIX,
   validateReturnCovenantDriverAttestation,
 } from '../../lib/return-covenant-scenario-contract.mjs';
@@ -51,6 +53,7 @@ if (!planPath || !attestationPath) {
 const plan = assertExecutableReturnCovenantPlan(JSON.parse(open(planPath)));
 const driverAttestation = JSON.parse(open(attestationPath));
 const driverBaseUrl = (__ENV.OPENCLAW_RETURN_COVENANT_DRIVER_URL || '').replace(/\/+$/u, '');
+const gatewayToken = __ENV.OPENCLAW_GATEWAY_TOKEN || '';
 if (!/^http:\/\/127\.0\.0\.1(?::[0-9]+)?$/u.test(driverBaseUrl)) {
   throw new Error('OPENCLAW_RETURN_COVENANT_DRIVER_URL must use HTTP IPv4 loopback');
 }
@@ -200,6 +203,80 @@ function observeUntilSettled({
   throw new Error('bounded settlement window expired without an observation');
 }
 
+function observeResourceRetention({ evidence, target }) {
+  const requestedAt = new Date().toISOString();
+  const requestedAtMonotonicMs = exec.instance.currentTestRunDuration;
+  const requestNonce = crypto.sha256(
+    `retention:${crypto.sha256(crypto.randomBytes(32), 'hex')}`,
+    'hex',
+  );
+  const request = buildReturnCovenantRetentionRequest({
+    plan,
+    evidence,
+    requestNonce,
+  });
+  let response = null;
+  let failureReason = null;
+  if (
+    !gatewayToken ||
+    !/^http:\/\/127\.0\.0\.1(?::[0-9]+)?$/u.test(target?.endpoint || '') ||
+    !Number.isInteger(target?.namespacePid) ||
+    typeof target?.namespaceStartFingerprint !== 'string'
+  ) {
+    failureReason = !gatewayToken
+      ? 'gateway-auth-unavailable'
+      : 'gateway-target-unavailable';
+  } else {
+    try {
+      response = http.post(
+        `${target.endpoint}/v1/return-covenant/resource-inspection`,
+        JSON.stringify(request),
+        {
+          headers: {
+            Authorization: `Bearer ${gatewayToken}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: '5s',
+        },
+      );
+      if (response.status < 200 || response.status >= 300) {
+        failureReason = response.status === 404
+          ? 'resource-inspection-unsupported'
+          : 'resource-inspection-http-failure';
+      }
+    } catch {
+      failureReason = 'resource-inspection-request-failed';
+    }
+  }
+  const observedAt = new Date().toISOString();
+  const body = typeof response?.body === 'string' ? response.body : '';
+  return {
+    schema: RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA,
+    status: failureReason === null
+      ? 'observed'
+      : 'unverified-resource-retention',
+    failureReason,
+    request,
+    target,
+    timing: {
+      requestedAt,
+      observedAt,
+      requestedAtMonotonicMs,
+      observedAtMonotonicMs: exec.instance.currentTestRunDuration,
+    },
+    response: {
+      status: Number.isInteger(response?.status) ? response.status : null,
+      contentType:
+        typeof response?.headers?.['Content-Type'] === 'string'
+          ? response.headers['Content-Type']
+          : null,
+      body,
+      bodySha256: crypto.sha256(body, 'hex'),
+      byteLength: body.length,
+    },
+  };
+}
+
 export default function () {
   const startedAt = new Date().toISOString();
   const started = exec.instance.currentTestRunDuration;
@@ -207,6 +284,13 @@ export default function () {
   const phaseChains = [];
   const executionErrors = [];
   let scenarioFailures = 0;
+  let retentionTarget = {
+    source: 'trusted-launcher-attested-gateway',
+    endpoint: driverAttestation.gateway.endpoint,
+    namespacePid: driverAttestation.gateway.namespacePid,
+    namespaceStartFingerprint:
+      driverAttestation.gateway.namespaceStartFingerprint,
+  };
 
   for (const execution of expandReturnCovenantExecutions(plan)) {
     let caseHandle = null;
@@ -270,6 +354,15 @@ export default function () {
       transition = transitioned.transition;
       phaseChain.transition = transition;
       phaseChain.proofs.transition = transitioned.driverBinding;
+      if (transition?.restart) {
+        retentionTarget = {
+          source: 'phase-chain-final-gateway',
+          endpoint: transition.restart.replacementGatewayEndpoint,
+          namespacePid: transition.restart.replacementGatewayPid,
+          namespaceStartFingerprint:
+            transition.restart.replacementGatewayStartFingerprint,
+        };
+      }
 
       const released = postPhase('release', buildReturnCovenantDriverRequest({
         phase: 'release',
@@ -357,7 +450,7 @@ export default function () {
     rowId: plan.rowId,
     runId: plan.runId,
     startedAt,
-    endedAt: new Date().toISOString(),
+    endedAt: null,
     observations,
     phaseChains,
     executionErrors,
@@ -367,6 +460,11 @@ export default function () {
     cleanupRun,
     cleanupRunProof: cleanupRunResponse.driverBinding,
   };
+  evidence.retentionObservation = observeResourceRetention({
+    evidence,
+    target: retentionTarget,
+  });
+  evidence.endedAt = new Date().toISOString();
   console.log(`${RETURN_COVENANT_EVIDENCE_PREFIX}${JSON.stringify(evidence)}`);
   console.log(
     `[${plan.rowId}] VERDICT: PARTIAL-candidate pending signed observer receipt`,

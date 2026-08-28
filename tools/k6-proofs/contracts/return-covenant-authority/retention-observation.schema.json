@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/retention-observation.schema.json",
+  "title": "Docs-owned return covenant resource-retention observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "failureReason",
+    "request",
+    "target",
+    "timing",
+    "response"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-retention-observation.v1"
+    },
+    "status": {
+      "enum": ["observed", "unverified-resource-retention"]
+    },
+    "failureReason": {
+      "type": ["string", "null"]
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "rowId",
+        "runId",
+        "candidateSha",
+        "runtimeBuildSha",
+        "docsHarnessSha",
+        "runtimeConfigSha256",
+        "driverAttestationSha256",
+        "observationSetSha256",
+        "phaseChainSha256",
+        "cleanupRunReceiptId",
+        "requestNonce",
+        "caseForms",
+        "resources"
+      ],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-retention-request.v1"
+        },
+        "rowId": {
+          "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+        },
+        "runId": { "$ref": "#/$defs/runId" },
+        "candidateSha": { "$ref": "#/$defs/sha40" },
+        "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+        "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "driverAttestationSha256": { "$ref": "#/$defs/sha256" },
+        "observationSetSha256": { "$ref": "#/$defs/sha256" },
+        "phaseChainSha256": { "$ref": "#/$defs/sha256" },
+        "cleanupRunReceiptId": { "$ref": "#/$defs/id" },
+        "requestNonce": { "$ref": "#/$defs/sha256" },
+        "caseForms": {
+          "type": "array",
+          "minItems": 24,
+          "maxItems": 24,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["caseId", "form", "caseHandle"],
+            "properties": {
+              "caseId": { "$ref": "#/$defs/caseId" },
+              "form": { "enum": ["typed-tool", "bracket-token"] },
+              "caseHandle": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "resources": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/delegatesQuery"
+            },
+            {
+              "$ref": "#/$defs/queueQuery"
+            },
+            {
+              "$ref": "#/$defs/sessionsQuery"
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "endpoint",
+        "namespacePid",
+        "namespaceStartFingerprint"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "trusted-launcher-attested-gateway",
+            "phase-chain-final-gateway"
+          ]
+        },
+        "endpoint": {
+          "type": "string",
+          "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+        },
+        "namespacePid": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "namespaceStartFingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedAt",
+        "observedAt",
+        "requestedAtMonotonicMs",
+        "observedAtMonotonicMs"
+      ],
+      "properties": {
+        "requestedAt": { "$ref": "#/$defs/timestamp" },
+        "observedAt": { "$ref": "#/$defs/timestamp" },
+        "requestedAtMonotonicMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "observedAtMonotonicMs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "contentType",
+        "body",
+        "bodySha256",
+        "byteLength"
+      ],
+      "properties": {
+        "status": {
+          "type": ["integer", "null"],
+          "minimum": 100,
+          "maximum": 599
+        },
+        "contentType": {
+          "type": ["string", "null"]
+        },
+        "body": {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        "bodySha256": { "$ref": "#/$defs/sha256" },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^rcv-[0-9a-f]{32}$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "caseId": {
+      "enum": [
+        "allowed-ordinary-new",
+        "allowed-ordinary-reset",
+        "allowed-provider-fallback",
+        "allowed-compaction",
+        "allowed-gateway-restart-replay",
+        "allowed-session-id-rollover",
+        "allowed-late-materialization",
+        "forbidden-delete-recreate",
+        "forbidden-owner-reassignment",
+        "forbidden-member-access-removal",
+        "forbidden-restrictive-visibility",
+        "forbidden-explicit-revocation"
+      ]
+    },
+    "delegatesQuery": {
+      "const": {
+        "category": "delegates",
+        "method": "continuation.delegates.list",
+        "limit": 101
+      }
+    },
+    "queueQuery": {
+      "const": {
+        "category": "queueItems",
+        "method": "continuation.queue.list",
+        "limit": 101
+      }
+    },
+    "sessionsQuery": {
+      "const": {
+        "category": "temporarySessions",
+        "method": "sessions.list",
+        "limit": 101
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": { "const": "observed" }
+        }
+      },
+      "then": {
+        "properties": {
+          "failureReason": { "const": null },
+          "response": {
+            "properties": {
+              "status": { "const": 200 },
+              "contentType": {
+                "type": "string",
+                "pattern": "^application/json(?:;|$)"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "failureReason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

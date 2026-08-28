@@ -9,11 +9,14 @@
     "rowId",
     "runId",
     "candidateSha",
+    "runtimeBuildSha",
     "docsHarnessSha",
     "runtimeConfigSha256",
     "startedAt",
     "endedAt",
     "retained",
+    "retentionAuthority",
+    "resourceObservation",
     "homeRemoved",
     "stateRemoved",
     "configRemoved",
@@ -43,6 +46,7 @@
       "pattern": "^rcv-[0-9a-f]{32}$"
     },
     "candidateSha": { "$ref": "#/$defs/sha40" },
+    "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
     "docsHarnessSha": { "$ref": "#/$defs/sha40" },
     "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
     "startedAt": { "type": "string", "format": "date-time" },
@@ -58,11 +62,79 @@
         "fixtureProcesses"
       ],
       "properties": {
-        "delegates": { "const": 0 },
-        "queueItems": { "const": 0 },
-        "temporarySessions": { "const": 0 },
-        "gateways": { "const": 0 },
-        "fixtureProcesses": { "const": 0 }
+        "delegates": { "$ref": "#/$defs/retainedCount" },
+        "queueItems": { "$ref": "#/$defs/retainedCount" },
+        "temporarySessions": { "$ref": "#/$defs/retainedCount" },
+        "gateways": { "$ref": "#/$defs/retainedCount" },
+        "fixtureProcesses": { "$ref": "#/$defs/retainedCount" }
+      }
+    },
+    "retentionAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceState",
+        "processState",
+        "caseHandles",
+        "candidateCleanup"
+      ],
+      "properties": {
+        "resourceState": {
+          "const": "docs-owned-gateway-observation"
+        },
+        "processState": {
+          "const": "trusted-launcher-proc-observation"
+        },
+        "caseHandles": {
+          "const": "docs-owned-phase-chain-ledger"
+        },
+        "candidateCleanup": {
+          "const": "untrusted-diagnostic-only"
+        }
+      }
+    },
+    "resourceObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidenceSha256",
+        "responseSha256",
+        "observedAt",
+        "gatewayPid",
+        "gatewayStartFingerprint",
+        "gatewaySocketFingerprint",
+        "gatewayEndpoint"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["verified", "unverified-resource-retention"]
+        },
+        "evidenceSha256": { "$ref": "#/$defs/sha256" },
+        "responseSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "observedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "gatewayPid": {
+          "type": ["integer", "null"],
+          "minimum": 2
+        },
+        "gatewayStartFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewaySocketFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewayEndpoint": {
+          "type": ["string", "null"],
+          "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+        }
       }
     },
     "homeRemoved": { "const": true },
@@ -106,7 +178,8 @@
           "verificationSource",
           "firstSeenMonotonicMs",
           "lastSeenMonotonicMs",
-          "exitedAtMonotonicMs"
+          "exitedAtMonotonicMs",
+          "retainedAtCleanup"
         ],
         "properties": {
           "pid": { "type": "integer", "minimum": 2 },
@@ -135,7 +208,11 @@
           },
           "firstSeenMonotonicMs": { "type": "number", "minimum": 0 },
           "lastSeenMonotonicMs": { "type": "number", "minimum": 0 },
-          "exitedAtMonotonicMs": { "type": "number", "minimum": 0 }
+          "exitedAtMonotonicMs": {
+            "type": ["number", "null"],
+            "minimum": 0
+          },
+          "retainedAtCleanup": { "type": "boolean" }
         }
       }
     },
@@ -171,6 +248,10 @@
     "sha256": {
       "type": "string",
       "pattern": "^[0-9a-f]{64}$"
+    },
+    "retainedCount": {
+      "type": ["integer", "null"],
+      "minimum": 0
     }
   }
 }

@@ -9,10 +9,31 @@ export const RETURN_COVENANT_EVIDENCE_PREFIX =
   'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE ';
 export const RETURN_COVENANT_TEARDOWN_PREFIX =
   'R_CD_RETURN_COVENANT_AUTHORITY_TEARDOWN ';
+export const RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA =
+  'openclaw.k6.return-covenant-retention-observation.v1';
+export const RETURN_COVENANT_RETENTION_REQUEST_SCHEMA =
+  'openclaw.k6.return-covenant-retention-request.v1';
+export const RETURN_COVENANT_RETENTION_RESPONSE_SCHEMA =
+  'openclaw.k6.return-covenant-retention-response.v1';
 export const RETURN_COVENANT_FORMS = Object.freeze([
   'typed-tool',
   'bracket-token',
 ]);
+export const RETURN_COVENANT_RETENTION_RESOURCES = Object.freeze([
+  Object.freeze({
+    category: 'delegates',
+    method: 'continuation.delegates.list',
+  }),
+  Object.freeze({
+    category: 'queueItems',
+    method: 'continuation.queue.list',
+  }),
+  Object.freeze({
+    category: 'temporarySessions',
+    method: 'sessions.list',
+  }),
+]);
+export const RETURN_COVENANT_RETENTION_QUERY_LIMIT = 101;
 
 export const RETURN_COVENANT_CASES = Object.freeze([
   {
@@ -648,5 +669,35 @@ export function buildReturnCovenantRunCleanupRequest(plan, bindings = {}) {
         phaseChainSha256: bindings.phaseChainSha256,
         driverAttestationSha256: bindings.driverAttestationSha256,
       }),
+  };
+}
+
+export function buildReturnCovenantRetentionRequest({
+  plan,
+  evidence,
+  requestNonce,
+}) {
+  return {
+    schema: RETURN_COVENANT_RETENTION_REQUEST_SCHEMA,
+    rowId: plan.rowId,
+    runId: plan.runId,
+    candidateSha: plan.target.candidateSha,
+    runtimeBuildSha: plan.target.runtimeBuildSha,
+    docsHarnessSha: plan.target.docsHarnessSha,
+    runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    driverAttestationSha256: evidence.driverAttestationSha256,
+    observationSetSha256: evidence.cleanupRun.observationSetSha256,
+    phaseChainSha256: evidence.cleanupRun.phaseChainSha256,
+    cleanupRunReceiptId: evidence.cleanupRun.receiptId,
+    requestNonce,
+    caseForms: evidence.phaseChains.map((chain) => ({
+      caseId: chain.caseId,
+      form: chain.form,
+      caseHandle: chain.caseHandle,
+    })),
+    resources: RETURN_COVENANT_RETENTION_RESOURCES.map((entry) => ({
+      ...entry,
+      limit: RETURN_COVENANT_RETENTION_QUERY_LIMIT,
+    })),
   };
 }

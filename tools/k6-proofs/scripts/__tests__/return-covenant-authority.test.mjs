@@ -20,22 +20,28 @@ import {
   verifyReturnCovenantDirectCleanup,
 } from '../../lib/return-covenant-driver-attestation.mjs';
 import {
+  childTerminationReason,
   readBoundedCandidateJson,
 } from '../../lib/return-covenant-candidate-io.mjs';
 import {
+  deriveReturnCovenantCaseHandleClosure,
+  deriveReturnCovenantTrustedRetention,
   parseReturnCovenantEvidenceLog,
   resolveReturnCovenantAuthoritativeReceipt as resolveRawReturnCovenantReceipt,
   RETURN_COVENANT_EVIDENCE_PREFIX,
   RETURN_COVENANT_INTEGRITY_ALGORITHM,
+  RETURN_COVENANT_RETENTION_AUTHORITY,
   RETURN_COVENANT_TEARDOWN_PREFIX,
   validateReturnCovenantAuthoritativeReceipt,
   validateReturnCovenantCleanup,
   validateReturnCovenantObservation,
   validateReturnCovenantObservationSet,
+  validateReturnCovenantRetentionObservation,
 } from '../../lib/return-covenant-authoritative-receipt.mjs';
 import {
   assertExecutableReturnCovenantPlan,
   buildReturnCovenantDriverRequest,
+  buildReturnCovenantRetentionRequest,
   expandReturnCovenantExecutions,
   RETURN_COVENANT_DATABASE_PROFILES,
   RETURN_COVENANT_DRIVER_SCHEMA,
@@ -67,6 +73,7 @@ async function fixture(name) {
 }
 
 const TRUSTED_HARNESS_FILES = [
+  'contracts/return-covenant-authority/retention-observation.schema.json',
   'contracts/return-covenant-authority/scenario.js',
   'k6-proof-binaries.json',
   'lib/canonical-json.mjs',
@@ -496,6 +503,135 @@ function refreshPhaseProofs(evidence, driverAttestation) {
   };
 }
 
+const retentionResourceMethods = {
+  delegates: 'continuation.delegates.list',
+  queueItems: 'continuation.queue.list',
+  temporarySessions: 'sessions.list',
+};
+
+function retentionObservationFor({
+  plan,
+  evidence,
+  retained = {},
+}) {
+  const finalRestart = evidence.observations
+    .filter((entry) => entry.lifecycle?.restart)
+    .at(-1).lifecycle.restart;
+  const requestedAt = '2026-08-28T12:09:30.000Z';
+  const observedAt = '2026-08-28T12:09:30.010Z';
+  const requestNonce = sha256(`retention:${plan.runId}`);
+  const request = buildReturnCovenantRetentionRequest({
+    plan,
+    evidence,
+    requestNonce,
+  });
+  const resources = Object.fromEntries(
+    Object.entries(retentionResourceMethods).map(([category, method]) => {
+      const count = retained[category] || 0;
+      const items = Array.from({ length: count }, (_, index) => ({
+        id: `${category}-retained-${index}`,
+        runId: plan.runId,
+        status: 'retained',
+      }));
+      return [category, {
+        method,
+        complete: true,
+        total: items.length,
+        nextCursor: null,
+        items,
+      }];
+    }),
+  );
+  const gatewayResponse = {
+    schema: 'openclaw.k6.return-covenant-retention-response.v1',
+    rowId: plan.rowId,
+    runId: plan.runId,
+    candidateSha: plan.target.candidateSha,
+    runtimeBuildSha: plan.target.runtimeBuildSha,
+    runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    requestNonce,
+    observedAt,
+    gateway: {
+      endpoint: finalRestart.replacementGatewayEndpoint,
+      namespacePid: finalRestart.replacementGatewayPid,
+      namespaceStartFingerprint:
+        finalRestart.replacementGatewayStartFingerprint,
+    },
+    resources,
+  };
+  const body = JSON.stringify(gatewayResponse);
+  return {
+    schema: 'openclaw.k6.return-covenant-retention-observation.v1',
+    status: 'observed',
+    failureReason: null,
+    request,
+    target: {
+      source: 'phase-chain-final-gateway',
+      endpoint: finalRestart.replacementGatewayEndpoint,
+      namespacePid: finalRestart.replacementGatewayPid,
+      namespaceStartFingerprint:
+        finalRestart.replacementGatewayStartFingerprint,
+    },
+    timing: {
+      requestedAt,
+      observedAt,
+      requestedAtMonotonicMs: 570_000,
+      observedAtMonotonicMs: 570_010,
+    },
+    response: {
+      status: 200,
+      contentType: 'application/json',
+      body,
+      bodySha256: sha256(body),
+      byteLength: Buffer.byteLength(body),
+    },
+  };
+}
+
+function mutateRetentionResponse(evidence, mutation) {
+  const response = JSON.parse(evidence.retentionObservation.response.body);
+  mutation(response);
+  const body = JSON.stringify(response);
+  evidence.retentionObservation.response = {
+    ...evidence.retentionObservation.response,
+    body,
+    bodySha256: sha256(body),
+    byteLength: Buffer.byteLength(body),
+  };
+}
+
+function makeRetentionUnavailable(evidence, reason = 'resource-inspection-unsupported') {
+  const body = 'unsupported';
+  evidence.retentionObservation = {
+    ...evidence.retentionObservation,
+    status: 'unverified-resource-retention',
+    failureReason: reason,
+    response: {
+      status: 404,
+      contentType: 'text/plain',
+      body,
+      bodySha256: sha256(body),
+      byteLength: Buffer.byteLength(body),
+    },
+  };
+}
+
+function resignCleanup(cleanup) {
+  const {
+    launcherIntegrity: _oldIntegrity,
+    ...unsigned
+  } = cleanup;
+  return {
+    ...unsigned,
+    launcherIntegrity: {
+      algorithm: 'hmac-sha256-launch-key-v1',
+      signature: createHmac('sha256', signingKey)
+        .update(canonicalJson(unsigned))
+        .digest('hex'),
+    },
+  };
+}
+
 async function completeMatrix(options = {}) {
   const [fixturePlan, allowedBase, forbiddenBase] = await Promise.all([
     options.plan ? Promise.resolve(null) : fixture('plan.valid.json'),
@@ -556,7 +692,7 @@ async function completeMatrix(options = {}) {
       rowId: plan.rowId,
       runId: plan.runId,
       startedAt: '2026-08-28T12:00:00.000Z',
-      endedAt: '2026-08-28T12:09:00.000Z',
+      endedAt: '2026-08-28T12:09:31.000Z',
       observations,
       phaseChains,
       executionErrors: [],
@@ -582,10 +718,15 @@ async function completeMatrix(options = {}) {
     phaseChainSha256: jsonSha256(evidence.phaseChains),
   };
   refreshPhaseProofs(evidence, driverAttestation);
+  evidence.retentionObservation = retentionObservationFor({
+    plan,
+    evidence,
+    retained: options.retained,
+  });
   return result;
 }
 
-function bindCleanup(cleanup, evidence, driverAttestation) {
+function bindCleanup(cleanup, evidence, driverAttestation, plan) {
   refreshPhaseProofs(evidence, driverAttestation);
   evidence.cleanupRun = {
     ...evidence.cleanupRun,
@@ -635,10 +776,32 @@ function bindCleanup(cleanup, evidence, driverAttestation) {
     firstSeenMonotonicMs: index * 10,
     lastSeenMonotonicMs: index * 10 + 5,
     exitedAtMonotonicMs: index * 10 + 9,
+    retainedAtCleanup: false,
   }));
+  const closure = deriveReturnCovenantCaseHandleClosure({
+    plan,
+    evidence,
+    driverAttestation,
+  });
+  const retention = deriveReturnCovenantTrustedRetention({
+    plan,
+    evidence,
+    driverAttestation,
+    gatewayLifecycle,
+  });
   const unsigned = {
     ...cleanupWithoutIntegrity,
-    caseHandles: evidence.phaseChains.map((chain) => chain.caseHandle),
+    runtimeBuildSha: driverAttestation.runtimeBuildSha,
+    retained: {
+      ...cleanupWithoutIntegrity.retained,
+      ...retention.retained,
+      gateways: cleanupWithoutIntegrity.retained.gateways,
+      fixtureProcesses: cleanupWithoutIntegrity.retained.fixtureProcesses,
+    },
+    retentionAuthority: RETURN_COVENANT_RETENTION_AUTHORITY,
+    resourceObservation: retention.resourceObservation,
+    allCaseHandlesClosed: closure.allCaseHandlesClosed,
+    caseHandles: closure.caseHandles,
     observationSetSha256: jsonSha256(evidence.observations),
     phaseChainSha256: jsonSha256(evidence.phaseChains),
     driverAttestationSha256: driverAttestation.attestationSha256,
@@ -970,7 +1133,7 @@ test('empty phase identities and a missing result marker fail closed', async () 
 });
 
 test('bracket form cannot be relabeled typed execution evidence', async () => {
-  const { plan, evidence } = await completeMatrix();
+  const { evidence } = await completeMatrix();
   const observation = evidence.observations.find((entry) =>
     entry.caseId === 'allowed-ordinary-new' && entry.form === 'bracket-token');
   const phaseChain = evidence.phaseChains.find((entry) =>
@@ -1046,7 +1209,7 @@ test('fractional k6 monotonic milliseconds remain valid evidence', async () => {
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig,
     driverAttestation,
     signingKey,
@@ -1099,6 +1262,7 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
       await fixture('cleanup-pass.json'),
       evidence,
       driverAttestation,
+      plan,
     ),
     plan,
     evidence,
@@ -1112,6 +1276,7 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
       await fixture('cleanup-failure.json'),
       evidence,
       driverAttestation,
+      plan,
     ),
     plan,
     evidence,
@@ -1129,6 +1294,7 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
       extraRetainedFixture,
       evidence,
       driverAttestation,
+      plan,
     ),
     plan,
     evidence,
@@ -1143,6 +1309,7 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
     await fixture('cleanup-pass.json'),
     evidence,
     driverAttestation,
+    plan,
   );
   reusedSocket.gatewayLifecycle[1].listenerFingerprints =
     [...reusedSocket.gatewayLifecycle[0].listenerFingerprints];
@@ -1173,6 +1340,7 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
     await fixture('cleanup-pass.json'),
     evidence,
     driverAttestation,
+    plan,
   );
   stale.observationSetSha256 = 'f'.repeat(64);
   assert.equal(validateReturnCovenantCleanup({
@@ -1185,13 +1353,310 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
   }).valid, false);
 });
 
+test('candidate zero cleanup cannot mask docs-owned retained resources', async (t) => {
+  for (const category of Object.keys(retentionResourceMethods)) {
+    await t.test(category, async () => {
+      const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+        await Promise.all([
+          completeMatrix({ retained: { [category]: 1 } }),
+          fixture('cleanup-pass.json'),
+          fixture('runtime-config.valid.json'),
+        ]);
+      const receipt = resolveReturnCovenantAuthoritativeReceipt({
+        plan,
+        evidence,
+        cleanup: bindCleanup(
+          cleanupFixture,
+          evidence,
+          driverAttestation,
+          plan,
+        ),
+        runtimeConfig,
+        driverAttestation,
+        signingKey,
+      });
+      assert.equal(cleanupFixture.retained[category], 0);
+      assert.equal(receipt.verdict, 'FAIL-candidate');
+      assert.ok(receipt.failureCategories.includes('resource-retention'));
+    });
+  }
+});
+
+test('case-handle closure is derived from exact phase-chain coverage', async (t) => {
+  const candidateClaims = await fixture('cleanup-pass.json');
+  assert.equal(candidateClaims.allCaseHandlesClosed, true);
+  for (const mode of ['missing', 'duplicated']) {
+    await t.test(mode, async () => {
+      const [{ plan, evidence, driverAttestation }, runtimeConfig] =
+        await Promise.all([
+          completeMatrix(),
+          fixture('runtime-config.valid.json'),
+        ]);
+      if (mode === 'missing') {
+        evidence.phaseChains.pop();
+      } else {
+        evidence.phaseChains.push(structuredClone(evidence.phaseChains[0]));
+      }
+      const closure = deriveReturnCovenantCaseHandleClosure({
+        plan,
+        evidence,
+        driverAttestation,
+      });
+      assert.equal(closure.allCaseHandlesClosed, false);
+      const cleanup = bindCleanup(
+        candidateClaims,
+        evidence,
+        driverAttestation,
+        plan,
+      );
+      assert.equal(cleanup.allCaseHandlesClosed, false);
+      const receipt = resolveReturnCovenantAuthoritativeReceipt({
+        plan,
+        evidence,
+        cleanup,
+        runtimeConfig,
+        driverAttestation,
+        signingKey,
+      });
+      assert.equal(receipt.verdict, 'FAIL-candidate');
+      assert.ok(receipt.failureCategories.includes('phase-chain-mismatch'));
+    });
+  }
+});
+
+test('missing resource-inspection seam fails closed with an explicit category', async () => {
+  const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+    await Promise.all([
+      completeMatrix(),
+      fixture('cleanup-pass.json'),
+      fixture('runtime-config.valid.json'),
+    ]);
+  makeRetentionUnavailable(evidence);
+  const cleanup = bindCleanup(
+    cleanupFixture,
+    evidence,
+    driverAttestation,
+    plan,
+  );
+  assert.equal(
+    cleanup.resourceObservation.status,
+    'unverified-resource-retention',
+  );
+  const receipt = resolveReturnCovenantAuthoritativeReceipt({
+    plan,
+    evidence,
+    cleanup,
+    runtimeConfig,
+    driverAttestation,
+    signingKey,
+  });
+  assert.equal(receipt.verdict, 'FAIL-candidate');
+  assert.ok(
+    receipt.failureCategories.includes('unverified-resource-retention'),
+  );
+});
+
+test('stale or mismatched retention identity cannot be signed as PASS', async (t) => {
+  const controls = {
+    run: (evidence) => mutateRetentionResponse(
+      evidence,
+      (response) => { response.runId = 'rcv-ffffffffffffffffffffffffffffffff'; },
+    ),
+    sha: (evidence) => mutateRetentionResponse(
+      evidence,
+      (response) => { response.candidateSha = 'f'.repeat(40); },
+    ),
+    gateway: (evidence) => {
+      evidence.retentionObservation.target.namespacePid += 1;
+      mutateRetentionResponse(
+        evidence,
+        (response) => { response.gateway.namespacePid += 1; },
+      );
+    },
+    'gateway-start': (evidence) => {
+      evidence.retentionObservation.target.namespaceStartFingerprint =
+        'f'.repeat(64);
+      mutateRetentionResponse(
+        evidence,
+        (response) => {
+          response.gateway.namespaceStartFingerprint = 'f'.repeat(64);
+        },
+      );
+    },
+    timestamp: (evidence) => mutateRetentionResponse(
+      evidence,
+      (response) => { response.observedAt = '2000-01-01T00:00:00.000Z'; },
+    ),
+  };
+  for (const [name, mutate] of Object.entries(controls)) {
+    await t.test(name, async () => {
+      const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+        await Promise.all([
+          completeMatrix(),
+          fixture('cleanup-pass.json'),
+          fixture('runtime-config.valid.json'),
+        ]);
+      mutate(evidence);
+      const receipt = resolveReturnCovenantAuthoritativeReceipt({
+        plan,
+        evidence,
+        cleanup: bindCleanup(
+          cleanupFixture,
+          evidence,
+          driverAttestation,
+          plan,
+        ),
+        runtimeConfig,
+        driverAttestation,
+        signingKey,
+      });
+      assert.equal(receipt.verdict, 'FAIL-candidate');
+      assert.ok(
+        receipt.failureCategories.includes('unverified-resource-retention'),
+      );
+    });
+  }
+
+  await t.test('socket', async () => {
+    const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+      await Promise.all([
+        completeMatrix(),
+        fixture('cleanup-pass.json'),
+        fixture('runtime-config.valid.json'),
+      ]);
+    const cleanup = bindCleanup(
+      cleanupFixture,
+      evidence,
+      driverAttestation,
+      plan,
+    );
+    cleanup.resourceObservation.gatewaySocketFingerprint = 'f'.repeat(64);
+    const receipt = resolveReturnCovenantAuthoritativeReceipt({
+      plan,
+      evidence,
+      cleanup: resignCleanup(cleanup),
+      runtimeConfig,
+      driverAttestation,
+      signingKey,
+    });
+    assert.equal(receipt.verdict, 'FAIL-candidate');
+    assert.ok(receipt.failureCategories.includes('cleanup-failure'));
+  });
+});
+
+test('malformed partial and count-overflow inspections fail closed', async (t) => {
+  const controls = {
+    malformed(evidence) {
+      const body = '{"malformed":';
+      evidence.retentionObservation.response = {
+        ...evidence.retentionObservation.response,
+        body,
+        bodySha256: sha256(body),
+        byteLength: Buffer.byteLength(body),
+      };
+    },
+    partial: (evidence) => mutateRetentionResponse(
+      evidence,
+      (response) => { response.resources.queueItems.complete = false; },
+    ),
+    'count-mismatch': (evidence) => mutateRetentionResponse(
+      evidence,
+      (response) => { response.resources.delegates.total = 1; },
+    ),
+    overflow: (evidence) => mutateRetentionResponse(
+      evidence,
+      (response) => {
+        response.resources.delegates.items = Array.from(
+          { length: 101 },
+          (_, index) => ({
+            id: `overflow-delegate-${index}`,
+            runId: response.runId,
+            status: 'retained',
+          }),
+        );
+        response.resources.delegates.total = 101;
+      },
+    ),
+  };
+  for (const [name, mutate] of Object.entries(controls)) {
+    await t.test(name, async () => {
+      const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+        await Promise.all([
+          completeMatrix(),
+          fixture('cleanup-pass.json'),
+          fixture('runtime-config.valid.json'),
+        ]);
+      mutate(evidence);
+      const receipt = resolveReturnCovenantAuthoritativeReceipt({
+        plan,
+        evidence,
+        cleanup: bindCleanup(
+          cleanupFixture,
+          evidence,
+          driverAttestation,
+          plan,
+        ),
+        runtimeConfig,
+        driverAttestation,
+        signingKey,
+      });
+      assert.equal(receipt.verdict, 'FAIL-candidate');
+      assert.ok(
+        receipt.failureCategories.includes('unverified-resource-retention'),
+      );
+    });
+  }
+});
+
+test('clean trusted resource observation plus independent process teardown passes', async () => {
+  const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+    await Promise.all([
+      completeMatrix(),
+      fixture('cleanup-pass.json'),
+      fixture('runtime-config.valid.json'),
+    ]);
+  const cleanup = bindCleanup(
+    cleanupFixture,
+    evidence,
+    driverAttestation,
+    plan,
+  );
+  const validation = validateReturnCovenantRetentionObservation({
+    plan,
+    evidence,
+    driverAttestation,
+    gatewayLifecycle: cleanup.gatewayLifecycle,
+  });
+  assert.deepEqual(validation.retained, {
+    delegates: 0,
+    queueItems: 0,
+    temporarySessions: 0,
+  });
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors));
+  assert.equal(cleanup.retained.gateways, 0);
+  assert.equal(cleanup.retained.fixtureProcesses, 0);
+  const receipt = resolveReturnCovenantAuthoritativeReceipt({
+    plan,
+    evidence,
+    cleanup,
+    runtimeConfig,
+    driverAttestation,
+    signingKey,
+  });
+  assert.equal(
+    receipt.verdict,
+    'PASS-candidate',
+    receipt.failureCategories.join(', '),
+  );
+});
+
 test('signed observer receipt binds the complete matrix and publishes no raw identities', async () => {
   const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] = await Promise.all([
     completeMatrix(),
     fixture('cleanup-pass.json'),
     fixture('runtime-config.valid.json'),
   ]);
-  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation);
+  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation, plan);
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
@@ -1281,7 +1746,12 @@ test('missing observations and cleanup failure produce signed FAIL receipts', as
   evidence.observations.pop();
   evidence.observations[0].effects.expected.privatePrompt =
     'PRIVATE_SENTINEL_NOT_IN_REDACTION_SET';
-  const cleanupFailure = bindCleanup(cleanupFixture, evidence, driverAttestation);
+  const cleanupFailure = bindCleanup(
+    cleanupFixture,
+    evidence,
+    driverAttestation,
+    plan,
+  );
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
@@ -1322,7 +1792,7 @@ test('isolated runtime authority cannot be supplied by ambient plugin state', as
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig: {},
     driverAttestation,
     signingKey,
@@ -1335,7 +1805,7 @@ test('isolated runtime authority cannot be supplied by ambient plugin state', as
   const spliced = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig: splicedConfig,
     driverAttestation,
     signingKey,
@@ -1366,7 +1836,7 @@ test('scenario errors and reused phase identities remain terminal failures', asy
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig,
     driverAttestation,
     signingKey,
@@ -1406,7 +1876,7 @@ test('one receipt reused across phases and a nonzero k6 exit cannot PASS', async
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig,
     driverAttestation,
     signingKey,
@@ -1440,7 +1910,7 @@ test('cross-case current generation and restart receipt reuse cannot PASS', asyn
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig,
     driverAttestation,
     signingKey,
@@ -1488,7 +1958,7 @@ test('phase response binding without launcher HMAC proof cannot PASS', async () 
       fixture('cleanup-pass.json'),
       fixture('runtime-config.valid.json'),
     ]);
-  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation);
+  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation, plan);
   evidence.phaseChains[0].proofs.dispatch.signature = '0'.repeat(64);
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
@@ -1510,7 +1980,7 @@ test('missing per-case cleanup emits a signed FAIL instead of throwing', async (
       fixture('cleanup-pass.json'),
       fixture('runtime-config.valid.json'),
     ]);
-  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation);
+  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation, plan);
   delete evidence.phaseChains[0].cleanup;
   delete evidence.phaseChains[0].proofs.cleanup;
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
@@ -1792,7 +2262,7 @@ test('driver attestation binds a running process to an exact candidate Git blob'
   }
 });
 
-test('trusted launcher owns snapshot, isolation, process start, and final cleanup', async () => {
+async function runTrustedLauncherFixture(transformDriver = (source) => source) {
   const sourceDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-source-'));
   const inputDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-input-'));
   const controlDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-control-'));
@@ -1800,9 +2270,11 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
   try {
     const driverRelative = 'fixture-driver.mjs';
     const driverPath = path.join(sourceDir, driverRelative);
-    const driverSource = await readFile(
-      path.join(fixtures, 'mock-product-driver.mjs'),
-      'utf8',
+    const driverSource = transformDriver(
+      await readFile(
+        path.join(fixtures, 'mock-product-driver.mjs'),
+        'utf8',
+      ),
     );
     await writeFile(driverPath, driverSource, { mode: 0o700 });
     await copyTrustedHarness(sourceDir);
@@ -1878,7 +2350,7 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
     }
     if (!attestation) {
       const earlyExit = await launcherExit;
-      assert.fail(JSON.stringify({
+      throw new Error(JSON.stringify({
         earlyExit,
         stderr: launcherStderr,
         stdout: launcherStdout,
@@ -1887,51 +2359,77 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
       }));
     }
     const launcherExitCode = await launcherExit;
-    let launcherReceipt;
-    let launcherCleanup;
-    let launcherEvidence;
+    const readOptionalJson = (file) => readFile(file, 'utf8')
+      .then(JSON.parse)
+      .catch(() => null);
+    const [receipt, cleanup, candidateDiagnostic, k6Log] = await Promise.all([
+      readOptionalJson(path.join(artifactDir, 'observer-receipt.json')),
+      readOptionalJson(path.join(controlDir, 'cleanup.json')),
+      readOptionalJson(path.join(controlDir, 'candidate-cleanup-diagnostic.json')),
+      readFile(path.join(controlDir, 'k6.log'), 'utf8').catch(() => ''),
+    ]);
+    let evidence = null;
     try {
-      launcherReceipt = JSON.parse(
-        await readFile(path.join(artifactDir, 'observer-receipt.json'), 'utf8'),
-      );
+      evidence = parseReturnCovenantEvidenceLog(k6Log);
     } catch {
-      launcherReceipt = null;
+      evidence = null;
     }
-    try {
-      launcherCleanup = JSON.parse(
-        await readFile(path.join(controlDir, 'cleanup.json'), 'utf8'),
-      );
-    } catch {
-      launcherCleanup = null;
-    }
-    try {
-      launcherEvidence = parseReturnCovenantEvidenceLog(
-        await readFile(path.join(controlDir, 'k6.log'), 'utf8'),
-      );
-    } catch {
-      launcherEvidence = null;
-    }
-    assert.equal(
+    return {
+      attestation,
+      candidateDiagnostic,
+      cleanup,
+      controlDir,
+      evidence,
       launcherExitCode,
-      0,
-      JSON.stringify({
-        stderr: launcherStderr,
-        stdout: launcherStdout,
-        failureCategories: launcherReceipt?.failureCategories,
-        launcherCleanup,
+      launcherStderr,
+      launcherStdout,
+      receipt,
+      debug: {
         driverLog: await readFile(path.join(controlDir, 'driver.log'), 'utf8')
           .catch(() => ''),
         k6Exit: await readFile(path.join(controlDir, 'k6-exit-code.txt'), 'utf8')
           .catch(() => ''),
-        k6LogTail: (await readFile(path.join(controlDir, 'k6.log'), 'utf8')
-          .catch(() => '')).split('\n').slice(-20),
-        firstObservation: launcherEvidence?.observations?.[0],
-        firstPhaseChain: launcherEvidence?.phaseChains?.[0],
-        scenarioFailures: launcherEvidence?.scenarioFailures,
-        executionErrors: launcherEvidence?.executionErrors,
-        cleanup: launcherReceipt?.cleanup,
-        binding: launcherReceipt?.binding,
-        failingCases: launcherReceipt?.matrix?.cases
+        k6LogTail: k6Log.split('\n').slice(-20),
+      },
+      async dispose() {
+        await Promise.all([
+          rm(sourceDir, { recursive: true, force: true }),
+          rm(inputDir, { recursive: true, force: true }),
+          rm(controlDir, { recursive: true, force: true }),
+          rm(artifactDir, { recursive: true, force: true }),
+        ]);
+      },
+    };
+  } catch (error) {
+    await Promise.all([
+      rm(sourceDir, { recursive: true, force: true }),
+      rm(inputDir, { recursive: true, force: true }),
+      rm(controlDir, { recursive: true, force: true }),
+      rm(artifactDir, { recursive: true, force: true }),
+    ]);
+    throw error;
+  }
+}
+
+test('trusted launcher owns snapshot, isolation, process start, and final cleanup', async () => {
+  const result = await runTrustedLauncherFixture();
+  try {
+    assert.equal(
+      result.launcherExitCode,
+      0,
+      JSON.stringify({
+        stderr: result.launcherStderr,
+        stdout: result.launcherStdout,
+        failureCategories: result.receipt?.failureCategories,
+        launcherCleanup: result.cleanup,
+        ...result.debug,
+        firstObservation: result.evidence?.observations?.[0],
+        firstPhaseChain: result.evidence?.phaseChains?.[0],
+        scenarioFailures: result.evidence?.scenarioFailures,
+        executionErrors: result.evidence?.executionErrors,
+        cleanup: result.receipt?.cleanup,
+        binding: result.receipt?.binding,
+        failingCases: result.receipt?.matrix?.cases
           .filter((entry) => entry.validation === 'fail')
           .map((entry) => ({
             key: `${entry.caseId}:${entry.form}`,
@@ -1939,59 +2437,104 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
           })),
       }),
     );
-    const controlFiles = await readdir(controlDir);
+    const controlFiles = await readdir(result.controlDir);
     assert.ok(
       controlFiles.includes('driver-attestation.json') &&
         controlFiles.includes('cleanup.json'),
       JSON.stringify({
-          stdout: launcherStdout,
-          stderr: launcherStderr,
+          stdout: result.launcherStdout,
+          stderr: result.launcherStderr,
         controlFiles,
       }),
     );
-    const [cleanup, receipt] = await Promise.all([
-      readFile(path.join(controlDir, 'cleanup.json'), 'utf8')
-        .then(JSON.parse),
-      readFile(path.join(artifactDir, 'observer-receipt.json'), 'utf8')
-        .then(JSON.parse),
-    ]);
-    assert.equal(attestation.launcher.createdByTrustedLauncher, true);
-    assert.notEqual(attestation.isolation.driverPid, attestation.isolation.gatewayPid);
-    assert.equal(cleanup.snapshotMatchedCandidateAfterRun, true);
-    assert.equal(cleanup.runRootRemoved, true);
-    assert.equal(cleanup.driverExitCode, 0);
-    assert.equal(
-      receipt.verdict,
-      'PASS-candidate',
-      receipt.failureCategories.join(', '),
+    assert.equal(result.attestation.launcher.createdByTrustedLauncher, true);
+    assert.notEqual(
+      result.attestation.isolation.driverPid,
+      result.attestation.isolation.gatewayPid,
     );
-    assert.equal(receipt.integrity.algorithm, RETURN_COVENANT_INTEGRITY_ALGORITHM);
+    assert.equal(result.cleanup.snapshotMatchedCandidateAfterRun, true);
+    assert.equal(result.cleanup.runRootRemoved, true);
+    assert.equal(result.cleanup.driverExitCode, 0);
+    assert.deepEqual(result.cleanup.retained, {
+      delegates: 0,
+      queueItems: 0,
+      temporarySessions: 0,
+      gateways: 0,
+      fixtureProcesses: 0,
+    });
+    assert.equal(result.cleanup.resourceObservation.status, 'verified');
+    assert.equal(result.candidateDiagnostic.passEligible, false);
+    assert.equal(
+      result.receipt.verdict,
+      'PASS-candidate',
+      result.receipt.failureCategories.join(', '),
+    );
+    assert.equal(
+      result.receipt.integrity.algorithm,
+      RETURN_COVENANT_INTEGRITY_ALGORITHM,
+    );
     assert.deepEqual(
       validateReturnCovenantAuthoritativeReceipt(
-        receipt,
-        attestation.phaseSigningKey,
+        result.receipt,
+        result.attestation.phaseSigningKey,
       ),
       { valid: false, reason: 'invalid-integrity' },
     );
     assert.notEqual(
-      cleanup.launcherIntegrity.signature,
-      createHmac('sha256', attestation.phaseSigningKey)
-        .update(canonicalJson((({ launcherIntegrity: _ignored, ...value }) => value)(cleanup)))
+      result.cleanup.launcherIntegrity.signature,
+      createHmac('sha256', result.attestation.phaseSigningKey)
+        .update(canonicalJson(
+          (({ launcherIntegrity: _ignored, ...value }) => value)(result.cleanup),
+        ))
         .digest('hex'),
     );
     assert.equal(
-      (await verifyReturnCovenantDirectCleanup(attestation)).verified,
+      (await verifyReturnCovenantDirectCleanup(result.attestation)).verified,
       true,
     );
   } finally {
-    await Promise.all([
-      rm(sourceDir, { recursive: true, force: true }),
-      rm(inputDir, { recursive: true, force: true }),
-      rm(controlDir, { recursive: true, force: true }),
-      rm(artifactDir, { recursive: true, force: true }),
-    ]);
+    await result.dispose();
   }
 });
+
+for (const category of Object.keys(retentionResourceMethods)) {
+  test(`trusted launcher rejects candidate zero lie for ${category}`, async () => {
+      const result = await runTrustedLauncherFixture((source) =>
+        source
+          .replace(
+            'retainedResource: null',
+            `retainedResource: '${category}'`,
+          )
+          .replace(
+            'candidateClaimsClean: false',
+            'candidateClaimsClean: true',
+          ));
+      try {
+        assert.equal(result.launcherExitCode, 1);
+        assert.ok(result.candidateDiagnostic, JSON.stringify({
+          cleanup: result.cleanup,
+          debug: result.debug,
+          receipt: result.receipt,
+          stderr: result.launcherStderr,
+          stdout: result.launcherStdout,
+        }));
+        assert.equal(result.candidateDiagnostic.passEligible, false);
+        assert.equal(result.candidateDiagnostic.claims.retained[category], 0);
+        assert.equal(result.cleanup.retained[category], 1);
+        assert.equal(result.cleanup.resourceObservation.status, 'verified');
+        assert.equal(result.cleanup.retained.gateways, 0);
+        assert.equal(result.cleanup.retained.fixtureProcesses, 0);
+        assert.equal(result.receipt.verdict, 'FAIL-candidate');
+        assert.ok(result.receipt.failureCategories.includes('resource-retention'));
+        const raw = JSON.parse(
+          result.evidence.retentionObservation.response.body,
+        );
+        assert.equal(raw.resources[category].items.length, 1);
+      } finally {
+        await result.dispose();
+      }
+  });
+}
 
 test('trusted launcher rejects candidate command symlinks before execution', async () => {
   const sourceDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-symlink-source-'));
@@ -2064,6 +2607,43 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
   }
 });
 
+test('sandbox waits report signal-terminated children fail closed', async () => {
+  assert.equal(
+    childTerminationReason({ exitCode: null, signalCode: 'SIGTERM' }),
+    'signal SIGTERM',
+  );
+  const directory = await mkdtemp(path.join(tmpdir(), 'return-covenant-signal-'));
+  try {
+    const driver = path.join(directory, 'signal-driver.mjs');
+    await writeFile(
+      driver,
+      "process.kill(process.pid, 'SIGTERM');\n",
+      { mode: 0o700 },
+    );
+    const result = spawnSync(process.execPath, [
+      path.join(root, 'scripts/run-return-covenant-sandbox.mjs'),
+      '--driver', driver,
+      '--driver-args', '[]',
+      '--attestation', path.join(directory, 'missing-attestation.json'),
+      '--k6', '/bin/true',
+      '--k6-config', path.join(directory, 'k6.json'),
+      '--k6-home', directory,
+      '--scenario', path.join(directory, 'scenario.js'),
+      '--plan', path.join(directory, 'plan.json'),
+    ], {
+      encoding: 'utf8',
+      timeout: 5_000,
+    });
+    assert.equal(result.status, 1, result.stderr || result.stdout);
+    assert.match(
+      result.stderr,
+      /product driver exited before attestation \(signal SIGTERM\)/,
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test('candidate JSON reader rejects symlinks, FIFOs, and oversized files', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'return-covenant-json-'));
   try {
@@ -2101,6 +2681,7 @@ test('published closed schemas declare required properties and accept passing fi
     'driver-ready.schema.json',
     'fixture-input.schema.json',
     'observer.schema.json',
+    'retention-observation.schema.json',
   ];
   const schemas = await Promise.all(schemaNames.map((name) =>
     fixture(`../../../contracts/return-covenant-authority/${name}`)));
@@ -2111,6 +2692,12 @@ test('published closed schemas declare required properties and accept passing fi
     cleanupSchema,
     await fixture('cleanup-pass.json'),
     cleanupSchema,
+  );
+  const { plan, evidence } = await completeMatrix();
+  assertSimpleSchema(
+    schemas.at(-1),
+    evidence.retentionObservation,
+    schemas.at(-1),
   );
 });
 
@@ -2272,7 +2859,7 @@ test('explicit revocation N/A requires a complete exact-build capability invento
       },
     };
   }
-  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation);
+  const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation, plan);
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
@@ -2309,7 +2896,7 @@ test('explicit revocation N/A requires a complete exact-build capability invento
   const mixed = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig,
     driverAttestation,
     signingKey,
@@ -2324,7 +2911,7 @@ test('explicit revocation N/A requires a complete exact-build capability invento
   const malformed = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
-    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation),
+    cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
     runtimeConfig,
     driverAttestation,
     signingKey,

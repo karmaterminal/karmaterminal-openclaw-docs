@@ -25,10 +25,54 @@ function canonicalValue(value) {
 const canonicalJson = (value) => JSON.stringify(canonicalValue(value));
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'));
+const MOCK_CONTROL = Object.freeze({
+  retainedResource: null,
+  inspectionFault: null,
+  candidateClaimsClean: false,
+});
+const resourceCategories = [
+  'delegates',
+  'queueItems',
+  'temporarySessions',
+];
+const resourceMethods = {
+  delegates: 'continuation.delegates.list',
+  queueItems: 'continuation.queue.list',
+  temporarySessions: 'sessions.list',
+};
 const hostPid = () => Number(
   readFileSync('/proc/self/status', 'utf8')
     .match(/^NSpid:\s+([0-9]+)/mu)?.[1] || process.pid,
 );
+
+async function postJson(url, value) {
+  const target = new URL(url);
+  return await new Promise((resolve, reject) => {
+    const request = http.request({
+      hostname: target.hostname,
+      port: target.port,
+      path: target.pathname,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENCLAW_GATEWAY_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    }, (response) => {
+      let raw = '';
+      response.setEncoding('utf8');
+      response.on('data', (chunk) => { raw += chunk; });
+      response.on('end', () => {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(new Error(`gateway state sync failed (${response.statusCode})`));
+          return;
+        }
+        resolve(raw ? JSON.parse(raw) : null);
+      });
+    });
+    request.once('error', reject);
+    request.end(JSON.stringify(value));
+  });
+}
 
 async function waitForJson(file) {
   for (let attempt = 0; attempt < 500; attempt += 1) {
@@ -57,15 +101,130 @@ function args(argv) {
 }
 
 if (process.argv[2] === 'gateway') {
-  const gatewayServer = http.createServer((_request, response) => {
-    response.end('gateway-ok');
+  let resources = JSON.parse(
+    process.env.RETURN_COVENANT_GATEWAY_RESOURCE_STATE ||
+      '{"delegates":[],"queueItems":[],"temporarySessions":[]}',
+  );
+  let gatewayIdentity = null;
+  const gatewayServer = http.createServer((request, response) => {
+    let raw = '';
+    request.setEncoding('utf8');
+    request.on('data', (chunk) => { raw += chunk; });
+    request.on('end', () => {
+      const authorized =
+        request.headers.authorization ===
+        `Bearer ${process.env.OPENCLAW_GATEWAY_TOKEN}`;
+      if (!authorized) {
+        response.statusCode = 401;
+        response.end('unauthorized');
+        return;
+      }
+      if (
+        request.method === 'POST' &&
+        request.url === '/v1/return-covenant/mock-resource-state'
+      ) {
+        const body = JSON.parse(raw);
+        resources = Object.fromEntries(
+          resourceCategories.map((category) => [
+            category,
+            [...body.resources[category]],
+          ]),
+        );
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify({ updated: true }));
+        return;
+      }
+      if (
+        request.method !== 'POST' ||
+        request.url !== '/v1/return-covenant/resource-inspection'
+      ) {
+        response.statusCode = 404;
+        response.end('not found');
+        return;
+      }
+      if (MOCK_CONTROL.inspectionFault === 'unsupported') {
+        response.statusCode = 404;
+        response.end('unsupported');
+        return;
+      }
+      if (MOCK_CONTROL.inspectionFault === 'malformed') {
+        response.setHeader('content-type', 'application/json');
+        response.end('{"malformed":');
+        return;
+      }
+      const body = JSON.parse(raw);
+      const observedAt = MOCK_CONTROL.inspectionFault === 'timestamp'
+        ? '2000-01-01T00:00:00.000Z'
+        : new Date().toISOString();
+      const responseResources = Object.fromEntries(
+        resourceCategories.map((category) => {
+          const items = [...resources[category]];
+          return [category, {
+            method: resourceMethods[category],
+            complete: true,
+            total: items.length,
+            nextCursor: null,
+            items,
+          }];
+        }),
+      );
+      if (MOCK_CONTROL.inspectionFault === 'partial') {
+        responseResources.queueItems.complete = false;
+      }
+      if (MOCK_CONTROL.inspectionFault === 'overflow') {
+        responseResources.delegates.items = Array.from(
+          { length: 101 },
+          (_, index) => ({
+            id: `overflow-delegate-${index}`,
+            runId: process.env.OPENCLAW_RETURN_COVENANT_RUN_ID,
+            status: 'retained',
+          }),
+        );
+        responseResources.delegates.total =
+          responseResources.delegates.items.length;
+      }
+      const result = {
+        schema: 'openclaw.k6.return-covenant-retention-response.v1',
+        rowId: process.env.OPENCLAW_RETURN_COVENANT_ROW_ID,
+        runId: MOCK_CONTROL.inspectionFault === 'run'
+          ? 'rcv-ffffffffffffffffffffffffffffffff'
+          : process.env.OPENCLAW_RETURN_COVENANT_RUN_ID,
+        candidateSha: MOCK_CONTROL.inspectionFault === 'sha'
+          ? 'f'.repeat(40)
+          : process.env.OPENCLAW_CANDIDATE_SHA,
+        runtimeBuildSha: process.env.OPENCLAW_CANDIDATE_SHA,
+        runtimeConfigSha256:
+          process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_CONFIG_SHA256,
+        requestNonce: body.requestNonce,
+        observedAt,
+        gateway: {
+          endpoint: gatewayIdentity.endpoint,
+          namespacePid: MOCK_CONTROL.inspectionFault === 'pid'
+            ? gatewayIdentity.namespacePid + 1
+            : gatewayIdentity.namespacePid,
+          namespaceStartFingerprint:
+            gatewayIdentity.namespaceStartFingerprint,
+        },
+        resources: responseResources,
+      };
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify(result));
+    });
   });
   gatewayServer.listen(0, '127.0.0.1', () => {
+    const pid = hostPid();
+    const endpoint = `http://127.0.0.1:${gatewayServer.address().port}`;
+    gatewayIdentity = {
+      endpoint,
+      namespacePid: pid,
+      namespaceStartFingerprint: processStartFingerprint(pid),
+    };
     writeFileSync(
       process.env.RETURN_COVENANT_GATEWAY_READY_FILE,
       JSON.stringify({
-        pid: hostPid(),
-        endpoint: `http://127.0.0.1:${gatewayServer.address().port}`,
+        pid,
+        endpoint,
+        startFingerprint: gatewayIdentity.namespaceStartFingerprint,
       }),
     );
   });
@@ -83,6 +242,46 @@ if (process.argv[2] === 'gateway') {
   let currentGateway = null;
   let cleanupRun = null;
   let finalizing = false;
+  const resourceState = Object.fromEntries(
+    resourceCategories.map((category) => [category, new Map()]),
+  );
+  const retainedControlApplied = new Set();
+
+  function resourceSnapshot() {
+    return Object.fromEntries(
+      resourceCategories.map((category) => [
+        category,
+        [...resourceState[category].values()],
+      ]),
+    );
+  }
+
+  function putResource(category, id, status) {
+    resourceState[category].set(id, {
+      id,
+      runId: plan.runId,
+      status,
+    });
+  }
+
+  function removeResourceUnlessRetained(category, id) {
+    if (
+      MOCK_CONTROL.retainedResource === category &&
+      !retainedControlApplied.has(category)
+    ) {
+      retainedControlApplied.add(category);
+      return;
+    }
+    resourceState[category].delete(id);
+  }
+
+  async function syncCurrentGateway() {
+    if (!currentGateway) return;
+    await postJson(
+      `${currentGateway.endpoint}/v1/return-covenant/mock-resource-state`,
+      { resources: resourceSnapshot() },
+    );
+  }
 
   function spawnGateway(label) {
     const readyFile = `${input.ready}.gateway-${label}.json`;
@@ -92,6 +291,12 @@ if (process.argv[2] === 'gateway') {
       env: {
         ...process.env,
         RETURN_COVENANT_GATEWAY_READY_FILE: readyFile,
+        RETURN_COVENANT_GATEWAY_RESOURCE_STATE:
+          JSON.stringify(resourceSnapshot()),
+        OPENCLAW_RETURN_COVENANT_RUN_ID: plan.runId,
+        OPENCLAW_RETURN_COVENANT_ROW_ID: plan.rowId,
+        OPENCLAW_RETURN_COVENANT_RUNTIME_CONFIG_SHA256:
+          plan.target.runtimeConfigSha256,
       },
     });
     const entry = { child, readyFile, label, exited: false };
@@ -105,7 +310,8 @@ if (process.argv[2] === 'gateway') {
     const ready = await waitForJson(entry.readyFile);
     entry.pid = ready.pid;
     entry.endpoint = ready.endpoint;
-    entry.startFingerprint = processStartFingerprint(entry.pid);
+    entry.startFingerprint =
+      ready.startFingerprint || processStartFingerprint(entry.pid);
     return entry;
   }
 
@@ -368,7 +574,14 @@ if (process.argv[2] === 'gateway') {
             request: body,
             startedAt: new Date().toISOString(),
             database: databaseReceipt(body, prepareReceipt),
+            closed: false,
           });
+          putResource(
+            'temporarySessions',
+            `temporary-session-${key}`,
+            'temporary',
+          );
+          await syncCurrentGateway();
           payload = {
             caseHandle,
             prepare: { caseHandle, receiptId: prepareReceipt },
@@ -387,6 +600,9 @@ if (process.argv[2] === 'gateway') {
             resultMarker,
             originEvidence: originEvidence(key, body.form),
           };
+          putResource('delegates', `delegate-${key}`, 'pending-return');
+          putResource('queueItems', `queue-item-${key}`, 'held');
+          await syncCurrentGateway();
           payload = { acceptance: state.acceptance };
         } else if (body.phase === 'transition') {
           const state = cases.get(body.caseHandle);
@@ -449,10 +665,19 @@ if (process.argv[2] === 'gateway') {
             observation: settled ? completeObservation(state) : null,
           };
         } else if (body.phase === 'cleanup') {
+          const state = cases.get(body.caseHandle);
+          state.closed = true;
+          removeResourceUnlessRetained('delegates', `delegate-${key}`);
+          removeResourceUnlessRetained('queueItems', `queue-item-${key}`);
+          removeResourceUnlessRetained(
+            'temporarySessions',
+            `temporary-session-${key}`,
+          );
+          await syncCurrentGateway();
           payload = {
             cleanup: {
               caseHandle: body.caseHandle,
-              closed: true,
+              closed: state.closed,
               receiptId: `case-cleanup-receipt-${key}`,
             },
           };
@@ -491,17 +716,21 @@ if (process.argv[2] === 'gateway') {
     );
     const startedAt = new Date().toISOString();
     await Promise.all(gateways.map(stopGateway));
+    const actualRetained = {
+      delegates: resourceState.delegates.size,
+      queueItems: resourceState.queueItems.size,
+      temporarySessions: resourceState.temporarySessions.size,
+      gateways: gateways.filter((entry) => !entry.exited).length,
+      fixtureProcesses: 0,
+    };
     writeFileSync(input['cleanup-draft'], JSON.stringify({
       startedAt,
       endedAt: new Date().toISOString(),
-      retained: {
-        delegates: 0,
-        queueItems: 0,
-        temporarySessions: 0,
-        gateways: 0,
-        fixtureProcesses: 0,
-      },
-      allCaseHandlesClosed: true,
+      retained: MOCK_CONTROL.candidateClaimsClean
+        ? Object.fromEntries(Object.keys(actualRetained).map((name) => [name, 0]))
+        : actualRetained,
+      allCaseHandlesClosed:
+        [...cases.values()].every((entry) => entry.closed === true),
       caseHandles: [...cases.keys()],
       observationSetSha256: cleanupRun.observationSetSha256,
       phaseChainSha256: cleanupRun.phaseChainSha256,

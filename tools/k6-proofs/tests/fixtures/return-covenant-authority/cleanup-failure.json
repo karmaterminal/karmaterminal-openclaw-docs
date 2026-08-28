@@ -3,6 +3,7 @@
   "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
   "runId": "rcv-00000000000000000000000000000001",
   "candidateSha": "1111111111111111111111111111111111111111",
+  "runtimeBuildSha": "1111111111111111111111111111111111111111",
   "docsHarnessSha": "2222222222222222222222222222222222222222",
   "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
   "startedAt": "2026-08-28T12:10:00.000Z",
@@ -13,6 +14,22 @@
     "temporarySessions": 0,
     "gateways": 0,
     "fixtureProcesses": 1
+  },
+  "retentionAuthority": {
+    "resourceState": "docs-owned-gateway-observation",
+    "processState": "trusted-launcher-proc-observation",
+    "caseHandles": "docs-owned-phase-chain-ledger",
+    "candidateCleanup": "untrusted-diagnostic-only"
+  },
+  "resourceObservation": {
+    "status": "unverified-resource-retention",
+    "evidenceSha256": "8888888888888888888888888888888888888888888888888888888888888888",
+    "responseSha256": null,
+    "observedAt": null,
+    "gatewayPid": null,
+    "gatewayStartFingerprint": null,
+    "gatewaySocketFingerprint": null,
+    "gatewayEndpoint": null
   },
   "homeRemoved": true,
   "stateRemoved": false,

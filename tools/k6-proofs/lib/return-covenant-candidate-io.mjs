@@ -1,6 +1,16 @@
 import { constants as fsConstants } from 'node:fs';
 import { open } from 'node:fs/promises';
 
+export function childTerminationReason(child) {
+  if (typeof child?.signalCode === 'string' && child.signalCode.length > 0) {
+    return `signal ${child.signalCode}`;
+  }
+  if (Number.isInteger(child?.exitCode)) {
+    return `exit ${child.exitCode}`;
+  }
+  return null;
+}
+
 export async function readBoundedCandidateJson(file, maxBytes) {
   const handle = await open(
     file,

@@ -9,11 +9,16 @@ import {
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
 import {
+  buildReturnCovenantRetentionRequest,
   expectedReturnCovenantEffects,
   expandReturnCovenantExecutions,
   RETURN_COVENANT_CASES,
   RETURN_COVENANT_DATABASE_PROFILES,
   RETURN_COVENANT_EVIDENCE_PREFIX,
+  RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA,
+  RETURN_COVENANT_RETENTION_QUERY_LIMIT,
+  RETURN_COVENANT_RETENTION_RESOURCES,
+  RETURN_COVENANT_RETENTION_RESPONSE_SCHEMA,
   RETURN_COVENANT_ROW_ID,
   RETURN_COVENANT_TEARDOWN_PREFIX,
   returnCovenantExecutionKey,
@@ -50,6 +55,14 @@ const RETAINED_NAMES = [
   'gateways',
   'fixtureProcesses',
 ];
+const OBSERVED_RETENTION_NAMES = RETAINED_NAMES.slice(0, 3);
+export const RETURN_COVENANT_RETENTION_AUTHORITY = Object.freeze({
+  resourceState: 'docs-owned-gateway-observation',
+  processState: 'trusted-launcher-proc-observation',
+  caseHandles: 'docs-owned-phase-chain-ledger',
+  candidateCleanup: 'untrusted-diagnostic-only',
+});
+const RETENTION_AUTHORITY = RETURN_COVENANT_RETENTION_AUTHORITY;
 const FORBIDDEN_ADMISSIONS = {
   'forbidden-delete-recreate': 'stale',
   'forbidden-owner-reassignment': 'unauthorized',
@@ -1031,6 +1044,370 @@ function validatePhaseProof({
   return { valid: errors.length === 0, errors };
 }
 
+export function deriveReturnCovenantCaseHandleClosure({
+  plan,
+  evidence,
+  driverAttestation,
+}) {
+  const errors = [];
+  const expected = expandReturnCovenantExecutions(plan);
+  const phaseChains = Array.isArray(evidence?.phaseChains)
+    ? evidence.phaseChains
+    : [];
+  const chainsByKey = new Map();
+  for (const chain of phaseChains) {
+    const key = returnCovenantExecutionKey(chain?.caseId, chain?.form);
+    const entries = chainsByKey.get(key) || [];
+    entries.push(chain);
+    chainsByKey.set(key, entries);
+  }
+  const caseHandles = [];
+  for (const execution of expected) {
+    const key = returnCovenantExecutionKey(execution.caseId, execution.form);
+    const entries = chainsByKey.get(key) || [];
+    if (entries.length !== 1) {
+      addError(
+        errors,
+        'phase-chain-mismatch',
+        `${key} must have exactly one phase-chain ledger entry`,
+      );
+      if (entries[0]?.caseHandle) caseHandles.push(entries[0].caseHandle);
+      chainsByKey.delete(key);
+      continue;
+    }
+    const [chain] = entries;
+    if (
+      !nonEmpty(chain?.caseHandle, 8) ||
+      chain?.prepare?.caseHandle !== chain.caseHandle ||
+      chain?.cleanup?.caseHandle !== chain.caseHandle ||
+      chain?.cleanup?.closed !== true ||
+      !nonEmpty(chain?.cleanup?.receiptId, 8)
+    ) {
+      addError(
+        errors,
+        'phase-chain-mismatch',
+        `${key} does not close its prepared case handle`,
+      );
+    }
+    const cleanupProof = validatePhaseProof({
+      phase: 'cleanup',
+      receipt: chain?.cleanup,
+      proof: chain?.proofs?.cleanup,
+      driverAttestation,
+    });
+    errors.push(...cleanupProof.errors);
+    if (nonEmpty(chain?.caseHandle, 8)) caseHandles.push(chain.caseHandle);
+    chainsByKey.delete(key);
+  }
+  for (const key of chainsByKey.keys()) {
+    addError(
+      errors,
+      'phase-chain-mismatch',
+      `unexpected phase-chain ledger entry ${key}`,
+    );
+  }
+  if (
+    caseHandles.length !== expected.length ||
+    new Set(caseHandles).size !== caseHandles.length
+  ) {
+    addError(
+      errors,
+      'phase-chain-mismatch',
+      'case-handle ledger coverage is missing or duplicated',
+    );
+  }
+  return {
+    allCaseHandlesClosed: errors.length === 0,
+    caseHandles,
+    errors,
+  };
+}
+
+export function validateReturnCovenantRetentionObservation({
+  plan,
+  evidence,
+  driverAttestation,
+  gatewayLifecycle,
+}) {
+  const errors = [];
+  const observation = evidence?.retentionObservation;
+  let parsedResponse = null;
+  let matchedGateway = null;
+  const retained = Object.fromEntries(
+    OBSERVED_RETENTION_NAMES.map((name) => [name, null]),
+  );
+  if (
+    !exactKeys(observation, [
+      'schema',
+      'status',
+      'failureReason',
+      'request',
+      'target',
+      'timing',
+      'response',
+    ]) ||
+    observation?.schema !== RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA ||
+    observation?.status !== 'observed' ||
+    observation?.failureReason !== null
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'docs-owned resource observation is missing, unsupported, or incomplete',
+    );
+  }
+
+  const requestNonce = observation?.request?.requestNonce;
+  const expectedRequest = HEX_64.test(requestNonce || '')
+    ? buildReturnCovenantRetentionRequest({
+      plan,
+      evidence,
+      requestNonce,
+    })
+    : null;
+  if (
+    expectedRequest === null ||
+    !exactKeys(observation?.request, Object.keys(expectedRequest || {})) ||
+    canonicalJson(observation?.request) !== canonicalJson(expectedRequest)
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'resource observation request is not bound to the run and exact case/form ledger',
+    );
+  }
+
+  const timing = observation?.timing;
+  const latestCaseObservationAt = Math.max(
+    ...((evidence?.observations || []).map((entry) =>
+      validTimestamp(entry?.endedAt) ? Date.parse(entry.endedAt) : Number.NaN)),
+  );
+  if (
+    !exactKeys(timing, [
+      'requestedAt',
+      'observedAt',
+      'requestedAtMonotonicMs',
+      'observedAtMonotonicMs',
+    ]) ||
+    !validTimestamp(timing?.requestedAt) ||
+    !validTimestamp(timing?.observedAt) ||
+    !Number.isFinite(latestCaseObservationAt) ||
+    Date.parse(timing.requestedAt) < latestCaseObservationAt ||
+    Date.parse(timing.observedAt) < Date.parse(timing.requestedAt) ||
+    Date.parse(timing.observedAt) - Date.parse(timing.requestedAt) > 5_000 ||
+    !Number.isFinite(timing?.requestedAtMonotonicMs) ||
+    !Number.isFinite(timing?.observedAtMonotonicMs) ||
+    timing.observedAtMonotonicMs < timing.requestedAtMonotonicMs ||
+    timing.observedAtMonotonicMs - timing.requestedAtMonotonicMs > 5_000 ||
+    !validTimestamp(evidence?.endedAt) ||
+    Date.parse(evidence.endedAt) < Date.parse(timing?.observedAt || '')
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'resource observation timing is stale or outside the settled evidence window',
+    );
+  }
+
+  const target = observation?.target;
+  const lifecycle = Array.isArray(gatewayLifecycle) ? gatewayLifecycle : [];
+  const finalGateway = lifecycle.at(-1);
+  if (
+    !exactKeys(target, [
+      'source',
+      'endpoint',
+      'namespacePid',
+      'namespaceStartFingerprint',
+    ]) ||
+    ![
+      'trusted-launcher-attested-gateway',
+      'phase-chain-final-gateway',
+    ].includes(target?.source) ||
+    !/^http:\/\/127\.0\.0\.1(?::[0-9]+)?$/u.test(target?.endpoint || '') ||
+    !Number.isInteger(target?.namespacePid) ||
+    !HEX_64.test(target?.namespaceStartFingerprint || '') ||
+    finalGateway?.verified !== true ||
+    finalGateway?.namespacePid !== target?.namespacePid ||
+    finalGateway?.namespaceStartFingerprint !==
+      target?.namespaceStartFingerprint ||
+    !finalGateway?.endpoints?.includes(target?.endpoint) ||
+    !HEX_64.test(finalGateway?.socketFingerprint || '')
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'resource observation gateway identity does not match the final /proc lifecycle',
+    );
+  } else {
+    matchedGateway = finalGateway;
+  }
+
+  const response = observation?.response;
+  if (
+    !exactKeys(response, [
+      'status',
+      'contentType',
+      'body',
+      'bodySha256',
+      'byteLength',
+    ]) ||
+    response?.status !== 200 ||
+    !/^application\/json(?:;|$)/iu.test(response?.contentType || '') ||
+    typeof response?.body !== 'string' ||
+    response.body.length === 0 ||
+    Buffer.byteLength(response.body) !== response?.byteLength ||
+    response.byteLength > 1_048_576 ||
+    createHash('sha256').update(response.body).digest('hex') !==
+      response?.bodySha256
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'resource inspection transport or raw-response binding is invalid',
+    );
+  } else {
+    try {
+      parsedResponse = JSON.parse(response.body);
+    } catch {
+      addError(
+        errors,
+        'unverified-resource-retention',
+        'resource inspection response is malformed JSON',
+      );
+    }
+  }
+
+  if (
+    !exactKeys(parsedResponse, [
+      'schema',
+      'rowId',
+      'runId',
+      'candidateSha',
+      'runtimeBuildSha',
+      'runtimeConfigSha256',
+      'requestNonce',
+      'observedAt',
+      'gateway',
+      'resources',
+    ]) ||
+    parsedResponse?.schema !== RETURN_COVENANT_RETENTION_RESPONSE_SCHEMA ||
+    parsedResponse?.rowId !== plan.rowId ||
+    parsedResponse?.runId !== plan.runId ||
+    parsedResponse?.candidateSha !== plan.target.candidateSha ||
+    parsedResponse?.runtimeBuildSha !== plan.target.runtimeBuildSha ||
+    parsedResponse?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256 ||
+    parsedResponse?.requestNonce !== requestNonce ||
+    !validTimestamp(parsedResponse?.observedAt) ||
+    Date.parse(parsedResponse?.observedAt || '') <
+      Date.parse(timing?.requestedAt || '') ||
+    Date.parse(parsedResponse?.observedAt || '') >
+      Date.parse(timing?.observedAt || '') ||
+    !exactKeys(parsedResponse?.gateway, [
+      'endpoint',
+      'namespacePid',
+      'namespaceStartFingerprint',
+    ]) ||
+    parsedResponse?.gateway?.endpoint !== target?.endpoint ||
+    parsedResponse?.gateway?.namespacePid !== target?.namespacePid ||
+    parsedResponse?.gateway?.namespaceStartFingerprint !==
+      target?.namespaceStartFingerprint ||
+    !exactKeys(
+      parsedResponse?.resources,
+      RETURN_COVENANT_RETENTION_RESOURCES.map((entry) => entry.category),
+    )
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'resource inspection response identity is stale, mismatched, or partial',
+    );
+  }
+
+  const itemIds = [];
+  for (const { category, method } of RETURN_COVENANT_RETENTION_RESOURCES) {
+    const resource = parsedResponse?.resources?.[category];
+    const items = Array.isArray(resource?.items) ? resource.items : [];
+    if (
+      !exactKeys(resource, [
+        'method',
+        'complete',
+        'total',
+        'nextCursor',
+        'items',
+      ]) ||
+      resource?.method !== method ||
+      resource?.complete !== true ||
+      resource?.nextCursor !== null ||
+      !Number.isInteger(resource?.total) ||
+      resource.total !== items.length ||
+      items.length >= RETURN_COVENANT_RETENTION_QUERY_LIMIT ||
+      items.some((item) =>
+        !exactKeys(item, ['id', 'runId', 'status']) ||
+        !nonEmpty(item?.id, 8) ||
+        item?.runId !== plan.runId ||
+        !nonEmpty(item?.status, 1))
+    ) {
+      addError(
+        errors,
+        'unverified-resource-retention',
+        `${category} inspection is malformed, partial, or count-overflowed`,
+      );
+    }
+    itemIds.push(...items.map((item) => item?.id));
+    retained[category] = items.length;
+  }
+  if (
+    itemIds.some((value) => !nonEmpty(value, 8)) ||
+    new Set(itemIds).size !== itemIds.length
+  ) {
+    addError(
+      errors,
+      'unverified-resource-retention',
+      'resource inspection returned missing or duplicated resource identities',
+    );
+  }
+  if (errors.length > 0) {
+    for (const name of OBSERVED_RETENTION_NAMES) retained[name] = null;
+  }
+  return {
+    valid: errors.length === 0,
+    errors,
+    retained,
+    matchedGateway,
+  };
+}
+
+export function deriveReturnCovenantTrustedRetention(params) {
+  const validation = validateReturnCovenantRetentionObservation(params);
+  const observation = params.evidence?.retentionObservation;
+  return {
+    ...validation,
+    resourceObservation: {
+      status: validation.valid
+        ? 'verified'
+        : 'unverified-resource-retention',
+      evidenceSha256: digest(observation ?? null),
+      responseSha256: HEX_64.test(observation?.response?.bodySha256 || '')
+        ? observation.response.bodySha256
+        : null,
+      observedAt: validTimestamp(observation?.timing?.observedAt)
+        ? observation.timing.observedAt
+        : null,
+      gatewayPid: validation.matchedGateway?.pid ?? null,
+      gatewayStartFingerprint:
+        validation.matchedGateway?.startFingerprint ?? null,
+      gatewaySocketFingerprint:
+        validation.matchedGateway?.socketFingerprint ?? null,
+      gatewayEndpoint:
+        validation.matchedGateway?.endpoints?.includes(
+          observation?.target?.endpoint,
+        )
+          ? observation.target.endpoint
+          : null,
+    },
+  };
+}
+
 function phaseProofsForExecution(observation, phaseChain) {
   const notExposed = observation?.applicability === 'not-exposed';
   return [
@@ -1389,11 +1766,59 @@ export function validateReturnCovenantCleanup({
   observerSigningKey,
 }) {
   const errors = [];
+  const closure = deriveReturnCovenantCaseHandleClosure({
+    plan,
+    evidence,
+    driverAttestation,
+  });
+  const retention = deriveReturnCovenantTrustedRetention({
+    plan,
+    evidence,
+    driverAttestation,
+    gatewayLifecycle: cleanup?.gatewayLifecycle,
+  });
+  errors.push(...closure.errors);
+  errors.push(...retention.errors);
   if (
+    !exactKeys(cleanup, [
+      'schema',
+      'rowId',
+      'runId',
+      'candidateSha',
+      'runtimeBuildSha',
+      'docsHarnessSha',
+      'runtimeConfigSha256',
+      'startedAt',
+      'endedAt',
+      'retained',
+      'retentionAuthority',
+      'resourceObservation',
+      'homeRemoved',
+      'stateRemoved',
+      'configRemoved',
+      'fixtureProcessStopped',
+      'gatewayProcessStopped',
+      'allCaseHandlesClosed',
+      'caseHandles',
+      'observationSetSha256',
+      'phaseChainSha256',
+      'driverAttestationSha256',
+      'runCleanupReceiptId',
+      'snapshotMatchedCandidateAfterRun',
+      'runRootRemoved',
+      'driverExitCode',
+      'processGroupEmpty',
+      'unexpectedProcessGroupMembers',
+      'gatewayLifecycle',
+      'k6',
+      'isolationFingerprint',
+      'launcherIntegrity',
+    ]) ||
     cleanup?.schema !== RETURN_COVENANT_CLEANUP_SCHEMA ||
     cleanup?.rowId !== RETURN_COVENANT_ROW_ID ||
     cleanup?.runId !== plan.runId ||
     cleanup?.candidateSha !== plan.target.candidateSha ||
+    cleanup?.runtimeBuildSha !== plan.target.runtimeBuildSha ||
     cleanup?.docsHarnessSha !== plan.target.docsHarnessSha ||
     cleanup?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256
   ) {
@@ -1406,9 +1831,6 @@ export function validateReturnCovenantCleanup({
   ) {
     addError(errors, 'cleanup-failure', 'cleanup timestamps are invalid');
   }
-  const caseHandles = (evidence?.phaseChains || [])
-    .map((chain) => chain.caseHandle)
-    .sort();
   if (
     !validTimestamp(evidence?.endedAt) ||
     Date.parse(cleanup?.startedAt) < Date.parse(evidence.endedAt) ||
@@ -1416,17 +1838,64 @@ export function validateReturnCovenantCleanup({
     cleanup?.phaseChainSha256 !== digest(evidence?.phaseChains) ||
     cleanup?.driverAttestationSha256 !== driverAttestation?.attestationSha256 ||
     !Array.isArray(cleanup?.caseHandles) ||
-    JSON.stringify([...cleanup.caseHandles].sort()) !== JSON.stringify(caseHandles) ||
+    JSON.stringify([...cleanup.caseHandles].sort()) !==
+      JSON.stringify([...closure.caseHandles].sort()) ||
+    cleanup?.allCaseHandlesClosed !== closure.allCaseHandlesClosed ||
     cleanup?.runCleanupReceiptId !== evidence?.cleanupRun?.receiptId
   ) {
     addError(errors, 'cleanup-failure', 'cleanup is not bound to the completed evidence set');
   }
-  for (const name of RETAINED_NAMES) {
-    if (cleanup?.retained?.[name] !== 0) {
-      addError(errors, 'cleanup-failure', `cleanup retained ${name}`);
+  if (
+    !exactKeys(cleanup?.retained, RETAINED_NAMES) ||
+    !exactKeys(cleanup?.retentionAuthority, Object.keys(RETENTION_AUTHORITY)) ||
+    canonicalJson(cleanup?.retentionAuthority) !==
+      canonicalJson(RETENTION_AUTHORITY) ||
+    !exactKeys(cleanup?.resourceObservation, [
+      'status',
+      'evidenceSha256',
+      'responseSha256',
+      'observedAt',
+      'gatewayPid',
+      'gatewayStartFingerprint',
+      'gatewaySocketFingerprint',
+      'gatewayEndpoint',
+    ]) ||
+    canonicalJson(cleanup?.resourceObservation) !==
+      canonicalJson(retention.resourceObservation)
+  ) {
+    addError(
+      errors,
+      'cleanup-failure',
+      'trusted retention authority or observation binding is incomplete',
+    );
+  }
+  for (const name of OBSERVED_RETENTION_NAMES) {
+    if (cleanup?.retained?.[name] !== retention.retained[name]) {
+      addError(
+        errors,
+        'cleanup-failure',
+        `${name} count differs from the docs-owned gateway observation`,
+      );
     }
-    if (!exactKeys(cleanup?.retained, RETAINED_NAMES)) {
-      addError(errors, 'cleanup-failure', 'cleanup retained-resource shape is not closed');
+  }
+  const retainedGateways = Array.isArray(cleanup?.gatewayLifecycle)
+    ? cleanup.gatewayLifecycle.filter((entry) =>
+      entry?.retainedAtCleanup === true).length
+    : null;
+  if (
+    cleanup?.retained?.gateways !== retainedGateways ||
+    !Number.isInteger(cleanup?.retained?.fixtureProcesses) ||
+    cleanup.retained.fixtureProcesses < 0
+  ) {
+    addError(
+      errors,
+      'cleanup-failure',
+      'process retention counts differ from trusted launcher observations',
+    );
+  }
+  for (const name of RETAINED_NAMES) {
+    if (Number.isInteger(cleanup?.retained?.[name]) && cleanup.retained[name] > 0) {
+      addError(errors, 'resource-retention', `cleanup retained ${name}`);
     }
   }
   for (const name of ['homeRemoved', 'stateRemoved', 'configRemoved']) {
@@ -1435,11 +1904,12 @@ export function validateReturnCovenantCleanup({
     }
   }
   if (
-    cleanup?.fixtureProcessStopped !== true ||
-    cleanup?.gatewayProcessStopped !== true ||
+    cleanup?.fixtureProcessStopped !==
+      (cleanup?.retained?.fixtureProcesses === 0) ||
+    cleanup?.gatewayProcessStopped !== (cleanup?.retained?.gateways === 0) ||
     cleanup?.allCaseHandlesClosed !== true
   ) {
-    addError(errors, 'cleanup-failure', 'fixture or gateway process remains');
+    addError(errors, 'cleanup-failure', 'process or case-handle closure is incomplete');
   }
   const {
     launcherIntegrity,
@@ -1493,6 +1963,7 @@ export function validateReturnCovenantCleanup({
       !Number.isFinite(entry?.exitedAtMonotonicMs) ||
       entry.firstSeenMonotonicMs > entry.lastSeenMonotonicMs ||
       entry.lastSeenMonotonicMs > entry.exitedAtMonotonicMs ||
+      entry?.retainedAtCleanup !== false ||
       entry?.verified !== true) ||
     new Set(gatewayListenerFingerprints).size !==
       gatewayListenerFingerprints.length ||
@@ -1705,6 +2176,9 @@ export function resolveReturnCovenantAuthoritativeReceipt({
       evidenceSha256: digest(evidence),
       observationSetSha256: digest(evidence?.observations),
       phaseChainSha256: digest(evidence?.phaseChains),
+      retentionObservationSha256: digest(
+        evidence?.retentionObservation ?? null,
+      ),
       cleanupSha256: digest(cleanup),
       driverAttestationSha256: digest(driverAttestation),
       runtimeConfigSha256,
@@ -1822,6 +2296,43 @@ export function resolveReturnCovenantAuthoritativeReceipt({
             : null,
         ]),
       ),
+      retentionAuthority: Object.fromEntries(
+        Object.entries(RETENTION_AUTHORITY).map(([name, expected]) => [
+          name,
+          cleanup?.retentionAuthority?.[name] === expected ? expected : null,
+        ]),
+      ),
+      resourceObservation: {
+        status: [
+          'verified',
+          'unverified-resource-retention',
+        ].includes(cleanup?.resourceObservation?.status)
+          ? cleanup.resourceObservation.status
+          : null,
+        evidenceSha256: safeHex(
+          cleanup?.resourceObservation?.evidenceSha256,
+          HEX_64,
+        ),
+        responseSha256: safeHex(
+          cleanup?.resourceObservation?.responseSha256,
+          HEX_64,
+        ),
+        observedAt: validTimestamp(cleanup?.resourceObservation?.observedAt)
+          ? cleanup.resourceObservation.observedAt
+          : null,
+        gatewayPidFingerprint: fingerprint(
+          String(cleanup?.resourceObservation?.gatewayPid || ''),
+        ),
+        gatewayStartFingerprint: fingerprint(
+          cleanup?.resourceObservation?.gatewayStartFingerprint,
+        ),
+        gatewaySocketFingerprint: fingerprint(
+          cleanup?.resourceObservation?.gatewaySocketFingerprint,
+        ),
+        gatewayEndpointFingerprint: fingerprint(
+          cleanup?.resourceObservation?.gatewayEndpoint,
+        ),
+      },
       homeRemoved: cleanup?.homeRemoved === true,
       stateRemoved: cleanup?.stateRemoved === true,
       configRemoved: cleanup?.configRemoved === true,
@@ -2419,6 +2930,7 @@ function validClosedReceiptShape(receipt) {
       'evidenceSha256',
       'observationSetSha256',
       'phaseChainSha256',
+      'retentionObservationSha256',
       'cleanupSha256',
       'driverAttestationSha256',
       'runtimeConfigSha256',
@@ -2479,6 +2991,8 @@ function validClosedReceiptShape(receipt) {
       'status',
       'completedAt',
       'retained',
+      'retentionAuthority',
+      'resourceObservation',
       'homeRemoved',
       'stateRemoved',
       'configRemoved',
@@ -2505,6 +3019,20 @@ function validClosedReceiptShape(receipt) {
       'k6PathFingerprint',
     ]) &&
     exactKeys(receipt.cleanup.retained, RETAINED_NAMES) &&
+    exactKeys(
+      receipt.cleanup.retentionAuthority,
+      Object.keys(RETENTION_AUTHORITY),
+    ) &&
+    exactKeys(receipt.cleanup.resourceObservation, [
+      'status',
+      'evidenceSha256',
+      'responseSha256',
+      'observedAt',
+      'gatewayPidFingerprint',
+      'gatewayStartFingerprint',
+      'gatewaySocketFingerprint',
+      'gatewayEndpointFingerprint',
+    ]) &&
     exactKeys(receipt.redaction, [
       'status',
       'forbiddenValuesScanned',
@@ -2532,6 +3060,7 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     !HEX_64.test(receipt.binding?.evidenceSha256 || '') ||
     !HEX_64.test(receipt.binding?.observationSetSha256 || '') ||
     !HEX_64.test(receipt.binding?.phaseChainSha256 || '') ||
+    !HEX_64.test(receipt.binding?.retentionObservationSha256 || '') ||
     !HEX_64.test(receipt.binding?.cleanupSha256 || '') ||
     !HEX_64.test(receipt.binding?.driverAttestationSha256 || '') ||
     receipt.binding?.runtimeConfigSha256 !== receipt.target.runtimeConfigSha256 ||
@@ -2681,6 +3210,27 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     receipt.cleanup?.status === 'pass' &&
     validTimestamp(receipt.cleanup?.completedAt) &&
     RETAINED_NAMES.every((name) => receipt.cleanup.retained?.[name] === 0) &&
+    canonicalJson(receipt.cleanup?.retentionAuthority) ===
+      canonicalJson(RETENTION_AUTHORITY) &&
+    receipt.cleanup?.resourceObservation?.status === 'verified' &&
+    receipt.cleanup.resourceObservation.evidenceSha256 ===
+      receipt.binding.retentionObservationSha256 &&
+    HEX_64.test(
+      receipt.cleanup.resourceObservation.responseSha256 || '',
+    ) &&
+    validTimestamp(receipt.cleanup.resourceObservation.observedAt) &&
+    validFingerprint(
+      receipt.cleanup.resourceObservation.gatewayPidFingerprint,
+    ) &&
+    validFingerprint(
+      receipt.cleanup.resourceObservation.gatewayStartFingerprint,
+    ) &&
+    validFingerprint(
+      receipt.cleanup.resourceObservation.gatewaySocketFingerprint,
+    ) &&
+    validFingerprint(
+      receipt.cleanup.resourceObservation.gatewayEndpointFingerprint,
+    ) &&
     receipt.cleanup?.homeRemoved === true &&
     receipt.cleanup?.stateRemoved === true &&
     receipt.cleanup?.configRemoved === true &&

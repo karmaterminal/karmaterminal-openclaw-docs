@@ -22,6 +22,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { canonicalJson } from '../lib/canonical-json.mjs';
 import {
+  childTerminationReason,
   readBoundedCandidateJson,
 } from '../lib/return-covenant-candidate-io.mjs';
 import {
@@ -30,8 +31,11 @@ import {
   verifyReturnCovenantDirectCleanup,
 } from '../lib/return-covenant-driver-attestation.mjs';
 import {
+  deriveReturnCovenantCaseHandleClosure,
+  deriveReturnCovenantTrustedRetention,
   parseReturnCovenantEvidenceLog,
   resolveReturnCovenantAuthoritativeReceipt,
+  RETURN_COVENANT_RETENTION_AUTHORITY,
   validateReturnCovenantAuthoritativeReceipt,
 } from '../lib/return-covenant-authoritative-receipt.mjs';
 import {
@@ -44,6 +48,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const defaultDocsDir = path.resolve(scriptDir, '../../..');
 const SANDBOX_EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
 const DOCS_AUTHORITY_FILES = [
+  'tools/k6-proofs/contracts/return-covenant-authority/retention-observation.schema.json',
   'tools/k6-proofs/contracts/return-covenant-authority/scenario.js',
   'tools/k6-proofs/k6-proof-binaries.json',
   'tools/k6-proofs/lib/canonical-json.mjs',
@@ -150,8 +155,9 @@ async function assertEmptyPrivateDirectory(directory, excludedRoots) {
 async function waitForJson(file, child, timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) {
-      throw new Error(`product driver exited before ready (${child.exitCode})`);
+    const termination = childTerminationReason(child);
+    if (termination) {
+      throw new Error(`product driver exited before ready (${termination})`);
     }
     try {
       return await readBoundedCandidateJson(file, 131_072);
@@ -723,7 +729,10 @@ async function main() {
   const privatePlanPath = path.join(configDir, 'plan.json');
   const readyPath = path.join(controlDir, 'driver-ready.json');
   const attestationPath = path.join(controlDir, 'driver-attestation.json');
-  const cleanupDraftPath = path.join(controlDir, 'cleanup-draft.json');
+  const candidateCleanupDiagnosticPath = path.join(
+    controlDir,
+    'candidate-cleanup-diagnostic.json',
+  );
   const candidateReadyPath = path.join(ipcDir, 'driver-ready.json');
   const candidateAttestationPath = path.join(
     attestationDir,
@@ -1176,33 +1185,80 @@ async function main() {
     if (sandboxExitCode !== expectedSandboxExit) {
       throw new Error('sandbox process exit differs from trusted exit record');
     }
-    const finalGatewaySampleAt = performance.now();
-    for (const [key, observation] of observedGateways) {
-      if (observation.exitedAtMonotonicMs === null) {
-        observedGateways.set(key, {
-          ...observation,
-          exitedAtMonotonicMs: finalGatewaySampleAt,
-        });
+    const evidence = parseReturnCovenantEvidenceLog(capturedK6Log);
+    evidence.k6ExitCode = actualK6ExitCode;
+    const cleanupStartedAt = new Date().toISOString();
+    let candidateCleanupClaims = null;
+    let candidateCleanupStatus = 'read';
+    try {
+      candidateCleanupClaims = await readBoundedCandidateJson(
+        candidateCleanupDraftPath,
+        1_048_576,
+      );
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        candidateCleanupStatus = 'missing';
+      } else if (
+        error instanceof SyntaxError ||
+        /candidate JSON (?:is not|exceeded)/u.test(error?.message || '')
+      ) {
+        candidateCleanupStatus = 'invalid';
+      } else {
+        throw error;
       }
     }
-    const cleanupDraft = await readBoundedCandidateJson(
-      candidateCleanupDraftPath,
-      1_048_576,
-    );
-    await writeExclusive(cleanupDraftPath, cleanupDraft);
+    await writeExclusive(candidateCleanupDiagnosticPath, {
+      schema: 'openclaw.k6.return-covenant-candidate-cleanup-diagnostic.v1',
+      passEligible: false,
+      status: candidateCleanupStatus,
+      claims: candidateCleanupClaims,
+    });
     await new Promise((resolve) => setTimeout(resolve, 50));
     const unexpectedGroupMembers = await processGroupMembers(child.pid);
+    const finalGatewaySampleAt = performance.now();
+    const gatewayLifecycle = [];
+    const retainedGatewayPids = new Set();
+    const knownGatewayPids = new Set();
+    for (const observation of [...observedGateways.values()].toSorted(
+      (left, right) =>
+        left.firstSeenMonotonicMs - right.firstSeenMonotonicMs,
+    )) {
+      knownGatewayPids.add(observation.pid);
+      const retainedAtCleanup =
+        await processStartFingerprint(observation.pid) ===
+        observation.startFingerprint;
+      if (retainedAtCleanup) retainedGatewayPids.add(observation.pid);
+      gatewayLifecycle.push({
+        ...observation,
+        exitedAtMonotonicMs: retainedAtCleanup
+          ? null
+          : observation.exitedAtMonotonicMs ?? finalGatewaySampleAt,
+        retainedAtCleanup,
+      });
+    }
+    const driverRetained =
+      await processStartFingerprint(ready.pid) ===
+      attestation.isolation.driverStartFingerprint;
+    const retainedFixturePids = new Set(
+      unexpectedGroupMembers.filter((pid) => !knownGatewayPids.has(pid)),
+    );
+    if (driverRetained) retainedFixturePids.add(ready.pid);
     if (unexpectedGroupMembers.length > 0) {
       signalProcessGroup(child.pid, 'SIGTERM');
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     const remainingGroupMembers = await processGroupMembers(child.pid);
-    const driverStopped =
-      await processStartFingerprint(ready.pid) !==
-      attestation.isolation.driverStartFingerprint;
-    const gatewayStopped =
-      await processStartFingerprint(ready.gatewayPid) !==
-      attestation.isolation.gatewayStartFingerprint;
+    const closure = deriveReturnCovenantCaseHandleClosure({
+      plan,
+      evidence,
+      driverAttestation: attestation,
+    });
+    const retention = deriveReturnCovenantTrustedRetention({
+      plan,
+      evidence,
+      driverAttestation: attestation,
+      gatewayLifecycle,
+    });
     const snapshotHead = (await execFileAsync('git', [
       '-C',
       snapshotPath,
@@ -1229,23 +1285,27 @@ async function main() {
       rowId: plan.rowId,
       runId: plan.runId,
       candidateSha: plan.target.candidateSha,
+      runtimeBuildSha: plan.target.runtimeBuildSha,
       docsHarnessSha: plan.target.docsHarnessSha,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
-      startedAt: cleanupDraft.startedAt,
-      endedAt: cleanupDraft.endedAt,
-      retained: cleanupDraft.retained,
-      allCaseHandlesClosed: cleanupDraft.allCaseHandlesClosed === true,
-      caseHandles: cleanupDraft.caseHandles,
-      observationSetSha256: cleanupDraft.observationSetSha256,
-      phaseChainSha256: cleanupDraft.phaseChainSha256,
-      driverAttestationSha256: cleanupDraft.driverAttestationSha256,
-      runCleanupReceiptId: cleanupDraft.runCleanupReceiptId,
-      gatewayLifecycle: [...observedGateways.values()].toSorted(
-        (left, right) =>
-          left.firstSeenMonotonicMs - right.firstSeenMonotonicMs,
-      ),
-      fixtureProcessStopped: driverStopped,
-      gatewayProcessStopped: gatewayStopped,
+      startedAt: cleanupStartedAt,
+      endedAt: new Date().toISOString(),
+      retained: {
+        ...retention.retained,
+        gateways: retainedGatewayPids.size,
+        fixtureProcesses: retainedFixturePids.size,
+      },
+      retentionAuthority: RETURN_COVENANT_RETENTION_AUTHORITY,
+      resourceObservation: retention.resourceObservation,
+      allCaseHandlesClosed: closure.allCaseHandlesClosed,
+      caseHandles: closure.caseHandles,
+      observationSetSha256: sha256(canonicalJson(evidence.observations)),
+      phaseChainSha256: sha256(canonicalJson(evidence.phaseChains)),
+      driverAttestationSha256: attestation.attestationSha256,
+      runCleanupReceiptId: evidence.cleanupRun?.receiptId ?? null,
+      gatewayLifecycle,
+      fixtureProcessStopped: retainedFixturePids.size === 0,
+      gatewayProcessStopped: retainedGatewayPids.size === 0,
       homeRemoved: runRootRemoved,
       stateRemoved: runRootRemoved,
       configRemoved: runRootRemoved,
@@ -1272,19 +1332,6 @@ async function main() {
       },
     };
     await writeExclusive(cleanupPath, cleanup);
-    if (
-      driverExitCode !== 0 ||
-      !driverStopped ||
-      !gatewayStopped ||
-      remainingGroupMembers.length !== 0 ||
-      unexpectedGroupMembers.length !== 0 ||
-      unsignedCleanup.gatewayLifecycle.length < 1 ||
-      unsignedCleanup.gatewayLifecycle.some((entry) => entry.verified !== true) ||
-      !runRootRemoved ||
-      !unsignedCleanup.snapshotMatchedCandidateAfterRun
-    ) {
-      throw new Error('trusted launcher cleanup failed');
-    }
     await Promise.all([
       writeFile(driverLogPath, capturedDriverLog, {
         mode: 0o600,
@@ -1296,8 +1343,6 @@ async function main() {
         flag: 'wx',
       }),
     ]);
-    const evidence = parseReturnCovenantEvidenceLog(capturedK6Log);
-    evidence.k6ExitCode = actualK6ExitCode;
     await assertDocsIdentity(docsDir, plan.target.docsHarnessSha);
     const directCleanup = await verifyReturnCovenantDirectCleanup(attestation);
     const receipt = resolveReturnCovenantAuthoritativeReceipt({

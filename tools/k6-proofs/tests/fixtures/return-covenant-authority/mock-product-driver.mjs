@@ -69,6 +69,11 @@ if (process.argv[2] === 'gateway') {
       }),
     );
   });
+  process.once('SIGTERM', () => {
+    gatewayServer.close(() => {
+      setTimeout(() => process.exit(0), 50);
+    });
+  });
 } else {
   const input = args(process.argv);
   const plan = readJson(input.plan);

@@ -1061,6 +1061,27 @@ async function main() {
             }
             if (
               existing &&
+              existing.listenerFingerprints.length > 0 &&
+              observation.listenerFingerprints.length === 0
+            ) {
+              if (observation.endpoints.length !== 0) {
+                throw new Error(
+                  `inconsistent gateway listener closure for pid ${observation.pid}`,
+                );
+              }
+              continue;
+            }
+            if (
+              existing &&
+              existing.exitedAtMonotonicMs !== null &&
+              observation.listenerFingerprints.length > 0
+            ) {
+              throw new Error(
+                `gateway listener resumed after exit for pid ${observation.pid}`,
+              );
+            }
+            if (
+              existing &&
               (
                 (existing.listenerFingerprints.length > 0 &&
                   canonicalJson(existing.listenerFingerprints) !==

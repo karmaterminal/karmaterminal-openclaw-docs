@@ -186,9 +186,11 @@ Before k6 starts, `launch-return-covenant-driver.mjs`:
   credentials, reach live host sockets, signal host peers, or write
   control/artifact paths, and namespace-init exit kernel-terminates descendants
   that call `setsid()`;
-- reads candidate ready/cleanup files only through nonblocking `O_NOFOLLOW`
-  regular-file descriptors with strict byte limits; the launcher-written
-  attestation is exposed through a separate read-only bind;
+- reads candidate ready and cleanup-diagnostic files only through nonblocking
+  `O_NOFOLLOW` regular-file descriptors with strict byte limits; the diagnostic
+  is copied to a private `passEligible=false` envelope and never enters signed
+  cleanup, while the launcher-written attestation is exposed through a
+  separate read-only bind;
 - launches the candidate driver itself with no inherited `NODE_OPTIONS`;
 - requires a distinct candidate-owned gateway child process with the exact
   frozen full argv, gateway-token fingerprint, canonical config bytes, and its
@@ -253,9 +255,16 @@ The phase order is fixed:
 6. `cleanup` runs in `finally`, including when dispatch, transition, release, or
    observation fails.
 7. `cleanup-run` binds canonical observation, phase-chain, driver-attestation,
-   and runtime-config digests before the evidence line is emitted. k6 teardown
-   must return the same idempotent cleanup-run receipt, and the launcher requires
-   the recorded k6 exit code to be zero.
+   and runtime-config digests.
+8. The docs-owned scenario then sends a nonce-bound request directly to the
+   final isolated gateway's resource-inspection endpoint. The request names the
+   exact 24 case/form/handle set and asks independently for continuation
+   delegates, continuation queue items, and temporary sessions with a
+   one-over-limit page size. The private evidence binds the unmodified response
+   bytes, SHA-256, byte length, HTTP identity, wall/monotonic timing, product
+   and runtime SHAs, run ID, and final gateway namespace PID/start identity.
+   Only then is the evidence line emitted. k6 teardown returns the same
+   idempotent cleanup-run receipt and destroys the isolated runtime.
 
 The scenario emits exactly one private
 `openclaw.k6.return-covenant-observation-set.v1` log record. It always reports
@@ -265,8 +274,8 @@ the row.
 ## Signed observer authority
 
 After the candidate process group stops, `launch-return-covenant-driver.mjs`
-consumes the private plan, k6 log/exit receipt, runtime config, attestation, and
-cleanup. Its internal resolver uses the same shared HMAC-SHA256 sealing
+consumes the private plan, k6 log/exit receipt, runtime config, and attestation,
+then constructs cleanup itself. Its internal resolver uses the same shared HMAC-SHA256 sealing
 primitive as the existing `R-CD-2` and `R-CD-TOKEN` authorities, but with a
 separate launcher-only observer key that was never passed to the candidate or
 written into the attestation. The public receipt uses the distinct
@@ -301,8 +310,15 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   product clocks;
 - one run-wide product capability inventory makes both explicit-revocation
   forms either executed or N/A together; and
-- cleanup retains zero delegates, queue items, temporary sessions, gateways, or
-  fixture processes and removes temporary home/state/config; and
+- the direct gateway response is complete, unpaginated, within its count/byte
+  bounds, and bound to the final launcher-observed gateway PID/start/socket;
+  unsupported, malformed, partial, stale, mismatched, or capped inspection is
+  `unverified-resource-retention`, never zero;
+- the launcher derives delegate, queue-item, and temporary-session counts from
+  the raw gateway arrays; derives gateway and fixture-process counts from its
+  `/proc` PID/start, process-group, and socket observations; derives
+  `allCaseHandlesClosed` and the handle set from exact phase-chain coverage and
+  valid cleanup proofs; and requires every count to be zero; and
 - the launcher directly confirms its run root, snapshot, home, state,
   and config paths are absent and both attested PID/start identities are gone;
   the monitored process group is empty; and the launcher-only observer key
@@ -315,7 +331,9 @@ dispatch/result/queue IDs, markers, prompts, and credentials are forbidden and
 scanned before signing. Any missing or duplicated observation, identity drift, cross-phase receipt
 reuse, form-origin mismatch, generation mismatch, side effect, retained payload,
 short settlement, runtime/config gap, nonzero k6 exit, teardown mismatch, or
-cleanup failure produces a signed `FAIL-candidate`.
+cleanup failure produces a signed `FAIL-candidate`. Candidate
+`retained`/`allCaseHandlesClosed` values are private diagnostic input only and
+cannot affect the verdict or any signed cleanup field.
 
 ## Required product seam
 
@@ -338,9 +356,13 @@ The final product lane must supply, from the exact candidate tree:
 7. separate prompt-adoption, heartbeat-wake, and visible-channel counters plus
    product release/scan timestamps;
 8. successor transcript and trusted system-event marker scans; and
-9. a cleanup receipt after the fixture and isolated gateway processes stop.
+9. a real gateway resource-inspection seam whose arrays are backed by the
+   isolated continuation delegate/queue/session stores, not a driver summary;
+   and
+10. launcher-derived cleanup after the fixture and isolated gateway processes
+   stop.
 
-Until all nine are present, the plan must say
+Until all ten are present, the plan must say
 `driver.fixtureCommand.status=missing-product-seam`; the k6 scenario refuses to
 start.
 
@@ -396,7 +418,7 @@ Expected private artifacts:
 /private/control/
   driver-ready.json
   driver-attestation.json
-  cleanup-draft.json
+  candidate-cleanup-diagnostic.json
   cleanup.json
   driver.log
   k6.log
@@ -432,6 +454,14 @@ The repository-local owner test covers:
 | claimed window shorter than measured elapsed time | `settlement-too-short` |
 | product SHA plus generation mismatch | `identity-mismatch` and `authority-generation-mismatch` |
 | missing plus duplicated observation | `observation-missing` and `observation-duplicate` |
+| candidate says zero while a delegate remains | `resource-retention` |
+| candidate says zero while a queue item remains | `resource-retention` |
+| candidate says zero while a temporary session remains | `resource-retention` |
+| candidate says all handles closed with missing/duplicated phase coverage | `phase-chain-mismatch` |
+| resource-inspection seam missing/unsupported | `unverified-resource-retention` |
+| stale run/SHA/gateway PID/start/socket/timestamp | `unverified-resource-retention` or cleanup failure |
+| malformed, partial, count-mismatched, or over-limit inspection | `unverified-resource-retention` |
+| clean direct inspection plus independent process teardown | `PASS-candidate` |
 | one identifier reused across phases | `phase-chain-mismatch` |
 | phase response without launcher HMAC | `phase-proof-mismatch` |
 | mixed explicit-revocation executed/N/A forms | `revocation-capability-mismatch` |
@@ -439,7 +469,7 @@ The repository-local owner test covers:
 | retained launcher run root | direct cleanup rejected |
 | runtime config spliced from another run | `isolated-runtime-unavailable` |
 | nonzero k6 exit or mismatched teardown | `scenario-failure` |
-| retained queue/process and incomplete cleanup | `cleanup-failure` |
+| retained process and incomplete cleanup | `resource-retention` and/or `cleanup-failure` |
 | ambient-only Codex plugin | `isolated-runtime-unavailable` at receipt authority |
 | signed receipt tampering | invalid integrity |
 

@@ -15,6 +15,8 @@ test('return covenant harness is complete but remains outside proof authority re
     scenarioContract,
     inputSchemaRaw,
     observerSchemaRaw,
+    cleanupSchemaRaw,
+    retentionSchemaRaw,
     launcher,
     supervisor,
     mockDriver,
@@ -28,6 +30,8 @@ test('return covenant harness is complete but remains outside proof authority re
     read('lib/return-covenant-scenario-contract.mjs'),
     read('contracts/return-covenant-authority/fixture-input.schema.json'),
     read('contracts/return-covenant-authority/observer.schema.json'),
+    read('contracts/return-covenant-authority/cleanup.schema.json'),
+    read('contracts/return-covenant-authority/retention-observation.schema.json'),
     read('scripts/launch-return-covenant-driver.mjs'),
     read('scripts/run-return-covenant-sandbox.mjs'),
     read('tests/fixtures/return-covenant-authority/mock-product-driver.mjs'),
@@ -37,6 +41,8 @@ test('return covenant harness is complete but remains outside proof authority re
   ]);
   const inputSchema = JSON.parse(inputSchemaRaw);
   const observerSchema = JSON.parse(observerSchemaRaw);
+  const cleanupSchema = JSON.parse(cleanupSchemaRaw);
+  const retentionSchema = JSON.parse(retentionSchemaRaw);
   const index = JSON.parse(indexRaw);
   const currentManifest = JSON.parse(
     await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
@@ -50,6 +56,9 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(documentation, /--artifact-dir/);
   assert.match(documentation, /--log-format raw --log-output stdout/);
   assert.match(documentation, /k6-exit-code\.txt/);
+  assert.match(documentation, /docs-owned scenario[\s\S]*resource-inspection/i);
+  assert.match(documentation, /unverified-resource-retention/);
+  assert.match(documentation, /candidate-cleanup-diagnostic\.json/);
   assert.match(documentation, /92affa163c0e14f7cd9d1ef76ac19f089d85b503/);
   assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
   assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
@@ -106,6 +115,14 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(supervisor, /--config/);
   assert.match(supervisor, /cwd: input\['k6-home'\]/);
   assert.match(launcher, /terminateProcessGroup/);
+  assert.match(launcher, /deriveReturnCovenantCaseHandleClosure/);
+  assert.match(launcher, /deriveReturnCovenantTrustedRetention/);
+  assert.match(launcher, /candidate-cleanup-diagnostic\.json/);
+  assert.doesNotMatch(launcher, /retained:\s*cleanupDraft\.retained/);
+  assert.doesNotMatch(
+    launcher,
+    /allCaseHandlesClosed:\s*cleanupDraft\.allCaseHandlesClosed/,
+  );
   assert.match(
     launcher,
     /existing\.listenerFingerprints\.length > 0 &&\s+observation\.listenerFingerprints\.length === 0[\s\S]*?continue;/,
@@ -132,11 +149,18 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(observer, /observation-duplicate/);
   assert.match(observer, /stale-side-effect/);
   assert.match(observer, /cleanup-failure/);
+  assert.match(observer, /unverified-resource-retention/);
+  assert.match(observer, /docs-owned-gateway-observation/);
   assert.match(observer, /forbidden-value scan/);
   assert.match(scenarioContract, /typed-tool[\s\S]*bracket-token/);
   assert.match(scenarioContract, /covenant-v18-upgrade/);
   assert.match(scenarioContract, /participant-v18-upgrade/);
   assert.match(scenario, /RETURN_COVENANT_TEARDOWN_PREFIX/);
+  assert.match(scenario, /buildReturnCovenantRetentionRequest/);
+  assert.match(
+    scenario,
+    /\/v1\/return-covenant\/resource-inspection/,
+  );
   assert.match(scenario, /notBefore/);
   assert.match(scenario, /driverBinding/);
   assert.equal(
@@ -147,6 +171,21 @@ test('return covenant harness is complete but remains outside proof authority re
     observerSchema.properties.schema.const,
     'openclaw.k6.return-covenant-observation.v1',
   );
+  assert.equal(
+    retentionSchema.properties.schema.const,
+    'openclaw.k6.return-covenant-retention-observation.v1',
+  );
+  assert.equal(
+    cleanupSchema.properties.retentionAuthority.properties.candidateCleanup.const,
+    'untrusted-diagnostic-only',
+  );
+  assert.equal(
+    cleanupSchema.properties.retained.properties.delegates.$ref,
+    '#/$defs/retainedCount',
+  );
+  assert.match(mockDriver, /resourceState/);
+  assert.match(mockDriver, /candidateClaimsClean/);
+  assert.match(supervisor, /childTerminationReason/);
   await Promise.all([
     access(path.join(root, 'tests/fixtures/return-covenant-authority/allowed-pass.json')),
     access(path.join(root, 'tests/fixtures/return-covenant-authority/forbidden-pass.json')),

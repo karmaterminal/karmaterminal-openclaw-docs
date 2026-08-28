@@ -187,7 +187,7 @@ async function processStartFingerprint(pid) {
     const fields = raw.slice(raw.lastIndexOf(')') + 2).trim().split(/\s+/u);
     return fields[19] ? sha256(`${pid}:${fields[19]}`) : null;
   } catch (error) {
-    if (error?.code === 'ENOENT') return null;
+    if (error?.code === 'ENOENT' || error?.code === 'ESRCH') return null;
     throw error;
   }
 }
@@ -201,7 +201,11 @@ async function processGroupMembers(processGroupId) {
       const fields = raw.slice(raw.lastIndexOf(')') + 2).trim().split(/\s+/u);
       if (Number(fields[2]) === processGroupId) members.push(Number(entry));
     } catch (error) {
-      if (error?.code !== 'ENOENT' && error?.code !== 'EACCES') throw error;
+      if (
+        error?.code !== 'ENOENT' &&
+        error?.code !== 'EACCES' &&
+        error?.code !== 'ESRCH'
+      ) throw error;
     }
   }
   return members;
@@ -244,7 +248,7 @@ async function sandboxProcessMembers(sandboxPid) {
         .map(Number);
       pending.push(...children);
     } catch (error) {
-      if (error?.code !== 'ENOENT') throw error;
+      if (error?.code !== 'ENOENT' && error?.code !== 'ESRCH') throw error;
     }
   }
   return members;
@@ -325,13 +329,19 @@ async function inspectGatewayMemberWithRetry(params) {
     try {
       return await inspectGatewayMember(params);
     } catch (error) {
-      if (error?.code !== 'ENOENT' && error?.code !== 'EACCES') throw error;
+      if (
+        error?.code !== 'ENOENT' &&
+        error?.code !== 'EACCES' &&
+        error?.code !== 'ESRCH'
+      ) throw error;
       try {
         const raw = await readFile(`/proc/${params.pid}/stat`, 'utf8');
         const fields = raw.slice(raw.lastIndexOf(')') + 2).trim().split(/\s+/u);
         if (fields[0] === 'Z') return null;
       } catch (statError) {
-        if (statError?.code === 'ENOENT') return null;
+        if (statError?.code === 'ENOENT' || statError?.code === 'ESRCH') {
+          return null;
+        }
         if (statError?.code !== 'EACCES') throw statError;
       }
       if (attempt < 3) {
@@ -457,7 +467,11 @@ async function resolveReadyHostPids({
           matches.gatewayPid = pid;
         }
       } catch (error) {
-        if (error?.code !== 'ENOENT' && error?.code !== 'EACCES') throw error;
+        if (
+          error?.code !== 'ENOENT' &&
+          error?.code !== 'EACCES' &&
+          error?.code !== 'ESRCH'
+        ) throw error;
       }
     }
     lastDebug = debug;
@@ -504,7 +518,9 @@ async function existingLivePaths() {
     try {
       values.push(await realpath(candidate));
     } catch (error) {
-      if (error?.code !== 'ENOENT') throw error;
+      if (error?.code !== 'ENOENT' && error?.code !== 'ESRCH') {
+        throw error;
+      }
     }
   }
   return [...new Set(values)];

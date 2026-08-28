@@ -632,6 +632,28 @@ function resignCleanup(cleanup) {
   };
 }
 
+function rebindEvidenceForRetention(plan, evidence, driverAttestation) {
+  refreshPhaseProofs(evidence, driverAttestation);
+  evidence.cleanupRun = {
+    ...evidence.cleanupRun,
+    observationSetSha256: jsonSha256(evidence.observations),
+    phaseChainSha256: jsonSha256(evidence.phaseChains),
+    driverAttestationSha256: driverAttestation.attestationSha256,
+  };
+  evidence.driverAttestationSha256 = driverAttestation.attestationSha256;
+  refreshPhaseProofs(evidence, driverAttestation);
+  evidence.cleanupRun = {
+    ...evidence.cleanupRun,
+    observationSetSha256: jsonSha256(evidence.observations),
+    phaseChainSha256: jsonSha256(evidence.phaseChains),
+  };
+  refreshPhaseProofs(evidence, driverAttestation);
+  evidence.retentionObservation = retentionObservationFor({
+    plan,
+    evidence,
+  });
+}
+
 async function completeMatrix(options = {}) {
   const [fixturePlan, allowedBase, forbiddenBase] = await Promise.all([
     options.plan ? Promise.resolve(null) : fixture('plan.valid.json'),
@@ -712,17 +734,14 @@ async function completeMatrix(options = {}) {
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
   };
   refreshPhaseProofs(evidence, driverAttestation);
-  evidence.cleanupRun = {
-    ...evidence.cleanupRun,
-    observationSetSha256: jsonSha256(evidence.observations),
-    phaseChainSha256: jsonSha256(evidence.phaseChains),
-  };
-  refreshPhaseProofs(evidence, driverAttestation);
-  evidence.retentionObservation = retentionObservationFor({
-    plan,
-    evidence,
-    retained: options.retained,
-  });
+  rebindEvidenceForRetention(plan, evidence, driverAttestation);
+  if (options.retained) {
+    evidence.retentionObservation = retentionObservationFor({
+      plan,
+      evidence,
+      retained: options.retained,
+    });
+  }
   return result;
 }
 
@@ -1133,7 +1152,7 @@ test('empty phase identities and a missing result marker fail closed', async () 
 });
 
 test('bracket form cannot be relabeled typed execution evidence', async () => {
-  const { evidence } = await completeMatrix();
+  const { plan, evidence } = await completeMatrix();
   const observation = evidence.observations.find((entry) =>
     entry.caseId === 'allowed-ordinary-new' && entry.form === 'bracket-token');
   const phaseChain = evidence.phaseChains.find((entry) =>
@@ -1206,6 +1225,7 @@ test('fractional k6 monotonic milliseconds remain valid evidence', async () => {
     observedAtMs,
     elapsedMs: observedAtMs - releasedAtMs,
   };
+  rebindEvidenceForRetention(plan, evidence, driverAttestation);
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
     evidence,
@@ -2693,7 +2713,7 @@ test('published closed schemas declare required properties and accept passing fi
     await fixture('cleanup-pass.json'),
     cleanupSchema,
   );
-  const { plan, evidence } = await completeMatrix();
+  const { evidence } = await completeMatrix();
   assertSimpleSchema(
     schemas.at(-1),
     evidence.retentionObservation,
@@ -2859,6 +2879,7 @@ test('explicit revocation N/A requires a complete exact-build capability invento
       },
     };
   }
+  rebindEvidenceForRetention(plan, evidence, driverAttestation);
   const cleanup = bindCleanup(cleanupFixture, evidence, driverAttestation, plan);
   const receipt = resolveReturnCovenantAuthoritativeReceipt({
     plan,
@@ -2872,11 +2893,23 @@ test('explicit revocation N/A requires a complete exact-build capability invento
     plan,
     evidence,
     driverAttestation,
+    gatewayLifecycle: cleanup.gatewayLifecycle,
+  });
+  const retentionValidation = validateReturnCovenantRetentionObservation({
+    plan,
+    evidence,
+    driverAttestation,
+    gatewayLifecycle: cleanup.gatewayLifecycle,
   });
   assert.equal(
     receipt.verdict,
     'PASS-candidate',
-    JSON.stringify(nAValidation.errors),
+    JSON.stringify({
+      observationErrors: nAValidation.errors,
+      receiptFailures: receipt.failureCategories,
+      resourceObservation: cleanup.resourceObservation,
+      retentionErrors: retentionValidation.errors,
+    }),
   );
   assert.deepEqual(
     validateReturnCovenantAuthoritativeReceipt(receipt, signingKey),

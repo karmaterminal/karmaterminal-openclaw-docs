@@ -1,0 +1,43 @@
+Jul 04 08:03:38 cael node[2260870]: 2026-07-04T08:03:38.087-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:03:38 cael node[2260870]: 2026-07-04T08:03:38.095-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=60000ms fireAt=1783177478094 session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:03:48 cael node[2260870]: 2026-07-04T08:03:48.240-07:00 [reload] config change detected; evaluating reload (agents.defaults.continuation.maxDelayMs, agents.defaults.continuation.defaultDelayMs, agents.defaults.continuation.minDelayMs)
+Jul 04 08:03:54 cael systemd[2428]: Stopping openclaw-gateway.service - OpenClaw Gateway (v2026.6.10)...
+Jul 04 08:03:54 cael systemd[2428]: Stopped openclaw-gateway.service - OpenClaw Gateway (v2026.6.10).
+Jul 04 08:03:54 cael systemd[2428]: openclaw-gateway.service: Consumed 26.523s CPU time, 1.3G memory peak, 0B memory swap peak.
+Jul 04 08:03:54 cael systemd[2428]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.6.10).
+Jul 04 08:03:58 cael node[2265005]: 2026-07-04T08:03:58.774-07:00 [gateway] log file: /tmp/openclaw/openclaw-2026-07-04.log
+Jul 04 08:03:58 cael node[2265005]: 2026-07-04T08:03:58.812-07:00 [gateway] security warning: dangerous config flags enabled: plugins.entries.acpx.config.permissionMode=approve-all. Run `openclaw security audit`.
+Jul 04 08:04:33 cael systemd[2428]: Stopping openclaw-gateway.service - OpenClaw Gateway (v2026.6.10)...
+Jul 04 08:04:33 cael systemd[2428]: Stopped openclaw-gateway.service - OpenClaw Gateway (v2026.6.10).
+Jul 04 08:04:33 cael systemd[2428]: openclaw-gateway.service: Consumed 18.760s CPU time, 1.2G memory peak, 0B memory swap peak.
+Jul 04 08:04:33 cael systemd[2428]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.6.10).
+Jul 04 08:04:37 cael node[2266466]: 2026-07-04T08:04:37.763-07:00 [gateway] log file: /tmp/openclaw/openclaw-2026-07-04.log
+Jul 04 08:04:37 cael node[2266466]: 2026-07-04T08:04:37.808-07:00 [gateway] security warning: dangerous config flags enabled: plugins.entries.acpx.config.permissionMode=approve-all. Run `openclaw security audit`.
+Jul 04 08:04:39 cael node[2266466]: 2026-07-04T08:04:39.507-07:00 [continuation/work-dispatch] [continuation:work-superseded] flowId=rcw-multi-collapse-rerun3-old-1783177467320 session=agent:main:discord:channel:1466192485440164011 hop=101 overdueMs=56186 — folded into newer election
+Jul 04 08:04:39 cael node[2266466]: 2026-07-04T08:04:39.511-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59994ms fireAt=1783177539504 session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:04:39 cael node[2266466]: 2026-07-04T08:04:39.512-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=102/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work
+Jul 04 08:04:52 cael node[2266466]: 2026-07-04T08:04:52.074-07:00 [reload] config change detected; evaluating reload (agents.defaults.continuation.maxDelayMs, agents.defaults.continuation.defaultDelayMs, agents.defaults.continuation.minDelayMs)
+Jul 04 08:04:57 cael systemd[2428]: Stopping openclaw-gateway.service - OpenClaw Gateway (v2026.6.10)...
+Jul 04 08:04:58 cael systemd[2428]: Stopped openclaw-gateway.service - OpenClaw Gateway (v2026.6.10).
+Jul 04 08:04:58 cael systemd[2428]: openclaw-gateway.service: Consumed 15.637s CPU time, 1.6G memory peak, 0B memory swap peak.
+Jul 04 08:04:58 cael systemd[2428]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.6.10).
+Jul 04 08:05:02 cael node[2267720]: 2026-07-04T08:05:02.371-07:00 [gateway] log file: /tmp/openclaw/openclaw-2026-07-04.log
+Jul 04 08:05:02 cael node[2267720]: 2026-07-04T08:05:02.416-07:00 [gateway] security warning: dangerous config flags enabled: plugins.entries.acpx.config.permissionMode=approve-all. Run `openclaw security audit`.
+Jul 04 08:05:04 cael node[2267720]: 2026-07-04T08:05:04.117-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=35388ms fireAt=1783177539504 session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:05:04 cael node[2267720]: 2026-07-04T08:05:04.117-07:00 [continuation-work-recovery] replayed sessions=1 dispatched=0 failed=0 reaped=0
+Jul 04 08:05:33 cael node[2267720]: 2026-07-04T08:05:33.617-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:05:33 cael node[2267720]: 2026-07-04T08:05:33.618-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:05:33 cael node[2267720]: - Lowered config applied via `restart-gateway.yml` run `28710185731`.
+Jul 04 08:05:33 cael node[2267720]:   - `rcw-multi-collapse-rerun3-old-1783177467320`
+Jul 04 08:05:33 cael node[2267720]:   - `rcw-multi-collapse-rerun3-new-1783177467320`
+Jul 04 08:05:33 cael node[2267720]:   - Flow `rcw-multi-collapse-rerun3-new-1783177467320`
+Jul 04 08:05:33 cael node[2267720]:   - Reason `RCW_MULTI_COLLAPSE_BCA2B0B_CAEL_20260704_0733_RERUN3 NEWEST should drive`
+Jul 04 08:05:33 cael node[2267720]:   - `superseded: Superseded by a newer continue_work election after a 56186ms stale backlog.`
+Jul 04 08:05:33 cael node[2267720]: - Config restored via `restart-gateway.yml` run `28710213668`.
+Jul 04 08:05:33 cael node[2267720]: - `openclaw.json` matches the pre-test backup:
+Jul 04 08:05:33 cael node[2267720]: I am **not scheduling any same-session `continue_work` now**, because that polluted rerun2. I’m letting this wake turn end cleanly so the proof row can terminalize without a newer same-session election. The isolated cron safety/package check remains armed for `15:10Z` and can inspect/package after terminalization without creating a competing main-session continuation row.
+Jul 04 08:05:39 cael node[2267720]: 2026-07-04T08:05:39.507-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:05:39 cael node[2267720]: 2026-07-04T08:05:39.517-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59995ms fireAt=1783177599510 session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:05:39 cael node[2267720]: 2026-07-04T08:05:39.520-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=102/200 session=agent:main:discord:channel:1466192485440164011 reasonCategory=follow-up-work
+Jul 04 08:05:46 cael node[2267720]: 2026-07-04T08:05:46.813-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=agent:main:discord:channel:1466192485440164011
+Jul 04 08:05:46 cael node[2267720]: 2026-07-04T08:05:46.813-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=agent:main:discord:channel:1466192485440164011

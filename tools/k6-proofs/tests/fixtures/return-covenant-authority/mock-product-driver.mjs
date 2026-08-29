@@ -35,6 +35,7 @@ const MOCK_CONTROL = Object.freeze({
   candidateClaimsClean: false,
   candidateCleanupFault: null,
   terminalNoticeController: null,
+  terminalNoticeMarker: 'retry-exhausted',
 });
 const resourceCategories = [
   'delegates',
@@ -459,7 +460,7 @@ if (process.argv[2] === 'gateway') {
       : {
         kind: 'core',
         childSessionKey: 'agent:proof:terminal-notice-child',
-        terminalNoticePending: true,
+        terminalNoticePending: MOCK_CONTROL.terminalNoticeMarker,
       };
     stateDatabase.prepare(`
       INSERT INTO flow_runs (

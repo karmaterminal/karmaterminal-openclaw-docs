@@ -2750,7 +2750,7 @@ test('durable inspector matches current product-shaped retention stores', async 
         state: {
           kind: 'core',
           childSessionKey,
-          terminalNoticePending: true,
+          terminalNoticePending: 'retry-exhausted',
         },
       });
       fixtureState.insertTemporarySession({
@@ -2769,6 +2769,40 @@ test('durable inspector matches current product-shaped retention stores', async 
           runBound: entry.runBound,
         })),
         [{ sessionKey: childSessionKey, runBound: true }],
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('generic terminal notice retains every defined maintenance marker', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      for (const [name, terminalNoticePending] of [
+        ['false', false],
+        ['null', null],
+        ['string', 'controller-defined-obligation'],
+      ]) {
+        fixtureState.insertFlow({
+          flowId: `core-terminal-defined-${name}`,
+          status: 'failed',
+          endedAt: 2,
+          controllerId: 'core',
+          state: {
+            kind: 'core',
+            terminalNoticePending,
+          },
+        });
+      }
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.deepEqual(
+        observed.resources.queueItems.map((entry) => entry.id),
+        [
+          'flow:core-terminal-defined-false',
+          'flow:core-terminal-defined-null',
+          'flow:core-terminal-defined-string',
+        ],
       );
     } finally {
       await fixtureState.dispose();
@@ -2810,18 +2844,11 @@ test('durable inspector matches current product-shaped retention stores', async 
 
   for (const control of [
     {
-      name: 'unknown generic marker',
+      name: 'notice on nonterminal generic flow',
       controllerId: 'core',
-      state: { kind: 'core', terminalNoticePending: 'unknown' },
-      status: 'failed',
-      endedAt: 2,
-    },
-    {
-      name: 'false generic marker',
-      controllerId: 'core',
-      state: { kind: 'core', terminalNoticePending: false },
-      status: 'failed',
-      endedAt: 2,
+      state: { kind: 'core', terminalNoticePending: 'retry-exhausted' },
+      status: 'running',
+      endedAt: null,
     },
     {
       name: 'boolean continuation-work marker',
@@ -4122,15 +4149,46 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
   }
 });
 
-for (const controllerId of ['core', 'core/continuation-work']) {
-  test(`trusted launcher signs FAIL for retained terminal notice: ${controllerId}`, async () => {
+for (const control of [
+  {
+    name: 'generic product marker',
+    controllerId: 'core',
+    markerSource: "'retry-exhausted'",
+  },
+  {
+    name: 'generic alternate defined marker',
+    controllerId: 'core',
+    markerSource: 'false',
+  },
+  {
+    name: 'exact continuation-work marker',
+    controllerId: 'core/continuation-work',
+    markerSource: "'retry-exhausted'",
+  },
+]) {
+  test(`trusted launcher signs FAIL for retained terminal notice: ${control.name}`, async () => {
     const result = await runTrustedLauncherFixture((source) =>
-      source.replace(
-        'terminalNoticeController: null',
-        `terminalNoticeController: '${controllerId}'`,
-      ));
+      source
+        .replace(
+          'terminalNoticeController: null',
+          `terminalNoticeController: '${control.controllerId}'`,
+        )
+        .replace(
+          "terminalNoticeMarker: 'retry-exhausted'",
+          `terminalNoticeMarker: ${control.markerSource}`,
+        ));
     try {
       assert.equal(result.launcherExitCode, 1);
+      assert.equal(result.receipt.verdict, 'FAIL-candidate');
+      assert.match(result.receipt.integrity.signature, /^[a-f0-9]{64}$/u);
+      assert.ok(
+        result.receipt.failureCategories.includes('resource-retention'),
+        JSON.stringify({
+          retained: result.cleanup.retained,
+          observationStatus: result.cleanup.resourceObservation.status,
+          failureCategories: result.receipt.failureCategories,
+        }),
+      );
       assert.equal(result.cleanup.retained.queueItems, 1);
       assert.deepEqual(
         result.cleanup.durableStoreObservation.live.resources.queueItems
@@ -4142,9 +4200,6 @@ for (const controllerId of ['core', 'core/continuation-work']) {
           .map((entry) => entry.id),
         ['flow:terminal-notice-control'],
       );
-      assert.equal(result.receipt.verdict, 'FAIL-candidate');
-      assert.ok(result.receipt.failureCategories.includes('resource-retention'));
-      assert.match(result.receipt.integrity.signature, /^[a-f0-9]{64}$/u);
     } finally {
       await result.dispose();
     }

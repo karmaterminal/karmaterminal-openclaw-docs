@@ -1,4 +1,32 @@
-# Proof-store terminal notice and signed-FAIL repair
+# Generic terminal-marker repair lane
+
+Issue binding: `openclaw/openclaw#129388`.
+
+## Pre-evidence named-reference contract
+
+This table was written before running the rejected negative control or
+crediting successor evidence. The unchanged safe lane was published to
+`origin` before its identity gate.
+
+| Category | Named reference | Local SHA | Tracking SHA | Server/object SHA | Equality |
+|---|---|---|---|---|---|
+| Product/base ref | `karmaterminal/openclaw@b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | N/A (immutable commit object) | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | local/server equal |
+| Safe lane ref | `codeagent/129388-proof-store-generic-terminal-marker-fix-20260829` | `1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | local/tracking/server equal |
+| CI/workflow ref | N/A | N/A | N/A | N/A | Focused-only workorder; Mode-B and Gate 3g do not apply. |
+| Presentation ref | N/A | N/A | N/A | N/A | Presentation, corpus fold, and live proof are out of scope. |
+| Docs/proof rejected successor | `karmaterminal/karmaterminal-openclaw-docs@1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | local/tracking/server equal |
+| Docs/proof independent review | `codeagent/129388-proof-store-1116-independent-review-20260829` | `19f09d69e6ca8afdfceb598c1231831803cfe03f` | `19f09d69e6ca8afdfceb598c1231831803cfe03f` | `19f09d69e6ca8afdfceb598c1231831803cfe03f` | local/tracking/server equal |
+
+The installed GitNexus fork is
+`/home/figs/flesh_beast_best_beast/source/GitNexus`, package `gitnexus@1.6.5`,
+fork commit `3c1e686edfc1acaac882927cada121ddd7c47bcc`. Its available
+`karmaterminal-openclaw-docs` indexes point at other worktrees and stale commits,
+so no graph finding is credited; the workorder's direct exact-object and
+owner-test route is used.
+
+---
+
+# Prior proof-store terminal notice and signed-FAIL repair
 
 Status: `READY_FOR_SCRIBE_REVIEW`.
 

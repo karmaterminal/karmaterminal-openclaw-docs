@@ -1156,7 +1156,7 @@ function collectQueueSessionKeys(row, entry, keys) {
   );
 }
 
-function isTemporarySessionEntry(entry, sessionKey, runBoundSessionKeys) {
+function temporarySessionRelevance(entry, sessionKey, runBoundSessionKeys) {
   const spawnedBy = optionalString(entry.spawnedBy, 'session_nodes.entry_json.spawnedBy');
   const parentSessionKey = optionalString(
     entry.parentSessionKey,
@@ -1186,7 +1186,7 @@ function isTemporarySessionEntry(entry, sessionKey, runBoundSessionKeys) {
     runBoundSessionKeys.has(sessionKey) ||
     (spawnedBy !== null && runBoundSessionKeys.has(spawnedBy)) ||
     (parentSessionKey !== null && runBoundSessionKeys.has(parentSessionKey));
-  return spawned && runBound;
+  return { spawned, runBound };
 }
 
 function inspectGlobalDatabase(snapshotDatabasePath) {
@@ -1330,7 +1330,12 @@ function inspectAgentDatabase(
       ) {
         throw new Error('session_nodes lineage projections differ from entry_json');
       }
-      if (isTemporarySessionEntry(entry, row.session_key, runBoundSessionKeys)) {
+      const relevance = temporarySessionRelevance(
+        entry,
+        row.session_key,
+        runBoundSessionKeys,
+      );
+      if (relevance.spawned) {
         temporarySessions.push({
           id: `${expectedAgentId}:${row.session_key}`,
           agentId: expectedAgentId,
@@ -1339,6 +1344,7 @@ function inspectAgentDatabase(
           spawnedBy,
           parentSessionKey,
           spawnDepth: entry.spawnDepth ?? null,
+          runBound: relevance.runBound,
           entrySha256: sha256(canonicalJson(entry)),
         });
       }
@@ -1711,12 +1717,14 @@ function buildResources(global, agentResults) {
       state = parseJsonValue(row.state_json, 'flow_runs.state_json');
     }
     const retained = isRetainedFlow(row, state);
+    if (CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id)) {
+      runBoundSessionKeys.add(row.owner_key.trim());
+      collectFlowSessionKeys(state, runBoundSessionKeys);
+    }
     if (retained) {
       if (!CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id)) {
         throw new Error('unknown continuation flow controller escaped filtering');
       }
-      runBoundSessionKeys.add(row.owner_key.trim());
-      collectFlowSessionKeys(state, runBoundSessionKeys);
       queueItems.push({
         id: `flow:${row.flow_id}`,
         source: 'flow_runs',

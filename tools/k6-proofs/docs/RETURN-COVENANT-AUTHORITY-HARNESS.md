@@ -345,10 +345,12 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   and unfinished session delivery from `delivery_queue_entries` (`pending` and
   failed `settlement_pending`, including durable attempt ownership). It reads
   product-registered `agents/<agent>/agent/openclaw-agent.sqlite`
-  `session_nodes.entry_json` rows and treats a run-bound spawned row as a
-  temporary session; root and UI-only parent rows are not temporary. Indexed
+  `session_nodes.entry_json` rows and treats every product-spawned row as a
+  temporary session in the fresh isolated state, even after all registry and
+  queue rows have retired; root and UI-only parent rows are not temporary. Indexed
   child/requester/controller keys plus nested delivery, continuation-target,
-  swarm-owner, flow-owner, and flow child/target keys participate in relevance.
+  swarm-owner, flow-owner, and flow child/target keys remain bound as
+  diagnostic correlation rather than a gate on retention.
   Unknown or malformed status/JSON/lineage, table/view/column drift,
   registry/layout disagreement, identity change, symlink, missing sidecar
   identity, unstable live/final resources, or count overflow forces
@@ -500,6 +502,7 @@ The repository-local owner test covers:
 | current-product `payload_json` retains a subagent | `resource-retention` |
 | `delivery_queue_entries` retains pending/settlement work or attempt ownership | `resource-retention` |
 | canonical `session_nodes.entry_json` retains a run-bound spawned session | `resource-retention` |
+| spawned child session remains after every run/flow/queue row retires | `resource-retention` |
 | unknown/malformed lifecycle or delivery status/JSON | `unverified-resource-retention` |
 | missing, renamed, or view-substituted canonical table/column | `unverified-resource-retention` |
 | symlink or pathname swap after no-follow open | `unverified-resource-retention` |

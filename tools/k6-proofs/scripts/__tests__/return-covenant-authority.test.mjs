@@ -648,6 +648,7 @@ function durableStoreObservationFor({
         spawnedBy: plan.cases[0].logicalSessionKey,
         parentSessionKey: plan.cases[0].logicalSessionKey,
         spawnDepth: 1,
+        runBound: true,
         entrySha256: sha256(`session-entry-${index}`),
         storePathFingerprint: sha256(
           '/isolated/state/agents/proof/agent/openclaw-agent.sqlite',
@@ -2525,6 +2526,23 @@ test('durable inspector matches current product-shaped retention stores', async 
       assert.equal(observed.status, 'observed', observed.failureReason);
       assert.equal(observed.resources.delegates.length, 0);
       assert.equal(observed.resources.temporarySessions.length, 1);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('leaked spawned session survives no ledger residue', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertTemporarySession({
+        sessionKey: 'agent:proof:subagent:orphaned-after-ledger-retirement',
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.delegates.length, 0);
+      assert.equal(observed.resources.queueItems.length, 0);
+      assert.equal(observed.resources.temporarySessions.length, 1);
+      assert.equal(observed.resources.temporarySessions[0].runBound, false);
     } finally {
       await fixtureState.dispose();
     }

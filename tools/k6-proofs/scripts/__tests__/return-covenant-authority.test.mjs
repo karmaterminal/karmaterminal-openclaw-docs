@@ -2159,6 +2159,7 @@ async function createProductShapedRetentionFixture() {
   const rootEntry = {
     sessionId: 'root-session',
     updatedAt: 1,
+    status: 'running',
     createdVia: 'internal',
     spawnDepth: 0,
   };
@@ -2233,7 +2234,10 @@ async function createProductShapedRetentionFixture() {
       recoveryState = null,
       deliveryStartedAt = 2,
     } = {}) {
-      const entry = {
+      const unfinished =
+        status === 'pending' ||
+        (status === 'failed' && recoveryState === 'settlement_pending');
+      const entry = unfinished ? {
         id,
         enqueuedAt: 1,
         retryCount: 0,
@@ -2250,6 +2254,13 @@ async function createProductShapedRetentionFixture() {
           generation: 1,
           deadlineAt: 10,
         },
+      } : {
+        id,
+        enqueuedAt: 1,
+        retryCount: 0,
+        ...(status === 'completed'
+          ? { acknowledgedAt: 1 }
+          : { failedAt: 1 }),
       };
       database.prepare(`
         INSERT INTO delivery_queue_entries (
@@ -2258,11 +2269,19 @@ async function createProductShapedRetentionFixture() {
           recovery_state, platform_send_started_at, entry_json,
           enqueued_at, updated_at, failed_at
         ) VALUES (
-          'session', ?, ?, 'agentTurn', 'agent:proof:main', NULL,
+          'session', ?, ?, ?, ?, NULL,
           NULL, NULL, 0, NULL, NULL, ?, NULL, ?, 1, 1,
           CASE WHEN ? = 'failed' THEN 1 ELSE NULL END
         )
-      `).run(id, status, recoveryState, JSON.stringify(entry), status);
+      `).run(
+        id,
+        status,
+        unfinished ? 'agentTurn' : null,
+        unfinished ? 'agent:proof:main' : null,
+        recoveryState,
+        JSON.stringify(entry),
+        status,
+      );
     },
     insertTemporarySession({
       sessionKey = 'agent:proof:subagent:retained',
@@ -2272,6 +2291,7 @@ async function createProductShapedRetentionFixture() {
         sessionId: 'temporary-session',
         updatedAt: 2,
         createdAt: 2,
+        status: 'running',
         createdVia: 'spawn',
         spawnedBy,
         parentSessionKey: spawnedBy,
@@ -2304,6 +2324,10 @@ async function createProductShapedRetentionFixture() {
           `trusted-snapshot-${snapshotIndex}`,
         ),
         runtimeProcess: {
+          // Legacy fields keep this control runnable against rejected
+          // implementation 281552c0; the successor ignores them.
+          pid: 2_147_483_000,
+          startFingerprint: 'd'.repeat(64),
           processGroupId: 2_147_483_000,
           driver: {
             pid: 2_147_483_000,
@@ -2492,12 +2516,25 @@ test('durable inspector matches current product-shaped retention stores', async 
     const fixtureState = await createProductShapedRetentionFixture();
     try {
       const targetSessionKey = 'agent:proof:subagent:alternate-target';
+      const recipientSessionKey =
+        'agent:proof:subagent:selected-authority-recipient';
       const payload = canonicalSubagentPayload({
         runId: 'run-terminal-target',
         childSessionKey: 'agent:proof:subagent:completed',
         requesterSessionKey: 'agent:proof:main',
       });
       payload.continuationTargetSessionKeys = [targetSessionKey];
+      payload.continuationRecipientAuthorityBinding = {
+        version: 1,
+        selection: 'selected',
+        recipients: [{
+          sessionKey: recipientSessionKey,
+          authority: {
+            state: 'bound',
+            epoch: '123e4567-e89b-42d3-a456-426614174000',
+          },
+        }],
+      };
       fixtureState.insertSubagent({
         runId: payload.runId,
         childSessionKey: payload.childSessionKey,
@@ -2507,12 +2544,15 @@ test('durable inspector matches current product-shaped retention stores', async 
         sessionKey: targetSessionKey,
         spawnedBy: 'agent:proof:other-parent',
       });
+      fixtureState.insertTemporarySession({
+        sessionKey: recipientSessionKey,
+        spawnedBy: 'agent:proof:other-parent',
+      });
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'observed', observed.failureReason);
-      assert.equal(observed.resources.temporarySessions.length, 1);
-      assert.equal(
-        observed.resources.temporarySessions[0].sessionKey,
-        targetSessionKey,
+      assert.deepEqual(
+        observed.resources.temporarySessions.map((entry) => entry.sessionKey),
+        [targetSessionKey, recipientSessionKey],
       );
     } finally {
       await fixtureState.dispose();

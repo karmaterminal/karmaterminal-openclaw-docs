@@ -42,11 +42,10 @@ const FLOW_STATUSES = new Set([
   'lost',
 ]);
 const FLOW_SYNC_MODES = new Set(['task_mirrored', 'managed']);
-const TERMINAL_FLOW_STATUSES = new Set([
-  'succeeded',
-  'failed',
-  'cancelled',
-  'lost',
+const CONTINUATION_FLOW_CONTROLLERS = new Set([
+  'core/continuation-work',
+  'core/continuation-delegate',
+  'core/continuation-post-compaction',
 ]);
 const SUBAGENT_EXECUTION_STATUSES = new Set([
   'queued',
@@ -199,6 +198,92 @@ const REQUIRED_AGENT_COLUMNS = Object.freeze({
     'last_activity_at',
   ],
 });
+const TABLE_INTEGER_COLUMNS = Object.freeze({
+  schema_meta: ['schema_version', 'created_at', 'updated_at'],
+  agent_databases: [
+    'schema_version',
+    'last_seen_at',
+    'size_bytes',
+  ],
+  delivery_queue_entries: [
+    'retry_count',
+    'last_attempt_at',
+    'platform_send_started_at',
+    'enqueued_at',
+    'updated_at',
+    'failed_at',
+  ],
+  subagent_runs: ['created_at'],
+  flow_runs: [
+    'revision',
+    'cancel_requested_at',
+    'created_at',
+    'updated_at',
+    'ended_at',
+  ],
+  session_nodes: [
+    'entry_valid',
+    'updated_at',
+    'created_at',
+    'owner_assigned_at',
+    'pinned_at',
+    'archived_at',
+    'last_read_at',
+    'last_interaction_at',
+    'last_activity_at',
+  ],
+});
+const TABLE_NULLABLE_COLUMNS = Object.freeze({
+  schema_meta: ['agent_id', 'app_version'],
+  agent_databases: ['size_bytes'],
+  delivery_queue_entries: [
+    'entry_kind',
+    'session_key',
+    'channel',
+    'target',
+    'account_id',
+    'last_attempt_at',
+    'last_error',
+    'recovery_state',
+    'platform_send_started_at',
+    'failed_at',
+  ],
+  subagent_runs: ['controller_session_key'],
+  flow_runs: [
+    'shape',
+    'chain_id',
+    'requester_origin_json',
+    'controller_id',
+    'current_step',
+    'blocked_task_id',
+    'blocked_summary',
+    'state_json',
+    'wait_json',
+    'cancel_requested_at',
+    'ended_at',
+  ],
+  session_nodes: REQUIRED_AGENT_COLUMNS.session_nodes.slice(5),
+});
+const TABLE_PRIMARY_KEYS = Object.freeze({
+  schema_meta: ['meta_key'],
+  agent_databases: ['agent_id', 'path'],
+  delivery_queue_entries: ['queue_name', 'id'],
+  subagent_runs: ['run_id'],
+  flow_runs: ['flow_id'],
+  session_nodes: ['session_key'],
+});
+
+function expectedTableLayout(table, columns) {
+  const integerColumns = new Set(TABLE_INTEGER_COLUMNS[table]);
+  const nullableColumns = new Set(TABLE_NULLABLE_COLUMNS[table]);
+  const primaryKeys = TABLE_PRIMARY_KEYS[table];
+  return columns.map((name) => ({
+    name,
+    type: integerColumns.has(name) ? 'INTEGER' : 'TEXT',
+    notnull: nullableColumns.has(name) ? 0 : 1,
+    pk: primaryKeys.indexOf(name) + 1,
+  }));
+}
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -422,15 +507,22 @@ function requireExactTable(db, table, expectedColumns) {
   if (canonicalJson(names) !== canonicalJson(expectedColumns)) {
     throw new Error(`${table} does not expose the exact product columns`);
   }
+  const layout = rows.map((row) => ({
+    name: row.name,
+    type: row.type,
+    notnull: row.notnull,
+    pk: row.pk,
+  }));
+  if (
+    canonicalJson(layout) !==
+    canonicalJson(expectedTableLayout(table, expectedColumns))
+  ) {
+    throw new Error(`${table} does not expose the exact product column layout`);
+  }
   return {
     objectType: object.type,
     createSqlSha256: sha256(object.sql),
-    columns: rows.map((row) => ({
-      name: row.name,
-      type: row.type,
-      notnull: row.notnull,
-      pk: row.pk,
-    })),
+    columns: layout,
   };
 }
 
@@ -488,6 +580,61 @@ function optionalStringArray(value, label) {
     throw new Error(`${label} is not an array of non-empty strings`);
   }
   return value.map((entry) => entry.trim());
+}
+
+function collectRecipientAuthoritySessionKeys(binding, label, keys) {
+  if (binding === undefined) return;
+  if (
+    !isRecord(binding) ||
+    binding.version !== 1 ||
+    (
+      binding.selection !== 'pending' &&
+      binding.selection !== 'selected'
+    )
+  ) {
+    throw new Error(`${label} is malformed`);
+  }
+  if (binding.selection === 'pending') {
+    if (
+      (binding.fanoutMode !== 'tree' && binding.fanoutMode !== 'all') ||
+      Object.keys(binding).some((key) =>
+        !['version', 'selection', 'fanoutMode'].includes(key))
+    ) {
+      throw new Error(`${label} pending selection is malformed`);
+    }
+    return;
+  }
+  if (
+    !Array.isArray(binding.recipients) ||
+    binding.recipients.length > 10_000 ||
+    Object.keys(binding).some((key) =>
+      !['version', 'selection', 'recipients'].includes(key))
+  ) {
+    throw new Error(`${label} selected recipients are malformed`);
+  }
+  const selected = new Set();
+  for (const recipient of binding.recipients) {
+    if (
+      !isRecord(recipient) ||
+      !nonEmptyString(recipient.sessionKey) ||
+      !isRecord(recipient.authority) ||
+      recipient.authority.state !== 'bound' ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu
+        .test(recipient.authority.epoch || '') ||
+      Object.keys(recipient).some((key) =>
+        !['sessionKey', 'authority'].includes(key)) ||
+      Object.keys(recipient.authority).some((key) =>
+        !['state', 'epoch'].includes(key))
+    ) {
+      throw new Error(`${label} contains a malformed recipient`);
+    }
+    const sessionKey = recipient.sessionKey.trim();
+    if (selected.has(sessionKey)) {
+      throw new Error(`${label} contains a duplicate recipient`);
+    }
+    selected.add(sessionKey);
+    keys.add(sessionKey);
+  }
 }
 
 function validateOptionalTimestamp(value, label) {
@@ -615,6 +762,11 @@ function decodeSubagentRow(row) {
   )) {
     childSessionKeys.add(key);
   }
+  collectRecipientAuthoritySessionKeys(
+    payload.continuationRecipientAuthorityBinding,
+    'subagent_runs.payload_json.continuationRecipientAuthorityBinding',
+    childSessionKeys,
+  );
   for (const key of optionalStringArray(
     payload.swarmWaitOwnerSessionKeys,
     'subagent_runs.payload_json.swarmWaitOwnerSessionKeys',
@@ -656,6 +808,7 @@ function isRetainedFlow(row, state) {
   }
   if (row.controller_id === 'core/continuation-work') {
     if (
+      row.sync_mode !== 'managed' ||
       !isRecord(state) ||
       state.kind !== 'continuation_work' ||
       !nonEmptyString(state.sessionKey) ||
@@ -674,6 +827,7 @@ function isRetainedFlow(row, state) {
     row.controller_id === 'core/continuation-post-compaction'
   ) {
     if (
+      row.sync_mode !== 'managed' ||
       !isRecord(state) ||
       state.kind !== 'continuation_delegate' ||
       !nonEmptyString(state.task)
@@ -691,9 +845,7 @@ function isRetainedFlow(row, state) {
       (row.status === 'queued' || row.status === 'running')
     );
   }
-  if (TERMINAL_FLOW_STATUSES.has(row.status)) return false;
-  if (row.status === 'blocked' && row.ended_at !== null) return false;
-  return true;
+  return false;
 }
 
 function decodeDeliveryQueueRow(row) {
@@ -718,12 +870,86 @@ function decodeDeliveryQueueRow(row) {
     row.entry_json,
     'delivery_queue_entries.entry_json',
   );
+  const metadata = {
+    entryKind: entry.kind ?? row.queue_name,
+    sessionKey: entry.sessionKey ?? entry.session?.key ?? null,
+    channel:
+      entry.channel ??
+      entry.route?.channel ??
+      entry.deliveryContext?.channel ??
+      null,
+    target:
+      entry.to ??
+      entry.route?.to ??
+      entry.deliveryContext?.to ??
+      null,
+    accountId:
+      entry.accountId ??
+      entry.route?.accountId ??
+      entry.deliveryContext?.accountId ??
+      null,
+  };
+  const unfinished =
+    row.status === 'pending' ||
+    (row.status === 'failed' && row.recovery_state === 'settlement_pending');
+  if (entry.owner !== undefined) {
+    if (
+      !isRecord(entry.owner) ||
+      entry.owner.kind !== 'subagent_completion' ||
+      !nonEmptyString(entry.owner.runId) ||
+      !nonEmptyString(entry.owner.taskId) ||
+      !Number.isSafeInteger(entry.owner.generation) ||
+      entry.owner.generation < 1 ||
+      !finiteNumber(entry.owner.deadlineAt) ||
+      Object.keys(entry.owner).some((key) =>
+        !['kind', 'runId', 'taskId', 'generation', 'deadlineAt'].includes(key))
+    ) {
+      throw new Error('delivery_queue_entries.entry_json.owner is malformed');
+    }
+  }
+  if (
+    (entry.sourceFlowId === undefined) !==
+      (entry.sourceExpectedRevision === undefined) ||
+    (
+      entry.sourceFlowId !== undefined &&
+      (
+        !nonEmptyString(entry.sourceFlowId) ||
+        !Number.isSafeInteger(entry.sourceExpectedRevision)
+      )
+    )
+  ) {
+    throw new Error(
+      'delivery_queue_entries post-compaction flow binding is malformed',
+    );
+  }
   if (
     entry.id !== row.id ||
     Number(entry.enqueuedAt) !== Number(row.enqueued_at) ||
     Number(entry.retryCount) !== Number(row.retry_count) ||
+    (entry.lastAttemptAt ?? null) !== row.last_attempt_at ||
+    (entry.lastError ?? null) !== row.last_error ||
     (entry.recoveryState ?? null) !== row.recovery_state ||
-    (entry.platformSendStartedAt ?? null) !== row.platform_send_started_at
+    (entry.platformSendStartedAt ?? null) !== row.platform_send_started_at ||
+    (
+      unfinished &&
+      (
+        metadata.entryKind !== row.entry_kind ||
+        metadata.sessionKey !== row.session_key ||
+        metadata.channel !== row.channel ||
+        metadata.target !== row.target ||
+        metadata.accountId !== row.account_id
+      )
+    ) ||
+    (
+      !unfinished &&
+      [
+        row.entry_kind,
+        row.session_key,
+        row.channel,
+        row.target,
+        row.account_id,
+      ].some((value) => value !== null)
+    )
   ) {
     throw new Error('delivery_queue_entries indexed fields differ from entry_json');
   }
@@ -742,20 +968,64 @@ function decodeDeliveryQueueRow(row) {
       'delivery_queue_entries.platform_send_started_at is malformed',
     );
   }
+  if (
+    entry.availableAt !== undefined &&
+    (!finiteNumber(entry.availableAt) || entry.availableAt < 0)
+  ) {
+    throw new Error('delivery_queue_entries.entry_json.availableAt is malformed');
+  }
+  if (
+    entry.attemptCount !== undefined &&
+    (
+      !Number.isSafeInteger(entry.attemptCount) ||
+      entry.attemptCount < 0
+    )
+  ) {
+    throw new Error('delivery_queue_entries.entry_json.attemptCount is malformed');
+  }
+  if (
+    entry.requiresProducerClaim !== undefined &&
+    typeof entry.requiresProducerClaim !== 'boolean'
+  ) {
+    throw new Error(
+      'delivery_queue_entries.entry_json.requiresProducerClaim is malformed',
+    );
+  }
+  const producerClaimOwned =
+    row.recovery_state === 'producer_claimed' &&
+    nonEmptyString(entry.producerClaimId) &&
+    finiteNumber(entry.availableAt);
+  const platformClaimOwned =
+    (
+      row.recovery_state === 'send_attempt_started' ||
+      row.recovery_state === 'unknown_after_send'
+    ) &&
+    nonEmptyString(entry.platformSendAttemptId) &&
+    finiteNumber(entry.platformSendStartedAt);
+  if (
+    (
+      row.recovery_state === 'producer_claimed' &&
+      !producerClaimOwned
+    ) ||
+    (
+      (
+        row.recovery_state === 'send_attempt_started' ||
+        row.recovery_state === 'unknown_after_send'
+      ) &&
+      !platformClaimOwned
+    )
+  ) {
+    throw new Error(
+      'delivery_queue_entries contains malformed delivery-attempt ownership',
+    );
+  }
   const attemptOwned =
     finiteNumber(entry.deliveryStartedAt) ||
     finiteNumber(entry.platformSendStartedAt) ||
     row.platform_send_started_at !== null ||
-    (
-      nonEmptyString(entry.platformSendAttemptId) &&
-      (
-        row.recovery_state === 'send_attempt_started' ||
-        row.recovery_state === 'unknown_after_send'
-      )
-    );
-  const retained =
-    row.status === 'pending' ||
-    (row.status === 'failed' && row.recovery_state === 'settlement_pending');
+    producerClaimOwned ||
+    platformClaimOwned;
+  const retained = unfinished;
   if (!retained && attemptOwned) {
     throw new Error('terminal delivery_queue_entries row retains attempt ownership');
   }
@@ -778,6 +1048,11 @@ function collectFlowSessionKeys(state, keys) {
   )) {
     keys.add(key);
   }
+  collectRecipientAuthoritySessionKeys(
+    state.recipientAuthorityBinding,
+    'flow_runs.state_json.recipientAuthorityBinding',
+    keys,
+  );
 }
 
 function collectQueueSessionKeys(row, entry, keys) {
@@ -795,6 +1070,11 @@ function collectQueueSessionKeys(row, entry, keys) {
   )) {
     keys.add(key);
   }
+  collectRecipientAuthoritySessionKeys(
+    entry.recipientAuthorityBinding,
+    'delivery_queue_entries.entry_json.recipientAuthorityBinding',
+    keys,
+  );
 }
 
 function isTemporarySessionEntry(entry, sessionKey, runBoundSessionKeys) {
@@ -928,6 +1208,15 @@ function inspectAgentDatabase(
         entry.updatedAt !== Number(row.updated_at)
       ) {
         throw new Error('session_nodes identity differs from entry_json');
+      }
+      if (
+        (entry.status !== undefined && !SESSION_STATUSES.has(entry.status)) ||
+        (entry.status ?? null) !== row.status ||
+        (entry.createdVia ?? null) !== row.created_via
+      ) {
+        throw new Error(
+          'session_nodes status or creation projection differs from entry_json',
+        );
       }
       const spawnedBy = optionalString(
         entry.spawnedBy,
@@ -1202,7 +1491,12 @@ async function sampleRuntimeBinding(runtimeProcess) {
   };
 }
 
-function runtimeSampleMatches(sample, runtimeProcess, expectedAlive) {
+function runtimeSampleMatches(
+  sample,
+  runtimeProcess,
+  expectedAlive,
+  requireStopped = true,
+) {
   if (!expectedAlive) {
     return (
       sample.driverStartFingerprint === null &&
@@ -1223,8 +1517,11 @@ function runtimeSampleMatches(sample, runtimeProcess, expectedAlive) {
     sample.processGroupMembers.some((entry) =>
       entry.pidFingerprint === sha256(String(runtimeProcess.gateway.pid)) &&
       entry.startFingerprint === runtimeProcess.gateway.startFingerprint) &&
-    sample.processGroupMembers.every((entry) =>
-      entry.state === 'T' || entry.state === 't')
+    (
+      !requireStopped ||
+      sample.processGroupMembers.every((entry) =>
+        entry.state === 'T' || entry.state === 't')
+    )
   );
 }
 
@@ -1314,9 +1611,13 @@ function buildResources(global, agentResults) {
     if (row.state_json !== null) {
       state = parseJsonValue(row.state_json, 'flow_runs.state_json');
     }
-    runBoundSessionKeys.add(row.owner_key.trim());
-    collectFlowSessionKeys(state, runBoundSessionKeys);
-    if (isRetainedFlow(row, state)) {
+    const retained = isRetainedFlow(row, state);
+    if (retained) {
+      if (!CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id)) {
+        throw new Error('unknown continuation flow controller escaped filtering');
+      }
+      runBoundSessionKeys.add(row.owner_key.trim());
+      collectFlowSessionKeys(state, runBoundSessionKeys);
       queueItems.push({
         id: `flow:${row.flow_id}`,
         source: 'flow_runs',
@@ -1422,6 +1723,19 @@ export async function inspectReturnCovenantDurableStores({
   try {
     assertRuntimeProcessInput(runtimeProcess, expectedRuntimeAlive);
     if (expectedRuntimeAlive) {
+      const preQuiescence = await sampleRuntimeBinding(runtimeProcess);
+      if (
+        !runtimeSampleMatches(
+          preQuiescence,
+          runtimeProcess,
+          true,
+          false,
+        )
+      ) {
+        throw new Error(
+          'runtime identity differs before process-group quiescence',
+        );
+      }
       if (!signalProcessGroup(runtimeProcess.processGroupId, 'SIGSTOP')) {
         throw new Error('isolated process group exited before live snapshot');
       }
@@ -1472,7 +1786,9 @@ export async function inspectReturnCovenantDurableStores({
     }
     const observedAt = new Date().toISOString();
     if (processGroupStopped) {
-      signalProcessGroup(runtimeProcess.processGroupId, 'SIGCONT');
+      if (!signalProcessGroup(runtimeProcess.processGroupId, 'SIGCONT')) {
+        throw new Error('isolated process group exited before live snapshot resume');
+      }
       processGroupStopped = false;
       runtimeObservation.quiescence.resumedAt = new Date().toISOString();
     }

@@ -418,6 +418,7 @@ if (process.argv[2] === 'gateway') {
     const rootEntry = {
       sessionId: `root-session-${sha256(body.logicalSessionKey).slice(0, 12)}`,
       updatedAt: now,
+      status: 'running',
       createdVia: 'internal',
       spawnDepth: 0,
     };
@@ -439,6 +440,7 @@ if (process.argv[2] === 'gateway') {
       sessionId: `temporary-session-${key}`,
       updatedAt: now,
       createdAt: now,
+      status: 'running',
       createdVia: 'spawn',
       spawnedBy: body.logicalSessionKey,
       parentSessionKey: body.logicalSessionKey,

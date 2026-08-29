@@ -344,9 +344,12 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   canonical `flow_runs`, including the distinct work/delegate controller rules,
   the exact `core/continuation-work`
   `terminalNoticePending="retry-exhausted"` recovery marker, and the generic
-  terminal-flow maintenance marker. A terminal row that still owns either
-  marker remains retained work until the durable handoff clears it; malformed
-  or contradictory markers fail closed. It derives unfinished session delivery
+  terminal-flow maintenance predicate, where any defined
+  `terminalNoticePending` value is an obligation independently of controller
+  imports. A terminal row that still owns either marker remains retained work
+  until the durable handoff clears it. Exact-controller malformed or
+  contradictory states and generic nonterminal placement fail closed. It
+  derives unfinished session delivery
   from `delivery_queue_entries` (`pending` and
   failed `settlement_pending`, including durable attempt ownership). It reads
   product-registered `agents/<agent>/agent/openclaw-agent.sqlite`

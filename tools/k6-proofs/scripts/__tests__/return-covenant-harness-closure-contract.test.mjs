@@ -173,6 +173,14 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(retentionInspector, /FROM session_nodes/);
   assert.match(retentionInspector, /payload_json/);
   assert.match(retentionInspector, /terminalNoticePending/);
+  assert.match(
+    retentionInspector,
+    /state\.terminalNoticePending !== undefined/,
+  );
+  assert.match(
+    documentation,
+    /any defined\s+`terminalNoticePending` value is an obligation/,
+  );
   assert.match(retentionInspector, /quiesced-opened-file-set-v1/);
   assert.match(retentionInspector, /-wal/);
   assert.match(retentionInspector, /-shm/);

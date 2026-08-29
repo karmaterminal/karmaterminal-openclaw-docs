@@ -954,8 +954,8 @@ function isTerminalFlowRow(row) {
     (row.status === 'blocked' && row.ended_at !== null);
 }
 
-function hasTerminalNoticeField(state) {
-  return isRecord(state) && Object.hasOwn(state, 'terminalNoticePending');
+function hasDefinedTerminalNotice(state) {
+  return isRecord(state) && state.terminalNoticePending !== undefined;
 }
 
 function isRetainedFlow(row, state) {
@@ -978,7 +978,7 @@ function isRetainedFlow(row, state) {
         'continuation work flow has malformed state_json',
       );
     }
-    const terminalNoticePending = hasTerminalNoticeField(state);
+    const terminalNoticePending = hasDefinedTerminalNotice(state);
     if (
       terminalNoticePending &&
       state.terminalNoticePending !== 'retry-exhausted'
@@ -1009,10 +1009,7 @@ function isRetainedFlow(row, state) {
       )
     );
   }
-  if (hasTerminalNoticeField(state)) {
-    if (state.terminalNoticePending !== true) {
-      throw new Error('task flow has malformed terminal notice marker');
-    }
+  if (hasDefinedTerminalNotice(state)) {
     if (!isTerminalFlowRow(row)) {
       throw new Error('task flow has contradictory terminal notice state');
     }
@@ -1841,7 +1838,7 @@ function buildResources(global, agentResults) {
     const retained = isRetainedFlow(row, state);
     const retentionRelevantFlow =
       CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id) ||
-      hasTerminalNoticeField(state);
+      hasDefinedTerminalNotice(state);
     if (retentionRelevantFlow) {
       runBoundSessionKeys.add(row.owner_key.trim());
       collectFlowSessionKeys(state, runBoundSessionKeys);

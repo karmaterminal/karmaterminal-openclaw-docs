@@ -27,6 +27,7 @@ import {
 } from '../lib/return-covenant-candidate-io.mjs';
 import {
   createReturnCovenantDriverAttestation,
+  fingerprintProcessLoopbackListeners,
   inspectProcessLoopbackListeners,
   verifyReturnCovenantDirectCleanup,
 } from '../lib/return-covenant-driver-attestation.mjs';
@@ -320,7 +321,7 @@ async function inspectGatewayMember({
     namespaceStartFingerprint,
     verified,
     endpoints: listeners.map((entry) => entry.endpoint),
-    socketFingerprint: sha256(canonicalJson(listeners)),
+    socketFingerprint: fingerprintProcessLoopbackListeners(listeners),
     listenerFingerprints: listeners
       .map((entry) => entry.socketFingerprint)
       .toSorted(),
@@ -383,7 +384,7 @@ async function inspectGatewayMemberWithRetry(params) {
     namespaceStartFingerprint,
     verified: true,
     endpoints: listeners.map((entry) => entry.endpoint),
-    socketFingerprint: sha256(canonicalJson(listeners)),
+    socketFingerprint: fingerprintProcessLoopbackListeners(listeners),
     listenerFingerprints: listeners
       .map((entry) => entry.socketFingerprint)
       .toSorted(),
@@ -832,6 +833,7 @@ async function main() {
   let monitorError = null;
   let monitorPromise = null;
   let liveStoreObservationPromise = null;
+  let initialGatewayObservation = null;
   const observedGateways = new Map();
   const handleTermination = () => {
     if (child) void terminateProcessGroup(child.pid);
@@ -1042,10 +1044,12 @@ async function main() {
                       attestation.isolation.driverStartFingerprint,
                   },
                   gateway: liveGateway ?? {
-                    pid: ready.gatewayPid,
+                    pid: initialGatewayObservation?.pid ?? ready.gatewayPid,
                     startFingerprint:
+                      initialGatewayObservation?.startFingerprint ??
                       attestation.gateway.startFingerprint,
                     socketFingerprint:
+                      initialGatewayObservation?.socketFingerprint ??
                       attestation.gateway.socketFingerprint,
                     endpoint: target?.endpoint ??
                       attestation.gateway.endpoint,
@@ -1136,19 +1140,26 @@ async function main() {
       `${ready.gatewayPid}:${attestation.gateway.startFingerprint}`;
     const initialSampleAt = performance.now();
     const initialSampleWall = new Date().toISOString();
+    initialGatewayObservation = await inspectGatewayMemberWithRetry({
+      pid: ready.gatewayPid,
+      gatewayPath,
+      processGroupId: child.pid,
+      sandboxPid: child.pid,
+      homePath,
+      statePath,
+      configPath,
+      phaseSigningKey,
+      gatewayArgs: plan.driver.gatewayCommand.args,
+      gatewayTokenFingerprint: sha256(gatewayToken),
+      runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    });
+    if (!initialGatewayObservation || initialGatewayObservation.ignored) {
+      throw new Error('initial gateway process could not be independently sampled');
+    }
     observedGateways.set(
       initialGatewayKey,
       {
-        pid: ready.gatewayPid,
-        startFingerprint: attestation.gateway.startFingerprint,
-        namespacePid: attestation.gateway.namespacePid,
-        namespaceStartFingerprint:
-          attestation.gateway.namespaceStartFingerprint,
-        verified: true,
-        endpoints: [attestation.gateway.endpoint],
-        socketFingerprint: attestation.gateway.socketFingerprint,
-        listenerFingerprints: attestation.gateway.listenerFingerprints,
-        verificationSource: 'direct-environ',
+        ...initialGatewayObservation,
         firstSeenMonotonicMs: initialSampleAt,
         lastSeenMonotonicMs: initialSampleAt,
         exitedAtMonotonicMs: null,
@@ -1345,10 +1356,17 @@ async function main() {
     const finalGateway = [...observedGateways.values()]
       .toSorted((left, right) =>
         right.lastSeenMonotonicMs - left.lastSeenMonotonicMs)[0] ?? {
-        pid: ready.gatewayPid,
-        startFingerprint: attestation.gateway.startFingerprint,
-        socketFingerprint: attestation.gateway.socketFingerprint,
-        endpoint: attestation.gateway.endpoint,
+        ...initialGatewayObservation,
+        pid: initialGatewayObservation?.pid ?? ready.gatewayPid,
+        startFingerprint:
+          initialGatewayObservation?.startFingerprint ??
+          attestation.gateway.startFingerprint,
+        socketFingerprint:
+          initialGatewayObservation?.socketFingerprint ??
+          attestation.gateway.socketFingerprint,
+        endpoint:
+          initialGatewayObservation?.endpoints?.[0] ??
+          attestation.gateway.endpoint,
       };
     const finalStoreObservation =
       await inspectReturnCovenantDurableStores({

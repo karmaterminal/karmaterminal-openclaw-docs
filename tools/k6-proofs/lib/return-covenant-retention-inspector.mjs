@@ -12,6 +12,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { canonicalJson } from './canonical-json.mjs';
 import {
+  fingerprintProcessLoopbackListeners,
   inspectProcessLoopbackListeners,
 } from './return-covenant-driver-attestation.mjs';
 
@@ -986,7 +987,10 @@ function decodeDeliveryQueueRow(row) {
     Number(entry.enqueuedAt) !== Number(row.enqueued_at) ||
     Number(entry.retryCount) !== Number(row.retry_count) ||
     (entry.lastAttemptAt ?? null) !== row.last_attempt_at ||
-    (entry.lastError ?? null) !== row.last_error ||
+    (
+      unfinished &&
+      (entry.lastError ?? null) !== row.last_error
+    ) ||
     (entry.recoveryState ?? null) !== row.recovery_state ||
     (entry.platformSendStartedAt ?? null) !== row.platform_send_started_at ||
     (
@@ -1560,7 +1564,9 @@ async function sampleRuntimeBinding(runtimeProcess) {
     driverStartFingerprint: driver?.startFingerprint ?? null,
     gatewayStartFingerprint: gateway?.startFingerprint ?? null,
     gatewaySocketFingerprint:
-      listeners.length > 0 ? sha256(canonicalJson(listeners)) : null,
+      listeners.length > 0
+        ? fingerprintProcessLoopbackListeners(listeners)
+        : null,
     gatewayEndpointOwned: listeners.some((entry) =>
       entry.endpoint === runtimeProcess.gateway.endpoint),
     processGroupMembers: members.map((entry) => ({

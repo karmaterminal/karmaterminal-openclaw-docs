@@ -201,7 +201,13 @@ export async function inspectProcessLoopbackListeners(pid) {
       endpoint: `http://127.0.0.1:${port}`,
       socketFingerprint: sha256(`${port}:${inode}`),
     }];
-  });
+  }).toSorted((left, right) =>
+    left.endpoint.localeCompare(right.endpoint) ||
+    left.socketFingerprint.localeCompare(right.socketFingerprint));
+}
+
+export function fingerprintProcessLoopbackListeners(listeners) {
+  return sha256(canonicalJson(listeners));
 }
 
 async function processSocketInodes(pid) {
@@ -231,11 +237,16 @@ async function attestEndpointOwnership(pid, endpoint) {
   if (owned.length === 0) {
     throw new Error('verified product driver does not own the ready endpoint');
   }
+  const ownedListeners = owned.map((inode) => ({
+    endpoint: normalizedEndpoint,
+    socketFingerprint: sha256(`${port}:${inode}`),
+  })).toSorted((left, right) =>
+    left.socketFingerprint.localeCompare(right.socketFingerprint));
   return {
     endpoint: normalizedEndpoint,
     inodes: owned,
-    fingerprint: sha256(`${port}:${owned.join(',')}`),
-    listenerFingerprints: owned.map((inode) => sha256(`${port}:${inode}`)).sort(),
+    fingerprint: fingerprintProcessLoopbackListeners(ownedListeners),
+    listenerFingerprints: ownedListeners.map((entry) => entry.socketFingerprint),
   };
 }
 

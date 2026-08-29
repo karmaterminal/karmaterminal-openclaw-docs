@@ -18,6 +18,8 @@ import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import {
   createReturnCovenantDriverAttestation,
+  fingerprintProcessLoopbackListeners,
+  inspectProcessLoopbackListeners,
   RETURN_COVENANT_DRIVER_READY_SCHEMA,
   verifyReturnCovenantDirectCleanup,
 } from '../../lib/return-covenant-driver-attestation.mjs';
@@ -2579,6 +2581,26 @@ test('durable inspector matches current product-shaped retention stores', async 
         recoveryState: 'settlement_pending',
         deliveryStartedAt: null,
       });
+      const terminalFailure = {
+        id: 'delivery-terminal-diagnostic',
+        enqueuedAt: 1,
+        retryCount: 0,
+        failedAt: 1,
+        completionRetention: 'permanent',
+        recoveryState: 'completed_permanent',
+      };
+      fixtureState.database.prepare(`
+        INSERT INTO delivery_queue_entries (
+          queue_name, id, status, entry_kind, session_key, channel,
+          target, account_id, retry_count, last_attempt_at, last_error,
+          recovery_state, platform_send_started_at, entry_json,
+          enqueued_at, updated_at, failed_at
+        ) VALUES (
+          'session', ?, 'failed', NULL, NULL, NULL, NULL, NULL,
+          0, NULL, 'invalid source payload', 'completed_permanent',
+          NULL, ?, 1, 1, 1
+        )
+      `).run(terminalFailure.id, JSON.stringify(terminalFailure));
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'observed', observed.failureReason);
       assert.deepEqual(
@@ -3501,6 +3523,11 @@ test('driver attestation binds a running process to an exact candidate Git blob'
     assert.equal(attestation.command.sha256, plan.driver.fixtureCommand.sha256);
     assert.equal(attestation.source.headSha, head);
     assert.equal(attestation.process.commandContainsVerifiedDriver, true);
+    const gatewayListeners = await inspectProcessLoopbackListeners(gatewayPid);
+    assert.equal(
+      attestation.gateway.socketFingerprint,
+      fingerprintProcessLoopbackListeners(gatewayListeners),
+    );
     const [attestationSchema, readySchema] = await Promise.all([
       fixture('../../../contracts/return-covenant-authority/driver-attestation.schema.json'),
       fixture('../../../contracts/return-covenant-authority/driver-ready.schema.json'),

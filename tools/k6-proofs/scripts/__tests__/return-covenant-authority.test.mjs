@@ -597,6 +597,7 @@ function retentionObservationFor({
 function durableStoreObservationFor({
   plan,
   evidence,
+  driverAttestation,
   retained = {},
 }) {
   const resources = {
@@ -660,7 +661,9 @@ function durableStoreObservationFor({
       sha256: sha256('{}\n'),
     }],
   };
-  const runtimeStartFingerprint = sha256('synthetic-runtime-process');
+  const runtimePid = driverAttestation.isolation.driverPid;
+  const runtimeStartFingerprint =
+    driverAttestation.isolation.driverStartFingerprint;
   const snapshot = ({ runtimeAlive, requestedAt, observedAt }) => ({
     schema: 'openclaw.k6.return-covenant-store-observation.v1',
     status: 'observed',
@@ -668,7 +671,7 @@ function durableStoreObservationFor({
     source: 'docs-owned-isolated-durable-store-reader',
     runtimeAlive,
     runtimeProcess: {
-      pidFingerprint: sha256('2147483000'),
+      pidFingerprint: sha256(String(runtimePid)),
       expectedStartFingerprint: runtimeStartFingerprint,
       observedStartFingerprint: runtimeAlive
         ? runtimeStartFingerprint
@@ -980,6 +983,7 @@ function bindCleanup(
     durableStoreObservationFor({
       plan,
       evidence,
+      driverAttestation,
       retained: gatewayRetained,
     });
   const retention = deriveReturnCovenantTrustedRetention({
@@ -1948,6 +1952,24 @@ test('durable inspector counts every isolated nonterminal row and fails on statu
     });
     assert.equal(drifted.status, 'unverified-resource-retention');
     assert.match(drifted.failureReason, /unknown lifecycle status/);
+
+    database.exec(`
+      DELETE FROM flow_runs WHERE flow_id = 'flow-unknown-status';
+      ALTER TABLE flow_runs RENAME TO flow_runs_real;
+      CREATE VIEW flow_runs AS
+        SELECT flow_id, owner_key, controller_id, status, state_json, created_at
+        FROM flow_runs_real
+        WHERE 0;
+    `);
+    const shadowed = await inspectReturnCovenantDurableStores({
+      plan,
+      evidence,
+      statePath: stateRoot,
+      runtimeProcess,
+      expectedRuntimeAlive: true,
+    });
+    assert.equal(shadowed.status, 'unverified-resource-retention');
+    assert.match(shadowed.failureReason, /not a canonical SQLite table/);
   } finally {
     database.close();
     await rm(stateRoot, { recursive: true, force: true });
@@ -1966,6 +1988,7 @@ test('durable-store authority requires an attested live leg and stable shutdown 
       const storeObservation = durableStoreObservationFor({
         plan,
         evidence,
+        driverAttestation,
       });
       if (mode === 'runtime-dead') {
         storeObservation.live.runtimeAlive = false;

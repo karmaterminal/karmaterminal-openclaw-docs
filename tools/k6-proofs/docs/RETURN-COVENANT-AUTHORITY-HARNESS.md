@@ -271,8 +271,10 @@ The phase order is fixed:
    runtime's canonical durable stores: `state/openclaw.sqlite` `flow_runs` and
    `subagent_runs`, plus every contained agent `sessions.json`. The reader
    requires the attested driver PID/start fingerprint to still be alive; its
-   no-follow reads validate exact required columns, file identity, bounds, and
-   raw snapshot digest. After that live read, k6 teardown returns the same
+   no-follow reads require real SQLite tables (views cannot substitute),
+   validate exact required columns, file identity, bounds, and raw snapshot
+   digest. The signed receipt rechecks the observed PID/start values against
+   the driver attestation. After that live read, k6 teardown returns the same
    idempotent cleanup-run receipt and destroys the runtime. The launcher
    repeats the store read after graceful process exit but before deleting the
    isolated state root and requires identical live/final resource sets. The

@@ -164,6 +164,7 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(retentionInspector, /new DatabaseSync/);
   assert.match(retentionInspector, /FROM flow_runs/);
   assert.match(retentionInspector, /FROM subagent_runs/);
+  assert.match(retentionInspector, /sqlite_schema/);
   assert.match(retentionInspector, /O_NOFOLLOW/);
   assert.match(observer, /forbidden-value scan/);
   assert.match(scenarioContract, /typed-tool[\s\S]*bracket-token/);

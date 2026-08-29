@@ -1431,6 +1431,7 @@ function validateStoreSnapshot({
   runtimeAlive,
   plan,
   evidence,
+  driverAttestation,
 }) {
   const errors = [];
   const identity = snapshot?.identity;
@@ -1476,9 +1477,15 @@ function validateStoreSnapshot({
       'matched',
     ]) ||
     !HEX_64.test(snapshot?.runtimeProcess?.pidFingerprint || '') ||
+    snapshot?.runtimeProcess?.pidFingerprint !==
+      createHash('sha256')
+        .update(String(driverAttestation?.isolation?.driverPid || ''))
+        .digest('hex') ||
     !HEX_64.test(
       snapshot?.runtimeProcess?.expectedStartFingerprint || '',
     ) ||
+    snapshot?.runtimeProcess?.expectedStartFingerprint !==
+      driverAttestation?.isolation?.driverStartFingerprint ||
     snapshot?.runtimeProcess?.expectedAlive !== runtimeAlive ||
     snapshot?.runtimeProcess?.observedAlive !== runtimeAlive ||
     snapshot?.runtimeProcess?.matched !== true ||
@@ -1582,6 +1589,7 @@ export function validateReturnCovenantDurableStoreObservation({
   plan,
   evidence,
   observation,
+  driverAttestation,
 }) {
   const errors = [];
   if (
@@ -1600,12 +1608,14 @@ export function validateReturnCovenantDurableStoreObservation({
     runtimeAlive: true,
     plan,
     evidence,
+    driverAttestation,
   });
   const final = validateStoreSnapshot({
     snapshot: observation?.final,
     runtimeAlive: false,
     plan,
     evidence,
+    driverAttestation,
   });
   errors.push(...live.errors, ...final.errors);
   if (
@@ -1680,6 +1690,7 @@ export function deriveReturnCovenantTrustedRetention(params) {
       plan: params.plan,
       evidence: params.evidence,
       observation: params.durableStoreObservation,
+      driverAttestation: params.driverAttestation,
     });
   const errors = [
     ...gatewayValidation.errors,

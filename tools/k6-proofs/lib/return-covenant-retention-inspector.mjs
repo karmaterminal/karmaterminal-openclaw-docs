@@ -122,17 +122,27 @@ async function findSessionStores(statePath) {
 }
 
 function requireColumns(db, table, expected) {
+  const object = db.prepare(
+    'SELECT type, sql FROM sqlite_schema WHERE name = ?',
+  ).get(table);
+  if (object?.type !== 'table' || typeof object?.sql !== 'string') {
+    throw new Error(`${table} is not a canonical SQLite table`);
+  }
   const rows = db.prepare(`PRAGMA table_info(${table})`).all();
   const names = new Set(rows.map((row) => row.name));
   if (expected.some((name) => !names.has(name))) {
     throw new Error(`${table} does not expose the canonical retention columns`);
   }
-  return rows.map((row) => ({
-    name: row.name,
-    type: row.type,
-    notnull: row.notnull,
-    pk: row.pk,
-  }));
+  return {
+    objectType: object.type,
+    createSqlSha256: sha256(object.sql),
+    columns: rows.map((row) => ({
+      name: row.name,
+      type: row.type,
+      notnull: row.notnull,
+      pk: row.pk,
+    })),
+  };
 }
 
 function retainedSubagent(row) {

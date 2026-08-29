@@ -970,7 +970,12 @@ async function main() {
                 plan,
                 evidence: liveEvidence,
                 statePath,
-                runtimeAlive: true,
+                runtimeProcess: {
+                  pid: ready.pid,
+                  startFingerprint:
+                    attestation.isolation.driverStartFingerprint,
+                },
+                expectedRuntimeAlive: true,
               });
           } catch {
             // Wait for the complete newline-delimited evidence record.
@@ -1253,7 +1258,12 @@ async function main() {
         plan,
         evidence,
         statePath,
-        runtimeAlive: false,
+        runtimeProcess: {
+          pid: ready.pid,
+          startFingerprint:
+            attestation.isolation.driverStartFingerprint,
+        },
+        expectedRuntimeAlive: false,
       });
     const liveStoreObservation = liveStoreObservationPromise
       ? await liveStoreObservationPromise
@@ -1263,6 +1273,15 @@ async function main() {
         failureReason:
           'docs-owned durable-store observation did not run while the isolated runtime was live',
         runtimeAlive: false,
+        runtimeProcess: {
+          pidFingerprint: sha256(String(ready.pid)),
+          expectedStartFingerprint:
+            attestation.isolation.driverStartFingerprint,
+          observedStartFingerprint: null,
+          expectedAlive: true,
+          observedAlive: false,
+          matched: false,
+        },
       };
     const stableStoreResources =
       liveStoreObservation.status === 'observed' &&

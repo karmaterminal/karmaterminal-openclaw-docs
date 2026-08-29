@@ -3,6 +3,7 @@ import { constants as fsConstants } from 'node:fs';
 import {
   lstat,
   open,
+  readFile,
   readdir,
   realpath,
 } from 'node:fs/promises';
@@ -15,11 +16,17 @@ export const RETURN_COVENANT_STORE_OBSERVATION_SCHEMA =
 
 const MAX_STORE_BYTES = 4 * 1024 * 1024;
 const MAX_RESOURCE_COUNT = 100;
-const CONTINUATION_CONTROLLERS = new Set([
-  'core/continuation-delegate',
-  'core/continuation-post-compaction',
-  'core/continuation-work',
+const FLOW_STATUSES = new Set([
+  'queued',
+  'running',
+  'waiting',
+  'blocked',
+  'succeeded',
+  'failed',
+  'cancelled',
+  'lost',
 ]);
+const TERMINAL_FLOW_STATUSES = new Set(['succeeded', 'failed', 'cancelled']);
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -97,7 +104,9 @@ async function findSessionStores(statePath) {
   const agents = await readdir(agentsPath, { withFileTypes: true });
   const stores = [];
   for (const agent of agents) {
-    if (!agent.isDirectory() || agent.isSymbolicLink()) continue;
+    if (!agent.isDirectory() || agent.isSymbolicLink()) {
+      throw new Error(`unexpected entry in isolated agents directory: ${agent.name}`);
+    }
     const file = path.join(agentsPath, agent.name, 'sessions', 'sessions.json');
     try {
       await inspectRegularFile(file, statePath);
@@ -126,24 +135,21 @@ function requireColumns(db, table, expected) {
   }));
 }
 
-function relevantSessionKeys(plan) {
-  return new Set(plan.cases.map((entry) => entry.logicalSessionKey));
-}
-
-function isRelevantSubagent(row, keys, runPrefix) {
-  return [
-    row.requester_session_key,
-    row.controller_session_key,
-    row.child_session_key,
-  ].some((value) =>
-    keys.has(value) ||
-    (typeof value === 'string' && value.includes(runPrefix)));
-}
-
 function retainedSubagent(row) {
   return row.ended_at === null ||
     row.cleanup_handled !== 1 ||
     row.pending_final_delivery === 1;
+}
+
+async function processStartFingerprint(pid) {
+  try {
+    const raw = await readFile(`/proc/${pid}/stat`, 'utf8');
+    const fields = raw.slice(raw.lastIndexOf(')') + 2).trim().split(/\s+/u);
+    return fields[19] ? sha256(`${pid}:${fields[19]}`) : null;
+  } catch (error) {
+    if (error?.code === 'ENOENT' || error?.code === 'ESRCH') return null;
+    throw error;
+  }
 }
 
 function boundedResources(resources) {
@@ -155,7 +161,8 @@ export async function inspectReturnCovenantDurableStores({
   plan,
   evidence,
   statePath,
-  runtimeAlive,
+  runtimeProcess,
+  expectedRuntimeAlive,
 }) {
   const requestedAt = new Date().toISOString();
   const identity = {
@@ -169,7 +176,32 @@ export async function inspectReturnCovenantDurableStores({
     phaseChainSha256: sha256(canonicalJson(evidence.phaseChains)),
     cleanupRunReceiptId: evidence.cleanupRun?.receiptId ?? null,
   };
+  const observedStartFingerprint = Number.isInteger(runtimeProcess?.pid)
+    ? await processStartFingerprint(runtimeProcess.pid)
+    : null;
+  const observedRuntimeAlive =
+    observedStartFingerprint === runtimeProcess?.startFingerprint;
+  const runtimeProcessObservation = {
+    pidFingerprint: Number.isInteger(runtimeProcess?.pid)
+      ? sha256(String(runtimeProcess.pid))
+      : null,
+    expectedStartFingerprint: runtimeProcess?.startFingerprint ?? null,
+    observedStartFingerprint,
+    expectedAlive: expectedRuntimeAlive,
+    observedAlive: observedRuntimeAlive,
+    matched: observedRuntimeAlive === expectedRuntimeAlive,
+  };
   try {
+    if (
+      !Number.isInteger(runtimeProcess?.pid) ||
+      runtimeProcess.pid < 2 ||
+      !/^[a-f0-9]{64}$/u.test(runtimeProcess?.startFingerprint || '') ||
+      runtimeProcessObservation.matched !== true
+    ) {
+      throw new Error(
+        'isolated runtime PID/start state differs from the trusted observation phase',
+      );
+    }
     const stateReal = await realpath(statePath);
     const databasePath = path.join(stateReal, 'state', 'openclaw.sqlite');
     const before = await inspectRegularFile(
@@ -236,11 +268,7 @@ export async function inspectReturnCovenantDurableStores({
       throw new Error('isolated SQLite store changed identity during observation');
     }
 
-    const keys = relevantSessionKeys(plan);
-    const runPrefix = plan.runId;
-    const relevantSubagents = subagentRows.filter((row) =>
-      isRelevantSubagent(row, keys, runPrefix));
-    const delegates = relevantSubagents
+    const delegates = subagentRows
       .filter(retainedSubagent)
       .map((row) => ({
         id: row.run_id,
@@ -251,11 +279,11 @@ export async function inspectReturnCovenantDurableStores({
         cleanupHandled: row.cleanup_handled,
         pendingFinalDelivery: row.pending_final_delivery,
       }));
+    if (flowRows.some((row) => !FLOW_STATUSES.has(row.status))) {
+      throw new Error('isolated flow store contains an unknown lifecycle status');
+    }
     const queueItems = flowRows
-      .filter((row) =>
-        keys.has(row.owner_key) &&
-        CONTINUATION_CONTROLLERS.has(row.controller_id) &&
-        (row.status === 'queued' || row.status === 'running'))
+      .filter((row) => !TERMINAL_FLOW_STATUSES.has(row.status))
       .map((row) => ({
         id: row.flow_id,
         ownerKey: row.owner_key,
@@ -264,9 +292,6 @@ export async function inspectReturnCovenantDurableStores({
         stateSha256: sha256(row.state_json || ''),
       }));
 
-    const childSessionKeys = new Set(
-      relevantSubagents.map((row) => row.child_session_key),
-    );
     const sessionSources = [];
     const temporarySessions = [];
     for (const file of await findSessionStores(stateReal)) {
@@ -280,17 +305,11 @@ export async function inspectReturnCovenantDurableStores({
       }
       sessionSources.push(store.source);
       for (const [sessionKey, entry] of Object.entries(store.value)) {
-        if (
-          keys.has(sessionKey) ||
-          childSessionKeys.has(sessionKey) ||
-          sessionKey.includes(runPrefix)
-        ) {
-          temporarySessions.push({
-            id: sessionKey,
-            entrySha256: sha256(canonicalJson(entry)),
-            storePathFingerprint: store.source.pathFingerprint,
-          });
-        }
+        temporarySessions.push({
+          id: sessionKey,
+          entrySha256: sha256(canonicalJson(entry)),
+          storePathFingerprint: store.source.pathFingerprint,
+        });
       }
     }
     const resources = { delegates, queueItems, temporarySessions };
@@ -321,7 +340,8 @@ export async function inspectReturnCovenantDurableStores({
       status: 'observed',
       failureReason: null,
       source: 'docs-owned-isolated-durable-store-reader',
-      runtimeAlive,
+      runtimeAlive: observedRuntimeAlive,
+      runtimeProcess: runtimeProcessObservation,
       requestedAt,
       observedAt,
       identity,
@@ -339,7 +359,8 @@ export async function inspectReturnCovenantDurableStores({
       status: 'unverified-resource-retention',
       failureReason: String(error?.message || error).slice(0, 500),
       source: 'docs-owned-isolated-durable-store-reader',
-      runtimeAlive,
+      runtimeAlive: observedRuntimeAlive,
+      runtimeProcess: runtimeProcessObservation,
       requestedAt,
       observedAt: new Date().toISOString(),
       identity,

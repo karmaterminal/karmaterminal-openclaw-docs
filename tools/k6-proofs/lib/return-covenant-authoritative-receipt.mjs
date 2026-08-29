@@ -1454,6 +1454,7 @@ function validateStoreSnapshot({
       'failureReason',
       'source',
       'runtimeAlive',
+      'runtimeProcess',
       'requestedAt',
       'observedAt',
       'identity',
@@ -1466,6 +1467,27 @@ function validateStoreSnapshot({
     snapshot?.failureReason !== null ||
     snapshot?.source !== 'docs-owned-isolated-durable-store-reader' ||
     snapshot?.runtimeAlive !== runtimeAlive ||
+    !exactKeys(snapshot?.runtimeProcess, [
+      'pidFingerprint',
+      'expectedStartFingerprint',
+      'observedStartFingerprint',
+      'expectedAlive',
+      'observedAlive',
+      'matched',
+    ]) ||
+    !HEX_64.test(snapshot?.runtimeProcess?.pidFingerprint || '') ||
+    !HEX_64.test(
+      snapshot?.runtimeProcess?.expectedStartFingerprint || '',
+    ) ||
+    snapshot?.runtimeProcess?.expectedAlive !== runtimeAlive ||
+    snapshot?.runtimeProcess?.observedAlive !== runtimeAlive ||
+    snapshot?.runtimeProcess?.matched !== true ||
+    (
+      runtimeAlive
+        ? snapshot?.runtimeProcess?.observedStartFingerprint !==
+          snapshot.runtimeProcess.expectedStartFingerprint
+        : snapshot?.runtimeProcess?.observedStartFingerprint !== null
+    ) ||
     !validTimestamp(snapshot?.requestedAt) ||
     !validTimestamp(snapshot?.observedAt) ||
     Date.parse(snapshot.observedAt) < Date.parse(snapshot.requestedAt) ||

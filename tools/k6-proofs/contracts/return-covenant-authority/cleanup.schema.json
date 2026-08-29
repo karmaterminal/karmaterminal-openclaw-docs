@@ -298,6 +298,7 @@
         "failureReason",
         "source",
         "runtimeAlive",
+        "runtimeProcess",
         "requestedAt",
         "observedAt",
         "identity",
@@ -317,6 +318,29 @@
           "const": "docs-owned-isolated-durable-store-reader"
         },
         "runtimeAlive": { "type": "boolean" },
+        "runtimeProcess": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pidFingerprint",
+            "expectedStartFingerprint",
+            "observedStartFingerprint",
+            "expectedAlive",
+            "observedAlive",
+            "matched"
+          ],
+          "properties": {
+            "pidFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedStartFingerprint": { "$ref": "#/$defs/sha256" },
+            "observedStartFingerprint": {
+              "type": ["string", "null"],
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "expectedAlive": { "type": "boolean" },
+            "observedAlive": { "type": "boolean" },
+            "matched": { "type": "boolean" }
+          }
+        },
         "requestedAt": { "$ref": "#/$defs/timestamp" },
         "observedAt": { "$ref": "#/$defs/timestamp" },
         "identity": { "type": "object" },

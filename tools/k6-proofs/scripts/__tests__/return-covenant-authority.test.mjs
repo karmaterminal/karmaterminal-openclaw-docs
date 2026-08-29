@@ -13,6 +13,7 @@ import {
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 import {
   createReturnCovenantDriverAttestation,
@@ -23,6 +24,9 @@ import {
   childTerminationReason,
   readBoundedCandidateJson,
 } from '../../lib/return-covenant-candidate-io.mjs';
+import {
+  inspectReturnCovenantDurableStores,
+} from '../../lib/return-covenant-retention-inspector.mjs';
 import {
   deriveReturnCovenantCaseHandleClosure,
   deriveReturnCovenantTrustedRetention,
@@ -656,12 +660,23 @@ function durableStoreObservationFor({
       sha256: sha256('{}\n'),
     }],
   };
+  const runtimeStartFingerprint = sha256('synthetic-runtime-process');
   const snapshot = ({ runtimeAlive, requestedAt, observedAt }) => ({
     schema: 'openclaw.k6.return-covenant-store-observation.v1',
     status: 'observed',
     failureReason: null,
     source: 'docs-owned-isolated-durable-store-reader',
     runtimeAlive,
+    runtimeProcess: {
+      pidFingerprint: sha256('2147483000'),
+      expectedStartFingerprint: runtimeStartFingerprint,
+      observedStartFingerprint: runtimeAlive
+        ? runtimeStartFingerprint
+        : null,
+      expectedAlive: runtimeAlive,
+      observedAlive: runtimeAlive,
+      matched: true,
+    },
     requestedAt,
     observedAt,
     identity,
@@ -1841,6 +1856,150 @@ test('clean trusted resource observation plus independent process teardown passe
   );
 });
 
+test('durable inspector counts every isolated nonterminal row and fails on status drift', async () => {
+  const stateRoot = await mkdtemp(
+    path.join(tmpdir(), 'return-covenant-store-observer-'),
+  );
+  const databaseDir = path.join(stateRoot, 'state');
+  const sessionsDir = path.join(
+    stateRoot,
+    'agents',
+    'proof',
+    'sessions',
+  );
+  await Promise.all([
+    mkdir(databaseDir, { recursive: true, mode: 0o700 }),
+    mkdir(sessionsDir, { recursive: true, mode: 0o700 }),
+  ]);
+  const databasePath = path.join(databaseDir, 'openclaw.sqlite');
+  const database = new DatabaseSync(databasePath);
+  try {
+    database.exec(`
+      CREATE TABLE flow_runs (
+        flow_id TEXT PRIMARY KEY,
+        owner_key TEXT NOT NULL,
+        controller_id TEXT,
+        status TEXT NOT NULL,
+        state_json TEXT,
+        created_at INTEGER NOT NULL
+      );
+      CREATE TABLE subagent_runs (
+        run_id TEXT PRIMARY KEY,
+        child_session_key TEXT NOT NULL,
+        controller_session_key TEXT,
+        requester_session_key TEXT NOT NULL,
+        ended_at INTEGER,
+        cleanup_handled INTEGER,
+        pending_final_delivery INTEGER,
+        created_at INTEGER NOT NULL
+      );
+      INSERT INTO flow_runs VALUES
+        ('flow-child', 'agent:sub:worker-7', 'core/continuation-delegate-v2', 'queued', '{}', 1),
+        ('flow-lost', 'agent:main:worker', 'future/controller', 'lost', '{}', 2),
+        ('flow-terminal', 'unrelated', NULL, 'succeeded', '{}', 3);
+      INSERT INTO subagent_runs VALUES
+        ('run-active', 'agent:sub:worker-7', 'agent:main:worker', 'agent:main:worker', NULL, 0, 1, 1),
+        ('run-terminal', 'agent:sub:done', NULL, 'agent:main:done', 5, 1, 0, 2);
+    `);
+    await writeFile(
+      path.join(sessionsDir, 'sessions.json'),
+      JSON.stringify({
+        'agent:main:discord:channel:retained': {
+          sessionId: 'retained-session',
+        },
+      }),
+      { mode: 0o600 },
+    );
+    const { plan, evidence } = await completeMatrix();
+    const stat = await readFile(`/proc/${process.pid}/stat`, 'utf8');
+    const fields = stat.slice(stat.lastIndexOf(')') + 2).trim().split(/\s+/u);
+    const runtimeProcess = {
+      pid: process.pid,
+      startFingerprint: sha256(`${process.pid}:${fields[19]}`),
+    };
+    const observed = await inspectReturnCovenantDurableStores({
+      plan,
+      evidence,
+      statePath: stateRoot,
+      runtimeProcess,
+      expectedRuntimeAlive: true,
+    });
+    assert.equal(observed.status, 'observed', observed.failureReason);
+    assert.equal(observed.resources.delegates.length, 1);
+    assert.equal(observed.resources.queueItems.length, 2);
+    assert.equal(observed.resources.temporarySessions.length, 1);
+
+    database.prepare(
+      'INSERT INTO flow_runs VALUES (?, ?, ?, ?, ?, ?)',
+    ).run(
+      'flow-unknown-status',
+      plan.cases[0].logicalSessionKey,
+      'core/continuation-delegate',
+      'paused',
+      '{}',
+      4,
+    );
+    const drifted = await inspectReturnCovenantDurableStores({
+      plan,
+      evidence,
+      statePath: stateRoot,
+      runtimeProcess,
+      expectedRuntimeAlive: true,
+    });
+    assert.equal(drifted.status, 'unverified-resource-retention');
+    assert.match(drifted.failureReason, /unknown lifecycle status/);
+  } finally {
+    database.close();
+    await rm(stateRoot, { recursive: true, force: true });
+  }
+});
+
+test('durable-store authority requires an attested live leg and stable shutdown leg', async (t) => {
+  for (const mode of ['runtime-dead', 'unstable']) {
+    await t.test(mode, async () => {
+      const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+        await Promise.all([
+          completeMatrix(),
+          fixture('cleanup-pass.json'),
+          fixture('runtime-config.valid.json'),
+        ]);
+      const storeObservation = durableStoreObservationFor({
+        plan,
+        evidence,
+      });
+      if (mode === 'runtime-dead') {
+        storeObservation.live.runtimeAlive = false;
+        storeObservation.live.runtimeProcess = {
+          ...storeObservation.live.runtimeProcess,
+          observedStartFingerprint: null,
+          observedAlive: false,
+          matched: false,
+        };
+      } else {
+        storeObservation.stable = false;
+      }
+      const receipt = resolveReturnCovenantAuthoritativeReceipt({
+        plan,
+        evidence,
+        cleanup: bindCleanup(
+          cleanupFixture,
+          evidence,
+          driverAttestation,
+          plan,
+          storeObservation,
+        ),
+        runtimeConfig,
+        driverAttestation,
+        signingKey,
+      });
+      assert.equal(receipt.verdict, 'FAIL-candidate');
+      assert.ok(
+        receipt.failureCategories.includes('unverified-resource-retention'),
+      );
+    });
+  }
+});
+
 test('signed observer receipt binds the complete matrix and publishes no raw identities', async () => {
   const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] = await Promise.all([
     completeMatrix(),
@@ -2751,8 +2910,9 @@ test('trusted launcher rejects retention inspection redirected off gateway socke
       result.cleanup.resourceObservation.status,
       'unverified-resource-retention',
     );
-    assert.equal(result.cleanup.retained.delegates, null);
+    assert.equal(result.cleanup.retained.delegates, 1);
     assert.equal(result.receipt.verdict, 'FAIL-candidate');
+    assert.ok(result.receipt.failureCategories.includes('resource-retention'));
     assert.ok(
       result.receipt.failureCategories.includes(
         'unverified-resource-retention',

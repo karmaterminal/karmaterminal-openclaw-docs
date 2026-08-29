@@ -265,17 +265,19 @@ The phase order is fixed:
    the unmodified response bytes, SHA-256, byte length, HTTP identity,
    wall/monotonic timing, product and runtime SHAs, run ID, and final gateway
    namespace PID/start identity. Launcher-owned `/proc` samples must bracket
-   that observation while the same PID/start/socket is still listening.
-9. In parallel, the launcher reads the isolated runtime's canonical durable
-   stores itself: `state/openclaw.sqlite` `flow_runs` and `subagent_runs`, plus
-   every contained agent `sessions.json`. The no-follow reader validates the
-   exact required columns, file identity, bounds, and raw snapshot digest. It
-   repeats the read after graceful process exit but before deleting the
-   isolated state root, and requires the live/final resource sets to be
-   identical. The gateway arrays are corroboration only and must match these
-   independently derived sets.
-   Only then is the evidence line emitted. k6 teardown returns the same
-   idempotent cleanup-run receipt and destroys the isolated runtime.
+   that observation while the same PID/start/socket is still listening. The
+   scenario emits the evidence line and then holds the runtime open.
+9. The evidence line triggers the launcher-owned read of the isolated
+   runtime's canonical durable stores: `state/openclaw.sqlite` `flow_runs` and
+   `subagent_runs`, plus every contained agent `sessions.json`. The reader
+   requires the attested driver PID/start fingerprint to still be alive; its
+   no-follow reads validate exact required columns, file identity, bounds, and
+   raw snapshot digest. After that live read, k6 teardown returns the same
+   idempotent cleanup-run receipt and destroys the runtime. The launcher
+   repeats the store read after graceful process exit but before deleting the
+   isolated state root and requires identical live/final resource sets. The
+   gateway arrays are corroboration only and must match these independently
+   derived sets.
 
 The scenario emits exactly one private
 `openclaw.k6.return-covenant-observation-set.v1` log record. It always reports
@@ -327,7 +329,11 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   `unverified-resource-retention`, never zero;
 - the launcher derives active delegates from canonical `subagent_runs`, queued
   continuation work from canonical `flow_runs`, and temporary sessions from
-  contained canonical `sessions.json` stores. Missing, changed, symlinked,
+  contained canonical `sessions.json` stores. Because the runtime is fresh and
+  synthetic, it counts every retained subagent, every nonterminal flow
+  (including `waiting`, `blocked`, and `lost`), and every session entry rather
+  than filtering by a candidate-controlled owner/controller. Unknown flow
+  statuses fail closed. Missing, changed, symlinked,
   malformed, schema-drifted, unstable, or over-limit stores force
   `unverified-resource-retention`; a gateway response that disagrees with the
   durable stores also fails;

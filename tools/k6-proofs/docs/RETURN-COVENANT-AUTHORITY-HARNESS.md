@@ -274,7 +274,10 @@ The phase order is fixed:
    must expose the exact v13 `flow_runs`, `subagent_runs`,
    `delivery_queue_entries`, and `agent_databases` tables; each registered
    per-agent snapshot must expose the exact v19 `session_nodes.entry_json`
-   owner and schema. Views, missing/extra columns, malformed JSON/status,
+   owner and schema. A product-canonical cleared node
+   (`entry_json={}`, `entry_valid=-1`) is ignored only when the matching
+   `session_windows` row still owns its current session ID. Views,
+   missing/extra columns, malformed JSON/status,
    registry/layout disagreement, path replacement, and symlinks fail closed.
    WAL bytes are copied with the main database so a row present only in WAL is
    observable. The launcher re-samples driver/gateway/socket identity before

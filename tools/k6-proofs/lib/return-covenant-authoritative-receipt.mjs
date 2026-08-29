@@ -1812,6 +1812,18 @@ export function validateReturnCovenantDurableStoreObservation({
         : null,
     ]),
   );
+  const finalDatabases = Array.isArray(
+    observation?.final?.sourceBinding?.databases,
+  )
+    ? observation.final.sourceBinding.databases
+    : null;
+  const finalSchemaDigest = finalDatabases
+    ? digest(finalDatabases.map((entry) => ({
+      agentId: entry.agentId,
+      kind: entry.kind,
+      schemaSha256: entry.schemaSha256,
+    })))
+    : null;
   return {
     valid: errors.length === 0,
     errors,
@@ -1836,27 +1848,11 @@ export function validateReturnCovenantDurableStoreObservation({
       finalObservedAt: validTimestamp(observation?.final?.observedAt)
         ? observation.final.observedAt
         : null,
-      sqliteSchemaSha256: HEX_64.test(
-        digest(
-          observation?.final?.sourceBinding?.databases?.map((entry) => ({
-            agentId: entry.agentId,
-            kind: entry.kind,
-            schemaSha256: entry.schemaSha256,
-          })) ?? null,
-        ),
-      )
-        ? digest(
-          observation.final.sourceBinding.databases.map((entry) => ({
-            agentId: entry.agentId,
-            kind: entry.kind,
-            schemaSha256: entry.schemaSha256,
-          })),
-        )
+      sqliteSchemaSha256: HEX_64.test(finalSchemaDigest || '')
+        ? finalSchemaDigest
         : null,
-      sessionStoreCount: Array.isArray(
-        observation?.final?.sourceBinding?.databases,
-      )
-        ? observation.final.sourceBinding.databases
+      sessionStoreCount: finalDatabases
+        ? finalDatabases
           .filter((entry) => entry.kind === 'agent').length
         : null,
     },

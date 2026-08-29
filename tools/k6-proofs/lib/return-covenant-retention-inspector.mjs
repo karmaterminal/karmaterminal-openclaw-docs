@@ -197,6 +197,34 @@ const REQUIRED_AGENT_COLUMNS = Object.freeze({
     'last_interaction_at',
     'last_activity_at',
   ],
+  session_windows: [
+    'session_id',
+    'session_key',
+    'previous_session_id',
+    'reason',
+    'session_scope',
+    'created_at',
+    'updated_at',
+    'transcript_updated_at',
+    'transcript_observed_at',
+    'session_entry_provenance',
+    'acp_owned',
+    'plugin_owner_id',
+    'hook_external_content_source',
+    'started_at',
+    'ended_at',
+    'status',
+    'chat_type',
+    'channel',
+    'account_id',
+    'primary_conversation_id',
+    'model_provider',
+    'model',
+    'agent_harness_id',
+    'parent_session_key',
+    'spawned_by',
+    'display_name',
+  ],
 });
 const TABLE_INTEGER_COLUMNS = Object.freeze({
   schema_meta: ['schema_version', 'created_at', 'updated_at'],
@@ -232,6 +260,16 @@ const TABLE_INTEGER_COLUMNS = Object.freeze({
     'last_interaction_at',
     'last_activity_at',
   ],
+  session_windows: [
+    'created_at',
+    'updated_at',
+    'transcript_updated_at',
+    'transcript_observed_at',
+    'session_entry_provenance',
+    'acp_owned',
+    'started_at',
+    'ended_at',
+  ],
 });
 const TABLE_NULLABLE_COLUMNS = Object.freeze({
   schema_meta: ['agent_id', 'app_version'],
@@ -263,6 +301,27 @@ const TABLE_NULLABLE_COLUMNS = Object.freeze({
     'ended_at',
   ],
   session_nodes: REQUIRED_AGENT_COLUMNS.session_nodes.slice(5),
+  session_windows: [
+    'previous_session_id',
+    'reason',
+    'transcript_updated_at',
+    'transcript_observed_at',
+    'plugin_owner_id',
+    'hook_external_content_source',
+    'started_at',
+    'ended_at',
+    'status',
+    'chat_type',
+    'channel',
+    'account_id',
+    'primary_conversation_id',
+    'model_provider',
+    'model',
+    'agent_harness_id',
+    'parent_session_key',
+    'spawned_by',
+    'display_name',
+  ],
 });
 const TABLE_PRIMARY_KEYS = Object.freeze({
   schema_meta: ['meta_key'],
@@ -271,6 +330,7 @@ const TABLE_PRIMARY_KEYS = Object.freeze({
   subagent_runs: ['run_id'],
   flow_runs: ['flow_id'],
   session_nodes: ['session_key'],
+  session_windows: ['session_id'],
 });
 
 function expectedTableLayout(table, columns) {
@@ -1186,13 +1246,31 @@ function inspectAgentDatabase(
     });
     const rows = db.prepare(`
       SELECT
-        session_key, current_session_id, entry_json, entry_valid,
-        updated_at, status, created_via, parent_session_key, spawned_by
+        session_nodes.session_key,
+        session_nodes.current_session_id,
+        session_nodes.entry_json,
+        session_nodes.entry_valid,
+        session_nodes.updated_at,
+        session_nodes.status,
+        session_nodes.created_via,
+        session_nodes.parent_session_key,
+        session_nodes.spawned_by,
+        retained_window.session_id AS retained_window_id
       FROM session_nodes
-      ORDER BY session_key ASC
+      LEFT JOIN session_windows AS retained_window
+        ON retained_window.session_id = session_nodes.current_session_id
+       AND retained_window.session_key = session_nodes.session_key
+      ORDER BY session_nodes.session_key ASC
     `).all();
     const temporarySessions = [];
     for (const row of rows) {
+      if (
+        row.entry_json === '{}' &&
+        row.entry_valid === -1 &&
+        row.retained_window_id === row.current_session_id
+      ) {
+        continue;
+      }
       if (
         !nonEmptyString(row.session_key) ||
         !nonEmptyString(row.current_session_id) ||

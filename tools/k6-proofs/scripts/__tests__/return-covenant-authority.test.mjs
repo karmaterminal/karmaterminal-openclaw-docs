@@ -2149,6 +2149,34 @@ async function createProductShapedRetentionFixture() {
       last_interaction_at INTEGER,
       last_activity_at INTEGER
     ) STRICT;
+    CREATE TABLE session_windows (
+      session_id TEXT NOT NULL PRIMARY KEY,
+      session_key TEXT NOT NULL,
+      previous_session_id TEXT,
+      reason TEXT,
+      session_scope TEXT NOT NULL DEFAULT 'conversation',
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      transcript_updated_at INTEGER DEFAULT NULL,
+      transcript_observed_at INTEGER DEFAULT NULL,
+      session_entry_provenance INTEGER NOT NULL DEFAULT 0,
+      acp_owned INTEGER NOT NULL DEFAULT 0,
+      plugin_owner_id TEXT,
+      hook_external_content_source TEXT,
+      started_at INTEGER,
+      ended_at INTEGER,
+      status TEXT,
+      chat_type TEXT,
+      channel TEXT,
+      account_id TEXT,
+      primary_conversation_id TEXT,
+      model_provider TEXT,
+      model TEXT,
+      agent_harness_id TEXT,
+      parent_session_key TEXT,
+      spawned_by TEXT,
+      display_name TEXT
+    ) STRICT;
     PRAGMA user_version=19;
   `);
   database.prepare(`
@@ -2173,6 +2201,12 @@ async function createProductShapedRetentionFixture() {
     rootEntry.sessionId,
     JSON.stringify(rootEntry),
   );
+  agentDatabase.prepare(`
+    INSERT INTO session_windows (
+      session_id, session_key, session_scope, created_at, updated_at,
+      session_entry_provenance, acp_owned, status
+    ) VALUES (?, 'agent:proof:main', 'conversation', 1, 1, 1, 0, 'running')
+  `).run(rootEntry.sessionId);
   database.exec('PRAGMA wal_checkpoint(TRUNCATE);');
   agentDatabase.exec('PRAGMA wal_checkpoint(TRUNCATE);');
   let closed = false;
@@ -2288,7 +2322,7 @@ async function createProductShapedRetentionFixture() {
       spawnedBy = 'agent:proof:main',
     } = {}) {
       const entry = {
-        sessionId: 'temporary-session',
+        sessionId: `temporary-${sha256(sessionKey).slice(0, 16)}`,
         updatedAt: 2,
         createdAt: 2,
         status: 'running',
@@ -2311,6 +2345,13 @@ async function createProductShapedRetentionFixture() {
         spawnedBy,
         spawnedBy,
       );
+      agentDatabase.prepare(`
+        INSERT INTO session_windows (
+          session_id, session_key, session_scope, created_at, updated_at,
+          session_entry_provenance, acp_owned, status,
+          parent_session_key, spawned_by
+        ) VALUES (?, ?, 'conversation', 2, 2, 1, 0, 'running', ?, ?)
+      `).run(entry.sessionId, sessionKey, spawnedBy, spawnedBy);
     },
     async observe({ testHooks } = {}) {
       const { plan, evidence } = await completeMatrix();
@@ -2448,6 +2489,25 @@ test('durable inspector matches current product-shaped retention stores', async 
       assert.equal(observed.status, 'observed', observed.failureReason);
       assert.equal(observed.resources.delegates.length, 0);
       assert.equal(observed.resources.temporarySessions.length, 1);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('canonical retained-window tombstone is not a live session', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertTemporarySession();
+      fixtureState.agentDatabase.prepare(`
+        UPDATE session_nodes
+        SET entry_json = '{}', entry_valid = -1, status = NULL,
+            created_at = NULL, created_via = NULL,
+            parent_session_key = NULL, spawned_by = NULL
+        WHERE session_key = 'agent:proof:subagent:retained'
+      `).run();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.temporarySessions.length, 0);
     } finally {
       await fixtureState.dispose();
     }
@@ -2767,6 +2827,7 @@ test('durable-store authority requires an attested live leg and stable shutdown 
     'unstable',
     'pid-start-changed',
     'live-overlaps-teardown',
+    'source-failure',
   ]) {
     await t.test(mode, async () => {
       const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
@@ -2797,6 +2858,22 @@ test('durable-store authority requires an attested live leg and stable shutdown 
           runtimeProcess: storeObservation.live.runtimeProcess,
           source: storeObservation.live.sourceBinding,
         });
+      } else if (mode === 'source-failure') {
+        storeObservation.stable = false;
+        storeObservation.final = {
+          ...storeObservation.final,
+          status: 'unverified-resource-retention',
+          failureReason: 'canonical store identity changed during snapshot',
+          snapshotStartedAt: null,
+          snapshotCompletedAt: null,
+          resources: {
+            delegates: null,
+            queueItems: null,
+            temporarySessions: null,
+          },
+          sourceBinding: null,
+          rawSnapshotSha256: null,
+        };
       }
       const cleanup = bindCleanup(
         cleanupFixture,

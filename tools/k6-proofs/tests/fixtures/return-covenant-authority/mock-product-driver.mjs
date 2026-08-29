@@ -403,6 +403,34 @@ if (process.argv[2] === 'gateway') {
       last_interaction_at INTEGER,
       last_activity_at INTEGER
     ) STRICT;
+    CREATE TABLE session_windows (
+      session_id TEXT NOT NULL PRIMARY KEY,
+      session_key TEXT NOT NULL,
+      previous_session_id TEXT,
+      reason TEXT,
+      session_scope TEXT NOT NULL DEFAULT 'conversation',
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      transcript_updated_at INTEGER DEFAULT NULL,
+      transcript_observed_at INTEGER DEFAULT NULL,
+      session_entry_provenance INTEGER NOT NULL DEFAULT 0,
+      acp_owned INTEGER NOT NULL DEFAULT 0,
+      plugin_owner_id TEXT,
+      hook_external_content_source TEXT,
+      started_at INTEGER,
+      ended_at INTEGER,
+      status TEXT,
+      chat_type TEXT,
+      channel TEXT,
+      account_id TEXT,
+      primary_conversation_id TEXT,
+      model_provider TEXT,
+      model TEXT,
+      agent_harness_id TEXT,
+      parent_session_key TEXT,
+      spawned_by TEXT,
+      display_name TEXT
+    ) STRICT;
     PRAGMA user_version=19;
   `);
   stateDatabase.prepare(`
@@ -434,6 +462,17 @@ if (process.argv[2] === 'gateway') {
       now,
       now,
     );
+    agentDatabase.prepare(`
+      INSERT OR IGNORE INTO session_windows (
+        session_id, session_key, session_scope, created_at, updated_at,
+        session_entry_provenance, acp_owned, status
+      ) VALUES (?, ?, 'conversation', ?, ?, 1, 0, 'running')
+    `).run(
+      rootEntry.sessionId,
+      body.logicalSessionKey,
+      now,
+      now,
+    );
     const durableSessionKey =
       `agent:proof:subagent:${sha256(key).slice(0, 16)}`;
     const childEntry = {
@@ -456,6 +495,20 @@ if (process.argv[2] === 'gateway') {
       durableSessionKey,
       childEntry.sessionId,
       JSON.stringify(childEntry),
+      now,
+      now,
+      body.logicalSessionKey,
+      body.logicalSessionKey,
+    );
+    agentDatabase.prepare(`
+      INSERT INTO session_windows (
+        session_id, session_key, session_scope, created_at, updated_at,
+        session_entry_provenance, acp_owned, status,
+        parent_session_key, spawned_by
+      ) VALUES (?, ?, 'conversation', ?, ?, 1, 0, 'running', ?, ?)
+    `).run(
+      childEntry.sessionId,
+      durableSessionKey,
       now,
       now,
       body.logicalSessionKey,
@@ -633,6 +686,9 @@ if (process.argv[2] === 'gateway') {
         `temporary-session-${key}`,
       )
     ) {
+      agentDatabase.prepare(
+        'DELETE FROM session_windows WHERE session_key = ?',
+      ).run(state.durableSessionKey);
       agentDatabase.prepare(
         'DELETE FROM session_nodes WHERE session_key = ?',
       ).run(state.durableSessionKey);

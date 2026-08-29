@@ -2398,7 +2398,7 @@ export function validateReturnCovenantCleanup({
       addError(
         errors,
         'cleanup-failure',
-        `${name} count differs from the docs-owned gateway observation`,
+        `${name} count differs from the docs-owned durable-store observation`,
       );
     }
   }

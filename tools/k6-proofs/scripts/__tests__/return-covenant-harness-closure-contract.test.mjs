@@ -50,7 +50,7 @@ test('return covenant harness is complete but remains outside proof authority re
     await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
   );
 
-  assert.match(documentation, /construction complete; product fixture seam missing; no proof run/i);
+  assert.match(documentation, /retention observer aligned; product fixture seam missing; no proof run/i);
   assert.match(documentation, /R-CD-2[\s\S]*current corpus state `partial`/);
   assert.match(documentation, /No exact-head proof ran/);
   assert.match(documentation, /driver\.fixtureCommand\.status=missing-product-seam/);
@@ -58,13 +58,15 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(documentation, /--artifact-dir/);
   assert.match(documentation, /--log-format raw --log-output stdout/);
   assert.match(documentation, /k6-exit-code\.txt/);
-  assert.match(documentation, /docs-owned scenario[\s\S]*resource-inspection/i);
+  assert.match(documentation, /resource-inspection[\s\S]*diagnostic only/i);
   assert.match(documentation, /unverified-resource-retention/);
   assert.match(documentation, /candidate-cleanup-diagnostic\.json/);
   assert.match(documentation, /state\/openclaw\.sqlite/);
   assert.match(documentation, /subagent_runs/);
   assert.match(documentation, /flow_runs/);
-  assert.match(documentation, /92affa163c0e14f7cd9d1ef76ac19f089d85b503/);
+  assert.match(documentation, /delivery_queue_entries/);
+  assert.match(documentation, /session_nodes\.entry_json/);
+  assert.match(documentation, /0109521b0c2b8a2c81c9f901789a81c5316074a7/);
   assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
   assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
   await assert.rejects(
@@ -123,6 +125,8 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(launcher, /deriveReturnCovenantCaseHandleClosure/);
   assert.match(launcher, /deriveReturnCovenantTrustedRetention/);
   assert.match(launcher, /inspectReturnCovenantDurableStores/);
+  assert.match(launcher, /waitForShutdownSettlement/);
+  assert.match(launcher, /retention-snapshots/);
   assert.match(launcher, /candidate-cleanup-diagnostic\.json/);
   assert.doesNotMatch(launcher, /retained:\s*cleanupDraft\.retained/);
   assert.doesNotMatch(
@@ -164,8 +168,18 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(retentionInspector, /new DatabaseSync/);
   assert.match(retentionInspector, /FROM flow_runs/);
   assert.match(retentionInspector, /FROM subagent_runs/);
+  assert.match(retentionInspector, /FROM delivery_queue_entries/);
+  assert.match(retentionInspector, /FROM session_nodes/);
+  assert.match(retentionInspector, /payload_json/);
+  assert.match(retentionInspector, /quiesced-opened-file-set-v1/);
+  assert.match(retentionInspector, /-wal/);
+  assert.match(retentionInspector, /-shm/);
   assert.match(retentionInspector, /sqlite_schema/);
   assert.match(retentionInspector, /O_NOFOLLOW/);
+  assert.doesNotMatch(
+    retentionInspector,
+    /new DatabaseSync\(databasePath/,
+  );
   assert.match(observer, /forbidden-value scan/);
   assert.match(scenarioContract, /typed-tool[\s\S]*bracket-token/);
   assert.match(scenarioContract, /covenant-v18-upgrade/);

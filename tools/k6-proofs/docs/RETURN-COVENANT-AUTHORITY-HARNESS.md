@@ -1,6 +1,6 @@
 # Return-covenant authority proof harness
 
-Status: **construction complete; product fixture seam missing; no proof run**.
+Status: **retention observer aligned; product fixture seam missing; no proof run**.
 
 This document defines the reusable k6 and signed-observer contract requested by
 the ClawSweeper review on openclaw/openclaw#129388. It does not claim the
@@ -15,14 +15,15 @@ surface has no local/tracking ref in this docs-only lane.
 
 | Surface | Named ref | Local SHA | Tracking SHA | Server/object SHA | Equality |
 |---|---|---|---|---|---|
-| Product/base ref | `karmaterminal/openclaw:scribe/129388-covenant-upstream-absorb-20260828` | N/A | N/A | `c1ff1b336e472f05c6b0060b3910e53ddf31723c` | Server safe branch advanced after harness construction began; this lane did not freeze or execute it as a final product candidate. |
-| Product contract-reading checkpoint | `karmaterminal/openclaw@7c100aede1fd9895c0ae3e3837eafc9d98ad6982` | N/A | N/A | `7c100aede1fd9895c0ae3e3837eafc9d98ad6982` | Exact immutable object used only to read the recipient-authority contract; no execution credit. |
-| Product absorb input | `openclaw/openclaw@babb2fc7c1363587a4e08266d59772e35a78d1c9` | N/A | N/A | `babb2fc7c1363587a4e08266d59772e35a78d1c9` | Commit object resolves on GitHub; the separate product lane owns its schema-v19 convergence. |
-| Safe lane ref | `codeagent/129388-covenant-authority-proof-harness-20260828` reviewed harness tip | `92affa163c0e14f7cd9d1ef76ac19f089d85b503` | `92affa163c0e14f7cd9d1ef76ac19f089d85b503` | `92affa163c0e14f7cd9d1ef76ac19f089d85b503` | Local, tracking, and server were equal before the final report successor. |
+| Product/base ref | `karmaterminal/openclaw:scribe/129388-covenant-upstream-absorb-20260828` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | Equal; exact source byte used for the store ownership walk only. |
+| Product staged-successor input | `karmaterminal/openclaw@93f7152b098beeb9ac64cb9b2437fc45a7558adf` | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | N/A | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | Local/server equal; the unpublished merge is not evidence and its worktree was not inspected. |
+| Safe lane ref | `codeagent/129388-retention-authority-product-store-alignment-20260829` before implementation | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | Equal before evidence. |
 | CI/workflow ref | N/A | N/A | N/A | N/A | Harness construction is focused-only; Mode-B and deployment are out of scope. |
-| Presentation ref | `openclaw/openclaw#129388` reviewed head | N/A | N/A | `00c7f721a55554d0b9228337cc8bc6bec88f9e9f` | Read-only presentation anchor; no body, label, comment, or protected branch mutation. |
-| Docs/proof ref | `karmaterminal/karmaterminal-openclaw-docs@0984dabae218000b20178f4a031e688bdf0584ac` | `0984dabae218000b20178f4a031e688bdf0584ac` | `0984dabae218000b20178f4a031e688bdf0584ac` | `0984dabae218000b20178f4a031e688bdf0584ac` | Lane base and `origin/main` were equal at dispatch. |
-| Prior harness authority | `karmaterminal/karmaterminal-openclaw-docs@39ef6b268650c5ff718226cb17fdfcf2d5f4a3da` | `39ef6b268650c5ff718226cb17fdfcf2d5f4a3da` | N/A | `39ef6b268650c5ff718226cb17fdfcf2d5f4a3da` | Commit object resolves, but it is a separate 36-commit line rather than an ancestor of the docs base. Only its isolated-runtime primitive was ported; merging it would alter 122 files and historical corpus. |
+| Presentation ref | N/A | N/A | N/A | N/A | Presentation, corpus, and live proof are out of scope; `openclaw/openclaw#129388` is issue binding only. |
+| Docs/proof base/report | `karmaterminal/karmaterminal-openclaw-docs@094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | Equal. |
+| Reviewed implementation byte | `karmaterminal-openclaw-docs@281552c039dcf45f7fdc3a7960448f0e989ea801` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | N/A | `281552c039dcf45f7fdc3a7960448f0e989ea801` | Commit-pinned local/server equality. |
+| Rejected parent harness | `codeagent/129388-covenant-authority-proof-harness-20260828` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | Equal. |
+| Independent review | `codeagent/129388-retention-authority-independent-review-20260829` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | Equal; verdict `REQUEST_CHANGES`. |
 
 Protected corpus bytes at lane start:
 
@@ -256,30 +257,35 @@ The phase order is fixed:
    observation fails.
 7. `cleanup-run` binds canonical observation, phase-chain, driver-attestation,
    and runtime-config digests.
-8. The docs-owned scenario then sends a nonce-bound request directly to the
-   final isolated gateway's resource-inspection endpoint. The request names the
-   exact 24 case/form/handle set and asks independently for continuation
-   delegates, continuation queue items, and temporary sessions with a
-   one-over-limit page size. Redirects are disabled and the response URL must
-   remain the exact final-gateway inspection URL. The private evidence binds
-   the unmodified response bytes, SHA-256, byte length, HTTP identity,
-   wall/monotonic timing, product and runtime SHAs, run ID, and final gateway
-   namespace PID/start identity. Launcher-owned `/proc` samples must bracket
-   that observation while the same PID/start/socket is still listening. The
+8. The docs-owned scenario may send the legacy nonce-bound resource-inspection
+   request to the final isolated gateway. Current product does not expose that
+   endpoint, so its response is retained only as candidate diagnostic material:
+   redirects remain disabled and no response field can grant or veto PASS. The
    scenario emits the evidence line and then holds the runtime open.
 9. The evidence line triggers the launcher-owned read of the isolated
-   runtime's canonical durable stores: `state/openclaw.sqlite` `flow_runs` and
-   `subagent_runs`, plus every contained agent `sessions.json`. The reader
-   requires the attested driver PID/start fingerprint to still be alive; its
-   no-follow reads require real SQLite tables (views cannot substitute),
-   validate exact required columns, file identity, bounds, and raw snapshot
-   digest. The signed receipt rechecks the observed PID/start values against
-   the driver attestation. After that live read, k6 teardown returns the same
-   idempotent cleanup-run receipt and destroys the runtime. The launcher
-   repeats the store read after graceful process exit but before deleting the
-   isolated state root and requires identical live/final resource sets. The
-   gateway arrays are corroboration only and must match these independently
-   derived sets.
+   runtime's canonical stores, beginning with `state/openclaw.sqlite`. It
+   freezes the complete attested process group,
+   proves every member stopped, samples the driver and final gateway PID/start
+   plus gateway socket identity, then opens the state root, state database,
+   every registry-owned per-agent database, and all present WAL/SHM sidecars
+   with `O_NOFOLLOW`. Device, inode, mode, size, and mtime identities are bound
+   before the opened files are copied to a launcher-only directory and
+   revalidated. Only those copies are opened with SQLite. The global snapshot
+   must expose the exact v13 `flow_runs`, `subagent_runs`,
+   `delivery_queue_entries`, and `agent_databases` tables; each registered
+   per-agent snapshot must expose the exact v19 `session_nodes.entry_json`
+   owner and schema. Views, missing/extra columns, malformed JSON/status,
+   registry/layout disagreement, path replacement, and symlinks fail closed.
+   WAL bytes are copied with the main database so a row present only in WAL is
+   observable. The launcher re-samples driver/gateway/socket identity before
+   resuming; teardown therefore cannot begin before the live observation
+   completes.
+10. After the timestamped k6 teardown record and bounded process-group
+    settlement, the launcher repeats the same opened-identity snapshot without
+    a live writer. The signed resolver independently requires
+    evidence-end → live snapshot → teardown start/completion → shutdown
+    settlement → final snapshot ordering and identical live/final resource
+    sets.
 
 The scenario emits exactly one private
 `openclaw.k6.return-covenant-observation-set.v1` log record. It always reports
@@ -325,20 +331,25 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   product clocks;
 - one run-wide product capability inventory makes both explicit-revocation
   forms either executed or N/A together; and
-- the direct gateway response is complete, unpaginated, within its count/byte
-  bounds, and bound to the final launcher-observed gateway PID/start/socket;
-  unsupported, malformed, partial, stale, mismatched, or capped inspection is
-  `unverified-resource-retention`, never zero;
-- the launcher derives active delegates from canonical `subagent_runs`, queued
-  continuation work from canonical `flow_runs`, and temporary sessions from
-  contained canonical `sessions.json` stores. Because the runtime is fresh and
-  synthetic, it counts every retained subagent, every nonterminal flow
-  (including `waiting`, `blocked`, and `lost`), and every session entry rather
-  than filtering by a candidate-controlled owner/controller. Unknown flow
-  statuses fail closed. Missing, changed, symlinked,
-  malformed, schema-drifted, unstable, or over-limit stores force
-  `unverified-resource-retention`; a gateway response that disagrees with the
-  durable stores also fails;
+- any direct gateway resource response is diagnostic only. Current product's
+  absent endpoint, redirects, malformed bytes, or forged arrays cannot grant
+  or veto PASS; the launcher still binds the expected gateway process and
+  socket across its live snapshot;
+- the launcher derives active delegates from canonical
+  `subagent_runs.payload_json`, using product execution, cleanup-completion,
+  and required-final-delivery semantics. It derives continuation work from
+  canonical `flow_runs`, including the distinct work/delegate controller rules,
+  and unfinished session delivery from `delivery_queue_entries` (`pending` and
+  failed `settlement_pending`, including durable attempt ownership). It reads
+  product-registered `agents/<agent>/agent/openclaw-agent.sqlite`
+  `session_nodes.entry_json` rows and treats a run-bound spawned row as a
+  temporary session; root and UI-only parent rows are not temporary. Indexed
+  child/requester/controller keys plus nested delivery, continuation-target,
+  swarm-owner, flow-owner, and flow child/target keys participate in relevance.
+  Unknown or malformed status/JSON/lineage, table/view/column drift,
+  registry/layout disagreement, identity change, symlink, missing sidecar
+  identity, unstable live/final resources, or count overflow forces
+  `unverified-resource-retention`;
 - the launcher derives gateway and fixture-process counts from its `/proc`
   PID/start, process-group, and socket observations; derives
   `allCaseHandlesClosed` and the handle set from exact phase-chain coverage and
@@ -362,7 +373,7 @@ cannot affect the verdict or any signed cleanup field.
 
 ## Required product seam
 
-Checkpoint `7c100aed` contains the internal epoch and final-delivery checks, but
+Product floor `0109521b` contains the internal epoch and final-delivery checks, but
 no canonical product-owned fixture/setup command or diagnostic driver was found.
 The final product lane must supply, from the exact candidate tree:
 
@@ -381,14 +392,12 @@ The final product lane must supply, from the exact candidate tree:
 7. separate prompt-adoption, heartbeat-wake, and visible-channel counters plus
    product release/scan timestamps;
 8. successor transcript and trusted system-event marker scans; and
-9. a real gateway resource-inspection seam whose arrays are backed by the
-   isolated continuation delegate/queue/session stores, not a driver summary;
-10. the canonical isolated `openclaw.sqlite` flow/subagent tables and
-   `sessions.json` stores must remain directly readable by the launcher; and
-11. launcher-derived cleanup after the fixture and isolated gateway processes
+9. canonical v13 global and v19 per-agent SQLite stores at the product-owned
+   default paths, including their WAL/SHM sidecars and registry metadata; and
+10. launcher-derived cleanup after the fixture and isolated gateway processes
    stop.
 
-Until all eleven are present, the plan must say
+Until all ten are present, the plan must say
 `driver.fixtureCommand.status=missing-product-seam`; the k6 scenario refuses to
 start.
 
@@ -483,12 +492,18 @@ The repository-local owner test covers:
 | candidate says zero while a delegate remains | `resource-retention` |
 | candidate says zero while a queue item remains | `resource-retention` |
 | candidate says zero while a temporary session remains | `resource-retention` |
-| candidate says all handles closed with missing/duplicated phase coverage | `phase-chain-mismatch` |
-| resource-inspection seam missing/unsupported | `unverified-resource-retention` |
-| stale run/SHA/gateway PID/start/socket/timestamp | `unverified-resource-retention` or cleanup failure |
-| malformed, partial, count-mismatched, or over-limit inspection | `unverified-resource-retention` |
-| attested gateway itself emits forged clean arrays over retained durable state | `resource-retention` and `unverified-resource-retention` |
-| clean direct inspection plus independent process teardown | `PASS-candidate` |
+| candidate says all handles closed with missing/duplicated coverage or an explicitly open handle | `phase-chain-mismatch` |
+| candidate resource-inspection seam missing, stale, or malformed with clean canonical stores | diagnostic only; canonical stores can still yield `PASS-candidate` |
+| current-product `payload_json` retains a subagent | `resource-retention` |
+| `delivery_queue_entries` retains pending/settlement work or attempt ownership | `resource-retention` |
+| canonical `session_nodes.entry_json` retains a run-bound spawned session | `resource-retention` |
+| unknown/malformed lifecycle or delivery status/JSON | `unverified-resource-retention` |
+| missing, renamed, or view-substituted canonical table/column | `unverified-resource-retention` |
+| symlink or pathname swap after no-follow open | `unverified-resource-retention` |
+| retained row exists only in WAL | row is observed and yields `resource-retention` |
+| driver/gateway PID/start/socket changes across live snapshot | `unverified-resource-retention` |
+| live snapshot overlaps teardown | `unverified-resource-retention` |
+| clean exact product-shaped stores plus settled process teardown | `PASS-candidate` |
 | one identifier reused across phases | `phase-chain-mismatch` |
 | phase response without launcher HMAC | `phase-proof-mismatch` |
 | mixed explicit-revocation executed/N/A forms | `revocation-capability-mismatch` |

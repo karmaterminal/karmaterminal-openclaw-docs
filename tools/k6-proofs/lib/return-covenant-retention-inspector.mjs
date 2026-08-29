@@ -72,6 +72,14 @@ const SUBAGENT_DELIVERY_DISPOSITIONS = new Set([
   'permanent_failure',
 ]);
 const DELIVERY_QUEUE_STATUSES = new Set(['pending', 'failed', 'completed']);
+const DELIVERY_QUEUE_RECOVERY_STATES = new Set([
+  'producer_claimed',
+  'send_attempt_started',
+  'unknown_after_send',
+  'settlement_pending',
+  'completed_permanent',
+  'completed_bounded',
+]);
 const SESSION_STATUSES = new Set([
   'running',
   'done',
@@ -448,14 +456,19 @@ function requireDatabaseIntegrity(db, expectedVersion, expectedOwner) {
 }
 
 function parseJsonRecord(raw, label) {
+  const value = parseJsonValue(raw, label);
+  if (!isRecord(value)) {
+    throw new Error(`${label} is not a JSON object`);
+  }
+  return value;
+}
+
+function parseJsonValue(raw, label) {
   let value;
   try {
     value = JSON.parse(raw);
   } catch {
     throw new Error(`${label} is not valid JSON`);
-  }
-  if (!isRecord(value)) {
-    throw new Error(`${label} is not a JSON object`);
   }
   return value;
 }
@@ -641,9 +654,6 @@ function isRetainedFlow(row, state) {
   ) {
     throw new Error('flow_runs contains unknown or malformed lifecycle state');
   }
-  if (row.state_json !== null && !isRecord(state)) {
-    throw new Error('flow_runs.state_json is not a JSON object');
-  }
   if (row.controller_id === 'core/continuation-work') {
     if (
       !isRecord(state) ||
@@ -698,6 +708,12 @@ function decodeDeliveryQueueRow(row) {
   ) {
     throw new Error('delivery_queue_entries contains malformed lifecycle state');
   }
+  if (
+    row.recovery_state !== null &&
+    !DELIVERY_QUEUE_RECOVERY_STATES.has(row.recovery_state)
+  ) {
+    throw new Error('delivery_queue_entries contains an unknown recovery state');
+  }
   const entry = parseJsonRecord(
     row.entry_json,
     'delivery_queue_entries.entry_json',
@@ -705,7 +721,9 @@ function decodeDeliveryQueueRow(row) {
   if (
     entry.id !== row.id ||
     Number(entry.enqueuedAt) !== Number(row.enqueued_at) ||
-    Number(entry.retryCount) !== Number(row.retry_count)
+    Number(entry.retryCount) !== Number(row.retry_count) ||
+    (entry.recoveryState ?? null) !== row.recovery_state ||
+    (entry.platformSendStartedAt ?? null) !== row.platform_send_started_at
   ) {
     throw new Error('delivery_queue_entries indexed fields differ from entry_json');
   }
@@ -812,8 +830,8 @@ function isTemporarySessionEntry(entry, sessionKey, runBoundSessionKeys) {
   return spawned && runBound;
 }
 
-function inspectGlobalDatabase(databasePath) {
-  const db = new DatabaseSync(databasePath, { readOnly: true });
+function inspectGlobalDatabase(snapshotDatabasePath) {
+  const db = new DatabaseSync(snapshotDatabasePath, { readOnly: true });
   try {
     db.exec('BEGIN');
     const schema = Object.fromEntries(
@@ -868,8 +886,12 @@ function inspectGlobalDatabase(databasePath) {
   }
 }
 
-function inspectAgentDatabase(databasePath, expectedAgentId, runBoundSessionKeys) {
-  const db = new DatabaseSync(databasePath, { readOnly: true });
+function inspectAgentDatabase(
+  snapshotDatabasePath,
+  expectedAgentId,
+  runBoundSessionKeys,
+) {
+  const db = new DatabaseSync(snapshotDatabasePath, { readOnly: true });
   try {
     db.exec('BEGIN');
     const schema = Object.fromEntries(
@@ -1290,7 +1312,7 @@ function buildResources(global, agentResults) {
   for (const row of global.flowRows) {
     let state = null;
     if (row.state_json !== null) {
-      state = parseJsonRecord(row.state_json, 'flow_runs.state_json');
+      state = parseJsonValue(row.state_json, 'flow_runs.state_json');
     }
     runBoundSessionKeys.add(row.owner_key.trim());
     collectFlowSessionKeys(state, runBoundSessionKeys);
@@ -1323,16 +1345,23 @@ function buildResources(global, agentResults) {
       });
     }
   }
-  const temporarySessions = agentResults.flatMap((result) =>
-    inspectAgentDatabase(
+  const inspectedAgents = agentResults.map((result) => ({
+    result,
+    inspection: inspectAgentDatabase(
       result.snapshotDatabasePath,
       result.agentId,
       runBoundSessionKeys,
-    ).temporarySessions.map((entry) => ({
+    ),
+  }));
+  const temporarySessions = inspectedAgents.flatMap(({ result, inspection }) =>
+    inspection.temporarySessions.map((entry) => ({
       ...entry,
       storePathFingerprint: result.binding.pathFingerprint,
     })));
-  return { delegates, queueItems, temporarySessions };
+  return {
+    resources: { delegates, queueItems, temporarySessions },
+    agentSchemas: inspectedAgents.map(({ inspection }) => inspection.schema),
+  };
 }
 
 function boundedResources(resources) {
@@ -1420,13 +1449,10 @@ export async function inspectReturnCovenantDurableStores({
       testHooks,
     });
     const global = snapshot.global;
-    const resources = buildResources(global, snapshot.agentSnapshots);
-    const agentSchemas = snapshot.agentSnapshots.map((entry) =>
-      inspectAgentDatabase(
-        entry.snapshotDatabasePath,
-        entry.agentId,
-        new Set(),
-      ).schema);
+    const { resources, agentSchemas } = buildResources(
+      global,
+      snapshot.agentSnapshots,
+    );
     if (!boundedResources(resources)) {
       throw new Error('isolated retention resource inventory exceeded its bound');
     }

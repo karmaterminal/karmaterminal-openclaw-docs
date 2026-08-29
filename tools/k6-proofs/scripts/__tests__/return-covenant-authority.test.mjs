@@ -2242,6 +2242,7 @@ async function createProductShapedRetentionFixture() {
         message: 'retained result',
         messageId: 'retained-message',
         ...(deliveryStartedAt == null ? {} : { deliveryStartedAt }),
+        ...(recoveryState === null ? {} : { recoveryState }),
         owner: {
           kind: 'subagent_completion',
           runId: 'run-retained',
@@ -2265,14 +2266,15 @@ async function createProductShapedRetentionFixture() {
     },
     insertTemporarySession({
       sessionKey = 'agent:proof:subagent:retained',
+      spawnedBy = 'agent:proof:main',
     } = {}) {
       const entry = {
         sessionId: 'temporary-session',
         updatedAt: 2,
         createdAt: 2,
         createdVia: 'spawn',
-        spawnedBy: 'agent:proof:main',
-        parentSessionKey: 'agent:proof:main',
+        spawnedBy,
+        parentSessionKey: spawnedBy,
         spawnDepth: 1,
       };
       agentDatabase.prepare(`
@@ -2281,8 +2283,14 @@ async function createProductShapedRetentionFixture() {
           updated_at, status, created_at, created_via,
           parent_session_key, spawned_by
         ) VALUES (?, ?, ?, 1, 2, 'running', 2, 'spawn',
-          'agent:proof:main', 'agent:proof:main')
-      `).run(sessionKey, entry.sessionId, JSON.stringify(entry));
+          ?, ?)
+      `).run(
+        sessionKey,
+        entry.sessionId,
+        JSON.stringify(entry),
+        spawnedBy,
+        spawnedBy,
+      );
     },
     async observe({ testHooks } = {}) {
       const { plan, evidence } = await completeMatrix();
@@ -2357,6 +2365,28 @@ test('durable inspector matches current product-shaped retention stores', async 
       assert.equal(observed.status, 'observed', observed.failureReason);
       assert.equal(observed.resources.delegates.length, 1);
       assert.equal(observed.resources.delegates[0].deliveryStatus, 'pending');
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('required in-progress final delivery retains a terminal run', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertSubagent({
+        payload: canonicalSubagentPayload({
+          runId: 'run-retained',
+          childSessionKey: 'agent:proof:subagent:retained',
+          requesterSessionKey: 'agent:proof:main',
+          executionStatus: 'terminal',
+          deliveryStatus: 'in_progress',
+          cleanupCompletedAt: 20,
+        }),
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.delegates.length, 1);
+      assert.equal(observed.resources.delegates[0].requiredDelivery, true);
     } finally {
       await fixtureState.dispose();
     }
@@ -2453,6 +2483,37 @@ test('durable inspector matches current product-shaped retention stores', async 
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'observed', observed.failureReason);
       assert.equal(observed.resources.temporarySessions.length, 1);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('alternate continuation targets bind retained child sessions', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      const targetSessionKey = 'agent:proof:subagent:alternate-target';
+      const payload = canonicalSubagentPayload({
+        runId: 'run-terminal-target',
+        childSessionKey: 'agent:proof:subagent:completed',
+        requesterSessionKey: 'agent:proof:main',
+      });
+      payload.continuationTargetSessionKeys = [targetSessionKey];
+      fixtureState.insertSubagent({
+        runId: payload.runId,
+        childSessionKey: payload.childSessionKey,
+        payload,
+      });
+      fixtureState.insertTemporarySession({
+        sessionKey: targetSessionKey,
+        spawnedBy: 'agent:proof:other-parent',
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.temporarySessions.length, 1);
+      assert.equal(
+        observed.resources.temporarySessions[0].sessionKey,
+        targetSessionKey,
+      );
     } finally {
       await fixtureState.dispose();
     }

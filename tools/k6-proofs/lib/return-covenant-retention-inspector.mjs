@@ -877,6 +877,19 @@ function isRetainedFlow(row, state) {
     ) {
       throw new Error('continuation work flow has malformed state_json');
     }
+    if (
+      state.succeeded !== undefined &&
+      (
+        !isRecord(state.succeeded) ||
+        state.succeeded.point !== 'optimal' ||
+        state.succeeded.durability !== 'durable' ||
+        Object.keys(state.succeeded).length !== 2
+      )
+    ) {
+      throw new Error(
+        'continuation work flow has malformed succeeded state',
+      );
+    }
     return (
       row.cancel_requested_at === null &&
       (row.status === 'queued' || row.status === 'running') &&

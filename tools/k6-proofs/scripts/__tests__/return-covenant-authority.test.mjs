@@ -2242,6 +2242,7 @@ async function createProductShapedRetentionFixture() {
       flowId = 'flow-retained',
       status = 'running',
       endedAt = null,
+      controllerId = 'core/continuation-delegate',
       state = {
         kind: 'continuation_delegate',
         task: 'retained continuation',
@@ -2258,11 +2259,11 @@ async function createProductShapedRetentionFixture() {
           created_at, updated_at, ended_at
         ) VALUES (
           ?, NULL, 'managed', 'agent:proof:main', NULL, NULL,
-          'core/continuation-delegate', 0, ?, 'silent',
+          ?, 0, ?, 'silent',
           'Continuation delegate', 'retention fixture', NULL, NULL,
           ?, NULL, NULL, 1, 1, ?
         )
-      `).run(flowId, status, JSON.stringify(state), endedAt);
+      `).run(flowId, controllerId, status, JSON.stringify(state), endedAt);
     },
     insertDelivery({
       id = 'delivery-retained',
@@ -2614,6 +2615,42 @@ test('durable inspector matches current product-shaped retention stores', async 
     }
   });
 
+  await t.test('continuation-work delivered marker controls retention exactly', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      const workState = {
+        kind: 'continuation_work',
+        sessionKey: 'agent:proof:main',
+        hop: 1,
+        delayMs: 0,
+        electedAt: 1,
+        dueAt: 1,
+        maxChainLength: 8,
+      };
+      fixtureState.insertFlow({
+        flowId: 'work-live',
+        controllerId: 'core/continuation-work',
+        state: workState,
+      });
+      fixtureState.insertFlow({
+        flowId: 'work-delivered',
+        controllerId: 'core/continuation-work',
+        state: {
+          ...workState,
+          succeeded: { point: 'optimal', durability: 'durable' },
+        },
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.deepEqual(
+        observed.resources.queueItems.map((entry) => entry.id),
+        ['flow:work-live'],
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
   await t.test('run-bound flow child keys retain canonical spawned sessions', async () => {
     const fixtureState = await createProductShapedRetentionFixture();
     try {
@@ -2768,6 +2805,7 @@ test('durable inspector matches current product-shaped retention stores', async 
 
   for (const mode of [
     'flow-status',
+    'flow-state',
     'delivery-status',
     'delivery-json',
     'session-json',
@@ -2778,6 +2816,15 @@ test('durable inspector matches current product-shaped retention stores', async 
       try {
         if (mode === 'flow-status') {
           fixtureState.insertFlow({ status: 'paused' });
+        } else if (mode === 'flow-state') {
+          fixtureState.insertFlow({
+            controllerId: 'core/continuation-work',
+            state: {
+              kind: 'continuation_work',
+              sessionKey: 'agent:proof:main',
+              succeeded: false,
+            },
+          });
         } else if (mode === 'delivery-status') {
           fixtureState.insertDelivery({ status: 'retrying' });
         } else if (mode === 'delivery-json') {

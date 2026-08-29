@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import {
   mkdirSync,
   readFileSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import http from 'node:http';
@@ -32,6 +33,8 @@ const MOCK_CONTROL = Object.freeze({
   retainedResource: null,
   inspectionFault: null,
   candidateClaimsClean: false,
+  candidateCleanupFault: null,
+  terminalNoticeController: null,
 });
 const resourceCategories = [
   'delegates',
@@ -438,6 +441,45 @@ if (process.argv[2] === 'gateway') {
       (agent_id, path, schema_version, last_seen_at, size_bytes)
     VALUES ('proof', 'agents/proof/agent/openclaw-agent.sqlite', 19, ?, NULL)
   `).run(Date.now());
+  if (MOCK_CONTROL.terminalNoticeController) {
+    const ownerKey = 'agent:proof:terminal-notice-owner';
+    const exactContinuationWork =
+      MOCK_CONTROL.terminalNoticeController === 'core/continuation-work';
+    const state = exactContinuationWork
+      ? {
+        kind: 'continuation_work',
+        sessionKey: ownerKey,
+        hop: 1,
+        delayMs: 0,
+        electedAt: 1,
+        dueAt: 1,
+        maxChainLength: 8,
+        terminalNoticePending: 'retry-exhausted',
+      }
+      : {
+        kind: 'core',
+        childSessionKey: 'agent:proof:terminal-notice-child',
+        terminalNoticePending: true,
+      };
+    stateDatabase.prepare(`
+      INSERT INTO flow_runs (
+        flow_id, shape, sync_mode, owner_key, chain_id,
+        requester_origin_json, controller_id, revision, status,
+        notify_policy, goal, current_step, blocked_task_id,
+        blocked_summary, state_json, wait_json, cancel_requested_at,
+        created_at, updated_at, ended_at
+      ) VALUES (
+        'terminal-notice-control', NULL, 'managed', ?, NULL, NULL,
+        ?, 1, 'failed', 'silent', 'Terminal notice control',
+        'Continuation work wake failed', NULL, 'retry exhausted',
+        ?, NULL, NULL, 1, 2, 2
+      )
+    `).run(
+      ownerKey,
+      MOCK_CONTROL.terminalNoticeController,
+      JSON.stringify(state),
+    );
+  }
   stateDatabase.exec('PRAGMA wal_checkpoint(TRUNCATE);');
   agentDatabase.exec('PRAGMA wal_checkpoint(TRUNCATE);');
 
@@ -1210,7 +1252,7 @@ if (process.argv[2] === 'gateway') {
       gateways: gateways.filter((entry) => !entry.exited).length,
       fixtureProcesses: 0,
     };
-    writeFileSync(input['cleanup-draft'], JSON.stringify({
+    const candidateCleanupClaims = {
       startedAt,
       endedAt: new Date().toISOString(),
       retained: MOCK_CONTROL.candidateClaimsClean
@@ -1223,7 +1265,21 @@ if (process.argv[2] === 'gateway') {
       phaseChainSha256: cleanupRun.phaseChainSha256,
       driverAttestationSha256: attestation.attestationSha256,
       runCleanupReceiptId: cleanupRun.receiptId,
-    }));
+    };
+    if (MOCK_CONTROL.candidateCleanupFault === 'symlink') {
+      const target = `${input['cleanup-draft']}.target`;
+      writeFileSync(target, JSON.stringify(candidateCleanupClaims));
+      symlinkSync(target, input['cleanup-draft']);
+    } else if (MOCK_CONTROL.candidateCleanupFault === 'malformed-json') {
+      writeFileSync(input['cleanup-draft'], '{"startedAt":');
+    } else if (MOCK_CONTROL.candidateCleanupFault === 'invalid-shape') {
+      writeFileSync(input['cleanup-draft'], '[]');
+    } else {
+      writeFileSync(
+        input['cleanup-draft'],
+        JSON.stringify(candidateCleanupClaims),
+      );
+    }
     stateDatabase.close();
     agentDatabase.close();
     driverServer.closeAllConnections();

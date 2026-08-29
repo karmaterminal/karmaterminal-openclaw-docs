@@ -2244,6 +2244,7 @@ async function createProductShapedRetentionFixture() {
       status = 'running',
       endedAt = null,
       controllerId = 'core/continuation-delegate',
+      ownerKey = 'agent:proof:main',
       state = {
         kind: 'continuation_delegate',
         task: 'retained continuation',
@@ -2259,12 +2260,19 @@ async function createProductShapedRetentionFixture() {
           blocked_summary, state_json, wait_json, cancel_requested_at,
           created_at, updated_at, ended_at
         ) VALUES (
-          ?, NULL, 'managed', 'agent:proof:main', NULL, NULL,
+          ?, NULL, 'managed', ?, NULL, NULL,
           ?, 0, ?, 'silent',
           'Continuation delegate', 'retention fixture', NULL, NULL,
           ?, NULL, NULL, 1, 1, ?
         )
-      `).run(flowId, controllerId, status, JSON.stringify(state), endedAt);
+      `).run(
+        flowId,
+        ownerKey,
+        controllerId,
+        status,
+        JSON.stringify(state),
+        endedAt,
+      );
     },
     insertDelivery({
       id = 'delivery-retained',
@@ -2668,6 +2676,179 @@ test('durable inspector matches current product-shaped retention stores', async 
       await fixtureState.dispose();
     }
   });
+
+  await t.test('terminal notice obligations remain retained across controller owners', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      const ownerKey = 'agent:proof:terminal-notice-owner';
+      const childSessionKey = 'agent:proof:subagent:terminal-notice-child';
+      fixtureState.insertFlow({
+        flowId: 'work-terminal-notice',
+        status: 'failed',
+        endedAt: 2,
+        controllerId: 'core/continuation-work',
+        ownerKey,
+        state: {
+          kind: 'continuation_work',
+          sessionKey: ownerKey,
+          hop: 1,
+          delayMs: 0,
+          electedAt: 1,
+          dueAt: 1,
+          maxChainLength: 8,
+          terminalNoticePending: 'retry-exhausted',
+        },
+      });
+      fixtureState.insertFlow({
+        flowId: 'core-terminal-notice',
+        status: 'failed',
+        endedAt: 2,
+        controllerId: 'core',
+        ownerKey,
+        state: {
+          kind: 'core',
+          childSessionKey,
+          terminalNoticePending: true,
+        },
+      });
+      fixtureState.insertTemporarySession({
+        sessionKey: childSessionKey,
+        spawnedBy: 'agent:proof:alternate-parent',
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.deepEqual(
+        observed.resources.queueItems.map((entry) => entry.id),
+        ['flow:core-terminal-notice', 'flow:work-terminal-notice'],
+      );
+      assert.deepEqual(
+        observed.resources.temporarySessions.map((entry) => ({
+          sessionKey: entry.sessionKey,
+          runBound: entry.runBound,
+        })),
+        [{ sessionKey: childSessionKey, runBound: true }],
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('settled terminal continuation-work rows remain excluded', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertFlow({
+        flowId: 'work-terminal-settled',
+        status: 'failed',
+        endedAt: 2,
+        controllerId: 'core/continuation-work',
+        state: {
+          kind: 'continuation_work',
+          sessionKey: 'agent:proof:main',
+          hop: 1,
+          delayMs: 0,
+          electedAt: 1,
+          dueAt: 1,
+          maxChainLength: 8,
+        },
+      });
+      fixtureState.insertFlow({
+        flowId: 'core-terminal-settled',
+        status: 'failed',
+        endedAt: 2,
+        controllerId: 'core',
+        state: { kind: 'core' },
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.deepEqual(observed.resources.queueItems, []);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const control of [
+    {
+      name: 'unknown generic marker',
+      controllerId: 'core',
+      state: { kind: 'core', terminalNoticePending: 'unknown' },
+      status: 'failed',
+      endedAt: 2,
+    },
+    {
+      name: 'false generic marker',
+      controllerId: 'core',
+      state: { kind: 'core', terminalNoticePending: false },
+      status: 'failed',
+      endedAt: 2,
+    },
+    {
+      name: 'boolean continuation-work marker',
+      controllerId: 'core/continuation-work',
+      state: {
+        kind: 'continuation_work',
+        sessionKey: 'agent:proof:main',
+        hop: 1,
+        delayMs: 0,
+        electedAt: 1,
+        dueAt: 1,
+        maxChainLength: 8,
+        terminalNoticePending: true,
+      },
+      status: 'failed',
+      endedAt: 2,
+    },
+    {
+      name: 'notice on nonterminal work',
+      controllerId: 'core/continuation-work',
+      state: {
+        kind: 'continuation_work',
+        sessionKey: 'agent:proof:main',
+        hop: 1,
+        delayMs: 0,
+        electedAt: 1,
+        dueAt: 1,
+        maxChainLength: 8,
+        terminalNoticePending: 'retry-exhausted',
+      },
+      status: 'running',
+      endedAt: null,
+    },
+    {
+      name: 'notice contradicts delivered work',
+      controllerId: 'core/continuation-work',
+      state: {
+        kind: 'continuation_work',
+        sessionKey: 'agent:proof:main',
+        hop: 1,
+        delayMs: 0,
+        electedAt: 1,
+        dueAt: 1,
+        maxChainLength: 8,
+        succeeded: { point: 'optimal', durability: 'durable' },
+        terminalNoticePending: 'retry-exhausted',
+      },
+      status: 'failed',
+      endedAt: 2,
+    },
+  ]) {
+    await t.test(`malformed terminal notice fails closed: ${control.name}`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        fixtureState.insertFlow({
+          flowId: `malformed-${control.name.replaceAll(' ', '-')}`,
+          controllerId: control.controllerId,
+          state: control.state,
+          status: control.status,
+          endedAt: control.endedAt,
+        });
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(observed.failureReason, /terminal notice/i);
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
 
   await t.test('run-bound flow child keys retain canonical spawned sessions', async () => {
     const fixtureState = await createProductShapedRetentionFixture();
@@ -3894,6 +4075,70 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
       (await verifyReturnCovenantDirectCleanup(result.attestation)).verified,
       true,
     );
+  } finally {
+    await result.dispose();
+  }
+});
+
+for (const controllerId of ['core', 'core/continuation-work']) {
+  test(`trusted launcher signs FAIL for retained terminal notice: ${controllerId}`, async () => {
+    const result = await runTrustedLauncherFixture((source) =>
+      source.replace(
+        'terminalNoticeController: null',
+        `terminalNoticeController: '${controllerId}'`,
+      ));
+    try {
+      assert.equal(result.launcherExitCode, 1);
+      assert.equal(result.cleanup.retained.queueItems, 1);
+      assert.deepEqual(
+        result.cleanup.durableStoreObservation.live.resources.queueItems
+          .map((entry) => entry.id),
+        ['flow:terminal-notice-control'],
+      );
+      assert.deepEqual(
+        result.cleanup.durableStoreObservation.final.resources.queueItems
+          .map((entry) => entry.id),
+        ['flow:terminal-notice-control'],
+      );
+      assert.equal(result.receipt.verdict, 'FAIL-candidate');
+      assert.ok(result.receipt.failureCategories.includes('resource-retention'));
+      assert.match(result.receipt.integrity.signature, /^[a-f0-9]{64}$/u);
+    } finally {
+      await result.dispose();
+    }
+  });
+}
+
+test('trusted launcher signs diagnostic failure when cleanup draft is a symlink', async () => {
+  const result = await runTrustedLauncherFixture((source) =>
+    source.replace(
+      'candidateCleanupFault: null',
+      "candidateCleanupFault: 'symlink'",
+    ));
+  try {
+    assert.equal(result.launcherExitCode, 1);
+    assert.deepEqual(result.candidateDiagnostic, {
+      schema: 'openclaw.k6.return-covenant-candidate-cleanup-diagnostic.v1',
+      passEligible: false,
+      status: 'invalid',
+      failureCategory: 'symlink',
+      claims: null,
+    });
+    assert.deepEqual(result.cleanup.candidateCleanupDiagnostic, {
+      status: 'invalid',
+      failureCategory: 'symlink',
+    });
+    assert.equal(result.receipt.verdict, 'FAIL-candidate');
+    assert.ok(
+      result.receipt.failureCategories.includes(
+        'candidate-cleanup-diagnostic-symlink',
+      ),
+    );
+    assert.deepEqual(result.receipt.cleanup.candidateCleanupDiagnostic, {
+      status: 'invalid',
+      failureCategory: 'symlink',
+    });
+    assert.match(result.receipt.integrity.signature, /^[a-f0-9]{64}$/u);
   } finally {
     await result.dispose();
   }

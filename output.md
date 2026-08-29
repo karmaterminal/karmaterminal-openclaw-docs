@@ -1,180 +1,202 @@
-# Retention-authority product-store alignment
+# Proof-store terminal notice and signed-FAIL repair
 
-**Verdict: `READY_FOR_SCRIBE_REVIEW`.** This is a docs-harness readiness
-verdict only. No exact-head product proof, live proof, corpus fold, or proof
-verdict upgrade is claimed.
+Status: `READY_FOR_SCRIBE_REVIEW`.
 
 Issue binding: `openclaw/openclaw#129388`.
 
+This lane repairs the docs-owned return-covenant proof-store authority. It does
+not edit product code, mutate the proof corpus, run live proof, change
+presentation, deploy, or open a pull request. No exact-head product proof ran.
+
 ## Named-reference contract
 
-Every applicable ref was resolved before evidence was credited. The safe lane
-was published unchanged at its base and again at each implementation checkpoint.
+This table was written before crediting the rejected-control or successor
+validation below. The unchanged safe lane was first published at rejected SHA
+`49dd1db3d9772b2c55e3c81ab0824d0e543bd6b8`; the repaired implementation was
+then published before its identity gate.
 
-| Category | Named reference | Local SHA | Tracking SHA | Server SHA | Equality |
+| Category | Named reference | Local SHA | Tracking SHA | Server/object SHA | Equality |
 |---|---|---|---|---|---|
-| Product/base ref | `karmaterminal/openclaw:scribe/129388-covenant-upstream-absorb-20260828` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | equal |
-| Product staged-successor input | `karmaterminal/openclaw@93f7152b098beeb9ac64cb9b2437fc45a7558adf` | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | N/A - commit pin | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | local/server equal; unpublished merge excluded from evidence |
-| Safe lane reviewed implementation | `codeagent/129388-retention-authority-product-store-alignment-20260829` | `c428de5585d09537aecc2dbf93483dec0998ba99` | `c428de5585d09537aecc2dbf93483dec0998ba99` | `c428de5585d09537aecc2dbf93483dec0998ba99` | equal |
-| Final report-only successor | This `output.md` handoff | N/A | N/A | Recorded by the final COMPLETE receipt | Cannot contain its own commit SHA |
-| CI/workflow ref | N/A - workorder forbids Mode-B and live product proof | N/A | N/A | N/A | N/A |
-| Presentation ref | N/A - presentation, corpus, and live proof are out of scope | N/A | N/A | N/A | N/A |
-| Docs/proof base/report | `karmaterminal-openclaw-docs@094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | equal |
-| Reviewed/rejected implementation | `karmaterminal-openclaw-docs@281552c039dcf45f7fdc3a7960448f0e989ea801` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | N/A - commit pin | `281552c039dcf45f7fdc3a7960448f0e989ea801` | local/server equal |
-| Rejected parent harness | `codeagent/129388-covenant-authority-proof-harness-20260828` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | equal |
-| Independent review | `codeagent/129388-retention-authority-independent-review-20260829` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | equal |
+| Product/base ref | `karmaterminal/openclaw:codeagent/129388-b8a16fd7-independent-review-20260829` | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | equal |
+| Safe lane ref (repair evidence anchor) | `codeagent/129388-proof-store-terminal-notice-signed-fail-fix-20260829` | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | equal |
+| CI/workflow ref | N/A | N/A | N/A | N/A | Focused-only workorder; Mode-B and Gate 3g are out of scope. |
+| Presentation ref | N/A | N/A | N/A | N/A | Presentation and live proof are out of scope. |
+| Docs/proof rejected implementation | `codeagent/129388-retention-authority-product-store-alignment-20260829` | `49dd1db3d9772b2c55e3c81ab0824d0e543bd6b8` | `49dd1db3d9772b2c55e3c81ab0824d0e543bd6b8` | `49dd1db3d9772b2c55e3c81ab0824d0e543bd6b8` | equal |
+| Docs/proof independent review | `codeagent/129388-proof-store-49dd-independent-review-20260829` | `9798a01040ff47cb4502b0db4365d2cc2c26e5dc` | `9798a01040ff47cb4502b0db4365d2cc2c26e5dc` | `9798a01040ff47cb4502b0db4365d2cc2c26e5dc` | equal |
+| Docs/proof rejected-control commit | `3c40c697d580cbe265274e1ded63867421339e5f` | `3c40c697d580cbe265274e1ded63867421339e5f` | N/A (immutable ancestor object) | `3c40c697d580cbe265274e1ded63867421339e5f` | local/server equal |
+| Docs/proof repaired implementation | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | `665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2` | equal |
 
-The final independent review resolved
-`c428de5585d09537aecc2dbf93483dec0998ba99` identically at local `HEAD`,
-tracking, and server, then returned `VERDICT: CONFIRMED`.
+The final report commit cannot contain its own SHA. The safe-lane value above is
+the complete repaired implementation byte used for evidence; the report-only
+successor changes `output.md`.
 
-## Product ownership read
+## Ownership and repair
 
-The ownership walk used Git object reads at the exact product floor; it did not
-enter or mutate the staged-successor worktree.
+### Candidate cleanup diagnostic
 
-| Product owner | SHA-256 at `0109521b…` | Authority used |
-|---|---|---|
-| `src/state/openclaw-state-schema.sql` | `b8c026d6c1e7f53e28b216450a68d13743833adc7f9a1bf48206d3e2455e8037` | v13 `flow_runs`, `subagent_runs`, `delivery_queue_entries`, `agent_databases`, and global `schema_meta` |
-| `src/agents/subagents/registry/subagent-registry.store.sqlite.ts` | `251c0c240ae7265b915149bdda0032429afcf60d7969f784aa638e3dd19e31db` | canonical `payload_json` decoder and indexed identity overrides |
-| `src/infra/session-delivery-queue-storage.ts` | `7c2dfad3fa6d1694a1eb2d2c2d42499b757e274926daf1f50b00cdca84781826` | session queue namespace, unfinished settlement, and attempt ownership |
-| `src/tasks/task-flow-registry.store.sqlite.ts` | `1ebd7291328fd73bccd66f605aeacc8eeb5c5903c199020e39c8b71013ac0a8a` | TaskFlow status and owner/controller projection |
-| `src/state/openclaw-agent-schema.sql` | `b3b7daf7453e741d1309ea9b7532d85e004e5f1c55188784de4fef5cf9707592` | v19 canonical `session_nodes.entry_json` and retained `session_windows` |
-| `src/state/openclaw-agent-db.paths.ts` | `3ef1af6e72680821b8f4217a2a57d2077ee2c44edec2385a2c18b6c98b482ced` | `agents/<agent>/agent/openclaw-agent.sqlite` |
+The trusted composition boundary is
+`scripts/launch-return-covenant-driver.mjs`, not candidate
+`cleanup-draft.json`. The reader now classifies only bounded candidate-controlled
+failure modes (`missing`, `symlink`, `access-denied`, `invalid-file-type`,
+`path-rejected`, `size-bound`, `malformed-json`, and `invalid-shape`).
+Unexpected launcher or infrastructure errors still propagate.
 
-The walk also covered the v13 wide-row migration, v19 session-node migration,
-agent database registry/listing, continuation work/delegate codecs, generic
-delivery queue writer/terminalizer, session entry decoder, subagent cleanup,
-and required-final-delivery retention predicate.
+Known diagnostic failures no longer interrupt process/store observation or
+cleanup. The launcher records no success-shaped replacement claims, signs the
+redacted `{status, failureCategory}` into `cleanup.json`, projects the same
+category into the observer receipt, and forces the exact
+`candidate-cleanup-diagnostic-<category>` `FAIL-candidate`. Candidate counts and
+closure claims remain unable to grant or override trusted observations.
 
-## Implemented authority
+### Terminal notice retention
 
-- `subagent_runs` is decoded from canonical `payload_json`. Execution,
-  cleanup-completion, required-final-delivery, suspended delivery, recovery,
-  requester-wake, kill, steer, and collector obligations retain a delegate.
-  Unknown or malformed lifecycle/delivery state fails closed.
-- `flow_runs` uses exact product TaskFlow status and controller semantics.
-  `core/continuation-work` honors the exact durable `succeeded` marker;
-  continuation delegate and post-compaction rows retain only recoverable
-  queued/running ownership. Unknown status, sync mode, or known-controller JSON
-  fails closed.
-- `delivery_queue_entries` treats `pending` and failed
-  `settlement_pending` rows as unfinished, preserves producer/platform/session
-  attempt ownership, accepts product writer-owned metadata such as
-  `outbound-media-stage`, and excludes canonical completed/failed tombstones.
-- Per-agent inventory comes from the global `agent_databases` registry and must
-  match the canonical directory layout and v19 owner metadata. The inspector
-  reads `session_nodes.entry_json`; every spawned child in the fresh isolated
-  state is temporary even after all run/flow/queue rows retire. Root and
-  UI-only `parentSessionKey` rows are excluded. The product's
-  `entry_json={}`, `entry_valid=-1`, matching-`session_windows` tombstone is
-  accepted and ignored; all other invalid rows fail closed.
-- The candidate HTTP resource inspection is diagnostic only. Current product
-  has no such endpoint, so a missing, redirected, malformed, or forged response
-  can neither grant nor veto PASS. Canonical launcher snapshots are the sole
-  resource-retention authority.
+Product authority at
+`b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` has two relevant ownership
+boundaries:
 
-## Stable observation and temporal binding
+- `work-flow-state.ts` / `work-store.ts` decode the exact
+  `core/continuation-work` marker
+  `terminalNoticePending="retry-exhausted"`; and
+- `task-flow-registry.maintenance.ts` treats a structurally present terminal
+  obligation marker as retained registry work independently of controller
+  feature imports.
 
-For the live leg, the launcher independently resolves the final gateway, checks
-driver and gateway PID/start/socket ownership, stops the complete detached
-process group, and waits for two identical all-stopped membership samples. It
-then opens the state root, canonical directories, each database, and every
-present `-wal`/`-shm` sidecar with `O_NOFOLLOW`; binds device, inode, mode, size,
-and mtime; copies bytes from those open handles into a disjoint launcher-owned
-directory; revalidates source paths and handles; and queries only the copied
-databases. WAL-only rows are therefore visible. The same driver/gateway/socket
-and stopped member set must match after the snapshot before `SIGCONT`.
+The inspector now retains the exact continuation-work marker and the generic
+boolean-`true` maintenance form, includes their owner and nested child/target
+keys in run-bound session correlation, and rejects malformed or contradictory
+markers as `unverified-resource-retention`. A failed terminal continuation row
+without a pending marker remains settled and pass-eligible.
 
-The live observation completes before the process group resumes, so k6 teardown
-cannot overlap it. Teardown now records start and completion timestamps. The
-final snapshot begins only after two consecutive empty-group samples and dead
-driver/gateway identities. Receipt validation independently binds:
+## Regression controls and validation
 
-```text
-evidence end
-  <= live snapshot
-  <= teardown start <= teardown completion
-  <= shutdown settlement
-  <= final snapshot
+Acceptance path: `focused-only`. No Mode-B run ID or workflow SHA applies, and
+Gate 3g was not used.
+
+### Rejected implementation controls
+
+The rejected-control commit
+`3c40c697d580cbe265274e1ded63867421339e5f` changes only the owner test and mock
+fixture; its implementation parent is exactly
+`49dd1db3d9772b2c55e3c81ab0824d0e543bd6b8`. A path-scoped diff confirmed that
+its contracts, docs, libraries, launcher, and sandbox bytes are unchanged from
+the rejected implementation.
+
+| Control on rejected implementation | Deterministic result |
+|---|---|
+| Direct product-shaped store matrix | Expected failure: `30` pass / `7` fail. Both terminal obligations produced `queueItems=[]`; malformed and contradictory terminal-notice states returned `status="observed"` instead of failing closed. |
+| Trusted launcher, generic `core` terminal notice | Expected failure: launcher exit `0` instead of `1`; signed result was incorrectly pass-eligible. |
+| Trusted launcher, exact `core/continuation-work` terminal notice | Expected failure: launcher exit `0` instead of `1`; signed result was incorrectly pass-eligible. |
+| Trusted launcher, symlinked cleanup draft | Expected failure: launcher exit `1`, but `candidate-cleanup-diagnostic.json` was `null`; execution stopped at `ELOOP` before trusted signed cleanup/observer artifacts could satisfy the control. |
+
+The exact rejected commands were:
+
+```bash
+node --test --test-concurrency=1 \
+  --test-name-pattern='durable inspector matches current product-shaped retention stores|terminal notice obligations remain retained|settled terminal continuation-work|malformed terminal notice fails closed' \
+  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
+
+node --test --test-concurrency=1 \
+  --test-name-pattern='trusted launcher signs FAIL for retained terminal notice' \
+  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
+
+node --test --test-concurrency=1 \
+  --test-name-pattern='trusted launcher signs diagnostic failure when cleanup draft is a symlink' \
+  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
 ```
 
-Any snapshot, schema, source-identity, process-identity, or temporal failure is
-projected as signed `unverified-resource-retention`; the failure projection no
-longer throws when `sourceBinding` is null. Both live and final resource sets
-must be byte-equivalent.
+Each nonzero result was wrapped in an assertion that required the expected
+failure text; the control command itself then returned success only when the
+regression reproduced.
 
-## Regression map
+### Successor controls
 
-| Invariant and owning boundary | Pre-fix negative | Successor and nearest sibling/recovery coverage |
-|---|---|---|
-| Product `payload_json` is the subagent authority | `281552c0` rejects a clean product-shaped store because it requires invented flat columns | Running row retained; clean terminal row excluded; required `in_progress` final delivery retained; malformed execution/delivery/payload fails closed |
-| Durable delivery queue is part of queue retention | `281552c0` never reads `delivery_queue_entries` | Pending and failed `settlement_pending` retained; completed and ordinary failed siblings excluded; producer/media metadata and terminal diagnostics accepted |
-| Canonical per-agent sessions use `session_nodes.entry_json` | `281552c0` requires `agents/*/sessions/sessions.json` | Spawned child retained; root and UI-parent siblings excluded; orphaned spawned child detected without ledger residue; retained-window tombstone accepted only with its matching window |
-| Required tables are real exact-shape product tables | `281552c0` accepts its invented schema and cannot pass the product schema | Missing table, renamed column, global view, agent view, wrong owner/version/layout all fail closed |
-| SQLite observation binds opened identities | `281552c0` preflights then reopens a pathname | Symlink and deterministic post-open pathname swap fail closed; every opened file and directory is revalidated |
-| WAL participates in authority | `281552c0` opens only the main pathname | A row absent from a main-file-only copy but present in WAL is observed by the trusted snapshot |
-| Live process identity is stable across observation | `281552c0` samples only before the read | Driver and final gateway PID/start/socket plus stopped group members are identical before/after; mutation fails |
-| Teardown cannot overlap live observation | `281552c0` awaits the live promise only after sandbox exit | Group remains stopped until observation completion; receipt rejects teardown starting before live completion |
-| Final observation follows settled shutdown | `281552c0` has no bounded empty-group settlement receipt | Two empty-group/dead-PID samples precede the final snapshot |
-| Open case handles cannot be hidden by candidate cleanup | Prior controls covered only missing/duplicate ledger rows | Explicitly open ledger entry yields `phase-chain-mismatch`; candidate `allCaseHandlesClosed` remains diagnostic only |
-| Clean exact product-shaped stores can pass | `281552c0` product-shape run exits nonzero; clean case fails with `subagent_runs does not expose the canonical retention columns` | Clean v13/v19 stores, absent candidate endpoint, WAL snapshot, live/final ordering, and bounded shutdown yield `PASS-candidate` |
+The same owner boundaries pass on repaired implementation
+`665b1d0a4077fbc2dbfcbd7d6e4a308e1c66c3b2`:
 
-The original parent `78927a643e8b5894a389691e695c1eb6bd7d2b4b`
-fails the transplanted control immediately because it has no retention
-inspector. The reviewed implementation
-`281552c039dcf45f7fdc3a7960448f0e989ea801` runs the transplanted final
-product-shape suite but fails 20/30 controls, including the clean-store control,
-for its flat-column assumption. The successor runs the same product-shape
-control successfully.
+| Successor control | Result |
+|---|---|
+| Direct store/signing/reader controls | `39/39` pass. Exact and generic terminal obligations are retained; alternate child keys remain run-bound; settled rows remain excluded; malformed/contradictory markers fail closed. |
+| Trusted launcher terminal-notice controls | `2/2` pass. Generic `core` and exact `core/continuation-work` rows each yield launcher exit `1`, signed `FAIL-candidate`, exact `resource-retention`, and one retained queue item in both live and final store observations. |
+| Trusted launcher diagnostic controls | `4/4` pass. Missing, symlink, malformed-JSON, and invalid-shape drafts each complete trusted cleanup and emit a signed `FAIL-candidate` carrying the exact bounded `candidate-cleanup-diagnostic-<category>`. |
+| Clean launcher sibling | Passes as `PASS-candidate`; canonical candidate diagnostics remain non-authoritative. |
 
-## Validation
+Commands:
 
-Acceptance path: **focused-only**, as required by this workorder. Mode-B, Gate
-3g, live product execution, and whole-repository product tests were not run.
+```bash
+node --test --test-concurrency=1 \
+  --test-name-pattern='durable inspector matches current product-shaped retention stores|candidate cleanup diagnostic failures remain signed and exact|candidate JSON reader classifies' \
+  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
+
+node --test --test-concurrency=1 \
+  --test-name-pattern='trusted launcher signs FAIL for retained terminal notice' \
+  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
+
+node --test --test-concurrency=1 \
+  --test-name-pattern='trusted launcher signs cleanup diagnostic failure' \
+  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
+```
+
+### Full focused owner/closure suite
+
+The complete owner/closure suite was run serially twice with the exact same
+command and no changes between repetitions:
 
 ```bash
 node --test --test-concurrency=1 \
   tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs \
   tools/k6-proofs/scripts/__tests__/return-covenant-harness-closure-contract.test.mjs
-# repetition 1: 104/104 pass
-# repetition 2: 104/104 pass
+```
 
+- repetition 1: `118/118` pass, `0` fail, `419517.000896ms`;
+- repetition 2: `118/118` pass, `0` fail, `417946.333183ms`.
+
+The suite retains prior payload JSON, delivery queue, session-node,
+WAL/no-follow, path-swap, socket/PID, tombstone/media, orphan-session,
+handle-ledger, rollback, restart/recovery, partial-failure, and process-cleanup
+controls.
+
+### Current corpus and static gates
+
+```bash
 node --test --test-concurrency=1 \
   tools/k6-proofs/scripts/__tests__/current-corpus-active-scope.test.mjs
-# 2/2 pass
-
 node tools/k6-proofs/scripts/validate-corpus.mjs --current
 node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
 node tools/k6-proofs/scripts/check-scenario-alignment.mjs
 node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
 node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-# pass: 37 current rows, 42 manifests, 35 scenarios, 13 telemetry contracts
-
-node --check <each of the eight changed JavaScript/MJS files>
-# pass
-
-# JSON.parse all six return-covenant JSON schemas
-# pass
-
-git diff --check 094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49..c428de5585d09537aecc2dbf93483dec0998ba99
-# pass
 ```
 
-Independent final review at exact pushed implementation
-`c428de5585d09537aecc2dbf93483dec0998ba99` re-read product ownership at
-`0109521b0c2b8a2c81c9f901789a81c5316074a7`, exercised the edge cases, and
-returned `VERDICT: CONFIRMED`.
+Results:
 
-## Non-interference and remaining boundary
+- active scope: `2/2` pass;
+- current corpus: 37 rows, rollup
+  `pass=32, partial=4, honest_limit=1, fail=0`;
+- row manifests: 37 rows, 42 manifests, 0 missing;
+- scenario alignment: `ok=true`;
+- manifest/scenario registry: 42 manifests, 35 scenario files, pass;
+- telemetry: 13 contracts, 9 receipt-requiring rows, 0 rebindable PASS
+  claims, pass.
 
-- `PROOFS/**` is byte-identical to the docs base:
-  tree `8692ee960b3455d3e7a3d0b638c2d38d75497946`.
-- `PROOFS/INDEX.json` is byte-identical to the docs base:
-  blob `3c719b950f8fd01ff4d4a018b9c15feee47df584`.
-- No product file, live runtime, workflow, presentation, PR, or corpus verdict
-  was modified.
-- The product-owned behavioral fixture command remains missing. Until a reviewed
-  exact product successor supplies that fixture, the plan must remain
-  `driver.fixtureCommand.status=missing-product-seam`; this lane makes no
-  exact-head proof claim.
+Seven changed JavaScript/MJS files pass `node --check`; all six
+return-covenant JSON schemas parse; `git diff --check` passes; and
+`PROOFS/**` has no diff from the rejected implementation.
+
+### Independent review and uncertainty
+
+An independent high-effort diff review found no blocking correctness,
+security, or logic issue. It specifically checked both trusted composition
+boundaries, candidate-error classification, signed projections, clean siblings,
+and owner/child correlation.
+
+The workorder calls the pending field boolean `true`, while the exact product
+continuation-work decoder at `b8a16fd7` owns the literal
+`"retry-exhausted"`. The repair does not blur those bytes: exact
+`core/continuation-work` accepts only the product literal, while the generic
+maintenance-owned controller form accepts boolean `true`; wrong types,
+nonterminal placement, delivered-plus-pending state, and other contradictions
+fail closed. This fork was surfaced to the cohort before implementation.
+
+No exact-head proof ran. No live proof, product test, product edit, dependency
+install, corpus fold, presentation change, deployment, PR, Mode-B run, or Gate
+3g fallback was performed.

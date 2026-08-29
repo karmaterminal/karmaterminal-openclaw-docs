@@ -1,17 +1,24 @@
-# Covenant retention-authority fix
+# Retention-authority product-store alignment
 
 ## Named-reference contract
 
 | Category | Named reference | Local SHA | Tracking SHA | Server SHA | Equality |
 |---|---|---|---|---|---|
-| Product/base ref | N/A - product refs were out of scope | N/A | N/A | N/A | N/A |
-| Safe lane implementation ref | `codeagent/129388-covenant-proof-retention-authority-fix-20260828` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | equal before the report-only successor |
-| Final report-only successor | This `output.md` handoff | N/A | N/A | Recorded in the corrected COMPLETE receipt | Report content cannot contain its own commit SHA |
-| CI/workflow ref | N/A - focused docs validation only | N/A | N/A | N/A | N/A |
-| Presentation ref | N/A - `openclaw/openclaw#129388` is issue binding only and remained out of scope | N/A | N/A | N/A | N/A |
-| Docs/proof ref | `codeagent/129388-covenant-authority-proof-harness-20260828` (docs base) | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | equal |
+| Product/base ref | `karmaterminal/openclaw` `scribe/129388-covenant-upstream-absorb-20260828` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | equal |
+| Product staged successor input | `karmaterminal/openclaw@93f7152b098beeb9ac64cb9b2437fc45a7558adf` | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | N/A - commit pin, no named tracking ref required | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | local/server equal; staged merge is not a stable evidence ref |
+| Safe lane ref | `codeagent/129388-retention-authority-product-store-alignment-20260829` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | equal before evidence |
+| CI/workflow ref | N/A - workorder forbids Mode-B and live product proof | N/A | N/A | N/A | N/A |
+| Presentation ref | N/A - presentation, corpus, and live proof are out of scope | N/A | N/A | N/A | N/A |
+| Docs/proof base/report | `karmaterminal-openclaw-docs@094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | equal |
+| Reviewed implementation byte | `karmaterminal-openclaw-docs@281552c039dcf45f7fdc3a7960448f0e989ea801` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | N/A - commit pin; source branch advanced to the report byte | `281552c039dcf45f7fdc3a7960448f0e989ea801` | local/server equal |
+| Rejected parent harness | `codeagent/129388-covenant-authority-proof-harness-20260828` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | equal |
+| Independent review | `codeagent/129388-retention-authority-independent-review-20260829` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | equal |
 
-The safe lane was published unchanged at the docs base before evidence work. Implementation local, tracking, and server refs were resolved independently and were equal before this report-only successor.
+The safe lane was published unchanged at the docs base before evidence work. The
+product source floor has a local branch, tracking branch, and server branch at
+the same byte. The staged product successor is intentionally not used as
+evidence because its merge has no stable named ref and its in-progress worktree
+is outside this lane's authority.
 
 ## What changed
 

@@ -500,6 +500,7 @@ export default function () {
 }
 
 export function teardown() {
+  const startedAt = new Date().toISOString();
   const response = postPhase(
     'cleanup-run',
     buildReturnCovenantRunCleanupRequest(plan, { fallback: true }),
@@ -515,6 +516,8 @@ export function teardown() {
     runId: plan.runId,
     rowId: plan.rowId,
     cleanupRunReceiptId: response.cleanupRun.receiptId,
+    startedAt,
+    completedAt: new Date().toISOString(),
     cleanupRun: response.cleanupRun,
     cleanupRunProof: response.driverBinding,
     completed: true,

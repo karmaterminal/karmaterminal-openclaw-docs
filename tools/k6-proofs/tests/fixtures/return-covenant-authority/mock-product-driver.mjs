@@ -271,67 +271,256 @@ if (process.argv[2] === 'gateway') {
   const retainedControlApplied = new Set();
   const sqliteDir = path.join(process.env.OPENCLAW_STATE_DIR, 'state');
   const sqlitePath = path.join(sqliteDir, 'openclaw.sqlite');
-  const sessionsDir = path.join(
+  const agentSqliteDir = path.join(
     process.env.OPENCLAW_STATE_DIR,
     'agents',
     'proof',
-    'sessions',
+    'agent',
   );
-  const sessionsPath = path.join(sessionsDir, 'sessions.json');
+  const agentSqlitePath = path.join(
+    agentSqliteDir,
+    'openclaw-agent.sqlite',
+  );
   mkdirSync(sqliteDir, { recursive: true, mode: 0o700 });
-  mkdirSync(sessionsDir, { recursive: true, mode: 0o700 });
+  mkdirSync(agentSqliteDir, { recursive: true, mode: 0o700 });
   const stateDatabase = new DatabaseSync(sqlitePath);
+  stateDatabase.exec('PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;');
   stateDatabase.exec(`
+    CREATE TABLE schema_meta (
+      meta_key TEXT NOT NULL PRIMARY KEY,
+      role TEXT NOT NULL,
+      schema_version INTEGER NOT NULL,
+      agent_id TEXT,
+      app_version TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    ) STRICT;
+    INSERT INTO schema_meta VALUES
+      ('primary', 'global', 13, NULL, 'fixture', 1, 1);
+    CREATE TABLE agent_databases (
+      agent_id TEXT NOT NULL,
+      path TEXT NOT NULL,
+      schema_version INTEGER NOT NULL,
+      last_seen_at INTEGER NOT NULL,
+      size_bytes INTEGER,
+      PRIMARY KEY (agent_id, path)
+    ) STRICT;
     CREATE TABLE flow_runs (
-      flow_id TEXT PRIMARY KEY,
+      flow_id TEXT NOT NULL PRIMARY KEY,
+      shape TEXT,
+      sync_mode TEXT NOT NULL DEFAULT 'managed',
       owner_key TEXT NOT NULL,
+      chain_id TEXT,
+      requester_origin_json TEXT,
       controller_id TEXT,
+      revision INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL,
+      notify_policy TEXT NOT NULL,
+      goal TEXT NOT NULL,
+      current_step TEXT,
+      blocked_task_id TEXT,
+      blocked_summary TEXT,
       state_json TEXT,
-      created_at INTEGER NOT NULL
-    );
+      wait_json TEXT,
+      cancel_requested_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      ended_at INTEGER
+    ) STRICT;
     CREATE TABLE subagent_runs (
-      run_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL PRIMARY KEY,
       child_session_key TEXT NOT NULL,
       controller_session_key TEXT,
       requester_session_key TEXT NOT NULL,
-      ended_at INTEGER,
-      cleanup_handled INTEGER,
-      pending_final_delivery INTEGER,
-      created_at INTEGER NOT NULL
-    );
+      created_at INTEGER NOT NULL,
+      payload_json TEXT NOT NULL DEFAULT '{}'
+    ) STRICT;
+    CREATE TABLE delivery_queue_entries (
+      queue_name TEXT NOT NULL,
+      id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      entry_kind TEXT,
+      session_key TEXT,
+      channel TEXT,
+      target TEXT,
+      account_id TEXT,
+      retry_count INTEGER NOT NULL DEFAULT 0,
+      last_attempt_at INTEGER,
+      last_error TEXT,
+      recovery_state TEXT,
+      platform_send_started_at INTEGER,
+      entry_json TEXT NOT NULL,
+      enqueued_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      failed_at INTEGER,
+      PRIMARY KEY (queue_name, id)
+    ) STRICT;
+    PRAGMA user_version=13;
   `);
-  const sessionStore = {};
-  writeFileSync(sessionsPath, '{}\n', { mode: 0o600 });
-
-  function persistSessionStore() {
-    writeFileSync(sessionsPath, `${JSON.stringify(sessionStore)}\n`, {
-      mode: 0o600,
-    });
-  }
+  const agentDatabase = new DatabaseSync(agentSqlitePath);
+  agentDatabase.exec('PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;');
+  agentDatabase.exec(`
+    CREATE TABLE schema_meta (
+      meta_key TEXT NOT NULL PRIMARY KEY,
+      role TEXT NOT NULL,
+      schema_version INTEGER NOT NULL,
+      agent_id TEXT,
+      app_version TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    ) STRICT;
+    INSERT INTO schema_meta VALUES
+      ('primary', 'agent', 19, 'proof', 'fixture', 1, 1);
+    CREATE TABLE session_nodes (
+      session_key TEXT NOT NULL PRIMARY KEY,
+      current_session_id TEXT NOT NULL,
+      entry_json TEXT NOT NULL,
+      entry_valid INTEGER NOT NULL DEFAULT 0 CHECK (entry_valid IN (-1, 0, 1)),
+      updated_at INTEGER NOT NULL,
+      status TEXT CHECK (status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')),
+      created_at INTEGER,
+      created_via TEXT CHECK (created_via IS NULL OR created_via IN ('operator', 'spawn', 'channel', 'cron', 'talk', 'run', 'plugin', 'internal')),
+      created_actor_type TEXT CHECK (created_actor_type IS NULL OR created_actor_type IN ('human', 'agent', 'system')),
+      created_actor_id TEXT,
+      owner_actor_type TEXT,
+      owner_actor_id TEXT,
+      owner_assigned_by_type TEXT,
+      owner_assigned_by_id TEXT,
+      owner_assigned_at INTEGER,
+      project_id TEXT,
+      parent_session_key TEXT,
+      spawned_by TEXT,
+      fork_source_session_key TEXT,
+      fork_source_session_id TEXT,
+      fork_source_entry_id TEXT,
+      label TEXT,
+      display_name TEXT,
+      category TEXT,
+      icon TEXT,
+      pinned_at INTEGER,
+      archived_at INTEGER,
+      last_read_at INTEGER,
+      last_interaction_at INTEGER,
+      last_activity_at INTEGER
+    ) STRICT;
+    PRAGMA user_version=19;
+  `);
+  stateDatabase.prepare(`
+    INSERT INTO agent_databases
+      (agent_id, path, schema_version, last_seen_at, size_bytes)
+    VALUES ('proof', 'agents/proof/agent/openclaw-agent.sqlite', 19, ?, NULL)
+  `).run(Date.now());
+  stateDatabase.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+  agentDatabase.exec('PRAGMA wal_checkpoint(TRUNCATE);');
 
   function insertDurableCaseState(body, key) {
-    const durableSessionKey = `${body.logicalSessionKey}:${body.form}`;
-    sessionStore[durableSessionKey] = {
-      sessionId: `temporary-session-${key}`,
-      updatedAt: Date.now(),
+    const now = Date.now();
+    const rootEntry = {
+      sessionId: `root-session-${sha256(body.logicalSessionKey).slice(0, 12)}`,
+      updatedAt: now,
+      createdVia: 'internal',
+      spawnDepth: 0,
     };
-    persistSessionStore();
+    agentDatabase.prepare(`
+      INSERT OR IGNORE INTO session_nodes (
+        session_key, current_session_id, entry_json, entry_valid,
+        updated_at, status, created_at, created_via
+      ) VALUES (?, ?, ?, 1, ?, 'running', ?, 'internal')
+    `).run(
+      body.logicalSessionKey,
+      rootEntry.sessionId,
+      JSON.stringify(rootEntry),
+      now,
+      now,
+    );
+    const durableSessionKey =
+      `agent:proof:subagent:${sha256(key).slice(0, 16)}`;
+    const childEntry = {
+      sessionId: `temporary-session-${key}`,
+      updatedAt: now,
+      createdAt: now,
+      createdVia: 'spawn',
+      spawnedBy: body.logicalSessionKey,
+      parentSessionKey: body.logicalSessionKey,
+      spawnDepth: 1,
+    };
+    agentDatabase.prepare(`
+      INSERT INTO session_nodes (
+        session_key, current_session_id, entry_json, entry_valid,
+        updated_at, status, created_at, created_via,
+        parent_session_key, spawned_by
+      ) VALUES (?, ?, ?, 1, ?, 'running', ?, 'spawn', ?, ?)
+    `).run(
+      durableSessionKey,
+      childEntry.sessionId,
+      JSON.stringify(childEntry),
+      now,
+      now,
+      body.logicalSessionKey,
+      body.logicalSessionKey,
+    );
     return durableSessionKey;
   }
 
-  function insertDurableDispatchState(body, key) {
+  function insertDurableDispatchState(body, key, durableSessionKey) {
+    const now = Date.now();
+    const delegateId = `delegate-${key}`;
+    const queueId = `queue-item-${key}`;
+    const payload = {
+      runId: delegateId,
+      childSessionKey: durableSessionKey,
+      controllerSessionKey: body.logicalSessionKey,
+      requesterSessionKey: body.logicalSessionKey,
+      requesterDisplayKey: body.logicalSessionKey,
+      task: `proof task ${key}`,
+      cleanup: 'delete',
+      createdAt: now,
+      expectsCompletionMessage: true,
+      execution: {
+        status: 'running',
+        startedAt: now,
+      },
+      completion: { required: true },
+      delivery: {
+        status: 'pending',
+        payload: {
+          requesterSessionKey: body.logicalSessionKey,
+          requesterDisplayKey: body.logicalSessionKey,
+          childSessionKey: durableSessionKey,
+          childRunId: delegateId,
+          task: `proof task ${key}`,
+          expectsCompletionMessage: true,
+        },
+      },
+    };
     stateDatabase.prepare(`
       INSERT INTO flow_runs (
-        flow_id, owner_key, controller_id, status, state_json, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?)
+        flow_id, shape, sync_mode, owner_key, chain_id,
+        requester_origin_json, controller_id, revision, status,
+        notify_policy, goal, current_step, blocked_task_id,
+        blocked_summary, state_json, wait_json, cancel_requested_at,
+        created_at, updated_at, ended_at
+      ) VALUES (?, NULL, 'managed', ?, NULL, NULL, ?, 0, 'running',
+        'silent', ?, 'Accepted continuation delegate', NULL, NULL, ?,
+        NULL, NULL, ?, ?, NULL)
     `).run(
-      `queue-item-${key}`,
+      `flow-${key}`,
       body.logicalSessionKey,
-      'core/continuation-delegate',
-      'queued',
-      JSON.stringify({ kind: 'continuation_delegate', runId: plan.runId }),
-      Date.now(),
+      body.returnMode === 'post-compaction'
+        ? 'core/continuation-post-compaction'
+        : 'core/continuation-delegate',
+      `Continuation delegate: ${key}`,
+      JSON.stringify({
+        kind: 'continuation_delegate',
+        task: `proof task ${key}`,
+        childSessionKey: durableSessionKey,
+        originRunId: plan.runId,
+        ...(body.returnMode === 'post-compaction'
+          ? { postCompaction: true }
+          : {}),
+      }),
+      now,
+      now,
     );
     stateDatabase.prepare(`
       INSERT INTO subagent_runs (
@@ -339,33 +528,102 @@ if (process.argv[2] === 'gateway') {
         child_session_key,
         controller_session_key,
         requester_session_key,
-        ended_at,
-        cleanup_handled,
-        pending_final_delivery,
-        created_at
-      ) VALUES (?, ?, ?, ?, NULL, 0, 1, ?)
+        created_at,
+        payload_json
+      ) VALUES (?, ?, ?, ?, ?, ?)
     `).run(
-      `delegate-${key}`,
-      `agent:proof:${plan.runId}:child-${sha256(key).slice(0, 12)}`,
+      delegateId,
+      durableSessionKey,
       body.logicalSessionKey,
       body.logicalSessionKey,
-      Date.now(),
+      now,
+      JSON.stringify(payload),
+    );
+    const deliveryEntry = {
+      id: queueId,
+      enqueuedAt: now,
+      retryCount: 0,
+      kind: 'agentTurn',
+      sessionKey: body.logicalSessionKey,
+      message: `proof result ${key}`,
+      messageId: `message-${sha256(key).slice(0, 12)}`,
+      deliveryStartedAt: now,
+      owner: {
+        kind: 'subagent_completion',
+        runId: delegateId,
+        taskId: `task-${key}`,
+        generation: 1,
+        deadlineAt: now + 60_000,
+      },
+    };
+    stateDatabase.prepare(`
+      INSERT INTO delivery_queue_entries (
+        queue_name, id, status, entry_kind, session_key, channel,
+        target, account_id, retry_count, last_attempt_at, last_error,
+        recovery_state, platform_send_started_at, entry_json,
+        enqueued_at, updated_at, failed_at
+      ) VALUES (
+        'session', ?, 'pending', 'agentTurn', ?, NULL,
+        NULL, NULL, 0, NULL, NULL, NULL, NULL, ?, ?, ?, NULL
+      )
+    `).run(
+      queueId,
+      body.logicalSessionKey,
+      JSON.stringify(deliveryEntry),
+      now,
+      now,
     );
   }
 
   function cleanupDurableCaseState(state) {
     const key = state.key;
+    const now = Date.now();
     if (removeResourceUnlessRetained('delegates', `delegate-${key}`)) {
+      const row = stateDatabase.prepare(
+        'SELECT payload_json FROM subagent_runs WHERE run_id = ?',
+      ).get(`delegate-${key}`);
+      const payload = JSON.parse(row.payload_json);
+      payload.execution = {
+        ...payload.execution,
+        status: 'terminal',
+        endedAt: now,
+        outcome: { status: 'ok' },
+      };
+      payload.cleanupHandled = true;
+      payload.cleanupCompletedAt = now;
+      payload.delivery = {
+        ...payload.delivery,
+        status: 'delivered',
+        deliveredAt: now,
+      };
       stateDatabase.prepare(`
         UPDATE subagent_runs
-        SET ended_at = ?, cleanup_handled = 1, pending_final_delivery = 0
+        SET payload_json = ?
         WHERE run_id = ?
-      `).run(Date.now(), `delegate-${key}`);
+      `).run(JSON.stringify(payload), `delegate-${key}`);
     }
+    stateDatabase.prepare(`
+      UPDATE flow_runs
+      SET status = 'succeeded', current_step = 'Delivered',
+          revision = revision + 1, updated_at = ?, ended_at = ?
+      WHERE flow_id = ?
+    `).run(now, now, `flow-${key}`);
     if (removeResourceUnlessRetained('queueItems', `queue-item-${key}`)) {
-      stateDatabase.prepare(
-        'DELETE FROM flow_runs WHERE flow_id = ?',
-      ).run(`queue-item-${key}`);
+      const tombstone = {
+        id: `queue-item-${key}`,
+        enqueuedAt: now,
+        retryCount: 0,
+        acknowledgedAt: now,
+      };
+      stateDatabase.prepare(`
+        UPDATE delivery_queue_entries
+        SET status = 'completed', entry_kind = NULL, session_key = NULL,
+            channel = NULL, target = NULL, account_id = NULL,
+            retry_count = 0, last_attempt_at = NULL, last_error = NULL,
+            recovery_state = NULL, platform_send_started_at = NULL,
+            entry_json = ?, enqueued_at = ?, updated_at = ?, failed_at = NULL
+        WHERE queue_name = 'session' AND id = ?
+      `).run(JSON.stringify(tombstone), now, now, `queue-item-${key}`);
     }
     if (
       removeResourceUnlessRetained(
@@ -373,8 +631,9 @@ if (process.argv[2] === 'gateway') {
         `temporary-session-${key}`,
       )
     ) {
-      delete sessionStore[state.durableSessionKey];
-      persistSessionStore();
+      agentDatabase.prepare(
+        'DELETE FROM session_nodes WHERE session_key = ?',
+      ).run(state.durableSessionKey);
     }
   }
 
@@ -772,7 +1031,11 @@ if (process.argv[2] === 'gateway') {
           };
           putResource('delegates', `delegate-${key}`, 'pending-return');
           putResource('queueItems', `queue-item-${key}`, 'held');
-          insertDurableDispatchState(state.request, key);
+          insertDurableDispatchState(
+            state.request,
+            key,
+            state.durableSessionKey,
+          );
           await syncCurrentGateway();
           payload = { acceptance: state.acceptance };
         } else if (body.phase === 'transition') {
@@ -904,6 +1167,7 @@ if (process.argv[2] === 'gateway') {
       runCleanupReceiptId: cleanupRun.receiptId,
     }));
     stateDatabase.close();
+    agentDatabase.close();
     driverServer.closeAllConnections();
     driverServer.close();
     process.exit(0);

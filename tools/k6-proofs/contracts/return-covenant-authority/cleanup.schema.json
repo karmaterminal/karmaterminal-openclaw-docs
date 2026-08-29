@@ -300,6 +300,8 @@
         "runtimeAlive",
         "runtimeProcess",
         "requestedAt",
+        "snapshotStartedAt",
+        "snapshotCompletedAt",
         "observedAt",
         "identity",
         "resources",
@@ -322,26 +324,75 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "pidFingerprint",
-            "expectedStartFingerprint",
-            "observedStartFingerprint",
+            "driverPidFingerprint",
+            "gatewayPidFingerprint",
+            "processGroupFingerprint",
+            "expectedDriverStartFingerprint",
+            "expectedGatewayStartFingerprint",
+            "expectedGatewaySocketFingerprint",
+            "expectedGatewayEndpoint",
             "expectedAlive",
-            "observedAlive",
+            "before",
+            "after",
+            "quiescence",
+            "shutdownSettledAt",
             "matched"
           ],
           "properties": {
-            "pidFingerprint": { "$ref": "#/$defs/sha256" },
-            "expectedStartFingerprint": { "$ref": "#/$defs/sha256" },
-            "observedStartFingerprint": {
-              "type": ["string", "null"],
-              "pattern": "^[0-9a-f]{64}$"
+            "driverPidFingerprint": { "$ref": "#/$defs/sha256" },
+            "gatewayPidFingerprint": { "$ref": "#/$defs/sha256" },
+            "processGroupFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedDriverStartFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedGatewayStartFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedGatewaySocketFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedGatewayEndpoint": {
+              "type": "string",
+              "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
             },
             "expectedAlive": { "type": "boolean" },
-            "observedAlive": { "type": "boolean" },
+            "before": { "$ref": "#/$defs/runtimeSample" },
+            "after": { "$ref": "#/$defs/runtimeSample" },
+            "quiescence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "required",
+                "stoppedAt",
+                "resumedAt",
+                "membersStopped"
+              ],
+              "properties": {
+                "required": { "type": "boolean" },
+                "stoppedAt": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "resumedAt": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "membersStopped": {
+                  "type": ["integer", "null"],
+                  "minimum": 1
+                }
+              }
+            },
+            "shutdownSettledAt": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
             "matched": { "type": "boolean" }
           }
         },
         "requestedAt": { "$ref": "#/$defs/timestamp" },
+        "snapshotStartedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "snapshotCompletedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
         "observedAt": { "$ref": "#/$defs/timestamp" },
         "identity": { "type": "object" },
         "resources": { "type": "object" },
@@ -349,6 +400,45 @@
         "rawSnapshotSha256": {
           "type": ["string", "null"],
           "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "runtimeSample": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "driverStartFingerprint",
+        "gatewayStartFingerprint",
+        "gatewaySocketFingerprint",
+        "gatewayEndpointOwned",
+        "processGroupMembers"
+      ],
+      "properties": {
+        "driverStartFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewayStartFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewaySocketFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewayEndpointOwned": { "type": "boolean" },
+        "processGroupMembers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pidFingerprint", "startFingerprint", "state"],
+            "properties": {
+              "pidFingerprint": { "$ref": "#/$defs/sha256" },
+              "startFingerprint": { "$ref": "#/$defs/sha256" },
+              "state": { "enum": ["T", "t"] }
+            }
+          }
         }
       }
     }

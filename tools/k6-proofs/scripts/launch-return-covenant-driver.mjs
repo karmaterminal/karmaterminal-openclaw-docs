@@ -511,6 +511,61 @@ async function terminateProcessGroup(processGroupId) {
   }
 }
 
+async function waitForShutdownSettlement({
+  processGroupId,
+  driverPid,
+  gatewayPid,
+  timeoutMs = 2_000,
+}) {
+  const deadline = Date.now() + timeoutMs;
+  let emptySamples = 0;
+  while (Date.now() < deadline) {
+    const [members, driverStart, gatewayStart] = await Promise.all([
+      processGroupMembers(processGroupId),
+      processStartFingerprint(driverPid),
+      processStartFingerprint(gatewayPid),
+    ]);
+    if (
+      members.length === 0 &&
+      driverStart === null &&
+      gatewayStart === null
+    ) {
+      emptySamples += 1;
+      if (emptySamples === 2) return new Date().toISOString();
+    } else {
+      emptySamples = 0;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw new Error('isolated process group did not reach bounded shutdown settlement');
+}
+
+async function resolveLiveGatewayBinding({
+  observedGateways,
+  target,
+  timeoutMs = 750,
+}) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const match = [...observedGateways.values()].find((entry) =>
+      entry.verified === true &&
+      entry.exitedAtMonotonicMs === null &&
+      entry.namespacePid === target?.namespacePid &&
+      entry.namespaceStartFingerprint === target?.namespaceStartFingerprint &&
+      entry.endpoints.includes(target?.endpoint));
+    if (match) {
+      return {
+        pid: match.pid,
+        startFingerprint: match.startFingerprint,
+        socketFingerprint: match.socketFingerprint,
+        endpoint: target.endpoint,
+      };
+    }
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  return null;
+}
+
 async function existingLivePaths() {
   const candidates = [
     process.env.HOME,
@@ -744,6 +799,7 @@ async function main() {
   const configDir = path.join(runRoot, 'config');
   const ipcDir = path.join(runRoot, 'ipc');
   const attestationDir = path.join(runRoot, 'attestation');
+  const retentionSnapshotsPath = path.join(runRoot, 'retention-snapshots');
   const configPath = path.join(configDir, 'openclaw.json');
   const k6ConfigPath = path.join(configDir, 'k6.json');
   const privatePlanPath = path.join(configDir, 'plan.json');
@@ -776,6 +832,7 @@ async function main() {
   let monitorError = null;
   let monitorPromise = null;
   let liveStoreObservationPromise = null;
+  const observedGateways = new Map();
   const handleTermination = () => {
     if (child) void terminateProcessGroup(child.pid);
   };
@@ -808,6 +865,7 @@ async function main() {
       mkdir(configDir, { mode: 0o700 }),
       mkdir(ipcDir, { mode: 0o700 }),
       mkdir(attestationDir, { mode: 0o700 }),
+      mkdir(retentionSnapshotsPath, { mode: 0o700 }),
     ]);
     pinnedK6 = await preparePinnedK6({ docsDir, runRoot });
     await Promise.all([
@@ -965,18 +1023,38 @@ async function main() {
                   'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE '.length,
               ),
             );
-            liveStoreObservationPromise =
-              inspectReturnCovenantDurableStores({
+            liveStoreObservationPromise = (async () => {
+              const target = liveEvidence.retentionObservation?.target;
+              const liveGateway = await resolveLiveGatewayBinding({
+                observedGateways,
+                target,
+              });
+              return await inspectReturnCovenantDurableStores({
                 plan,
                 evidence: liveEvidence,
                 statePath,
+                snapshotPath: path.join(retentionSnapshotsPath, 'live'),
                 runtimeProcess: {
-                  pid: ready.pid,
-                  startFingerprint:
-                    attestation.isolation.driverStartFingerprint,
+                  processGroupId: child.pid,
+                  driver: {
+                    pid: ready.pid,
+                    startFingerprint:
+                      attestation.isolation.driverStartFingerprint,
+                  },
+                  gateway: liveGateway ?? {
+                    pid: ready.gatewayPid,
+                    startFingerprint:
+                      attestation.gateway.startFingerprint,
+                    socketFingerprint:
+                      attestation.gateway.socketFingerprint,
+                    endpoint: target?.endpoint ??
+                      attestation.gateway.endpoint,
+                  },
+                  shutdownSettledAt: null,
                 },
                 expectedRuntimeAlive: true,
               });
+            })();
           } catch {
             // Wait for the complete newline-delimited evidence record.
           }
@@ -1058,7 +1136,7 @@ async function main() {
       `${ready.gatewayPid}:${attestation.gateway.startFingerprint}`;
     const initialSampleAt = performance.now();
     const initialSampleWall = new Date().toISOString();
-    const observedGateways = new Map([[
+    observedGateways.set(
       initialGatewayKey,
       {
         pid: ready.gatewayPid,
@@ -1078,7 +1156,7 @@ async function main() {
         lastSeenAt: initialSampleWall,
         exitedAt: null,
       },
-    ]]);
+    );
     monitorPromise = (async () => {
       while (monitorActive) {
         const members = await sandboxProcessMembers(child.pid);
@@ -1253,45 +1331,75 @@ async function main() {
     }
     const evidence = parseReturnCovenantEvidenceLog(capturedK6Log);
     evidence.k6ExitCode = actualK6ExitCode;
+    const liveStoreObservation = liveStoreObservationPromise
+      ? await liveStoreObservationPromise
+      : null;
+    const shutdownSettledAt = await waitForShutdownSettlement({
+      processGroupId: child.pid,
+      driverPid: ready.pid,
+      gatewayPid: [...observedGateways.values()]
+        .toSorted((left, right) =>
+          right.lastSeenMonotonicMs - left.lastSeenMonotonicMs)[0]?.pid ??
+        ready.gatewayPid,
+    });
+    const finalGateway = [...observedGateways.values()]
+      .toSorted((left, right) =>
+        right.lastSeenMonotonicMs - left.lastSeenMonotonicMs)[0] ?? {
+        pid: ready.gatewayPid,
+        startFingerprint: attestation.gateway.startFingerprint,
+        socketFingerprint: attestation.gateway.socketFingerprint,
+        endpoint: attestation.gateway.endpoint,
+      };
     const finalStoreObservation =
       await inspectReturnCovenantDurableStores({
         plan,
         evidence,
         statePath,
+        snapshotPath: path.join(retentionSnapshotsPath, 'final'),
         runtimeProcess: {
-          pid: ready.pid,
-          startFingerprint:
-            attestation.isolation.driverStartFingerprint,
+          processGroupId: child.pid,
+          driver: {
+            pid: ready.pid,
+            startFingerprint:
+              attestation.isolation.driverStartFingerprint,
+          },
+          gateway: {
+            pid: finalGateway.pid,
+            startFingerprint: finalGateway.startFingerprint,
+            socketFingerprint: finalGateway.socketFingerprint,
+            endpoint: finalGateway.endpoints?.[0] ?? finalGateway.endpoint,
+          },
+          shutdownSettledAt,
         },
         expectedRuntimeAlive: false,
       });
-    const liveStoreObservation = liveStoreObservationPromise
-      ? await liveStoreObservationPromise
-      : {
+    const resolvedLiveStoreObservation = liveStoreObservation ?? {
         ...finalStoreObservation,
         status: 'unverified-resource-retention',
         failureReason:
           'docs-owned durable-store observation did not run while the isolated runtime was live',
         runtimeAlive: false,
         runtimeProcess: {
-          pidFingerprint: sha256(String(ready.pid)),
-          expectedStartFingerprint:
-            attestation.isolation.driverStartFingerprint,
-          observedStartFingerprint: null,
+          ...finalStoreObservation.runtimeProcess,
           expectedAlive: true,
-          observedAlive: false,
+          expectedDriverStartFingerprint:
+            attestation.isolation.driverStartFingerprint,
+          expectedGatewayStartFingerprint:
+            finalGateway.startFingerprint,
+          before: null,
+          after: null,
           matched: false,
         },
       };
     const stableStoreResources =
-      liveStoreObservation.status === 'observed' &&
+      resolvedLiveStoreObservation.status === 'observed' &&
       finalStoreObservation.status === 'observed' &&
-      canonicalJson(liveStoreObservation.resources) ===
+      canonicalJson(resolvedLiveStoreObservation.resources) ===
         canonicalJson(finalStoreObservation.resources);
     const durableStoreObservation = {
       schema: 'openclaw.k6.return-covenant-durable-store-chain.v1',
       stable: stableStoreResources,
-      live: liveStoreObservation,
+      live: resolvedLiveStoreObservation,
       final: finalStoreObservation,
     };
     const cleanupStartedAt = new Date().toISOString();

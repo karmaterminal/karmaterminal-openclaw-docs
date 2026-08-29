@@ -26,6 +26,7 @@ import {
   validateReturnCovenantPlan,
 } from './return-covenant-scenario-contract.mjs';
 import {
+  RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA,
   RETURN_COVENANT_STORE_OBSERVATION_SCHEMA,
 } from './return-covenant-retention-inspector.mjs';
 
@@ -1426,17 +1427,184 @@ export function validateReturnCovenantRetentionObservation({
   };
 }
 
+function validFilesystemIdentity(value, allowEmpty = false) {
+  return (
+    exactKeys(value, ['dev', 'ino', 'size', 'mode', 'mtimeNs']) &&
+    nonEmpty(value?.dev, 1) &&
+    nonEmpty(value?.ino, 1) &&
+    Number.isInteger(value?.size) &&
+    value.size >= (allowEmpty ? 0 : 1) &&
+    Number.isInteger(value?.mode) &&
+    value.mode >= 0 &&
+    nonEmpty(value?.mtimeNs, 1)
+  );
+}
+
+function validSnapshotFile(value, allowEmpty = false) {
+  return (
+    value === null ||
+    (
+      exactKeys(value, ['dev', 'ino', 'size', 'mode', 'mtimeNs', 'sha256']) &&
+      validFilesystemIdentity(
+        Object.fromEntries(
+          Object.entries(value).filter(([name]) => name !== 'sha256'),
+        ),
+        allowEmpty,
+      ) &&
+      HEX_64.test(value.sha256 || '')
+    )
+  );
+}
+
+function validStoreDatabaseBinding(value) {
+  return (
+    exactKeys(value, [
+      'kind',
+      'agentId',
+      'pathFingerprint',
+      'source',
+      'snapshotSha256',
+      'schemaSha256',
+    ]) &&
+    (value.kind === 'global' || value.kind === 'agent') &&
+    (
+      value.kind === 'global'
+        ? value.agentId === null
+        : nonEmpty(value.agentId, 1)
+    ) &&
+    HEX_64.test(value.pathFingerprint || '') &&
+    exactKeys(value.source, ['database', 'wal', 'shm']) &&
+    validSnapshotFile(value.source.database) &&
+    validSnapshotFile(value.source.wal, true) &&
+    validSnapshotFile(value.source.shm, true) &&
+    value.source.database !== null &&
+    value.snapshotSha256 === digest(value.source) &&
+    HEX_64.test(value.schemaSha256 || '')
+  );
+}
+
+function validRuntimeSample(sample, process, runtimeAlive) {
+  if (
+    !exactKeys(sample, [
+      'driverStartFingerprint',
+      'gatewayStartFingerprint',
+      'gatewaySocketFingerprint',
+      'gatewayEndpointOwned',
+      'processGroupMembers',
+    ]) ||
+    !Array.isArray(sample?.processGroupMembers)
+  ) {
+    return false;
+  }
+  if (!runtimeAlive) {
+    return (
+      sample.driverStartFingerprint === null &&
+      sample.gatewayStartFingerprint === null &&
+      sample.gatewaySocketFingerprint === null &&
+      sample.gatewayEndpointOwned === false &&
+      sample.processGroupMembers.length === 0
+    );
+  }
+  return (
+    sample.driverStartFingerprint ===
+      process.expectedDriverStartFingerprint &&
+    sample.gatewayStartFingerprint ===
+      process.expectedGatewayStartFingerprint &&
+    sample.gatewaySocketFingerprint ===
+      process.expectedGatewaySocketFingerprint &&
+    sample.gatewayEndpointOwned === true &&
+    sample.processGroupMembers.length > 0 &&
+    sample.processGroupMembers.every((entry) =>
+      exactKeys(entry, ['pidFingerprint', 'startFingerprint', 'state']) &&
+      HEX_64.test(entry?.pidFingerprint || '') &&
+      HEX_64.test(entry?.startFingerprint || '') &&
+      (entry?.state === 'T' || entry?.state === 't')) &&
+    sample.processGroupMembers.some((entry) =>
+      entry.pidFingerprint === process.driverPidFingerprint) &&
+    sample.processGroupMembers.some((entry) =>
+      entry.pidFingerprint === process.gatewayPidFingerprint)
+  );
+}
+
+function validRuntimeBracket(process, runtimeAlive, snapshot) {
+  if (
+    !exactKeys(process, [
+      'driverPidFingerprint',
+      'gatewayPidFingerprint',
+      'processGroupFingerprint',
+      'expectedDriverStartFingerprint',
+      'expectedGatewayStartFingerprint',
+      'expectedGatewaySocketFingerprint',
+      'expectedGatewayEndpoint',
+      'expectedAlive',
+      'before',
+      'after',
+      'quiescence',
+      'shutdownSettledAt',
+      'matched',
+    ]) ||
+    !HEX_64.test(process?.driverPidFingerprint || '') ||
+    !HEX_64.test(process?.gatewayPidFingerprint || '') ||
+    !HEX_64.test(process?.processGroupFingerprint || '') ||
+    !HEX_64.test(process?.expectedDriverStartFingerprint || '') ||
+    !HEX_64.test(process?.expectedGatewayStartFingerprint || '') ||
+    !HEX_64.test(process?.expectedGatewaySocketFingerprint || '') ||
+    !/^http:\/\/127\.0\.0\.1(?::[0-9]+)?$/u.test(
+      process?.expectedGatewayEndpoint || '',
+    ) ||
+    process?.expectedAlive !== runtimeAlive ||
+    process?.matched !== true ||
+    !validRuntimeSample(process?.before, process, runtimeAlive) ||
+    !validRuntimeSample(process?.after, process, runtimeAlive) ||
+    canonicalJson(process.before) !== canonicalJson(process.after) ||
+    !exactKeys(process?.quiescence, [
+      'required',
+      'stoppedAt',
+      'resumedAt',
+      'membersStopped',
+    ])
+  ) {
+    return false;
+  }
+  if (runtimeAlive) {
+    return (
+      process.quiescence.required === true &&
+      validTimestamp(process.quiescence.stoppedAt) &&
+      validTimestamp(process.quiescence.resumedAt) &&
+      Number.isInteger(process.quiescence.membersStopped) &&
+      process.quiescence.membersStopped > 0 &&
+      process.shutdownSettledAt === null &&
+      Date.parse(process.quiescence.stoppedAt) <=
+        Date.parse(snapshot.snapshotStartedAt) &&
+      Date.parse(snapshot.snapshotCompletedAt) <=
+        Date.parse(snapshot.observedAt) &&
+      Date.parse(snapshot.observedAt) <=
+        Date.parse(process.quiescence.resumedAt)
+    );
+  }
+  return (
+    process.quiescence.required === false &&
+    process.quiescence.stoppedAt === null &&
+    process.quiescence.resumedAt === null &&
+    process.quiescence.membersStopped === null &&
+    validTimestamp(process.shutdownSettledAt) &&
+    Date.parse(process.shutdownSettledAt) <= Date.parse(snapshot.requestedAt)
+  );
+}
+
 function validateStoreSnapshot({
   snapshot,
   runtimeAlive,
   plan,
   evidence,
   driverAttestation,
+  gatewayLifecycle,
 }) {
   const errors = [];
   const identity = snapshot?.identity;
   const resources = snapshot?.resources;
   const sourceBinding = snapshot?.sourceBinding;
+  const process = snapshot?.runtimeProcess;
   const expectedIdentity = {
     rowId: plan.rowId,
     runId: plan.runId,
@@ -1448,6 +1616,15 @@ function validateStoreSnapshot({
     phaseChainSha256: digest(evidence.phaseChains),
     cleanupRunReceiptId: evidence.cleanupRun?.receiptId ?? null,
   };
+  const boundGateway = Array.isArray(gatewayLifecycle)
+    ? gatewayLifecycle.find((entry) =>
+      createHash('sha256')
+        .update(String(entry?.pid || ''))
+        .digest('hex') === process?.gatewayPidFingerprint &&
+      entry?.startFingerprint === process?.expectedGatewayStartFingerprint &&
+      entry?.socketFingerprint === process?.expectedGatewaySocketFingerprint &&
+      entry?.endpoints?.includes(process?.expectedGatewayEndpoint))
+    : null;
   if (
     !exactKeys(snapshot, [
       'schema',
@@ -1457,6 +1634,8 @@ function validateStoreSnapshot({
       'runtimeAlive',
       'runtimeProcess',
       'requestedAt',
+      'snapshotStartedAt',
+      'snapshotCompletedAt',
       'observedAt',
       'identity',
       'resources',
@@ -1468,36 +1647,22 @@ function validateStoreSnapshot({
     snapshot?.failureReason !== null ||
     snapshot?.source !== 'docs-owned-isolated-durable-store-reader' ||
     snapshot?.runtimeAlive !== runtimeAlive ||
-    !exactKeys(snapshot?.runtimeProcess, [
-      'pidFingerprint',
-      'expectedStartFingerprint',
-      'observedStartFingerprint',
-      'expectedAlive',
-      'observedAlive',
-      'matched',
-    ]) ||
-    !HEX_64.test(snapshot?.runtimeProcess?.pidFingerprint || '') ||
-    snapshot?.runtimeProcess?.pidFingerprint !==
+    process?.driverPidFingerprint !==
       createHash('sha256')
         .update(String(driverAttestation?.isolation?.driverPid || ''))
         .digest('hex') ||
-    !HEX_64.test(
-      snapshot?.runtimeProcess?.expectedStartFingerprint || '',
-    ) ||
-    snapshot?.runtimeProcess?.expectedStartFingerprint !==
+    process?.expectedDriverStartFingerprint !==
       driverAttestation?.isolation?.driverStartFingerprint ||
-    snapshot?.runtimeProcess?.expectedAlive !== runtimeAlive ||
-    snapshot?.runtimeProcess?.observedAlive !== runtimeAlive ||
-    snapshot?.runtimeProcess?.matched !== true ||
-    (
-      runtimeAlive
-        ? snapshot?.runtimeProcess?.observedStartFingerprint !==
-          snapshot.runtimeProcess.expectedStartFingerprint
-        : snapshot?.runtimeProcess?.observedStartFingerprint !== null
-    ) ||
+    !boundGateway ||
+    !validRuntimeBracket(process, runtimeAlive, snapshot) ||
     !validTimestamp(snapshot?.requestedAt) ||
+    !validTimestamp(snapshot?.snapshotStartedAt) ||
+    !validTimestamp(snapshot?.snapshotCompletedAt) ||
     !validTimestamp(snapshot?.observedAt) ||
-    Date.parse(snapshot.observedAt) < Date.parse(snapshot.requestedAt) ||
+    Date.parse(snapshot.snapshotStartedAt) < Date.parse(snapshot.requestedAt) ||
+    Date.parse(snapshot.snapshotCompletedAt) <
+      Date.parse(snapshot.snapshotStartedAt) ||
+    Date.parse(snapshot.observedAt) < Date.parse(snapshot.snapshotCompletedAt) ||
     Date.parse(snapshot.observedAt) - Date.parse(snapshot.requestedAt) > 5_000 ||
     !validTimestamp(evidence?.endedAt) ||
     Date.parse(snapshot.requestedAt) < Date.parse(evidence.endedAt) ||
@@ -1527,41 +1692,30 @@ function validateStoreSnapshot({
     );
   }
   if (
-    !exactKeys(sourceBinding, ['sqlite', 'sessionStores']) ||
-    !exactKeys(sourceBinding?.sqlite, [
-      'pathFingerprint',
-      'dev',
-      'ino',
-      'size',
-      'mtimeMs',
-      'schemaSha256',
+    !exactKeys(sourceBinding, [
+      'method',
+      'productStoreContractSha',
+      'directoryIdentities',
+      'databases',
     ]) ||
-    !HEX_64.test(sourceBinding?.sqlite?.pathFingerprint || '') ||
-    !nonEmpty(sourceBinding?.sqlite?.dev, 1) ||
-    !nonEmpty(sourceBinding?.sqlite?.ino, 1) ||
-    !Number.isInteger(sourceBinding?.sqlite?.size) ||
-    sourceBinding.sqlite.size < 1 ||
-    !Number.isFinite(sourceBinding?.sqlite?.mtimeMs) ||
-    !HEX_64.test(sourceBinding?.sqlite?.schemaSha256 || '') ||
-    !Array.isArray(sourceBinding?.sessionStores) ||
-    sourceBinding.sessionStores.length < 1 ||
-    sourceBinding.sessionStores.length > 128 ||
-    sourceBinding.sessionStores.some((entry) =>
-      !exactKeys(entry, [
-        'pathFingerprint',
-        'dev',
-        'ino',
-        'size',
-        'mtimeMs',
-        'sha256',
-      ]) ||
-      !HEX_64.test(entry?.pathFingerprint || '') ||
-      !nonEmpty(entry?.dev, 1) ||
-      !nonEmpty(entry?.ino, 1) ||
-      !Number.isInteger(entry?.size) ||
-      entry.size < 1 ||
-      !Number.isFinite(entry?.mtimeMs) ||
-      !HEX_64.test(entry?.sha256 || ''))
+    sourceBinding?.method !== 'quiesced-opened-file-set-v1' ||
+    sourceBinding?.productStoreContractSha !==
+      RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA ||
+    !exactKeys(sourceBinding?.directoryIdentities, [
+      'stateRoot',
+      'state',
+      'agents',
+    ]) ||
+    !Object.values(sourceBinding?.directoryIdentities || {})
+      .every((entry) => validFilesystemIdentity(entry, true)) ||
+    !Array.isArray(sourceBinding?.databases) ||
+    sourceBinding.databases.length < 2 ||
+    sourceBinding.databases.length > 129 ||
+    sourceBinding.databases.filter((entry) => entry?.kind === 'global').length !== 1 ||
+    sourceBinding.databases.filter((entry) => entry?.kind === 'agent').length < 1 ||
+    sourceBinding.databases.some((entry) => !validStoreDatabaseBinding(entry)) ||
+    new Set(sourceBinding.databases.map((entry) => entry.pathFingerprint)).size !==
+      sourceBinding.databases.length
   ) {
     addError(
       errors,
@@ -1573,6 +1727,7 @@ function validateStoreSnapshot({
     snapshot?.rawSnapshotSha256 !== digest({
       identity,
       resources,
+      runtimeProcess: process,
       source: sourceBinding,
     })
   ) {
@@ -1590,6 +1745,7 @@ export function validateReturnCovenantDurableStoreObservation({
   evidence,
   observation,
   driverAttestation,
+  gatewayLifecycle,
 }) {
   const errors = [];
   if (
@@ -1609,6 +1765,7 @@ export function validateReturnCovenantDurableStoreObservation({
     plan,
     evidence,
     driverAttestation,
+    gatewayLifecycle,
   });
   const final = validateStoreSnapshot({
     snapshot: observation?.final,
@@ -1616,6 +1773,7 @@ export function validateReturnCovenantDurableStoreObservation({
     plan,
     evidence,
     driverAttestation,
+    gatewayLifecycle,
   });
   errors.push(...live.errors, ...final.errors);
   if (
@@ -1627,7 +1785,17 @@ export function validateReturnCovenantDurableStoreObservation({
       validTimestamp(observation?.final?.requestedAt) &&
       Date.parse(observation.final.requestedAt) <
         Date.parse(observation.live.observedAt)
-    )
+    ) ||
+    !validTimestamp(evidence?.teardown?.startedAt) ||
+    !validTimestamp(evidence?.teardown?.completedAt) ||
+    Date.parse(evidence.teardown.startedAt) <
+      Date.parse(observation?.live?.observedAt || '') ||
+    Date.parse(evidence.teardown.completedAt) <
+      Date.parse(evidence.teardown.startedAt) ||
+    Date.parse(observation?.final?.requestedAt || '') <
+      Date.parse(evidence.teardown.completedAt) ||
+    Date.parse(observation?.final?.runtimeProcess?.shutdownSettledAt || '') <
+      Date.parse(evidence.teardown.completedAt)
   ) {
     addError(
       errors,
@@ -1669,14 +1837,27 @@ export function validateReturnCovenantDurableStoreObservation({
         ? observation.final.observedAt
         : null,
       sqliteSchemaSha256: HEX_64.test(
-        observation?.final?.sourceBinding?.sqlite?.schemaSha256 || '',
+        digest(
+          observation?.final?.sourceBinding?.databases?.map((entry) => ({
+            agentId: entry.agentId,
+            kind: entry.kind,
+            schemaSha256: entry.schemaSha256,
+          })) ?? null,
+        ),
       )
-        ? observation.final.sourceBinding.sqlite.schemaSha256
+        ? digest(
+          observation.final.sourceBinding.databases.map((entry) => ({
+            agentId: entry.agentId,
+            kind: entry.kind,
+            schemaSha256: entry.schemaSha256,
+          })),
+        )
         : null,
       sessionStoreCount: Array.isArray(
-        observation?.final?.sourceBinding?.sessionStores,
+        observation?.final?.sourceBinding?.databases,
       )
-        ? observation.final.sourceBinding.sessionStores.length
+        ? observation.final.sourceBinding.databases
+          .filter((entry) => entry.kind === 'agent').length
         : null,
     },
   };
@@ -1686,29 +1867,14 @@ export function deriveReturnCovenantTrustedRetention(params) {
   const gatewayValidation =
     validateReturnCovenantRetentionObservation(params);
   const storeValidation =
-    validateReturnCovenantDurableStoreObservation({
-      plan: params.plan,
-      evidence: params.evidence,
-      observation: params.durableStoreObservation,
-      driverAttestation: params.driverAttestation,
-    });
-  const errors = [
-    ...gatewayValidation.errors,
-    ...storeValidation.errors,
-  ];
-  if (
-    gatewayValidation.valid &&
-    storeValidation.valid &&
-    OBSERVED_RETENTION_NAMES.some((name) =>
-      gatewayValidation.retained[name] !==
-        storeValidation.retained[name])
-  ) {
-    addError(
-      errors,
-      'unverified-resource-retention',
-      'gateway resource response differs from docs-owned durable stores',
-    );
-  }
+  validateReturnCovenantDurableStoreObservation({
+    plan: params.plan,
+    evidence: params.evidence,
+    observation: params.durableStoreObservation,
+    driverAttestation: params.driverAttestation,
+    gatewayLifecycle: params.gatewayLifecycle,
+  });
+  const errors = [...storeValidation.errors];
   const observation = params.evidence?.retentionObservation;
   return {
     valid: errors.length === 0,
@@ -1824,10 +1990,26 @@ export function validateReturnCovenantObservationSet({
       driverAttestation?.attestationSha256 ||
     evidence?.cleanupRun?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256
     ||
+    !exactKeys(evidence?.teardown, [
+      'schema',
+      'runId',
+      'rowId',
+      'cleanupRunReceiptId',
+      'startedAt',
+      'completedAt',
+      'cleanupRun',
+      'cleanupRunProof',
+      'completed',
+    ]) ||
     evidence?.teardown?.schema !== 'openclaw.k6.return-covenant-teardown.v1' ||
     evidence?.teardown?.runId !== plan.runId ||
     evidence?.teardown?.rowId !== plan.rowId ||
     evidence?.teardown?.completed !== true ||
+    !validTimestamp(evidence?.teardown?.startedAt) ||
+    !validTimestamp(evidence?.teardown?.completedAt) ||
+    Date.parse(evidence.teardown.startedAt) < Date.parse(evidence.endedAt) ||
+    Date.parse(evidence.teardown.completedAt) <
+      Date.parse(evidence.teardown.startedAt) ||
     evidence?.teardown?.cleanupRunReceiptId !== evidence?.cleanupRun?.receiptId
     ||
     canonicalJson(evidence?.teardown?.cleanupRun) !==
@@ -3583,24 +3765,33 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     RETAINED_NAMES.every((name) => receipt.cleanup.retained?.[name] === 0) &&
     canonicalJson(receipt.cleanup?.retentionAuthority) ===
       canonicalJson(RETENTION_AUTHORITY) &&
-    receipt.cleanup?.resourceObservation?.status === 'verified' &&
+    (
+      receipt.cleanup?.resourceObservation?.status === 'verified' ||
+      receipt.cleanup?.resourceObservation?.status ===
+        'unverified-resource-retention'
+    ) &&
     receipt.cleanup.resourceObservation.evidenceSha256 ===
       receipt.binding.retentionObservationSha256 &&
-    HEX_64.test(
-      receipt.cleanup.resourceObservation.responseSha256 || '',
-    ) &&
-    validTimestamp(receipt.cleanup.resourceObservation.observedAt) &&
-    validFingerprint(
-      receipt.cleanup.resourceObservation.gatewayPidFingerprint,
-    ) &&
-    validFingerprint(
-      receipt.cleanup.resourceObservation.gatewayStartFingerprint,
-    ) &&
-    validFingerprint(
-      receipt.cleanup.resourceObservation.gatewaySocketFingerprint,
-    ) &&
-    validFingerprint(
-      receipt.cleanup.resourceObservation.gatewayEndpointFingerprint,
+    (
+      receipt.cleanup.resourceObservation.status !== 'verified' ||
+      (
+        HEX_64.test(
+          receipt.cleanup.resourceObservation.responseSha256 || '',
+        ) &&
+        validTimestamp(receipt.cleanup.resourceObservation.observedAt) &&
+        validFingerprint(
+          receipt.cleanup.resourceObservation.gatewayPidFingerprint,
+        ) &&
+        validFingerprint(
+          receipt.cleanup.resourceObservation.gatewayStartFingerprint,
+        ) &&
+        validFingerprint(
+          receipt.cleanup.resourceObservation.gatewaySocketFingerprint,
+        ) &&
+        validFingerprint(
+          receipt.cleanup.resourceObservation.gatewayEndpointFingerprint,
+        )
+      )
     ) &&
     receipt.cleanup?.durableStoreObservation?.status === 'verified' &&
     HEX_64.test(

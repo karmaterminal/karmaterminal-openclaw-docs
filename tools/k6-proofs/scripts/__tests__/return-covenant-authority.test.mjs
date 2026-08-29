@@ -7,6 +7,7 @@ import {
   mkdir,
   readFile,
   readdir,
+  rename,
   rm,
   symlink,
   writeFile,
@@ -63,6 +64,8 @@ import {
 const root = path.resolve(import.meta.dirname, '../..');
 const fixtures = path.join(root, 'tests/fixtures/return-covenant-authority');
 const signingKey = 'synthetic-observer-signing-key-at-least-32-characters';
+const RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA =
+  '0109521b0c2b8a2c81c9f901789a81c5316074a7';
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -492,11 +495,16 @@ function refreshPhaseProofs(evidence, driverAttestation) {
     evidence.cleanupRun,
     'run-cleanup',
   );
+  const teardownStartedAt = new Date(
+    Date.parse(evidence.endedAt) + 1_000,
+  ).toISOString();
   evidence.teardown = {
     schema: 'openclaw.k6.return-covenant-teardown.v1',
     runId: evidence.runId,
     rowId: evidence.rowId,
     cleanupRunReceiptId: evidence.cleanupRun.receiptId,
+    startedAt: teardownStartedAt,
+    completedAt: new Date(Date.parse(teardownStartedAt) + 100).toISOString(),
     completed: true,
     cleanupRun: evidence.cleanupRun,
     cleanupRunProof: signedPhaseProof(
@@ -608,27 +616,40 @@ function durableStoreObservationFor({
         childSessionKey: `agent:proof:${plan.runId}:child-${index}`,
         requesterSessionKey: plan.cases[0].logicalSessionKey,
         controllerSessionKey: plan.cases[0].logicalSessionKey,
-        endedAt: null,
-        cleanupHandled: 0,
-        pendingFinalDelivery: 1,
+        executionStatus: 'running',
+        cleanupCompletedAt: null,
+        deliveryStatus: 'pending',
+        requiredDelivery: true,
+        payloadSha256: sha256(`subagent-payload-${index}`),
       }),
     ),
     queueItems: Array.from(
       { length: retained.queueItems || 0 },
       (_, index) => ({
-        id: `durable-queue-${index}`,
+        id: `flow:durable-queue-${index}`,
+        source: 'flow_runs',
         ownerKey: plan.cases[0].logicalSessionKey,
         controllerId: 'core/continuation-delegate',
+        syncMode: 'managed',
         status: 'queued',
+        endedAt: null,
         stateSha256: sha256(`queue-state-${index}`),
       }),
     ),
     temporarySessions: Array.from(
       { length: retained.temporarySessions || 0 },
       (_, index) => ({
-        id: `agent:proof:${plan.runId}:temporary-${index}`,
+        id: `proof:agent:proof:${plan.runId}:temporary-${index}`,
+        agentId: 'proof',
+        sessionKey: `agent:proof:${plan.runId}:temporary-${index}`,
+        sessionId: `temporary-session-${index}`,
+        spawnedBy: plan.cases[0].logicalSessionKey,
+        parentSessionKey: plan.cases[0].logicalSessionKey,
+        spawnDepth: 1,
         entrySha256: sha256(`session-entry-${index}`),
-        storePathFingerprint: sha256('/isolated/state/sessions.json'),
+        storePathFingerprint: sha256(
+          '/isolated/state/agents/proof/agent/openclaw-agent.sqlite',
+        ),
       }),
     ),
   };
@@ -643,66 +664,157 @@ function durableStoreObservationFor({
     phaseChainSha256: jsonSha256(evidence.phaseChains),
     cleanupRunReceiptId: evidence.cleanupRun.receiptId,
   };
+  const fsIdentity = (ino, size) => ({
+    dev: '1',
+    ino: String(ino),
+    size,
+    mode: 0o600,
+    mtimeNs: '1',
+  });
+  const snapshotFile = (ino, bytes) => ({
+    ...fsIdentity(ino, bytes.length),
+    sha256: sha256(bytes),
+  });
+  const globalSource = {
+    database: snapshotFile(11, 'global-db'),
+    wal: snapshotFile(12, 'global-wal'),
+    shm: snapshotFile(13, 'global-shm'),
+  };
+  const agentSource = {
+    database: snapshotFile(21, 'agent-db'),
+    wal: null,
+    shm: null,
+  };
   const sourceBinding = {
-    sqlite: {
-      pathFingerprint: sha256('/isolated/state/openclaw.sqlite'),
-      dev: '1',
-      ino: '2',
-      size: 4096,
-      mtimeMs: 1,
-      schemaSha256: sha256('canonical-retention-schema'),
+    method: 'quiesced-opened-file-set-v1',
+    productStoreContractSha: RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA,
+    directoryIdentities: {
+      stateRoot: { ...fsIdentity(1, 0), mode: 0o700 },
+      state: { ...fsIdentity(2, 0), mode: 0o700 },
+      agents: { ...fsIdentity(3, 0), mode: 0o700 },
     },
-    sessionStores: [{
-      pathFingerprint: sha256('/isolated/state/sessions.json'),
-      dev: '1',
-      ino: '3',
-      size: 3,
-      mtimeMs: 1,
-      sha256: sha256('{}\n'),
+    databases: [{
+      kind: 'global',
+      agentId: null,
+      pathFingerprint: sha256('/isolated/state/state/openclaw.sqlite'),
+      source: globalSource,
+      snapshotSha256: jsonSha256(globalSource),
+      schemaSha256: sha256('canonical-global-retention-schema'),
+    }, {
+      kind: 'agent',
+      agentId: 'proof',
+      pathFingerprint: sha256(
+        '/isolated/state/agents/proof/agent/openclaw-agent.sqlite',
+      ),
+      source: agentSource,
+      snapshotSha256: jsonSha256(agentSource),
+      schemaSha256: sha256('canonical-agent-retention-schema'),
     }],
   };
   const runtimePid = driverAttestation.isolation.driverPid;
   const runtimeStartFingerprint =
     driverAttestation.isolation.driverStartFingerprint;
-  const snapshot = ({ runtimeAlive, requestedAt, observedAt }) => ({
-    schema: 'openclaw.k6.return-covenant-store-observation.v1',
-    status: 'observed',
-    failureReason: null,
-    source: 'docs-owned-isolated-durable-store-reader',
+  const finalRestart = evidence.observations
+    .filter((entry) => entry.lifecycle?.restart)
+    .at(-1).lifecycle.restart;
+  const gatewayPid = finalRestart.replacementGatewayPid;
+  const gatewayStartFingerprint =
+    finalRestart.replacementGatewayStartFingerprint;
+  const gatewayEndpoint = finalRestart.replacementGatewayEndpoint;
+  const gatewaySocketFingerprint = sha256(gatewayEndpoint);
+  const processGroupFingerprint = sha256(
+    String(driverAttestation.isolation.processGroupId),
+  );
+  const runtimeSample = (runtimeAlive) => ({
+    driverStartFingerprint: runtimeAlive ? runtimeStartFingerprint : null,
+    gatewayStartFingerprint: runtimeAlive ? gatewayStartFingerprint : null,
+    gatewaySocketFingerprint: runtimeAlive
+      ? gatewaySocketFingerprint
+      : null,
+    gatewayEndpointOwned: runtimeAlive,
+    processGroupMembers: runtimeAlive
+      ? [{
+        pidFingerprint: sha256(String(runtimePid)),
+        startFingerprint: runtimeStartFingerprint,
+        state: 'T',
+      }, {
+        pidFingerprint: sha256(String(gatewayPid)),
+        startFingerprint: gatewayStartFingerprint,
+        state: 'T',
+      }]
+      : [],
+  });
+  const snapshot = ({
     runtimeAlive,
-    runtimeProcess: {
-      pidFingerprint: sha256(String(runtimePid)),
-      expectedStartFingerprint: runtimeStartFingerprint,
-      observedStartFingerprint: runtimeAlive
-        ? runtimeStartFingerprint
-        : null,
-      expectedAlive: runtimeAlive,
-      observedAlive: runtimeAlive,
-      matched: true,
-    },
     requestedAt,
+    snapshotStartedAt,
+    snapshotCompletedAt,
     observedAt,
-    identity,
-    resources,
-    sourceBinding,
-    rawSnapshotSha256: jsonSha256({
+    stoppedAt = null,
+    resumedAt = null,
+    shutdownSettledAt = null,
+  }) => {
+    const runtimeProcess = {
+      driverPidFingerprint: sha256(String(runtimePid)),
+      gatewayPidFingerprint: sha256(String(gatewayPid)),
+      processGroupFingerprint,
+      expectedDriverStartFingerprint: runtimeStartFingerprint,
+      expectedGatewayStartFingerprint: gatewayStartFingerprint,
+      expectedGatewaySocketFingerprint: gatewaySocketFingerprint,
+      expectedGatewayEndpoint: gatewayEndpoint,
+      expectedAlive: runtimeAlive,
+      before: runtimeSample(runtimeAlive),
+      after: runtimeSample(runtimeAlive),
+      quiescence: {
+        required: runtimeAlive,
+        stoppedAt,
+        resumedAt,
+        membersStopped: runtimeAlive ? 2 : null,
+      },
+      shutdownSettledAt,
+      matched: true,
+    };
+    return {
+      schema: 'openclaw.k6.return-covenant-store-observation.v1',
+      status: 'observed',
+      failureReason: null,
+      source: 'docs-owned-isolated-durable-store-reader',
+      runtimeAlive,
+      runtimeProcess,
+      requestedAt,
+      snapshotStartedAt,
+      snapshotCompletedAt,
+      observedAt,
       identity,
       resources,
-      source: sourceBinding,
-    }),
-  });
+      sourceBinding,
+      rawSnapshotSha256: jsonSha256({
+        identity,
+        resources,
+        runtimeProcess,
+        source: sourceBinding,
+      }),
+    };
+  };
   return {
     schema: 'openclaw.k6.return-covenant-durable-store-chain.v1',
     stable: true,
     live: snapshot({
       runtimeAlive: true,
       requestedAt: '2026-08-28T12:09:31.010Z',
+      snapshotStartedAt: '2026-08-28T12:09:31.012Z',
+      snapshotCompletedAt: '2026-08-28T12:09:31.018Z',
       observedAt: '2026-08-28T12:09:31.020Z',
+      stoppedAt: '2026-08-28T12:09:31.011Z',
+      resumedAt: '2026-08-28T12:09:31.021Z',
     }),
     final: snapshot({
       runtimeAlive: false,
-      requestedAt: '2026-08-28T12:09:31.500Z',
-      observedAt: '2026-08-28T12:09:31.510Z',
+      requestedAt: '2026-08-28T12:09:32.300Z',
+      snapshotStartedAt: '2026-08-28T12:09:32.310Z',
+      snapshotCompletedAt: '2026-08-28T12:09:32.320Z',
+      observedAt: '2026-08-28T12:09:32.330Z',
+      shutdownSettledAt: '2026-08-28T12:09:32.200Z',
     }),
   };
 }
@@ -965,26 +1077,11 @@ function bindCleanup(
     evidence,
     driverAttestation,
   });
-  let gatewayRetained = {};
-  try {
-    const gatewayResponse = JSON.parse(
-      evidence.retentionObservation.response.body,
-    );
-    gatewayRetained = Object.fromEntries(
-      Object.keys(retentionResourceMethods).map((name) => [
-        name,
-        gatewayResponse.resources?.[name]?.items?.length || 0,
-      ]),
-    );
-  } catch {
-    gatewayRetained = {};
-  }
   const storeObservation = durableStoreObservation ||
     durableStoreObservationFor({
       plan,
       evidence,
       driverAttestation,
-      retained: gatewayRetained,
     });
   const retention = deriveReturnCovenantTrustedRetention({
     plan,
@@ -1576,6 +1673,12 @@ test('candidate zero cleanup cannot mask docs-owned retained resources', async (
           evidence,
           driverAttestation,
           plan,
+          durableStoreObservationFor({
+            plan,
+            evidence,
+            driverAttestation,
+            retained: { [category]: 1 },
+          }),
         ),
         runtimeConfig,
         driverAttestation,
@@ -1591,7 +1694,7 @@ test('candidate zero cleanup cannot mask docs-owned retained resources', async (
 test('case-handle closure is derived from exact phase-chain coverage', async (t) => {
   const candidateClaims = await fixture('cleanup-pass.json');
   assert.equal(candidateClaims.allCaseHandlesClosed, true);
-  for (const mode of ['missing', 'duplicated']) {
+  for (const mode of ['missing', 'duplicated', 'explicitly-open']) {
     await t.test(mode, async () => {
       const [{ plan, evidence, driverAttestation }, runtimeConfig] =
         await Promise.all([
@@ -1600,8 +1703,12 @@ test('case-handle closure is derived from exact phase-chain coverage', async (t)
         ]);
       if (mode === 'missing') {
         evidence.phaseChains.pop();
-      } else {
+      } else if (mode === 'duplicated') {
         evidence.phaseChains.push(structuredClone(evidence.phaseChains[0]));
+      } else {
+        evidence.caseHandleLedger.open.push(
+          structuredClone(evidence.caseHandleLedger.issued[0]),
+        );
       }
       const closure = deriveReturnCovenantCaseHandleClosure({
         plan,
@@ -1630,7 +1737,7 @@ test('case-handle closure is derived from exact phase-chain coverage', async (t)
   }
 });
 
-test('missing resource-inspection seam fails closed with an explicit category', async () => {
+test('missing candidate resource-inspection seam cannot veto docs-owned stores', async () => {
   const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
     await Promise.all([
       completeMatrix(),
@@ -1656,13 +1763,11 @@ test('missing resource-inspection seam fails closed with an explicit category', 
     driverAttestation,
     signingKey,
   });
-  assert.equal(receipt.verdict, 'FAIL-candidate');
-  assert.ok(
-    receipt.failureCategories.includes('unverified-resource-retention'),
-  );
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.deepEqual(receipt.failureCategories, []);
 });
 
-test('stale or mismatched retention identity cannot be signed as PASS', async (t) => {
+test('candidate retention diagnostics are not resource authority', async (t) => {
   const controls = {
     run: (evidence) => mutateRetentionResponse(
       evidence,
@@ -1720,10 +1825,8 @@ test('stale or mismatched retention identity cannot be signed as PASS', async (t
         driverAttestation,
         signingKey,
       });
-      assert.equal(receipt.verdict, 'FAIL-candidate');
-      assert.ok(
-        receipt.failureCategories.includes('unverified-resource-retention'),
-      );
+      assert.equal(receipt.verdict, 'PASS-candidate');
+      assert.deepEqual(receipt.failureCategories, []);
     });
   }
 
@@ -1754,7 +1857,7 @@ test('stale or mismatched retention identity cannot be signed as PASS', async (t
   });
 });
 
-test('malformed partial and count-overflow inspections fail closed', async (t) => {
+test('malformed candidate retention diagnostics cannot veto canonical stores', async (t) => {
   const controls = {
     malformed(evidence) {
       const body = '{"malformed":';
@@ -1810,10 +1913,8 @@ test('malformed partial and count-overflow inspections fail closed', async (t) =
         driverAttestation,
         signingKey,
       });
-      assert.equal(receipt.verdict, 'FAIL-candidate');
-      assert.ok(
-        receipt.failureCategories.includes('unverified-resource-retention'),
-      );
+      assert.equal(receipt.verdict, 'PASS-candidate');
+      assert.deepEqual(receipt.failureCategories, []);
     });
   }
 });
@@ -1860,124 +1961,712 @@ test('clean trusted resource observation plus independent process teardown passe
   );
 });
 
-test('durable inspector counts every isolated nonterminal row and fails on status drift', async () => {
+function canonicalSubagentPayload({
+  runId,
+  childSessionKey,
+  requesterSessionKey,
+  executionStatus = 'terminal',
+  deliveryStatus = 'delivered',
+  cleanupCompletedAt = 20,
+}) {
+  return {
+    runId,
+    childSessionKey,
+    controllerSessionKey: requesterSessionKey,
+    requesterSessionKey,
+    requesterDisplayKey: requesterSessionKey,
+    task: 'retention fixture task',
+    cleanup: 'delete',
+    createdAt: 1,
+    expectsCompletionMessage: true,
+    execution: {
+      status: executionStatus,
+      startedAt: 2,
+      ...(executionStatus === 'terminal'
+        ? { endedAt: 10, outcome: { status: 'ok' } }
+        : {}),
+    },
+    completion: { required: true },
+    delivery: {
+      status: deliveryStatus,
+      ...(deliveryStatus === 'pending' || deliveryStatus === 'in_progress'
+        ? {
+          payload: {
+            requesterSessionKey,
+            requesterDisplayKey: requesterSessionKey,
+            childSessionKey,
+            childRunId: runId,
+            task: 'retention fixture task',
+            expectsCompletionMessage: true,
+          },
+        }
+        : {}),
+    },
+    ...(cleanupCompletedAt === undefined ? {} : { cleanupCompletedAt }),
+  };
+}
+
+async function createProductShapedRetentionFixture() {
   const stateRoot = await mkdtemp(
-    path.join(tmpdir(), 'return-covenant-store-observer-'),
+    path.join(tmpdir(), 'return-covenant-product-store-'),
+  );
+  const snapshotRoot = await mkdtemp(
+    path.join(tmpdir(), 'return-covenant-product-snapshot-'),
   );
   const databaseDir = path.join(stateRoot, 'state');
-  const sessionsDir = path.join(
+  const agentDatabaseDir = path.join(
     stateRoot,
     'agents',
     'proof',
-    'sessions',
+    'agent',
   );
   await Promise.all([
     mkdir(databaseDir, { recursive: true, mode: 0o700 }),
-    mkdir(sessionsDir, { recursive: true, mode: 0o700 }),
+    mkdir(agentDatabaseDir, { recursive: true, mode: 0o700 }),
   ]);
   const databasePath = path.join(databaseDir, 'openclaw.sqlite');
+  const agentDatabasePath = path.join(
+    agentDatabaseDir,
+    'openclaw-agent.sqlite',
+  );
   const database = new DatabaseSync(databasePath);
-  try {
-    database.exec(`
-      CREATE TABLE flow_runs (
-        flow_id TEXT PRIMARY KEY,
-        owner_key TEXT NOT NULL,
-        controller_id TEXT,
-        status TEXT NOT NULL,
-        state_json TEXT,
-        created_at INTEGER NOT NULL
-      );
-      CREATE TABLE subagent_runs (
-        run_id TEXT PRIMARY KEY,
-        child_session_key TEXT NOT NULL,
-        controller_session_key TEXT,
-        requester_session_key TEXT NOT NULL,
-        ended_at INTEGER,
-        cleanup_handled INTEGER,
-        pending_final_delivery INTEGER,
-        created_at INTEGER NOT NULL
-      );
-      INSERT INTO flow_runs VALUES
-        ('flow-child', 'agent:sub:worker-7', 'core/continuation-delegate-v2', 'queued', '{}', 1),
-        ('flow-lost', 'agent:main:worker', 'future/controller', 'lost', '{}', 2),
-        ('flow-terminal', 'unrelated', NULL, 'succeeded', '{}', 3);
-      INSERT INTO subagent_runs VALUES
-        ('run-active', 'agent:sub:worker-7', 'agent:main:worker', 'agent:main:worker', NULL, 0, 1, 1),
-        ('run-terminal', 'agent:sub:done', NULL, 'agent:main:done', 5, 1, 0, 2);
-    `);
-    await writeFile(
-      path.join(sessionsDir, 'sessions.json'),
-      JSON.stringify({
-        'agent:main:discord:channel:retained': {
-          sessionId: 'retained-session',
-        },
+  const agentDatabase = new DatabaseSync(agentDatabasePath);
+  database.exec('PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;');
+  agentDatabase.exec('PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;');
+  database.exec(`
+    CREATE TABLE schema_meta (
+      meta_key TEXT NOT NULL PRIMARY KEY,
+      role TEXT NOT NULL,
+      schema_version INTEGER NOT NULL,
+      agent_id TEXT,
+      app_version TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    ) STRICT;
+    INSERT INTO schema_meta VALUES
+      ('primary', 'global', 13, NULL, 'fixture', 1, 1);
+    CREATE TABLE agent_databases (
+      agent_id TEXT NOT NULL,
+      path TEXT NOT NULL,
+      schema_version INTEGER NOT NULL,
+      last_seen_at INTEGER NOT NULL,
+      size_bytes INTEGER,
+      PRIMARY KEY (agent_id, path)
+    ) STRICT;
+    CREATE TABLE delivery_queue_entries (
+      queue_name TEXT NOT NULL,
+      id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      entry_kind TEXT,
+      session_key TEXT,
+      channel TEXT,
+      target TEXT,
+      account_id TEXT,
+      retry_count INTEGER NOT NULL DEFAULT 0,
+      last_attempt_at INTEGER,
+      last_error TEXT,
+      recovery_state TEXT,
+      platform_send_started_at INTEGER,
+      entry_json TEXT NOT NULL,
+      enqueued_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      failed_at INTEGER,
+      PRIMARY KEY (queue_name, id)
+    ) STRICT;
+    CREATE TABLE subagent_runs (
+      run_id TEXT NOT NULL PRIMARY KEY,
+      child_session_key TEXT NOT NULL,
+      controller_session_key TEXT,
+      requester_session_key TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      payload_json TEXT NOT NULL DEFAULT '{}'
+    ) STRICT;
+    CREATE TABLE flow_runs (
+      flow_id TEXT NOT NULL PRIMARY KEY,
+      shape TEXT,
+      sync_mode TEXT NOT NULL DEFAULT 'managed',
+      owner_key TEXT NOT NULL,
+      chain_id TEXT,
+      requester_origin_json TEXT,
+      controller_id TEXT,
+      revision INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL,
+      notify_policy TEXT NOT NULL,
+      goal TEXT NOT NULL,
+      current_step TEXT,
+      blocked_task_id TEXT,
+      blocked_summary TEXT,
+      state_json TEXT,
+      wait_json TEXT,
+      cancel_requested_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      ended_at INTEGER
+    ) STRICT;
+    PRAGMA user_version=13;
+  `);
+  agentDatabase.exec(`
+    CREATE TABLE schema_meta (
+      meta_key TEXT NOT NULL PRIMARY KEY,
+      role TEXT NOT NULL,
+      schema_version INTEGER NOT NULL,
+      agent_id TEXT,
+      app_version TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    ) STRICT;
+    INSERT INTO schema_meta VALUES
+      ('primary', 'agent', 19, 'proof', 'fixture', 1, 1);
+    CREATE TABLE session_nodes (
+      session_key TEXT NOT NULL PRIMARY KEY,
+      current_session_id TEXT NOT NULL,
+      entry_json TEXT NOT NULL,
+      entry_valid INTEGER NOT NULL DEFAULT 0 CHECK (entry_valid IN (-1, 0, 1)),
+      updated_at INTEGER NOT NULL,
+      status TEXT CHECK (status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')),
+      created_at INTEGER,
+      created_via TEXT CHECK (created_via IS NULL OR created_via IN ('operator', 'spawn', 'channel', 'cron', 'talk', 'run', 'plugin', 'internal')),
+      created_actor_type TEXT CHECK (created_actor_type IS NULL OR created_actor_type IN ('human', 'agent', 'system')),
+      created_actor_id TEXT,
+      owner_actor_type TEXT,
+      owner_actor_id TEXT,
+      owner_assigned_by_type TEXT,
+      owner_assigned_by_id TEXT,
+      owner_assigned_at INTEGER,
+      project_id TEXT,
+      parent_session_key TEXT,
+      spawned_by TEXT,
+      fork_source_session_key TEXT,
+      fork_source_session_id TEXT,
+      fork_source_entry_id TEXT,
+      label TEXT,
+      display_name TEXT,
+      category TEXT,
+      icon TEXT,
+      pinned_at INTEGER,
+      archived_at INTEGER,
+      last_read_at INTEGER,
+      last_interaction_at INTEGER,
+      last_activity_at INTEGER
+    ) STRICT;
+    PRAGMA user_version=19;
+  `);
+  database.prepare(`
+    INSERT INTO agent_databases
+      (agent_id, path, schema_version, last_seen_at, size_bytes)
+    VALUES ('proof', 'agents/proof/agent/openclaw-agent.sqlite', 19, 1, NULL)
+  `).run();
+  const rootEntry = {
+    sessionId: 'root-session',
+    updatedAt: 1,
+    createdVia: 'internal',
+    spawnDepth: 0,
+  };
+  agentDatabase.prepare(`
+    INSERT INTO session_nodes (
+      session_key, current_session_id, entry_json, entry_valid,
+      updated_at, status, created_at, created_via
+    ) VALUES (?, ?, ?, 1, 1, 'running', 1, 'internal')
+  `).run(
+    'agent:proof:main',
+    rootEntry.sessionId,
+    JSON.stringify(rootEntry),
+  );
+  database.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+  agentDatabase.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+  let closed = false;
+  let snapshotIndex = 0;
+  return {
+    stateRoot,
+    databasePath,
+    agentDatabasePath,
+    database,
+    agentDatabase,
+    insertSubagent({
+      runId = 'run-retained',
+      childSessionKey = 'agent:proof:subagent:retained',
+      payload = canonicalSubagentPayload({
+        runId,
+        childSessionKey,
+        requesterSessionKey: 'agent:proof:main',
+        executionStatus: 'running',
+        deliveryStatus: 'pending',
+        cleanupCompletedAt: undefined,
       }),
-      { mode: 0o600 },
-    );
-    const { plan, evidence } = await completeMatrix();
-    const stat = await readFile(`/proc/${process.pid}/stat`, 'utf8');
-    const fields = stat.slice(stat.lastIndexOf(')') + 2).trim().split(/\s+/u);
-    const runtimeProcess = {
-      pid: process.pid,
-      startFingerprint: sha256(`${process.pid}:${fields[19]}`),
-    };
-    const observed = await inspectReturnCovenantDurableStores({
-      plan,
-      evidence,
-      statePath: stateRoot,
-      runtimeProcess,
-      expectedRuntimeAlive: true,
-    });
-    assert.equal(observed.status, 'observed', observed.failureReason);
-    assert.equal(observed.resources.delegates.length, 1);
-    assert.equal(observed.resources.queueItems.length, 2);
-    assert.equal(observed.resources.temporarySessions.length, 1);
+    } = {}) {
+      database.prepare(`
+        INSERT INTO subagent_runs (
+          run_id, child_session_key, controller_session_key,
+          requester_session_key, created_at, payload_json
+        ) VALUES (?, ?, 'agent:proof:main', 'agent:proof:main', 1, ?)
+      `).run(runId, childSessionKey, JSON.stringify(payload));
+    },
+    insertFlow({
+      flowId = 'flow-retained',
+      status = 'running',
+      endedAt = null,
+      state = {
+        kind: 'continuation_delegate',
+        task: 'retained continuation',
+        childSessionKey: 'agent:proof:subagent:retained',
+        originRunId: 'run-retained',
+      },
+    } = {}) {
+      database.prepare(`
+        INSERT INTO flow_runs (
+          flow_id, shape, sync_mode, owner_key, chain_id,
+          requester_origin_json, controller_id, revision, status,
+          notify_policy, goal, current_step, blocked_task_id,
+          blocked_summary, state_json, wait_json, cancel_requested_at,
+          created_at, updated_at, ended_at
+        ) VALUES (
+          ?, NULL, 'managed', 'agent:proof:main', NULL, NULL,
+          'core/continuation-delegate', 0, ?, 'silent',
+          'Continuation delegate', 'retention fixture', NULL, NULL,
+          ?, NULL, NULL, 1, 1, ?
+        )
+      `).run(flowId, status, JSON.stringify(state), endedAt);
+    },
+    insertDelivery({
+      id = 'delivery-retained',
+      status = 'pending',
+      recoveryState = null,
+      deliveryStartedAt = 2,
+    } = {}) {
+      const entry = {
+        id,
+        enqueuedAt: 1,
+        retryCount: 0,
+        kind: 'agentTurn',
+        sessionKey: 'agent:proof:main',
+        message: 'retained result',
+        messageId: 'retained-message',
+        ...(deliveryStartedAt == null ? {} : { deliveryStartedAt }),
+        owner: {
+          kind: 'subagent_completion',
+          runId: 'run-retained',
+          taskId: 'task-retained',
+          generation: 1,
+          deadlineAt: 10,
+        },
+      };
+      database.prepare(`
+        INSERT INTO delivery_queue_entries (
+          queue_name, id, status, entry_kind, session_key, channel,
+          target, account_id, retry_count, last_attempt_at, last_error,
+          recovery_state, platform_send_started_at, entry_json,
+          enqueued_at, updated_at, failed_at
+        ) VALUES (
+          'session', ?, ?, 'agentTurn', 'agent:proof:main', NULL,
+          NULL, NULL, 0, NULL, NULL, ?, NULL, ?, 1, 1,
+          CASE WHEN ? = 'failed' THEN 1 ELSE NULL END
+        )
+      `).run(id, status, recoveryState, JSON.stringify(entry), status);
+    },
+    insertTemporarySession({
+      sessionKey = 'agent:proof:subagent:retained',
+    } = {}) {
+      const entry = {
+        sessionId: 'temporary-session',
+        updatedAt: 2,
+        createdAt: 2,
+        createdVia: 'spawn',
+        spawnedBy: 'agent:proof:main',
+        parentSessionKey: 'agent:proof:main',
+        spawnDepth: 1,
+      };
+      agentDatabase.prepare(`
+        INSERT INTO session_nodes (
+          session_key, current_session_id, entry_json, entry_valid,
+          updated_at, status, created_at, created_via,
+          parent_session_key, spawned_by
+        ) VALUES (?, ?, ?, 1, 2, 'running', 2, 'spawn',
+          'agent:proof:main', 'agent:proof:main')
+      `).run(sessionKey, entry.sessionId, JSON.stringify(entry));
+    },
+    async observe({ testHooks } = {}) {
+      const { plan, evidence } = await completeMatrix();
+      snapshotIndex += 1;
+      return await inspectReturnCovenantDurableStores({
+        plan,
+        evidence,
+        statePath: stateRoot,
+        snapshotPath: path.join(
+          snapshotRoot,
+          `trusted-snapshot-${snapshotIndex}`,
+        ),
+        runtimeProcess: {
+          processGroupId: 2_147_483_000,
+          driver: {
+            pid: 2_147_483_000,
+            startFingerprint: 'd'.repeat(64),
+          },
+          gateway: {
+            pid: 2_147_483_001,
+            startFingerprint: 'e'.repeat(64),
+            socketFingerprint: 'f'.repeat(64),
+            endpoint: 'http://127.0.0.1:18791',
+          },
+          shutdownSettledAt: new Date(Date.now() - 1_000).toISOString(),
+        },
+        expectedRuntimeAlive: false,
+        testHooks,
+      });
+    },
+    close() {
+      if (closed) return;
+      closed = true;
+      database.close();
+      agentDatabase.close();
+    },
+    async dispose() {
+      this.close();
+      await Promise.all([
+        rm(stateRoot, { recursive: true, force: true }),
+        rm(snapshotRoot, { recursive: true, force: true }),
+      ]);
+    },
+  };
+}
 
-    database.prepare(
-      'INSERT INTO flow_runs VALUES (?, ?, ?, ?, ?, ?)',
-    ).run(
-      'flow-unknown-status',
-      plan.cases[0].logicalSessionKey,
-      'core/continuation-delegate',
-      'paused',
-      '{}',
-      4,
-    );
-    const drifted = await inspectReturnCovenantDurableStores({
-      plan,
-      evidence,
-      statePath: stateRoot,
-      runtimeProcess,
-      expectedRuntimeAlive: true,
-    });
-    assert.equal(drifted.status, 'unverified-resource-retention');
-    assert.match(drifted.failureReason, /unknown lifecycle status/);
+test('durable inspector matches current product-shaped retention stores', async (t) => {
+  await t.test('clean exact stores pass and root sessions are irrelevant', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.deepEqual(observed.resources, {
+        delegates: [],
+        queueItems: [],
+        temporarySessions: [],
+      });
+      assert.equal(
+        observed.sourceBinding.productStoreContractSha,
+        RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA,
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
 
-    database.exec(`
-      DELETE FROM flow_runs WHERE flow_id = 'flow-unknown-status';
-      ALTER TABLE flow_runs RENAME TO flow_runs_real;
-      CREATE VIEW flow_runs AS
-        SELECT flow_id, owner_key, controller_id, status, state_json, created_at
-        FROM flow_runs_real
-        WHERE 0;
-    `);
-    const shadowed = await inspectReturnCovenantDurableStores({
-      plan,
-      evidence,
-      statePath: stateRoot,
-      runtimeProcess,
-      expectedRuntimeAlive: true,
+  await t.test('retained payload_json subagent fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertSubagent();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.delegates.length, 1);
+      assert.equal(observed.resources.delegates[0].deliveryStatus, 'pending');
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('retained delivery row preserves attempt ownership', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertDelivery();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.queueItems.length, 1);
+      assert.equal(observed.resources.queueItems[0].attemptOwned, true);
+      assert.equal(
+        observed.resources.queueItems[0].source,
+        'delivery_queue_entries',
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('retained canonical child session is relevant', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertSubagent({
+        payload: canonicalSubagentPayload({
+          runId: 'run-retained',
+          childSessionKey: 'agent:proof:subagent:retained',
+          requesterSessionKey: 'agent:proof:main',
+        }),
+      });
+      fixtureState.insertTemporarySession();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.delegates.length, 0);
+      assert.equal(observed.resources.temporarySessions.length, 1);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('flow and delivery terminal siblings are excluded exactly', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertFlow({
+        flowId: 'flow-terminal-lost',
+        status: 'lost',
+        endedAt: 4,
+      });
+      fixtureState.insertFlow({
+        flowId: 'flow-terminal-blocked',
+        status: 'blocked',
+        endedAt: 5,
+      });
+      fixtureState.insertFlow({
+        flowId: 'flow-live-blocked',
+        status: 'blocked',
+      });
+      fixtureState.insertDelivery({
+        id: 'delivery-completed',
+        status: 'completed',
+        deliveryStartedAt: null,
+      });
+      fixtureState.insertDelivery({
+        id: 'delivery-failed',
+        status: 'failed',
+        deliveryStartedAt: null,
+      });
+      fixtureState.insertDelivery({
+        id: 'delivery-settlement-pending',
+        status: 'failed',
+        recoveryState: 'settlement_pending',
+        deliveryStartedAt: null,
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.deepEqual(
+        observed.resources.queueItems.map((entry) => entry.id),
+        [
+          'delivery:session:delivery-settlement-pending',
+        ],
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('run-bound flow child keys retain canonical spawned sessions', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertFlow();
+      fixtureState.insertTemporarySession();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.temporarySessions.length, 1);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const mode of ['execution-status', 'delivery-status', 'malformed-json']) {
+    await t.test(`unknown or malformed subagent payload: ${mode}`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        const payload = canonicalSubagentPayload({
+          runId: 'run-malformed',
+          childSessionKey: 'agent:proof:subagent:malformed',
+          requesterSessionKey: 'agent:proof:main',
+        });
+        if (mode === 'execution-status') payload.execution.status = 'paused';
+        if (mode === 'delivery-status') payload.delivery.status = 'unknown';
+        fixtureState.insertSubagent({
+          runId: 'run-malformed',
+          childSessionKey: 'agent:proof:subagent:malformed',
+          payload,
+        });
+        if (mode === 'malformed-json') {
+          fixtureState.database.prepare(
+            "UPDATE subagent_runs SET payload_json = '{'",
+          ).run();
+        }
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(observed.failureReason, /payload_json/);
+      } finally {
+        await fixtureState.dispose();
+      }
     });
-    assert.equal(shadowed.status, 'unverified-resource-retention');
-    assert.match(shadowed.failureReason, /not a canonical SQLite table/);
-  } finally {
-    database.close();
-    await rm(stateRoot, { recursive: true, force: true });
   }
+
+  await t.test('malformed required final-delivery payload fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      const payload = canonicalSubagentPayload({
+        runId: 'run-malformed-delivery',
+        childSessionKey: 'agent:proof:subagent:malformed-delivery',
+        requesterSessionKey: 'agent:proof:main',
+        executionStatus: 'terminal',
+        deliveryStatus: 'pending',
+      });
+      payload.delivery.payload = 'not-an-object';
+      fixtureState.insertSubagent({
+        runId: payload.runId,
+        childSessionKey: payload.childSessionKey,
+        payload,
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /delivery\.payload/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const mode of [
+    'missing',
+    'renamed-column',
+    'view',
+    'session-view',
+  ]) {
+    await t.test(`canonical table shape fails closed: ${mode}`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        if (mode === 'missing') {
+          fixtureState.database.exec('DROP TABLE delivery_queue_entries;');
+        } else if (mode === 'renamed-column') {
+          fixtureState.database.exec(
+            'ALTER TABLE subagent_runs RENAME COLUMN payload_json TO payload_blob;',
+          );
+        } else if (mode === 'view') {
+          fixtureState.database.exec(`
+            ALTER TABLE flow_runs RENAME TO flow_runs_real;
+            CREATE VIEW flow_runs AS SELECT * FROM flow_runs_real;
+          `);
+        } else {
+          fixtureState.agentDatabase.exec(`
+            ALTER TABLE session_nodes RENAME TO session_nodes_real;
+            CREATE VIEW session_nodes AS SELECT * FROM session_nodes_real;
+          `);
+        }
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(
+          observed.failureReason,
+          /canonical|exact product columns/,
+        );
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
+
+  for (const mode of [
+    'flow-status',
+    'delivery-status',
+    'delivery-json',
+    'session-json',
+    'agent-layout',
+  ]) {
+    await t.test(`unknown canonical store state fails closed: ${mode}`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        if (mode === 'flow-status') {
+          fixtureState.insertFlow({ status: 'paused' });
+        } else if (mode === 'delivery-status') {
+          fixtureState.insertDelivery({ status: 'retrying' });
+        } else if (mode === 'delivery-json') {
+          fixtureState.insertDelivery();
+          fixtureState.database.prepare(
+            "UPDATE delivery_queue_entries SET entry_json = '{'",
+          ).run();
+        } else if (mode === 'session-json') {
+          fixtureState.insertFlow();
+          fixtureState.insertTemporarySession();
+          fixtureState.agentDatabase.prepare(
+            "UPDATE session_nodes SET entry_json = '{' WHERE created_via = 'spawn'",
+          ).run();
+        } else {
+          fixtureState.database.prepare(
+            "UPDATE agent_databases SET path = 'agents/proof/sessions/sessions.json'",
+          ).run();
+        }
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
+
+  await t.test('symlinked canonical database is rejected', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.close();
+      const movedPath = `${fixtureState.databasePath}.real`;
+      await rename(fixtureState.databasePath, movedPath);
+      await symlink(movedPath, fixtureState.databasePath);
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /canonical bounded file/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('pathname swap after no-follow open is rejected', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.close();
+      const replacementPath = `${fixtureState.databasePath}.replacement`;
+      const replacement = new DatabaseSync(replacementPath);
+      replacement.exec('CREATE TABLE replacement (id TEXT) STRICT;');
+      replacement.close();
+      const originalPath = `${fixtureState.databasePath}.opened`;
+      let swapped = false;
+      const observed = await fixtureState.observe({
+        testHooks: {
+          async afterSourceOpen({ databasePath }) {
+            if (databasePath !== fixtureState.databasePath || swapped) return;
+            swapped = true;
+            await rename(fixtureState.databasePath, originalPath);
+            await rename(replacementPath, fixtureState.databasePath);
+          },
+        },
+      });
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /changed during snapshot/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('WAL-only retained delivery row is observed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.insertDelivery({ id: 'wal-only-delivery' });
+      const mainOnlyPath = path.join(fixtureState.stateRoot, 'main-only.sqlite');
+      await writeFile(mainOnlyPath, await readFile(fixtureState.databasePath));
+      const mainOnly = new DatabaseSync(mainOnlyPath, { readOnly: true });
+      try {
+        assert.equal(
+          mainOnly.prepare(
+            'SELECT count(*) AS count FROM delivery_queue_entries',
+          ).get().count,
+          0,
+        );
+      } finally {
+        mainOnly.close();
+      }
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.queueItems.length, 1);
+      assert.equal(
+        observed.sourceBinding.databases[0].source.wal.size > 0,
+        true,
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
 });
 
 test('durable-store authority requires an attested live leg and stable shutdown leg', async (t) => {
-  for (const mode of ['runtime-dead', 'unstable']) {
+  for (const mode of [
+    'runtime-dead',
+    'unstable',
+    'pid-start-changed',
+    'live-overlaps-teardown',
+  ]) {
     await t.test(mode, async () => {
       const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
         await Promise.all([
@@ -1994,23 +2683,35 @@ test('durable-store authority requires an attested live leg and stable shutdown 
         storeObservation.live.runtimeAlive = false;
         storeObservation.live.runtimeProcess = {
           ...storeObservation.live.runtimeProcess,
-          observedStartFingerprint: null,
-          observedAlive: false,
           matched: false,
         };
-      } else {
+      } else if (mode === 'unstable') {
         storeObservation.stable = false;
+      } else if (mode === 'pid-start-changed') {
+        storeObservation.live.runtimeProcess.after.driverStartFingerprint =
+          'f'.repeat(64);
+        storeObservation.live.rawSnapshotSha256 = jsonSha256({
+          identity: storeObservation.live.identity,
+          resources: storeObservation.live.resources,
+          runtimeProcess: storeObservation.live.runtimeProcess,
+          source: storeObservation.live.sourceBinding,
+        });
+      }
+      const cleanup = bindCleanup(
+        cleanupFixture,
+        evidence,
+        driverAttestation,
+        plan,
+        storeObservation,
+      );
+      if (mode === 'live-overlaps-teardown') {
+        evidence.teardown.startedAt = '2026-08-28T12:09:31.015Z';
+        evidence.teardown.completedAt = '2026-08-28T12:09:31.025Z';
       }
       const receipt = resolveReturnCovenantAuthoritativeReceipt({
         plan,
         evidence,
-        cleanup: bindCleanup(
-          cleanupFixture,
-          evidence,
-          driverAttestation,
-          plan,
-          storeObservation,
-        ),
+        cleanup,
         runtimeConfig,
         driverAttestation,
         signingKey,
@@ -2836,6 +3537,31 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
       fixtureProcesses: 0,
     });
     assert.equal(result.cleanup.resourceObservation.status, 'verified');
+    const liveStore = result.cleanup.durableStoreObservation.live;
+    const finalStore = result.cleanup.durableStoreObservation.final;
+    assert.equal(liveStore.runtimeProcess.quiescence.required, true);
+    assert.equal(liveStore.runtimeProcess.matched, true);
+    assert.equal(
+      canonicalJson(liveStore.runtimeProcess.before),
+      canonicalJson(liveStore.runtimeProcess.after),
+    );
+    assert.ok(
+      liveStore.sourceBinding.databases.some((entry) =>
+        entry.source.wal?.size > 0),
+      'live observation did not bind any WAL bytes',
+    );
+    assert.ok(
+      Date.parse(liveStore.observedAt) <=
+        Date.parse(result.evidence.teardown.startedAt),
+    );
+    assert.ok(
+      Date.parse(result.evidence.teardown.completedAt) <=
+        Date.parse(finalStore.runtimeProcess.shutdownSettledAt),
+    );
+    assert.ok(
+      Date.parse(finalStore.runtimeProcess.shutdownSettledAt) <=
+        Date.parse(finalStore.requestedAt),
+    );
     assert.equal(result.candidateDiagnostic.passEligible, false);
     assert.equal(
       result.receipt.verdict,
@@ -2865,6 +3591,41 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
       (await verifyReturnCovenantDirectCleanup(result.attestation)).verified,
       true,
     );
+  } finally {
+    await result.dispose();
+  }
+});
+
+test('trusted launcher does not require the absent product inspection endpoint', async () => {
+  const result = await runTrustedLauncherFixture((source) =>
+    source.replace('inspectionFault: null', "inspectionFault: 'unsupported'"));
+  try {
+    assert.equal(
+      result.launcherExitCode,
+      0,
+      JSON.stringify({
+        stderr: result.launcherStderr,
+        cleanup: result.cleanup,
+        receipt: result.receipt,
+        ...result.debug,
+      }),
+    );
+    assert.equal(
+      result.cleanup.resourceObservation.status,
+      'unverified-resource-retention',
+    );
+    assert.equal(
+      result.cleanup.durableStoreObservation.live.status,
+      'observed',
+    );
+    assert.deepEqual(result.cleanup.retained, {
+      delegates: 0,
+      queueItems: 0,
+      temporarySessions: 0,
+      gateways: 0,
+      fixtureProcesses: 0,
+    });
+    assert.equal(result.receipt.verdict, 'PASS-candidate');
   } finally {
     await result.dispose();
   }
@@ -2936,11 +3697,6 @@ test('trusted launcher rejects retention inspection redirected off gateway socke
     assert.equal(result.cleanup.retained.delegates, 1);
     assert.equal(result.receipt.verdict, 'FAIL-candidate');
     assert.ok(result.receipt.failureCategories.includes('resource-retention'));
-    assert.ok(
-      result.receipt.failureCategories.includes(
-        'unverified-resource-retention',
-      ),
-    );
     assert.equal(result.evidence.retentionObservation.response.status, 307);
     assert.equal(
       result.evidence.retentionObservation.response.url,
@@ -2975,11 +3731,6 @@ test('trusted launcher rejects forged-clean arrays from the attested gateway', a
     );
     assert.equal(result.receipt.verdict, 'FAIL-candidate');
     assert.ok(result.receipt.failureCategories.includes('resource-retention'));
-    assert.ok(
-      result.receipt.failureCategories.includes(
-        'unverified-resource-retention',
-      ),
-    );
   } finally {
     await result.dispose();
   }
@@ -3004,11 +3755,6 @@ test('trusted launcher rejects clean arrays relayed through the attested gateway
     assert.equal(result.cleanup.retained.delegates, 1);
     assert.equal(result.receipt.verdict, 'FAIL-candidate');
     assert.ok(result.receipt.failureCategories.includes('resource-retention'));
-    assert.ok(
-      result.receipt.failureCategories.includes(
-        'unverified-resource-retention',
-      ),
-    );
   } finally {
     await result.dispose();
   }

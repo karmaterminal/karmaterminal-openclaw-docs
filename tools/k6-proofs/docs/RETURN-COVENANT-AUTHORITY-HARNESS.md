@@ -342,7 +342,12 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   `subagent_runs.payload_json`, using product execution, cleanup-completion,
   and required-final-delivery semantics. It derives continuation work from
   canonical `flow_runs`, including the distinct work/delegate controller rules,
-  and unfinished session delivery from `delivery_queue_entries` (`pending` and
+  the exact `core/continuation-work`
+  `terminalNoticePending="retry-exhausted"` recovery marker, and the generic
+  terminal-flow maintenance marker. A terminal row that still owns either
+  marker remains retained work until the durable handoff clears it; malformed
+  or contradictory markers fail closed. It derives unfinished session delivery
+  from `delivery_queue_entries` (`pending` and
   failed `settlement_pending`, including durable attempt ownership). It reads
   product-registered `agents/<agent>/agent/openclaw-agent.sqlite`
   `session_nodes.entry_json` rows and treats every product-spawned row as a
@@ -360,6 +365,12 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   `allCaseHandlesClosed` and the handle set from exact phase-chain coverage and
   the docs-owned issued/closed/open request ledger, not any `closed` value in
   candidate cleanup; and requires every count to be zero; and
+- candidate cleanup claims remain non-authoritative, but their fixed path,
+  bounded regular-file read, JSON parse, and closed diagnostic shape are
+  classified before cleanup. Missing, symlinked, malformed, oversized, or
+  otherwise rejected candidate diagnostics cannot interrupt trusted cleanup;
+  the redacted category is bound into cleanup and forces a signed
+  `FAIL-candidate`;
 - the launcher directly confirms its run root, snapshot, home, state,
   and config paths are absent and both attested PID/start identities are gone;
   the monitored process group is empty; and the launcher-only observer key
@@ -374,7 +385,9 @@ reuse, form-origin mismatch, generation mismatch, side effect, retained payload,
 short settlement, runtime/config gap, nonzero k6 exit, teardown mismatch, or
 cleanup failure produces a signed `FAIL-candidate`. Candidate
 `retained`/`allCaseHandlesClosed` values are private diagnostic input only and
-cannot affect the verdict or any signed cleanup field.
+cannot override any trusted observation. Only failure to produce a readable,
+canonical diagnostic record affects the verdict, through its bounded signed
+failure category rather than through candidate-supplied claims.
 
 ## Required product seam
 

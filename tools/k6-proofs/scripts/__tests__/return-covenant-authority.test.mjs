@@ -25,6 +25,7 @@ import {
 } from '../../lib/return-covenant-driver-attestation.mjs';
 import {
   childTerminationReason,
+  classifyCandidateJsonFailure,
   readBoundedCandidateJson,
 } from '../../lib/return-covenant-candidate-io.mjs';
 import {
@@ -1657,6 +1658,47 @@ test('cleanup rejects retained queue/process state and incomplete path removal',
     directCleanup: directCleanupFor(driverAttestation),
     observerSigningKey: signingKey,
   }).valid, false);
+});
+
+test('candidate cleanup diagnostic failures remain signed and exact', async () => {
+  const [{ plan, evidence, driverAttestation }, cleanupFixture, runtimeConfig] =
+    await Promise.all([
+      completeMatrix(),
+      fixture('cleanup-pass.json'),
+      fixture('runtime-config.valid.json'),
+    ]);
+  const cleanup = bindCleanup(
+    cleanupFixture,
+    evidence,
+    driverAttestation,
+    plan,
+  );
+  cleanup.candidateCleanupDiagnostic = {
+    status: 'invalid',
+    failureCategory: 'symlink',
+  };
+  const receipt = resolveReturnCovenantAuthoritativeReceipt({
+    plan,
+    evidence,
+    cleanup: resignCleanup(cleanup),
+    runtimeConfig,
+    driverAttestation,
+    signingKey,
+  });
+  assert.equal(receipt.verdict, 'FAIL-candidate');
+  assert.ok(
+    receipt.failureCategories.includes(
+      'candidate-cleanup-diagnostic-symlink',
+    ),
+  );
+  assert.deepEqual(receipt.cleanup.candidateCleanupDiagnostic, {
+    status: 'invalid',
+    failureCategory: 'symlink',
+  });
+  assert.deepEqual(
+    validateReturnCovenantAuthoritativeReceipt(receipt, signingKey),
+    { valid: true, verdict: 'FAIL-candidate' },
+  );
 });
 
 test('candidate zero cleanup cannot mask docs-owned retained resources', async (t) => {
@@ -4109,40 +4151,63 @@ for (const controllerId of ['core', 'core/continuation-work']) {
   });
 }
 
-test('trusted launcher signs diagnostic failure when cleanup draft is a symlink', async () => {
-  const result = await runTrustedLauncherFixture((source) =>
-    source.replace(
-      'candidateCleanupFault: null',
-      "candidateCleanupFault: 'symlink'",
-    ));
-  try {
-    assert.equal(result.launcherExitCode, 1);
-    assert.deepEqual(result.candidateDiagnostic, {
-      schema: 'openclaw.k6.return-covenant-candidate-cleanup-diagnostic.v1',
-      passEligible: false,
-      status: 'invalid',
-      failureCategory: 'symlink',
-      claims: null,
-    });
-    assert.deepEqual(result.cleanup.candidateCleanupDiagnostic, {
-      status: 'invalid',
-      failureCategory: 'symlink',
-    });
-    assert.equal(result.receipt.verdict, 'FAIL-candidate');
-    assert.ok(
-      result.receipt.failureCategories.includes(
-        'candidate-cleanup-diagnostic-symlink',
-      ),
-    );
-    assert.deepEqual(result.receipt.cleanup.candidateCleanupDiagnostic, {
-      status: 'invalid',
-      failureCategory: 'symlink',
-    });
-    assert.match(result.receipt.integrity.signature, /^[a-f0-9]{64}$/u);
-  } finally {
-    await result.dispose();
-  }
-});
+for (const control of [
+  {
+    fault: 'missing',
+    status: 'missing',
+    failureCategory: 'missing',
+  },
+  {
+    fault: 'symlink',
+    status: 'invalid',
+    failureCategory: 'symlink',
+  },
+  {
+    fault: 'malformed-json',
+    status: 'invalid',
+    failureCategory: 'malformed-json',
+  },
+  {
+    fault: 'invalid-shape',
+    status: 'invalid',
+    failureCategory: 'invalid-shape',
+  },
+]) {
+  test(`trusted launcher signs cleanup diagnostic failure: ${control.fault}`, async () => {
+    const result = await runTrustedLauncherFixture((source) =>
+      source.replace(
+        'candidateCleanupFault: null',
+        `candidateCleanupFault: '${control.fault}'`,
+      ));
+    try {
+      assert.equal(result.launcherExitCode, 1);
+      assert.deepEqual(result.candidateDiagnostic, {
+        schema: 'openclaw.k6.return-covenant-candidate-cleanup-diagnostic.v1',
+        passEligible: false,
+        status: control.status,
+        failureCategory: control.failureCategory,
+        claims: null,
+      });
+      assert.deepEqual(result.cleanup.candidateCleanupDiagnostic, {
+        status: control.status,
+        failureCategory: control.failureCategory,
+      });
+      assert.equal(result.receipt.verdict, 'FAIL-candidate');
+      assert.ok(
+        result.receipt.failureCategories.includes(
+          `candidate-cleanup-diagnostic-${control.failureCategory}`,
+        ),
+      );
+      assert.deepEqual(result.receipt.cleanup.candidateCleanupDiagnostic, {
+        status: control.status,
+        failureCategory: control.failureCategory,
+      });
+      assert.match(result.receipt.integrity.signature, /^[a-f0-9]{64}$/u);
+    } finally {
+      await result.dispose();
+    }
+  });
+}
 
 test('trusted launcher does not require the absent product inspection endpoint', async () => {
   const result = await runTrustedLauncherFixture((source) =>
@@ -4416,30 +4481,37 @@ test('sandbox waits report signal-terminated children fail closed', async () => 
   }
 });
 
-test('candidate JSON reader rejects symlinks, FIFOs, and oversized files', async () => {
+test('candidate JSON reader classifies symlinks, FIFOs, and bounded failures', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'return-covenant-json-'));
   try {
     const valid = path.join(directory, 'valid.json');
     const linked = path.join(directory, 'linked.json');
     const oversized = path.join(directory, 'oversized.json');
+    const malformed = path.join(directory, 'malformed.json');
     const fifo = path.join(directory, 'candidate.fifo');
     await writeFile(valid, '{"ok":true}\n');
     await symlink(valid, linked);
     await writeFile(oversized, JSON.stringify({ value: 'x'.repeat(1024) }));
+    await writeFile(malformed, '{"ok":');
     const fifoResult = spawnSync('mkfifo', [fifo], { encoding: 'utf8' });
     assert.equal(fifoResult.status, 0, fifoResult.stderr);
     assert.deepEqual(await readBoundedCandidateJson(valid, 64), { ok: true });
     await assert.rejects(
       readBoundedCandidateJson(linked, 64),
-      (error) => error?.code === 'ELOOP',
+      (error) => classifyCandidateJsonFailure(error) === 'symlink',
     );
     await assert.rejects(
       readBoundedCandidateJson(oversized, 64),
-      /not a bounded regular file|exceeded its size bound/,
+      (error) => classifyCandidateJsonFailure(error) === 'size-bound',
     );
     await assert.rejects(
       readBoundedCandidateJson(fifo, 64),
-      /not a bounded regular file/,
+      (error) =>
+        classifyCandidateJsonFailure(error) === 'invalid-file-type',
+    );
+    await assert.rejects(
+      readBoundedCandidateJson(malformed, 64),
+      (error) => classifyCandidateJsonFailure(error) === 'malformed-json',
     );
   } finally {
     await rm(directory, { recursive: true, force: true });

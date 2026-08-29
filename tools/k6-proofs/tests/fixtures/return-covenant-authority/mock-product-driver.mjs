@@ -1270,6 +1270,8 @@ if (process.argv[2] === 'gateway') {
       const target = `${input['cleanup-draft']}.target`;
       writeFileSync(target, JSON.stringify(candidateCleanupClaims));
       symlinkSync(target, input['cleanup-draft']);
+    } else if (MOCK_CONTROL.candidateCleanupFault === 'missing') {
+      // The trusted launcher must still finish cleanup and sign this failure.
     } else if (MOCK_CONTROL.candidateCleanupFault === 'malformed-json') {
       writeFileSync(input['cleanup-draft'], '{"startedAt":');
     } else if (MOCK_CONTROL.candidateCleanupFault === 'invalid-shape') {

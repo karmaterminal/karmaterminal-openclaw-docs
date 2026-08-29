@@ -159,6 +159,7 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(observer, /observation-duplicate/);
   assert.match(observer, /stale-side-effect/);
   assert.match(observer, /cleanup-failure/);
+  assert.match(observer, /candidate-cleanup-diagnostic-/);
   assert.match(observer, /unverified-resource-retention/);
   assert.match(observer, /docs-owned-gateway-corroboration/);
   assert.match(
@@ -171,6 +172,7 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(retentionInspector, /FROM delivery_queue_entries/);
   assert.match(retentionInspector, /FROM session_nodes/);
   assert.match(retentionInspector, /payload_json/);
+  assert.match(retentionInspector, /terminalNoticePending/);
   assert.match(retentionInspector, /quiesced-opened-file-set-v1/);
   assert.match(retentionInspector, /-wal/);
   assert.match(retentionInspector, /-shm/);
@@ -210,6 +212,10 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.equal(
     cleanupSchema.properties.retentionAuthority.properties.candidateCleanup.const,
     'untrusted-diagnostic-only',
+  );
+  assert.deepEqual(
+    cleanupSchema.properties.candidateCleanupDiagnostic.required,
+    ['status', 'failureCategory'],
   );
   assert.equal(
     cleanupSchema.properties.retained.properties.delegates.$ref,

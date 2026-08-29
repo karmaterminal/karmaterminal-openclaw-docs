@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { canonicalJson } from '../lib/canonical-json.mjs';
 import {
   childTerminationReason,
+  classifyCandidateJsonFailure,
   readBoundedCandidateJson,
 } from '../lib/return-covenant-candidate-io.mjs';
 import {
@@ -51,6 +52,24 @@ const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const defaultDocsDir = path.resolve(scriptDir, '../../..');
 const SANDBOX_EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
+const CANDIDATE_CLEANUP_RETAINED_NAMES = [
+  'delegates',
+  'queueItems',
+  'temporarySessions',
+  'gateways',
+  'fixtureProcesses',
+];
+const CANDIDATE_CLEANUP_CLAIM_KEYS = [
+  'startedAt',
+  'endedAt',
+  'retained',
+  'allCaseHandlesClosed',
+  'caseHandles',
+  'observationSetSha256',
+  'phaseChainSha256',
+  'driverAttestationSha256',
+  'runCleanupReceiptId',
+];
 const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/contracts/return-covenant-authority/retention-observation.schema.json',
   'tools/k6-proofs/contracts/return-covenant-authority/scenario.js',
@@ -69,6 +88,51 @@ const DOCS_AUTHORITY_FILES = [
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+function exactRecordKeys(value, keys) {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    Array.isArray(value)
+  ) {
+    return false;
+  }
+  const actual = Object.keys(value).toSorted();
+  const expected = [...keys].toSorted();
+  return actual.length === expected.length &&
+    actual.every((name, index) => name === expected[index]);
+}
+
+function validCandidateCleanupClaims(value) {
+  if (
+    !exactRecordKeys(value, CANDIDATE_CLEANUP_CLAIM_KEYS) ||
+    !exactRecordKeys(value.retained, CANDIDATE_CLEANUP_RETAINED_NAMES) ||
+    !CANDIDATE_CLEANUP_RETAINED_NAMES.every((name) =>
+      Number.isInteger(value.retained[name]) && value.retained[name] >= 0) ||
+    typeof value.allCaseHandlesClosed !== 'boolean' ||
+    !Array.isArray(value.caseHandles) ||
+    value.caseHandles.length > 24 ||
+    value.caseHandles.some((entry) =>
+      typeof entry !== 'string' || entry.length < 8) ||
+    new Set(value.caseHandles).size !== value.caseHandles.length ||
+    !/^[a-f0-9]{64}$/u.test(value.observationSetSha256 || '') ||
+    !/^[a-f0-9]{64}$/u.test(value.phaseChainSha256 || '') ||
+    !/^[a-f0-9]{64}$/u.test(value.driverAttestationSha256 || '') ||
+    typeof value.runCleanupReceiptId !== 'string' ||
+    value.runCleanupReceiptId.length < 8 ||
+    typeof value.startedAt !== 'string' ||
+    typeof value.endedAt !== 'string'
+  ) {
+    return false;
+  }
+  const startedAt = Date.parse(value.startedAt);
+  const endedAt = Date.parse(value.endedAt);
+  return Number.isFinite(startedAt) &&
+    Number.isFinite(endedAt) &&
+    new Date(startedAt).toISOString() === value.startedAt &&
+    new Date(endedAt).toISOString() === value.endedAt &&
+    endedAt >= startedAt;
 }
 
 function pathWithin(child, parent) {
@@ -1423,27 +1487,34 @@ async function main() {
     const cleanupStartedAt = new Date().toISOString();
     let candidateCleanupClaims = null;
     let candidateCleanupStatus = 'read';
+    let candidateCleanupFailureCategory = null;
     try {
       candidateCleanupClaims = await readBoundedCandidateJson(
         candidateCleanupDraftPath,
         1_048_576,
       );
-    } catch (error) {
-      if (error?.code === 'ENOENT') {
-        candidateCleanupStatus = 'missing';
-      } else if (
-        error instanceof SyntaxError ||
-        /candidate JSON (?:is not|exceeded)/u.test(error?.message || '')
-      ) {
+      if (!validCandidateCleanupClaims(candidateCleanupClaims)) {
+        candidateCleanupClaims = null;
         candidateCleanupStatus = 'invalid';
-      } else {
-        throw error;
+        candidateCleanupFailureCategory = 'invalid-shape';
       }
+    } catch (error) {
+      candidateCleanupFailureCategory =
+        classifyCandidateJsonFailure(error);
+      if (candidateCleanupFailureCategory === null) throw error;
+      candidateCleanupStatus =
+        candidateCleanupFailureCategory === 'missing'
+          ? 'missing'
+          : 'invalid';
     }
+    const candidateCleanupDiagnostic = {
+      status: candidateCleanupStatus,
+      failureCategory: candidateCleanupFailureCategory,
+    };
     await writeExclusive(candidateCleanupDiagnosticPath, {
       schema: 'openclaw.k6.return-covenant-candidate-cleanup-diagnostic.v1',
       passEligible: false,
-      status: candidateCleanupStatus,
+      ...candidateCleanupDiagnostic,
       claims: candidateCleanupClaims,
     });
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -1534,6 +1605,7 @@ async function main() {
         fixtureProcesses: retainedFixturePids.size,
       },
       retentionAuthority: RETURN_COVENANT_RETENTION_AUTHORITY,
+      candidateCleanupDiagnostic,
       resourceObservation: retention.resourceObservation,
       durableStoreObservation,
       allCaseHandlesClosed: closure.allCaseHandlesClosed,

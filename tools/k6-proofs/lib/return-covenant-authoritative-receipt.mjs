@@ -60,6 +60,16 @@ const RETAINED_NAMES = [
   'fixtureProcesses',
 ];
 const OBSERVED_RETENTION_NAMES = RETAINED_NAMES.slice(0, 3);
+const CANDIDATE_CLEANUP_FAILURE_CATEGORIES = new Set([
+  'missing',
+  'symlink',
+  'access-denied',
+  'invalid-file-type',
+  'path-rejected',
+  'size-bound',
+  'malformed-json',
+  'invalid-shape',
+]);
 export const RETURN_COVENANT_RETENTION_AUTHORITY = Object.freeze({
   resourceState: 'docs-owned-isolated-durable-store-observation',
   gatewayState: 'docs-owned-gateway-corroboration',
@@ -121,6 +131,29 @@ function nonEmpty(value, minimum = 1) {
 
 function addError(errors, code, message) {
   errors.push({ code, message });
+}
+
+function candidateCleanupDiagnosticFailure(value) {
+  if (
+    !exactKeys(value, ['status', 'failureCategory']) ||
+    !['read', 'missing', 'invalid'].includes(value.status)
+  ) {
+    return { malformed: true, category: null };
+  }
+  if (value.status === 'read') {
+    return value.failureCategory === null
+      ? { malformed: false, category: null }
+      : { malformed: true, category: null };
+  }
+  if (value.status === 'missing') {
+    return value.failureCategory === 'missing'
+      ? { malformed: false, category: 'missing' }
+      : { malformed: true, category: null };
+  }
+  return CANDIDATE_CLEANUP_FAILURE_CATEGORIES.has(value.failureCategory) &&
+    value.failureCategory !== 'missing'
+    ? { malformed: false, category: value.failureCategory }
+    : { malformed: true, category: null };
 }
 
 function exactEffects(left, right) {
@@ -2305,6 +2338,7 @@ export function validateReturnCovenantCleanup({
       'endedAt',
       'retained',
       'retentionAuthority',
+      'candidateCleanupDiagnostic',
       'resourceObservation',
       'durableStoreObservation',
       'homeRemoved',
@@ -2337,6 +2371,22 @@ export function validateReturnCovenantCleanup({
     cleanup?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256
   ) {
     addError(errors, 'cleanup-failure', 'cleanup identity is incomplete');
+  }
+  const candidateCleanupFailure = candidateCleanupDiagnosticFailure(
+    cleanup?.candidateCleanupDiagnostic,
+  );
+  if (candidateCleanupFailure.malformed) {
+    addError(
+      errors,
+      'cleanup-failure',
+      'candidate cleanup diagnostic classification is malformed',
+    );
+  } else if (candidateCleanupFailure.category !== null) {
+    addError(
+      errors,
+      `candidate-cleanup-diagnostic-${candidateCleanupFailure.category}`,
+      'candidate cleanup diagnostic could not be read as a canonical record',
+    );
   }
   if (
     !validTimestamp(cleanup?.startedAt) ||
@@ -2838,6 +2888,20 @@ export function resolveReturnCovenantAuthoritativeReceipt({
           cleanup?.retentionAuthority?.[name] === expected ? expected : null,
         ]),
       ),
+      candidateCleanupDiagnostic: {
+        status: ['read', 'missing', 'invalid'].includes(
+          cleanup?.candidateCleanupDiagnostic?.status,
+        )
+          ? cleanup.candidateCleanupDiagnostic.status
+          : null,
+        failureCategory:
+          cleanup?.candidateCleanupDiagnostic?.failureCategory === null ||
+          CANDIDATE_CLEANUP_FAILURE_CATEGORIES.has(
+            cleanup?.candidateCleanupDiagnostic?.failureCategory,
+          )
+            ? cleanup.candidateCleanupDiagnostic.failureCategory
+            : null,
+      },
       resourceObservation: {
         status: [
           'verified',
@@ -3530,6 +3594,7 @@ function validClosedReceiptShape(receipt) {
       'completedAt',
       'retained',
       'retentionAuthority',
+      'candidateCleanupDiagnostic',
       'resourceObservation',
       'durableStoreObservation',
       'homeRemoved',
@@ -3562,6 +3627,13 @@ function validClosedReceiptShape(receipt) {
       receipt.cleanup.retentionAuthority,
       Object.keys(RETENTION_AUTHORITY),
     ) &&
+    exactKeys(receipt.cleanup.candidateCleanupDiagnostic, [
+      'status',
+      'failureCategory',
+    ]) &&
+    candidateCleanupDiagnosticFailure(
+      receipt.cleanup.candidateCleanupDiagnostic,
+    ).malformed === false &&
     exactKeys(receipt.cleanup.resourceObservation, [
       'status',
       'evidenceSha256',
@@ -3761,6 +3833,8 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     RETAINED_NAMES.every((name) => receipt.cleanup.retained?.[name] === 0) &&
     canonicalJson(receipt.cleanup?.retentionAuthority) ===
       canonicalJson(RETENTION_AUTHORITY) &&
+    receipt.cleanup?.candidateCleanupDiagnostic?.status === 'read' &&
+    receipt.cleanup.candidateCleanupDiagnostic.failureCategory === null &&
     (
       receipt.cleanup?.resourceObservation?.status === 'verified' ||
       receipt.cleanup?.resourceObservation?.status ===

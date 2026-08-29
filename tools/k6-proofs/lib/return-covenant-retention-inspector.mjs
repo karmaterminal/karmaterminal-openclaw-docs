@@ -48,6 +48,12 @@ const CONTINUATION_FLOW_CONTROLLERS = new Set([
   'core/continuation-delegate',
   'core/continuation-post-compaction',
 ]);
+const TERMINAL_FLOW_STATUSES = new Set([
+  'succeeded',
+  'failed',
+  'cancelled',
+  'lost',
+]);
 const SUBAGENT_EXECUTION_STATUSES = new Set([
   'queued',
   'running',
@@ -857,6 +863,101 @@ function decodeSubagentRow(row) {
   };
 }
 
+function nonNegativeInteger(value) {
+  return Number.isSafeInteger(value) && value >= 0;
+}
+
+function positiveInteger(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
+function validateContinuationWorkState(state) {
+  if (
+    !isRecord(state) ||
+    state.kind !== 'continuation_work' ||
+    !nonEmptyString(state.sessionKey) ||
+    !positiveInteger(state.hop) ||
+    !nonNegativeInteger(state.delayMs) ||
+    !nonNegativeInteger(state.electedAt) ||
+    !nonNegativeInteger(state.dueAt) ||
+    !positiveInteger(state.maxChainLength)
+  ) {
+    throw new Error('continuation work flow has malformed state_json');
+  }
+  for (const name of [
+    'recoveryDueAt',
+    'chainStartedAt',
+    'accumulatedChainTokens',
+    'anchorFinalizedAt',
+    'releasedAt',
+    'deliveredAt',
+    'turnGrantedAt',
+    'foldedAt',
+    'overdueByMs',
+    'retryCount',
+    'busySkipCount',
+  ]) {
+    if (state[name] !== undefined && !nonNegativeInteger(state[name])) {
+      throw new Error(`continuation work flow has malformed ${name}`);
+    }
+  }
+  for (const name of [
+    'reason',
+    'parentRunId',
+    'chainId',
+    'traceparent',
+    'originRunId',
+    'originTurnId',
+  ]) {
+    if (state[name] !== undefined && typeof state[name] !== 'string') {
+      throw new Error(`continuation work flow has malformed ${name}`);
+    }
+  }
+  if (
+    (state.traceparentProvenance !== undefined &&
+      state.traceparentProvenance !== 'internal') ||
+    (state.anchorPending !== undefined &&
+      typeof state.anchorPending !== 'boolean') ||
+    (state.disposition !== undefined &&
+      state.disposition !== 'granted' &&
+      state.disposition !== 'folded-active')
+  ) {
+    throw new Error('continuation work flow has malformed state_json');
+  }
+  if (state.idleRetry !== undefined) {
+    if (
+      !isRecord(state.idleRetry) ||
+      !['reply-run-ended', 'command-lane-idle']
+        .includes(state.idleRetry.trigger) ||
+      !['follow-up-work', 'wait-shaped', 'unknown']
+        .includes(state.idleRetry.reasonCategory) ||
+      !nonNegativeInteger(state.idleRetry.armedAt)
+    ) {
+      throw new Error('continuation work flow has malformed idleRetry');
+    }
+  }
+  if (
+    state.succeeded !== undefined &&
+    (
+      !isRecord(state.succeeded) ||
+      state.succeeded.point !== 'optimal' ||
+      state.succeeded.durability !== 'durable' ||
+      Object.keys(state.succeeded).length !== 2
+    )
+  ) {
+    throw new Error('continuation work flow has malformed succeeded state');
+  }
+}
+
+function isTerminalFlowRow(row) {
+  return TERMINAL_FLOW_STATUSES.has(row.status) ||
+    (row.status === 'blocked' && row.ended_at !== null);
+}
+
+function hasTerminalNoticeField(state) {
+  return isRecord(state) && Object.hasOwn(state, 'terminalNoticePending');
+}
+
 function isRetainedFlow(row, state) {
   if (
     !nonEmptyString(row.flow_id) ||
@@ -868,33 +969,54 @@ function isRetainedFlow(row, state) {
     throw new Error('flow_runs contains unknown or malformed lifecycle state');
   }
   if (row.controller_id === 'core/continuation-work') {
-    if (
-      row.sync_mode !== 'managed' ||
-      !isRecord(state) ||
-      state.kind !== 'continuation_work' ||
-      !nonEmptyString(state.sessionKey) ||
-      state.sessionKey.trim() !== row.owner_key.trim()
-    ) {
+    if (row.sync_mode !== 'managed') {
       throw new Error('continuation work flow has malformed state_json');
     }
+    validateContinuationWorkState(state);
+    if (state.sessionKey.trim() !== row.owner_key.trim()) {
+      throw new Error(
+        'continuation work flow has malformed state_json',
+      );
+    }
+    const terminalNoticePending = hasTerminalNoticeField(state);
     if (
-      state.succeeded !== undefined &&
+      terminalNoticePending &&
+      state.terminalNoticePending !== 'retry-exhausted'
+    ) {
+      throw new Error(
+        'continuation work flow has malformed terminal notice marker',
+      );
+    }
+    if (
+      terminalNoticePending &&
       (
-        !isRecord(state.succeeded) ||
-        state.succeeded.point !== 'optimal' ||
-        state.succeeded.durability !== 'durable' ||
-        Object.keys(state.succeeded).length !== 2
+        row.status !== 'failed' ||
+        row.ended_at === null ||
+        row.cancel_requested_at !== null ||
+        state.succeeded !== undefined
       )
     ) {
       throw new Error(
-        'continuation work flow has malformed succeeded state',
+        'continuation work flow has contradictory terminal notice state',
       );
     }
     return (
-      row.cancel_requested_at === null &&
-      (row.status === 'queued' || row.status === 'running') &&
-      state.succeeded === undefined
+      terminalNoticePending ||
+      (
+        row.cancel_requested_at === null &&
+        (row.status === 'queued' || row.status === 'running') &&
+        state.succeeded === undefined
+      )
     );
+  }
+  if (hasTerminalNoticeField(state)) {
+    if (state.terminalNoticePending !== true) {
+      throw new Error('task flow has malformed terminal notice marker');
+    }
+    if (!isTerminalFlowRow(row)) {
+      throw new Error('task flow has contradictory terminal notice state');
+    }
+    return true;
   }
   if (
     row.controller_id === 'core/continuation-delegate' ||
@@ -1717,12 +1839,15 @@ function buildResources(global, agentResults) {
       state = parseJsonValue(row.state_json, 'flow_runs.state_json');
     }
     const retained = isRetainedFlow(row, state);
-    if (CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id)) {
+    const retentionRelevantFlow =
+      CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id) ||
+      hasTerminalNoticeField(state);
+    if (retentionRelevantFlow) {
       runBoundSessionKeys.add(row.owner_key.trim());
       collectFlowSessionKeys(state, runBoundSessionKeys);
     }
     if (retained) {
-      if (!CONTINUATION_FLOW_CONTROLLERS.has(row.controller_id)) {
+      if (!retentionRelevantFlow) {
         throw new Error('unknown continuation flow controller escaped filtering');
       }
       queueItems.push({

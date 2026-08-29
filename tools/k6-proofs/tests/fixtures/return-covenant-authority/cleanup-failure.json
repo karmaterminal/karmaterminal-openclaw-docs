@@ -22,6 +22,10 @@
     "caseHandles": "docs-owned-phase-chain-ledger",
     "candidateCleanup": "untrusted-diagnostic-only"
   },
+  "candidateCleanupDiagnostic": {
+    "status": "read",
+    "failureCategory": null
+  },
   "resourceObservation": {
     "status": "unverified-resource-retention",
     "evidenceSha256": "8888888888888888888888888888888888888888888888888888888888888888",

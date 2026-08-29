@@ -16,6 +16,7 @@
     "endedAt",
     "retained",
     "retentionAuthority",
+    "candidateCleanupDiagnostic",
     "resourceObservation",
     "durableStoreObservation",
     "homeRemoved",
@@ -97,6 +98,59 @@
           "const": "untrusted-diagnostic-only"
         }
       }
+    },
+    "candidateCleanupDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "failureCategory"],
+      "properties": {
+        "status": {
+          "enum": ["read", "missing", "invalid"]
+        },
+        "failureCategory": {
+          "enum": [
+            null,
+            "missing",
+            "symlink",
+            "access-denied",
+            "invalid-file-type",
+            "path-rejected",
+            "size-bound",
+            "malformed-json",
+            "invalid-shape"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": { "const": "read" },
+            "failureCategory": { "const": null }
+          }
+        },
+        {
+          "properties": {
+            "status": { "const": "missing" },
+            "failureCategory": { "const": "missing" }
+          }
+        },
+        {
+          "properties": {
+            "status": { "const": "invalid" },
+            "failureCategory": {
+              "enum": [
+                "symlink",
+                "access-denied",
+                "invalid-file-type",
+                "path-rejected",
+                "size-bound",
+                "malformed-json",
+                "invalid-shape"
+              ]
+            }
+          }
+        }
+      ]
     },
     "durableStoreObservation": {
       "type": "object",

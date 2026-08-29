@@ -286,6 +286,8 @@ export default function () {
   const started = exec.instance.currentTestRunDuration;
   const observations = [];
   const phaseChains = [];
+  const issuedCaseHandles = [];
+  const closedCaseHandles = [];
   const executionErrors = [];
   let scenarioFailures = 0;
   let retentionTarget = {
@@ -317,6 +319,11 @@ export default function () {
         throw new Error('prepare did not return a case handle');
       }
       phaseChain.caseHandle = caseHandle;
+      issuedCaseHandles.push({
+        caseId: execution.caseId,
+        form: execution.form,
+        caseHandle,
+      });
       phaseChain.prepare = prepared.prepare;
       phaseChain.proofs.prepare = prepared.driverBinding;
       if (
@@ -410,6 +417,12 @@ export default function () {
           }));
           phaseChain.cleanup = cleaned.cleanup;
           phaseChain.proofs.cleanup = cleaned.driverBinding;
+          closedCaseHandles.push({
+            caseId: execution.caseId,
+            form: execution.form,
+            caseHandle,
+            cleanupRequestNonce: cleaned.driverBinding.requestNonce,
+          });
         } catch (error) {
           failures.add(1);
           scenarioFailures += 1;
@@ -457,6 +470,16 @@ export default function () {
     endedAt: null,
     observations,
     phaseChains,
+    caseHandleLedger: {
+      schema: 'openclaw.k6.return-covenant-case-handle-ledger.v1',
+      issued: issuedCaseHandles,
+      closed: closedCaseHandles,
+      open: issuedCaseHandles.filter((issued) =>
+        !closedCaseHandles.some((closed) =>
+          closed.caseId === issued.caseId &&
+          closed.form === issued.form &&
+          closed.caseHandle === issued.caseHandle)),
+    },
     executionErrors,
     scenarioFailures,
     driverAttestationSha256: driverAttestation.attestationSha256,
@@ -470,6 +493,7 @@ export default function () {
   });
   evidence.endedAt = new Date().toISOString();
   console.log(`${RETURN_COVENANT_EVIDENCE_PREFIX}${JSON.stringify(evidence)}`);
+  sleep(1);
   console.log(
     `[${plan.rowId}] VERDICT: PARTIAL-candidate pending signed observer receipt`,
   );

@@ -266,6 +266,14 @@ The phase order is fixed:
    wall/monotonic timing, product and runtime SHAs, run ID, and final gateway
    namespace PID/start identity. Launcher-owned `/proc` samples must bracket
    that observation while the same PID/start/socket is still listening.
+9. In parallel, the launcher reads the isolated runtime's canonical durable
+   stores itself: `state/openclaw.sqlite` `flow_runs` and `subagent_runs`, plus
+   every contained agent `sessions.json`. The no-follow reader validates the
+   exact required columns, file identity, bounds, and raw snapshot digest. It
+   repeats the read after graceful process exit but before deleting the
+   isolated state root, and requires the live/final resource sets to be
+   identical. The gateway arrays are corroboration only and must match these
+   independently derived sets.
    Only then is the evidence line emitted. k6 teardown returns the same
    idempotent cleanup-run receipt and destroys the isolated runtime.
 
@@ -317,11 +325,17 @@ A `PASS-candidate` requires all 24 case/form observations exactly once:
   bounds, and bound to the final launcher-observed gateway PID/start/socket;
   unsupported, malformed, partial, stale, mismatched, or capped inspection is
   `unverified-resource-retention`, never zero;
-- the launcher derives delegate, queue-item, and temporary-session counts from
-  the raw gateway arrays; derives gateway and fixture-process counts from its
-  `/proc` PID/start, process-group, and socket observations; derives
+- the launcher derives active delegates from canonical `subagent_runs`, queued
+  continuation work from canonical `flow_runs`, and temporary sessions from
+  contained canonical `sessions.json` stores. Missing, changed, symlinked,
+  malformed, schema-drifted, unstable, or over-limit stores force
+  `unverified-resource-retention`; a gateway response that disagrees with the
+  durable stores also fails;
+- the launcher derives gateway and fixture-process counts from its `/proc`
+  PID/start, process-group, and socket observations; derives
   `allCaseHandlesClosed` and the handle set from exact phase-chain coverage and
-  valid cleanup proofs; and requires every count to be zero; and
+  the docs-owned issued/closed/open request ledger, not any `closed` value in
+  candidate cleanup; and requires every count to be zero; and
 - the launcher directly confirms its run root, snapshot, home, state,
   and config paths are absent and both attested PID/start identities are gone;
   the monitored process group is empty; and the launcher-only observer key
@@ -361,11 +375,12 @@ The final product lane must supply, from the exact candidate tree:
 8. successor transcript and trusted system-event marker scans; and
 9. a real gateway resource-inspection seam whose arrays are backed by the
    isolated continuation delegate/queue/session stores, not a driver summary;
-   and
-10. launcher-derived cleanup after the fixture and isolated gateway processes
+10. the canonical isolated `openclaw.sqlite` flow/subagent tables and
+   `sessions.json` stores must remain directly readable by the launcher; and
+11. launcher-derived cleanup after the fixture and isolated gateway processes
    stop.
 
-Until all ten are present, the plan must say
+Until all eleven are present, the plan must say
 `driver.fixtureCommand.status=missing-product-seam`; the k6 scenario refuses to
 start.
 
@@ -464,6 +479,7 @@ The repository-local owner test covers:
 | resource-inspection seam missing/unsupported | `unverified-resource-retention` |
 | stale run/SHA/gateway PID/start/socket/timestamp | `unverified-resource-retention` or cleanup failure |
 | malformed, partial, count-mismatched, or over-limit inspection | `unverified-resource-retention` |
+| attested gateway itself emits forged clean arrays over retained durable state | `resource-retention` and `unverified-resource-retention` |
 | clean direct inspection plus independent process teardown | `PASS-candidate` |
 | one identifier reused across phases | `phase-chain-mismatch` |
 | phase response without launcher HMAC | `phase-proof-mismatch` |

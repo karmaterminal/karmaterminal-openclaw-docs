@@ -42,6 +42,9 @@ import {
   RETURN_COVENANT_DRIVER_SCHEMA,
   validateReturnCovenantPlan,
 } from '../lib/return-covenant-scenario-contract.mjs';
+import {
+  inspectReturnCovenantDurableStores,
+} from '../lib/return-covenant-retention-inspector.mjs';
 
 const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -56,6 +59,7 @@ const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/lib/return-covenant-authoritative-receipt.mjs',
   'tools/k6-proofs/lib/return-covenant-candidate-io.mjs',
   'tools/k6-proofs/lib/return-covenant-driver-attestation.mjs',
+  'tools/k6-proofs/lib/return-covenant-retention-inspector.mjs',
   'tools/k6-proofs/lib/return-covenant-scenario-contract.mjs',
   'tools/k6-proofs/lib/signed-observer-receipt.mjs',
   'tools/k6-proofs/scripts/launch-return-covenant-driver.mjs',
@@ -771,6 +775,7 @@ async function main() {
   let monitorActive = false;
   let monitorError = null;
   let monitorPromise = null;
+  let liveStoreObservationPromise = null;
   const handleTermination = () => {
     if (child) void terminateProcessGroup(child.pid);
   };
@@ -942,6 +947,35 @@ async function main() {
       capturedK6Log += chunk.toString('utf8');
       if (capturedK6Log.length > 20_000_000) {
         void terminateProcessGroup(child.pid);
+      }
+      if (!liveStoreObservationPromise) {
+        const line = capturedK6Log
+          .split(/\r?\n/u)
+          .find((entry) => entry.includes(
+            'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE ',
+          ));
+        const offset = line?.indexOf(
+          'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE ',
+        ) ?? -1;
+        if (offset >= 0) {
+          try {
+            const liveEvidence = JSON.parse(
+              line.slice(
+                offset +
+                  'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE '.length,
+              ),
+            );
+            liveStoreObservationPromise =
+              inspectReturnCovenantDurableStores({
+                plan,
+                evidence: liveEvidence,
+                statePath,
+                runtimeAlive: true,
+              });
+          } catch {
+            // Wait for the complete newline-delimited evidence record.
+          }
+        }
       }
     });
     child.stderr.on('data', (chunk) => {
@@ -1214,6 +1248,33 @@ async function main() {
     }
     const evidence = parseReturnCovenantEvidenceLog(capturedK6Log);
     evidence.k6ExitCode = actualK6ExitCode;
+    const finalStoreObservation =
+      await inspectReturnCovenantDurableStores({
+        plan,
+        evidence,
+        statePath,
+        runtimeAlive: false,
+      });
+    const liveStoreObservation = liveStoreObservationPromise
+      ? await liveStoreObservationPromise
+      : {
+        ...finalStoreObservation,
+        status: 'unverified-resource-retention',
+        failureReason:
+          'docs-owned durable-store observation did not run while the isolated runtime was live',
+        runtimeAlive: false,
+      };
+    const stableStoreResources =
+      liveStoreObservation.status === 'observed' &&
+      finalStoreObservation.status === 'observed' &&
+      canonicalJson(liveStoreObservation.resources) ===
+        canonicalJson(finalStoreObservation.resources);
+    const durableStoreObservation = {
+      schema: 'openclaw.k6.return-covenant-durable-store-chain.v1',
+      stable: stableStoreResources,
+      live: liveStoreObservation,
+      final: finalStoreObservation,
+    };
     const cleanupStartedAt = new Date().toISOString();
     let candidateCleanupClaims = null;
     let candidateCleanupStatus = 'read';
@@ -1289,6 +1350,7 @@ async function main() {
       evidence,
       driverAttestation: attestation,
       gatewayLifecycle,
+      durableStoreObservation,
     });
     const snapshotHead = (await execFileAsync('git', [
       '-C',
@@ -1328,6 +1390,7 @@ async function main() {
       },
       retentionAuthority: RETURN_COVENANT_RETENTION_AUTHORITY,
       resourceObservation: retention.resourceObservation,
+      durableStoreObservation,
       allCaseHandlesClosed: closure.allCaseHandlesClosed,
       caseHandles: closure.caseHandles,
       observationSetSha256: sha256(canonicalJson(evidence.observations)),

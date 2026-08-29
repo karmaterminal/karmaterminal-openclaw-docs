@@ -17,6 +17,7 @@
     "retained",
     "retentionAuthority",
     "resourceObservation",
+    "durableStoreObservation",
     "homeRemoved",
     "stateRemoved",
     "configRemoved",
@@ -74,13 +75,17 @@
       "additionalProperties": false,
       "required": [
         "resourceState",
+        "gatewayState",
         "processState",
         "caseHandles",
         "candidateCleanup"
       ],
       "properties": {
         "resourceState": {
-          "const": "docs-owned-gateway-observation"
+          "const": "docs-owned-isolated-durable-store-observation"
+        },
+        "gatewayState": {
+          "const": "docs-owned-gateway-corroboration"
         },
         "processState": {
           "const": "trusted-launcher-proc-observation"
@@ -91,6 +96,19 @@
         "candidateCleanup": {
           "const": "untrusted-diagnostic-only"
         }
+      }
+    },
+    "durableStoreObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "stable", "live", "final"],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-durable-store-chain.v1"
+        },
+        "stable": { "type": "boolean" },
+        "live": { "$ref": "#/$defs/storeObservation" },
+        "final": { "$ref": "#/$defs/storeObservation" }
       }
     },
     "resourceObservation": {
@@ -270,6 +288,45 @@
       "type": "string",
       "format": "date-time",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "storeObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "failureReason",
+        "source",
+        "runtimeAlive",
+        "requestedAt",
+        "observedAt",
+        "identity",
+        "resources",
+        "sourceBinding",
+        "rawSnapshotSha256"
+      ],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-store-observation.v1"
+        },
+        "status": {
+          "enum": ["observed", "unverified-resource-retention"]
+        },
+        "failureReason": { "type": ["string", "null"] },
+        "source": {
+          "const": "docs-owned-isolated-durable-store-reader"
+        },
+        "runtimeAlive": { "type": "boolean" },
+        "requestedAt": { "$ref": "#/$defs/timestamp" },
+        "observedAt": { "$ref": "#/$defs/timestamp" },
+        "identity": { "type": "object" },
+        "resources": { "type": "object" },
+        "sourceBinding": { "type": ["object", "null"] },
+        "rawSnapshotSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
     }
   }
 }

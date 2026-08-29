@@ -81,6 +81,7 @@ const TRUSTED_HARNESS_FILES = [
   'lib/return-covenant-authoritative-receipt.mjs',
   'lib/return-covenant-candidate-io.mjs',
   'lib/return-covenant-driver-attestation.mjs',
+  'lib/return-covenant-retention-inspector.mjs',
   'lib/return-covenant-scenario-contract.mjs',
   'lib/signed-observer-receipt.mjs',
   'scripts/launch-return-covenant-driver.mjs',
@@ -589,6 +590,105 @@ function retentionObservationFor({
   };
 }
 
+function durableStoreObservationFor({
+  plan,
+  evidence,
+  retained = {},
+}) {
+  const resources = {
+    delegates: Array.from(
+      { length: retained.delegates || 0 },
+      (_, index) => ({
+        id: `durable-delegate-${index}`,
+        childSessionKey: `agent:proof:${plan.runId}:child-${index}`,
+        requesterSessionKey: plan.cases[0].logicalSessionKey,
+        controllerSessionKey: plan.cases[0].logicalSessionKey,
+        endedAt: null,
+        cleanupHandled: 0,
+        pendingFinalDelivery: 1,
+      }),
+    ),
+    queueItems: Array.from(
+      { length: retained.queueItems || 0 },
+      (_, index) => ({
+        id: `durable-queue-${index}`,
+        ownerKey: plan.cases[0].logicalSessionKey,
+        controllerId: 'core/continuation-delegate',
+        status: 'queued',
+        stateSha256: sha256(`queue-state-${index}`),
+      }),
+    ),
+    temporarySessions: Array.from(
+      { length: retained.temporarySessions || 0 },
+      (_, index) => ({
+        id: `agent:proof:${plan.runId}:temporary-${index}`,
+        entrySha256: sha256(`session-entry-${index}`),
+        storePathFingerprint: sha256('/isolated/state/sessions.json'),
+      }),
+    ),
+  };
+  const identity = {
+    rowId: plan.rowId,
+    runId: plan.runId,
+    candidateSha: plan.target.candidateSha,
+    runtimeBuildSha: plan.target.runtimeBuildSha,
+    docsHarnessSha: plan.target.docsHarnessSha,
+    runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    observationSetSha256: jsonSha256(evidence.observations),
+    phaseChainSha256: jsonSha256(evidence.phaseChains),
+    cleanupRunReceiptId: evidence.cleanupRun.receiptId,
+  };
+  const sourceBinding = {
+    sqlite: {
+      pathFingerprint: sha256('/isolated/state/openclaw.sqlite'),
+      dev: '1',
+      ino: '2',
+      size: 4096,
+      mtimeMs: 1,
+      schemaSha256: sha256('canonical-retention-schema'),
+    },
+    sessionStores: [{
+      pathFingerprint: sha256('/isolated/state/sessions.json'),
+      dev: '1',
+      ino: '3',
+      size: 3,
+      mtimeMs: 1,
+      sha256: sha256('{}\n'),
+    }],
+  };
+  const snapshot = ({ runtimeAlive, requestedAt, observedAt }) => ({
+    schema: 'openclaw.k6.return-covenant-store-observation.v1',
+    status: 'observed',
+    failureReason: null,
+    source: 'docs-owned-isolated-durable-store-reader',
+    runtimeAlive,
+    requestedAt,
+    observedAt,
+    identity,
+    resources,
+    sourceBinding,
+    rawSnapshotSha256: jsonSha256({
+      identity,
+      resources,
+      source: sourceBinding,
+    }),
+  });
+  return {
+    schema: 'openclaw.k6.return-covenant-durable-store-chain.v1',
+    stable: true,
+    live: snapshot({
+      runtimeAlive: true,
+      requestedAt: '2026-08-28T12:09:31.010Z',
+      observedAt: '2026-08-28T12:09:31.020Z',
+    }),
+    final: snapshot({
+      runtimeAlive: false,
+      requestedAt: '2026-08-28T12:09:31.500Z',
+      observedAt: '2026-08-28T12:09:31.510Z',
+    }),
+  };
+}
+
 function mutateRetentionResponse(evidence, mutation) {
   const response = JSON.parse(evidence.retentionObservation.response.body);
   mutation(response);
@@ -636,6 +736,21 @@ function resignCleanup(cleanup) {
 
 function rebindEvidenceForRetention(plan, evidence, driverAttestation) {
   refreshPhaseProofs(evidence, driverAttestation);
+  evidence.caseHandleLedger = {
+    schema: 'openclaw.k6.return-covenant-case-handle-ledger.v1',
+    issued: evidence.phaseChains.map((chain) => ({
+      caseId: chain.caseId,
+      form: chain.form,
+      caseHandle: chain.caseHandle,
+    })),
+    closed: evidence.phaseChains.map((chain) => ({
+      caseId: chain.caseId,
+      form: chain.form,
+      caseHandle: chain.caseHandle,
+      cleanupRequestNonce: chain.proofs?.cleanup?.requestNonce,
+    })),
+    open: [],
+  };
   evidence.cleanupRun = {
     ...evidence.cleanupRun,
     observationSetSha256: jsonSha256(evidence.observations),
@@ -747,7 +862,13 @@ async function completeMatrix(options = {}) {
   return result;
 }
 
-function bindCleanup(cleanup, evidence, driverAttestation, plan) {
+function bindCleanup(
+  cleanup,
+  evidence,
+  driverAttestation,
+  plan,
+  durableStoreObservation,
+) {
   refreshPhaseProofs(evidence, driverAttestation);
   evidence.cleanupRun = {
     ...evidence.cleanupRun,
@@ -826,11 +947,32 @@ function bindCleanup(cleanup, evidence, driverAttestation, plan) {
     evidence,
     driverAttestation,
   });
+  let gatewayRetained = {};
+  try {
+    const gatewayResponse = JSON.parse(
+      evidence.retentionObservation.response.body,
+    );
+    gatewayRetained = Object.fromEntries(
+      Object.keys(retentionResourceMethods).map((name) => [
+        name,
+        gatewayResponse.resources?.[name]?.items?.length || 0,
+      ]),
+    );
+  } catch {
+    gatewayRetained = {};
+  }
+  const storeObservation = durableStoreObservation ||
+    durableStoreObservationFor({
+      plan,
+      evidence,
+      retained: gatewayRetained,
+    });
   const retention = deriveReturnCovenantTrustedRetention({
     plan,
     evidence,
     driverAttestation,
     gatewayLifecycle,
+    durableStoreObservation: storeObservation,
   });
   const unsigned = {
     ...cleanupWithoutIntegrity,
@@ -843,6 +985,7 @@ function bindCleanup(cleanup, evidence, driverAttestation, plan) {
     },
     retentionAuthority: RETURN_COVENANT_RETENTION_AUTHORITY,
     resourceObservation: retention.resourceObservation,
+    durableStoreObservation: storeObservation,
     allCaseHandlesClosed: closure.allCaseHandlesClosed,
     caseHandles: closure.caseHandles,
     observationSetSha256: jsonSha256(evidence.observations),
@@ -2568,7 +2711,18 @@ for (const category of Object.keys(retentionResourceMethods)) {
         }));
         assert.equal(result.candidateDiagnostic.passEligible, false);
         assert.equal(result.candidateDiagnostic.claims.retained[category], 0);
-        assert.equal(result.cleanup.retained[category], 1);
+        assert.equal(
+          result.cleanup.retained[category],
+          1,
+          JSON.stringify({
+            category,
+            durableStoreObservation:
+              result.cleanup.durableStoreObservation,
+            gatewayObservation: JSON.parse(
+              result.evidence.retentionObservation.response.body,
+            ).resources[category],
+          }),
+        );
         assert.equal(result.cleanup.resourceObservation.status, 'verified');
         assert.equal(result.cleanup.retained.gateways, 0);
         assert.equal(result.cleanup.retained.fixtureProcesses, 0);
@@ -2608,6 +2762,69 @@ test('trusted launcher rejects retention inspection redirected off gateway socke
     assert.equal(
       result.evidence.retentionObservation.response.url,
       `${result.evidence.retentionObservation.target.endpoint}/v1/return-covenant/resource-inspection`,
+    );
+  } finally {
+    await result.dispose();
+  }
+});
+
+test('trusted launcher rejects forged-clean arrays from the attested gateway', async () => {
+  const result = await runTrustedLauncherFixture((source) =>
+    source
+      .replace('retainedResource: null', "retainedResource: 'delegates'")
+      .replace('inspectionFault: null', "inspectionFault: 'forged-clean'")
+      .replace('candidateClaimsClean: false', 'candidateClaimsClean: true'));
+  try {
+    assert.equal(result.launcherExitCode, 1);
+    assert.equal(result.candidateDiagnostic.claims.retained.delegates, 0);
+    const gatewayResponse = JSON.parse(
+      result.evidence.retentionObservation.response.body,
+    );
+    assert.equal(gatewayResponse.resources.delegates.items.length, 0);
+    assert.equal(result.cleanup.retained.delegates, 1);
+    assert.equal(
+      result.cleanup.durableStoreObservation.live.resources.delegates.length,
+      1,
+    );
+    assert.equal(
+      result.cleanup.durableStoreObservation.final.resources.delegates.length,
+      1,
+    );
+    assert.equal(result.receipt.verdict, 'FAIL-candidate');
+    assert.ok(result.receipt.failureCategories.includes('resource-retention'));
+    assert.ok(
+      result.receipt.failureCategories.includes(
+        'unverified-resource-retention',
+      ),
+    );
+  } finally {
+    await result.dispose();
+  }
+});
+
+test('trusted launcher rejects clean arrays relayed through the attested gateway', async () => {
+  const result = await runTrustedLauncherFixture((source) =>
+    source
+      .replace('retainedResource: null', "retainedResource: 'delegates'")
+      .replace('inspectionFault: null', "inspectionFault: 'relay'")
+      .replace('candidateClaimsClean: false', 'candidateClaimsClean: true'));
+  try {
+    assert.equal(result.launcherExitCode, 1);
+    const gatewayResponse = JSON.parse(
+      result.evidence.retentionObservation.response.body,
+    );
+    assert.equal(gatewayResponse.resources.delegates.items.length, 0);
+    assert.equal(
+      result.evidence.retentionObservation.response.url,
+      `${result.evidence.retentionObservation.target.endpoint}/v1/return-covenant/resource-inspection`,
+    );
+    assert.equal(result.cleanup.retained.delegates, 1);
+    assert.equal(result.receipt.verdict, 'FAIL-candidate');
+    assert.ok(result.receipt.failureCategories.includes('resource-retention'));
+    assert.ok(
+      result.receipt.failureCategories.includes(
+        'unverified-resource-retention',
+      ),
     );
   } finally {
     await result.dispose();
@@ -2766,12 +2983,21 @@ test('published closed schemas declare required properties and accept passing fi
   schemas.forEach((schema, index) =>
     assertClosedSchemaDeclaresRequired(schema, schemaNames[index]));
   const cleanupSchema = schemas[0];
+  const {
+    plan,
+    evidence,
+    driverAttestation,
+  } = await completeMatrix();
   assertSimpleSchema(
     cleanupSchema,
-    await fixture('cleanup-pass.json'),
+    bindCleanup(
+      await fixture('cleanup-pass.json'),
+      evidence,
+      driverAttestation,
+      plan,
+    ),
     cleanupSchema,
   );
-  const { evidence } = await completeMatrix();
   assertSimpleSchema(
     schemas.at(-1),
     evidence.retentionObservation,

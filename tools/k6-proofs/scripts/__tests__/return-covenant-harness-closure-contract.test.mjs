@@ -17,6 +17,7 @@ test('return covenant harness is complete but remains outside proof authority re
     observerSchemaRaw,
     cleanupSchemaRaw,
     retentionSchemaRaw,
+    retentionInspector,
     launcher,
     supervisor,
     mockDriver,
@@ -32,6 +33,7 @@ test('return covenant harness is complete but remains outside proof authority re
     read('contracts/return-covenant-authority/observer.schema.json'),
     read('contracts/return-covenant-authority/cleanup.schema.json'),
     read('contracts/return-covenant-authority/retention-observation.schema.json'),
+    read('lib/return-covenant-retention-inspector.mjs'),
     read('scripts/launch-return-covenant-driver.mjs'),
     read('scripts/run-return-covenant-sandbox.mjs'),
     read('tests/fixtures/return-covenant-authority/mock-product-driver.mjs'),
@@ -59,6 +61,9 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(documentation, /docs-owned scenario[\s\S]*resource-inspection/i);
   assert.match(documentation, /unverified-resource-retention/);
   assert.match(documentation, /candidate-cleanup-diagnostic\.json/);
+  assert.match(documentation, /state\/openclaw\.sqlite/);
+  assert.match(documentation, /subagent_runs/);
+  assert.match(documentation, /flow_runs/);
   assert.match(documentation, /92affa163c0e14f7cd9d1ef76ac19f089d85b503/);
   assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
   assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
@@ -117,6 +122,7 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(launcher, /terminateProcessGroup/);
   assert.match(launcher, /deriveReturnCovenantCaseHandleClosure/);
   assert.match(launcher, /deriveReturnCovenantTrustedRetention/);
+  assert.match(launcher, /inspectReturnCovenantDurableStores/);
   assert.match(launcher, /candidate-cleanup-diagnostic\.json/);
   assert.doesNotMatch(launcher, /retained:\s*cleanupDraft\.retained/);
   assert.doesNotMatch(
@@ -150,7 +156,15 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(observer, /stale-side-effect/);
   assert.match(observer, /cleanup-failure/);
   assert.match(observer, /unverified-resource-retention/);
-  assert.match(observer, /docs-owned-gateway-observation/);
+  assert.match(observer, /docs-owned-gateway-corroboration/);
+  assert.match(
+    observer,
+    /docs-owned-isolated-durable-store-observation/,
+  );
+  assert.match(retentionInspector, /new DatabaseSync/);
+  assert.match(retentionInspector, /FROM flow_runs/);
+  assert.match(retentionInspector, /FROM subagent_runs/);
+  assert.match(retentionInspector, /O_NOFOLLOW/);
   assert.match(observer, /forbidden-value scan/);
   assert.match(scenarioContract, /typed-tool[\s\S]*bracket-token/);
   assert.match(scenarioContract, /covenant-v18-upgrade/);

@@ -2,11 +2,14 @@ import { spawn } from 'node:child_process';
 import { createHash, createHmac } from 'node:crypto';
 import { once } from 'node:events';
 import {
+  mkdirSync,
   readFileSync,
   writeFileSync,
 } from 'node:fs';
 import http from 'node:http';
+import path from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { DatabaseSync } from 'node:sqlite';
 import { setTimeout as delay } from 'node:timers/promises';
 
 function canonicalValue(value) {
@@ -110,7 +113,7 @@ if (process.argv[2] === 'gateway') {
     let raw = '';
     request.setEncoding('utf8');
     request.on('data', (chunk) => { raw += chunk; });
-    request.on('end', () => {
+    request.on('end', async () => {
       const authorized =
         request.headers.authorization ===
         `Bearer ${process.env.OPENCLAW_GATEWAY_TOKEN}`;
@@ -156,6 +159,15 @@ if (process.argv[2] === 'gateway') {
         response.end('redirected');
         return;
       }
+      if (MOCK_CONTROL.inspectionFault === 'relay') {
+        const forged = await postJson(
+          `${process.env.RETURN_COVENANT_REDIRECT_ENDPOINT}/v1/return-covenant/forged-clean`,
+          JSON.parse(raw),
+        );
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(forged));
+        return;
+      }
       if (MOCK_CONTROL.inspectionFault === 'malformed') {
         response.setHeader('content-type', 'application/json');
         response.end('{"malformed":');
@@ -167,7 +179,9 @@ if (process.argv[2] === 'gateway') {
         : new Date().toISOString();
       const responseResources = Object.fromEntries(
         resourceCategories.map((category) => {
-          const items = [...resources[category]];
+          const items = MOCK_CONTROL.inspectionFault === 'forged-clean'
+            ? []
+            : [...resources[category]];
           return [category, {
             method: resourceMethods[category],
             complete: true,
@@ -255,6 +269,114 @@ if (process.argv[2] === 'gateway') {
     resourceCategories.map((category) => [category, new Map()]),
   );
   const retainedControlApplied = new Set();
+  const sqliteDir = path.join(process.env.OPENCLAW_STATE_DIR, 'state');
+  const sqlitePath = path.join(sqliteDir, 'openclaw.sqlite');
+  const sessionsDir = path.join(
+    process.env.OPENCLAW_STATE_DIR,
+    'agents',
+    'proof',
+    'sessions',
+  );
+  const sessionsPath = path.join(sessionsDir, 'sessions.json');
+  mkdirSync(sqliteDir, { recursive: true, mode: 0o700 });
+  mkdirSync(sessionsDir, { recursive: true, mode: 0o700 });
+  const stateDatabase = new DatabaseSync(sqlitePath);
+  stateDatabase.exec(`
+    CREATE TABLE flow_runs (
+      flow_id TEXT PRIMARY KEY,
+      owner_key TEXT NOT NULL,
+      controller_id TEXT,
+      status TEXT NOT NULL,
+      state_json TEXT,
+      created_at INTEGER NOT NULL
+    );
+    CREATE TABLE subagent_runs (
+      run_id TEXT PRIMARY KEY,
+      child_session_key TEXT NOT NULL,
+      controller_session_key TEXT,
+      requester_session_key TEXT NOT NULL,
+      ended_at INTEGER,
+      cleanup_handled INTEGER,
+      pending_final_delivery INTEGER,
+      created_at INTEGER NOT NULL
+    );
+  `);
+  const sessionStore = {};
+  writeFileSync(sessionsPath, '{}\n', { mode: 0o600 });
+
+  function persistSessionStore() {
+    writeFileSync(sessionsPath, `${JSON.stringify(sessionStore)}\n`, {
+      mode: 0o600,
+    });
+  }
+
+  function insertDurableCaseState(body, key) {
+    const durableSessionKey = `${body.logicalSessionKey}:${body.form}`;
+    sessionStore[durableSessionKey] = {
+      sessionId: `temporary-session-${key}`,
+      updatedAt: Date.now(),
+    };
+    persistSessionStore();
+    return durableSessionKey;
+  }
+
+  function insertDurableDispatchState(body, key) {
+    stateDatabase.prepare(`
+      INSERT INTO flow_runs (
+        flow_id, owner_key, controller_id, status, state_json, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `).run(
+      `queue-item-${key}`,
+      body.logicalSessionKey,
+      'core/continuation-delegate',
+      'queued',
+      JSON.stringify({ kind: 'continuation_delegate', runId: plan.runId }),
+      Date.now(),
+    );
+    stateDatabase.prepare(`
+      INSERT INTO subagent_runs (
+        run_id,
+        child_session_key,
+        controller_session_key,
+        requester_session_key,
+        ended_at,
+        cleanup_handled,
+        pending_final_delivery,
+        created_at
+      ) VALUES (?, ?, ?, ?, NULL, 0, 1, ?)
+    `).run(
+      `delegate-${key}`,
+      `agent:proof:${plan.runId}:child-${sha256(key).slice(0, 12)}`,
+      body.logicalSessionKey,
+      body.logicalSessionKey,
+      Date.now(),
+    );
+  }
+
+  function cleanupDurableCaseState(state) {
+    const key = state.key;
+    if (removeResourceUnlessRetained('delegates', `delegate-${key}`)) {
+      stateDatabase.prepare(`
+        UPDATE subagent_runs
+        SET ended_at = ?, cleanup_handled = 1, pending_final_delivery = 0
+        WHERE run_id = ?
+      `).run(Date.now(), `delegate-${key}`);
+    }
+    if (removeResourceUnlessRetained('queueItems', `queue-item-${key}`)) {
+      stateDatabase.prepare(
+        'DELETE FROM flow_runs WHERE flow_id = ?',
+      ).run(`queue-item-${key}`);
+    }
+    if (
+      removeResourceUnlessRetained(
+        'temporarySessions',
+        `temporary-session-${key}`,
+      )
+    ) {
+      delete sessionStore[state.durableSessionKey];
+      persistSessionStore();
+    }
+  }
 
   function resourceSnapshot() {
     return Object.fromEntries(
@@ -279,9 +401,10 @@ if (process.argv[2] === 'gateway') {
       !retainedControlApplied.has(category)
     ) {
       retainedControlApplied.add(category);
-      return;
+      return false;
     }
     resourceState[category].delete(id);
+    return true;
   }
 
   async function syncCurrentGateway() {
@@ -626,6 +749,8 @@ if (process.argv[2] === 'gateway') {
             `temporary-session-${key}`,
             'temporary',
           );
+          cases.get(caseHandle).durableSessionKey =
+            insertDurableCaseState(body, key);
           await syncCurrentGateway();
           payload = {
             caseHandle,
@@ -647,6 +772,7 @@ if (process.argv[2] === 'gateway') {
           };
           putResource('delegates', `delegate-${key}`, 'pending-return');
           putResource('queueItems', `queue-item-${key}`, 'held');
+          insertDurableDispatchState(state.request, key);
           await syncCurrentGateway();
           payload = { acceptance: state.acceptance };
         } else if (body.phase === 'transition') {
@@ -712,12 +838,7 @@ if (process.argv[2] === 'gateway') {
         } else if (body.phase === 'cleanup') {
           const state = cases.get(body.caseHandle);
           state.closed = true;
-          removeResourceUnlessRetained('delegates', `delegate-${key}`);
-          removeResourceUnlessRetained('queueItems', `queue-item-${key}`);
-          removeResourceUnlessRetained(
-            'temporarySessions',
-            `temporary-session-${key}`,
-          );
+          cleanupDurableCaseState(state);
           await syncCurrentGateway();
           payload = {
             cleanup: {
@@ -782,6 +903,7 @@ if (process.argv[2] === 'gateway') {
       driverAttestationSha256: attestation.attestationSha256,
       runCleanupReceiptId: cleanupRun.receiptId,
     }));
+    stateDatabase.close();
     driverServer.closeAllConnections();
     driverServer.close();
     process.exit(0);

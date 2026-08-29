@@ -16,7 +16,8 @@
     "fixtureProcesses": 1
   },
   "retentionAuthority": {
-    "resourceState": "docs-owned-gateway-observation",
+    "resourceState": "docs-owned-isolated-durable-store-observation",
+    "gatewayState": "docs-owned-gateway-corroboration",
     "processState": "trusted-launcher-proc-observation",
     "caseHandles": "docs-owned-phase-chain-ledger",
     "candidateCleanup": "untrusted-diagnostic-only"
@@ -30,6 +31,36 @@
     "gatewayStartFingerprint": null,
     "gatewaySocketFingerprint": null,
     "gatewayEndpoint": null
+  },
+  "durableStoreObservation": {
+    "schema": "openclaw.k6.return-covenant-durable-store-chain.v1",
+    "stable": false,
+    "live": {
+      "schema": "openclaw.k6.return-covenant-store-observation.v1",
+      "status": "unverified-resource-retention",
+      "failureReason": "fixture placeholder",
+      "source": "docs-owned-isolated-durable-store-reader",
+      "runtimeAlive": true,
+      "requestedAt": "2026-08-28T12:09:31.010Z",
+      "observedAt": "2026-08-28T12:09:31.020Z",
+      "identity": {},
+      "resources": {},
+      "sourceBinding": null,
+      "rawSnapshotSha256": null
+    },
+    "final": {
+      "schema": "openclaw.k6.return-covenant-store-observation.v1",
+      "status": "unverified-resource-retention",
+      "failureReason": "fixture placeholder",
+      "source": "docs-owned-isolated-durable-store-reader",
+      "runtimeAlive": false,
+      "requestedAt": "2026-08-28T12:09:31.500Z",
+      "observedAt": "2026-08-28T12:09:31.510Z",
+      "identity": {},
+      "resources": {},
+      "sourceBinding": null,
+      "rawSnapshotSha256": null
+    }
   },
   "homeRemoved": true,
   "stateRemoved": false,

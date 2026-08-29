@@ -2474,6 +2474,39 @@ test('durable inspector matches current product-shaped retention stores', async 
     }
   });
 
+  await t.test('writer-supplied media staging entry kind is canonical', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      const entry = {
+        id: 'media-stage-retained',
+        enqueuedAt: 1,
+        retryCount: 0,
+        artifacts: [],
+      };
+      fixtureState.database.prepare(`
+        INSERT INTO delivery_queue_entries (
+          queue_name, id, status, entry_kind, session_key, channel,
+          target, account_id, retry_count, last_attempt_at, last_error,
+          recovery_state, platform_send_started_at, entry_json,
+          enqueued_at, updated_at, failed_at
+        ) VALUES (
+          'outbound-media-staging', ?, 'pending',
+          'outbound-media-stage', NULL, NULL, NULL, NULL,
+          0, NULL, NULL, NULL, NULL, ?, 1, 1, NULL
+        )
+      `).run(entry.id, JSON.stringify(entry));
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+      assert.equal(observed.resources.queueItems.length, 1);
+      assert.equal(
+        observed.resources.queueItems[0].entryKind,
+        'outbound-media-stage',
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
   await t.test('retained canonical child session is relevant', async () => {
     const fixtureState = await createProductShapedRetentionFixture();
     try {

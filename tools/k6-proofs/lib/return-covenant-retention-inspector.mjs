@@ -931,7 +931,6 @@ function decodeDeliveryQueueRow(row) {
     'delivery_queue_entries.entry_json',
   );
   const metadata = {
-    entryKind: entry.kind ?? row.queue_name,
     sessionKey: entry.sessionKey ?? entry.session?.key ?? null,
     channel:
       entry.channel ??
@@ -993,7 +992,10 @@ function decodeDeliveryQueueRow(row) {
     (
       unfinished &&
       (
-        metadata.entryKind !== row.entry_kind ||
+        (
+          entry.kind !== undefined &&
+          entry.kind !== row.entry_kind
+        ) ||
         metadata.sessionKey !== row.session_key ||
         metadata.channel !== row.channel ||
         metadata.target !== row.target ||
@@ -1716,6 +1718,7 @@ function buildResources(global, agentResults) {
         id: `delivery:${row.queue_name}:${row.id}`,
         source: 'delivery_queue_entries',
         queueName: row.queue_name,
+        entryKind: row.entry_kind,
         status: row.status,
         recoveryState: row.recovery_state,
         sessionKey: row.session_key,

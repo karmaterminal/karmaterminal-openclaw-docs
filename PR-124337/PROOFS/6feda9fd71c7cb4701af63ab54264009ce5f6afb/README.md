@@ -6,6 +6,11 @@ prince runtime. A process-local Discord `MESSAGE_CREATE` fixture enters the
 production durable ingress monitor and production Discord dispatcher, which
 owns the Plugin SDK lifecycle fan-in.
 
+**Behavioral verdict: both exact transport rows PASS. Broad acceptance:
+FAIL.** Mode-B run `33318993673` completed with 20 deterministic failures
+outside the candidate delta; the red gate and full failure list are preserved
+in [`MODE-B.md`](MODE-B.md).
+
 ## Rows
 
 | Row | Execution | Contract |

@@ -41,4 +41,15 @@ Mode-B run `33318993673` targets product
 `codeagent/124337-feac2430-routing-independent-review-20260829`, whose run
 `headSha` is `d05778e6a96dd9a96946eff483e80c4d9ff9575e`.
 
-The final artifact disposition is recorded after the run completes.
+The run completed `failure`. Its authoritative artifact reports:
+
+- all 167 planned shards routed and all 69 routed-job receipts valid;
+- static gates, routing eligibility, the `channels` shard, the full
+  `extension-discord` shard, and `agentic-plugin-sdk` green;
+- 179,809 passed test executions, 25 failed executions, five load-flakes
+  greened, and 20 deterministic failures;
+- failed hosted, self-hosted, and self-hosted-dist lane guards.
+
+Every failure reds broad acceptance. See [`MODE-B.md`](MODE-B.md) and the
+unchanged aggregate receipts under
+[`artifacts/mode-b-33318993673/`](artifacts/mode-b-33318993673/).

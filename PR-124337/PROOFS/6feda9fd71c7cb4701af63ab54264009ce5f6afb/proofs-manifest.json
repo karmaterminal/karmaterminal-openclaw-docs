@@ -56,13 +56,23 @@
     "run_id": 33318993673,
     "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
     "workflow_sha": "d05778e6a96dd9a96946eff483e80c4d9ff9575e",
-    "status": "in_progress"
+    "status": "completed",
+    "verdict": "failure",
+    "receipts_valid": true,
+    "passed_test_executions": 179809,
+    "failed_test_executions": 25,
+    "deterministic_failures": 20,
+    "load_flakes_greened": 5,
+    "summary_markdown": "artifacts/mode-b-33318993673/summary.md",
+    "summary_json": "artifacts/mode-b-33318993673/summary.json",
+    "identity": "artifacts/mode-b-33318993673/run-identity.json",
+    "classification": "MODE-B.md"
   },
   "rollup": {
     "total_rows": 2,
     "pass": 2,
     "fail": 0,
-    "honest_limit": 0,
+    "honest_limit": 1,
     "transposed": 0
   }
 }

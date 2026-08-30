@@ -26,6 +26,54 @@ for (const relativePath of receipts) {
   assert.equal(envelope.payload.verdict, "PASS", `${relativePath}: non-PASS verdict`);
 }
 
+const rowA = (await readJson(
+  path.join(root, "A-GENUINE-ABANDONMENT-CEILING/receipt.json"),
+)).payload;
+const rowADurable = await readJson(
+  path.join(root, "A-GENUINE-ABANDONMENT-CEILING/durable-state.json"),
+);
+const rowARestart = await readJson(
+  path.join(root, "A-GENUINE-ABANDONMENT-CEILING/restart-state.json"),
+);
+assert.equal(
+  rowA.ordering.predicate,
+  "head.received_at < follower.received_at && head.failed_at < follower.completed_at",
+);
+assert.equal(rowA.ordering.strict, true);
+assert.ok(
+  rowA.ordering.head_received_at < rowA.ordering.follower_received_at,
+  "row A poison head must be admitted before its follower",
+);
+assert.ok(
+  rowA.ordering.head_failed_at < rowA.ordering.follower_completed_at,
+  "row A follower must complete strictly after its poison head fails",
+);
+assert.equal(rowA.dead_letter.failed_reason, "retry-limit-exceeded");
+assert.equal(rowA.dead_letter.last_error, "turn-abandoned");
+assert.equal(rowA.dead_letter.payload_retained, 1);
+assert.equal(rowA.dead_letter.raw_message_sha256, rowA.payload.sha256);
+assert.deepEqual(
+  rowADurable.ingress_rows
+    .filter((row) => row.status === "failed")
+    .map((row) => row.event_id),
+  [rowA.dead_letter.event_id],
+  "row A must contain exactly one dead letter",
+);
+assert.deepEqual(rowARestart.ingress_rows, rowADurable.ingress_rows);
+assert.deepEqual(rowARestart.session_rows, rowADurable.session_rows);
+assert.deepEqual(rowA.restart.replayed_ids, []);
+assert.equal(rowA.restart.terminal_state_equal, true);
+
+const rowB = (await readJson(
+  path.join(root, "B-MIXED-FANIN-CANCELLATION/receipt.json"),
+)).payload;
+assert.equal(rowB.mixed_fanin.capable_attempts, 0);
+assert.equal(rowB.mixed_fanin.legacy_fallback_attempts, 0);
+assert.equal(rowB.mixed_fanin.dead_letters, 0);
+assert.equal(rowB.explicit_modern.attempts, 0);
+assert.equal(rowB.explicit_modern.dead_letters, 0);
+assert.equal(rowB.genuine_abandonment_sibling_control.verdict, "PASS");
+
 const diagnosticDirectories = [
   "session-store-scope-failure",
   "timing-helper-failure",
@@ -56,6 +104,8 @@ assert.equal(manifest.target_exact_execution, true);
 assert.deepEqual(manifest.transposed_rows, []);
 assert.equal(manifest.rollup.pass, 2);
 assert.equal(manifest.rollup.fail, 0);
+assert.equal(manifest.docs_harness_sha, rowA.identity.docs_harness_sha);
+assert.equal(manifest.harness_sha256, rowA.identity.harness_sha256);
 
 const sums = (await readFile(path.join(root, "SHA256SUMS"), "utf8"))
   .trim()

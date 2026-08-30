@@ -1,0 +1,170 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.transport-row.v1",
+    "row": "A-GENUINE-ABANDONMENT-CEILING",
+    "verdict": "PASS",
+    "invariant": "Discord MESSAGE_CREATE genuine abandonment is bounded by the shared drain and cannot poison its FIFO lane.",
+    "composition_boundary": "createDiscordMessageHandler -> createDiscordIngressMonitor -> createChannelIngressDrain -> Discord dispatcher Plugin SDK lifecycle -> reply-lane onAbandoned",
+    "identity": {
+      "checked_at": "2026-08-30T16:57:24.793Z",
+      "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+      "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
+      "docs_harness_sha": "52c11aa552f08201a91421afe5532fd694c7c873",
+      "harness_sha256": "1e0068a9f3d87b47250883d8e37847f549b3a6eebf533323e00946e066d0d8cc",
+      "openclaw_root": "/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-124337-exact-6feda9fd",
+      "match": true
+    },
+    "process": {
+      "pid": 3901278,
+      "started_at": "2026-08-30T16:57:18.142Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "route": {
+      "channel": "discord",
+      "account_id": "proof-124337",
+      "discord_channel_id": "proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "lane_key": "channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "session_key": "agent:main:discord:channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "socket": "N/A (process-local Discord gateway-message fixture; no listener opened)"
+    },
+    "payload": {
+      "sha256": "595eef7dc2ed8d51eb3fbb9c5b1ec4e59ecae96e2870546a6e51342601238e8c",
+      "retained_in_dead_letter": true
+    },
+    "retry": {
+      "configured_max_attempts": 8,
+      "observed_sequence": [
+        {
+          "ordinal": 1,
+          "status": "pending",
+          "attempts": 1,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 2,
+          "status": "pending",
+          "attempts": 2,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 3,
+          "status": "pending",
+          "attempts": 3,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 4,
+          "status": "pending",
+          "attempts": 4,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 5,
+          "status": "pending",
+          "attempts": 5,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 6,
+          "status": "pending",
+          "attempts": 6,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 7,
+          "status": "pending",
+          "attempts": 7,
+          "last_error": "turn-abandoned",
+          "failed_reason": null
+        },
+        {
+          "ordinal": 8,
+          "status": "failed",
+          "attempts": 7,
+          "last_error": "turn-abandoned",
+          "failed_reason": "retry-limit-exceeded"
+        }
+      ]
+    },
+    "dead_letter": {
+      "event_id": "head-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "channel_id": "discord",
+      "account_id": "proof-124337-primary",
+      "status": "failed",
+      "lane_key": "channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "attempts": 7,
+      "last_attempt_at": 1096001,
+      "last_error": "turn-abandoned",
+      "failed_reason": "retry-limit-exceeded",
+      "received_at": 10000,
+      "completed_at": null,
+      "failed_at": 1277001,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1,
+      "payload_sha256": "2489e88e3a8de98193caaeb8d42abca8bb9c7f0749870516a29d615deebbd8ea",
+      "raw_message_sha256": "595eef7dc2ed8d51eb3fbb9c5b1ec4e59ecae96e2870546a6e51342601238e8c"
+    },
+    "follower": {
+      "event_id": "follower-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "channel_id": "discord",
+      "account_id": "proof-124337-primary",
+      "status": "completed",
+      "lane_key": "channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 10001,
+      "completed_at": 1277002,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 0,
+      "payload_sha256": null,
+      "raw_message_sha256": null
+    },
+    "ordering": {
+      "predicate": "head.received_at < follower.received_at && head.failed_at < follower.completed_at",
+      "head_received_at": 10000,
+      "follower_received_at": 10001,
+      "head_failed_at": 1277001,
+      "follower_completed_at": 1277002,
+      "strict": true
+    },
+    "restart": {
+      "reopened": true,
+      "replayed_ids": [],
+      "terminal_state_equal": true,
+      "ingress_database_sha256_before": "69018e164124b8fdd1a66f318dc12150902b23aef8db5aa28a18aceca1b5c21f",
+      "ingress_database_sha256_after": "0975646fd9d2e4cfc1ead7de50e57837145a884f378493660b77b8c9841f115d",
+      "note": "SQLite file bytes may change when reopen checkpoints WAL; canonical rows are the persistence invariant."
+    },
+    "session": {
+      "session_key": "agent:main:discord:channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "session_id": "session-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "status": null,
+      "created_via": "channel",
+      "created_actor_type": "human",
+      "created_actor_id": "proof-author",
+      "updated_at": 10000
+    },
+    "cleanup": {
+      "state_dir_removed_after_projection": true
+    }
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "2437ff2870d4586c34ffe9b90fb039e7151136375cadec1dd5023f0d27b5f2ab",
+    "value_base64": "y8b8f1h7O87LM/A5OV2KMw3CT7oXUQFU2Ccr2u+9mthNJZQZnF7Q+R5PB+55JvUCw/DYURtZUjrctOHOErbOAA==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

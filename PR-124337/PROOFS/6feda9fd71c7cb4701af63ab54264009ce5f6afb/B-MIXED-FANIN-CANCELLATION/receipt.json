@@ -1,0 +1,123 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.transport-row.v1",
+    "row": "B-MIXED-FANIN-CANCELLATION",
+    "verdict": "PASS",
+    "invariant": "Discord mixed legacy/current and explicit current cancellation release claims without recording attempts.",
+    "composition_boundary": "createDiscordMessageDispatcher debounce fan-in -> fanInChannelIngressLifecycles.cancel -> current onCancelled + legacy runIngressCancelCompat(onAbandoned)",
+    "identity": {
+      "checked_at": "2026-08-30T16:57:24.793Z",
+      "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+      "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
+      "docs_harness_sha": "52c11aa552f08201a91421afe5532fd694c7c873",
+      "harness_sha256": "1e0068a9f3d87b47250883d8e37847f549b3a6eebf533323e00946e066d0d8cc",
+      "openclaw_root": "/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-124337-exact-6feda9fd",
+      "match": true
+    },
+    "process": {
+      "pid": 3901278,
+      "started_at": "2026-08-30T16:57:18.142Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "route": {
+      "channel": "discord",
+      "account_id": "proof-124337",
+      "session_key": "agent:main:discord:channel:proof-b-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "socket": "N/A (process-local Discord dispatcher fixture; no listener opened)"
+    },
+    "mixed_fanin": {
+      "combined_transport_observed": true,
+      "capable_attempts": 0,
+      "legacy_fallback_attempts": 0,
+      "dead_letters": 0,
+      "durable_rows": [
+        {
+          "event_id": "modern-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+          "channel_id": "discord",
+          "account_id": "proof-124337-mixed",
+          "status": "pending",
+          "lane_key": "modern-lane-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+          "attempts": 0,
+          "last_attempt_at": null,
+          "last_error": null,
+          "failed_reason": null,
+          "received_at": 1,
+          "completed_at": null,
+          "failed_at": null,
+          "claim_owner": null,
+          "claimed_at": null,
+          "payload_retained": 1,
+          "payload_sha256": "161e3d616003bfad0a6146f5504fdd82b4fac60b56fc8b31dc71a4bf526a62a7",
+          "raw_message_sha256": null
+        },
+        {
+          "event_id": "legacy-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+          "channel_id": "discord",
+          "account_id": "proof-124337-mixed",
+          "status": "pending",
+          "lane_key": "legacy-lane-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+          "attempts": 0,
+          "last_attempt_at": null,
+          "last_error": null,
+          "failed_reason": null,
+          "received_at": 2,
+          "completed_at": null,
+          "failed_at": null,
+          "claim_owner": null,
+          "claimed_at": null,
+          "payload_retained": 1,
+          "payload_sha256": "6379a1dabfc2772aa99f7beb05ca3c69bd0a1ae7dfd67910d571d970228ae7b3",
+          "raw_message_sha256": null
+        }
+      ]
+    },
+    "explicit_modern": {
+      "attempts": 0,
+      "dead_letters": 0,
+      "durable_row": {
+        "event_id": "explicit-modern-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+        "channel_id": "discord",
+        "account_id": "proof-124337-modern",
+        "status": "pending",
+        "lane_key": "explicit-lane-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+        "attempts": 0,
+        "last_attempt_at": null,
+        "last_error": null,
+        "failed_reason": null,
+        "received_at": 3,
+        "completed_at": null,
+        "failed_at": null,
+        "claim_owner": null,
+        "claimed_at": null,
+        "payload_retained": 1,
+        "payload_sha256": "af88232d78a1fc4a0d2c948b18951c8042c5ef21722cecd78d7931f30ca26b4d",
+        "raw_message_sha256": null
+      }
+    },
+    "genuine_abandonment_sibling_control": {
+      "row": "A-GENUINE-ABANDONMENT-CEILING",
+      "verdict": "PASS",
+      "receipt": "../A-GENUINE-ABANDONMENT-CEILING/receipt.json"
+    },
+    "session": {
+      "session_key": "agent:main:discord:channel:proof-b-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "session_id": "session-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "status": null,
+      "created_via": "channel",
+      "created_actor_type": "human",
+      "created_actor_id": "proof-author",
+      "updated_at": 50000
+    },
+    "cleanup": {
+      "state_dir_removed_after_projection": true
+    }
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "9fd4f5b8e29691c0071dfbf245cd624492f1fe5aa5a8de981fc94939e4b1b59c",
+    "value_base64": "AwjKh0TvUkKXqHKJgawUGHjaSchRCrQsKEH+eB8/u/k0yfY7VdwW70jwxEKeISuF9p1ob4KPa6xATe9yzMqTAw==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

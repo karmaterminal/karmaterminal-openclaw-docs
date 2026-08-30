@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.pr124337.cleanup.v1",
+  "checked_at": "2026-08-30T16:58:26Z",
+  "temporary_path_pattern": "/tmp/openclaw-pr124337-discord-*",
+  "remaining_paths": [],
+  "remaining_path_count": 0,
+  "product_worktree_status": "clean",
+  "fleet_mutated": false,
+  "prince_runtime_mutated": false,
+  "network_listener_opened": false,
+  "verdict": "PASS"
+}

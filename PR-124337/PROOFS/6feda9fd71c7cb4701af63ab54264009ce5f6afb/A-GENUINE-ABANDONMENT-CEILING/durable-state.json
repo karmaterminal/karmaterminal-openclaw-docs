@@ -1,0 +1,55 @@
+{
+  "ingress_database_sha256": "69018e164124b8fdd1a66f318dc12150902b23aef8db5aa28a18aceca1b5c21f",
+  "session_database_sha256": "0b2b7b2af919d9fe71263555a0819546c81abf826c4415ba533c2978210daa21",
+  "ingress_rows": [
+    {
+      "event_id": "head-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "channel_id": "discord",
+      "account_id": "proof-124337-primary",
+      "status": "failed",
+      "lane_key": "channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "attempts": 7,
+      "last_attempt_at": 1096001,
+      "last_error": "turn-abandoned",
+      "failed_reason": "retry-limit-exceeded",
+      "received_at": 10000,
+      "completed_at": null,
+      "failed_at": 1277001,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1,
+      "payload_sha256": "2489e88e3a8de98193caaeb8d42abca8bb9c7f0749870516a29d615deebbd8ea",
+      "raw_message_sha256": "595eef7dc2ed8d51eb3fbb9c5b1ec4e59ecae96e2870546a6e51342601238e8c"
+    },
+    {
+      "event_id": "follower-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "channel_id": "discord",
+      "account_id": "proof-124337-primary",
+      "status": "completed",
+      "lane_key": "channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 10001,
+      "completed_at": 1277002,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 0,
+      "payload_sha256": null,
+      "raw_message_sha256": null
+    }
+  ],
+  "session_rows": [
+    {
+      "session_key": "agent:main:discord:channel:proof-a-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "session_id": "session-244d0f20-55a5-4d3f-81a3-56644b36283e",
+      "status": null,
+      "created_via": "channel",
+      "created_actor_type": "human",
+      "created_actor_id": "proof-author",
+      "updated_at": 10000
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "ingress_database_sha256": "9fad545437c166a198a90010773ca0c580179b6889f40ebcac923ae5cd5420e6",
+  "session_database_sha256": "bb6d7ad6eb93bd7f0f9cdea5b833bad85c2b51588e843e95c3fdc2b10311a44a",
+  "ingress_rows": [
+    {
+      "event_id": "modern-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "channel_id": "discord",
+      "account_id": "proof-124337-mixed",
+      "status": "pending",
+      "lane_key": "modern-lane-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 1,
+      "completed_at": null,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1,
+      "payload_sha256": "161e3d616003bfad0a6146f5504fdd82b4fac60b56fc8b31dc71a4bf526a62a7",
+      "raw_message_sha256": null
+    },
+    {
+      "event_id": "legacy-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "channel_id": "discord",
+      "account_id": "proof-124337-mixed",
+      "status": "pending",
+      "lane_key": "legacy-lane-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 2,
+      "completed_at": null,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1,
+      "payload_sha256": "6379a1dabfc2772aa99f7beb05ca3c69bd0a1ae7dfd67910d571d970228ae7b3",
+      "raw_message_sha256": null
+    },
+    {
+      "event_id": "explicit-modern-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "channel_id": "discord",
+      "account_id": "proof-124337-modern",
+      "status": "pending",
+      "lane_key": "explicit-lane-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 3,
+      "completed_at": null,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1,
+      "payload_sha256": "af88232d78a1fc4a0d2c948b18951c8042c5ef21722cecd78d7931f30ca26b4d",
+      "raw_message_sha256": null
+    }
+  ],
+  "session_rows": [
+    {
+      "session_key": "agent:main:discord:channel:proof-b-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "session_id": "session-7e837075-61ea-4c2a-b08b-4363de3dbde4",
+      "status": null,
+      "created_via": "channel",
+      "created_actor_type": "human",
+      "created_actor_id": "proof-author",
+      "updated_at": 50000
+    }
+  ]
+}

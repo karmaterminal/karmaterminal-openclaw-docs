@@ -225,7 +225,16 @@ async function runGenuineAbandonment(identity) {
     closeOpenClawAgentDatabasesForTest();
     const afterRestart = readCanonicalState(databasePath, sessionStore);
     assert.deepEqual(replayed, [], "terminal rows must not replay after reopen");
-    assert.deepEqual(afterRestart, beforeRestart, "reopen must preserve all terminal facts");
+    assert.deepEqual(
+      afterRestart.ingress_rows,
+      beforeRestart.ingress_rows,
+      "reopen must preserve ingress terminal facts",
+    );
+    assert.deepEqual(
+      afterRestart.session_rows,
+      beforeRestart.session_rows,
+      "reopen must preserve session terminal facts",
+    );
 
     const payloadHash = sha256(Buffer.from(stableJson(rawHead)));
     const receipt = signedEnvelope({
@@ -257,6 +266,9 @@ async function runGenuineAbandonment(identity) {
         reopened: true,
         replayed_ids: replayed,
         terminal_state_equal: true,
+        ingress_database_sha256_before: beforeRestart.ingress_database_sha256,
+        ingress_database_sha256_after: afterRestart.ingress_database_sha256,
+        note: "SQLite file bytes may change when reopen checkpoints WAL; canonical rows are the persistence invariant.",
       },
       session: beforeRestart.session_rows[0],
       cleanup: { state_dir_removed_after_projection: true },

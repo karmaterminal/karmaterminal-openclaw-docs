@@ -2,10 +2,13 @@
 
 ## Exact behavioral execution
 
-The pushed harness at docs commit
-`7cc7dc68f3f6d5371e89de2f2697ca06d3f04379` executed from the exact product
+The strengthened pushed harness at docs commit
+`70e8dded665a291e2e69cc8b377427152bd1b917` executed from the exact product
 worktree. `run-summary.json` and both row receipts are Ed25519-signed PASS
-envelopes.
+envelopes. Payload hashes are derived from the closed durable store and row A
+asserts that the dead-letter's embedded Discord message hash equals the admitted
+transport payload hash. It also asserts that the distinctly later-admitted
+same-lane follower completes only at or after head terminalization.
 
 ## Focused repository proof
 
@@ -39,4 +42,3 @@ Mode-B run `33318993673` targets product
 `headSha` is `d05778e6a96dd9a96946eff483e80c4d9ff9575e`.
 
 The final artifact disposition is recorded after the run completes.
-

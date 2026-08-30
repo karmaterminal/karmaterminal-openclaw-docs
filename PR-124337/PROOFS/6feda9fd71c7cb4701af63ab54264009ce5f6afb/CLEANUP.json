@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.pr124337.cleanup.v1",
-  "checked_at": "2026-08-30T15:10:50Z",
+  "checked_at": "2026-08-30T15:26:49Z",
   "temporary_path_pattern": "/tmp/openclaw-pr124337-discord-*",
   "remaining_paths": [],
   "remaining_path_count": 0,
@@ -10,4 +10,3 @@
   "network_listener_opened": false,
   "verdict": "PASS"
 }
-

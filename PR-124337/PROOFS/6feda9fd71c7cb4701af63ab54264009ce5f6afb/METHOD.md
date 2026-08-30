@@ -86,7 +86,7 @@ paired public key is retained beside each diagnostic:
 | `sqlite-reopen-byte-failure` | canonical rows stable and replay empty | over-strict whole-file equality rejected a WAL checkpoint |
 
 The successful harness removes each named temporary state root after projection.
-An independent shell scan at `2026-08-30T15:10:50Z` found zero
+An independent shell scan after the strengthened refire at
+`2026-08-30T15:26:49Z` found zero
 `/tmp/openclaw-pr124337-discord-*` directories. The exact product worktree was
 clean after execution.
-

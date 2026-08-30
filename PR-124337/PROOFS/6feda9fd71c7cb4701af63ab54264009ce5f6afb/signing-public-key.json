@@ -1,9 +1,9 @@
 {
   "schema": "openclaw.pr124337.ed25519-public-key.v1",
-  "generated_at": "2026-08-30T15:09:58.724Z",
+  "generated_at": "2026-08-30T15:26:14.723Z",
   "public_key_jwk": {
     "crv": "Ed25519",
-    "x": "hAbdPR26lwj0TI4AWyrbjCpjcyMcI1YH3YP_CANK3hc",
+    "x": "tlHLvKUblikttoUxHFef6-UIe9_n3hToVskLJNZpsMw",
     "kty": "OKP"
   },
   "scope": "This ephemeral run key authenticates corpus receipt bytes, not a human identity."

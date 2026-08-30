@@ -6,17 +6,17 @@
     "invariant": "Discord MESSAGE_CREATE genuine abandonment is bounded by the shared drain and cannot poison its FIFO lane.",
     "composition_boundary": "createDiscordMessageHandler -> createDiscordIngressMonitor -> createChannelIngressDrain -> Discord dispatcher Plugin SDK lifecycle -> reply-lane onAbandoned",
     "identity": {
-      "checked_at": "2026-08-30T15:10:04.900Z",
+      "checked_at": "2026-08-30T15:26:22.211Z",
       "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
       "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
-      "docs_harness_sha": "7cc7dc68f3f6d5371e89de2f2697ca06d3f04379",
-      "harness_sha256": "a6a9c57b2d802f898515b3c0da131ffa4da6ec843b30a3cb420df5e0dbfd6105",
+      "docs_harness_sha": "70e8dded665a291e2e69cc8b377427152bd1b917",
+      "harness_sha256": "8589d05ab474f99f3ebd16102d048c5e2cadea2b25deea3f2c4485a86b8778b8",
       "openclaw_root": "/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-124337-exact-6feda9fd",
       "match": true
     },
     "process": {
-      "pid": 3266608,
-      "started_at": "2026-08-30T15:09:58.724Z",
+      "pid": 3389912,
+      "started_at": "2026-08-30T15:26:14.723Z",
       "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
       "node": "v25.9.0",
       "architecture": "arm64"
@@ -24,13 +24,13 @@
     "route": {
       "channel": "discord",
       "account_id": "proof-124337",
-      "discord_channel_id": "proof-a-60d57bf5-3b73-4e7a-8812-67cf949ad510",
-      "lane_key": "channel:proof-a-60d57bf5-3b73-4e7a-8812-67cf949ad510",
-      "session_key": "agent:main:discord:channel:proof-a-60d57bf5-3b73-4e7a-8812-67cf949ad510",
+      "discord_channel_id": "proof-a-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
+      "lane_key": "channel:proof-a-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
+      "session_key": "agent:main:discord:channel:proof-a-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
       "socket": "N/A (process-local Discord gateway-message fixture; no listener opened)"
     },
     "payload": {
-      "sha256": "a1a684011da32271ef88b60d94f2d615a6b21a25431536eaa5db1ad3c5f1bb4a",
+      "sha256": "5f609f6bfafb15940a84dbc96219fb270907fd0db67f8116e4192c7a763dec3b",
       "retained_in_dead_letter": true
     },
     "retry": {
@@ -95,50 +95,54 @@
       ]
     },
     "dead_letter": {
-      "event_id": "head-60d57bf5-3b73-4e7a-8812-67cf949ad510",
+      "event_id": "head-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
       "channel_id": "discord",
       "account_id": "proof-124337-primary",
       "status": "failed",
-      "lane_key": "channel:proof-a-60d57bf5-3b73-4e7a-8812-67cf949ad510",
+      "lane_key": "channel:proof-a-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
       "attempts": 7,
-      "last_attempt_at": 1096000,
+      "last_attempt_at": 1096001,
       "last_error": "turn-abandoned",
       "failed_reason": "retry-limit-exceeded",
       "received_at": 10000,
       "completed_at": null,
-      "failed_at": 1277000,
+      "failed_at": 1277001,
       "claim_owner": null,
       "claimed_at": null,
-      "payload_retained": 1
+      "payload_retained": 1,
+      "payload_sha256": "4cf00f994657184270a60b2c07b5b9e049fee495dbdf3c79f913f67fdb574814",
+      "raw_message_sha256": "5f609f6bfafb15940a84dbc96219fb270907fd0db67f8116e4192c7a763dec3b"
     },
     "follower": {
-      "event_id": "follower-60d57bf5-3b73-4e7a-8812-67cf949ad510",
+      "event_id": "follower-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
       "channel_id": "discord",
       "account_id": "proof-124337-primary",
       "status": "completed",
-      "lane_key": "channel:proof-a-60d57bf5-3b73-4e7a-8812-67cf949ad510",
+      "lane_key": "channel:proof-a-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
       "attempts": 0,
       "last_attempt_at": null,
       "last_error": null,
       "failed_reason": null,
-      "received_at": 10000,
-      "completed_at": 191000,
+      "received_at": 10001,
+      "completed_at": 1277001,
       "failed_at": null,
       "claim_owner": null,
       "claimed_at": null,
-      "payload_retained": 0
+      "payload_retained": 0,
+      "payload_sha256": null,
+      "raw_message_sha256": null
     },
     "restart": {
       "reopened": true,
       "replayed_ids": [],
       "terminal_state_equal": true,
-      "ingress_database_sha256_before": "ec0da0a2733143b212376c3e77f65b422726d0d0adddcb7cb7c05f70004b80e1",
-      "ingress_database_sha256_after": "ad2e117a4756e399ece7f88cb31fda06b7a49363ab8d3ab5ee7b4bee673cc2ac",
+      "ingress_database_sha256_before": "bcc5e54f38619a91445927cbd4873f7c67081f3acaa13c8168e14f194a18c6b1",
+      "ingress_database_sha256_after": "b5418423d58a523b3d88d650775076503ece2c97c228b01dc72dd6bdb9bec7c5",
       "note": "SQLite file bytes may change when reopen checkpoints WAL; canonical rows are the persistence invariant."
     },
     "session": {
-      "session_key": "agent:main:discord:channel:proof-a-60d57bf5-3b73-4e7a-8812-67cf949ad510",
-      "session_id": "session-60d57bf5-3b73-4e7a-8812-67cf949ad510",
+      "session_key": "agent:main:discord:channel:proof-a-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
+      "session_id": "session-7286890b-f46b-4aa4-9a9e-1b8431c9e5d9",
       "status": null,
       "created_via": "channel",
       "created_actor_type": "human",
@@ -151,8 +155,8 @@
   },
   "signature": {
     "algorithm": "Ed25519",
-    "payload_sha256": "7ac988b5b4e6293476a4c1781468dce9c43c9bc3063fa22f637b9037f43e8f4c",
-    "value_base64": "dQOcGnQ0xCQExbvINhVcqZ8cjKOlkAvQfpsimfkYfWjLU/N+jtoLQNcfJZg/YEYIoVWsrab9K/8TKiAaZxRbAA==",
+    "payload_sha256": "ff3ae3b584f222fc22b7d09d9302a654555d742c3e69f5987ada6b4ca6640a1c",
+    "value_base64": "UIKkLobBNvIJi0mkfLDBqhXOCKjkvuxrK2fORrhzVoA5hpyhsyhPZIUp9HiDXeKxFjBvcVKSmBLeoyguawtZAA==",
     "public_key_path": "signing-public-key.json"
   }
 }

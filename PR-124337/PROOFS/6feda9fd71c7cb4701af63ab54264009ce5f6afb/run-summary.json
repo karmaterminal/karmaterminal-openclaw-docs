@@ -5,11 +5,11 @@
     "issue": "openclaw/openclaw#124337",
     "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
     "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
-    "docs_harness_sha": "7cc7dc68f3f6d5371e89de2f2697ca06d3f04379",
-    "harness_sha256": "a6a9c57b2d802f898515b3c0da131ffa4da6ec843b30a3cb420df5e0dbfd6105",
+    "docs_harness_sha": "70e8dded665a291e2e69cc8b377427152bd1b917",
+    "harness_sha256": "8589d05ab474f99f3ebd16102d048c5e2cadea2b25deea3f2c4485a86b8778b8",
     "process": {
-      "pid": 3266608,
-      "started_at": "2026-08-30T15:09:58.724Z",
+      "pid": 3389912,
+      "started_at": "2026-08-30T15:26:14.723Z",
       "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
       "node": "v25.9.0",
       "architecture": "arm64"
@@ -29,8 +29,8 @@
   },
   "signature": {
     "algorithm": "Ed25519",
-    "payload_sha256": "cc4221af2be8775439a7c22fb0c85bac7d3d454324745b9901080a0c60b9f1d7",
-    "value_base64": "FceWCjQqJiG/iSGp51NPgqhoefg4TdZ6BvoI433hrCq9WWnTPAp2em10KdB1ZkzAo1/c+p+8XRcWbxuCA7i3Cg==",
+    "payload_sha256": "42f9c26d692a8f171ebcd2e52282320dd54f3e92af2fa4c932d466058697550c",
+    "value_base64": "6FduCGng0GwBTnoBTXLSNnDvEftHkOZItwu/5i5xkIRF8ymancbKcIEt+GC30OESuxnoDG4qPpSi4TpCip33AA==",
     "public_key_path": "signing-public-key.json"
   }
 }

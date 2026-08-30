@@ -1,9 +1,9 @@
 {
-  "checked_at": "2026-08-30T15:10:04.900Z",
+  "checked_at": "2026-08-30T15:26:22.211Z",
   "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
   "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
-  "docs_harness_sha": "7cc7dc68f3f6d5371e89de2f2697ca06d3f04379",
-  "harness_sha256": "a6a9c57b2d802f898515b3c0da131ffa4da6ec843b30a3cb420df5e0dbfd6105",
+  "docs_harness_sha": "70e8dded665a291e2e69cc8b377427152bd1b917",
+  "harness_sha256": "8589d05ab474f99f3ebd16102d048c5e2cadea2b25deea3f2c4485a86b8778b8",
   "openclaw_root": "/home/figs/flesh_beast_best_beast/source/WORKTREES/openclaw-124337-exact-6feda9fd",
   "match": true
 }

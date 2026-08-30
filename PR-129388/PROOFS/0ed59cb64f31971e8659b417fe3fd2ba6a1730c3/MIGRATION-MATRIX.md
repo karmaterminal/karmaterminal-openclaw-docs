@@ -19,4 +19,3 @@ profile below. No docs-authored database or mock was substituted.
 The accepted harness's synthetic fixtures passed their focused owner tests.
 Those tests validate fail-closed harness logic only and are not product
 behavior evidence.
-

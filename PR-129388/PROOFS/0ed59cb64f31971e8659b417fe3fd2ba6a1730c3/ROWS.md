@@ -46,4 +46,3 @@ is an additional required row for this workorder.
 
 Totals: **38 required / 0 PASS / 0 FAIL / 0 HONEST-LIMIT / 37
 NOT_EXECUTED / 1 BLOCKED**.
-

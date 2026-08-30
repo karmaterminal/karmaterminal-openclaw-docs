@@ -20,4 +20,3 @@ gateways, sockets, durable queue rows, task-flow rows, session-node rows,
 tombstones, handles, or WAL snapshots to retain. Cleanup is therefore a
 docs-owned non-interference result, not a claim that the unexecuted behavioral
 rows cleaned up successfully.
-

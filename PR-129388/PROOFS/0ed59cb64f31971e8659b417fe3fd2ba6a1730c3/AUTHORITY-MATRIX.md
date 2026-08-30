@@ -42,4 +42,3 @@ git grep -l 'openclaw.k6.return-covenant-fixture-driver.v1'
 The product contains recipient-authority implementation and focused tests, but
 the accepted harness explicitly rejects implementation tests, candidate
 responses, docs-owned SQL, and arbitrary loopback stubs as proof authority.
-

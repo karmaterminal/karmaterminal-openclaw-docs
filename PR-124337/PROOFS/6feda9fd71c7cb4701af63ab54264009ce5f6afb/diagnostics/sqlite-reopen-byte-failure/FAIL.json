@@ -1,0 +1,24 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.exact-transport-run.v1",
+    "verdict": "FAIL",
+    "issue": "openclaw/openclaw#124337",
+    "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+    "docs_harness_sha": "2717224429a271c6b7e80c2857f5bec259e6c090",
+    "harness_sha256": "d87f6c4291ed82012c06104b9fcd914f265c6f21b6ae257e6b08a6f653dfaae7",
+    "process": {
+      "pid": 3265954,
+      "started_at": "2026-08-30T15:09:08.939Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "diagnostic": "AssertionError: reopen must preserve all terminal facts\n+ actual - expected\n\n  {\n+   ingress_database_sha256: 'ab6023cd54dfc872663663592ff20586bdf2c4578e521d5b9bd47e100358c7ec',\n-   ingress_database_sha256: '92fbd2637037f0b404d8271b2f5ce4c3fdd252fe8723e25bede81504981f1b11',\n    ingress_rows: [\n      [Object: null prototype] {\n        account_id: 'proof-124337-primary',\n        attempts: 0,\n        channel_id: 'discord',\n"
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "41cad63b6d5a6d8a52563d330672f56aa30b13203cabe9d53cdd02195121abd1",
+    "value_base64": "AaQoNPBSz2gi3otxZmSlBf64LakMV5K1bLB8BTmjF+/wHQsx29Cey6Ka+sXaKk/B7ukehzVx6NNc++sZ9ZB+AA==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

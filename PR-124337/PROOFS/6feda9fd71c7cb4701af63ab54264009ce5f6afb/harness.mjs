@@ -182,6 +182,7 @@ async function runGenuineAbandonment(identity) {
     });
 
     await handler(rawHead, {});
+    proofNow += 1;
     await handler(rawFollower, {});
     await waitFor(async () => {
       proofNow += DEFAULT_INGRESS_RETRY_MAX_MS + 1_000;
@@ -728,6 +729,10 @@ function assertGenuineTerminalState({
   assert.equal(head?.last_error, "turn-abandoned");
   assert.equal(head?.payload_retained, 1);
   assert.equal(follower?.status, "completed");
+  assert.ok(
+    follower?.completed_at >= head?.failed_at,
+    "same-lane follower must complete only after the failed head terminalizes",
+  );
   assert.equal(follower?.claim_owner, null);
   assert.equal(state.session_rows[0]?.session_key, sessionKey);
   assert.equal(state.session_rows[0]?.session_id, sessionId);

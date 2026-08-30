@@ -1,195 +1,161 @@
-# Generic terminal-marker retention repair
+# Physical-schema SQL tokenizer cure
 
 Status: `READY_FOR_SCRIBE_REVIEW`.
 
 Issue binding: `openclaw/openclaw#129388`.
 
-The docs-owned proof-store inspector now mirrors product task-flow maintenance
-for generic terminal records: every defined `terminalNoticePending` value
-retains queue work. The exact `core/continuation-work` decoder still accepts
-only `"retry-exhausted"` and still validates the complete continuation state.
-
-No exact-head proof ran.
+The docs-owned physical-schema inspector now derives every raw-DDL fact from
+one comment-aware, fail-closed SQLite token stream. Product-driver remains
+blocked pending independent review. No product, blocked corpus, presentation,
+bootstrap, component, fleet, or protected docs-main bytes were edited.
 
 ## Named-reference contract
 
-This table was written before rejected or successor evidence was credited. The
-unchanged lane was first published at rejected SHA
-`1116bfed8f0291d10c784e691cf98fceec44a967`; the repaired implementation was
-then published and identity-gated before this report-only successor.
+This table was written before regression or focused-suite evidence was
+credited. The unchanged safe lane branch was published to `origin` at the
+rejected implementation first.
 
 | Category | Named reference | Local SHA | Tracking SHA | Server/object SHA | Equality |
 |---|---|---|---|---|---|
-| Product/base ref | `karmaterminal/openclaw@b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | N/A (immutable commit object) | `b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25` | local/server equal |
-| Safe lane ref (repair evidence anchor) | `codeagent/129388-proof-store-generic-terminal-marker-fix-20260829` | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | local/tracking/server equal |
-| CI/workflow ref | N/A | N/A | N/A | N/A | Focused-only workorder; Mode-B and Gate 3g do not apply. |
-| Presentation ref | N/A | N/A | N/A | N/A | Presentation, corpus fold, and live proof are out of scope. |
-| Docs/proof rejected successor | `karmaterminal/karmaterminal-openclaw-docs@1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | `1116bfed8f0291d10c784e691cf98fceec44a967` | local/tracking/server equal |
-| Docs/proof independent review | `codeagent/129388-proof-store-1116-independent-review-20260829` | `19f09d69e6ca8afdfceb598c1231831803cfe03f` | `19f09d69e6ca8afdfceb598c1231831803cfe03f` | `19f09d69e6ca8afdfceb598c1231831803cfe03f` | local/tracking/server equal |
-| Docs/proof negative-control commit | `abec37dba826539fd187b43258f52e59f00921a5` | `abec37dba826539fd187b43258f52e59f00921a5` | N/A (immutable ancestor object) | `abec37dba826539fd187b43258f52e59f00921a5` | local/server equal |
-| Docs/proof repaired implementation | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | `c0476ca1d5cceee21b3714bee6ecff824298d5aa` | local/tracking/server equal |
+| Product/base ref | `karmaterminal/openclaw` exact product authority | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | N/A (immutable product object) | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | local/server equal |
+| Safe lane ref | `codeagent/129388-harness-sql-comment-tokenizer-cure-20260830` implementation anchor | `15e479424518b4831c95511873f5c6b81ad52a79` | `15e479424518b4831c95511873f5c6b81ad52a79` | `15e479424518b4831c95511873f5c6b81ad52a79` | local/tracking/server equal |
+| CI/workflow ref | N/A | N/A | N/A | N/A | Focused-only harness acceptance; no Mode-B product run applies |
+| Presentation ref | N/A | N/A | N/A | N/A | Protected presentation surfaces are read-only |
+| Docs/proof ref | rejected physical-schema implementation | `d4deb21faa2e02076709e0c728308668924c9da4` | N/A (immutable ancestor) | `d4deb21faa2e02076709e0c728308668924c9da4` | local/server object equal |
 
-The final report commit cannot contain its own SHA. The safe-lane value above
-is the complete implementation and test byte used for all successor evidence;
-the report-only successor changes only `output.md`.
+The rejected report is
+`a41b3dfb800b764cd4efb8800c48e957de29232c`; the independent
+`REQUEST_CHANGES` review is
+`6d69cdcfee96c5e59ae0bacded310f48c296c11a`; and its malformed report fossil is
+`adb505b580104c107bf025c86cf11f6ecedfb71a`. The pre-amend implementation
+fossil `8edd8005ac78a83dc57ab006fd791ef1a8dc53d3` remains equal locally, on its
+tracking ref, and on the server at
+`savegame/129388-harness-exact-physical-schema-cure-8edd8005-pre-amend-20260830T2102Z`.
 
-GitNexus discovery used the installed
-`/home/figs/flesh_beast_best_beast/source/GitNexus` fork,
-`gitnexus@1.6.5`, commit
-`3c1e686edfc1acaac882927cada121ddd7c47bcc`. The available
-`karmaterminal-openclaw-docs` indexes target other worktrees and stale commits,
-so no graph finding is credited. Exact Git-object reads and the workorder's
-direct owner-test fallback supplied the authority instead.
+The implementation anchor is also equal locally, on its tracking ref, and on
+the server at immutable savegame
+`savegame/129388-harness-sql-comment-tokenizer-cure-15e47942-20260830T223855Z`.
 
-## Ownership and cure
+## Additive implementation
 
-The owning product composition boundary is
-`src/tasks/task-flow-registry.maintenance.ts` at product authority
-`b8a16fd74f1803e85ff9bb8f7ca7cee4fafe0f25`. Its terminal-row retention test
-is controller-independent and structural:
-`stateJson.terminalNoticePending !== undefined`.
+Implementation anchor:
 
-The exact continuation owner remains
-`work-flow-state.ts` / `work-store.ts`, which decodes only
-`terminalNoticePending="retry-exhausted"`. The cure changes only the inspector's
-generic branch and shared relevance predicate to defined-value semantics. It
-does not weaken exact continuation decoding, lifecycle validation, or
-contradictory-state rejection.
+- head `15e479424518b4831c95511873f5c6b81ad52a79`;
+- tree `5b1ccbaed5f5bebb28459680db1c61cd6414a0cb`; and
+- parent `04a0fe3cf4411b4bbc7a5759ceec44f79a047265`.
 
-Synthetic generic `true` fixtures now use the product literal. Additional
-direct-store rows use `false`, `null`, and a controller-defined string to prove
-the predicate is defined-value based rather than truthy or enum based. The
-trusted launcher covers the generic product literal, a false alternate marker,
-and the exact continuation literal; every row yields a signed
-`resource-retention` `FAIL-candidate`.
+The additive implementation changes three files from rejected `d4deb21f`:
 
-## Regression-completeness matrix
+- `tools/k6-proofs/lib/return-covenant-retention-inspector.mjs`;
+- `tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs`; and
+- `tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md`.
 
-| Boundary or lifecycle | Deterministic control |
-|---|---|
-| Generic product literal | A terminal `core` row with `"retry-exhausted"` must be `observed` as `flow:core-terminal-notice`. |
-| Exact-controller sibling | A terminal `core/continuation-work` row with `"retry-exhausted"` remains retained under complete continuation-state validation. |
-| Settled sibling | Failed terminal generic and exact rows with the field absent remain excluded. |
-| Alternate generic marker | Terminal generic rows carrying `false`, `null`, or a controller-defined string remain retained. |
-| Malformed/contradictory states | Generic nonterminal placement plus exact boolean marker, nonterminal placement, and delivered-plus-pending state all fail closed as `unverified-resource-retention`. |
-| Signed launcher composition | Generic product, generic alternate, and exact owed rows each survive live/final store observation and force signed `resource-retention` failure. |
-| Persistence and WAL | Direct-store inserts occur after the fixture checkpoint with WAL autocheckpoint disabled; the inspector observes the durable SQLite/WAL state. |
-| Shutdown/recovery | Launcher controls require the same retained queue identity in both the live observation and the settled post-shutdown final observation. |
-| Rollback and partial failure | The inspector is read-only, so marker rollback is N/A. Existing path-swap, source-failure, cleanup-failure, missing/duplicate observation, restart-receipt, and signed-failure controls remain green. |
+The shared scanner emits ordinary, literal/blob, quoted-identifier, and
+punctuation tokens. It:
 
-## Rejected `1116bfed` controls
+- removes `--` and `/* ... */` comments only outside quoted states;
+- preserves comment-like bytes and doubled quote/backtick escapes inside
+  literals and identifiers;
+- follows the reviewed SQLite build's bracket-closing behavior;
+- keeps token boundaries across comments;
+- tracks balanced parentheses; and
+- rejects unterminated strings, quoted identifiers, block comments, and
+  unbalanced parentheses.
 
-Negative-control commit
-`abec37dba826539fd187b43258f52e59f00921a5` adds only tests, the mock marker,
-and the pre-evidence report header on top of rejected
-`1116bfed8f0291d10c784e691cf98fceec44a967`. A path-scoped diff proves the
-inspector, launcher, contracts, and harness documentation are byte-identical to
-the rejected SHA.
+CHECK extraction, COLLATE extraction, generated expressions, trigger
+normalization, partial predicates, defaults, table clauses/modifiers, and all
+future `normalizeSqlFragment` callers share that representation. CHECK
+comparison strips only recursively balanced parentheses that enclose the
+complete expression. It does not reorder expressions, fold constants,
+simplify boolean logic, alter string bytes, or remove inner grouping.
 
-```bash
-node --test --test-concurrency=1 \
-  --test-name-pattern='durable inspector matches current product-shaped retention stores' \
-  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
+## Regression completeness
 
-node --test --test-concurrency=1 \
-  --test-name-pattern='trusted launcher signs FAIL for retained terminal notice' \
-  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
-```
+The ownership boundary is exported
+`inspectReturnCovenantPhysicalSchema`, composed through
+`requirePhysicalSchema` / `requireExactTable`. Tests use real `DatabaseSync`
+stores, real `sqlite_schema` text, PRAGMAs, WAL snapshots, and the exported
+inspector rather than mocked parser results.
 
-The direct-store control produced `34/37` pass and `3` reported failures: the
-generic product-literal leaf and alternate-defined-marker leaf failed with
-`task flow has malformed terminal notice marker`, plus their aggregate parent.
-Settled and malformed/contradictory siblings passed.
+On test-only additive commit
+`9dd514b79c28a471a69ef1f1f7024ae4cca60486` over rejected `d4deb21f`, the
+complete durable-inspector parent produced 65 passing leaves and the expected
+four failing leaves plus failing aggregate:
 
-The launcher control produced `1/3` pass. The exact continuation row passed;
-both generic rows produced cryptographically signed `FAIL-candidate` receipts
-but had no retained queue inventory and carried only
-`unverified-resource-retention`, not the required `resource-retention`.
-This is the independent review's exact failure mode and proves there was no
-signed-PASS escape.
+- a removed CHECK retained only in a block comment was falsely accepted;
+- executed `COLLATE NOCASE` preceded by commented `COLLATE BINARY` was falsely
+  accepted;
+- a harmless block comment in an enforced CHECK was falsely rejected; and
+- one redundant whole-expression CHECK parenthesis was falsely rejected.
 
-## Successor validation
+The successor's durable-inspector matrix passes all 91 leaves plus its
+aggregate. Added sibling/alternate controls cover line comments, comments
+between tokens, default expressions, partial predicates, triggers, doubled
+string quotes, doubled double-quote/backtick identifier escapes, bracket
+identifiers, SQLite rejection of unsupported doubled bracket closing,
+end-of-input line comments, all unterminated quoted/comment states, unbalanced
+parentheses, and split keywords that must not concatenate.
 
-Acceptance path: `focused-only`. No Mode-B run ID or workflow SHA applies, and
-Gate 3g was not used.
+The pre-existing mutation matrix remains green for hidden virtual/stored
+columns, table and explicit index origins, indexed/non-indexed collation,
+partial predicates, CHECK/FK/default/generated facts, triggers, STRICT and
+table kind, schema versions, owner metadata, malformed state, and exact
+inventory. Persistence and restart/recovery remain exercised through real WAL
+snapshots, live/final store observation, process freeze/shutdown, and exact
+product-source drift control. Existing rollback, cleanup failure, path swap,
+no-follow, source partial-failure, signed PASS/FAIL, typed-tool, and bracket
+delegate controls also remain green. The inspector is read-only, so parser
+rollback is N/A.
 
-### Targeted direct-store and launcher matrix
+## Validation
 
-```bash
-node --check tools/k6-proofs/lib/return-covenant-retention-inspector.mjs
-node --check tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
-node --check tools/k6-proofs/scripts/__tests__/return-covenant-harness-closure-contract.test.mjs
-node --check tools/k6-proofs/tests/fixtures/return-covenant-authority/mock-product-driver.mjs
+Acceptance path: `focused-only`. No Mode-B run ID/workflow SHA applies because
+this is a harness-only lane, and Gate 3g was not used.
 
-node --test --test-concurrency=1 \
-  --test-name-pattern='durable inspector matches current product-shaped retention stores' \
-  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
-
-node --test --test-concurrency=1 \
-  --test-name-pattern='trusted launcher signs FAIL for retained terminal notice' \
-  tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs
-
-node --test --test-concurrency=1 \
-  tools/k6-proofs/scripts/__tests__/return-covenant-harness-closure-contract.test.mjs
-```
-
-Results:
-
-- direct product-store matrix: `37/37` pass;
-- trusted launcher generic/exact matrix: `3/3` pass;
-- closure contract: `2/2` pass; and
-- changed JavaScript/MJS syntax: `4/4` pass.
-
-### Full owner/closure suite, serial twice
-
-The exact same command ran twice with no changes between repetitions:
+The complete serial owner/closure command was:
 
 ```bash
+OPENCLAW_PRODUCT_AUTHORITY_REPO=/home/figs/flesh_beast_best_beast/source/openclaw \
+OPENCLAW_REQUIRE_PRODUCT_SCHEMA_DRIFT_CONTROL=1 \
 node --test --test-concurrency=1 \
   tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs \
   tools/k6-proofs/scripts/__tests__/return-covenant-harness-closure-contract.test.mjs
 ```
 
-- repetition 1: `119/119` pass, `0` fail, `447892.169472ms`;
-- repetition 2: `119/119` pass, `0` fail, `448172.682284ms`.
+Result: `175/175` pass, `0` fail, `0` skipped,
+`479994.811202ms`. This includes fresh exact product global-v15 and
+per-agent-v19 schema drift control at `0ed59cb6`, the full durable-store
+mutation/retention matrix, trusted launcher, signed receipt, typed-tool,
+bracket-token, isolation, process, WAL, cleanup, and closure coverage.
 
-The suite preserves all prior product-store, nested payload, delivery ownership,
-WAL/no-follow, path-swap, PID/socket, session/tombstone, queue, handle-ledger,
-rollback, restart/recovery, partial-failure, candidate-diagnostic, and signed
-failure controls.
+Additional focused gates passed:
 
-### Corpus, manifest, scenario, telemetry, schema, and diff gates
-
-```bash
-node --test --test-concurrency=1 \
-  tools/k6-proofs/scripts/__tests__/current-corpus-active-scope.test.mjs
-node tools/k6-proofs/scripts/validate-corpus.mjs --current
-node tools/k6-proofs/scripts/check-proof-row-manifests.mjs
-node tools/k6-proofs/scripts/check-scenario-alignment.mjs
-node tools/k6-proofs/scripts/check-manifest-scenarios.mjs
-node tools/k6-proofs/scripts/check-telemetry-contracts.mjs
-node --check <each changed JavaScript/MJS file>
-# JSON.parse each return-covenant *.schema.json
-git diff --check \
-  1116bfed8f0291d10c784e691cf98fceec44a967..HEAD
-git diff --exit-code --name-only \
-  1116bfed8f0291d10c784e691cf98fceec44a967..HEAD -- PROOFS
-```
-
-Results:
-
-- active current-corpus scope: `2/2` pass;
-- current corpus: 37 rows,
-  `pass=32, partial=4, honest_limit=1, fail=0`;
+- current corpus: 37 rows, `pass=32`, `partial=4`, `honest_limit=1`, `fail=0`;
 - proof-row manifests: 37 rows, 42 manifests, 0 missing;
-- scenario alignment: `ok=true`;
-- manifest/scenario registry: 42 manifests, 35 scenario files, pass;
+- scenario alignment and 42-manifest/35-scenario registry;
 - telemetry contracts: 13 declared, 9 receipt-requiring rows, 0
-  telemetry-rebindable PASS claims, pass;
-- return-covenant schemas: `6/6` parse;
-- `git diff --check`: pass; and
-- protected `PROOFS/**` diff: empty.
+  telemetry-rebindable PASS claims; and
+- JavaScript syntax and path-scoped diff checks.
 
-No dependency install, product edit, live proof, exact-head proof, corpus
-mutation, presentation change, deployment, pull request, Mode-B run, or Gate 3g
-fallback was performed.
+Reviewed ARM64 prerequisites:
+
+- architecture `aarch64`;
+- Node `v25.9.0`;
+- k6 `/home/figs/bin/k6`, version
+  `k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/arm64)`;
+- k6 SHA-256
+  `6fcd167ac6525e444bb710a2cb98dbe200ef12a6e0a4e9f83d062a4acabc1e70`,
+  equal to the reviewed `linux-arm64` manifest entry; and
+- Python `jsonschema` `4.10.3`.
+
+Checkpoint commits `9dd514b7`, `989bac1a`, and `04a0fe3c` accidentally contain
+literal `\n` separators in their immutable messages, so their attribution
+trailers do not parse. They were not amended, reset, rebased, or force-pushed.
+Additive metadata successor `15e47942` uses real paragraph newlines; `git
+interpret-trailers --parse` returns
+`Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
+
+No dependency installation, product edit, corpus mutation, live proof,
+presentation change, deployment, PR, Mode-B run, Gate 3g fallback, or
+product-driver resume occurred. Product-driver remains blocked pending
+independent review.

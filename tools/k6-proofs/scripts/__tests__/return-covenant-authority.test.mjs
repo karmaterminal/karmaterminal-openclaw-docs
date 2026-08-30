@@ -2603,6 +2603,7 @@ function rebuildBindingTable(database, {
 }
 
 function rebuildSessionWindows(agentDatabase, {
+  reasonDefinition = null,
   reasonCheck =
     "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')",
   sessionScopeDefault = "'conversation'",
@@ -2638,7 +2639,7 @@ function rebuildSessionWindows(agentDatabase, {
       session_id TEXT NOT NULL PRIMARY KEY,
       session_key TEXT NOT NULL,
       previous_session_id TEXT,
-      reason TEXT${check(reasonCheck)},
+      reason ${reasonDefinition ?? `TEXT${check(reasonCheck)}`},
       session_scope TEXT NOT NULL DEFAULT ${sessionScopeDefault}${check(sessionScopeCheck)},
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL,
@@ -2789,6 +2790,67 @@ test('durable inspector matches current product-shaped retention stores', async 
           "\"reason\" is NULL or \"reason\" in ('initial','reset','rollover','fork','rewind','switch','recovery','compaction')",
         sessionScopeCheck:
           "\"session_scope\" in ('conversation','shared-main','group','channel')",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('removed CHECK preserved only in a block comment fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        reasonDefinition:
+          "TEXT /* CHECK (reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')) */",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /CHECK constraints/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('commented collation cannot counterfeit the executed collation', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildBindingTable(fixtureState.database, {
+        bindingId:
+          'binding_id TEXT NOT NULL /* COLLATE BINARY */ COLLATE NOCASE',
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(
+        observed.failureReason,
+        /column\/default\/collation layout/,
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('harmless block comment inside an enforced CHECK passes', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        reasonCheck:
+          "reason IS NULL OR /* retained policy */ reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('redundant whole-expression CHECK grouping passes', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        reasonCheck:
+          "(reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction'))",
       });
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'observed', observed.failureReason);

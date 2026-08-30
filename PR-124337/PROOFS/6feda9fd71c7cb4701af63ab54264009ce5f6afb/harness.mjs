@@ -129,7 +129,7 @@ async function runGenuineAbandonment(identity) {
 
   try {
     Date.now = () => proofNow;
-    persistSession({ sessionStore, sessionKey, sessionId, now: proofNow });
+    persistSession({ stateDir, sessionStore, sessionKey, sessionId, now: proofNow });
     const queue = createQueue(stateDir, () => proofNow);
     handler = createDiscordMessageHandler({
       ...discordParams({ debounceMs: 0 }),
@@ -294,7 +294,7 @@ async function runMixedCancellation(identity, genuineControl) {
   let modernDispatcher;
 
   try {
-    persistSession({ sessionStore, sessionKey, sessionId, now: clock });
+    persistSession({ stateDir, sessionStore, sessionKey, sessionId, now: clock });
     const mixedQueue = createQueue(stateDir, () => clock, "mixed");
     await mixedQueue.enqueue(
       `modern-${nonce}`,
@@ -583,9 +583,14 @@ function createQueue(stateDir, now, suffix = "primary") {
   });
 }
 
-function persistSession({ sessionStore, sessionKey, sessionId, now }) {
+function persistSession({ stateDir, sessionStore, sessionKey, sessionId, now }) {
   replaceSessionEntrySync(
-    { agentId: "main", sessionKey, storePath: sessionStore },
+    {
+      agentId: "main",
+      env: { ...process.env, OPENCLAW_STATE_DIR: stateDir },
+      sessionKey,
+      storePath: sessionStore,
+    },
     {
       sessionId,
       updatedAt: now,
@@ -810,4 +815,3 @@ function requiredSha(name) {
   }
   return value;
 }
-

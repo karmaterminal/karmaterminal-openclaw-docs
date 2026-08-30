@@ -28,13 +28,14 @@ attempt sequence, dead letter, follower completion, and restart observations.
 ## Run
 
 ```bash
-OPENCLAW_ROOT=/path/to/exact-6feda9fd-worktree \
+docs_root=/path/to/karmaterminal-openclaw-docs
+cd /path/to/exact-6feda9fd-worktree
+OPENCLAW_ROOT="$PWD" \
 OPENCLAW_PROOF_DOCS_SHA=<pushed-harness-commit> \
-OPENCLAW_PR124337_RESULTS_DIR="$PWD/PR-124337/PROOFS/6feda9fd71c7cb4701af63ab54264009ce5f6afb" \
-node --import tsx PR-124337/PROOFS/6feda9fd71c7cb4701af63ab54264009ce5f6afb/harness.mjs
+OPENCLAW_PR124337_RESULTS_DIR="$docs_root/PR-124337/PROOFS/6feda9fd71c7cb4701af63ab54264009ce5f6afb" \
+node --import tsx "$docs_root/PR-124337/PROOFS/6feda9fd71c7cb4701af63ab54264009ce5f6afb/harness.mjs"
 ```
 
 Run `node PR-124337/PROOFS/6feda9fd71c7cb4701af63ab54264009ce5f6afb/verify.mjs`
 after capture. `SHA256SUMS` excludes itself and is the final public artifact
 integrity manifest.
-

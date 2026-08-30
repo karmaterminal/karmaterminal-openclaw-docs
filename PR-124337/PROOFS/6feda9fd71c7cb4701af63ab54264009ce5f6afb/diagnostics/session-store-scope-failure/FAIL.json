@@ -1,0 +1,24 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.exact-transport-run.v1",
+    "verdict": "FAIL",
+    "issue": "openclaw/openclaw#124337",
+    "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+    "docs_harness_sha": "57148b0413dbae8295f00218b75fbe1e08e3f823",
+    "harness_sha256": "6a70b36d253412d7b670b51da19c8d37f562c035cbe2d7d7e3f38b3881130cd8",
+    "process": {
+      "pid": 3263686,
+      "started_at": "2026-08-30T15:06:24.113Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "diagnostic": "Error: OpenClaw state database /home/figs/.openclaw/state/openclaw.sqlite has a legacy agent database registry schema; run openclaw doctor --fix to migrate it."
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "1574e8f522258ee297b6607b56f96bc2ac9e8d6dcf9302126909b726be4016bd",
+    "value_base64": "ahXA9/vQD+NdLKh9qpm1qk7ngdtj0WVwpjT88Qy6uSpQnLemg6yZQAFmaV6kl6c+lUeCtSuQipFEto+md8ibCQ==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

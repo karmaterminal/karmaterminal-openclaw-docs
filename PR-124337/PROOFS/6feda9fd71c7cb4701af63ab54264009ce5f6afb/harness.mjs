@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash, generateKeyPairSync, randomUUID, sign } from "node:crypto";
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -772,16 +773,6 @@ function stableJson(value) {
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
-}
-
-function readFileSync(filePath) {
-  return requireFs().readFileSync(filePath);
-}
-
-let fsModule;
-function requireFs() {
-  fsModule ??= process.getBuiltinModule("node:fs");
-  return fsModule;
 }
 
 async function pathExists(filePath) {

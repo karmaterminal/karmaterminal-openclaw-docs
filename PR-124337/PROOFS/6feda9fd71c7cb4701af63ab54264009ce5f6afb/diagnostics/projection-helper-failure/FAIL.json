@@ -1,0 +1,24 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.exact-transport-run.v1",
+    "verdict": "FAIL",
+    "issue": "openclaw/openclaw#124337",
+    "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+    "docs_harness_sha": "cd26162deb658daab664083ce2f2a893991f14eb",
+    "harness_sha256": "4267f565df004b8a844e2ecaa1ee1766be8e854b26579c3077c66bd815e494d9",
+    "process": {
+      "pid": 3265467,
+      "started_at": "2026-08-30T15:08:22.998Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "diagnostic": "ReferenceError: Cannot access 'fsModule' before initialization"
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "96901539f019983b0c16f999461908c2c670abbe8d0e9f781f5a3b8bcc6fa8f7",
+    "value_base64": "zUu8bEBwB06RNfzbRe8Ej7VaFVXmT3AaSEztIRO6bu0tkEDoKbalKMg7lT+Tb9pkiuiMtzhOt8eJ+DkaAoRTAQ==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

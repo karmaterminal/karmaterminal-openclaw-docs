@@ -15,15 +15,11 @@ surface has no local/tracking ref in this docs-only lane.
 
 | Surface | Named ref | Local SHA | Tracking SHA | Server/object SHA | Equality |
 |---|---|---|---|---|---|
-| Product/base ref | `karmaterminal/openclaw:scribe/129388-covenant-upstream-absorb-20260828` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | `0109521b0c2b8a2c81c9f901789a81c5316074a7` | Equal; exact source byte used for the store ownership walk only. |
-| Product staged-successor input | `karmaterminal/openclaw@93f7152b098beeb9ac64cb9b2437fc45a7558adf` | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | N/A | `93f7152b098beeb9ac64cb9b2437fc45a7558adf` | Local/server equal; the unpublished merge is not evidence and its worktree was not inspected. |
-| Safe lane ref | `codeagent/129388-retention-authority-product-store-alignment-20260829` before implementation | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | Equal before evidence. |
+| Product/base ref | `karmaterminal/openclaw@0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | N/A | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | Local object/server commit equal; exact production store authority. |
+| Safe lane ref | `codeagent/129388-harness-global-schema-v15-currency-20260830` before implementation | `16f8bca6593813adb25e864c91d38f456b1708c0` | `16f8bca6593813adb25e864c91d38f456b1708c0` | `16f8bca6593813adb25e864c91d38f456b1708c0` | Local/tracking/server equal before evidence. |
 | CI/workflow ref | N/A | N/A | N/A | N/A | Harness construction is focused-only; Mode-B and deployment are out of scope. |
-| Presentation ref | N/A | N/A | N/A | N/A | Presentation, corpus, and live proof are out of scope; `openclaw/openclaw#129388` is issue binding only. |
-| Docs/proof base/report | `karmaterminal/karmaterminal-openclaw-docs@094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | `094ae88f9c3c3e0b2ad9caf64fbb87246c8c1d49` | Equal. |
-| Reviewed implementation byte | `karmaterminal-openclaw-docs@281552c039dcf45f7fdc3a7960448f0e989ea801` | `281552c039dcf45f7fdc3a7960448f0e989ea801` | N/A | `281552c039dcf45f7fdc3a7960448f0e989ea801` | Commit-pinned local/server equality. |
-| Rejected parent harness | `codeagent/129388-covenant-authority-proof-harness-20260828` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | `78927a643e8b5894a389691e695c1eb6bd7d2b4b` | Equal. |
-| Independent review | `codeagent/129388-retention-authority-independent-review-20260829` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | `91aaf5b961f107e281c702274f83eab848f971bc` | Equal; verdict `REQUEST_CHANGES`. |
+| Presentation ref | N/A | N/A | N/A | N/A | Protected presentation, docs main, and fleet are read-only and out of scope. |
+| Docs/proof ref | accepted base `16f8bca6593813adb25e864c91d38f456b1708c0`; accepted review `6995218335b0fb9205de1e6c03b48acc88418d53`; blocked corpus `ba8d344c1240275a9c54042294b8129eea4e497b` | All three objects resolve exactly | accepted base tracks as the safe lane; other refs N/A | All three server objects resolve exactly | Exact accepted history and blocked proof corpus; none is mutated. |
 
 Protected corpus bytes at lane start:
 
@@ -271,13 +267,17 @@ The phase order is fixed:
    with `O_NOFOLLOW`. Device, inode, mode, size, and mtime identities are bound
    before the opened files are copied to a launcher-only directory and
    revalidated. Only those copies are opened with SQLite. The global snapshot
-   must expose the exact v13 `flow_runs`, `subagent_runs`,
-   `delivery_queue_entries`, and `agent_databases` tables; each registered
+   must expose global schema v15 exactly: `flow_runs`, `subagent_runs`,
+   `delivery_queue_entries`, `agent_databases`, and
+   `current_conversation_bindings`, including every product index on those
+   tables. The v15 binding table rejects the removed `target_agent_id` and
+   `target_session_id` projections and requires the target index on
+   `target_session_key, updated_at DESC, binding_key`. Each registered
    per-agent snapshot must expose the exact v19 `session_nodes.entry_json`
-   owner and schema. A product-canonical cleared node
+   owner, schema, and queried-table indexes. A product-canonical cleared node
    (`entry_json={}`, `entry_valid=-1`) is ignored only when the matching
    `session_windows` row still owns its current session ID. Views,
-   missing/extra columns, malformed JSON/status,
+   missing/extra columns or indexes, malformed JSON/status,
    registry/layout disagreement, path replacement, and symlinks fail closed.
    WAL bytes are copied with the main database so a row present only in WAL is
    observable. The launcher re-samples driver/gateway/socket identity before
@@ -394,7 +394,7 @@ failure category rather than through candidate-supplied claims.
 
 ## Required product seam
 
-Product floor `0109521b` contains the internal epoch and final-delivery checks, but
+Product authority `0ed59cb6` contains the internal epoch and final-delivery checks, but
 no canonical product-owned fixture/setup command or diagnostic driver was found.
 The final product lane must supply, from the exact candidate tree:
 
@@ -413,7 +413,7 @@ The final product lane must supply, from the exact candidate tree:
 7. separate prompt-adoption, heartbeat-wake, and visible-channel counters plus
    product release/scan timestamps;
 8. successor transcript and trusted system-event marker scans; and
-9. canonical v13 global and v19 per-agent SQLite stores at the product-owned
+9. canonical v15 global and v19 per-agent SQLite stores at the product-owned
    default paths, including their WAL/SHM sidecars and registry metadata; and
 10. launcher-derived cleanup after the fixture and isolated gateway processes
    stop.
@@ -521,7 +521,11 @@ The repository-local owner test covers:
 | spawned child session remains after every run/flow/queue row retires | `resource-retention` |
 | unknown/malformed lifecycle or delivery status/JSON | `unverified-resource-retention` |
 | missing, renamed, or view-substituted canonical table/column | `unverified-resource-retention` |
+| global v13, v14, future version, metadata disagreement, or wrong owner | `unverified-resource-retention` |
+| removed v15 binding projection resurrected or required projection absent | `unverified-resource-retention` |
+| missing, extra, reordered, or direction-mutated canonical index | `unverified-resource-retention` |
 | symlink or pathname swap after no-follow open | `unverified-resource-retention` |
+| WAL/SHM identity changes after no-follow open | `unverified-resource-retention` |
 | retained row exists only in WAL | row is observed and yields `resource-retention` |
 | driver/gateway PID/start/socket changes across live snapshot | `unverified-resource-retention` |
 | live snapshot overlaps teardown | `unverified-resource-retention` |

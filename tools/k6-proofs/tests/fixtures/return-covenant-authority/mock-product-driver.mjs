@@ -300,7 +300,7 @@ if (process.argv[2] === 'gateway') {
       updated_at INTEGER NOT NULL
     ) STRICT;
     INSERT INTO schema_meta VALUES
-      ('primary', 'global', 13, NULL, 'fixture', 1, 1);
+      ('primary', 'global', 15, NULL, 'fixture', 1, 1);
     CREATE TABLE agent_databases (
       agent_id TEXT NOT NULL,
       path TEXT NOT NULL,
@@ -359,7 +359,51 @@ if (process.argv[2] === 'gateway') {
       failed_at INTEGER,
       PRIMARY KEY (queue_name, id)
     ) STRICT;
-    PRAGMA user_version=13;
+    CREATE TABLE current_conversation_bindings (
+      binding_key TEXT NOT NULL PRIMARY KEY,
+      binding_id TEXT NOT NULL,
+      target_session_key TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      account_id TEXT NOT NULL,
+      conversation_kind TEXT NOT NULL,
+      parent_conversation_id TEXT,
+      conversation_id TEXT NOT NULL,
+      target_kind TEXT NOT NULL,
+      status TEXT NOT NULL,
+      bound_at INTEGER NOT NULL,
+      expires_at INTEGER,
+      metadata_json TEXT,
+      record_json TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    ) STRICT;
+    CREATE INDEX idx_delivery_queue_pending
+      ON delivery_queue_entries(queue_name, status, enqueued_at, id);
+    CREATE INDEX idx_delivery_queue_failed
+      ON delivery_queue_entries(queue_name, status, failed_at, id);
+    CREATE INDEX idx_delivery_queue_session
+      ON delivery_queue_entries(queue_name, status, session_key, enqueued_at, id)
+      WHERE session_key IS NOT NULL;
+    CREATE INDEX idx_delivery_queue_target
+      ON delivery_queue_entries(queue_name, status, channel, target, enqueued_at, id)
+      WHERE channel IS NOT NULL AND target IS NOT NULL;
+    CREATE INDEX idx_subagent_runs_child_session_key
+      ON subagent_runs(child_session_key, created_at DESC, run_id);
+    CREATE INDEX idx_subagent_runs_requester_session_key
+      ON subagent_runs(requester_session_key, created_at DESC, run_id);
+    CREATE INDEX idx_subagent_runs_controller_session_key
+      ON subagent_runs(controller_session_key, created_at DESC, run_id);
+    CREATE INDEX idx_current_conversation_bindings_target
+      ON current_conversation_bindings(target_session_key, updated_at DESC, binding_key);
+    CREATE INDEX idx_current_conversation_bindings_conversation
+      ON current_conversation_bindings(
+        channel, account_id, conversation_kind, conversation_id
+      );
+    CREATE INDEX idx_current_conversation_bindings_expires
+      ON current_conversation_bindings(expires_at, binding_key);
+    CREATE INDEX idx_flow_runs_status ON flow_runs(status);
+    CREATE INDEX idx_flow_runs_owner_key ON flow_runs(owner_key);
+    CREATE INDEX idx_flow_runs_updated_at ON flow_runs(updated_at);
+    PRAGMA user_version=15;
   `);
   const agentDatabase = new DatabaseSync(agentSqlitePath);
   agentDatabase.exec('PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;');
@@ -435,6 +479,34 @@ if (process.argv[2] === 'gateway') {
       spawned_by TEXT,
       display_name TEXT
     ) STRICT;
+    CREATE INDEX idx_agent_session_nodes_updated_at
+      ON session_nodes(updated_at DESC, session_key);
+    CREATE INDEX idx_agent_session_nodes_last_interaction_at
+      ON session_nodes(last_interaction_at DESC, session_key);
+    CREATE INDEX idx_agent_session_nodes_parent_session_key
+      ON session_nodes(parent_session_key, session_key);
+    CREATE INDEX idx_agent_session_nodes_spawned_by
+      ON session_nodes(spawned_by, session_key);
+    CREATE INDEX idx_agent_session_nodes_status
+      ON session_nodes(status, session_key)
+      WHERE status IS NOT NULL;
+    CREATE INDEX idx_agent_session_nodes_archived_at
+      ON session_nodes(archived_at, session_key)
+      WHERE archived_at IS NOT NULL;
+    CREATE INDEX idx_agent_session_nodes_current_session_id
+      ON session_nodes(current_session_id);
+    CREATE INDEX idx_agent_session_nodes_entry_valid_pending
+      ON session_nodes(session_key)
+      WHERE entry_valid = 0;
+    CREATE INDEX idx_agent_session_windows_updated_at
+      ON session_windows(updated_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_session_key
+      ON session_windows(session_key, updated_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_created_at
+      ON session_windows(created_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_conversation
+      ON session_windows(primary_conversation_id, updated_at DESC, session_id)
+      WHERE primary_conversation_id IS NOT NULL;
     PRAGMA user_version=19;
   `);
   stateDatabase.prepare(`

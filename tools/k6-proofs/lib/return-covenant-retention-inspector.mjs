@@ -19,7 +19,7 @@ import {
 export const RETURN_COVENANT_STORE_OBSERVATION_SCHEMA =
   'openclaw.k6.return-covenant-store-observation.v1';
 export const RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA =
-  '0109521b0c2b8a2c81c9f901789a81c5316074a7';
+  '0ed59cb64f31971e8659b417fe3fd2ba6a1730c3';
 
 const MAX_DATABASE_BYTES = 128 * 1024 * 1024;
 const MAX_SIDECAR_BYTES = 256 * 1024 * 1024;
@@ -119,6 +119,23 @@ const REQUIRED_GLOBAL_COLUMNS = Object.freeze({
     'schema_version',
     'last_seen_at',
     'size_bytes',
+  ],
+  current_conversation_bindings: [
+    'binding_key',
+    'binding_id',
+    'target_session_key',
+    'channel',
+    'account_id',
+    'conversation_kind',
+    'parent_conversation_id',
+    'conversation_id',
+    'target_kind',
+    'status',
+    'bound_at',
+    'expires_at',
+    'metadata_json',
+    'record_json',
+    'updated_at',
   ],
   delivery_queue_entries: [
     'queue_name',
@@ -240,6 +257,11 @@ const TABLE_INTEGER_COLUMNS = Object.freeze({
     'last_seen_at',
     'size_bytes',
   ],
+  current_conversation_bindings: [
+    'bound_at',
+    'expires_at',
+    'updated_at',
+  ],
   delivery_queue_entries: [
     'retry_count',
     'last_attempt_at',
@@ -281,6 +303,11 @@ const TABLE_INTEGER_COLUMNS = Object.freeze({
 const TABLE_NULLABLE_COLUMNS = Object.freeze({
   schema_meta: ['agent_id', 'app_version'],
   agent_databases: ['size_bytes'],
+  current_conversation_bindings: [
+    'parent_conversation_id',
+    'expires_at',
+    'metadata_json',
+  ],
   delivery_queue_entries: [
     'entry_kind',
     'session_key',
@@ -333,11 +360,157 @@ const TABLE_NULLABLE_COLUMNS = Object.freeze({
 const TABLE_PRIMARY_KEYS = Object.freeze({
   schema_meta: ['meta_key'],
   agent_databases: ['agent_id', 'path'],
+  current_conversation_bindings: ['binding_key'],
   delivery_queue_entries: ['queue_name', 'id'],
   subagent_runs: ['run_id'],
   flow_runs: ['flow_id'],
   session_nodes: ['session_key'],
   session_windows: ['session_id'],
+});
+const REQUIRED_TABLE_INDEXES = Object.freeze({
+  schema_meta: [],
+  agent_databases: [],
+  current_conversation_bindings: [
+    {
+      name: 'idx_current_conversation_bindings_target',
+      columns: [['target_session_key', 0], ['updated_at', 1], ['binding_key', 0]],
+    },
+    {
+      name: 'idx_current_conversation_bindings_conversation',
+      columns: [
+        ['channel', 0],
+        ['account_id', 0],
+        ['conversation_kind', 0],
+        ['conversation_id', 0],
+      ],
+    },
+    {
+      name: 'idx_current_conversation_bindings_expires',
+      columns: [['expires_at', 0], ['binding_key', 0]],
+    },
+  ],
+  delivery_queue_entries: [
+    {
+      name: 'idx_delivery_queue_pending',
+      columns: [
+        ['queue_name', 0],
+        ['status', 0],
+        ['enqueued_at', 0],
+        ['id', 0],
+      ],
+    },
+    {
+      name: 'idx_delivery_queue_failed',
+      columns: [
+        ['queue_name', 0],
+        ['status', 0],
+        ['failed_at', 0],
+        ['id', 0],
+      ],
+    },
+    {
+      name: 'idx_delivery_queue_session',
+      columns: [
+        ['queue_name', 0],
+        ['status', 0],
+        ['session_key', 0],
+        ['enqueued_at', 0],
+        ['id', 0],
+      ],
+      where: 'session_key is not null',
+    },
+    {
+      name: 'idx_delivery_queue_target',
+      columns: [
+        ['queue_name', 0],
+        ['status', 0],
+        ['channel', 0],
+        ['target', 0],
+        ['enqueued_at', 0],
+        ['id', 0],
+      ],
+      where: 'channel is not null and target is not null',
+    },
+  ],
+  subagent_runs: [
+    {
+      name: 'idx_subagent_runs_child_session_key',
+      columns: [['child_session_key', 0], ['created_at', 1], ['run_id', 0]],
+    },
+    {
+      name: 'idx_subagent_runs_requester_session_key',
+      columns: [['requester_session_key', 0], ['created_at', 1], ['run_id', 0]],
+    },
+    {
+      name: 'idx_subagent_runs_controller_session_key',
+      columns: [['controller_session_key', 0], ['created_at', 1], ['run_id', 0]],
+    },
+  ],
+  flow_runs: [
+    { name: 'idx_flow_runs_status', columns: [['status', 0]] },
+    { name: 'idx_flow_runs_owner_key', columns: [['owner_key', 0]] },
+    { name: 'idx_flow_runs_updated_at', columns: [['updated_at', 0]] },
+  ],
+  session_nodes: [
+    {
+      name: 'idx_agent_session_nodes_updated_at',
+      columns: [['updated_at', 1], ['session_key', 0]],
+    },
+    {
+      name: 'idx_agent_session_nodes_last_interaction_at',
+      columns: [['last_interaction_at', 1], ['session_key', 0]],
+    },
+    {
+      name: 'idx_agent_session_nodes_parent_session_key',
+      columns: [['parent_session_key', 0], ['session_key', 0]],
+    },
+    {
+      name: 'idx_agent_session_nodes_spawned_by',
+      columns: [['spawned_by', 0], ['session_key', 0]],
+    },
+    {
+      name: 'idx_agent_session_nodes_status',
+      columns: [['status', 0], ['session_key', 0]],
+      where: 'status is not null',
+    },
+    {
+      name: 'idx_agent_session_nodes_archived_at',
+      columns: [['archived_at', 0], ['session_key', 0]],
+      where: 'archived_at is not null',
+    },
+    {
+      name: 'idx_agent_session_nodes_current_session_id',
+      columns: [['current_session_id', 0]],
+    },
+    {
+      name: 'idx_agent_session_nodes_entry_valid_pending',
+      columns: [['session_key', 0]],
+      where: 'entry_valid = 0',
+    },
+  ],
+  session_windows: [
+    {
+      name: 'idx_agent_session_windows_updated_at',
+      columns: [['updated_at', 1], ['session_id', 0]],
+    },
+    {
+      name: 'idx_agent_session_windows_session_key',
+      columns: [['session_key', 0], ['updated_at', 1], ['session_id', 0]],
+    },
+    {
+      name: 'idx_agent_session_windows_created_at',
+      columns: [['created_at', 1], ['session_id', 0]],
+    },
+    {
+      name: 'idx_agent_session_windows_conversation',
+      columns: [
+        ['primary_conversation_id', 0],
+        ['updated_at', 1],
+        ['session_id', 0],
+      ],
+      where: 'primary_conversation_id is not null',
+    },
+  ],
 });
 
 function expectedTableLayout(table, columns) {
@@ -349,6 +522,53 @@ function expectedTableLayout(table, columns) {
     type: integerColumns.has(name) ? 'INTEGER' : 'TEXT',
     notnull: nullableColumns.has(name) ? 0 : 1,
     pk: primaryKeys.indexOf(name) + 1,
+  }));
+}
+
+function normalizeSqlFragment(value) {
+  return value.trim().toLowerCase().replace(/\s+/gu, ' ');
+}
+
+function requireExactIndexes(db, table) {
+  const expected = REQUIRED_TABLE_INDEXES[table];
+  const listed = db.prepare(`PRAGMA index_list(${table})`).all()
+    .filter((row) => row.origin === 'c');
+  const expectedNames = expected.map((entry) => entry.name).toSorted();
+  const actualNames = listed.map((entry) => entry.name).toSorted();
+  if (canonicalJson(actualNames) !== canonicalJson(expectedNames)) {
+    throw new Error(`${table} does not expose the exact product index inventory`);
+  }
+  return Object.fromEntries(expected.map((entry) => {
+    const listedIndex = listed.find((row) => row.name === entry.name);
+    const object = db.prepare(
+      'SELECT type, sql FROM sqlite_schema WHERE name = ?',
+    ).get(entry.name);
+    const columns = db.prepare(`PRAGMA index_xinfo(${entry.name})`).all()
+      .filter((row) => row.key === 1)
+      .map((row) => [row.name, row.desc]);
+    const where = typeof object?.sql === 'string'
+      ? object.sql.match(/\bWHERE\s+([\s\S]+)$/iu)?.[1] ?? null
+      : null;
+    const expectedWhere = entry.where ?? null;
+    if (
+      object?.type !== 'index' ||
+      listedIndex?.unique !== 0 ||
+      listedIndex?.partial !== Number(expectedWhere !== null) ||
+      canonicalJson(columns) !== canonicalJson(entry.columns) ||
+      (
+        expectedWhere === null
+          ? where !== null
+          : where === null ||
+            normalizeSqlFragment(where) !== normalizeSqlFragment(expectedWhere)
+      )
+    ) {
+      throw new Error(`${table} does not expose the exact product index ${entry.name}`);
+    }
+    return [entry.name, {
+      columns,
+      createSqlSha256: sha256(object.sql),
+      where: expectedWhere,
+    }];
   }));
 }
 
@@ -590,6 +810,7 @@ function requireExactTable(db, table, expectedColumns) {
     objectType: object.type,
     createSqlSha256: sha256(object.sql),
     columns: layout,
+    indexes: requireExactIndexes(db, table),
   };
 }
 
@@ -1318,7 +1539,7 @@ function inspectGlobalDatabase(snapshotDatabasePath) {
         requireExactTable(db, table, columns),
       ]),
     );
-    requireDatabaseIntegrity(db, 13, { role: 'global', agentId: null });
+    requireDatabaseIntegrity(db, 15, { role: 'global', agentId: null });
     const agentDatabases = db.prepare(`
       SELECT agent_id, path, schema_version, last_seen_at, size_bytes
       FROM agent_databases

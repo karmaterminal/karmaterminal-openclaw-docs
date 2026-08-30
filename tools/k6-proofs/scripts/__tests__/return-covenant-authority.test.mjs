@@ -68,7 +68,7 @@ const root = path.resolve(import.meta.dirname, '../..');
 const fixtures = path.join(root, 'tests/fixtures/return-covenant-authority');
 const signingKey = 'synthetic-observer-signing-key-at-least-32-characters';
 const RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA =
-  '0109521b0c2b8a2c81c9f901789a81c5316074a7';
+  '0ed59cb64f31971e8659b417fe3fd2ba6a1730c3';
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -2089,7 +2089,7 @@ async function createProductShapedRetentionFixture() {
       updated_at INTEGER NOT NULL
     ) STRICT;
     INSERT INTO schema_meta VALUES
-      ('primary', 'global', 13, NULL, 'fixture', 1, 1);
+      ('primary', 'global', 15, NULL, 'fixture', 1, 1);
     CREATE TABLE agent_databases (
       agent_id TEXT NOT NULL,
       path TEXT NOT NULL,
@@ -2148,7 +2148,51 @@ async function createProductShapedRetentionFixture() {
       updated_at INTEGER NOT NULL,
       ended_at INTEGER
     ) STRICT;
-    PRAGMA user_version=13;
+    CREATE TABLE current_conversation_bindings (
+      binding_key TEXT NOT NULL PRIMARY KEY,
+      binding_id TEXT NOT NULL,
+      target_session_key TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      account_id TEXT NOT NULL,
+      conversation_kind TEXT NOT NULL,
+      parent_conversation_id TEXT,
+      conversation_id TEXT NOT NULL,
+      target_kind TEXT NOT NULL,
+      status TEXT NOT NULL,
+      bound_at INTEGER NOT NULL,
+      expires_at INTEGER,
+      metadata_json TEXT,
+      record_json TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    ) STRICT;
+    CREATE INDEX idx_delivery_queue_pending
+      ON delivery_queue_entries(queue_name, status, enqueued_at, id);
+    CREATE INDEX idx_delivery_queue_failed
+      ON delivery_queue_entries(queue_name, status, failed_at, id);
+    CREATE INDEX idx_delivery_queue_session
+      ON delivery_queue_entries(queue_name, status, session_key, enqueued_at, id)
+      WHERE session_key IS NOT NULL;
+    CREATE INDEX idx_delivery_queue_target
+      ON delivery_queue_entries(queue_name, status, channel, target, enqueued_at, id)
+      WHERE channel IS NOT NULL AND target IS NOT NULL;
+    CREATE INDEX idx_subagent_runs_child_session_key
+      ON subagent_runs(child_session_key, created_at DESC, run_id);
+    CREATE INDEX idx_subagent_runs_requester_session_key
+      ON subagent_runs(requester_session_key, created_at DESC, run_id);
+    CREATE INDEX idx_subagent_runs_controller_session_key
+      ON subagent_runs(controller_session_key, created_at DESC, run_id);
+    CREATE INDEX idx_current_conversation_bindings_target
+      ON current_conversation_bindings(target_session_key, updated_at DESC, binding_key);
+    CREATE INDEX idx_current_conversation_bindings_conversation
+      ON current_conversation_bindings(
+        channel, account_id, conversation_kind, conversation_id
+      );
+    CREATE INDEX idx_current_conversation_bindings_expires
+      ON current_conversation_bindings(expires_at, binding_key);
+    CREATE INDEX idx_flow_runs_status ON flow_runs(status);
+    CREATE INDEX idx_flow_runs_owner_key ON flow_runs(owner_key);
+    CREATE INDEX idx_flow_runs_updated_at ON flow_runs(updated_at);
+    PRAGMA user_version=15;
   `);
   agentDatabase.exec(`
     CREATE TABLE schema_meta (
@@ -2222,6 +2266,34 @@ async function createProductShapedRetentionFixture() {
       spawned_by TEXT,
       display_name TEXT
     ) STRICT;
+    CREATE INDEX idx_agent_session_nodes_updated_at
+      ON session_nodes(updated_at DESC, session_key);
+    CREATE INDEX idx_agent_session_nodes_last_interaction_at
+      ON session_nodes(last_interaction_at DESC, session_key);
+    CREATE INDEX idx_agent_session_nodes_parent_session_key
+      ON session_nodes(parent_session_key, session_key);
+    CREATE INDEX idx_agent_session_nodes_spawned_by
+      ON session_nodes(spawned_by, session_key);
+    CREATE INDEX idx_agent_session_nodes_status
+      ON session_nodes(status, session_key)
+      WHERE status IS NOT NULL;
+    CREATE INDEX idx_agent_session_nodes_archived_at
+      ON session_nodes(archived_at, session_key)
+      WHERE archived_at IS NOT NULL;
+    CREATE INDEX idx_agent_session_nodes_current_session_id
+      ON session_nodes(current_session_id);
+    CREATE INDEX idx_agent_session_nodes_entry_valid_pending
+      ON session_nodes(session_key)
+      WHERE entry_valid = 0;
+    CREATE INDEX idx_agent_session_windows_updated_at
+      ON session_windows(updated_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_session_key
+      ON session_windows(session_key, updated_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_created_at
+      ON session_windows(created_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_conversation
+      ON session_windows(primary_conversation_id, updated_at DESC, session_id)
+      WHERE primary_conversation_id IS NOT NULL;
     PRAGMA user_version=19;
   `);
   database.prepare(`
@@ -2471,6 +2543,126 @@ test('durable inspector matches current product-shaped retention stores', async 
         observed.sourceBinding.productStoreContractSha,
         RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA,
       );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const version of [13, 14, 16]) {
+    await t.test(`non-current global schema v${version} fails closed`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        fixtureState.database.exec(`PRAGMA user_version=${version};`);
+        fixtureState.database.prepare(`
+          UPDATE schema_meta SET schema_version = ?
+          WHERE meta_key = 'primary'
+        `).run(version);
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(observed.failureReason, /unexpected schema version/);
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
+
+  await t.test('global version marker disagreement fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.database.prepare(`
+        UPDATE schema_meta SET schema_version = 14
+        WHERE meta_key = 'primary'
+      `).run();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /invalid database owner/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('malformed global owner metadata fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.database.prepare(`
+        UPDATE schema_meta SET role = 'agent', agent_id = 'proof'
+        WHERE meta_key = 'primary'
+      `).run();
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /invalid database owner/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('removed v15 binding projections cannot be resurrected', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.database.exec(`
+        ALTER TABLE current_conversation_bindings
+          ADD COLUMN target_agent_id TEXT;
+      `);
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /exact product columns/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('required v15 binding columns cannot be absent', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.database.exec(`
+        DROP INDEX idx_current_conversation_bindings_target;
+        ALTER TABLE current_conversation_bindings
+          DROP COLUMN target_session_key;
+      `);
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /exact product columns/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('mutated product index inventory fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.database.exec(`
+        DROP INDEX idx_current_conversation_bindings_target;
+        CREATE INDEX idx_current_conversation_bindings_target
+          ON current_conversation_bindings(
+            target_session_key, binding_key, updated_at DESC
+          );
+      `);
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /exact product index/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('WAL mutation during snapshot fails closed', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      let mutated = false;
+      const observed = await fixtureState.observe({
+        testHooks: {
+          afterSourceOpen({ databasePath }) {
+            if (databasePath !== fixtureState.databasePath || mutated) return;
+            mutated = true;
+            fixtureState.database.prepare(`
+              UPDATE schema_meta SET updated_at = updated_at + 1
+              WHERE meta_key = 'primary'
+            `).run();
+          },
+        },
+      });
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /changed during snapshot/);
     } finally {
       await fixtureState.dispose();
     }

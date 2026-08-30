@@ -66,7 +66,7 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(documentation, /flow_runs/);
   assert.match(documentation, /delivery_queue_entries/);
   assert.match(documentation, /session_nodes\.entry_json/);
-  assert.match(documentation, /0109521b0c2b8a2c81c9f901789a81c5316074a7/);
+  assert.match(documentation, /0ed59cb64f31971e8659b417fe3fd2ba6a1730c3/);
   assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
   assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
   await assert.rejects(

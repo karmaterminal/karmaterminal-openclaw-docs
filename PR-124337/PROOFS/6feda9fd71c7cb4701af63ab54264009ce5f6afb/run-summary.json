@@ -1,0 +1,36 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.exact-transport-run.v1",
+    "verdict": "PASS",
+    "issue": "openclaw/openclaw#124337",
+    "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+    "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
+    "docs_harness_sha": "7cc7dc68f3f6d5371e89de2f2697ca06d3f04379",
+    "harness_sha256": "a6a9c57b2d802f898515b3c0da131ffa4da6ec843b30a3cb420df5e0dbfd6105",
+    "process": {
+      "pid": 3266608,
+      "started_at": "2026-08-30T15:09:58.724Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "rows": [
+      {
+        "row": "A-GENUINE-ABANDONMENT-CEILING",
+        "verdict": "PASS"
+      },
+      {
+        "row": "B-MIXED-FANIN-CANCELLATION",
+        "verdict": "PASS"
+      }
+    ],
+    "transposed_rows": [],
+    "prior_corpus_disposition": "inspected-not-transposed"
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "cc4221af2be8775439a7c22fb0c85bac7d3d454324745b9901080a0c60b9f1d7",
+    "value_base64": "FceWCjQqJiG/iSGp51NPgqhoefg4TdZ6BvoI433hrCq9WWnTPAp2em10KdB1ZkzAo1/c+p+8XRcWbxuCA7i3Cg==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

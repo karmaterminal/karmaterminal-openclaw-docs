@@ -1,0 +1,68 @@
+{
+  "ingress_database_sha256": "2d010fb561cbf0718fc8efc9bbc1dbcf5f2fde9e9c9c0aba7bd35469f501d2aa",
+  "session_database_sha256": "c36a6823fdfc25b0f1e399ca84d799cf64bdd496224a125b4093f6cfdef32149",
+  "ingress_rows": [
+    {
+      "event_id": "modern-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "channel_id": "discord",
+      "account_id": "proof-124337-mixed",
+      "status": "pending",
+      "lane_key": "modern-lane-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 1,
+      "completed_at": null,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1
+    },
+    {
+      "event_id": "legacy-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "channel_id": "discord",
+      "account_id": "proof-124337-mixed",
+      "status": "pending",
+      "lane_key": "legacy-lane-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 2,
+      "completed_at": null,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1
+    },
+    {
+      "event_id": "explicit-modern-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "channel_id": "discord",
+      "account_id": "proof-124337-modern",
+      "status": "pending",
+      "lane_key": "explicit-lane-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "attempts": 0,
+      "last_attempt_at": null,
+      "last_error": null,
+      "failed_reason": null,
+      "received_at": 3,
+      "completed_at": null,
+      "failed_at": null,
+      "claim_owner": null,
+      "claimed_at": null,
+      "payload_retained": 1
+    }
+  ],
+  "session_rows": [
+    {
+      "session_key": "agent:main:discord:channel:proof-b-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "session_id": "session-d729d4e9-7155-478f-8c33-46128fb274ee",
+      "status": null,
+      "created_via": "channel",
+      "created_actor_type": "human",
+      "created_actor_id": "proof-author",
+      "updated_at": 50000
+    }
+  ]
+}

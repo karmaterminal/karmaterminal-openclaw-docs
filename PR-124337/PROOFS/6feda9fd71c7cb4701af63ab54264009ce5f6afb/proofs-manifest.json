@@ -1,0 +1,68 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "issue": "openclaw/openclaw#124337",
+  "capture_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+  "ship_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+  "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+  "product_tree": "7095698b45352f760e79d17e2d9e2bffcfdd7765",
+  "target_exact_execution": true,
+  "docs_harness_sha": "7cc7dc68f3f6d5371e89de2f2697ca06d3f04379",
+  "harness_sha256": "a6a9c57b2d802f898515b3c0da131ffa4da6ec843b30a3cb420df5e0dbfd6105",
+  "execution_process": {
+    "pid": 3266608,
+    "started_at": "2026-08-30T15:09:58.724Z",
+    "node": "v25.9.0",
+    "architecture": "arm64",
+    "socket": null,
+    "socket_disposition": "N/A: process-local production Discord gateway-message handler"
+  },
+  "prior_corpus": {
+    "product_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+    "disposition": "inspected-not-transposed",
+    "reason": "Component/deployment-composite receipts do not establish this exact successor or Discord transport composition."
+  },
+  "transposed_rows": [],
+  "rows": [
+    {
+      "row": "A-GENUINE-ABANDONMENT-CEILING",
+      "state": "pass",
+      "execution": "exact",
+      "receipt": "A-GENUINE-ABANDONMENT-CEILING/receipt.json",
+      "evidence": "A-GENUINE-ABANDONMENT-CEILING/EVIDENCE.md",
+      "durable_state": "A-GENUINE-ABANDONMENT-CEILING/durable-state.json",
+      "restart_state": "A-GENUINE-ABANDONMENT-CEILING/restart-state.json",
+      "transport": "A-GENUINE-ABANDONMENT-CEILING/transport.json"
+    },
+    {
+      "row": "B-MIXED-FANIN-CANCELLATION",
+      "state": "pass",
+      "execution": "exact",
+      "receipt": "B-MIXED-FANIN-CANCELLATION/receipt.json",
+      "evidence": "B-MIXED-FANIN-CANCELLATION/EVIDENCE.md",
+      "durable_state": "B-MIXED-FANIN-CANCELLATION/durable-state.json",
+      "transport": "B-MIXED-FANIN-CANCELLATION/transport.json",
+      "genuine_sibling_control": "A-GENUINE-ABANDONMENT-CEILING/receipt.json"
+    }
+  ],
+  "diagnostics": [
+    "diagnostics/session-store-scope-failure/FAIL.json",
+    "diagnostics/timing-helper-failure/FAIL.json",
+    "diagnostics/projection-helper-failure/FAIL.json",
+    "diagnostics/sqlite-reopen-byte-failure/FAIL.json"
+  ],
+  "cleanup": "CLEANUP.json",
+  "validation": "VALIDATION.md",
+  "mode_b": {
+    "run_id": 33318993673,
+    "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+    "workflow_sha": "d05778e6a96dd9a96946eff483e80c4d9ff9575e",
+    "status": "in_progress"
+  },
+  "rollup": {
+    "total_rows": 2,
+    "pass": 2,
+    "fail": 0,
+    "honest_limit": 0,
+    "transposed": 0
+  }
+}

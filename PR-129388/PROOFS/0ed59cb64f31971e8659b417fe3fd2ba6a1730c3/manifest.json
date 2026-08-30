@@ -1,0 +1,24 @@
+{
+  "schema": "openclaw.proofs.blocked-corpus-manifest.v1",
+  "issue": "openclaw/openclaw#129388",
+  "candidateSha": "0ed59cb64f31971e8659b417fe3fd2ba6a1730c3",
+  "harnessSha": "16f8bca6593813adb25e864c91d38f456b1708c0",
+  "workflowSha": "3c5acdb72e94755f469fc6cc3276d5b8623d5b49",
+  "verdict": "BLOCKED",
+  "exactTargetExecution": false,
+  "exactTargetModeB": true,
+  "historicalEvidenceCarried": false,
+  "files": [
+    "README.md",
+    "NAMED-REFS.md",
+    "IDENTITIES.json",
+    "ROWS.md",
+    "AUTHORITY-MATRIX.md",
+    "MIGRATION-MATRIX.md",
+    "MODE-B.json",
+    "CLEANUP.md",
+    "aggregate.json",
+    "validation.json",
+    "CHECKSUMS.sha256"
+  ]
+}

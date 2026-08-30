@@ -1,0 +1,39 @@
+{
+  "schema": "openclaw.proofs.exact-identities.v1",
+  "issue": "openclaw/openclaw#129388",
+  "product": {
+    "sha": "0ed59cb64f31971e8659b417fe3fd2ba6a1730c3",
+    "tree": "52b6141c80e575813f94241635ce02007b50d140",
+    "parents": [
+      "e6b9dcbd1f365ba02d994a8ee24e2c3fd89af900"
+    ],
+    "pinnedUpstream": "43a7cb3c92c7b5b8d5ddd56d9d157c009e0c85e5"
+  },
+  "harness": {
+    "sha": "16f8bca6593813adb25e864c91d38f456b1708c0",
+    "tree": "1eacb6fdb4c6d025a4d4e2667efb494821c24df3",
+    "parents": [
+      "c0476ca1d5cceee21b3714bee6ecff824298d5aa"
+    ],
+    "reviewSha": "6995218335b0fb9205de1e6c03b48acc88418d53",
+    "proofBinariesManifestSha256": "9b1511c2c3226ea746d67b97247af9ddfeecb98d1d5bc6cebde4e37647786e4c",
+    "returnCovenantScenarioSha256": "323a42d946bb9da8fd0c126575f99fafab344daa7f14101bcc3d4351fa3238aa"
+  },
+  "workflow": {
+    "sha": "3c5acdb72e94755f469fc6cc3276d5b8623d5b49",
+    "tree": "0d3fd64e035e1f812bb8a5c6d8770a848ff23da6",
+    "parents": [
+      "feac243018add5fdf106feeb5f676efddec7bafc"
+    ],
+    "modeBRunId": 33323536011
+  },
+  "runtime": {
+    "architecture": "linux-arm64",
+    "node": "v25.9.0",
+    "k6": {
+      "version": "k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/arm64)",
+      "sha256": "6fcd167ac6525e444bb710a2cb98dbe200ef12a6e0a4e9f83d062a4acabc1e70"
+    }
+  }
+}
+

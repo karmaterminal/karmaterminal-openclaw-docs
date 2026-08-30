@@ -1,0 +1,26 @@
+{
+  "schema": "openclaw.proofs.mode-b-receipt.v1",
+  "runId": 33323536011,
+  "productSha": "0ed59cb64f31971e8659b417fe3fd2ba6a1730c3",
+  "workflowSha": "3c5acdb72e94755f469fc6cc3276d5b8623d5b49",
+  "status": "completed",
+  "conclusion": "failure",
+  "receiptValidation": false,
+  "routedJobs": 69,
+  "validRoutingReceipts": 66,
+  "tests": {
+    "passed": 176108,
+    "failed": 36,
+    "deterministicFailures": 29,
+    "loadFlakesGreened": 7
+  },
+  "laneGuards": [
+    "receipt merge outcome is failure, not success",
+    "receipt validation failed",
+    "three routed batches produced no valid routing receipt",
+    "self-hosted-dist jobs were planned but skipped"
+  ],
+  "authority": "Downloaded aggregate-summary.json and aggregate-summary.md from run 33323536011",
+  "classification": "RED; candidate-clean classification remains under review and is not credited by this corpus"
+}
+

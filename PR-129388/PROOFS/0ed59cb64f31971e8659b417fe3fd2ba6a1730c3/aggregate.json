@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.proofs.exact-attempt-aggregate.v1",
+  "candidateSha": "0ed59cb64f31971e8659b417fe3fd2ba6a1730c3",
+  "verdict": "BLOCKED",
+  "requiredRows": 38,
+  "pass": 0,
+  "fail": 0,
+  "honestLimit": 0,
+  "notExecuted": 37,
+  "blocked": 1,
+  "blockingRow": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "blockingReason": "missing product-owned openclaw.k6.return-covenant-fixture-driver.v1 command",
+  "modeB": {
+    "runId": 33323536011,
+    "productSha": "0ed59cb64f31971e8659b417fe3fd2ba6a1730c3",
+    "workflowSha": "3c5acdb72e94755f469fc6cc3276d5b8623d5b49",
+    "conclusion": "failure"
+  },
+  "deploymentAttempted": false,
+  "readyForScribeReview": false
+}
+

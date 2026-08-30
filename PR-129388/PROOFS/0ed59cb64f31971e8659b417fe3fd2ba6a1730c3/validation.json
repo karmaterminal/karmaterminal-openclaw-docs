@@ -1,0 +1,29 @@
+{
+  "schema": "openclaw.proofs.blocked-validation.v1",
+  "verdict": "BLOCKED",
+  "checks": {
+    "safeLanePublishedBeforeEvidence": true,
+    "namedRefsResolved": true,
+    "productTreeAndParentExact": true,
+    "productFixtureProtocolFound": false,
+    "productFixturePathFound": false,
+    "historicalPassCarried": false,
+    "deploymentAttempted": false,
+    "presentationMutated": false,
+    "focusedHarnessTestsPassed": true,
+    "proofRowManifestCoveragePassed": true,
+    "manifestScenarioRegistryPassed": true,
+    "modeBConclusion": "failure"
+  },
+  "blockingControl": {
+    "treePathSearchMatches": 0,
+    "protocolSearchMatches": 0,
+    "requiredProtocol": "openclaw.k6.return-covenant-fixture-driver.v1"
+  },
+  "focusedHarnessTests": {
+    "tests": 119,
+    "passed": 119,
+    "failed": 0,
+    "durationMs": 447806.822043
+  }
+}

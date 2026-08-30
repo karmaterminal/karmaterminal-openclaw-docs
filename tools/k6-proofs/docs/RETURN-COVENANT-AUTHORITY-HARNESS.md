@@ -283,6 +283,13 @@ The phase order is fixed:
    generated or ordinary resurrection of the removed `target_agent_id` and
    `target_session_id` projections, table-owned uniqueness, and any target
    index other than `target_session_key, updated_at DESC, binding_key`.
+   Every raw-DDL fact uses one fail-closed SQLite token scanner before
+   comparison. It removes line and block comments only outside literals and
+   quoted identifiers, preserves token boundaries and exact string bytes,
+   understands SQLite double-quote, backtick, and bracket identifier forms,
+   and rejects unterminated lexical states or unbalanced parentheses. CHECK
+   normalization may discard only balanced parentheses that wrap the complete
+   expression; it does not simplify, reorder, or remove inner grouping.
    Each registered per-agent snapshot must expose the exact v19
    `session_nodes.entry_json` owner and physical schema, including the
    `session_windows` CHECK and foreign-key contracts. Full-source SHA-256

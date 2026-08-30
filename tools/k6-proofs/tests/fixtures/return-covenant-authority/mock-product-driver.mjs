@@ -451,24 +451,42 @@ if (process.argv[2] === 'gateway') {
       last_interaction_at INTEGER,
       last_activity_at INTEGER
     ) STRICT;
+    CREATE TRIGGER session_nodes_entry_valid_after_insert
+    AFTER INSERT ON session_nodes
+    BEGIN
+      UPDATE session_nodes SET entry_valid = 0 WHERE session_key = NEW.session_key;
+    END;
+    CREATE TRIGGER session_nodes_entry_valid_after_entry_update
+    AFTER UPDATE OF entry_json ON session_nodes
+    BEGIN
+      UPDATE session_nodes SET entry_valid = 0 WHERE session_key = NEW.session_key;
+    END;
+    CREATE TRIGGER session_nodes_entry_valid_after_identity_update
+    AFTER UPDATE OF current_session_id, updated_at ON session_nodes
+    BEGIN
+      UPDATE session_nodes SET entry_valid = 0 WHERE session_key = NEW.session_key;
+    END;
+    CREATE TABLE conversations (
+      conversation_id TEXT NOT NULL PRIMARY KEY
+    ) STRICT;
     CREATE TABLE session_windows (
       session_id TEXT NOT NULL PRIMARY KEY,
       session_key TEXT NOT NULL,
       previous_session_id TEXT,
-      reason TEXT,
-      session_scope TEXT NOT NULL DEFAULT 'conversation',
+      reason TEXT CHECK (reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')),
+      session_scope TEXT NOT NULL DEFAULT 'conversation' CHECK (session_scope IN ('conversation', 'shared-main', 'group', 'channel')),
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL,
       transcript_updated_at INTEGER DEFAULT NULL,
       transcript_observed_at INTEGER DEFAULT NULL,
-      session_entry_provenance INTEGER NOT NULL DEFAULT 0,
-      acp_owned INTEGER NOT NULL DEFAULT 0,
+      session_entry_provenance INTEGER NOT NULL DEFAULT 0 CHECK (session_entry_provenance IN (0, 1)),
+      acp_owned INTEGER NOT NULL DEFAULT 0 CHECK (acp_owned IN (0, 1)),
       plugin_owner_id TEXT,
-      hook_external_content_source TEXT,
+      hook_external_content_source TEXT CHECK (hook_external_content_source IS NULL OR hook_external_content_source IN ('gmail', 'webhook')),
       started_at INTEGER,
       ended_at INTEGER,
-      status TEXT,
-      chat_type TEXT,
+      status TEXT CHECK (status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')),
+      chat_type TEXT CHECK (chat_type IS NULL OR chat_type IN ('direct', 'group', 'channel')),
       channel TEXT,
       account_id TEXT,
       primary_conversation_id TEXT,
@@ -477,7 +495,9 @@ if (process.argv[2] === 'gateway') {
       agent_harness_id TEXT,
       parent_session_key TEXT,
       spawned_by TEXT,
-      display_name TEXT
+      display_name TEXT,
+      FOREIGN KEY (session_key) REFERENCES session_nodes(session_key) ON DELETE CASCADE,
+      FOREIGN KEY (primary_conversation_id) REFERENCES conversations(conversation_id) ON DELETE SET NULL
     ) STRICT;
     CREATE INDEX idx_agent_session_nodes_updated_at
       ON session_nodes(updated_at DESC, session_key);
@@ -578,6 +598,9 @@ if (process.argv[2] === 'gateway') {
       now,
     );
     agentDatabase.prepare(`
+      UPDATE session_nodes SET entry_valid = 1 WHERE session_key = ?
+    `).run(body.logicalSessionKey);
+    agentDatabase.prepare(`
       INSERT OR IGNORE INTO session_windows (
         session_id, session_key, session_scope, created_at, updated_at,
         session_entry_provenance, acp_owned, status
@@ -615,6 +638,9 @@ if (process.argv[2] === 'gateway') {
       body.logicalSessionKey,
       body.logicalSessionKey,
     );
+    agentDatabase.prepare(`
+      UPDATE session_nodes SET entry_valid = 1 WHERE session_key = ?
+    `).run(durableSessionKey);
     agentDatabase.prepare(`
       INSERT INTO session_windows (
         session_id, session_key, session_scope, created_at, updated_at,

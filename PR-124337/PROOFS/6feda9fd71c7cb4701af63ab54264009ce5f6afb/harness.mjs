@@ -20,6 +20,10 @@ const resultsRoot = path.resolve(requiredText("OPENCLAW_PR124337_RESULTS_DIR"));
 const docsSha = requiredSha("OPENCLAW_PROOF_DOCS_SHA");
 const harnessPath = new URL(import.meta.url);
 const processStartedAt = new Date().toISOString();
+const originalNow = (() => {
+  const now = Date.now.bind(Date);
+  return () => now();
+})();
 
 const { createChannelIngressDrain } = await importRoot(
   "src/channels/message/ingress-drain.ts",
@@ -735,11 +739,6 @@ async function waitFor(predicate, { timeoutMs, intervalMs, label }) {
   }
   throw new Error(`${label} timed out${lastError ? `: ${String(lastError)}` : ""}`);
 }
-
-const originalNow = (() => {
-  const now = Date.now.bind(Date);
-  return () => now();
-})();
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

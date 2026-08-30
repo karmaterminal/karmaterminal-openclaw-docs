@@ -1,0 +1,24 @@
+{
+  "payload": {
+    "schema": "openclaw.pr124337.exact-transport-run.v1",
+    "verdict": "FAIL",
+    "issue": "openclaw/openclaw#124337",
+    "product_sha": "6feda9fd71c7cb4701af63ab54264009ce5f6afb",
+    "docs_harness_sha": "6770dabdc871a63ee9a6d1850ac0ddfdf2d10726",
+    "harness_sha256": "8c6a6783136cfc3d4a1c5040ed429196e7365c01237d7b0ebe19c1199e3535bc",
+    "process": {
+      "pid": 3264736,
+      "started_at": "2026-08-30T15:07:40.092Z",
+      "executable": "/home/figs/.nvm/versions/node/v25.9.0/bin/node",
+      "node": "v25.9.0",
+      "architecture": "arm64"
+    },
+    "diagnostic": "ReferenceError: Cannot access 'originalNow' before initialization"
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "payload_sha256": "9696bd1ed8c415a3ba7fac9c6b1069504917c21c16c2510ee161ab816a381df3",
+    "value_base64": "gHbPdaDMo9lWFMvBszmGTGyQpq7nBlexkosChb2zpFDkBdMYxie49HG89sm0fx3RBUF4D2Cig7JJg7iI3dWhAQ==",
+    "public_key_path": "signing-public-key.json"
+  }
+}

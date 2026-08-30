@@ -253,8 +253,8 @@ successor harnesses:
 - the exact product worktree still had zero status entries;
 - an independent `/tmp` scan found zero matching state roots;
 - each row's `finally` cleanup had removed its isolated state root;
-- no network client or listener was created: the harness passed an inert local
-  client into the production gateway-message handler;
+- no network listener or socket was created: the harness passed an inert local
+  client object into the production gateway-message handler;
 - `transposed_rows` remained empty, so no earlier component receipt was
   relabeled as exact product evidence.
 

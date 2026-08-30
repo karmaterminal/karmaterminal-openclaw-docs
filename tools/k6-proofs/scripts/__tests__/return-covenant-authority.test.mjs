@@ -2602,6 +2602,23 @@ function rebuildBindingTable(database, {
   `);
 }
 
+function rewriteSchemaSql(database, name, transform) {
+  const row = database.prepare(
+    'SELECT sql FROM sqlite_schema WHERE name = ?',
+  ).get(name);
+  assert.equal(typeof row?.sql, 'string');
+  database.enableDefensive(false);
+  database.exec('PRAGMA writable_schema=ON;');
+  try {
+    database.prepare(
+      'UPDATE sqlite_schema SET sql = ? WHERE name = ?',
+    ).run(transform(row.sql), name);
+  } finally {
+    database.exec('PRAGMA writable_schema=OFF;');
+    database.enableDefensive(true);
+  }
+}
+
 function rebuildSessionWindows(agentDatabase, {
   reasonDefinition = null,
   reasonCheck =
@@ -2854,6 +2871,220 @@ test('durable inspector matches current product-shaped retention stores', async 
       });
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('line comments are insignificant to CHECK extraction', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        reasonCheck:
+          "reason IS NULL OR -- retained policy\n reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('line-commented CHECK text cannot counterfeit a constraint', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        reasonDefinition:
+          "-- CHECK (reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction'))\n TEXT",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'unverified-resource-retention');
+      assert.match(observed.failureReason, /CHECK constraints/);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('comments between collation tokens preserve token boundaries', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildBindingTable(fixtureState.database, {
+        bindingId: 'binding_id TEXT NOT NULL COLLATE/* boundary */BINARY',
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('comments normalize through partial predicates and triggers', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      fixtureState.database.exec(`
+        DROP INDEX idx_delivery_queue_session;
+        CREATE INDEX idx_delivery_queue_session
+          ON delivery_queue_entries(
+            queue_name, status, session_key, enqueued_at, id
+          )
+          WHERE session_key /* partial predicate */ IS NOT NULL;
+      `);
+      fixtureState.agentDatabase.exec(`
+        DROP TRIGGER session_nodes_entry_valid_after_insert;
+        CREATE TRIGGER /* lifecycle */ session_nodes_entry_valid_after_insert
+        AFTER INSERT ON session_nodes
+        BEGIN
+          UPDATE session_nodes SET entry_valid = 0
+          WHERE session_key = NEW.session_key; -- exact trigger body
+        END;
+      `);
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('comments are insignificant in default expressions', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        sessionScopeDefault: "/* default expression */ 'conversation'",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const [name, reasonCheck] of [
+    [
+      'block-comment markers inside strings',
+      "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'comp/* data */action')",
+    ],
+    [
+      'line-comment markers inside strings',
+      "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'comp-- data\naction')",
+    ],
+    [
+      'comment markers after doubled quotes inside strings',
+      "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'comp''/* data */action')",
+    ],
+  ]) {
+    await t.test(`${name} remain literal bytes`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        rebuildSessionWindows(fixtureState.agentDatabase, { reasonCheck });
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(observed.failureReason, /CHECK constraints/);
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
+
+  for (const [name, suffix, reason] of [
+    ['unterminated block comment', ' /*', /unterminated block comment/],
+    ['unterminated string', " '", /unterminated string literal/],
+    ['unterminated double-quoted identifier', ' "', /unterminated quoted identifier/],
+    ['unterminated backtick identifier', ' `', /unterminated quoted identifier/],
+    ['unterminated bracket identifier', ' [', /unterminated quoted identifier/],
+    ['unbalanced parenthesis', ' (', /unbalanced parentheses/],
+  ]) {
+    await t.test(`${name} in stored DDL fails closed`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        rewriteSchemaSql(
+          fixtureState.agentDatabase,
+          'session_windows',
+          (sql) => `${sql}${suffix}`,
+        );
+        assert.throws(
+          () => inspectReturnCovenantPhysicalSchema({
+            database: fixtureState.agentDatabase,
+            kind: 'agent',
+            agentId: 'proof',
+          }),
+          reason,
+        );
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
+
+  await t.test('line comment through end-of-input is a valid trailing comment', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rewriteSchemaSql(
+        fixtureState.agentDatabase,
+        'session_windows',
+        (sql) => `${sql} -- trailing comment`,
+      );
+      assert.doesNotThrow(() => inspectReturnCovenantPhysicalSchema({
+        database: fixtureState.agentDatabase,
+        kind: 'agent',
+        agentId: 'proof',
+      }));
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const [name, quotedIdentifier] of [
+    ['double-quoted', '"binding/*id*/"'],
+    ['escaped double-quoted', '"binding""/*id*/"'],
+    ['backtick', '`binding--id`'],
+    ['escaped backtick', '`binding``--id`'],
+    ['bracket', '[binding/*id*/]'],
+  ]) {
+    await t.test(`${name} identifier comment markers remain identifier bytes`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        rebuildBindingTable(fixtureState.database, {
+          bindingId: `${quotedIdentifier} TEXT NOT NULL`,
+        });
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(observed.failureReason, /table_xinfo inventory/);
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
+
+  await t.test('comments cannot concatenate a split STRICT keyword', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rewriteSchemaSql(
+        fixtureState.agentDatabase,
+        'session_windows',
+        (sql) => sql.replace(/STRICT$/u, 'STR/* boundary */ICT'),
+      );
+      assert.throws(
+        () => inspectReturnCovenantPhysicalSchema({
+          database: fixtureState.agentDatabase,
+          kind: 'agent',
+          agentId: 'proof',
+        }),
+        /canonical STRICT SQLite table/,
+      );
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  await t.test('unsupported bracket closing escape is rejected by SQLite', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      assert.throws(
+        () => fixtureState.database.exec(
+          'CREATE TABLE unsupported_bracket_escape ([binding]]id] TEXT) STRICT;',
+        ),
+        /unrecognized token/,
+      );
     } finally {
       await fixtureState.dispose();
     }

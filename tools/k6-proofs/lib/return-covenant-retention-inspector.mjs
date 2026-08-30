@@ -638,196 +638,202 @@ function expectedTableLayout(table, columns) {
   }));
 }
 
-function normalizeSqlFragment(value) {
-  let normalized = '';
-  for (let index = 0; index < value.length; index += 1) {
+function tokenizeSql(value) {
+  const tokens = [];
+  let depth = 0;
+  for (let index = 0; index < value.length;) {
     const character = value[index];
-    if (character === "'") {
-      normalized += character;
+    if (/\s/u.test(character)) {
+      index += 1;
+      continue;
+    }
+    if (character === '-' && value[index + 1] === '-') {
+      index += 2;
+      while (index < value.length && value[index] !== '\n') index += 1;
+      continue;
+    }
+    if (character === '/' && value[index + 1] === '*') {
+      const closeIndex = value.indexOf('*/', index + 2);
+      if (closeIndex < 0) throw new Error('SQL has an unterminated block comment');
+      index = closeIndex + 2;
+      continue;
+    }
+    const isBlobLiteral =
+      (character === 'x' || character === 'X') &&
+      value[index + 1] === "'";
+    if (character === "'" || isBlobLiteral) {
+      const start = index;
+      if (isBlobLiteral) index += 1;
+      let closed = false;
       for (index += 1; index < value.length; index += 1) {
-        normalized += value[index];
-        if (value[index] === "'") {
-          if (value[index + 1] === "'") {
-            normalized += value[index + 1];
-            index += 1;
-          } else {
-            break;
-          }
+        if (value[index] !== "'") continue;
+        if (value[index + 1] === "'") {
+          index += 1;
+        } else {
+          index += 1;
+          closed = true;
+          break;
         }
       }
+      if (!closed) throw new Error('SQL has an unterminated string literal');
+      tokens.push({
+        type: isBlobLiteral ? 'blob' : 'string',
+        value: value.slice(start, index),
+      });
       continue;
     }
     if (character === '"' || character === '`' || character === '[') {
       const close = character === '[' ? ']' : character;
       let identifier = '';
+      let closed = false;
       for (index += 1; index < value.length; index += 1) {
-        if (value[index] === close) {
-          if (value[index + 1] === close && character !== '[') {
-            identifier += close;
-            index += 1;
-          } else {
-            break;
-          }
-        } else {
+        if (value[index] !== close) {
           identifier += value[index];
+          continue;
         }
+        if (character !== '[' && value[index + 1] === close) {
+          identifier += close;
+          index += 1;
+          continue;
+        }
+        index += 1;
+        closed = true;
+        break;
       }
-      normalized += identifier.toLowerCase();
-    } else if (!/\s/u.test(character)) {
-      normalized += character.toLowerCase();
+      if (!closed) throw new Error('SQL has an unterminated quoted identifier');
+      tokens.push({ type: 'identifier', value: identifier });
+      continue;
     }
+    if ('(),;'.includes(character)) {
+      if (character === '(') depth += 1;
+      if (character === ')') {
+        depth -= 1;
+        if (depth < 0) throw new Error('SQL has unbalanced parentheses');
+      }
+      tokens.push({ type: 'punctuation', value: character });
+      index += 1;
+      continue;
+    }
+    if (/[\p{L}\p{N}_$]/u.test(character)) {
+      const start = index;
+      while (/[\p{L}\p{N}_$]/u.test(value[index] ?? '')) index += 1;
+      tokens.push({ type: 'ordinary', value: value.slice(start, index) });
+      continue;
+    }
+    const operator = ['->>', '||', '<<', '>>', '<=', '>=', '==', '!=', '<>', '->']
+      .find((candidate) => value.startsWith(candidate, index));
+    tokens.push({ type: 'punctuation', value: operator ?? character });
+    index += operator?.length ?? 1;
   }
-  return normalized;
+  if (depth !== 0) throw new Error('SQL has unbalanced parentheses');
+  return tokens;
 }
 
-function splitTopLevelSql(value) {
+function normalizeSqlTokens(tokens) {
+  return tokens.map((token) => {
+    if (token.type === 'string') return token.value;
+    if (token.type === 'blob') return `x${token.value.slice(1)}`;
+    return token.value.toLowerCase();
+  }).join(' ');
+}
+
+function normalizeSqlFragment(value) {
+  return normalizeSqlTokens(tokenizeSql(value));
+}
+
+function tokenIsKeyword(token, keyword) {
+  return token?.type === 'ordinary' &&
+    token.value.toUpperCase() === keyword.toUpperCase();
+}
+
+function splitTopLevelSql(tokens) {
   const parts = [];
   let start = 0;
   let depth = 0;
-  let quote = null;
-  for (let index = 0; index < value.length; index += 1) {
-    const character = value[index];
-    if (quote !== null) {
-      if (character === quote) {
-        if (value[index + 1] === quote) {
-          index += 1;
-        } else {
-          quote = null;
-        }
-      }
-      continue;
-    }
-    if (character === "'" || character === '"' || character === '`') {
-      quote = character;
-    } else if (character === '[') {
-      quote = ']';
-    } else if (character === '(') {
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (token.value === '(') {
       depth += 1;
-    } else if (character === ')') {
+    } else if (token.value === ')') {
       depth -= 1;
-    } else if (character === ',' && depth === 0) {
-      parts.push(value.slice(start, index).trim());
+    } else if (token.value === ',' && depth === 0) {
+      parts.push(tokens.slice(start, index));
       start = index + 1;
     }
   }
-  parts.push(value.slice(start).trim());
+  parts.push(tokens.slice(start));
   return parts;
 }
 
 function tableSqlClauses(sql) {
-  const openIndex = sql.indexOf('(');
+  const tokens = tokenizeSql(sql);
+  const openIndex = tokens.findIndex((token) => token.value === '(');
   if (openIndex < 0) throw new Error('table SQL has no column-list boundary');
   let depth = 0;
-  let quote = null;
-  for (let index = openIndex; index < sql.length; index += 1) {
-    const character = sql[index];
-    if (quote !== null) {
-      if (character === quote) {
-        if (sql[index + 1] === quote) {
-          index += 1;
-        } else {
-          quote = null;
-        }
-      }
-      continue;
-    }
-    if (character === "'" || character === '"' || character === '`') {
-      quote = character;
-    } else if (character === '[') {
-      quote = ']';
-    } else if (character === '(') {
+  for (let index = openIndex; index < tokens.length; index += 1) {
+    if (tokens[index].value === '(') {
       depth += 1;
-    } else if (character === ')') {
+    } else if (tokens[index].value === ')') {
       depth -= 1;
       if (depth === 0) {
-        return splitTopLevelSql(sql.slice(openIndex + 1, index));
+        return splitTopLevelSql(tokens.slice(openIndex + 1, index));
       }
     }
   }
   throw new Error('table SQL has an unterminated column list');
 }
 
-function findTopLevelKeyword(value, keyword, fromIndex = 0) {
+function tableSqlModifiers(sql) {
+  const tokens = tokenizeSql(sql);
+  const openIndex = tokens.findIndex((token) => token.value === '(');
+  if (openIndex < 0) throw new Error('table SQL has no column-list boundary');
   let depth = 0;
-  let quote = null;
-  const upperKeyword = keyword.toUpperCase();
-  for (let index = fromIndex; index < value.length; index += 1) {
-    const character = value[index];
-    if (quote !== null) {
-      if (character === quote) {
-        if (value[index + 1] === quote && quote !== ']') {
-          index += 1;
-        } else {
-          quote = null;
-        }
-      }
-      continue;
-    }
-    if (character === "'" || character === '"' || character === '`') {
-      quote = character;
-      continue;
-    }
-    if (character === '[') {
-      quote = ']';
-      continue;
-    }
-    if (character === '(') {
+  for (let index = openIndex; index < tokens.length; index += 1) {
+    if (tokens[index].value === '(') depth += 1;
+    if (tokens[index].value !== ')') continue;
+    depth -= 1;
+    if (depth !== 0) continue;
+    return tokens.slice(index + 1).filter((token) => token.value !== ';');
+  }
+  throw new Error('table SQL has an unterminated column list');
+}
+
+function findTopLevelKeyword(tokens, keyword, fromIndex = 0) {
+  let depth = 0;
+  for (let index = fromIndex; index < tokens.length; index += 1) {
+    if (tokens[index].value === '(') {
       depth += 1;
       continue;
     }
-    if (character === ')') {
+    if (tokens[index].value === ')') {
       depth -= 1;
       continue;
     }
-    if (
-      depth === 0 &&
-      value.slice(index, index + keyword.length).toUpperCase() === upperKeyword &&
-      !/[A-Za-z0-9_]/u.test(value[index - 1] ?? '') &&
-      !/[A-Za-z0-9_]/u.test(value[index + keyword.length] ?? '')
-    ) {
-      return index;
-    }
+    if (depth === 0 && tokenIsKeyword(tokens[index], keyword)) return index;
   }
   return -1;
 }
 
-function extractParenthesizedExpressions(clause, keyword) {
+function extractParenthesizedExpressions(tokens, keyword) {
   const expressions = [];
   let searchIndex = 0;
-  while (searchIndex < clause.length) {
-    const keywordIndex = findTopLevelKeyword(clause, keyword, searchIndex);
+  while (searchIndex < tokens.length) {
+    const keywordIndex = findTopLevelKeyword(tokens, keyword, searchIndex);
     if (keywordIndex < 0) break;
-    let openIndex = keywordIndex + keyword.length;
-    while (/\s/u.test(clause[openIndex] ?? '')) openIndex += 1;
-    if (clause[openIndex] !== '(') {
-      searchIndex = openIndex;
+    const openIndex = keywordIndex + 1;
+    if (tokens[openIndex]?.value !== '(') {
+      searchIndex = openIndex + 1;
       continue;
     }
     let depth = 1;
-    let quote = null;
     let closed = false;
-    for (let index = openIndex + 1; index < clause.length; index += 1) {
-      const character = clause[index];
-      if (quote !== null) {
-        if (character === quote) {
-          if (clause[index + 1] === quote && quote !== ']') {
-            index += 1;
-          } else {
-            quote = null;
-          }
-        }
-        continue;
-      }
-      if (character === "'" || character === '"' || character === '`') {
-        quote = character;
-      } else if (character === '[') {
-        quote = ']';
-      } else if (character === '(') {
+    for (let index = openIndex + 1; index < tokens.length; index += 1) {
+      if (tokens[index].value === '(') {
         depth += 1;
-      } else if (character === ')') {
+      } else if (tokens[index].value === ')') {
         depth -= 1;
         if (depth === 0) {
-          expressions.push(clause.slice(openIndex + 1, index));
+          expressions.push(tokens.slice(openIndex + 1, index));
           searchIndex = index + 1;
           closed = true;
           break;
@@ -841,45 +847,68 @@ function extractParenthesizedExpressions(clause, keyword) {
   return expressions;
 }
 
-function unquoteIdentifier(value) {
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith('`') && value.endsWith('`')) ||
-    (value.startsWith('[') && value.endsWith(']'))
-  ) {
-    return value.slice(1, -1).replaceAll(value[0] + value[0], value[0]);
+function stripWholeExpressionGrouping(tokens) {
+  let result = tokens;
+  while (result[0]?.value === '(' && result.at(-1)?.value === ')') {
+    let depth = 0;
+    let closesAtEnd = false;
+    for (let index = 0; index < result.length; index += 1) {
+      if (result[index].value === '(') depth += 1;
+      if (result[index].value === ')') depth -= 1;
+      if (depth === 0) {
+        closesAtEnd = index === result.length - 1;
+        break;
+      }
+    }
+    if (!closesAtEnd) break;
+    result = result.slice(1, -1);
   }
-  return value;
+  return result;
 }
 
 function columnSqlClauses(sql) {
   return new Map(tableSqlClauses(sql).flatMap((clause) => {
-    if (/^(?:CONSTRAINT\b|PRIMARY\s+KEY\b|UNIQUE\b|CHECK\b|FOREIGN\s+KEY\b)/iu.test(clause)) {
+    if (
+      tokenIsKeyword(clause[0], 'CONSTRAINT') ||
+      tokenIsKeyword(clause[0], 'UNIQUE') ||
+      tokenIsKeyword(clause[0], 'CHECK') ||
+      (
+        tokenIsKeyword(clause[0], 'PRIMARY') &&
+        tokenIsKeyword(clause[1], 'KEY')
+      ) ||
+      (
+        tokenIsKeyword(clause[0], 'FOREIGN') &&
+        tokenIsKeyword(clause[1], 'KEY')
+      )
+    ) {
       return [];
     }
-    const match = clause.match(/^\s*("(?:[^"]|"")*"|`(?:[^`]|``)*`|\[[^\]]+\]|[^\s]+)/u);
-    return match ? [[unquoteIdentifier(match[1]), clause]] : [];
+    const name = clause[0];
+    return name?.type === 'ordinary' || name?.type === 'identifier'
+      ? [[name.value.toLowerCase(), clause]]
+      : [];
   }));
 }
 
 function tableCheckFingerprint(sql) {
   return tableSqlClauses(sql)
     .flatMap((clause) => extractParenthesizedExpressions(clause, 'CHECK'))
-    .map(normalizeSqlFragment)
+    .map(stripWholeExpressionGrouping)
+    .map(normalizeSqlTokens)
     .toSorted();
 }
 
 function generatedColumnFingerprint(sql, rows) {
   const clauses = columnSqlClauses(sql);
   return rows.filter((row) => row.hidden === 2 || row.hidden === 3).map((row) => {
-    const clause = clauses.get(row.name) ?? '';
+    const clause = clauses.get(row.name.toLowerCase()) ?? [];
     const expression = extractParenthesizedExpressions(clause, 'AS')[0];
     if (expression === undefined) {
       throw new Error(`generated column ${row.name} has no parseable expression`);
     }
     return {
       name: row.name,
-      expression: normalizeSqlFragment(expression),
+      expression: normalizeSqlTokens(expression),
       mode: row.hidden === 3 ? 'stored' : 'virtual',
     };
   });
@@ -889,12 +918,14 @@ function columnCollations(sql) {
   return new Map([...columnSqlClauses(sql)].map(([name, clause]) => {
     const keywordIndex = findTopLevelKeyword(clause, 'COLLATE');
     if (keywordIndex < 0) return [name, 'BINARY'];
-    const tail = clause.slice(keywordIndex + 'COLLATE'.length);
-    const match = tail.match(
-      /^\s*("(?:[^"]|"")*"|`(?:[^`]|``)*`|\[[^\]]+\]|[A-Za-z_][A-Za-z0-9_]*)/u,
-    );
-    if (!match) throw new Error(`column ${name} has malformed COLLATE syntax`);
-    return [name, unquoteIdentifier(match[1]).toUpperCase()];
+    const collation = clause[keywordIndex + 1];
+    if (
+      collation?.type !== 'ordinary' &&
+      collation?.type !== 'identifier'
+    ) {
+      throw new Error(`column ${name} has malformed COLLATE syntax`);
+    }
+    return [name, collation.value.toUpperCase()];
   }));
 }
 
@@ -903,12 +934,15 @@ function indexFingerprint(db, table) {
     const object = db.prepare(
       'SELECT type, sql FROM sqlite_schema WHERE name = ?',
     ).get(row.name);
+    const tokens = typeof object?.sql === 'string'
+      ? tokenizeSql(object.sql)
+      : [];
     const whereIndex = typeof object?.sql === 'string'
-      ? findTopLevelKeyword(object.sql, 'WHERE')
+      ? findTopLevelKeyword(tokens, 'WHERE')
       : -1;
     const where = whereIndex < 0
       ? null
-      : object.sql.slice(whereIndex + 'WHERE'.length);
+      : tokens.slice(whereIndex + 1);
     return {
       name: row.name,
       unique: row.unique,
@@ -922,7 +956,7 @@ function indexFingerprint(db, table) {
         collation: column.coll,
         key: column.key,
       })),
-      where: where === null ? null : normalizeSqlFragment(where),
+      where: where === null ? null : normalizeSqlTokens(where),
     };
   }).toSorted((left, right) => left.name.localeCompare(right.name));
 }
@@ -998,8 +1032,17 @@ function expectedForeignKeyFingerprint(table) {
 }
 
 function normalizeTriggerSql(value) {
-  return normalizeSqlFragment(value)
-    .replace(/^createtriggerifnotexists/u, 'createtrigger');
+  const tokens = tokenizeSql(value);
+  if (
+    tokenIsKeyword(tokens[0], 'CREATE') &&
+    tokenIsKeyword(tokens[1], 'TRIGGER') &&
+    tokenIsKeyword(tokens[2], 'IF') &&
+    tokenIsKeyword(tokens[3], 'NOT') &&
+    tokenIsKeyword(tokens[4], 'EXISTS')
+  ) {
+    tokens.splice(2, 3);
+  }
+  return normalizeSqlTokens(tokens);
 }
 
 function triggerFingerprint(db, table) {
@@ -1231,13 +1274,13 @@ function requireExactTable(db, table, expectedColumns) {
   const object = db.prepare(
     'SELECT type, sql FROM sqlite_schema WHERE name = ?',
   ).get(table);
-  const strict =
-    typeof object?.sql === 'string' &&
-    /\)\s*STRICT\s*$/iu.test(object.sql);
-  const withoutRowid =
-    typeof object?.sql === 'string' &&
-    /\)\s*(?:STRICT\s*,\s*WITHOUT\s+ROWID|WITHOUT\s+ROWID\s*,\s*STRICT)\s*$/iu
-      .test(object.sql);
+  const modifiers = object?.type === 'table' && typeof object.sql === 'string'
+    ? tableSqlModifiers(object.sql)
+    : [];
+  const strict = modifiers.some((token) => tokenIsKeyword(token, 'STRICT'));
+  const withoutRowid = modifiers.some((token, index) =>
+    tokenIsKeyword(token, 'WITHOUT') &&
+    tokenIsKeyword(modifiers[index + 1], 'ROWID'));
   if (
     object?.type !== 'table' ||
     typeof object.sql !== 'string' ||

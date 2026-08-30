@@ -367,6 +367,114 @@ const TABLE_PRIMARY_KEYS = Object.freeze({
   session_nodes: ['session_key'],
   session_windows: ['session_id'],
 });
+const TABLE_DEFAULTS = Object.freeze({
+  schema_meta: {},
+  agent_databases: {},
+  current_conversation_bindings: {},
+  delivery_queue_entries: { retry_count: '0' },
+  subagent_runs: { payload_json: "'{}'" },
+  flow_runs: { sync_mode: "'managed'", revision: '0' },
+  session_nodes: { entry_valid: '0' },
+  session_windows: {
+    session_scope: "'conversation'",
+    transcript_updated_at: 'NULL',
+    transcript_observed_at: 'NULL',
+    session_entry_provenance: '0',
+    acp_owned: '0',
+  },
+});
+const TABLE_CHECKS = Object.freeze({
+  schema_meta: [],
+  agent_databases: [],
+  current_conversation_bindings: [],
+  delivery_queue_entries: [],
+  subagent_runs: [],
+  flow_runs: [],
+  session_nodes: [
+    'entry_valid IN (-1, 0, 1)',
+    "status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')",
+    "created_via IS NULL OR created_via IN ('operator', 'spawn', 'channel', 'cron', 'talk', 'run', 'plugin', 'internal')",
+    "created_actor_type IS NULL OR created_actor_type IN ('human', 'agent', 'system')",
+  ],
+  session_windows: [
+    "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')",
+    "session_scope IN ('conversation', 'shared-main', 'group', 'channel')",
+    'session_entry_provenance IN (0, 1)',
+    'acp_owned IN (0, 1)',
+    "hook_external_content_source IS NULL OR hook_external_content_source IN ('gmail', 'webhook')",
+    "status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')",
+    "chat_type IS NULL OR chat_type IN ('direct', 'group', 'channel')",
+  ],
+});
+const TABLE_FOREIGN_KEYS = Object.freeze({
+  schema_meta: [],
+  agent_databases: [],
+  current_conversation_bindings: [],
+  delivery_queue_entries: [],
+  subagent_runs: [],
+  flow_runs: [],
+  session_nodes: [],
+  session_windows: [
+    {
+      table: 'session_nodes',
+      columns: [['session_key', 'session_key']],
+      onUpdate: 'NO ACTION',
+      onDelete: 'CASCADE',
+      match: 'NONE',
+    },
+    {
+      table: 'conversations',
+      columns: [['primary_conversation_id', 'conversation_id']],
+      onUpdate: 'NO ACTION',
+      onDelete: 'SET NULL',
+      match: 'NONE',
+    },
+  ],
+});
+const TABLE_TRIGGERS = Object.freeze({
+  schema_meta: [],
+  agent_databases: [],
+  current_conversation_bindings: [],
+  delivery_queue_entries: [],
+  subagent_runs: [],
+  flow_runs: [],
+  session_windows: [],
+  session_nodes: [
+    {
+      name: 'session_nodes_entry_valid_after_insert',
+      sql: `
+        CREATE TRIGGER session_nodes_entry_valid_after_insert
+        AFTER INSERT ON session_nodes
+        BEGIN
+          UPDATE session_nodes SET entry_valid = 0
+          WHERE session_key = NEW.session_key;
+        END
+      `,
+    },
+    {
+      name: 'session_nodes_entry_valid_after_entry_update',
+      sql: `
+        CREATE TRIGGER session_nodes_entry_valid_after_entry_update
+        AFTER UPDATE OF entry_json ON session_nodes
+        BEGIN
+          UPDATE session_nodes SET entry_valid = 0
+          WHERE session_key = NEW.session_key;
+        END
+      `,
+    },
+    {
+      name: 'session_nodes_entry_valid_after_identity_update',
+      sql: `
+        CREATE TRIGGER session_nodes_entry_valid_after_identity_update
+        AFTER UPDATE OF current_session_id, updated_at ON session_nodes
+        BEGIN
+          UPDATE session_nodes SET entry_valid = 0
+          WHERE session_key = NEW.session_key;
+        END
+      `,
+    },
+  ],
+});
 const REQUIRED_TABLE_INDEXES = Object.freeze({
   schema_meta: [],
   agent_databases: [],
@@ -517,59 +625,400 @@ function expectedTableLayout(table, columns) {
   const integerColumns = new Set(TABLE_INTEGER_COLUMNS[table]);
   const nullableColumns = new Set(TABLE_NULLABLE_COLUMNS[table]);
   const primaryKeys = TABLE_PRIMARY_KEYS[table];
-  return columns.map((name) => ({
+  const defaults = TABLE_DEFAULTS[table];
+  return columns.map((name, cid) => ({
+    cid,
     name,
     type: integerColumns.has(name) ? 'INTEGER' : 'TEXT',
     notnull: nullableColumns.has(name) ? 0 : 1,
+    defaultExpression: defaults[name] ?? null,
     pk: primaryKeys.indexOf(name) + 1,
+    hidden: 0,
+    collation: 'BINARY',
   }));
 }
 
 function normalizeSqlFragment(value) {
-  return value.trim().toLowerCase().replace(/\s+/gu, ' ');
+  let normalized = '';
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    if (character === "'") {
+      normalized += character;
+      for (index += 1; index < value.length; index += 1) {
+        normalized += value[index];
+        if (value[index] === "'") {
+          if (value[index + 1] === "'") {
+            normalized += value[index + 1];
+            index += 1;
+          } else {
+            break;
+          }
+        }
+      }
+      continue;
+    }
+    if (character === '"' || character === '`' || character === '[') {
+      const close = character === '[' ? ']' : character;
+      let identifier = '';
+      for (index += 1; index < value.length; index += 1) {
+        if (value[index] === close) {
+          if (value[index + 1] === close && character !== '[') {
+            identifier += close;
+            index += 1;
+          } else {
+            break;
+          }
+        } else {
+          identifier += value[index];
+        }
+      }
+      normalized += identifier.toLowerCase();
+    } else if (!/\s/u.test(character)) {
+      normalized += character.toLowerCase();
+    }
+  }
+  return normalized;
 }
 
-function requireExactIndexes(db, table) {
-  const expected = REQUIRED_TABLE_INDEXES[table];
-  const listed = db.prepare(`PRAGMA index_list(${table})`).all()
-    .filter((row) => row.origin === 'c');
-  const expectedNames = expected.map((entry) => entry.name).toSorted();
-  const actualNames = listed.map((entry) => entry.name).toSorted();
-  if (canonicalJson(actualNames) !== canonicalJson(expectedNames)) {
-    throw new Error(`${table} does not expose the exact product index inventory`);
+function splitTopLevelSql(value) {
+  const parts = [];
+  let start = 0;
+  let depth = 0;
+  let quote = null;
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    if (quote !== null) {
+      if (character === quote) {
+        if (value[index + 1] === quote) {
+          index += 1;
+        } else {
+          quote = null;
+        }
+      }
+      continue;
+    }
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character;
+    } else if (character === '[') {
+      quote = ']';
+    } else if (character === '(') {
+      depth += 1;
+    } else if (character === ')') {
+      depth -= 1;
+    } else if (character === ',' && depth === 0) {
+      parts.push(value.slice(start, index).trim());
+      start = index + 1;
+    }
   }
-  return Object.fromEntries(expected.map((entry) => {
-    const listedIndex = listed.find((row) => row.name === entry.name);
+  parts.push(value.slice(start).trim());
+  return parts;
+}
+
+function tableSqlClauses(sql) {
+  const openIndex = sql.indexOf('(');
+  if (openIndex < 0) throw new Error('table SQL has no column-list boundary');
+  let depth = 0;
+  let quote = null;
+  for (let index = openIndex; index < sql.length; index += 1) {
+    const character = sql[index];
+    if (quote !== null) {
+      if (character === quote) {
+        if (sql[index + 1] === quote) {
+          index += 1;
+        } else {
+          quote = null;
+        }
+      }
+      continue;
+    }
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character;
+    } else if (character === '[') {
+      quote = ']';
+    } else if (character === '(') {
+      depth += 1;
+    } else if (character === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        return splitTopLevelSql(sql.slice(openIndex + 1, index));
+      }
+    }
+  }
+  throw new Error('table SQL has an unterminated column list');
+}
+
+function findTopLevelKeyword(value, keyword, fromIndex = 0) {
+  let depth = 0;
+  let quote = null;
+  const upperKeyword = keyword.toUpperCase();
+  for (let index = fromIndex; index < value.length; index += 1) {
+    const character = value[index];
+    if (quote !== null) {
+      if (character === quote) {
+        if (value[index + 1] === quote && quote !== ']') {
+          index += 1;
+        } else {
+          quote = null;
+        }
+      }
+      continue;
+    }
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character;
+      continue;
+    }
+    if (character === '[') {
+      quote = ']';
+      continue;
+    }
+    if (character === '(') {
+      depth += 1;
+      continue;
+    }
+    if (character === ')') {
+      depth -= 1;
+      continue;
+    }
+    if (
+      depth === 0 &&
+      value.slice(index, index + keyword.length).toUpperCase() === upperKeyword &&
+      !/[A-Za-z0-9_]/u.test(value[index - 1] ?? '') &&
+      !/[A-Za-z0-9_]/u.test(value[index + keyword.length] ?? '')
+    ) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+function extractParenthesizedExpressions(clause, keyword) {
+  const expressions = [];
+  let searchIndex = 0;
+  while (searchIndex < clause.length) {
+    const keywordIndex = findTopLevelKeyword(clause, keyword, searchIndex);
+    if (keywordIndex < 0) break;
+    let openIndex = keywordIndex + keyword.length;
+    while (/\s/u.test(clause[openIndex] ?? '')) openIndex += 1;
+    if (clause[openIndex] !== '(') {
+      searchIndex = openIndex;
+      continue;
+    }
+    let depth = 1;
+    let quote = null;
+    let closed = false;
+    for (let index = openIndex + 1; index < clause.length; index += 1) {
+      const character = clause[index];
+      if (quote !== null) {
+        if (character === quote) {
+          if (clause[index + 1] === quote && quote !== ']') {
+            index += 1;
+          } else {
+            quote = null;
+          }
+        }
+        continue;
+      }
+      if (character === "'" || character === '"' || character === '`') {
+        quote = character;
+      } else if (character === '[') {
+        quote = ']';
+      } else if (character === '(') {
+        depth += 1;
+      } else if (character === ')') {
+        depth -= 1;
+        if (depth === 0) {
+          expressions.push(clause.slice(openIndex + 1, index));
+          searchIndex = index + 1;
+          closed = true;
+          break;
+        }
+      }
+    }
+    if (!closed) {
+      throw new Error(`${keyword} expression has unbalanced parentheses`);
+    }
+  }
+  return expressions;
+}
+
+function unquoteIdentifier(value) {
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith('`') && value.endsWith('`')) ||
+    (value.startsWith('[') && value.endsWith(']'))
+  ) {
+    return value.slice(1, -1).replaceAll(value[0] + value[0], value[0]);
+  }
+  return value;
+}
+
+function columnSqlClauses(sql) {
+  return new Map(tableSqlClauses(sql).flatMap((clause) => {
+    if (/^(?:CONSTRAINT\b|PRIMARY\s+KEY\b|UNIQUE\b|CHECK\b|FOREIGN\s+KEY\b)/iu.test(clause)) {
+      return [];
+    }
+    const match = clause.match(/^\s*("(?:[^"]|"")*"|`(?:[^`]|``)*`|\[[^\]]+\]|[^\s]+)/u);
+    return match ? [[unquoteIdentifier(match[1]), clause]] : [];
+  }));
+}
+
+function tableCheckFingerprint(sql) {
+  return tableSqlClauses(sql)
+    .flatMap((clause) => extractParenthesizedExpressions(clause, 'CHECK'))
+    .map(normalizeSqlFragment)
+    .toSorted();
+}
+
+function generatedColumnFingerprint(sql, rows) {
+  const clauses = columnSqlClauses(sql);
+  return rows.filter((row) => row.hidden === 2 || row.hidden === 3).map((row) => {
+    const clause = clauses.get(row.name) ?? '';
+    const expression = extractParenthesizedExpressions(clause, 'AS')[0];
+    if (expression === undefined) {
+      throw new Error(`generated column ${row.name} has no parseable expression`);
+    }
+    return {
+      name: row.name,
+      expression: normalizeSqlFragment(expression),
+      mode: row.hidden === 3 ? 'stored' : 'virtual',
+    };
+  });
+}
+
+function columnCollations(sql) {
+  return new Map([...columnSqlClauses(sql)].map(([name, clause]) => {
+    const keywordIndex = findTopLevelKeyword(clause, 'COLLATE');
+    if (keywordIndex < 0) return [name, 'BINARY'];
+    const tail = clause.slice(keywordIndex + 'COLLATE'.length);
+    const match = tail.match(
+      /^\s*("(?:[^"]|"")*"|`(?:[^`]|``)*`|\[[^\]]+\]|[A-Za-z_][A-Za-z0-9_]*)/u,
+    );
+    if (!match) throw new Error(`column ${name} has malformed COLLATE syntax`);
+    return [name, unquoteIdentifier(match[1]).toUpperCase()];
+  }));
+}
+
+function indexFingerprint(db, table) {
+  return db.prepare(`PRAGMA index_list(${table})`).all().map((row) => {
     const object = db.prepare(
       'SELECT type, sql FROM sqlite_schema WHERE name = ?',
-    ).get(entry.name);
-    const columns = db.prepare(`PRAGMA index_xinfo(${entry.name})`).all()
-      .filter((row) => row.key === 1)
-      .map((row) => [row.name, row.desc]);
-    const where = typeof object?.sql === 'string'
-      ? object.sql.match(/\bWHERE\s+([\s\S]+)$/iu)?.[1] ?? null
-      : null;
-    const expectedWhere = entry.where ?? null;
-    if (
-      object?.type !== 'index' ||
-      listedIndex?.unique !== 0 ||
-      listedIndex?.partial !== Number(expectedWhere !== null) ||
-      canonicalJson(columns) !== canonicalJson(entry.columns) ||
-      (
-        expectedWhere === null
-          ? where !== null
-          : where === null ||
-            normalizeSqlFragment(where) !== normalizeSqlFragment(expectedWhere)
-      )
-    ) {
-      throw new Error(`${table} does not expose the exact product index ${entry.name}`);
-    }
-    return [entry.name, {
-      columns,
-      createSqlSha256: sha256(object.sql),
-      where: expectedWhere,
-    }];
+    ).get(row.name);
+    const whereIndex = typeof object?.sql === 'string'
+      ? findTopLevelKeyword(object.sql, 'WHERE')
+      : -1;
+    const where = whereIndex < 0
+      ? null
+      : object.sql.slice(whereIndex + 'WHERE'.length);
+    return {
+      name: row.name,
+      unique: row.unique,
+      origin: row.origin,
+      partial: row.partial,
+      columns: db.prepare(`PRAGMA index_xinfo(${row.name})`).all().map((column) => ({
+        seqno: column.seqno,
+        cid: column.cid,
+        name: column.name,
+        desc: column.desc,
+        collation: column.coll,
+        key: column.key,
+      })),
+      where: where === null ? null : normalizeSqlFragment(where),
+    };
+  }).toSorted((left, right) => left.name.localeCompare(right.name));
+}
+
+function expectedIndexFingerprint(table, expectedColumns) {
+  const columnIds = new Map(expectedColumns.map((name, index) => [name, index]));
+  const entries = REQUIRED_TABLE_INDEXES[table].map((entry) => ({
+    ...entry,
+    unique: 0,
+    origin: 'c',
   }));
+  entries.push({
+    name: `sqlite_autoindex_${table}_1`,
+    columns: TABLE_PRIMARY_KEYS[table].map((name) => [name, 0]),
+    unique: 1,
+    origin: 'pk',
+  });
+  return entries.map((entry) => ({
+    name: entry.name,
+    unique: entry.unique,
+    origin: entry.origin,
+    partial: Number(entry.where !== undefined),
+    columns: [
+      ...entry.columns.map(([name, desc], seqno) => ({
+        seqno,
+        cid: columnIds.get(name),
+        name,
+        desc,
+        collation: 'BINARY',
+        key: 1,
+      })),
+      {
+        seqno: entry.columns.length,
+        cid: -1,
+        name: null,
+        desc: 0,
+        collation: 'BINARY',
+        key: 0,
+      },
+    ],
+    where: entry.where === undefined
+      ? null
+      : normalizeSqlFragment(entry.where),
+  })).toSorted((left, right) => left.name.localeCompare(right.name));
+}
+
+function foreignKeyFingerprint(db, table) {
+  const groups = new Map();
+  for (const row of db.prepare(`PRAGMA foreign_key_list(${table})`).all()) {
+    const group = groups.get(row.id) ?? {
+      table: row.table,
+      columns: [],
+      onUpdate: row.on_update,
+      onDelete: row.on_delete,
+      match: row.match,
+    };
+    group.columns.push([row.seq, row.from, row.to]);
+    groups.set(row.id, group);
+  }
+  return [...groups.values()]
+    .map((group) => ({
+      ...group,
+      columns: group.columns
+        .toSorted((left, right) => left[0] - right[0])
+        .map(([, from, to]) => [from, to]),
+    }))
+    .toSorted((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)));
+}
+
+function expectedForeignKeyFingerprint(table) {
+  return structuredClone(TABLE_FOREIGN_KEYS[table])
+    .toSorted((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)));
+}
+
+function normalizeTriggerSql(value) {
+  return normalizeSqlFragment(value)
+    .replace(/^createtriggerifnotexists/u, 'createtrigger');
+}
+
+function triggerFingerprint(db, table) {
+  return db.prepare(`
+    SELECT name, sql
+    FROM sqlite_schema
+    WHERE type = 'trigger' AND tbl_name = ?
+    ORDER BY name ASC
+  `).all(table).map((row) => ({
+    name: row.name,
+    sql: normalizeTriggerSql(row.sql),
+  }));
+}
+
+function expectedTriggerFingerprint(table) {
+  return TABLE_TRIGGERS[table].map((entry) => ({
+    name: entry.name,
+    sql: normalizeTriggerSql(entry.sql),
+  })).toSorted((left, right) => left.name.localeCompare(right.name));
 }
 
 function sha256(value) {
@@ -782,35 +1231,93 @@ function requireExactTable(db, table, expectedColumns) {
   const object = db.prepare(
     'SELECT type, sql FROM sqlite_schema WHERE name = ?',
   ).get(table);
+  const strict =
+    typeof object?.sql === 'string' &&
+    /\)\s*STRICT\s*$/iu.test(object.sql);
+  const withoutRowid =
+    typeof object?.sql === 'string' &&
+    /\)\s*(?:STRICT\s*,\s*WITHOUT\s+ROWID|WITHOUT\s+ROWID\s*,\s*STRICT)\s*$/iu
+      .test(object.sql);
   if (
     object?.type !== 'table' ||
     typeof object.sql !== 'string' ||
-    !/\)\s*STRICT\s*$/iu.test(object.sql)
+    !strict ||
+    withoutRowid
   ) {
     throw new Error(`${table} is not a canonical STRICT SQLite table`);
   }
-  const rows = db.prepare(`PRAGMA table_info(${table})`).all();
+  const rows = db.prepare(`PRAGMA table_xinfo(${table})`).all();
   const names = rows.map((row) => row.name);
   if (canonicalJson(names) !== canonicalJson(expectedColumns)) {
-    throw new Error(`${table} does not expose the exact product columns`);
+    throw new Error(`${table} does not expose the exact product table_xinfo inventory`);
   }
+  const collations = columnCollations(object.sql);
   const layout = rows.map((row) => ({
+    cid: row.cid,
     name: row.name,
     type: row.type,
     notnull: row.notnull,
+    defaultExpression: row.dflt_value === null
+      ? null
+      : normalizeSqlFragment(String(row.dflt_value)),
     pk: row.pk,
+    hidden: row.hidden,
+    collation: collations.get(row.name) ?? 'BINARY',
+  }));
+  const expectedLayout = expectedTableLayout(table, expectedColumns).map((column) => ({
+    ...column,
+    defaultExpression: column.defaultExpression === null
+      ? null
+      : normalizeSqlFragment(column.defaultExpression),
   }));
   if (
-    canonicalJson(layout) !==
-    canonicalJson(expectedTableLayout(table, expectedColumns))
+    canonicalJson(layout) !== canonicalJson(expectedLayout)
   ) {
-    throw new Error(`${table} does not expose the exact product column layout`);
+    throw new Error(
+      `${table} does not expose the exact product column/default/collation layout`,
+    );
+  }
+  const indexes = indexFingerprint(db, table);
+  if (
+    canonicalJson(indexes) !==
+    canonicalJson(expectedIndexFingerprint(table, expectedColumns))
+  ) {
+    throw new Error(`${table} does not expose the exact product index inventory`);
+  }
+  const foreignKeys = foreignKeyFingerprint(db, table);
+  if (
+    canonicalJson(foreignKeys) !==
+    canonicalJson(expectedForeignKeyFingerprint(table))
+  ) {
+    throw new Error(`${table} does not expose the exact product foreign keys`);
+  }
+  const checks = tableCheckFingerprint(object.sql);
+  const expectedChecks = TABLE_CHECKS[table].map(normalizeSqlFragment).toSorted();
+  if (canonicalJson(checks) !== canonicalJson(expectedChecks)) {
+    throw new Error(`${table} does not expose the exact product CHECK constraints`);
+  }
+  const triggers = triggerFingerprint(db, table);
+  if (
+    canonicalJson(triggers) !==
+    canonicalJson(expectedTriggerFingerprint(table))
+  ) {
+    throw new Error(`${table} does not expose the exact product triggers`);
+  }
+  const generatedColumns = generatedColumnFingerprint(object.sql, rows);
+  if (generatedColumns.length !== 0) {
+    throw new Error(`${table} exposes unexpected generated columns`);
   }
   return {
     objectType: object.type,
+    strict,
+    withoutRowid,
     createSqlSha256: sha256(object.sql),
     columns: layout,
-    indexes: requireExactIndexes(db, table),
+    indexes,
+    foreignKeys,
+    checks,
+    triggers,
+    generatedColumns,
   };
 }
 
@@ -832,6 +1339,62 @@ function requireDatabaseIntegrity(db, expectedVersion, expectedOwner) {
     (owner?.agent_id ?? null) !== expectedOwner.agentId
   ) {
     throw new Error('retention snapshot has an invalid database owner');
+  }
+}
+
+function requirePhysicalSchema(db, requiredTables, expectedVersion, expectedOwner) {
+  const schema = Object.fromEntries(
+    Object.entries(requiredTables).map(([table, columns]) => [
+      table,
+      requireExactTable(db, table, columns),
+    ]),
+  );
+  requireDatabaseIntegrity(db, expectedVersion, expectedOwner);
+  return schema;
+}
+
+export function inspectReturnCovenantPhysicalSchema({
+  database,
+  kind,
+  agentId,
+}) {
+  if (kind !== 'global' && kind !== 'agent') {
+    throw new Error('physical schema inspection kind must be global or agent');
+  }
+  if (
+    !database ||
+    typeof database.prepare !== 'function' ||
+    typeof database.exec !== 'function'
+  ) {
+    throw new Error('physical schema inspection requires an opened SQLite database');
+  }
+  if (kind === 'agent' && !nonEmptyString(agentId)) {
+    throw new Error('agent physical schema inspection requires an agent id');
+  }
+  try {
+    database.exec('BEGIN');
+    const schema = kind === 'global'
+      ? requirePhysicalSchema(
+        database,
+        REQUIRED_GLOBAL_COLUMNS,
+        15,
+        { role: 'global', agentId: null },
+      )
+      : requirePhysicalSchema(
+        database,
+        REQUIRED_AGENT_COLUMNS,
+        19,
+        { role: 'agent', agentId },
+      );
+    database.exec('COMMIT');
+    return schema;
+  } catch (error) {
+    try {
+      database.exec('ROLLBACK');
+    } catch {
+      // Preserve the original read failure.
+    }
+    throw error;
   }
 }
 
@@ -1533,13 +2096,12 @@ function inspectGlobalDatabase(snapshotDatabasePath) {
   const db = new DatabaseSync(snapshotDatabasePath, { readOnly: true });
   try {
     db.exec('BEGIN');
-    const schema = Object.fromEntries(
-      Object.entries(REQUIRED_GLOBAL_COLUMNS).map(([table, columns]) => [
-        table,
-        requireExactTable(db, table, columns),
-      ]),
+    const schema = requirePhysicalSchema(
+      db,
+      REQUIRED_GLOBAL_COLUMNS,
+      15,
+      { role: 'global', agentId: null },
     );
-    requireDatabaseIntegrity(db, 15, { role: 'global', agentId: null });
     const agentDatabases = db.prepare(`
       SELECT agent_id, path, schema_version, last_seen_at, size_bytes
       FROM agent_databases
@@ -1593,16 +2155,12 @@ function inspectAgentDatabase(
   const db = new DatabaseSync(snapshotDatabasePath, { readOnly: true });
   try {
     db.exec('BEGIN');
-    const schema = Object.fromEntries(
-      Object.entries(REQUIRED_AGENT_COLUMNS).map(([table, columns]) => [
-        table,
-        requireExactTable(db, table, columns),
-      ]),
+    const schema = requirePhysicalSchema(
+      db,
+      REQUIRED_AGENT_COLUMNS,
+      19,
+      { role: 'agent', agentId: expectedAgentId },
     );
-    requireDatabaseIntegrity(db, 19, {
-      role: 'agent',
-      agentId: expectedAgentId,
-    });
     const rows = db.prepare(`
       SELECT
         session_nodes.session_key,

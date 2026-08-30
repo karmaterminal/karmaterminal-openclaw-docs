@@ -269,15 +269,31 @@ The phase order is fixed:
    revalidated. Only those copies are opened with SQLite. The global snapshot
    must expose global schema v15 exactly: `flow_runs`, `subagent_runs`,
    `delivery_queue_entries`, `agent_databases`, and
-   `current_conversation_bindings`, including every product index on those
-   tables. The v15 binding table rejects the removed `target_agent_id` and
-   `target_session_id` projections and requires the target index on
-   `target_session_key, updated_at DESC, binding_key`. Each registered
-   per-agent snapshot must expose the exact v19 `session_nodes.entry_json`
-   owner, schema, and queried-table indexes. A product-canonical cleared node
+   `current_conversation_bindings`. For every observed global-v15 and
+   per-agent-v19 table, the semantic fingerprint requires a real `STRICT`
+   table; the complete ordered `table_xinfo` inventory (including hidden
+   classification, defaults, nullability, and primary-key ordinals); column
+   collations; every `index_list` origin and every ordered key/auxiliary
+   `index_xinfo` row; uniqueness, sort direction, and normalized partial
+   predicates; all ordered foreign-key mappings, targets, actions, and match
+   modes; all normalized CHECK constraints; and every generated expression
+   and stored/virtual mode. The inventory also requires the exact normalized
+   trigger set, including all three product-owned `session_nodes.entry_valid`
+   maintenance triggers. The v15 binding table therefore rejects hidden
+   generated or ordinary resurrection of the removed `target_agent_id` and
+   `target_session_id` projections, table-owned uniqueness, and any target
+   index other than `target_session_key, updated_at DESC, binding_key`.
+   Each registered per-agent snapshot must expose the exact v19
+   `session_nodes.entry_json` owner and physical schema, including the
+   `session_windows` CHECK and foreign-key contracts. Full-source SHA-256
+   pins for `src/state/openclaw-state-schema.sql` and
+   `src/state/openclaw-agent-schema.sql` at product authority `0ed59cb6`
+   drive a fresh-database drift control; formatting-equivalent canonical
+   migration DDL is accepted without raw SQL-text equality. A
+   product-canonical cleared node
    (`entry_json={}`, `entry_valid=-1`) is ignored only when the matching
    `session_windows` row still owns its current session ID. Views,
-   missing/extra columns or indexes, malformed JSON/status,
+   missing/extra constraints, columns, indexes, or triggers, malformed JSON/status,
    registry/layout disagreement, path replacement, and symlinks fail closed.
    WAL bytes are copied with the main database so a row present only in WAL is
    observable. The launcher re-samples driver/gateway/socket identity before

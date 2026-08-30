@@ -30,6 +30,7 @@ import {
 } from '../../lib/return-covenant-candidate-io.mjs';
 import {
   inspectReturnCovenantDurableStores,
+  inspectReturnCovenantPhysicalSchema,
 } from '../../lib/return-covenant-retention-inspector.mjs';
 import {
   deriveReturnCovenantCaseHandleClosure,
@@ -69,6 +70,10 @@ const fixtures = path.join(root, 'tests/fixtures/return-covenant-authority');
 const signingKey = 'synthetic-observer-signing-key-at-least-32-characters';
 const RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA =
   '0ed59cb64f31971e8659b417fe3fd2ba6a1730c3';
+const PRODUCT_GLOBAL_SCHEMA_SOURCE_SHA256 =
+  '95b7bb4a438b5a60010e27249ef504be3143a474bf938c7d417dceaaacf66564';
+const PRODUCT_AGENT_SCHEMA_SOURCE_SHA256 =
+  '27078c3f4cee45bfec3066790c34098b1c625b03c3804dc09f051c5e8af6ddeb';
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -2238,24 +2243,42 @@ async function createProductShapedRetentionFixture() {
       last_interaction_at INTEGER,
       last_activity_at INTEGER
     ) STRICT;
+    CREATE TRIGGER session_nodes_entry_valid_after_insert
+    AFTER INSERT ON session_nodes
+    BEGIN
+      UPDATE session_nodes SET entry_valid = 0 WHERE session_key = NEW.session_key;
+    END;
+    CREATE TRIGGER session_nodes_entry_valid_after_entry_update
+    AFTER UPDATE OF entry_json ON session_nodes
+    BEGIN
+      UPDATE session_nodes SET entry_valid = 0 WHERE session_key = NEW.session_key;
+    END;
+    CREATE TRIGGER session_nodes_entry_valid_after_identity_update
+    AFTER UPDATE OF current_session_id, updated_at ON session_nodes
+    BEGIN
+      UPDATE session_nodes SET entry_valid = 0 WHERE session_key = NEW.session_key;
+    END;
+    CREATE TABLE conversations (
+      conversation_id TEXT NOT NULL PRIMARY KEY
+    ) STRICT;
     CREATE TABLE session_windows (
       session_id TEXT NOT NULL PRIMARY KEY,
       session_key TEXT NOT NULL,
       previous_session_id TEXT,
-      reason TEXT,
-      session_scope TEXT NOT NULL DEFAULT 'conversation',
+      reason TEXT CHECK (reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')),
+      session_scope TEXT NOT NULL DEFAULT 'conversation' CHECK (session_scope IN ('conversation', 'shared-main', 'group', 'channel')),
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL,
       transcript_updated_at INTEGER DEFAULT NULL,
       transcript_observed_at INTEGER DEFAULT NULL,
-      session_entry_provenance INTEGER NOT NULL DEFAULT 0,
-      acp_owned INTEGER NOT NULL DEFAULT 0,
+      session_entry_provenance INTEGER NOT NULL DEFAULT 0 CHECK (session_entry_provenance IN (0, 1)),
+      acp_owned INTEGER NOT NULL DEFAULT 0 CHECK (acp_owned IN (0, 1)),
       plugin_owner_id TEXT,
-      hook_external_content_source TEXT,
+      hook_external_content_source TEXT CHECK (hook_external_content_source IS NULL OR hook_external_content_source IN ('gmail', 'webhook')),
       started_at INTEGER,
       ended_at INTEGER,
-      status TEXT,
-      chat_type TEXT,
+      status TEXT CHECK (status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')),
+      chat_type TEXT CHECK (chat_type IS NULL OR chat_type IN ('direct', 'group', 'channel')),
       channel TEXT,
       account_id TEXT,
       primary_conversation_id TEXT,
@@ -2264,7 +2287,9 @@ async function createProductShapedRetentionFixture() {
       agent_harness_id TEXT,
       parent_session_key TEXT,
       spawned_by TEXT,
-      display_name TEXT
+      display_name TEXT,
+      FOREIGN KEY (session_key) REFERENCES session_nodes(session_key) ON DELETE CASCADE,
+      FOREIGN KEY (primary_conversation_id) REFERENCES conversations(conversation_id) ON DELETE SET NULL
     ) STRICT;
     CREATE INDEX idx_agent_session_nodes_updated_at
       ON session_nodes(updated_at DESC, session_key);
@@ -2318,6 +2343,10 @@ async function createProductShapedRetentionFixture() {
     rootEntry.sessionId,
     JSON.stringify(rootEntry),
   );
+  agentDatabase.prepare(`
+    UPDATE session_nodes SET entry_valid = 1
+    WHERE session_key = 'agent:proof:main'
+  `).run();
   agentDatabase.prepare(`
     INSERT INTO session_windows (
       session_id, session_key, session_scope, created_at, updated_at,
@@ -2472,6 +2501,9 @@ async function createProductShapedRetentionFixture() {
         spawnedBy,
       );
       agentDatabase.prepare(`
+        UPDATE session_nodes SET entry_valid = 1 WHERE session_key = ?
+      `).run(sessionKey);
+      agentDatabase.prepare(`
         INSERT INTO session_windows (
           session_id, session_key, session_scope, created_at, updated_at,
           session_entry_provenance, acp_owned, status,
@@ -2528,6 +2560,205 @@ async function createProductShapedRetentionFixture() {
   };
 }
 
+function rebuildBindingTable(database, {
+  bindingId = 'binding_id TEXT NOT NULL',
+  bindingKey = 'binding_key TEXT NOT NULL PRIMARY KEY',
+  extraColumn = null,
+  strict = true,
+} = {}) {
+  database.exec(`
+    DROP INDEX idx_current_conversation_bindings_target;
+    DROP INDEX idx_current_conversation_bindings_conversation;
+    DROP INDEX idx_current_conversation_bindings_expires;
+    DROP TABLE current_conversation_bindings;
+    CREATE TABLE current_conversation_bindings (
+      ${bindingKey},
+      ${bindingId},
+      target_session_key TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      account_id TEXT NOT NULL,
+      conversation_kind TEXT NOT NULL,
+      parent_conversation_id TEXT,
+      conversation_id TEXT NOT NULL,
+      target_kind TEXT NOT NULL,
+      status TEXT NOT NULL,
+      bound_at INTEGER NOT NULL,
+      expires_at INTEGER,
+      metadata_json TEXT,
+      record_json TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+      ${extraColumn === null ? '' : `, ${extraColumn}`}
+    ) ${strict ? 'STRICT' : ''};
+    CREATE INDEX idx_current_conversation_bindings_target
+      ON current_conversation_bindings(
+        target_session_key, updated_at DESC, binding_key
+      );
+    CREATE INDEX idx_current_conversation_bindings_conversation
+      ON current_conversation_bindings(
+        channel, account_id, conversation_kind, conversation_id
+      );
+    CREATE INDEX idx_current_conversation_bindings_expires
+      ON current_conversation_bindings(expires_at, binding_key);
+  `);
+}
+
+function rebuildSessionWindows(agentDatabase, {
+  reasonCheck =
+    "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction')",
+  sessionScopeDefault = "'conversation'",
+  sessionScopeCheck =
+    "session_scope IN ('conversation', 'shared-main', 'group', 'channel')",
+  provenanceCheck = 'session_entry_provenance IN (0, 1)',
+  acpCheck = 'acp_owned IN (0, 1)',
+  hookCheck =
+    "hook_external_content_source IS NULL OR hook_external_content_source IN ('gmail', 'webhook')",
+  statusCheck =
+    "status IS NULL OR status IN ('running', 'done', 'failed', 'killed', 'timeout')",
+  chatTypeCheck =
+    "chat_type IS NULL OR chat_type IN ('direct', 'group', 'channel')",
+  foreignKeys = [
+    'FOREIGN KEY (session_key) REFERENCES session_nodes(session_key) ON DELETE CASCADE',
+    'FOREIGN KEY (primary_conversation_id) REFERENCES conversations(conversation_id) ON DELETE SET NULL',
+  ],
+  additionalCheck = null,
+} = {}) {
+  const check = (expression) =>
+    expression === null ? '' : ` CHECK (${expression})`;
+  const constraints = [
+    ...foreignKeys,
+    ...(additionalCheck === null ? [] : [`CHECK (${additionalCheck})`]),
+  ];
+  agentDatabase.exec(`
+    DROP INDEX idx_agent_session_windows_updated_at;
+    DROP INDEX idx_agent_session_windows_session_key;
+    DROP INDEX idx_agent_session_windows_created_at;
+    DROP INDEX idx_agent_session_windows_conversation;
+    DROP TABLE session_windows;
+    CREATE TABLE session_windows (
+      session_id TEXT NOT NULL PRIMARY KEY,
+      session_key TEXT NOT NULL,
+      previous_session_id TEXT,
+      reason TEXT${check(reasonCheck)},
+      session_scope TEXT NOT NULL DEFAULT ${sessionScopeDefault}${check(sessionScopeCheck)},
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      transcript_updated_at INTEGER DEFAULT NULL,
+      transcript_observed_at INTEGER DEFAULT NULL,
+      session_entry_provenance INTEGER NOT NULL DEFAULT 0${check(provenanceCheck)},
+      acp_owned INTEGER NOT NULL DEFAULT 0${check(acpCheck)},
+      plugin_owner_id TEXT,
+      hook_external_content_source TEXT${check(hookCheck)},
+      started_at INTEGER,
+      ended_at INTEGER,
+      status TEXT${check(statusCheck)},
+      chat_type TEXT${check(chatTypeCheck)},
+      channel TEXT,
+      account_id TEXT,
+      primary_conversation_id TEXT,
+      model_provider TEXT,
+      model TEXT,
+      agent_harness_id TEXT,
+      parent_session_key TEXT,
+      spawned_by TEXT,
+      display_name TEXT
+      ${constraints.length === 0 ? '' : `, ${constraints.join(', ')}`}
+    ) STRICT;
+    CREATE INDEX idx_agent_session_windows_updated_at
+      ON session_windows(updated_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_session_key
+      ON session_windows(session_key, updated_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_created_at
+      ON session_windows(created_at DESC, session_id);
+    CREATE INDEX idx_agent_session_windows_conversation
+      ON session_windows(primary_conversation_id, updated_at DESC, session_id)
+      WHERE primary_conversation_id IS NOT NULL;
+  `);
+}
+
+test('physical contract matches fresh exact product SQL authority', {
+  skip:
+    !process.env.OPENCLAW_PRODUCT_AUTHORITY_REPO &&
+    process.env.OPENCLAW_REQUIRE_PRODUCT_SCHEMA_DRIFT_CONTROL !== '1',
+}, async () => {
+  const productRepo = process.env.OPENCLAW_PRODUCT_AUTHORITY_REPO;
+  assert.ok(
+    productRepo,
+    'OPENCLAW_PRODUCT_AUTHORITY_REPO is required for the product-schema drift control',
+  );
+  const readAuthority = (relativePath) => {
+    const result = spawnSync(
+      'git',
+      [
+        '-C',
+        productRepo,
+        'show',
+        `${RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA}:${relativePath}`,
+      ],
+      { encoding: 'utf8', maxBuffer: 2 * 1024 * 1024 },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    return result.stdout;
+  };
+  const globalSql = readAuthority('src/state/openclaw-state-schema.sql');
+  const agentSql = readAuthority('src/state/openclaw-agent-schema.sql');
+  assert.equal(sha256(globalSql), PRODUCT_GLOBAL_SCHEMA_SOURCE_SHA256);
+  assert.equal(sha256(agentSql), PRODUCT_AGENT_SCHEMA_SOURCE_SHA256);
+
+  const directory = await mkdtemp(
+    path.join(tmpdir(), 'return-covenant-product-authority-'),
+  );
+  const globalPath = path.join(directory, 'openclaw.sqlite');
+  const agentPath = path.join(directory, 'openclaw-agent.sqlite');
+  const globalDatabase = new DatabaseSync(globalPath);
+  const agentDatabase = new DatabaseSync(agentPath);
+  try {
+    globalDatabase.exec(globalSql);
+    globalDatabase.prepare(`
+      INSERT INTO schema_meta (
+        meta_key, role, schema_version, agent_id, app_version,
+        created_at, updated_at
+      ) VALUES ('primary', 'global', 15, NULL, 'authority', 1, 1)
+    `).run();
+    globalDatabase.exec('PRAGMA user_version=15;');
+    agentDatabase.exec(agentSql);
+    agentDatabase.prepare(`
+      INSERT INTO schema_meta (
+        meta_key, role, schema_version, agent_id, app_version,
+        created_at, updated_at
+      ) VALUES ('primary', 'agent', 19, 'proof', 'authority', 1, 1)
+    `).run();
+    agentDatabase.exec('PRAGMA user_version=19;');
+    const globalSchema = inspectReturnCovenantPhysicalSchema({
+      database: globalDatabase,
+      kind: 'global',
+    });
+    const agentSchema = inspectReturnCovenantPhysicalSchema({
+      database: agentDatabase,
+      kind: 'agent',
+      agentId: 'proof',
+    });
+    assert.deepEqual(
+      Object.keys(globalSchema),
+      [
+        'schema_meta',
+        'agent_databases',
+        'current_conversation_bindings',
+        'delivery_queue_entries',
+        'subagent_runs',
+        'flow_runs',
+      ],
+    );
+    assert.deepEqual(
+      Object.keys(agentSchema),
+      ['schema_meta', 'session_nodes', 'session_windows'],
+    );
+  } finally {
+    globalDatabase.close();
+    agentDatabase.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test('durable inspector matches current product-shaped retention stores', async (t) => {
   await t.test('clean exact stores pass and root sessions are irrelevant', async () => {
     const fixtureState = await createProductShapedRetentionFixture();
@@ -2543,10 +2774,228 @@ test('durable inspector matches current product-shaped retention stores', async 
         observed.sourceBinding.productStoreContractSha,
         RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA,
       );
+      assert.match(PRODUCT_GLOBAL_SCHEMA_SOURCE_SHA256, /^[0-9a-f]{64}$/u);
+      assert.match(PRODUCT_AGENT_SCHEMA_SOURCE_SHA256, /^[0-9a-f]{64}$/u);
     } finally {
       await fixtureState.dispose();
     }
   });
+
+  await t.test('migration-rebuilt canonical table with equivalent SQL passes', async () => {
+    const fixtureState = await createProductShapedRetentionFixture();
+    try {
+      rebuildSessionWindows(fixtureState.agentDatabase, {
+        reasonCheck:
+          "\"reason\" is NULL or \"reason\" in ('initial','reset','rollover','fork','rewind','switch','recovery','compaction')",
+        sessionScopeCheck:
+          "\"session_scope\" in ('conversation','shared-main','group','channel')",
+      });
+      const observed = await fixtureState.observe();
+      assert.equal(observed.status, 'observed', observed.failureReason);
+    } finally {
+      await fixtureState.dispose();
+    }
+  });
+
+  for (const control of [
+    {
+      name: 'hidden virtual projection',
+      mutate: (fixtureState) => rebuildBindingTable(fixtureState.database, {
+        extraColumn:
+          'target_agent_id TEXT GENERATED ALWAYS AS (target_session_key) VIRTUAL',
+      }),
+      reason: /table_xinfo inventory/,
+    },
+    {
+      name: 'hidden stored projection',
+      mutate: (fixtureState) => rebuildBindingTable(fixtureState.database, {
+        extraColumn:
+          "target_agent_id TEXT GENERATED ALWAYS AS (target_session_key || ':stored') STORED",
+      }),
+      reason: /table_xinfo inventory/,
+    },
+    {
+      name: 'table-owned unique binding id',
+      mutate: (fixtureState) => rebuildBindingTable(fixtureState.database, {
+        bindingId: 'binding_id TEXT NOT NULL UNIQUE',
+      }),
+      reason: /index inventory/,
+    },
+    {
+      name: 'wrong non-indexed collation',
+      mutate: (fixtureState) => rebuildBindingTable(fixtureState.database, {
+        bindingId: 'binding_id TEXT NOT NULL COLLATE NOCASE',
+      }),
+      reason: /column\/default\/collation layout/,
+    },
+    {
+      name: 'wrong index collation',
+      mutate: (fixtureState) => fixtureState.database.exec(`
+        DROP INDEX idx_current_conversation_bindings_target;
+        CREATE INDEX idx_current_conversation_bindings_target
+          ON current_conversation_bindings(
+            target_session_key COLLATE NOCASE, updated_at DESC, binding_key
+          );
+      `),
+      reason: /index inventory/,
+    },
+    {
+      name: 'altered partial predicate',
+      mutate: (fixtureState) => fixtureState.database.exec(`
+        DROP INDEX idx_delivery_queue_session;
+        CREATE INDEX idx_delivery_queue_session
+          ON delivery_queue_entries(
+            queue_name, status, session_key, enqueued_at, id
+          )
+          WHERE session_key IS NOT NULL AND status = 'pending';
+      `),
+      reason: /index inventory/,
+    },
+    {
+      name: 'unexpected composite primary key shape',
+      mutate: (fixtureState) => rebuildBindingTable(fixtureState.database, {
+        bindingKey: 'binding_key TEXT NOT NULL',
+        extraColumn: 'PRIMARY KEY (binding_key, binding_id)',
+      }),
+      reason: /column\/default\/collation layout|index inventory/,
+    },
+    {
+      name: 'non-strict table',
+      mutate: (fixtureState) => rebuildBindingTable(fixtureState.database, {
+        strict: false,
+      }),
+      reason: /canonical STRICT SQLite table/,
+    },
+    {
+      name: 'altered default expression',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        { sessionScopeDefault: "'shared-main'" },
+      ),
+      reason: /column\/default\/collation layout/,
+    },
+    {
+      name: 'removed CHECK',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        { reasonCheck: null },
+      ),
+      reason: /CHECK constraints/,
+    },
+    {
+      name: 'widened CHECK',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        {
+          reasonCheck:
+            "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery', 'compaction', 'other')",
+        },
+      ),
+      reason: /CHECK constraints/,
+    },
+    {
+      name: 'narrowed CHECK',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        {
+          reasonCheck:
+            "reason IS NULL OR reason IN ('initial', 'reset', 'rollover', 'fork', 'rewind', 'switch', 'recovery')",
+        },
+      ),
+      reason: /CHECK constraints/,
+    },
+    {
+      name: 'additional CHECK',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        { additionalCheck: 'created_at >= 0' },
+      ),
+      reason: /CHECK constraints/,
+    },
+    {
+      name: 'removed foreign key',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        {
+          foreignKeys: [
+            'FOREIGN KEY (session_key) REFERENCES session_nodes(session_key) ON DELETE CASCADE',
+          ],
+        },
+      ),
+      reason: /foreign keys/,
+    },
+    {
+      name: 'additional foreign key',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        {
+          foreignKeys: [
+            'FOREIGN KEY (session_key) REFERENCES session_nodes(session_key) ON DELETE CASCADE',
+            'FOREIGN KEY (primary_conversation_id) REFERENCES conversations(conversation_id) ON DELETE SET NULL',
+            'FOREIGN KEY (previous_session_id) REFERENCES session_nodes(session_key) ON DELETE SET NULL',
+          ],
+        },
+      ),
+      reason: /foreign keys/,
+    },
+    {
+      name: 'altered foreign-key target mapping',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        {
+          foreignKeys: [
+            'FOREIGN KEY (session_key) REFERENCES session_nodes(current_session_id) ON DELETE CASCADE',
+            'FOREIGN KEY (primary_conversation_id) REFERENCES conversations(conversation_id) ON DELETE SET NULL',
+          ],
+        },
+      ),
+      reason: /foreign keys/,
+    },
+    {
+      name: 'altered foreign-key action',
+      mutate: (fixtureState) => rebuildSessionWindows(
+        fixtureState.agentDatabase,
+        {
+          foreignKeys: [
+            'FOREIGN KEY (session_key) REFERENCES session_nodes(session_key) ON DELETE SET NULL',
+            'FOREIGN KEY (primary_conversation_id) REFERENCES conversations(conversation_id) ON DELETE SET NULL',
+          ],
+        },
+      ),
+      reason: /foreign keys/,
+    },
+    {
+      name: 'removed lifecycle trigger',
+      mutate: (fixtureState) => fixtureState.agentDatabase.exec(
+        'DROP TRIGGER session_nodes_entry_valid_after_insert;',
+      ),
+      reason: /product triggers/,
+    },
+    {
+      name: 'additional lifecycle trigger',
+      mutate: (fixtureState) => fixtureState.agentDatabase.exec(`
+        CREATE TRIGGER unexpected_session_window_mutation
+        AFTER INSERT ON session_windows
+        BEGIN
+          UPDATE session_windows SET status = 'done'
+          WHERE session_id = NEW.session_id;
+        END;
+      `),
+      reason: /product triggers/,
+    },
+  ]) {
+    await t.test(`physical schema mutation fails closed: ${control.name}`, async () => {
+      const fixtureState = await createProductShapedRetentionFixture();
+      try {
+        control.mutate(fixtureState);
+        const observed = await fixtureState.observe();
+        assert.equal(observed.status, 'unverified-resource-retention');
+        assert.match(observed.failureReason, control.reason);
+      } finally {
+        await fixtureState.dispose();
+      }
+    });
+  }
 
   for (const version of [13, 14, 16]) {
     await t.test(`non-current global schema v${version} fails closed`, async () => {
@@ -2605,7 +3054,7 @@ test('durable inspector matches current product-shaped retention stores', async 
       `);
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'unverified-resource-retention');
-      assert.match(observed.failureReason, /exact product columns/);
+      assert.match(observed.failureReason, /exact product table_xinfo inventory/);
     } finally {
       await fixtureState.dispose();
     }
@@ -2621,7 +3070,7 @@ test('durable inspector matches current product-shaped retention stores', async 
       `);
       const observed = await fixtureState.observe();
       assert.equal(observed.status, 'unverified-resource-retention');
-      assert.match(observed.failureReason, /exact product columns/);
+      assert.match(observed.failureReason, /exact product table_xinfo inventory/);
     } finally {
       await fixtureState.dispose();
     }
@@ -2796,9 +3245,13 @@ test('durable inspector matches current product-shaped retention stores', async 
       fixtureState.insertTemporarySession();
       fixtureState.agentDatabase.prepare(`
         UPDATE session_nodes
-        SET entry_json = '{}', entry_valid = -1, status = NULL,
+        SET entry_json = '{}', status = NULL,
             created_at = NULL, created_via = NULL,
             parent_session_key = NULL, spawned_by = NULL
+        WHERE session_key = 'agent:proof:subagent:retained'
+      `).run();
+      fixtureState.agentDatabase.prepare(`
+        UPDATE session_nodes SET entry_valid = -1
         WHERE session_key = 'agent:proof:subagent:retained'
       `).run();
       const observed = await fixtureState.observe();
@@ -3255,7 +3708,7 @@ test('durable inspector matches current product-shaped retention stores', async 
         assert.equal(observed.status, 'unverified-resource-retention');
         assert.match(
           observed.failureReason,
-          /canonical|exact product columns/,
+          /canonical|exact product table_xinfo inventory/,
         );
       } finally {
         await fixtureState.dispose();

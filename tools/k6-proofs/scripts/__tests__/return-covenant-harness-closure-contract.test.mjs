@@ -185,6 +185,22 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(retentionInspector, /-wal/);
   assert.match(retentionInspector, /-shm/);
   assert.match(retentionInspector, /sqlite_schema/);
+  assert.match(retentionInspector, /PRAGMA table_xinfo/);
+  assert.match(retentionInspector, /PRAGMA index_list/);
+  assert.match(retentionInspector, /PRAGMA index_xinfo/);
+  assert.match(retentionInspector, /PRAGMA foreign_key_list/);
+  assert.match(retentionInspector, /TABLE_CHECKS/);
+  assert.match(retentionInspector, /generatedColumnFingerprint/);
+  assert.match(retentionInspector, /columnCollations/);
+  assert.match(retentionInspector, /triggerFingerprint/);
+  assert.match(
+    documentation,
+    /complete ordered `table_xinfo` inventory/,
+  );
+  assert.match(
+    documentation,
+    /fresh-database drift control/,
+  );
   assert.match(retentionInspector, /O_NOFOLLOW/);
   assert.doesNotMatch(
     retentionInspector,

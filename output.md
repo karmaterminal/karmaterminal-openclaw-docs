@@ -293,6 +293,12 @@ bootstrap, or `PROOFS/**`. The original amend/force-replacement before salvage
 remains a historical discipline violation; salvage preserves the old object
 but does not erase that event.
 
+Review-lane publication note: report commit
+`adb505b580104c107bf025c86cf11f6ecedfb71a` was pushed with literal `\n`
+separators in its commit body, so its Copilot line does not parse as a trailer.
+It remains preserved; this additive successor changes only this disclosure and
+uses real paragraph newlines and a parsed trailer. No ref was rewritten.
+
 ## Verdict
 
 `REQUEST_CHANGES`.

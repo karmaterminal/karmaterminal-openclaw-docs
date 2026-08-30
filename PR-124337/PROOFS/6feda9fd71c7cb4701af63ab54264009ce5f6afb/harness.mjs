@@ -237,6 +237,12 @@ async function runGenuineAbandonment(identity) {
     );
 
     const payloadHash = sha256(Buffer.from(stableJson(rawHead)));
+    const deadLetter = beforeRestart.ingress_rows.find((row) => row.event_id === headId);
+    assert.equal(
+      deadLetter?.raw_message_sha256,
+      payloadHash,
+      "dead-letter payload must hash to the admitted Discord message",
+    );
     const receipt = signedEnvelope({
       schema: "openclaw.pr124337.transport-row.v1",
       row: ROW_A,
@@ -260,7 +266,7 @@ async function runGenuineAbandonment(identity) {
         configured_max_attempts: DEFAULT_INGRESS_RETRY_MAX_ATTEMPTS,
         observed_sequence: attemptSequence,
       },
-      dead_letter: beforeRestart.ingress_rows.find((row) => row.event_id === headId),
+      dead_letter: deadLetter,
       follower: beforeRestart.ingress_rows.find((row) => row.event_id === followerId),
       restart: {
         reopened: true,
@@ -441,6 +447,11 @@ async function runMixedCancellation(identity, genuineControl) {
     const durable = readCanonicalState(databasePath, sessionStore);
     assert.equal(durable.session_rows[0]?.session_key, sessionKey);
     assert.equal(durable.ingress_rows.filter((row) => row.status === "failed").length, 0);
+    assert.equal(
+      durable.ingress_rows.filter((row) => row.payload_sha256 === null).length,
+      0,
+      "all cancelled payloads must remain durably hashable",
+    );
 
     const receipt = signedEnvelope({
       schema: "openclaw.pr124337.transport-row.v1",
@@ -463,10 +474,14 @@ async function runMixedCancellation(identity, genuineControl) {
         capable_attempts: 0,
         legacy_fallback_attempts: 0,
         dead_letters: 0,
+        durable_rows: durable.ingress_rows.filter(
+          (row) => row.account_id === `${ACCOUNT_ID}-mixed`,
+        ),
       },
       explicit_modern: {
         attempts: modernFacts.rows[0]?.attempts,
         dead_letters: modernFacts.rows.filter((row) => row.status === "failed").length,
+        durable_row: durable.ingress_rows.find((row) => row.event_id === modernId),
       },
       genuine_abandonment_sibling_control: {
         row: ROW_A,
@@ -642,20 +657,40 @@ function readCanonicalState(databasePath, sessionStore) {
   const stateDb = new DatabaseSync(databasePath, { readOnly: true });
   const sessionDb = new DatabaseSync(sessionStore, { readOnly: true });
   try {
+    const ingressRows = stateDb
+      .prepare(
+        `SELECT event_id, channel_id, account_id, status, lane_key, attempts,
+                last_attempt_at, last_error, failed_reason, received_at,
+                completed_at, failed_at, claim_owner, claimed_at, payload_json,
+                CASE WHEN payload_json = 'null' THEN 0 ELSE 1 END AS payload_retained
+           FROM channel_ingress_events
+          WHERE channel_id = ?
+          ORDER BY account_id, received_at, event_id`,
+      )
+      .all(CHANNEL_ID)
+      .map((row) => {
+        const { payload_json: payloadJson, ...projected } = row;
+        if (payloadJson === "null") {
+          return {
+            ...projected,
+            payload_sha256: null,
+            raw_message_sha256: null,
+          };
+        }
+        const payload = JSON.parse(payloadJson);
+        return {
+          ...projected,
+          payload_sha256: sha256(Buffer.from(stableJson(payload))),
+          raw_message_sha256:
+            payload && typeof payload === "object" && payload.rawMessage
+              ? sha256(Buffer.from(stableJson(payload.rawMessage)))
+              : null,
+        };
+      });
     return {
       ingress_database_sha256: sha256(readFileSync(databasePath)),
       session_database_sha256: sha256(readFileSync(sessionStore)),
-      ingress_rows: stateDb
-        .prepare(
-          `SELECT event_id, channel_id, account_id, status, lane_key, attempts,
-                  last_attempt_at, last_error, failed_reason, received_at,
-                  completed_at, failed_at, claim_owner, claimed_at,
-                  CASE WHEN payload_json = 'null' THEN 0 ELSE 1 END AS payload_retained
-             FROM channel_ingress_events
-            WHERE channel_id = ?
-            ORDER BY account_id, received_at, event_id`,
-        )
-        .all(CHANNEL_ID),
+      ingress_rows: ingressRows,
       session_rows: sessionDb
         .prepare(
           `SELECT session_key, current_session_id AS session_id, status,

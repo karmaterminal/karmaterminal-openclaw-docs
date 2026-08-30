@@ -26,6 +26,30 @@ for (const relativePath of receipts) {
   assert.equal(envelope.payload.verdict, "PASS", `${relativePath}: non-PASS verdict`);
 }
 
+const diagnosticDirectories = [
+  "session-store-scope-failure",
+  "timing-helper-failure",
+  "projection-helper-failure",
+  "sqlite-reopen-byte-failure",
+];
+for (const directory of diagnosticDirectories) {
+  const diagnosticRoot = path.join(root, "diagnostics", directory);
+  const envelope = await readJson(path.join(diagnosticRoot, "FAIL.json"));
+  const diagnosticKeyDoc = await readJson(path.join(diagnosticRoot, "signing-public-key.json"));
+  const diagnosticKey = createPublicKey({
+    key: diagnosticKeyDoc.public_key_jwk,
+    format: "jwk",
+  });
+  const bytes = Buffer.from(stableJson(envelope.payload));
+  assert.equal(envelope.signature.payload_sha256, sha256(bytes));
+  assert.equal(
+    verify(null, bytes, diagnosticKey, Buffer.from(envelope.signature.value_base64, "base64")),
+    true,
+    `${directory}: invalid diagnostic Ed25519 signature`,
+  );
+  assert.equal(envelope.payload.verdict, "FAIL", `${directory}: expected diagnostic FAIL`);
+}
+
 const manifest = await readJson(path.join(root, "proofs-manifest.json"));
 assert.equal(manifest.product_sha, "6feda9fd71c7cb4701af63ab54264009ce5f6afb");
 assert.equal(manifest.target_exact_execution, true);
@@ -55,6 +79,7 @@ console.log(JSON.stringify({
   event: "pr124337-corpus-verified",
   verdict: "PASS",
   signed_receipts: receipts.length,
+  signed_diagnostics: diagnosticDirectories.length,
   files: actualFiles.length,
 }));
 

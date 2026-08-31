@@ -583,7 +583,13 @@ async function innerMain() {
           `tracked gateway exited before listening (${termination}); stdout=${stdout}; stderr=${stderr}`,
         );
       }
-      listeners = await inspectProcessLoopbackListeners(child.pid);
+      try {
+        listeners = await inspectProcessLoopbackListeners(child.pid);
+      } catch (error) {
+        if (error?.code !== 'ENOENT' && error?.code !== 'ESRCH') throw error;
+        await new Promise((resolve) => setTimeout(resolve, 25));
+        continue;
+      }
       if (listeners.length > 0) break;
       await new Promise((resolve) => setTimeout(resolve, 25));
     }

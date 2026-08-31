@@ -5780,6 +5780,10 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
   try {
     const driverRelative = 'fixture-driver.mjs';
     await symlink('/bin/true', path.join(sourceDir, driverRelative));
+    const packageManager = await writeSyntheticRuntimeInputs(
+      sourceDir,
+      inputDir,
+    );
     await copyTrustedHarness(sourceDir);
     for (const args of [
       ['init', '--quiet'],
@@ -5795,12 +5799,17 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
       cwd: sourceDir,
       encoding: 'utf8',
     }).stdout.trim();
+    const productTreeSha = spawnSync('git', ['rev-parse', 'HEAD^{tree}'], {
+      cwd: sourceDir,
+      encoding: 'utf8',
+    }).stdout.trim();
     const [plan, runtimeConfig, targetBytes] = await Promise.all([
       fixture('plan.valid.json'),
       fixture('runtime-config.valid.json'),
       readFile('/bin/true'),
     ]);
     plan.target.candidateSha = head;
+    plan.target.productTreeSha = productTreeSha;
     plan.target.runtimeBuildSha = head;
     plan.target.docsHarnessSha = head;
     plan.driver.fixtureCommand = {
@@ -5813,6 +5822,17 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
       sha256: sha256(targetBytes),
       args: ['gateway'],
     };
+    await createSyntheticRuntimePayload(sourceDir);
+    const runtimeArtifactDir = path.join(inputDir, 'runtime-artifact');
+    const runtimeArtifact = await createReturnCovenantRuntimeArtifact({
+      sourceDir,
+      outputDir: runtimeArtifactDir,
+      runId: plan.runId,
+      docsHarnessSha: head,
+      packageManagerCommand: [packageManager],
+    });
+    plan.target.runtimeArtifactManifestSha256 =
+      runtimeArtifact.binding.manifestSha256;
     const planPath = path.join(inputDir, 'plan.json');
     const runtimePath = path.join(inputDir, 'runtime.json');
     await Promise.all([
@@ -5827,6 +5847,7 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
       '--plan', planPath,
       '--source-dir', sourceDir,
       '--runtime-config', runtimePath,
+      '--runtime-artifact', runtimeArtifactDir,
       '--control-dir', controlDir,
       '--artifact-dir', artifactDir,
     ], { encoding: 'utf8', timeout: 10_000 });
@@ -5834,6 +5855,7 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
     assert.match(launched.stderr, /regular non-symlink|regular Git blob/);
     assert.equal((await readdir(artifactDir)).length, 0);
   } finally {
+    await makeTreeWritable(inputDir);
     await Promise.all([
       rm(sourceDir, { recursive: true, force: true }),
       rm(inputDir, { recursive: true, force: true }),

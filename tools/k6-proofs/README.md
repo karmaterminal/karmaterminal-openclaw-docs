@@ -44,7 +44,11 @@ openclaw/openclaw#129388. The target-parameterized k6 scenario, versioned
 fixture schemas, signed observer resolver, and deterministic controls are
 present under
 [`contracts/return-covenant-authority/`](contracts/return-covenant-authority/),
-but the scenario is deliberately outside `scenarios/` and absent from the
+along with a closed runtime-artifact manifest, producer, verifier, read-only
+sandbox mounts, and exact tracked-gateway smoke. These cure Git-only candidate
+bootstrap without exposing ambient host dependencies or replacing the tracked
+gateway command, but the scenario is deliberately outside `scenarios/` and
+absent from the
 runnable manifest/workflow registry. The final schema-v19 product candidate does not yet expose the
 product-owned hold/transition/release driver or authority-generation diagnostic
 surface required to execute it.

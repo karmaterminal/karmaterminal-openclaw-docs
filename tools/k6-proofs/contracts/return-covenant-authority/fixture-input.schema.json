@@ -34,6 +34,8 @@
         "productTreeSha",
         "runtimeBuildSha",
         "docsHarnessSha",
+        "runtimeConfigRelativePath",
+        "runtimeConfigGitBlob",
         "runtimeConfigSha256",
         "runtimeArtifactManifestSha256"
       ],
@@ -42,6 +44,10 @@
         "productTreeSha": { "$ref": "#/$defs/sha" },
         "runtimeBuildSha": { "$ref": "#/$defs/sha" },
         "docsHarnessSha": { "$ref": "#/$defs/sha" },
+        "runtimeConfigRelativePath": {
+          "const": "tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json"
+        },
+        "runtimeConfigGitBlob": { "$ref": "#/$defs/gitObject" },
         "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
         "runtimeArtifactManifestSha256": { "$ref": "#/$defs/sha256" }
       }
@@ -126,6 +132,10 @@
     "sha": {
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"
+    },
+    "gitObject": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
     },
     "sha256": {
       "type": "string",

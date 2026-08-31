@@ -1,4 +1,7 @@
 {
+  "gateway": {
+    "mode": "local"
+  },
   "agents": {
     "defaults": {
       "model": "openai/gpt-5.6-sol",

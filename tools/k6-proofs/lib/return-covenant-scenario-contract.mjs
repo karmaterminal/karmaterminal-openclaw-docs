@@ -8,6 +8,8 @@ export const RETURN_COVENANT_PLAN_SCHEMA =
   'openclaw.k6.return-covenant-fixture-input.v1';
 export const RETURN_COVENANT_DRIVER_SCHEMA =
   'openclaw.k6.return-covenant-fixture-driver.v1';
+export const RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH =
+  'tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json';
 export const RETURN_COVENANT_DRIVER_ATTESTATION_SCHEMA =
   'openclaw.k6.return-covenant-driver-attestation.v1';
 export const RETURN_COVENANT_EVIDENCE_PREFIX =
@@ -232,23 +234,31 @@ export function validateReturnCovenantPlan(plan) {
     }
   }
   if (
+    plan.target?.runtimeConfigRelativePath !==
+      RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH
+  ) {
+    errors.push(
+      'target.runtimeConfigRelativePath must name the published runtime config fixture',
+    );
+  }
+  if (!GIT_OBJECT_ID.test(plan.target?.runtimeConfigGitBlob || '')) {
+    errors.push('target.runtimeConfigGitBlob must be a full Git object ID');
+  }
+  if (
     SHA_40.test(plan.target?.candidateSha || '') &&
     plan.target.runtimeBuildSha !== plan.target.candidateSha
   ) {
     errors.push('target.runtimeBuildSha must equal target.candidateSha');
   }
   if (
-    plan.driver?.fixtureCommand?.status === 'available' &&
-    (
-      !safeProductPath(plan.driver?.gatewayCommand?.relativePath) ||
-      !SHA_256.test(plan.driver.gatewayCommand.sha256 || '') ||
-      !Array.isArray(plan.driver.gatewayCommand.args) ||
-      plan.driver.gatewayCommand.args.length !== 1 ||
-      plan.driver.gatewayCommand.args[0] !== 'gateway'
-    )
+    !safeProductPath(plan.driver?.gatewayCommand?.relativePath) ||
+    !SHA_256.test(plan.driver?.gatewayCommand?.sha256 || '') ||
+    !Array.isArray(plan.driver?.gatewayCommand?.args) ||
+    plan.driver.gatewayCommand.args.length !== 1 ||
+    plan.driver.gatewayCommand.args[0] !== 'gateway'
   ) {
     errors.push(
-      'an available fixture driver must name the candidate gateway command and SHA-256',
+      'the plan must name the candidate gateway command and SHA-256',
     );
   }
   if (

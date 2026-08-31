@@ -59,6 +59,9 @@ import {
 import {
   validateReturnCovenantRuntimeMountObservation,
 } from '../lib/return-covenant-runtime-artifact-contract.mjs';
+import {
+  verifyPublishedReturnCovenantRuntimeConfig,
+} from '../lib/return-covenant-runtime-config.mjs';
 
 const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -98,10 +101,12 @@ const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/lib/return-covenant-retention-inspector.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact-contract.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact.mjs',
+  'tools/k6-proofs/lib/return-covenant-runtime-config.mjs',
   'tools/k6-proofs/lib/return-covenant-scenario-contract.mjs',
   'tools/k6-proofs/lib/signed-observer-receipt.mjs',
   'tools/k6-proofs/scripts/launch-return-covenant-driver.mjs',
   'tools/k6-proofs/scripts/run-return-covenant-sandbox.mjs',
+  'tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json',
 ];
 
 function sha256(value) {
@@ -899,10 +904,7 @@ async function main() {
     args['artifact-dir'],
     [docsDir, sourceDir, runtimeArtifactSource, controlDir, ...livePaths],
   );
-  const [plan, runtimeConfig] = await Promise.all([
-    readJson(args.plan),
-    readJson(args['runtime-config']),
-  ]);
+  const plan = await readJson(args.plan);
   const planErrors = validateReturnCovenantPlan(plan);
   if (planErrors.length > 0) {
     throw new Error(`invalid return covenant plan: ${planErrors.join('; ')}`);
@@ -910,10 +912,18 @@ async function main() {
   if (plan.driver.fixtureCommand.status !== 'available') {
     throw new Error('product-owned fixture command is not available');
   }
-  if (sha256(canonicalJson(runtimeConfig)) !== plan.target.runtimeConfigSha256) {
-    throw new Error('runtime config differs from the frozen plan digest');
-  }
   await assertDocsIdentity(docsDir, plan.target.docsHarnessSha);
+  const { config: runtimeConfig } =
+    await verifyPublishedReturnCovenantRuntimeConfig({
+      docsDir,
+      docsHarnessSha: plan.target.docsHarnessSha,
+      runtimeConfigPath: args['runtime-config'],
+      expected: {
+        relativePath: plan.target.runtimeConfigRelativePath,
+        gitBlob: plan.target.runtimeConfigGitBlob,
+        sha256: plan.target.runtimeConfigSha256,
+      },
+    });
 
   const runRoot = await mkdtemp(path.join(controlDir, 'run-'));
   await chmod(runRoot, 0o700);
@@ -922,13 +932,14 @@ async function main() {
   const statePath = path.join(runRoot, 'state');
   const k6HomePath = path.join(runRoot, 'k6-home');
   const configDir = path.join(runRoot, 'config');
+  const authorityDir = path.join(runRoot, 'authority');
   const ipcDir = path.join(runRoot, 'ipc');
   const attestationDir = path.join(runRoot, 'attestation');
   const retentionSnapshotsPath = path.join(runRoot, 'retention-snapshots');
   const runtimeArtifactPath = path.join(runRoot, 'runtime-artifact');
   const configPath = path.join(configDir, 'openclaw.json');
-  const k6ConfigPath = path.join(configDir, 'k6.json');
-  const privatePlanPath = path.join(configDir, 'plan.json');
+  const k6ConfigPath = path.join(authorityDir, 'k6.json');
+  const privatePlanPath = path.join(authorityDir, 'plan.json');
   const readyPath = path.join(controlDir, 'driver-ready.json');
   const attestationPath = path.join(controlDir, 'driver-attestation.json');
   const candidateCleanupDiagnosticPath = path.join(
@@ -994,6 +1005,7 @@ async function main() {
       mkdir(statePath, { mode: 0o700 }),
       mkdir(k6HomePath, { mode: 0o700 }),
       mkdir(configDir, { mode: 0o700 }),
+      mkdir(authorityDir, { mode: 0o700 }),
       mkdir(ipcDir, { mode: 0o700 }),
       mkdir(attestationDir, { mode: 0o700 }),
       mkdir(retentionSnapshotsPath, { mode: 0o700 }),
@@ -1105,6 +1117,7 @@ async function main() {
         ipcDir,
         attestationDir,
         configDir,
+        authorityDir,
         runtimeArtifactPath,
       ]),
       '--ro-bind', process.execPath, process.execPath,
@@ -1114,7 +1127,8 @@ async function main() {
       '--bind', k6HomePath, k6HomePath,
       '--bind', ipcDir, ipcDir,
       '--ro-bind', attestationDir, attestationDir,
-      '--ro-bind', configDir, configDir,
+      '--bind', configDir, configDir,
+      '--ro-bind', authorityDir, authorityDir,
       '--ro-bind', snapshotPath, snapshotPath,
       ...runtimeMounts.flatMap((mount) => [
         '--ro-bind',

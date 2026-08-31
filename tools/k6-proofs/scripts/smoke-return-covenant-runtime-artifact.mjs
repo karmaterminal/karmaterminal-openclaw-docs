@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execFile, spawn } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
+import { watch } from 'node:fs';
 import {
   chmod,
   lstat,
@@ -29,6 +30,9 @@ import {
   inspectProcessLoopbackListeners,
 } from '../lib/return-covenant-driver-attestation.mjs';
 import {
+  waitForTrackedGatewayListeners,
+} from '../lib/return-covenant-gateway-listener.mjs';
+import {
   findReturnCovenantObservedCommand,
   startReturnCovenantTrackedCommandObserver,
 } from '../lib/return-covenant-process-observer.mjs';
@@ -42,6 +46,9 @@ import {
   validateReturnCovenantRuntimeMountObservation,
 } from '../lib/return-covenant-runtime-artifact-contract.mjs';
 import {
+  verifyPublishedReturnCovenantRuntimeConfig,
+} from '../lib/return-covenant-runtime-config.mjs';
+import {
   validateReturnCovenantPlan,
 } from '../lib/return-covenant-scenario-contract.mjs';
 
@@ -50,15 +57,20 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const docsDir = path.resolve(scriptDir, '../../..');
 const SMOKE_SCHEMA =
   'openclaw.k6.return-covenant-runtime-artifact-smoke.v1';
+const RUNTIME_CONFIG_WRITE_SCHEMA =
+  'openclaw.k6.return-covenant-runtime-config-write.v1';
 const DOCS_SMOKE_FILES = [
   'tools/k6-proofs/lib/canonical-json.mjs',
   'tools/k6-proofs/lib/return-covenant-candidate-io.mjs',
   'tools/k6-proofs/lib/return-covenant-driver-attestation.mjs',
+  'tools/k6-proofs/lib/return-covenant-gateway-listener.mjs',
   'tools/k6-proofs/lib/return-covenant-process-observer.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact-contract.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact.mjs',
+  'tools/k6-proofs/lib/return-covenant-runtime-config.mjs',
   'tools/k6-proofs/lib/return-covenant-scenario-contract.mjs',
   'tools/k6-proofs/scripts/smoke-return-covenant-runtime-artifact.mjs',
+  'tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json',
 ];
 
 function sha256(value) {
@@ -482,6 +494,59 @@ async function firstRegularFile(directory) {
   return null;
 }
 
+function startRuntimeConfigWriteObserver(configPath) {
+  const configFile = path.basename(configPath);
+  const lockFile = `${configFile}.lock`;
+  const writeArtifacts = new Set([
+    lockFile,
+    `${configFile}.bak`,
+    `${configFile}.last-good`,
+  ]);
+  const observed = new Set();
+  let observerError = null;
+  const observer = watch(
+    path.dirname(configPath),
+    { persistent: false },
+    (_eventType, filename) => {
+      const name = filename?.toString();
+      if (writeArtifacts.has(name)) observed.add(name);
+    },
+  );
+  observer.on('error', (error) => {
+    observerError = error;
+  });
+  return {
+    close() {
+      observer.close();
+    },
+    async snapshot() {
+      await new Promise((resolve) => setImmediate(resolve));
+      if (observerError) throw observerError;
+      for (const entry of await readdir(path.dirname(configPath))) {
+        if (writeArtifacts.has(entry)) observed.add(entry);
+      }
+      return {
+        schema: RUNTIME_CONFIG_WRITE_SCHEMA,
+        source: 'trusted-sandbox-supervisor',
+        configFile,
+        lockFile,
+        lockObserved: observed.has(lockFile),
+        writeArtifactsObserved: [...observed].toSorted(),
+      };
+    },
+  };
+}
+
+function validRuntimeConfigWriteObservation(value) {
+  return value?.schema === RUNTIME_CONFIG_WRITE_SCHEMA &&
+    value?.source === 'trusted-sandbox-supervisor' &&
+    value?.configFile === 'openclaw.json' &&
+    value?.lockFile === 'openclaw.json.lock' &&
+    value?.lockObserved === true &&
+    Array.isArray(value?.writeArtifactsObserved) &&
+    value.writeArtifactsObserved.includes('openclaw.json.lock');
+}
+
 async function requireInnerChmodErofs(target, mode, label) {
   const originalMode = (await lstat(target)).mode & 0o777;
   try {
@@ -554,9 +619,13 @@ async function innerMain() {
     ]),
   };
   let child;
+  let configWriteObserver;
   let stdout = '';
   let stderr = '';
   try {
+    configWriteObserver = startRuntimeConfigWriteObserver(
+      process.env.OPENCLAW_CONFIG_PATH,
+    );
     child = spawn(process.execPath, [input.gateway, ...gatewayArgs], {
       cwd: process.cwd(),
       env: process.env,
@@ -574,27 +643,17 @@ async function innerMain() {
       child.once('spawn', resolve);
       child.once('error', reject);
     });
-    let listeners = [];
-    const deadline = Date.now() + 90_000;
-    while (Date.now() < deadline) {
-      const termination = childTerminationReason(child);
-      if (termination) {
-        throw new Error(
-          `tracked gateway exited before listening (${termination}); stdout=${stdout}; stderr=${stderr}`,
-        );
-      }
-      try {
-        listeners = await inspectProcessLoopbackListeners(child.pid);
-      } catch (error) {
-        if (error?.code !== 'ENOENT' && error?.code !== 'ESRCH') throw error;
-        await new Promise((resolve) => setTimeout(resolve, 25));
-        continue;
-      }
-      if (listeners.length > 0) break;
-      await new Promise((resolve) => setTimeout(resolve, 25));
-    }
-    if (listeners.length === 0) {
-      throw new Error(`tracked gateway did not listen; stdout=${stdout}; stderr=${stderr}`);
+    const listeners = await waitForTrackedGatewayListeners({
+      child,
+      stdout: () => stdout,
+      stderr: () => stderr,
+    });
+    const runtimeConfigWriteObservation =
+      await configWriteObserver.snapshot();
+    if (!runtimeConfigWriteObservation.lockObserved) {
+      throw new Error(
+        'tracked gateway did not create the isolated runtime config lock',
+      );
     }
     const rawStat = await readFile(`/proc/${child.pid}/stat`, 'utf8');
     const fields = rawStat.slice(rawStat.lastIndexOf(')') + 2)
@@ -608,6 +667,7 @@ async function innerMain() {
       listeners,
       listenerSetSha256: fingerprintProcessLoopbackListeners(listeners),
       runtimeMountObservation,
+      runtimeConfigWriteObservation,
       runtimeArtifactManifestSha256:
         process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256,
     });
@@ -634,6 +694,7 @@ async function innerMain() {
       gatewaySignal: child.signalCode,
     })}\n`);
   } finally {
+    configWriteObserver?.close();
     await stopChild(child);
   }
 }
@@ -651,21 +712,25 @@ async function outerMain() {
   ) {
     throw new Error('--runtime-artifact must be a real directory');
   }
-  const [plan, runtimeConfig] = await Promise.all([
-    readFile(args.plan, 'utf8').then(JSON.parse),
-    readFile(args['runtime-config'], 'utf8').then(JSON.parse),
-  ]);
+  const plan = JSON.parse(await readFile(args.plan, 'utf8'));
   const planErrors = validateReturnCovenantPlan(plan);
   if (planErrors.length > 0) {
     throw new Error(`invalid return covenant smoke plan: ${planErrors.join('; ')}`);
   }
-  if (
-    sha256(canonicalJson(runtimeConfig)) !==
-      plan.target.runtimeConfigSha256
-  ) {
-    throw new Error('runtime smoke config differs from the frozen plan');
-  }
   await assertDocsIdentity(plan.target.docsHarnessSha);
+  const {
+    config: runtimeConfig,
+    authority: runtimeConfigAuthority,
+  } = await verifyPublishedReturnCovenantRuntimeConfig({
+    docsDir,
+    docsHarnessSha: plan.target.docsHarnessSha,
+    runtimeConfigPath: args['runtime-config'],
+    expected: {
+      relativePath: plan.target.runtimeConfigRelativePath,
+      gitBlob: plan.target.runtimeConfigGitBlob,
+      sha256: plan.target.runtimeConfigSha256,
+    },
+  });
   const receiptPath = path.resolve(args.receipt);
   const receiptParent = await realpath(path.dirname(receiptPath));
   if (
@@ -700,6 +765,7 @@ async function outerMain() {
   let capturedStdout = '';
   let capturedStderr = '';
   let runRootRemoved = false;
+  let finalConfigArtifacts = [];
   let sandboxStartFingerprint = null;
   let commandObserver = null;
   try {
@@ -787,7 +853,7 @@ async function outerMain() {
       ]),
       '--ro-bind', process.execPath, process.execPath,
       '--ro-bind', docsDir, docsDir,
-      '--ro-bind', configDir, configDir,
+      '--bind', configDir, configDir,
       '--ro-bind', snapshotPath, snapshotPath,
       '--bind', homePath, homePath,
       '--bind', statePath, statePath,
@@ -861,6 +927,9 @@ async function outerMain() {
         ready?.runtimeMountObservation,
         runtimeArtifact.binding,
       ) ||
+      !validRuntimeConfigWriteObservation(
+        ready?.runtimeConfigWriteObservation,
+      ) ||
       ready?.runtimeArtifactManifestSha256 !==
         runtimeArtifact.binding.manifestSha256 ||
       ready?.listenerSetSha256 !==
@@ -894,6 +963,12 @@ async function outerMain() {
         `runtime smoke sandbox failed with ${sandboxExitCode}: stdout=${capturedStdout}; stderr=${capturedStderr}`,
       );
     }
+    finalConfigArtifacts = (await readdir(configDir))
+      .filter((entry) => entry !== 'openclaw.json')
+      .toSorted();
+    if (finalConfigArtifacts.includes('openclaw.json.lock')) {
+      throw new Error('runtime smoke config lock remained after gateway stop');
+    }
     if (
       await processStartFingerprint(gatewayIdentity.pid) ===
         gatewayIdentity.startFingerprint
@@ -918,6 +993,7 @@ async function outerMain() {
       productTreeSha: plan.target.productTreeSha,
       docsHarnessSha: plan.target.docsHarnessSha,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      runtimeConfig: runtimeConfigAuthority,
       runtimeArtifact: runtimeArtifact.binding,
       gatewayCommand: {
         relativePath: plan.driver.gatewayCommand.relativePath,
@@ -951,6 +1027,7 @@ async function outerMain() {
         isolatedHome: true,
         isolatedState: true,
         isolatedConfig: true,
+        writableIsolatedConfig: true,
         isolatedNetwork: true,
         isolatedPid: true,
         isolatedIpc: true,
@@ -958,10 +1035,16 @@ async function outerMain() {
           gatewayIdentity.environment.NODE_PATH === undefined,
         mounts: runtimeArtifact.binding.mounts,
         runtimeMountObservation: ready.runtimeMountObservation,
+        runtimeConfigWriteObservation: {
+          ...ready.runtimeConfigWriteObservation,
+          lockReleased: true,
+          finalArtifacts: finalConfigArtifacts,
+        },
       },
       cleanup: {
         gatewayStopped: true,
         sandboxStopped: true,
+        configLockReleased: true,
         runtimeArtifactRemoved: true,
         runRootRemoved,
       },

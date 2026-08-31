@@ -56,6 +56,7 @@ import {
   expandReturnCovenantExecutions,
   RETURN_COVENANT_DATABASE_PROFILES,
   RETURN_COVENANT_DRIVER_SCHEMA,
+  RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH,
   returnCovenantExecutionKey,
   validateReturnCovenantPlan,
 } from '../../lib/return-covenant-scenario-contract.mjs';
@@ -109,10 +110,12 @@ const TRUSTED_HARNESS_FILES = [
   'lib/return-covenant-retention-inspector.mjs',
   'lib/return-covenant-runtime-artifact-contract.mjs',
   'lib/return-covenant-runtime-artifact.mjs',
+  'lib/return-covenant-runtime-config.mjs',
   'lib/return-covenant-scenario-contract.mjs',
   'lib/signed-observer-receipt.mjs',
   'scripts/launch-return-covenant-driver.mjs',
   'scripts/run-return-covenant-sandbox.mjs',
+  'tests/fixtures/return-covenant-authority/runtime-config.valid.json',
 ];
 
 async function copyTrustedHarness(targetRoot) {
@@ -1437,8 +1440,17 @@ function resign(receipt) {
 }
 
 test('fixture input covers every authority edge, schema shape, and both delegate forms', async () => {
-  const plan = await fixture('plan.valid.json');
+  const [plan, runtimeConfig] = await Promise.all([
+    fixture('plan.valid.json'),
+    fixture('runtime-config.valid.json'),
+  ]);
   assert.deepEqual(validateReturnCovenantPlan(plan), []);
+  assert.equal(runtimeConfig.gateway.mode, 'local');
+  assert.equal(
+    plan.target.runtimeConfigRelativePath,
+    RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH,
+  );
+  assert.match(plan.target.runtimeConfigGitBlob, /^[a-f0-9]{40}$/u);
   assert.equal(expandReturnCovenantExecutions(plan).length, 24);
   assert.deepEqual(
     [...new Set(plan.cases.map((entry) => entry.databaseProfile))].sort(),
@@ -1472,6 +1484,19 @@ test('fixture input covers every authority edge, schema shape, and both delegate
   assert.match(
     validateReturnCovenantPlan(duplicateForms).join('\n'),
     /ordered typed-tool then bracket-token/,
+  );
+  const privateRuntimeConfig = structuredClone(plan);
+  privateRuntimeConfig.target.runtimeConfigRelativePath =
+    'private/openclaw.json';
+  assert.match(
+    validateReturnCovenantPlan(privateRuntimeConfig).join('\n'),
+    /must name the published runtime config fixture/,
+  );
+  const missingRuntimeConfigBlob = structuredClone(plan);
+  delete missingRuntimeConfigBlob.target.runtimeConfigGitBlob;
+  assert.match(
+    validateReturnCovenantPlan(missingRuntimeConfigBlob).join('\n'),
+    /must be a full Git object ID/,
   );
 
   const redefinedSilentWake = structuredClone(plan);
@@ -5098,10 +5123,7 @@ async function runTrustedLauncherFixture(
       cwd: sourceDir,
       encoding: 'utf8',
     }).stdout.trim();
-    const [plan, runtimeConfig] = await Promise.all([
-      fixture('plan.valid.json'),
-      fixture('runtime-config.valid.json'),
-    ]);
+    const plan = await fixture('plan.valid.json');
     plan.target.candidateSha = head;
     plan.target.productTreeSha = productTreeSha;
     plan.target.runtimeBuildSha = head;
@@ -5144,11 +5166,22 @@ async function runTrustedLauncherFixture(
       });
     }
     const planPath = path.join(inputDir, 'plan.json');
-    const runtimePath = path.join(inputDir, 'runtime.json');
-    await Promise.all([
-      writeFile(planPath, JSON.stringify(plan), { mode: 0o600 }),
-      writeFile(runtimePath, JSON.stringify(runtimeConfig), { mode: 0o600 }),
-    ]);
+    const runtimePath = options.privateRuntimeConfig
+      ? path.join(inputDir, 'runtime.json')
+      : path.join(sourceDir, RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH);
+    await writeFile(planPath, JSON.stringify(plan), { mode: 0o600 });
+    if (options.privateRuntimeConfig) {
+      await writeFile(
+        runtimePath,
+        await readFile(
+          path.join(
+            sourceDir,
+            RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH,
+          ),
+        ),
+        { mode: 0o600 },
+      );
+    }
     const launcherArgs = [
       path.join(
         sourceDir,
@@ -5356,6 +5389,13 @@ test('trusted launcher rejects runtime artifacts and gateway substitution before
         };
       },
     }, /product-owned fixture command is not available/);
+  });
+
+  await t.test('private runtime config substitution', async () => {
+    await assertPrelaunchFailure(
+      { privateRuntimeConfig: true },
+      /must be the published tracked runtime config fixture/,
+    );
   });
 });
 
@@ -5819,9 +5859,8 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
       cwd: sourceDir,
       encoding: 'utf8',
     }).stdout.trim();
-    const [plan, runtimeConfig, targetBytes] = await Promise.all([
+    const [plan, targetBytes] = await Promise.all([
       fixture('plan.valid.json'),
-      fixture('runtime-config.valid.json'),
       readFile('/bin/true'),
     ]);
     plan.target.candidateSha = head;
@@ -5850,11 +5889,11 @@ test('trusted launcher rejects candidate command symlinks before execution', asy
     plan.target.runtimeArtifactManifestSha256 =
       runtimeArtifact.binding.manifestSha256;
     const planPath = path.join(inputDir, 'plan.json');
-    const runtimePath = path.join(inputDir, 'runtime.json');
-    await Promise.all([
-      writeFile(planPath, JSON.stringify(plan), { mode: 0o600 }),
-      writeFile(runtimePath, JSON.stringify(runtimeConfig), { mode: 0o600 }),
-    ]);
+    const runtimePath = path.join(
+      sourceDir,
+      RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH,
+    );
+    await writeFile(planPath, JSON.stringify(plan), { mode: 0o600 });
     const launched = spawnSync(process.execPath, [
       path.join(
         sourceDir,

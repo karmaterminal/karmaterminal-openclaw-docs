@@ -21,11 +21,14 @@ test('return covenant harness is complete but remains outside proof authority re
     runtimeArtifactSchemaRaw,
     runtimeArtifactContract,
     runtimeArtifact,
+    runtimeConfigAuthority,
     processObserver,
     runtimeArtifactBuilder,
     launcher,
+    runtimeSmoke,
     supervisor,
     mockDriver,
+    runtimeConfigRaw,
     workflow,
     pipeline,
     indexRaw,
@@ -42,11 +45,14 @@ test('return covenant harness is complete but remains outside proof authority re
     read('contracts/return-covenant-authority/runtime-artifact.schema.json'),
     read('lib/return-covenant-runtime-artifact-contract.mjs'),
     read('lib/return-covenant-runtime-artifact.mjs'),
+    read('lib/return-covenant-runtime-config.mjs'),
     read('lib/return-covenant-process-observer.mjs'),
     read('scripts/build-return-covenant-runtime-artifact.mjs'),
     read('scripts/launch-return-covenant-driver.mjs'),
+    read('scripts/smoke-return-covenant-runtime-artifact.mjs'),
     read('scripts/run-return-covenant-sandbox.mjs'),
     read('tests/fixtures/return-covenant-authority/mock-product-driver.mjs'),
+    read('tests/fixtures/return-covenant-authority/runtime-config.valid.json'),
     readFile(path.join(repoRoot, '.github/workflows/k6-proof.yml'), 'utf8'),
     read('k6-proofs-pipeline.xml'),
     readFile(path.join(repoRoot, 'PROOFS/INDEX.json'), 'utf8'),
@@ -56,6 +62,7 @@ test('return covenant harness is complete but remains outside proof authority re
   const cleanupSchema = JSON.parse(cleanupSchemaRaw);
   const retentionSchema = JSON.parse(retentionSchemaRaw);
   const runtimeArtifactSchema = JSON.parse(runtimeArtifactSchemaRaw);
+  const runtimeConfig = JSON.parse(runtimeConfigRaw);
   const index = JSON.parse(indexRaw);
   const currentManifest = JSON.parse(
     await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
@@ -141,6 +148,40 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(launcher, /run-return-covenant-sandbox\.mjs/);
   assert.match(launcher, /readBoundedCandidateJson/);
   assert.match(launcher, /DOCS_AUTHORITY_FILES/);
+  assert.match(launcher, /verifyPublishedReturnCovenantRuntimeConfig/);
+  assert.match(
+    launcher,
+    /'--bind',\s*configDir,\s*configDir/,
+  );
+  assert.doesNotMatch(
+    launcher,
+    /'--ro-bind',\s*configDir,\s*configDir/,
+  );
+  assert.match(
+    launcher,
+    /'--ro-bind',\s*authorityDir,\s*authorityDir/,
+  );
+  assert.match(runtimeConfigAuthority, /suppliedPath !== publishedPath/);
+  assert.match(
+    runtimeConfigAuthority,
+    /published runtime config Git blob differs from the frozen plan/,
+  );
+  assert.match(runtimeSmoke, /waitForTrackedGatewayListeners/);
+  assert.match(runtimeSmoke, /verifyPublishedReturnCovenantRuntimeConfig/);
+  assert.match(
+    runtimeSmoke,
+    /'--bind',\s*configDir,\s*configDir/,
+  );
+  assert.doesNotMatch(
+    runtimeSmoke,
+    /'--ro-bind',\s*configDir,\s*configDir/,
+  );
+  assert.match(
+    runtimeSmoke,
+    /'--ro-bind',\s*mount\.source,\s*mount\.destination/,
+  );
+  assert.match(runtimeSmoke, /openclaw\.json\.lock/);
+  assert.match(runtimeSmoke, /runtimeConfigWriteObservation/);
   assert.match(supervisor, /--config/);
   assert.match(supervisor, /cwd: input\['k6-home'\]/);
   assert.match(launcher, /terminateProcessGroup/);
@@ -271,6 +312,16 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.equal(
     runtimeArtifactSchema.properties.schema.const,
     'openclaw.k6.return-covenant-runtime-artifact.v1',
+  );
+  assert.equal(runtimeConfig.gateway.mode, 'local');
+  assert.deepEqual(
+    inputSchema.properties.target.required.filter((name) =>
+      name.startsWith('runtimeConfig')),
+    [
+      'runtimeConfigRelativePath',
+      'runtimeConfigGitBlob',
+      'runtimeConfigSha256',
+    ],
   );
   assert.equal(
     cleanupSchema.properties.retentionAuthority.properties.candidateCleanup.const,

@@ -288,16 +288,27 @@ node tools/k6-proofs/scripts/build-return-covenant-runtime-artifact.mjs \
 The exact-product bootstrap smoke uses the same verifier, private copy, fixed
 mounts, tracked-command check, cleared environment, namespace isolation, and
 process/socket ownership rules without pretending the missing product fixture
-driver exists:
+driver exists. The plan binds the published runtime config's fixed repository
+path, exact Git blob, and canonical SHA-256. The `--runtime-config` argument
+must resolve to that tracked fixture; an identical private copy is rejected.
+Only the private run-root config directory is read-write bound so the tracked
+gateway can create `openclaw.json.lock` and its backup/last-good files. The
+trusted inner supervisor must observe the lock while all six artifact probes
+still return `EROFS`, and the lock must be released before cleanup:
 
 ```bash
 node tools/k6-proofs/scripts/smoke-return-covenant-runtime-artifact.mjs \
   --plan /private/input/plan.json \
   --source-dir /private/exact-product-checkout \
-  --runtime-config /private/input/openclaw.json \
+  --runtime-config tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json \
   --runtime-artifact /private/runtime-artifact \
   --receipt /private/output/runtime-smoke.json
 ```
+
+Listener discovery retries bounded transient `ENOENT`, `ESRCH`, and `EACCES`
+from `/proc/<pid>/fd`. A live process that remains inaccessible reaches a
+terminal failure rather than readiness. If the child exits during those
+retries, its exit status and captured stdout/stderr remain the primary error.
 
 ## Product-owned fixture driver
 
@@ -319,12 +330,13 @@ Before k6 starts, `launch-return-covenant-driver.mjs`:
 - runs a reviewed sandbox supervisor under bubblewrap with private PID,
   network, IPC, and user namespaces, fresh `/proc`, masked host home/runtime/tmp
   trees, and a read-only host root with only Node, reviewed docs, candidate
-  snapshot, and config rebound through the masked paths; only isolated
-  home/state and a dedicated
-  run-root IPC directory are writable, so candidate processes cannot read host
-  credentials, reach live host sockets, signal host peers, or write
-  control/artifact paths, and namespace-init exit kernel-terminates descendants
-  that call `setsid()`;
+  snapshot, and private run-root paths rebound through the masked paths; only
+  isolated home/state/config and a dedicated run-root IPC directory are
+  writable. The private plan and k6 config live in a separate read-only
+  authority directory. Candidate processes therefore cannot read host
+  credentials, reach live host sockets, signal host peers, mutate plan/k6
+  inputs, or write control/artifact paths, and namespace-init exit
+  kernel-terminates descendants that call `setsid()`;
 - reads candidate ready and cleanup-diagnostic files only through nonblocking
   `O_NOFOLLOW` regular-file descriptors with strict byte limits; the diagnostic
   is copied to a private `passEligible=false` envelope and never enters signed
@@ -621,7 +633,7 @@ receipt itself:
 node tools/k6-proofs/scripts/launch-return-covenant-driver.mjs \
   --plan /private/run/plan.json \
   --source-dir /exact/product/checkout \
-  --runtime-config /private/input/openclaw.json \
+  --runtime-config tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json \
   --runtime-artifact /private/input/runtime-artifact \
   --control-dir /private/control \
   --artifact-dir /candidate/R-CD-RETURN-COVENANT-AUTHORITY \
@@ -728,6 +740,12 @@ The repository-local owner test covers:
 | untracked gateway executable substitution | tracked-command verifier rejects before driver execution |
 | gateway overwrites Linux argv through `process.title` | only a prior docs-owned exact argv observation for the same PID/start can bind the titled listener |
 | valid closure mounted in bubblewrap | both fixed roots are present and unwritable |
+| isolated config directory mounted read-only | exact gateway fails on `openclaw.json.lock`; successor binds only that private directory read-write |
+| transient `/proc/<pid>/fd` `EACCES` | bounded retry reaches the real child listener |
+| persistent live-process `/proc` `EACCES` | bounded terminal failure; never readiness |
+| child exits during `/proc` `EACCES` | original child exit/stdout/stderr is surfaced |
+| private copy of the published runtime config | rejected before sandbox creation even when bytes match |
+| published runtime config missing `gateway.mode=local` | exact gateway exits 78; tracked fixture is bootable |
 | gateway launch failure after artifact verification | private artifact/run root removed; original sandbox cause retained |
 | runtime config spliced from another run | `isolated-runtime-unavailable` |
 | nonzero k6 exit or mismatched teardown | `scenario-failure` |

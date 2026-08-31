@@ -121,12 +121,13 @@ async function readRegularFile(file, {
   expectedMode,
   maxBytes = MAX_ARTIFACT_BYTES,
   label = file,
+  requireSingleLink = true,
 } = {}) {
   const pathInfo = await lstat(file, { bigint: true });
   if (!pathInfo.isFile() || pathInfo.isSymbolicLink()) {
     throw new Error(`${label} must be a regular non-symlink file`);
   }
-  if (pathInfo.nlink !== 1n) {
+  if (requireSingleLink && pathInfo.nlink !== 1n) {
     throw new Error(`${label} must not be hard-linked`);
   }
   if (expectedMode !== undefined) {
@@ -155,8 +156,8 @@ async function readRegularFile(file, {
   }
 }
 
-async function regularFileSha256(file) {
-  return sha256(await readRegularFile(file));
+async function regularFileSha256(file, options) {
+  return sha256(await readRegularFile(file, options));
 }
 
 export async function currentReturnCovenantNodeIdentity() {
@@ -935,7 +936,10 @@ async function packageManagerIdentity({
       'package-manager version differs from the product packageManager field',
     );
   }
-  const executableSha256 = await regularFileSha256(executablePath);
+  const executableSha256 = await regularFileSha256(executablePath, {
+    requireSingleLink: false,
+    label: 'package-manager executable',
+  });
   const commandArgs = command.slice(1);
   return {
     identity: {
@@ -950,6 +954,7 @@ async function packageManagerIdentity({
       })),
     },
     environment,
+    executablePath,
   };
 }
 
@@ -1045,6 +1050,19 @@ export async function createReturnCovenantRuntimeArtifact({
         },
       },
     );
+    const packageManagerAfterBuild = await regularFileSha256(
+      packageManager.executablePath,
+      {
+        requireSingleLink: false,
+        label: 'package-manager executable',
+      },
+    );
+    if (
+      packageManagerAfterBuild !==
+        packageManager.identity.executableSha256
+    ) {
+      throw new Error('package-manager executable changed during artifact build');
+    }
     if ((await git(
       sourcePath,
       ['status', '--porcelain=v1', '--untracked-files=no'],

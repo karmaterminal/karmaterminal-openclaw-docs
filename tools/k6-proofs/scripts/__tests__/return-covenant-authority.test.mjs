@@ -180,11 +180,16 @@ async function writeSyntheticRuntimeInputs(sourceDir, inputDir) {
   const packageManager = path.join(inputDir, 'synthetic-pnpm');
   await writeFile(packageManager, [
     '#!/usr/bin/env node',
+    "const fs = require('node:fs');",
+    "const path = require('node:path');",
     "if (process.argv[2] === '--version') {",
     "  process.stdout.write('1.2.3\\n');",
     "} else if (process.argv[2] === 'run' && process.argv[3] === 'build') {",
     "  process.stdout.write('synthetic build complete\\n');",
     "} else if (process.argv[2] === 'install') {",
+    "  const target = path.join(process.cwd(), 'node_modules/runtime-package');",
+    "  fs.mkdirSync(target, { recursive: true });",
+    "  fs.writeFileSync(path.join(target, 'index.js'), 'export const runtimeDependency = true;\\n');",
     "  process.stdout.write('synthetic production install complete\\n');",
     '} else {',
     '  process.exitCode = 2;',

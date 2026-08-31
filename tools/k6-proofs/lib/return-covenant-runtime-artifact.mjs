@@ -1036,6 +1036,18 @@ export async function createReturnCovenantRuntimeArtifact({
       '--libc',
       nodeIdentity.libc,
     ];
+    const dependencyDir = path.join(sourcePath, 'node_modules');
+    const dependencyBeforePrune = await lstat(dependencyDir);
+    if (
+      !dependencyBeforePrune.isDirectory() ||
+      dependencyBeforePrune.isSymbolicLink() ||
+      await realpath(dependencyDir) !== dependencyDir
+    ) {
+      throw new Error(
+        'runtime build dependency root must be a real source-owned directory',
+      );
+    }
+    await rm(dependencyDir, { recursive: true, force: true });
     const dependencyInstall = await execFileAsync(
       packageManagerCommand[0],
       [...packageManagerCommand.slice(1), ...dependencyCommand],
@@ -1069,7 +1081,6 @@ export async function createReturnCovenantRuntimeArtifact({
     )) !== '') {
       throw new Error('runtime build modified tracked product files');
     }
-    const dependencyDir = path.join(sourcePath, 'node_modules');
     const buildOutputDir = path.join(sourcePath, 'dist');
     const [dependencyInfo, buildInfo] = await Promise.all([
       lstat(dependencyDir),

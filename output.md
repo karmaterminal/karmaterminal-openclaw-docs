@@ -1,271 +1,244 @@
-# Return-covenant attested runtime mount cure
+# Independent hostile review of covenant runtime-mount harness `e8483b66`
 
 Status: **READY_FOR_SCRIBE_REVIEW**.
 
+Verdict: **REQUEST_CHANGES**.
+
 Issue binding: `openclaw/openclaw#129388`.
 
-The docs-owned harness can now start the unchanged exact product's tracked
-gateway command from its Git-only snapshot by mounting a completely verified,
-private, read-only runtime artifact. Product, protected presentation,
-bootstrap, components, docs main, fleet, and proof-corpus bytes remain
-unchanged.
-
-This is bootstrap authority only. Exact product
-`0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` still has no product-owned
-`openclaw.k6.return-covenant-fixture-driver.v1` command, so the 38-row corpus
-was not run and the product-driver lane remains denied pending scribe review.
+This lane is read-only review. The candidate branch
+`codeagent/129388-harness-attested-runtime-mount-cure-20260831` was not
+edited, amended, merged, or resumed. Product, presentation, bootstrap,
+components, docs main, and fleet were not mutated.
 
 ## Named-reference contract
 
-This table was first written and committed before regression or runtime
-evidence. The unchanged safe lane was published to `origin` at
-`1f272dbef90048fa08df5a454bf63c224e3a9313`.
+Resolved locally and against `origin` before crediting evidence. This
+independent-review lane was not required as a product identity ref; it is
+the publication branch for this report only.
 
 | Category | Repository and named reference | Full SHA | Local / tracking / server disposition |
 |---|---|---|---|
 | Product/base ref | `karmaterminal/openclaw` `codeagent/129388-product-covenant-driver-after-harness-15e47942-20260831` | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | exact / exact / exact; tree `52b6141c80e575813f94241635ce02007b50d140` |
-| Safe lane ref before evidence | `karmaterminal/karmaterminal-openclaw-docs` `codeagent/129388-harness-attested-runtime-mount-cure-20260831` | `1f272dbef90048fa08df5a454bf63c224e3a9313` | exact / exact / exact |
-| Reviewed implementation ref | same safe lane | `2d3255461026c392bb926fe5d9aa65c09cdcd756` | exact / exact / exact |
+| This lane safe branch | `karmaterminal/karmaterminal-openclaw-docs` `codeagent/129388-e8483b66-runtime-mount-independent-review-20260831` | see publication commit | review publication only; candidate not mutated |
+| Docs candidate/report head | `codeagent/129388-harness-attested-runtime-mount-cure-20260831` | `e8483b66900bacfff4d0761814b8eda129a2f10b` | exact / N/A local-untracked-before-review / exact |
+| Implementation anchor | same candidate history | `2d3255461026c392bb926fe5d9aa65c09cdcd756` | exact / exact savegame / exact; tree `658bbf81ae7dd120840bf25a4883eb3e4f4c0418` |
 | Implementation savegame | `savegame/129388-harness-runtime-mount-store-mode-2d325546-20260831T045338Z` | `2d3255461026c392bb926fe5d9aa65c09cdcd756` | exact / exact / exact |
-| CI/workflow ref | N/A | N/A | Docs-only focused acceptance; Mode-B and Gate 3g were expressly not used |
-| Historical workflow context only | `karmaterminal/openclaw-bootstrap` `savegame/129388-primitive-core-semantic-test-routing-cure-3c5acdb7-20260830T1825Z` | `3c5acdb72e94755f469fc6cc3276d5b8623d5b49` | exact / exact / exact; historical red run `33323536011`, never acceptance |
-| Presentation ref | `karmaterminal/openclaw` `savegame/129388-covenant-final-00c7f721-20260828T1203Z` | `00c7f721a55554d0b9228337cc8bc6bec88f9e9f` | exact / exact / exact; read-only |
-| Docs/proof base | `savegame/129388-harness-sql-comment-tokenizer-final-1f272dbe-20260830T224018Z` | `1f272dbef90048fa08df5a454bf63c224e3a9313` | exact / exact / exact |
-| Harness implementation | `savegame/129388-harness-sql-comment-tokenizer-cure-15e47942-20260830T223855Z` | `15e479424518b4831c95511873f5c6b81ad52a79` | exact / exact / exact |
-| Independent harness confirmation | `savegame/129388-15e47942-tokenizer-independent-review-192a1814-20260830T231752Z` | `192a1814cf4150fc07496c1164fbcff6c3fe9e54` | exact / exact / exact |
+| Docs base | `savegame/129388-harness-sql-comment-tokenizer-final-1f272dbe-20260830T224018Z` | `1f272dbef90048fa08df5a454bf63c224e3a9313` | exact / exact / exact |
+| CI/workflow ref | N/A | N/A | focused-only; Mode-B and Gate 3g not used |
+| Presentation ref | `karmaterminal/openclaw` `savegame/129388-covenant-final-00c7f721-20260828T1203Z` | `00c7f721a55554d0b9228337cc8bc6bec88f9e9f` | exact / exact / exact; read-only; tree `55e2dc3b66ae909b37f948f4f96ebe9988cb8aae` |
 | Blocked product-driver savegame | `karmaterminal/openclaw` `savegame/129388-product-driver-bootstrap-blocked-0ed59cb6-20260831T0140Z` | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | exact / exact / exact |
-| Prior blocked corpus | `savegame/129388-0ed59cb6-blocked-proof-20260830T1915Z` | `ba8d344c1240275a9c54042294b8129eea4e497b` | exact / exact / exact |
 
-Component, docs-main, and fleet execution refs are `N/A`; none was read as
-authority or mutated.
+Protected-surface movement: none observed. `origin/main` on docs is
+`0984dabae218000b20178f4a031e688bdf0584ac` and does not contain the
+candidate. Product `origin/main` is
+`a36fedbbf80339a26ded6b89543e4c3e58c917dd` and was not used as
+authority.
 
-## Implementation identity and scope
+## Scope and identity
 
-The executable implementation anchor is:
+`git diff --name-only 1f272dbe..e8483b66` is **29 files**, all inside
+`output.md` and `tools/k6-proofs/**`. Zero `PROOFS/**` or product
+`src/skills/**` changes.
 
-- head `2d3255461026c392bb926fe5d9aa65c09cdcd756`;
-- tree `658bbf81ae7dd120840bf25a4883eb3e4f4c0418`;
-- parent `692c5c95d7e726f905edd2a8c60d0d61d0df26c6`; and
-- base `1f272dbef90048fa08df5a454bf63c224e3a9313`.
+`2d325546^{tree}` is `658bbf81ae7dd120840bf25a4883eb3e4f4c0418`.
+`e8483b66^{tree}` is `bc91d2f630b3865ddfa26bce82fd4bf8427277b5`.
+The only file differing between implementation anchor and report head is
+`output.md` (+257 / -28). No hidden behavioral delta.
 
-The complete lane delta through that anchor is 29 files, 5,771 insertions, and
-297 deletions. It touches only `output.md` and `tools/k6-proofs/**`; there are
-zero `PROOFS/**` or product `src/skills/**` changes.
-
-The cure adds:
-
-- a closed runtime-artifact schema and pure binding/mount-observation contract;
-- a producer that runs the exact product build, selects current-platform
-  production dependencies in a disposable exact Git scratch checkout, injects
-  generated `dist` only for workspace packages referenced by that closure,
-  and leaves the caller dependency tree/store intact;
-- a no-follow verifier that checks commit, tree, build inputs, Node/pnpm
-  identity, full inventory, sizes, modes, and every content digest;
-- a private-copy boundary that re-verifies independently copied bytes before
-  sandbox entry;
-- fixed read-only binds from `payload/node_modules` to candidate
-  `node_modules` and `payload/dist` to candidate `dist`;
-- trusted sandbox-supervisor directory-chmod, file-chmod, and create probes
-  that must each return `EROFS` before the product driver can start;
-- a docs-owned pre-title `/proc` observer that captures exact
-  Node/script/argv/cwd before product `process.title` rewrites Linux cmdline,
-  then binds only the same PID/start/environment/socket listener; and
-- artifact identity through plan, phase requests, ready, driver attestation,
-  observations, retention, live/final store identity, cleanup, and the signed
-  public receipt.
-
-`gatewayCommand.relativePath` remains a contained regular product Git blob.
-The artifact satisfies imports/build lookup only; it cannot provide or replace
-the executable.
-
-## Final runtime artifact
-
-The final artifact is private and uncommitted. Its raw run ID and host paths
-are not published; public run fingerprint: `67cdceb0b8813ceb`.
-
-| Identity | Value |
-|---|---|
-| Schema | `openclaw.k6.return-covenant-runtime-artifact.v1` |
-| Product commit | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` |
-| Product tree / build-input tree | `52b6141c80e575813f94241635ce02007b50d140` |
-| Docs implementation | `2d3255461026c392bb926fe5d9aa65c09cdcd756` |
-| Manifest SHA-256 | `2ca5006907df8e3e42f3ec20fc0316910fc15961d98152ef06f6dc1d86b9364d` |
-| Closure SHA-256 | `4fab08f44c5dae351bd84e2f3b189dcfe7b50cd041f1d6b5ef629110c9ef7ae1` |
-| Dependency inventory SHA-256 | `e0c9a5f75677a89eca0b327b583b6d2776d9942574a96d49fede3a3dac1336c1` |
-| Build-output inventory SHA-256 | `8c81f48251d0ab9b8133ad1fe3a431dd85ea119228187cc659d8817d5f9e1c6c` |
-| Inventory | 109,026 entries: 100,326 files, 8,700 directories, 3,248,432,200 bytes |
-| Filesystem audit | 0 writable entries, 0 symlinks, 0 hardlinks, 0 special files |
-| Node | `v25.9.0`, `linux/arm64/glibc`, modules `141`, N-API `10` |
-| Node executable SHA-256 | `6ddc7eec8c425db60c217241e2c9207eb299a17c227b9494655b18bb5da5a2e1` |
-| Package manager | exact product pin `pnpm@12.0.0`; executable SHA-256 `6cc8f23fd03fce540489638f003cf753ade22f8b90c3d267ce37957179b21b7a` |
-
-Build inputs include exact regular Git blob and SHA-256 identities for
-`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`,
-`node-version.mjs`, `scripts/build-all.mts`, `scripts/tsx.mjs`, and both
-tsdown configurations. Commands are bound as:
+Report commit `e8483b66` parses both trailers:
 
 ```text
-pnpm run build
-pnpm install --prod --frozen-lockfile --os linux --cpu arm64 --libc glibc
+Refs: openclaw/openclaw#129388
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
 ```
 
-The production closure references `packages/ai/dist`; its mounted
-`payload/node_modules/@openclaw/ai/dist` inventory is 98 entries, 96 files,
-1,253,060 bytes, SHA-256
-`459048568b6af4d2f0e00a9c6be49b23938177871dac626973a7789b47b7bcc9`.
+Implementation `2d325546` parses Copilot only (`Refs` is not a Git
+trailer there), matching the candidate's own disclosure.
 
-The real producer preserved all 101,543 source dependency files and the
-source/store hardlinked esbuild executable at mode `0755` before and after the
-build. Its disposable dependency scratch count returned to zero.
+## What independently held
 
-## Fail-first and pass-after evidence
+- Git-only product snapshot at `0ed59cb6` / tree `52b6141c`:
+  - `node scripts/run-node.mjs gateway --help` -> exit 1, `Cannot find module 'tsx'`
+  - `node openclaw.mjs gateway --help` -> exit 1, `openclaw: missing dist/entry.(m)js (build output).`
+- Focused owner matrix, serial (`node --test --test-concurrency=1`):
+  **192/192 pass**, 0 fail, 0 skipped, `524170.945212ms`.
+- Independent ARM64 artifact from exact product deps (pnpm 12.0.0 exe
+  SHA-256 `6cc8f23fd03fce540489638f003cf753ade22f8b90c3d267ce37957179b21b7a`,
+  Node v25.9.0 linux/arm64/glibc modules 141 N-API 10 exe SHA-256
+  `6ddc7eec8c425db60c217241e2c9207eb299a17c227b9494655b18bb5da5a2e1`):
+  - schema `openclaw.k6.return-covenant-runtime-artifact.v1`
+  - run `rcv-fcd97ed768ac93442206ffdf3bb9cfa4`
+  - docs harness `e8483b66900bacfff4d0761814b8eda129a2f10b`
+  - inventory 109,027 entries / 100,327 files / 8,700 dirs / 3,248,438,199 bytes
+  - FS audit: 0 writable, 0 symlinks, 0 hardlinks, 0 special; root `0555`
+  - workspace output `packages/ai/dist` -> `payload/node_modules/@openclaw/ai/dist`
+    including `internal/openai-responses-payload-policy.mjs`
+  - gateway Git blob `a4f5b9d034486aff075ae1993341cf7f53c8e89e`, SHA-256
+    `8abf50ee41cb28cfb01fe20a6b092bccc610962bd843135c63ba6b9b5ecbbddd`
+  - source `node_modules` file count 98,324 before and after; esbuild
+    mode `0755` nlink 3 preserved; tracked git remained clean; scratch
+    count returned to zero
+- Artifact producer/verifier attacks covered by the 192 tests: missing
+  artifact, identity mismatch, digest alteration, missing/extra
+  closures, writable/symlink/hardlink/FIFO/traversal, wrong Node/pnpm,
+  workspace dist injection, scratch hardlink-mode preservation, original
+  failure retained across cleanup.
+- Six trusted supervisor probes require `EROFS` (not `EACCES`); writable
+  mount test fails before the driver marker.
+- `gatewayCommand.relativePath` is verified as a contained regular
+  product Git blob; artifact cannot replace it.
+- Report vs implementation is additive report metadata only.
 
-The exact Git-only product snapshot reproduced both original failures before
-dependencies or build output were present:
+Independent inventory is **+1 file / +5,999 bytes** versus the author's
+private 109,026-entry artifact. That is build-output non-determinism, not
+an open manifest. Closure SHA therefore differs, as required: this lane
+did not reuse the author's private artifact.
+
+## Material findings
+
+### 1. Isolated config is EROFS; exact product gateway must write it
+
+**Authority violated:** real tracked-gateway runtime, not merely the
+dependency mount. Isolated `HOME`/`STATE` are writable; isolated
+**config** is `--ro-bind`. Exact product `0ed59cb6` creates
+`openclaw.json.lock` (and `.bak` / `.last-good`) in the config
+directory.
+
+**Affected:**
+
+- `tools/k6-proofs/scripts/smoke-return-covenant-runtime-artifact.mjs:790`
+- `tools/k6-proofs/scripts/launch-return-covenant-driver.mjs:1117`
+
+**Negative control (independent):**
 
 ```text
-node scripts/run-node.mjs gateway --help
-exit 1: Cannot find module 'tsx'
-
-node openclaw.mjs gateway --help
-exit 1: openclaw: missing dist/entry.(m)js (build output).
+node tools/k6-proofs/scripts/smoke-return-covenant-runtime-artifact.mjs \
+  --plan <independent plan bound to rcv-fcd97ed768ac93442206ffdf3bb9cfa4> \
+  --source-dir <exact 0ed59cb6 clone> \
+  --runtime-config <published fixture> \
+  --runtime-artifact <independent artifact> \
+  --receipt <new path>
+-> exit 1
 ```
 
-Additional deterministic fail-first controls found and cured during real
-composition:
+Diagnostic with smoke-like bwrap `--ro-bind` of the config directory:
 
-| Rejected boundary | Expected failure | Successor proof |
-|---|---|---|
-| report base `1f272dbe` | no runtime-artifact argument, verifier, or mount exists | implementation requires and verifies the artifact before spawn |
-| first real smoke | product rewrites cmdline to `openclaw-gateway`, so direct post-ready argv match rejects it | trusted pre-title procfs observation binds exact argv to same PID/start/listener |
-| pre-review mount probe | mode-0555 payload on a writable bind can return `EACCES` and false-pass | supervisor requires six `EROFS` receipts; writable-mount test fails before driver marker |
-| pre-review producer | in-place production selection removed full source dependencies | exact scratch production checkout; success/failure preserve source dependencies |
-| pre-review scratch cleanup | chmod on pnpm hardlinked files changed store executable modes | directory-only cleanup plus hardlinked-store mode regression |
-| first scratch-built closure | `@openclaw/ai/dist` absent; real gateway exits on missing `openai-responses-payload-policy.mjs` | production-linked workspace output is inventoried and final real gateway starts |
+```text
+OpenClaw cannot write to the config directory ...
+Underlying error: EROFS: read-only file system, open '.../openclaw.json.lock'
+```
 
-The final deterministic regression matrix covers:
+Same harness with `--bind` config and `gateway.mode=local` keeps the
+gateway process alive (fd inspect succeeds for >=10s). Artifact
+`--ro-bind` mounts are not the failing surface.
 
-| Control | Result |
+**Smallest bounded repair:** `--bind` the isolated private config
+directory (run-root only). Keep `payload/node_modules` and `payload/dist`
+as `--ro-bind`. Do not widen artifact writability. Add a regression that
+starts the real tracked `openclaw.mjs gateway` against exact product
+`0ed59cb6` and asserts the config lock is creatable while mount probes
+still return `EROFS`.
+
+### 2. Smoke listener inspect does not retry `EACCES` on `/proc/<pid>/fd`
+
+**Authority violated:** original gateway start failure must survive
+observer errors. After `process.title` becomes `openclaw`,
+`/proc/<pid>/fd` becomes `EACCES` then `ENOENT` while the process dies.
+Smoke inner loop treats only `ENOENT`/`ESRCH` as retryable, so the
+independent smoke surfaced:
+
+```text
+EACCES: permission denied, scandir '/proc/13/fd'
+```
+
+masking the EROFS config-lock error.
+
+**Affected:**
+
+- `tools/k6-proofs/scripts/smoke-return-covenant-runtime-artifact.mjs:587-589`
+- `tools/k6-proofs/lib/return-covenant-driver-attestation.mjs:242-244`
+  (`processSocketInodes` -> `readdir(/proc/<pid>/fd)`)
+
+The launcher already retries `EACCES` in `inspectGatewayMember`. Smoke
+inner does not.
+
+**Smallest bounded repair:** treat `EACCES` as retryable in the inner
+listen loop; if the child has already exited, raise the child's
+stdout/stderr/exit cause, never the observer `EACCES`.
+
+### 3. Published fixture runtime-config cannot boot the real gateway
+
+**Authority violated:** independent real-gateway smoke must be
+reproducible from published bytes. Fixture
+`tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json`
+has no `gateway.mode`. With a writable config dir the exact product
+still exits 78:
+
+```text
+Gateway start blocked: existing config is missing gateway.mode.
+```
+
+The candidate report's smoke config SHA-256
+`3986646ac39aeb2fa0dc15e0edcc8796e21866f94526b0fe6c9715c2200b37ee` is
+**not** in this repository. 192/192 uses a synthetic driver, so it does
+not catch this.
+
+**Smallest bounded repair:** publish a bootable isolated runtime-config
+(at least `gateway.mode=local` plus the existing plugin/runtime fields),
+bind its digest in the smoke plan, and add a focused real-gateway smoke
+owner test. Do not accept an unpublished private config as the
+continuation receipt.
+
+## High-risk questions
+
+| Question | Independent answer |
 |---|---|
-| no artifact supplied | rejected before driver |
-| product SHA/tree, docs, row, run, or manifest mismatch | rejected before driver |
-| altered manifest or payload digest | rejected |
-| missing/extra file or mount root | rejected |
-| writable artifact entry | rejected |
-| writable sandbox bind over immutable modes | trusted `chmod` succeeds, therefore rejected before driver |
-| symlink, hardlink, path traversal, FIFO/special file | rejected |
-| wrong Node or package-manager identity | rejected |
-| stale artifact replay | rejected by run/row/docs/product binding |
-| dependency closure without build output | rejected |
-| build output without dependency closure | rejected |
-| required workspace `dist` absent | rejected |
-| untracked gateway executable substitution | rejected by regular Git blob verifier |
-| artifact/source/scratch cleanup failure | original failure retained; output/scratch/run root cleaned |
-| clean exact-product tracked gateway | PASS |
-| exact product fixture-driver absence | exit 1, `product-owned fixture command is not available` |
+| Can an omitted production dep escape the 109k manifest? | Not through the copied payload: extra/missing/digest/mode/symlink/hardlink/special fail closed. Residual: sandbox `--ro-bind / /` still exposes Node global prefix (`.../lib/node_modules`, including host `openclaw`). Git-only `tsx` still failed here, so no working omitted-dep PASS was observed. |
+| Can writable bind / mode-only DAC / overlay fake EROFS? | No on this host. Six supervisor probes require `EROFS`; writable-mount test fails before driver. |
+| Can pre-title observer accept a replaced/reused process? | PID+startTicks fingerprint plus Git-blob argv bind is fail-closed for reuse. Finding 2 is teardown `EACCES`, not substitution. |
+| Can workspace `dist` copy unrelated outputs or omit a dynamic package? | Injection is only production workspace links whose package.json `main`/`module`/`exports`/`bin` reference `dist`. `@openclaw/ai/dist` is present. Unrelated leftover dist is not copied. Omission of a dynamically required missing dist fails at gateway start. |
+| Can cleanup escape private roots or destroy caller store? | `removeReturnCovenantRuntimeArtifact` requires basename `runtime-artifact`. Scratch cleanup is directory-only chmod. Independent producer preserved source file count and esbuild `0755` hardlink mode. |
+| Do report head and impl differ only by report metadata? | Yes: `output.md` only. |
 
-## Real gateway smoke
+## GitNexus
 
-The final smoke used only the exact product checkout, the verified private
-artifact, isolated home/state/config/IPC roots, and the tracked
-`openclaw.mjs` command:
+Installed fork wrapper `/home/figs/.local/bin/gitnexus` version `1.6.5`,
+SHA-256 `8309aeb6858023f5cb3ff4ae8416b64c1989e4fe04d82dd822964127ed1355ca`,
+CLI from `karmaterminal/GitNexus` `3c1e686edfc1acaac882927cada121ddd7c47bcc`.
+`gitnexus status` on this worktree: **not indexed**. Registry entries are
+stale unrelated worktrees/SHAs. No graph evidence credited. Stock `npx`
+GitNexus was not invoked.
 
-| Receipt | Value |
-|---|---|
-| Runtime config SHA-256 | `3986646ac39aeb2fa0dc15e0edcc8796e21866f94526b0fe6c9715c2200b37ee` |
-| Gateway relative path | `openclaw.mjs` |
-| Gateway Git blob | `a4f5b9d034486aff075ae1993341cf7f53c8e89e` |
-| Gateway SHA-256 | `8abf50ee41cb28cfb01fe20a6b092bccc610962bd843135c63ba6b9b5ecbbddd` |
-| Frozen argv | `["gateway"]` |
-| Command observation | `trusted-launcher-pre-title-procfs-v1` |
-| Gateway start fingerprint | `81e00f575143272a2999625e37b65e484f5ea4d60ce781d1cc9e3b4cd7bbeff7` |
-| Listener-set SHA-256 | `75c6590365f9dfc488c5d6f155f26d693bf2c0c287c4f65cde172fa3de1ddf82` |
-| Internal smoke receipt SHA-256 | `7c085a8d94f1b808407cc803fe009ce20155473916bce3a7e62fa1a2dc51967a` |
-| Private receipt-file SHA-256 | `4f63677fa5aafca2906db02a61c87589705a3e2c6e25c10eadf9dd8bf25d77f3` |
+## Validation
 
-Both `node_modules` and `dist` returned `EROFS` independently for directory
-chmod, payload-file chmod, and file creation. The listener belonged to a
-distinct real gateway child. `NODE_PATH` was absent. Gateway, sandbox, private
-artifact copy, and run root were all gone before PASS.
-
-## Focused validation
-
-Acceptance path: **focused-only**. No product Mode-B, Gate 3g, full 38-row
-corpus, fleet run, deployment, or live user/session data applies.
-
-The final serial owner command was:
+Acceptance path: **focused-only**.
 
 ```bash
-OPENCLAW_PRODUCT_AUTHORITY_REPO=/home/figs/flesh_beast_best_beast/source/openclaw-129388-runtime-artifact-build-0ed59cb6 \
+OPENCLAW_PRODUCT_AUTHORITY_REPO=/home/figs/flesh_beast_best_beast/tmp/129388-e8483b66-independent-product-0ed59cb6 \
 OPENCLAW_REQUIRE_PRODUCT_SCHEMA_DRIFT_CONTROL=1 \
 node --test --test-concurrency=1 \
   tools/k6-proofs/scripts/__tests__/return-covenant-authority.test.mjs \
   tools/k6-proofs/scripts/__tests__/return-covenant-runtime-artifact.test.mjs \
   tools/k6-proofs/scripts/__tests__/return-covenant-harness-closure-contract.test.mjs
+# 192/192 pass, duration_ms 524170.945212
 ```
 
-Result: **192/192 pass**, 0 fail, 0 skipped, `526069.645247ms`.
+Independent producer:
 
-That serial suite retains the nearest sibling controls for:
+```bash
+node tools/k6-proofs/scripts/build-return-covenant-runtime-artifact.mjs \
+  --source-dir <exact 0ed59cb6 disposable clone> \
+  --output-dir <new empty dir> \
+  --run-id rcv-fcd97ed768ac93442206ffdf3bb9cfa4 \
+  --docs-harness-sha e8483b66900bacfff4d0761814b8eda129a2f10b \
+  --package-manager-command '["<pnpm-12.0.0-linux-arm64-exe>"]'
+```
 
-- exact global-v15 and per-agent-v19 physical schemas;
-- comments, quotes, token boundaries, CHECK/FK/index/collation/default/
-  generated-column/trigger enforcement and malformed DDL;
-- fresh, migration, reopen, WAL-only, live/final, path-swap, and no-follow
-  store observation;
-- typed-tool/bracket origins, phase challenge/HMAC, replay and receipt reuse;
-- PID ancestry, pre-title argv, socket ownership, restart lineage, and
-  listener disjointness;
-- candidate diagnostic distrust, signed PASS/FAIL, cleanup, rollback,
-  retry/recovery, retained resources, and partial failures; and
-- physical immutable artifact files, trusted `EROFS` mount enforcement,
-  workspace build-output closure, scratch cleanup, and pnpm hardlink modes.
+Independent smoke: **FAIL** (finding 1, masked by finding 2).
 
-Existing docs/harness static gates also pass:
+Mode-B / Gate 3g: not used.
 
-- current corpus: 37 rows; `pass=32`, `partial=4`, `honest_limit=1`, `fail=0`;
-- proof manifests: 37 rows, 42 manifests, 0 missing;
-- manifest/scenario registry: 42 manifests, 35 scenario files;
-- workflow scenario alignment: `ok=true`;
-- telemetry contracts: 13 declared, 9 receipt-requiring rows, 0
-  telemetry-rebindable PASS claims;
-- 16 changed JavaScript files pass `node --check`;
-- 10 changed JSON files parse; and
-- final runtime manifest passes its closed Draft 2020-12 schema with all
-  109,026 entries.
-
-This docs repository has no package-level typecheck/lint/build manifest.
-Existing repository static/syntax/schema commands were run; the product build
-used to create the artifact passed under exact pinned dependencies.
-
-## Review and tooling
-
-An independent read-only reviewer found two substantive issues in the initial
-successor: a DAC-only read-only probe and destructive source dependency
-selection. Both were repaired. A second independent review at the repaired
-boundary marked both **RESOLVED** and found no new high-confidence issue.
-Scribe review is still required before the product-driver lane resumes.
-
-Installed GitNexus fork:
-
-- path `/home/figs/.local/bin/gitnexus`;
-- version `1.6.5`; and
-- binary SHA-256
-  `8309aeb6858023f5cb3ff4ae8416b64c1989e4fe04d82dd822964127ed1355ca`.
-
-`gitnexus status` reports this repository is not indexed. Available docs
-indexes are unrelated stale worktrees, so no graph/impact evidence was
-credited and no stock `npx` substitute was used.
-
-## History and residual boundary
-
-Every additive checkpoint commit contains the exact body line
-`Refs: openclaw/openclaw#129388` and the Copilot attribution with real
-newlines. The checkpoint commits placed those as separate paragraphs, so Git's
-trailer parser recognizes the Copilot trailer but not `Refs`; the final
-additive report commit restores one contiguous parsed trailer block without
-amending, rebasing, resetting, or force-pushing history.
-
-No PR was opened. No proof result was folded. The exact-product negative
-remains intentional: runtime availability is cured, while the missing
-product-owned protocol command remains a product-layer prerequisite.
+Product-driver resume remains denied: missing product-owned
+`openclaw.k6.return-covenant-fixture-driver.v1` **and** the three
+findings above. Do not resume the product-driver lane on this candidate.

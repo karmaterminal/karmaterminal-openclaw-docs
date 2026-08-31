@@ -942,9 +942,7 @@ async function makeCreatedTreeWritable(target) {
     for (const entry of await readdir(target)) {
       await makeCreatedTreeWritable(path.join(target, entry));
     }
-    return;
   }
-  await chmod(target, 0o600);
 }
 
 async function rethrowAfterCreatedTreeCleanup(target, originalError) {

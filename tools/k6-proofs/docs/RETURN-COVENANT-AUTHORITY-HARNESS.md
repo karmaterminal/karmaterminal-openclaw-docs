@@ -214,7 +214,9 @@ packages before materialization. A workspace export that names `dist` without
 a corresponding build output fails artifact creation. The producer removes the
 scratch checkout after copying. The caller's full
 build dependency tree is never pruned or replaced, including on install/copy
-failure, so the same exact source can be retried. The producer rejects
+failure, so the same exact source can be retried. Scratch cleanup changes only
+directory permissions needed for removal; it never chmods package files whose
+inodes may be hardlinked to the lane-local pnpm store. The producer rejects
 tracked-source mutation, materializes dependency and build closures as
 independent files, and freezes all directories/files to mode `0555`/`0444`
 (retaining `0555` only for executable files). The package-manager argv may pin

@@ -75,6 +75,7 @@ async function createSyntheticSource(
     packageManagerVersion = '1.2.3',
     failProductionInstall = false,
     workspaceDependency = false,
+    hardlinkProductionStore = false,
   } = {},
 ) {
   const sourceDir = path.join(root, 'source');
@@ -141,6 +142,14 @@ async function createSyntheticSource(
     ),
   ]);
   const packageManager = path.join(toolDir, 'pnpm');
+  const sharedStoreFile = path.join(toolDir, 'shared-store-entry');
+  if (hardlinkProductionStore) {
+    await writeFile(
+      sharedStoreFile,
+      'export const runtimeDependency = true;\n',
+      { mode: 0o700 },
+    );
+  }
   await writeFile(
     packageManager,
     [
@@ -161,7 +170,13 @@ async function createSyntheticSource(
         : [
       "  const target = path.join(process.cwd(), 'node_modules/runtime-package');",
       "  fs.mkdirSync(target, { recursive: true });",
-      "  fs.writeFileSync(path.join(target, 'index.js'), 'export const runtimeDependency = true;\\n');",
+      ...(hardlinkProductionStore
+        ? [
+          `  fs.linkSync(${JSON.stringify(sharedStoreFile)}, path.join(target, 'index.js'));`,
+        ]
+        : [
+          "  fs.writeFileSync(path.join(target, 'index.js'), 'export const runtimeDependency = true;\\n');",
+        ]),
       ...(workspaceDependency
         ? [
           "  const scope = path.join(process.cwd(), 'node_modules/@openclaw');",
@@ -194,6 +209,7 @@ async function createSyntheticSource(
   return {
     sourceDir,
     packageManager,
+    sharedStoreFile,
     head: await git(sourceDir, ['rev-parse', 'HEAD']),
     tree: await git(sourceDir, ['rev-parse', 'HEAD^{tree}']),
   };
@@ -367,6 +383,7 @@ test('runtime artifact producer injects referenced workspace build output', asyn
     const source = await createSyntheticSource(root, {
       workspaceDependency: true,
     });
+
     const outputDir = path.join(root, 'artifact');
     const created = await createReturnCovenantRuntimeArtifact({
       sourceDir: source.sourceDir,
@@ -394,6 +411,36 @@ test('runtime artifact producer injects referenced workspace build output', asyn
       ), 'utf8'),
       'export const policy = true;\n',
     );
+  } finally {
+    await removeTree(root);
+  }
+});
+
+test('runtime artifact scratch cleanup preserves hardlinked store modes', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'return-covenant-runtime-hardlink-'));
+  try {
+    const source = await createSyntheticSource(root, {
+      hardlinkProductionStore: true,
+    });
+    const outputDir = path.join(root, 'artifact');
+    const before = await lstat(source.sharedStoreFile);
+    assert.equal(before.mode & 0o777, 0o700);
+    await createReturnCovenantRuntimeArtifact({
+      sourceDir: source.sourceDir,
+      outputDir,
+      runId: RUN_ID,
+      docsHarnessSha: source.head,
+      packageManagerCommand: [source.packageManager],
+    });
+    const after = await lstat(source.sharedStoreFile);
+    assert.equal(after.mode & 0o777, 0o700);
+    assert.equal(after.nlink, 1);
+    const artifactFile = await lstat(path.join(
+      outputDir,
+      'payload/node_modules/runtime-package/index.js',
+    ));
+    assert.equal(artifactFile.mode & 0o777, 0o555);
+    assert.equal(artifactFile.nlink, 1);
   } finally {
     await removeTree(root);
   }

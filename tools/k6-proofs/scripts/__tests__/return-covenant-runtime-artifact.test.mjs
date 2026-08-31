@@ -124,6 +124,8 @@ async function createSyntheticSource(root, { packageManagerVersion = '1.2.3' } =
       '  process.stdout.write(`${version}\\n`);',
       "} else if (process.argv[2] === 'run' && process.argv[3] === 'build') {",
       "  process.stdout.write('synthetic build complete\\n');",
+      "} else if (process.argv[2] === 'install') {",
+      "  process.stdout.write('synthetic production install complete\\n');",
       '} else {',
       "  process.stderr.write('unexpected synthetic package-manager command\\n');",
       '  process.exitCode = 2;',

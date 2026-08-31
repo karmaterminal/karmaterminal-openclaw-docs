@@ -160,6 +160,7 @@ function validPublicRuntimeArtifactBinding(binding) {
       'version',
       'platform',
       'arch',
+      'libc',
       'modules',
       'napi',
       'executableSha256',
@@ -167,6 +168,7 @@ function validPublicRuntimeArtifactBinding(binding) {
     typeof binding.node.version === 'string' &&
     typeof binding.node.platform === 'string' &&
     typeof binding.node.arch === 'string' &&
+    ['glibc', 'musl', 'none'].includes(binding.node.libc) &&
     typeof binding.node.modules === 'string' &&
     typeof binding.node.napi === 'string' &&
     HEX_64.test(binding.node.executableSha256 || '') &&

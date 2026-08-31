@@ -35,6 +35,7 @@ function validNodeIdentity(value) {
     'version',
     'platform',
     'arch',
+    'libc',
     'modules',
     'napi',
     'executableSha256',
@@ -45,6 +46,7 @@ function validNodeIdentity(value) {
     value.platform.length >= 2 &&
     typeof value.arch === 'string' &&
     value.arch.length >= 2 &&
+    ['glibc', 'musl', 'none'].includes(value.libc) &&
     typeof value.modules === 'string' &&
     value.modules.length >= 1 &&
     typeof value.napi === 'string' &&
@@ -92,4 +94,3 @@ export function validateReturnCovenantRuntimeArtifactBinding(binding) {
       entry.readOnly === true &&
       SHA_256.test(entry.inventorySha256 || ''));
 }
-

@@ -189,8 +189,12 @@ runtime-artifact/
   `node-version.mjs`, `scripts/build-all.mts`, `scripts/tsx.mjs`, and both
   tsdown configurations;
 - the exact `pnpm run build` command, package-manager field/version,
-  package-manager executable digest, Node version/platform/architecture,
-  modules/N-API versions, and Node executable digest; and
+  package-manager executable digest, Node
+  version/platform/architecture/libc, modules/N-API versions, and Node
+  executable digest;
+- the exact current-platform
+  `pnpm install --prod --frozen-lockfile --os ... --cpu ... --libc ...`
+  dependency-closure command; and
 - a sorted complete inventory of every payload directory and regular file,
   including immutable mode, size, per-file SHA-256, per-root inventory
   digests, total counts/bytes, and one closure digest.
@@ -199,9 +203,13 @@ The reviewed producer
 `build-return-covenant-runtime-artifact.mjs` requires an exact clean product
 checkout and an absolute package-manager argv. It verifies the package-manager
 version against the product's pinned `packageManager`, runs the product build,
-rejects tracked-source mutation, materializes dependency and build closures as
-independent files, and freezes all directories/files to mode `0555`/`0444`
-(retaining `0555` only for executable files).
+reselects production dependencies for the attested Node
+platform/architecture/libc from the frozen lock, rejects tracked-source
+mutation, materializes dependency and build closures as independent files, and
+freezes all directories/files to mode `0555`/`0444` (retaining `0555` only for
+executable files). The package-manager argv may pin a stable lane-local
+`--store-dir`; that argv and executable digest are part of the toolchain
+identity.
 
 Before sandbox entry, the trusted launcher:
 

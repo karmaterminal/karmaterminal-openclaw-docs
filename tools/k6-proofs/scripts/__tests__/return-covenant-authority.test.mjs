@@ -184,6 +184,8 @@ async function writeSyntheticRuntimeInputs(sourceDir, inputDir) {
     "  process.stdout.write('1.2.3\\n');",
     "} else if (process.argv[2] === 'run' && process.argv[3] === 'build') {",
     "  process.stdout.write('synthetic build complete\\n');",
+    "} else if (process.argv[2] === 'install') {",
+    "  process.stdout.write('synthetic production install complete\\n');",
     '} else {',
     '  process.exitCode = 2;',
     '}',
@@ -233,6 +235,9 @@ function runtimeArtifactBindingFor(plan) {
       version: process.version,
       platform: process.platform,
       arch: process.arch,
+      libc: process.report.getReport().header.glibcVersionRuntime
+        ? 'glibc'
+        : 'musl',
       modules: process.versions.modules,
       napi: process.versions.napi,
       executableSha256: 'e'.repeat(64),

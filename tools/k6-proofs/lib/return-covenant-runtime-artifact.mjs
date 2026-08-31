@@ -161,10 +161,17 @@ async function regularFileSha256(file) {
 
 export async function currentReturnCovenantNodeIdentity() {
   const executablePath = await realpath(process.execPath);
+  const reportHeader = process.report?.getReport()?.header;
+  const libc = process.platform === 'linux'
+    ? reportHeader?.glibcVersionRuntime
+      ? 'glibc'
+      : 'musl'
+    : 'none';
   return {
     version: process.version,
     platform: process.platform,
     arch: process.arch,
+    libc,
     modules: process.versions.modules,
     napi: process.versions.napi,
     executableSha256: await regularFileSha256(executablePath),
@@ -519,6 +526,7 @@ function validateNodeIdentity(value) {
     'version',
     'platform',
     'arch',
+    'libc',
     'modules',
     'napi',
     'executableSha256',
@@ -526,6 +534,7 @@ function validateNodeIdentity(value) {
     typeof value.version === 'string' &&
     typeof value.platform === 'string' &&
     typeof value.arch === 'string' &&
+    ['glibc', 'musl', 'none'].includes(value.libc) &&
     typeof value.modules === 'string' &&
     typeof value.napi === 'string' &&
     SHA_256.test(value.executableSha256 || '');
@@ -624,10 +633,28 @@ function validateManifestShape(manifest) {
     throw new Error('runtime artifact manifest identity is invalid');
   }
   if (
-    !exactKeys(manifest.build, ['inputTreeSha', 'command', 'inputs']) ||
+    !exactKeys(manifest.build, [
+      'inputTreeSha',
+      'command',
+      'dependencyCommand',
+      'inputs',
+    ]) ||
     manifest.build.inputTreeSha !== manifest.product.treeSha ||
     canonicalJson(manifest.build.command) !==
       canonicalJson(['pnpm', 'run', 'build']) ||
+    canonicalJson(manifest.build.dependencyCommand) !==
+      canonicalJson([
+        'pnpm',
+        'install',
+        '--prod',
+        '--frozen-lockfile',
+        '--os',
+        manifest.toolchain?.node?.platform,
+        '--cpu',
+        manifest.toolchain?.node?.arch,
+        '--libc',
+        manifest.toolchain?.node?.libc,
+      ]) ||
     !Array.isArray(manifest.build.inputs) ||
     manifest.build.inputs.length !== RETURN_COVENANT_RUNTIME_BUILD_INPUTS.length
   ) {
@@ -992,6 +1019,32 @@ export async function createReturnCovenantRuntimeArtifact({
         env: packageManager.environment,
       },
     );
+    const nodeIdentity = await currentReturnCovenantNodeIdentity();
+    const dependencyCommand = [
+      'install',
+      '--prod',
+      '--frozen-lockfile',
+      '--os',
+      nodeIdentity.platform,
+      '--cpu',
+      nodeIdentity.arch,
+      '--libc',
+      nodeIdentity.libc,
+    ];
+    const dependencyInstall = await execFileAsync(
+      packageManagerCommand[0],
+      [...packageManagerCommand.slice(1), ...dependencyCommand],
+      {
+        cwd: sourcePath,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+        timeout: 30 * 60_000,
+        env: {
+          ...packageManager.environment,
+          CI: '1',
+        },
+      },
+    );
     if ((await git(
       sourcePath,
       ['status', '--porcelain=v1', '--untracked-files=no'],
@@ -1025,10 +1078,9 @@ export async function createReturnCovenantRuntimeArtifact({
       outputDir: outputPath,
       allowedRoots,
     });
-    const [buildInputs, nodeIdentity, inventory] = await Promise.all([
+    const [buildInputs, inventory] = await Promise.all([
       Promise.all(RETURN_COVENANT_RUNTIME_BUILD_INPUTS.map((relativePath) =>
         gitBuildInputIdentity(sourcePath, relativePath, productSha))),
-      currentReturnCovenantNodeIdentity(),
       scanRuntimeArtifactPayload(outputPath),
     ]);
     const manifest = {
@@ -1043,6 +1095,7 @@ export async function createReturnCovenantRuntimeArtifact({
       build: {
         inputTreeSha: productTreeSha,
         command: ['pnpm', 'run', 'build'],
+        dependencyCommand: ['pnpm', ...dependencyCommand],
         inputs: buildInputs,
       },
       toolchain: {
@@ -1060,6 +1113,8 @@ export async function createReturnCovenantRuntimeArtifact({
       buildOutput: {
         stdout,
         stderr,
+        dependencyStdout: dependencyInstall.stdout,
+        dependencyStderr: dependencyInstall.stderr,
       },
     };
   } catch (error) {

@@ -404,6 +404,23 @@ function summarizeInventoryRoot(entries, mount) {
   };
 }
 
+function summarizeInventoryPath(entries, artifactPath) {
+  const selected = entries.filter((entry) =>
+    entry.path === artifactPath ||
+    entry.path.startsWith(`${artifactPath}/`));
+  const files = selected.filter((entry) => entry.type === 'file');
+  if (files.length < 1) {
+    throw new Error(`workspace build output is empty: ${artifactPath}`);
+  }
+  return {
+    entryCount: selected.length,
+    fileCount: files.length,
+    directoryCount: selected.length - files.length,
+    totalBytes: files.reduce((total, entry) => total + entry.size, 0),
+    sha256: sha256(canonicalJson(selected)),
+  };
+}
+
 async function scanRuntimeArtifactPayload(artifactRoot) {
   const payloadPath = path.join(artifactRoot, 'payload');
   const payloadInfo = await lstat(payloadPath, { bigint: true });
@@ -610,6 +627,34 @@ function validateInventoryRoot(root, mount) {
     SHA_256.test(root.sha256 || '');
 }
 
+function validateWorkspaceOutput(output) {
+  return exactKeys(output, [
+    'sourcePath',
+    'artifactPath',
+    'entryCount',
+    'fileCount',
+    'directoryCount',
+    'totalBytes',
+    'sha256',
+  ]) &&
+    safeArtifactPath(output.sourcePath) &&
+    output.sourcePath.startsWith('packages/') &&
+    output.sourcePath.endsWith('/dist') &&
+    safeArtifactPath(output.artifactPath) &&
+    output.artifactPath.startsWith('payload/node_modules/') &&
+    output.artifactPath.endsWith('/dist') &&
+    Number.isSafeInteger(output.entryCount) &&
+    output.entryCount >= 2 &&
+    Number.isSafeInteger(output.fileCount) &&
+    output.fileCount >= 1 &&
+    Number.isSafeInteger(output.directoryCount) &&
+    output.directoryCount >= 1 &&
+    output.entryCount === output.fileCount + output.directoryCount &&
+    Number.isSafeInteger(output.totalBytes) &&
+    output.totalBytes >= 1 &&
+    SHA_256.test(output.sha256 || '');
+}
+
 function validateManifestShape(manifest) {
   if (!exactKeys(manifest, [
     'schema',
@@ -640,6 +685,7 @@ function validateManifestShape(manifest) {
       'command',
       'dependencyCommand',
       'inputs',
+      'workspaceOutputs',
     ]) ||
     manifest.build.inputTreeSha !== manifest.product.treeSha ||
     canonicalJson(manifest.build.command) !==
@@ -658,7 +704,13 @@ function validateManifestShape(manifest) {
         manifest.toolchain?.node?.libc,
       ]) ||
     !Array.isArray(manifest.build.inputs) ||
-    manifest.build.inputs.length !== RETURN_COVENANT_RUNTIME_BUILD_INPUTS.length
+    manifest.build.inputs.length !==
+      RETURN_COVENANT_RUNTIME_BUILD_INPUTS.length ||
+    !Array.isArray(manifest.build.workspaceOutputs) ||
+    manifest.build.workspaceOutputs.some((entry) =>
+      !validateWorkspaceOutput(entry)) ||
+    new Set(manifest.build.workspaceOutputs.map((entry) =>
+      entry.artifactPath)).size !== manifest.build.workspaceOutputs.length
   ) {
     throw new Error('runtime artifact build identity is invalid');
   }
@@ -693,6 +745,26 @@ function validateManifestShape(manifest) {
     !SHA_256.test(manifest.inventory.sha256 || '')
   ) {
     throw new Error('runtime artifact inventory shape is invalid');
+  }
+  for (const output of manifest.build.workspaceOutputs) {
+    const actual = summarizeInventoryPath(
+      manifest.inventory.entries,
+      output.artifactPath,
+    );
+    if (
+      canonicalJson(actual) !==
+        canonicalJson({
+          entryCount: output.entryCount,
+          fileCount: output.fileCount,
+          directoryCount: output.directoryCount,
+          totalBytes: output.totalBytes,
+          sha256: output.sha256,
+        })
+    ) {
+      throw new Error(
+        `workspace build output inventory differs: ${output.artifactPath}`,
+      );
+    }
   }
 }
 
@@ -910,6 +982,137 @@ export async function removeReturnCovenantRuntimeArtifact(artifactDir) {
     throw new Error('refusing to remove a non-runtime-artifact path');
   }
   await removeCreatedTree(artifactPath);
+}
+
+function valueReferencesDist(value) {
+  if (typeof value === 'string') {
+    return value.startsWith('./dist/') || value.includes('/dist/');
+  }
+  if (Array.isArray(value)) return value.some(valueReferencesDist);
+  if (typeof value === 'object' && value !== null) {
+    return Object.values(value).some(valueReferencesDist);
+  }
+  return false;
+}
+
+async function discoverWorkspaceDependencyLinks({
+  dependencyDir,
+  dependencySourcePath,
+}) {
+  const links = [];
+  async function visit(directory) {
+    for (const entry of (await readdir(directory)).toSorted()) {
+      const file = path.join(directory, entry);
+      const info = await lstat(file);
+      if (info.isSymbolicLink()) {
+        const target = await realpath(file);
+        const targetInfo = await lstat(target);
+        if (
+          targetInfo.isDirectory() &&
+          pathWithin(target, dependencySourcePath) &&
+          !pathWithin(target, dependencyDir)
+        ) {
+          const linkRelativePath = inventoryEntryPath(dependencyDir, file);
+          const targetRelativePath =
+            inventoryEntryPath(dependencySourcePath, target);
+          if (
+            !safeArtifactPath(linkRelativePath) ||
+            !safeArtifactPath(targetRelativePath)
+          ) {
+            throw new Error('workspace dependency link path is unsafe');
+          }
+          links.push({
+            linkRelativePath,
+            targetRelativePath,
+            target,
+          });
+        }
+        continue;
+      }
+      if (info.isDirectory()) {
+        await visit(file);
+        continue;
+      }
+      if (!info.isFile()) {
+        throw new Error(`production dependency contains a special file: ${file}`);
+      }
+    }
+  }
+  await visit(dependencyDir);
+  return links.toSorted((left, right) =>
+    left.linkRelativePath.localeCompare(right.linkRelativePath));
+}
+
+async function injectWorkspaceBuildOutputs({
+  links,
+  buildSourcePath,
+}) {
+  const outputs = [];
+  const injectedTargets = new Set();
+  for (const link of links) {
+    const packageJsonPath = path.join(link.target, 'package.json');
+    const packageJsonInfo = await lstat(packageJsonPath);
+    if (!packageJsonInfo.isFile() || packageJsonInfo.isSymbolicLink()) {
+      throw new Error(
+        `workspace dependency package.json is invalid: ${link.targetRelativePath}`,
+      );
+    }
+    const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
+    if (!valueReferencesDist({
+      main: packageJson.main,
+      module: packageJson.module,
+      exports: packageJson.exports,
+      bin: packageJson.bin,
+    })) {
+      continue;
+    }
+    const sourcePath = path.posix.join(link.targetRelativePath, 'dist');
+    const sourceOutput = path.join(buildSourcePath, sourcePath);
+    const destinationOutput = path.join(link.target, 'dist');
+    if (!injectedTargets.has(link.targetRelativePath)) {
+      let sourceInfo;
+      try {
+        sourceInfo = await lstat(sourceOutput);
+      } catch (error) {
+        if (error?.code === 'ENOENT') {
+          throw new Error(
+            `required workspace build output is unavailable: ${sourcePath}`,
+          );
+        }
+        throw error;
+      }
+      if (!sourceInfo.isDirectory() || sourceInfo.isSymbolicLink()) {
+        throw new Error(
+          `required workspace build output is unavailable: ${sourcePath}`,
+        );
+      }
+      try {
+        await lstat(destinationOutput);
+        throw new Error(
+          `workspace build output would shadow tracked bytes: ${sourcePath}`,
+        );
+      } catch (error) {
+        if (error?.code !== 'ENOENT') throw error;
+      }
+      await copyPreparedEntry({
+        source: sourceOutput,
+        destination: destinationOutput,
+        allowedRoots: [buildSourcePath],
+        activeDirectories: new Set(),
+        budget: { entries: 0, bytes: 0 },
+      });
+      injectedTargets.add(link.targetRelativePath);
+    }
+    outputs.push({
+      sourcePath,
+      artifactPath: path.posix.join(
+        'payload/node_modules',
+        link.linkRelativePath,
+        'dist',
+      ),
+    });
+  }
+  return outputs;
 }
 
 async function packageManagerIdentity({
@@ -1135,6 +1338,15 @@ export async function createReturnCovenantRuntimeArtifact({
       );
     }
     const dependencyDir = path.join(dependencySourcePath, 'node_modules');
+    const workspaceDependencyLinks =
+      await discoverWorkspaceDependencyLinks({
+        dependencyDir,
+        dependencySourcePath,
+      });
+    const workspaceOutputMappings = await injectWorkspaceBuildOutputs({
+      links: workspaceDependencyLinks,
+      buildSourcePath: sourcePath,
+    });
     const buildOutputDir = path.join(sourcePath, 'dist');
     const [dependencyInfo, buildInfo] = await Promise.all([
       lstat(dependencyDir),
@@ -1167,6 +1379,10 @@ export async function createReturnCovenantRuntimeArtifact({
         gitBuildInputIdentity(sourcePath, relativePath, productSha))),
       scanRuntimeArtifactPayload(outputPath),
     ]);
+    const workspaceOutputs = workspaceOutputMappings.map((mapping) => ({
+      ...mapping,
+      ...summarizeInventoryPath(inventory.entries, mapping.artifactPath),
+    }));
     const manifest = {
       schema: RETURN_COVENANT_RUNTIME_ARTIFACT_SCHEMA,
       rowId,
@@ -1181,6 +1397,7 @@ export async function createReturnCovenantRuntimeArtifact({
         command: ['pnpm', 'run', 'build'],
         dependencyCommand: ['pnpm', ...dependencyCommand],
         inputs: buildInputs,
+        workspaceOutputs,
       },
       toolchain: {
         node: nodeIdentity,

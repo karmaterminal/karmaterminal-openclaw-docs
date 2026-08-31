@@ -33,7 +33,13 @@
     "build": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["inputTreeSha", "command", "dependencyCommand", "inputs"],
+      "required": [
+        "inputTreeSha",
+        "command",
+        "dependencyCommand",
+        "inputs",
+        "workspaceOutputs"
+      ],
       "properties": {
         "inputTreeSha": { "$ref": "#/$defs/sha40" },
         "command": {
@@ -68,6 +74,11 @@
           "minItems": 8,
           "maxItems": 8,
           "items": { "$ref": "#/$defs/buildInput" }
+        },
+        "workspaceOutputs": {
+          "type": "array",
+          "maxItems": 174,
+          "items": { "$ref": "#/$defs/workspaceOutput" }
         }
       }
     },
@@ -149,6 +160,38 @@
         "gitBlob": {
           "type": "string",
           "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "workspaceOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourcePath",
+        "artifactPath",
+        "entryCount",
+        "fileCount",
+        "directoryCount",
+        "totalBytes",
+        "sha256"
+      ],
+      "properties": {
+        "sourcePath": {
+          "type": "string",
+          "pattern": "^packages/[^/]+/dist$"
+        },
+        "artifactPath": {
+          "type": "string",
+          "pattern": "^payload/node_modules/.+/dist$"
+        },
+        "entryCount": { "type": "integer", "minimum": 2 },
+        "fileCount": { "type": "integer", "minimum": 1 },
+        "directoryCount": { "type": "integer", "minimum": 1 },
+        "totalBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8589934592
         },
         "sha256": { "$ref": "#/$defs/sha256" }
       }

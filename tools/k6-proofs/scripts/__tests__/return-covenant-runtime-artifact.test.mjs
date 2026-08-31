@@ -74,6 +74,7 @@ async function createSyntheticSource(
   {
     packageManagerVersion = '1.2.3',
     failProductionInstall = false,
+    workspaceDependency = false,
   } = {},
 ) {
   const sourceDir = path.join(root, 'source');
@@ -96,6 +97,14 @@ async function createSyntheticSource(
     ['tsdown.ai.config.ts', 'export default {};\n'],
     ['tsdown.config.ts', 'export default {};\n'],
   ]);
+  if (workspaceDependency) {
+    files.set('packages/ai/package.json', JSON.stringify({
+      name: '@openclaw/ai',
+      exports: {
+        './internal/policy': './dist/internal/policy.mjs',
+      },
+    }, null, 2));
+  }
   for (const [relative, contents] of files) {
     const file = path.join(sourceDir, relative);
     await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
@@ -108,6 +117,17 @@ async function createSyntheticSource(
     }),
     mkdir(path.join(sourceDir, 'dist'), { mode: 0o700 }),
   ]);
+  if (workspaceDependency) {
+    await mkdir(path.join(sourceDir, 'packages/ai/dist/internal'), {
+      recursive: true,
+      mode: 0o700,
+    });
+    await writeFile(
+      path.join(sourceDir, 'packages/ai/dist/internal/policy.mjs'),
+      'export const policy = true;\n',
+      { mode: 0o600 },
+    );
+  }
   await Promise.all([
     writeFile(
       path.join(sourceDir, 'node_modules/runtime-package/index.js'),
@@ -142,6 +162,13 @@ async function createSyntheticSource(
       "  const target = path.join(process.cwd(), 'node_modules/runtime-package');",
       "  fs.mkdirSync(target, { recursive: true });",
       "  fs.writeFileSync(path.join(target, 'index.js'), 'export const runtimeDependency = true;\\n');",
+      ...(workspaceDependency
+        ? [
+          "  const scope = path.join(process.cwd(), 'node_modules/@openclaw');",
+          "  fs.mkdirSync(scope, { recursive: true });",
+          "  fs.symlinkSync('../../packages/ai', path.join(scope, 'ai'));",
+        ]
+        : []),
       "  process.stdout.write('synthetic production install complete\\n');",
         ]),
       '} else {',
@@ -299,6 +326,7 @@ test('runtime artifact producer preserves source dependencies and original failu
     const source = await createSyntheticSource(root, {
       failProductionInstall: true,
     });
+
     const sourceDependency = path.join(
       source.sourceDir,
       'node_modules/runtime-package/index.js',
@@ -327,6 +355,44 @@ test('runtime artifact producer preserves source dependencies and original failu
       (await readdir(root))
         .some((entry) => entry.startsWith('.return-covenant-runtime-deps-')),
       false,
+    );
+  } finally {
+    await removeTree(root);
+  }
+});
+
+test('runtime artifact producer injects referenced workspace build output', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'return-covenant-runtime-workspace-'));
+  try {
+    const source = await createSyntheticSource(root, {
+      workspaceDependency: true,
+    });
+    const outputDir = path.join(root, 'artifact');
+    const created = await createReturnCovenantRuntimeArtifact({
+      sourceDir: source.sourceDir,
+      outputDir,
+      runId: RUN_ID,
+      docsHarnessSha: source.head,
+      packageManagerCommand: [source.packageManager],
+    });
+    assert.deepEqual(
+      created.manifest.build.workspaceOutputs.map((entry) => ({
+        sourcePath: entry.sourcePath,
+        artifactPath: entry.artifactPath,
+        fileCount: entry.fileCount,
+      })),
+      [{
+        sourcePath: 'packages/ai/dist',
+        artifactPath: 'payload/node_modules/@openclaw/ai/dist',
+        fileCount: 1,
+      }],
+    );
+    assert.equal(
+      await readFile(path.join(
+        outputDir,
+        'payload/node_modules/@openclaw/ai/dist/internal/policy.mjs',
+      ), 'utf8'),
+      'export const policy = true;\n',
     );
   } finally {
     await removeTree(root);

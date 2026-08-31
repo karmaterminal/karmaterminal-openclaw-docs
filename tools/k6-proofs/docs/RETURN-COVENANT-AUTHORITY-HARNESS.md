@@ -195,6 +195,9 @@ runtime-artifact/
 - the exact current-platform
   `pnpm install --prod --frozen-lockfile --os ... --cpu ... --libc ...`
   dependency-closure command; and
+- every generated `dist` subtree for a workspace package actually linked by
+  that production closure, with source path, mounted artifact path, counts,
+  bytes, and inventory digest; and
 - a sorted complete inventory of every payload directory and regular file,
   including immutable mode, size, per-file SHA-256, per-root inventory
   digests, total counts/bytes, and one closure digest.
@@ -205,7 +208,11 @@ checkout and an absolute package-manager argv. It verifies the package-manager
 version against the product's pinned `packageManager`, runs the product build,
 creates a disposable exact Git scratch checkout, installs production
 dependencies there for the attested Node platform/architecture/libc from the
-frozen lock, and removes the scratch checkout after copying. The caller's full
+frozen lock, discovers workspace links in that resulting closure, and copies
+only their required source-build `dist` outputs into the matching scratch
+packages before materialization. A workspace export that names `dist` without
+a corresponding build output fails artifact creation. The producer removes the
+scratch checkout after copying. The caller's full
 build dependency tree is never pruned or replaced, including on install/copy
 failure, so the same exact source can be retried. The producer rejects
 tracked-source mutation, materializes dependency and build closures as
@@ -715,6 +722,7 @@ The repository-local owner test covers:
 | symlink, hardlink, path traversal, FIFO, device, or other special file | launcher rejects before driver execution |
 | wrong Node or package-manager identity | producer/verifier rejects before driver execution |
 | dependency closure without build output, or build output without dependencies | launcher rejects before driver execution |
+| production workspace dependency lacks its generated `dist` export | producer rejects the partial closure; real gateway cannot be credited |
 | untracked gateway executable substitution | tracked-command verifier rejects before driver execution |
 | gateway overwrites Linux argv through `process.title` | only a prior docs-owned exact argv observation for the same PID/start can bind the titled listener |
 | valid closure mounted in bubblewrap | both fixed roots are present and unwritable |

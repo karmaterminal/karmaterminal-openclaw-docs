@@ -1,4 +1,39 @@
-# Return-covenant attested runtime mount cure
+# Return-covenant runtime-mount real-config repair
+
+Status: **WORK_IN_PROGRESS**.
+
+Issue binding: `openclaw/openclaw#129388`.
+
+This additive repair lane starts from rejected harness report
+`e8483b66900bacfff4d0761814b8eda129a2f10b`. No repair evidence is credited
+before the named-reference contract below. The unchanged safe lane was
+published to `origin` at that exact SHA before any negative control or
+successor test ran.
+
+## Repair-lane named-reference contract
+
+| Category | Repository and named reference | Full SHA | Local / tracking / server disposition |
+|---|---|---|---|
+| Product/base ref | `karmaterminal/openclaw` `codeagent/129388-product-covenant-driver-after-harness-15e47942-20260831` | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | exact / exact / exact; tree `52b6141c80e575813f94241635ce02007b50d140` |
+| This lane safe branch before evidence | `karmaterminal/karmaterminal-openclaw-docs` `codeagent/129388-harness-runtime-mount-real-config-cure-20260831` | `e8483b66900bacfff4d0761814b8eda129a2f10b` | exact / exact / exact; published unchanged |
+| Rejected harness report | `codeagent/129388-harness-attested-runtime-mount-cure-20260831` | `e8483b66900bacfff4d0761814b8eda129a2f10b` | exact / exact / exact; tree `bc91d2f630b3865ddfa26bce82fd4bf8427277b5` |
+| Rejected report savegame | `savegame/129388-harness-attested-runtime-mount-final-e8483b66-20260831T053255Z` | `e8483b66900bacfff4d0761814b8eda129a2f10b` | exact / exact / exact |
+| Rejected implementation anchor | `savegame/129388-harness-runtime-mount-store-mode-2d325546-20260831T045338Z` | `2d3255461026c392bb926fe5d9aa65c09cdcd756` | exact / exact / exact; tree `658bbf81ae7dd120840bf25a4883eb3e4f4c0418` |
+| Independent review report | `codeagent/129388-e8483b66-runtime-mount-independent-review-20260831` | `88349e733daa4847b91b4bb5f571fcbdd76cef76` | exact object / exact tracking / exact server; tree `46603727630cf280792f8da3d1178dd5d8aae250` |
+| CI/workflow ref | N/A | N/A | Focused-only docs-harness acceptance; Mode-B and Gate 3g do not apply |
+| Presentation ref | `karmaterminal/openclaw` `savegame/129388-covenant-final-00c7f721-20260828T1203Z` | `00c7f721a55554d0b9228337cc8bc6bec88f9e9f` | exact / exact / exact; tree `55e2dc3b66ae909b37f948f4f96ebe9988cb8aae`; read-only |
+| Docs/proof base | `savegame/129388-harness-sql-comment-tokenizer-final-1f272dbe-20260830T224018Z` | `1f272dbef90048fa08df5a454bf63c224e3a9313` | exact / exact / exact |
+| Blocked product-driver savegame | `karmaterminal/openclaw` `savegame/129388-product-driver-bootstrap-blocked-0ed59cb6-20260831T0140Z` | `0ed59cb64f31971e8659b417fe3fd2ba6a1730c3` | exact / exact / exact |
+| Components / docs main / fleet refs | N/A | N/A | Read-only and not used as repair or acceptance authority |
+
+The product driver, protected presentation, bootstrap, components, docs main,
+fleet, and proof corpus remain read-only. The work below this marker is the
+rejected `e8483b66` report retained temporarily for comparison; it is not
+successor evidence and will be replaced by the final repair receipt.
+
+---
+
+# Rejected report retained for comparison
 
 Status: **READY_FOR_SCRIBE_REVIEW**.
 

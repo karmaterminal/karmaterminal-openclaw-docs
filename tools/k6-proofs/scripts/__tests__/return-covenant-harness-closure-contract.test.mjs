@@ -21,6 +21,7 @@ test('return covenant harness is complete but remains outside proof authority re
     runtimeArtifactSchemaRaw,
     runtimeArtifactContract,
     runtimeArtifact,
+    processObserver,
     runtimeArtifactBuilder,
     launcher,
     supervisor,
@@ -41,6 +42,7 @@ test('return covenant harness is complete but remains outside proof authority re
     read('contracts/return-covenant-authority/runtime-artifact.schema.json'),
     read('lib/return-covenant-runtime-artifact-contract.mjs'),
     read('lib/return-covenant-runtime-artifact.mjs'),
+    read('lib/return-covenant-process-observer.mjs'),
     read('scripts/build-return-covenant-runtime-artifact.mjs'),
     read('scripts/launch-return-covenant-driver.mjs'),
     read('scripts/run-return-covenant-sandbox.mjs'),
@@ -228,6 +230,8 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(runtimeArtifact, /runtime artifact Node identity differs/);
   assert.match(runtimeArtifact, /missing or extra mount roots/);
   assert.match(runtimeArtifactContract, /readOnly/);
+  assert.match(processObserver, /trusted-launcher-pre-title-procfs-v1/);
+  assert.match(processObserver, /commandLineSha256/);
   assert.match(runtimeArtifactBuilder, /package-manager-command/);
   assert.doesNotMatch(
     retentionInspector,

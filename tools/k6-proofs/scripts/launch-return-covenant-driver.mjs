@@ -48,6 +48,10 @@ import {
   inspectReturnCovenantDurableStores,
 } from '../lib/return-covenant-retention-inspector.mjs';
 import {
+  findReturnCovenantObservedCommand,
+  startReturnCovenantTrackedCommandObserver,
+} from '../lib/return-covenant-process-observer.mjs';
+import {
   materializeReturnCovenantRuntimeArtifact,
   removeReturnCovenantRuntimeArtifact,
   verifyReturnCovenantTrackedCommand,
@@ -85,6 +89,7 @@ const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/lib/return-covenant-authoritative-receipt.mjs',
   'tools/k6-proofs/lib/return-covenant-candidate-io.mjs',
   'tools/k6-proofs/lib/return-covenant-driver-attestation.mjs',
+  'tools/k6-proofs/lib/return-covenant-process-observer.mjs',
   'tools/k6-proofs/lib/return-covenant-retention-inspector.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact-contract.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact.mjs',
@@ -380,6 +385,7 @@ async function inspectGatewayMember({
   gatewayArgs,
   gatewayTokenFingerprint,
   runtimeConfigSha256,
+  commandObservations,
 }) {
   const [cmdlineBytes, rawStat] = await Promise.all([
     readFile(`/proc/${pid}/cmdline`),
@@ -388,12 +394,6 @@ async function inspectGatewayMember({
   const executablePath = await realpath(`/proc/${pid}/exe`);
   const expectedNode = await realpath(process.execPath);
   const commandLine = cmdlineBytes.toString('utf8').split('\0').filter(Boolean);
-  if (
-    commandLine[1] !== gatewayPath ||
-    canonicalJson(commandLine.slice(2)) !== canonicalJson(gatewayArgs)
-  ) {
-    return { ignored: true };
-  }
   const environmentBytes = await readFile(`/proc/${pid}/environ`);
   const environment = Object.fromEntries(
     environmentBytes.toString('utf8').split('\0').flatMap((entry) => {
@@ -403,6 +403,22 @@ async function inspectGatewayMember({
   );
   const fields = rawStat.slice(rawStat.lastIndexOf(')') + 2).trim().split(/\s+/u);
   const startFingerprint = sha256(`${pid}:${fields[19]}`);
+  const launchObservation = findReturnCovenantObservedCommand(
+    commandObservations,
+    { role: 'gateway', pid, startFingerprint },
+  );
+  if (
+    launchObservation?.commandLine?.[1] !== gatewayPath ||
+    canonicalJson(launchObservation.commandLine.slice(2)) !==
+      canonicalJson(gatewayArgs) ||
+    (
+      canonicalJson(commandLine) !==
+        canonicalJson(launchObservation.commandLine) &&
+      canonicalJson(commandLine) !== canonicalJson(['openclaw-gateway'])
+    )
+  ) {
+    return { ignored: true };
+  }
   const namespacePid = await namespacePidForHost(pid);
   const namespaceStartFingerprint = sha256(`${namespacePid}:${fields[19]}`);
   const listeners = await inspectProcessLoopbackListeners(pid);
@@ -411,8 +427,8 @@ async function inspectGatewayMember({
   );
   const verified =
     executablePath === expectedNode &&
-    commandLine[1] === gatewayPath &&
-    canonicalJson(commandLine.slice(2)) === canonicalJson(gatewayArgs) &&
+    launchObservation.executablePath === expectedNode &&
+    launchObservation.cwd === await realpath(`/proc/${pid}/cwd`) &&
     environment.NODE_OPTIONS === undefined &&
     environment.HOME === homePath &&
     environment.OPENCLAW_STATE_DIR === statePath &&
@@ -475,14 +491,25 @@ async function inspectGatewayMemberWithRetry(params) {
   const commandLine = cmdlineBytes.toString('utf8').split('\0').filter(Boolean);
   const fields = rawStat.slice(rawStat.lastIndexOf(')') + 2).trim().split(/\s+/u);
   const namespacePid = await namespacePidForHost(params.pid);
+  const startFingerprint = sha256(`${params.pid}:${fields[19]}`);
+  const launchObservation = findReturnCovenantObservedCommand(
+    params.commandObservations,
+    { role: 'gateway', pid: params.pid, startFingerprint },
+  );
   const namespaceStartFingerprint = sha256(`${namespacePid}:${fields[19]}`);
   const loadedConfigSha256 = sha256(
     canonicalJson(JSON.parse(await readFile(params.configPath, 'utf8'))),
   );
   const verified =
     executablePath === await realpath(process.execPath) &&
-    commandLine[1] === params.gatewayPath &&
-    canonicalJson(commandLine.slice(2)) === canonicalJson(params.gatewayArgs) &&
+    launchObservation?.commandLine?.[1] === params.gatewayPath &&
+    canonicalJson(launchObservation?.commandLine?.slice(2)) ===
+      canonicalJson(params.gatewayArgs) &&
+    (
+      canonicalJson(commandLine) ===
+        canonicalJson(launchObservation?.commandLine) ||
+      canonicalJson(commandLine) === canonicalJson(['openclaw-gateway'])
+    ) &&
     await isDescendantOrSelf(params.pid, params.sandboxPid) &&
     loadedConfigSha256 === params.runtimeConfigSha256 &&
     listeners.length > 0;
@@ -491,7 +518,7 @@ async function inspectGatewayMemberWithRetry(params) {
   }
   return {
     pid: params.pid,
-    startFingerprint: sha256(`${params.pid}:${fields[19]}`),
+    startFingerprint,
     namespacePid,
     namespaceStartFingerprint,
     verified: true,
@@ -527,6 +554,7 @@ async function resolveReadyHostPids({
   productTreeSha,
   runtimeArtifactManifestSha256,
   gatewayTokenFingerprint,
+  commandObservations,
 }) {
   let lastDebug = [];
   for (let attempt = 0; attempt < 100; attempt += 1) {
@@ -553,6 +581,15 @@ async function resolveReadyHostPids({
         const fields = rawStat.slice(rawStat.lastIndexOf(')') + 2)
           .trim()
           .split(/\s+/u);
+        const startFingerprint = sha256(`${pid}:${fields[19]}`);
+        const driverLaunch = findReturnCovenantObservedCommand(
+          commandObservations,
+          { role: 'driver', pid, startFingerprint },
+        );
+        const gatewayLaunch = findReturnCovenantObservedCommand(
+          commandObservations,
+          { role: 'gateway', pid, startFingerprint },
+        );
         const environmentMatches =
           environment.HOME === homePath &&
           environment.OPENCLAW_STATE_DIR === statePath &&
@@ -575,18 +612,28 @@ async function resolveReadyHostPids({
           endpoints: [...endpoints],
         });
         if (
-          commandLine[1] === driverPath &&
-          canonicalJson(commandLine.slice(2)) === canonicalJson(driverArgs) &&
+          driverLaunch?.commandLine?.[1] === driverPath &&
+          canonicalJson(driverLaunch.commandLine.slice(2)) ===
+            canonicalJson(driverArgs) &&
           endpoints.has(new URL(ready.endpoint).origin)
         ) {
           matches.driverPid = pid;
+          matches.driverCommandObservation = driverLaunch;
         }
         if (
-          commandLine[1] === gatewayPath &&
-          canonicalJson(commandLine.slice(2)) === canonicalJson(gatewayArgs) &&
+          gatewayLaunch?.commandLine?.[1] === gatewayPath &&
+          canonicalJson(gatewayLaunch.commandLine.slice(2)) ===
+            canonicalJson(gatewayArgs) &&
+          (
+            canonicalJson(commandLine) ===
+              canonicalJson(gatewayLaunch.commandLine) ||
+            canonicalJson(commandLine) ===
+              canonicalJson(['openclaw-gateway'])
+          ) &&
           endpoints.has(new URL(ready.gatewayEndpoint).origin)
         ) {
           matches.gatewayPid = pid;
+          matches.gatewayCommandObservation = gatewayLaunch;
         }
       } catch (error) {
         if (
@@ -597,7 +644,12 @@ async function resolveReadyHostPids({
       }
     }
     lastDebug = debug;
-    if (matches.driverPid && matches.gatewayPid) return matches;
+    if (
+      matches.driverPid &&
+      matches.gatewayPid &&
+      matches.driverCommandObservation &&
+      matches.gatewayCommandObservation
+    ) return matches;
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
   throw new Error(
@@ -904,6 +956,7 @@ async function main() {
   let initialGatewayObservation = null;
   let runtimeArtifact;
   let runtimeMounts = [];
+  let commandObserver = null;
   const observedGateways = new Map();
   const handleTermination = () => {
     if (child) void terminateProcessGroup(child.pid);
@@ -1098,6 +1151,23 @@ async function main() {
       stdio: ['ignore', 'pipe', 'pipe', pinnedK6.handle.fd],
       env: { PATH: baseEnvironment.PATH || '' },
     });
+    commandObserver = startReturnCovenantTrackedCommandObserver({
+      rootPid: child.pid,
+      commands: [
+        {
+          role: 'driver',
+          scriptPath: driverPath,
+          args: driverArgs.slice(1),
+          cwd: snapshotPath,
+        },
+        {
+          role: 'gateway',
+          scriptPath: gatewayPath,
+          args: plan.driver.gatewayCommand.args,
+          cwd: snapshotPath,
+        },
+      ],
+    });
     sandboxClosed = new Promise((resolve) => child.once('close', resolve));
     child.stdout.on('data', (chunk) => {
       capturedK6Log += chunk.toString('utf8');
@@ -1203,7 +1273,9 @@ async function main() {
       runtimeArtifactManifestSha256:
         plan.target.runtimeArtifactManifestSha256,
       gatewayTokenFingerprint: sha256(gatewayToken),
+      commandObservations: commandObserver.observations,
     });
+    if (commandObserver.error) throw commandObserver.error;
     ready = {
       ...namespaceReady,
       namespacePid: namespaceReady.pid,
@@ -1237,6 +1309,8 @@ async function main() {
         snapshotPath,
         runtimeArtifactPath,
         runtimeArtifact: runtimeArtifact.binding,
+        driverCommandObservation: hostPids.driverCommandObservation,
+        gatewayCommandObservation: hostPids.gatewayCommandObservation,
         livePaths,
       },
     });
@@ -1271,6 +1345,7 @@ async function main() {
       gatewayArgs: plan.driver.gatewayCommand.args,
       gatewayTokenFingerprint: sha256(gatewayToken),
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      commandObservations: commandObserver.observations,
     });
     if (!initialGatewayObservation || initialGatewayObservation.ignored) {
       throw new Error('initial gateway process could not be independently sampled');
@@ -1289,6 +1364,7 @@ async function main() {
     );
     monitorPromise = (async () => {
       while (monitorActive) {
+        if (commandObserver.error) throw commandObserver.error;
         const members = await sandboxProcessMembers(child.pid);
         const memberSet = new Set(members);
         const exitObservedAt = performance.now();
@@ -1323,6 +1399,7 @@ async function main() {
               gatewayArgs: plan.driver.gatewayCommand.args,
               gatewayTokenFingerprint: sha256(gatewayToken),
               runtimeConfigSha256: plan.target.runtimeConfigSha256,
+              commandObservations: commandObserver.observations,
             });
             if (!observation || observation.ignored) continue;
             const key = `${observation.pid}:${observation.startFingerprint}`;
@@ -1439,6 +1516,8 @@ async function main() {
     await sandboxClosed;
     monitorActive = false;
     await monitorPromise;
+    await commandObserver.stop();
+    if (commandObserver.error) throw commandObserver.error;
     if (monitorError) throw monitorError;
     const exitRecords = capturedK6Log
       .split(/\r?\n/u)
@@ -1750,6 +1829,7 @@ async function main() {
         new Promise((resolve) => setTimeout(resolve, 500)),
       ]);
     }
+    if (commandObserver) await commandObserver.stop();
     process.removeListener('SIGINT', handleTermination);
     process.removeListener('SIGTERM', handleTermination);
     if (pinnedK6?.handle) await pinnedK6.handle.close();

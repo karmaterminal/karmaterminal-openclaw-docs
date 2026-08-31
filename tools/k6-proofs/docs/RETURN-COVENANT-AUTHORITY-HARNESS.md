@@ -321,13 +321,18 @@ Before k6 starts, `launch-return-covenant-driver.mjs`:
 - requires the command's working bytes to equal its exact candidate Git blob;
 - requires a product ready receipt bound to run, row, product, runtime, docs, protocol,
   launch nonce, process ID, command path/hash, and loopback endpoint; and
-- requires `/proc/<pid>/cmdline`, process cwd, and the process's LISTEN socket inode to
-  prove the ready endpoint is owned by the verified command from that exact
-  product checkout;
+- starts a docs-owned `/proc` sampler with the sandbox and retains an exact
+  Node/script/argv/cwd observation keyed by PID plus kernel start ticks before
+  product `process.title` can overwrite Linux `cmdline`;
+- correlates that immutable launch observation with the same live
+  PID/start/executable/cwd/isolated environment and its owned LISTEN socket;
+  after exact argv was independently observed, the only alternate current
+  command line accepted for a gateway is the product-owned
+  `openclaw-gateway` title;
 - requires a live isolated gateway PID in the verified driver's process tree;
 - requires distinct driver/gateway loopback sockets owned by their respective PIDs; and
 - requires the canonical runtime-config digest read from the exact non-symlink
-  `OPENCLAW_CONFIG_PATH` used by that gateway process.
+  `OPENCLAW_CONFIG_PATH` used by that gateway process; and
 - requires the same product tree and runtime-artifact manifest digest in the
   ready receipt, live driver/gateway environments, observations, cleanup, and
   final signed receipt.
@@ -348,6 +353,12 @@ observations to a chronological initial→typed replacement→bracket replacemen
 lineage with observed start/exit times and real socket ownership, terminates the
 whole group on failure, and requires the group to be empty before cleanup can
 pass.
+
+The sampler follows the same fail-closed rule as the exact product's
+`scripts/e2e/lib/plugin-update/process-observer.mjs`: title mutation can retain
+an earlier kernel-observed argv, but it can never manufacture one. A listener
+first seen only after its argv changed, a PID/start mismatch, an unrecognized
+title, or any sampler error is rejected.
 
 Each lifecycle entry retains the normalized endpoint and per-listener
 port+inode fingerprints. Initial, typed-replacement, and bracket-replacement
@@ -692,6 +703,7 @@ The repository-local owner test covers:
 | wrong Node or package-manager identity | producer/verifier rejects before driver execution |
 | dependency closure without build output, or build output without dependencies | launcher rejects before driver execution |
 | untracked gateway executable substitution | tracked-command verifier rejects before driver execution |
+| gateway overwrites Linux argv through `process.title` | only a prior docs-owned exact argv observation for the same PID/start can bind the titled listener |
 | valid closure mounted in bubblewrap | both fixed roots are present and unwritable |
 | gateway launch failure after artifact verification | private artifact/run root removed; original sandbox cause retained |
 | runtime config spliced from another run | `isolated-runtime-unavailable` |

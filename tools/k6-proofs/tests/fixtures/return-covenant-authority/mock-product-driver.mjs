@@ -269,6 +269,7 @@ if (process.argv[2] === 'gateway') {
       response.end(JSON.stringify(result));
     });
   });
+  process.title = 'openclaw-gateway';
   gatewayServer.listen(0, '127.0.0.1', () => {
     const pid = hostPid();
     const endpoint = `http://127.0.0.1:${gatewayServer.address().port}`;

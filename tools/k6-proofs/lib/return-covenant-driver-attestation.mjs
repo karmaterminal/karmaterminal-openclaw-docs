@@ -66,6 +66,31 @@ function exactNodeCommand(process, scriptPath, interpreterPath, expectedArgs) {
     process.environment.NODE_OPTIONS === undefined;
 }
 
+function exactObservedNodeCommand({
+  observation,
+  process,
+  pid,
+  role,
+  scriptPath,
+  interpreterPath,
+  expectedArgs,
+}) {
+  return observation?.source === 'trusted-launcher-pre-title-procfs-v1' &&
+    observation?.role === role &&
+    observation?.pid === pid &&
+    observation?.startFingerprint === process.startFingerprint &&
+    observation?.namespacePid === process.namespacePid &&
+    observation?.namespaceStartFingerprint ===
+      process.namespaceStartFingerprint &&
+    observation?.executablePath === interpreterPath &&
+    observation?.cwd === process.cwd &&
+    observation?.commandLine?.[1] === scriptPath &&
+    canonicalJson(observation.commandLine.slice(2)) ===
+      canonicalJson(expectedArgs) &&
+    observation?.commandLineSha256 ===
+      sha256(observation.commandLine.join('\0'));
+}
+
 async function processIdentity(pid) {
   const processRoot = `/proc/${pid}`;
   const [
@@ -292,7 +317,9 @@ export async function createReturnCovenantDriverAttestation({
     ||
     !Number.isInteger(launch.processGroupId) ||
     launch.processGroupId <= 1 ||
-    !validateReturnCovenantRuntimeArtifactBinding(launch.runtimeArtifact)
+    !validateReturnCovenantRuntimeArtifactBinding(launch.runtimeArtifact) ||
+    typeof launch.driverCommandObservation !== 'object' ||
+    typeof launch.gatewayCommandObservation !== 'object'
   ) {
     throw new Error('trusted launcher receipt is required');
   }
@@ -488,6 +515,24 @@ export async function createReturnCovenantDriverAttestation({
     isDescendantOrSelf(ready.gatewayPid, launch.sandboxPid),
   ]);
   const gatewayConfigPath = await processConfigPath(gatewayProcess);
+  const driverCommandObserved = exactObservedNodeCommand({
+    observation: launch.driverCommandObservation,
+    process: driverProcess,
+    pid: ready.pid,
+    role: 'driver',
+    scriptPath: driverPath,
+    interpreterPath,
+    expectedArgs: launch.driverArgs,
+  });
+  const gatewayCommandObserved = exactObservedNodeCommand({
+    observation: launch.gatewayCommandObservation,
+    process: gatewayProcess,
+    pid: ready.gatewayPid,
+    role: 'gateway',
+    scriptPath: gatewayPath,
+    interpreterPath,
+    expectedArgs: plan.driver.gatewayCommand.args,
+  });
   if (
     ready.endpoint !== driverSocket.endpoint ||
     ready.gatewayEndpoint !== gatewaySocket.endpoint ||
@@ -506,6 +551,7 @@ export async function createReturnCovenantDriverAttestation({
       interpreterPath,
       launch.driverArgs,
     ) ||
+    !driverCommandObserved ||
     !driverSandboxBound
   ) {
     throw new Error('ready process is not the verified product driver');
@@ -515,12 +561,15 @@ export async function createReturnCovenantDriverAttestation({
   }
   if (
     gatewayProcess.cwd !== sourceRoot ||
-    !exactNodeCommand(
-      gatewayProcess,
-      gatewayPath,
-      interpreterPath,
-      plan.driver.gatewayCommand.args,
+    !gatewayCommandObserved ||
+    (
+      canonicalJson(gatewayProcess.commandLine) !==
+        canonicalJson(launch.gatewayCommandObservation.commandLine) &&
+      canonicalJson(gatewayProcess.commandLine) !==
+        canonicalJson(['openclaw-gateway'])
     ) ||
+    gatewayProcess.executablePath !== interpreterPath ||
+    gatewayProcess.environment.NODE_OPTIONS !== undefined ||
     !gatewaySandboxBound
   ) {
     throw new Error('isolated gateway process is not the candidate gateway command');
@@ -595,7 +644,12 @@ export async function createReturnCovenantDriverAttestation({
     },
     gateway: {
       processBound: true,
-      commandLineFingerprint: sha256(gatewayProcess.commandLine.join('\0')),
+      commandLineFingerprint:
+        launch.gatewayCommandObservation.commandLineSha256,
+      currentCommandLineFingerprint:
+        sha256(gatewayProcess.commandLine.join('\0')),
+      commandObservationSource:
+        launch.gatewayCommandObservation.source,
       startFingerprint: gatewayProcess.startFingerprint,
       runtimeBuildSha: ready.runtimeBuildSha,
       runtimeConfigSha256: ready.runtimeConfigSha256,

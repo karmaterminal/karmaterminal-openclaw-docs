@@ -29,6 +29,10 @@ import {
   inspectProcessLoopbackListeners,
 } from '../lib/return-covenant-driver-attestation.mjs';
 import {
+  findReturnCovenantObservedCommand,
+  startReturnCovenantTrackedCommandObserver,
+} from '../lib/return-covenant-process-observer.mjs';
+import {
   materializeReturnCovenantRuntimeArtifact,
   removeReturnCovenantRuntimeArtifact,
   verifyReturnCovenantTrackedCommand,
@@ -46,6 +50,7 @@ const DOCS_SMOKE_FILES = [
   'tools/k6-proofs/lib/canonical-json.mjs',
   'tools/k6-proofs/lib/return-covenant-candidate-io.mjs',
   'tools/k6-proofs/lib/return-covenant-driver-attestation.mjs',
+  'tools/k6-proofs/lib/return-covenant-process-observer.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact-contract.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact.mjs',
   'tools/k6-proofs/lib/return-covenant-scenario-contract.mjs',
@@ -286,6 +291,7 @@ async function findAttestedGateway({
   artifactManifestSha256,
   productTreeSha,
   gatewayTokenFingerprint,
+  commandObservations,
 }) {
   const expectedNode = await realpath(process.execPath);
   let lastCandidates = [];
@@ -295,19 +301,34 @@ async function findAttestedGateway({
       if (pid === sandboxPid) continue;
       try {
         const identity = await processIdentity(pid);
+        const launchObservation = findReturnCovenantObservedCommand(
+          commandObservations,
+          {
+            role: 'gateway',
+            pid,
+            startFingerprint: identity.startFingerprint,
+          },
+        );
         candidates.push({
           pid,
           namespacePid: identity.namespacePid,
           commandLine: identity.commandLine.slice(0, 4),
+          launchObserved: launchObservation !== null,
           listeners: identity.listeners,
         });
         if (
           identity.namespacePid === ready.gatewayPid &&
           identity.executablePath === expectedNode &&
           identity.cwd === snapshotPath &&
-          identity.commandLine[1] === gatewayPath &&
-          canonicalJson(identity.commandLine.slice(2)) ===
+          launchObservation?.commandLine?.[1] === gatewayPath &&
+          canonicalJson(launchObservation.commandLine.slice(2)) ===
             canonicalJson(gatewayArgs) &&
+          (
+            canonicalJson(identity.commandLine) ===
+              canonicalJson(launchObservation.commandLine) ||
+            canonicalJson(identity.commandLine) ===
+              canonicalJson(['openclaw-gateway'])
+          ) &&
           identity.environment.HOME === homePath &&
           identity.environment.OPENCLAW_STATE_DIR === statePath &&
           identity.environment.OPENCLAW_CONFIG_PATH === configPath &&
@@ -322,7 +343,10 @@ async function findAttestedGateway({
           canonicalJson(identity.listeners) ===
             canonicalJson(ready.listeners)
         ) {
-          return identity;
+          return {
+            ...identity,
+            launchObservation,
+          };
         }
       } catch (error) {
         if (
@@ -608,6 +632,7 @@ async function outerMain() {
   let capturedStderr = '';
   let runRootRemoved = false;
   let sandboxStartFingerprint = null;
+  let commandObserver = null;
   try {
     await execFileAsync('git', [
       'clone',
@@ -730,6 +755,15 @@ async function outerMain() {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { PATH: process.env.PATH || '' },
     });
+    commandObserver = startReturnCovenantTrackedCommandObserver({
+      rootPid: sandbox.pid,
+      commands: [{
+        role: 'gateway',
+        scriptPath: command.path,
+        args: plan.driver.gatewayCommand.args,
+        cwd: snapshotPath,
+      }],
+    });
     sandbox.stdout.setEncoding('utf8');
     sandbox.stderr.setEncoding('utf8');
     sandbox.stdout.on('data', (chunk) => {
@@ -774,7 +808,10 @@ async function outerMain() {
       artifactManifestSha256: runtimeArtifact.binding.manifestSha256,
       productTreeSha: plan.target.productTreeSha,
       gatewayTokenFingerprint: sha256(gatewayToken),
+      commandObservations: commandObserver.observations,
     });
+    await commandObserver.stop();
+    if (commandObserver.error) throw commandObserver.error;
     await writeFile(stopPath, 'stop\n', { mode: 0o600, flag: 'wx' });
     const sandboxExitCode = await waitForExit(sandbox, 15_000);
     if (sandboxExitCode === null) {
@@ -825,9 +862,13 @@ async function outerMain() {
         namespaceGatewayPid: gatewayIdentity.namespacePid,
         namespaceGatewayStartFingerprint:
           gatewayIdentity.namespaceStartFingerprint,
-        commandLineSha256: sha256(
+        commandLineSha256:
+          gatewayIdentity.launchObservation.commandLineSha256,
+        currentProcessTitleFingerprint: sha256(
           gatewayIdentity.commandLine.join('\0'),
         ),
+        commandObservationSource:
+          gatewayIdentity.launchObservation.source,
         listenerSetSha256: fingerprintProcessLoopbackListeners(
           gatewayIdentity.listeners,
         ),
@@ -867,6 +908,7 @@ async function outerMain() {
   } catch (error) {
     let cleanupError = null;
     try {
+      if (commandObserver) await commandObserver.stop();
       if (sandbox) await stopProcessGroup(sandbox.pid);
       if (runtimeArtifact) {
         await removeReturnCovenantRuntimeArtifact(runtimeArtifactPath);

@@ -146,6 +146,8 @@
       "required": [
         "processBound",
         "commandLineFingerprint",
+        "currentCommandLineFingerprint",
+        "commandObservationSource",
         "startFingerprint",
         "runtimeBuildSha",
         "runtimeConfigSha256",
@@ -161,6 +163,10 @@
       "properties": {
         "processBound": { "const": true },
         "commandLineFingerprint": { "$ref": "#/$defs/sha256" },
+        "currentCommandLineFingerprint": { "$ref": "#/$defs/sha256" },
+        "commandObservationSource": {
+          "const": "trusted-launcher-pre-title-procfs-v1"
+        },
         "startFingerprint": { "$ref": "#/$defs/sha256" },
         "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
         "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },

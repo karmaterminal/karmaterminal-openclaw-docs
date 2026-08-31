@@ -63,6 +63,9 @@ import {
   createReturnCovenantRuntimeArtifact,
 } from '../../lib/return-covenant-runtime-artifact.mjs';
 import {
+  sampleReturnCovenantTrackedCommands,
+} from '../../lib/return-covenant-process-observer.mjs';
+import {
   evaluateIsolatedRuntimePlugin,
 } from '../../lib/isolated-runtime-plugin-contract.mjs';
 import {
@@ -102,6 +105,7 @@ const TRUSTED_HARNESS_FILES = [
   'lib/return-covenant-authoritative-receipt.mjs',
   'lib/return-covenant-candidate-io.mjs',
   'lib/return-covenant-driver-attestation.mjs',
+  'lib/return-covenant-process-observer.mjs',
   'lib/return-covenant-retention-inspector.mjs',
   'lib/return-covenant-runtime-artifact-contract.mjs',
   'lib/return-covenant-runtime-artifact.mjs',
@@ -534,6 +538,8 @@ function driverAttestationFor(plan) {
     gateway: {
       processBound: true,
       commandLineFingerprint: '1'.repeat(64),
+      currentCommandLineFingerprint: '1'.repeat(64),
+      commandObservationSource: 'trusted-launcher-pre-title-procfs-v1',
       startFingerprint: '2'.repeat(64),
       runtimeBuildSha: plan.target.runtimeBuildSha,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
@@ -4891,6 +4897,29 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       }
     }
     assert.ok(gatewayReady?.endpoint, 'synthetic gateway did not start listening');
+    const commandObservations = await sampleReturnCovenantTrackedCommands({
+      rootPid: child.pid,
+      commands: [
+        {
+          role: 'driver',
+          scriptPath: driverPath,
+          args: [],
+          cwd: directory,
+        },
+        {
+          role: 'gateway',
+          scriptPath: driverPath,
+          args: ['gateway'],
+          cwd: directory,
+        },
+      ],
+    });
+    const driverCommandObservation = [...commandObservations.values()]
+      .find((entry) => entry.role === 'driver');
+    const gatewayCommandObservation = [...commandObservations.values()]
+      .find((entry) => entry.role === 'gateway');
+    assert.ok(driverCommandObservation);
+    assert.ok(gatewayCommandObservation);
     const ready = {
       schema: RETURN_COVENANT_DRIVER_READY_SCHEMA,
       protocol: RETURN_COVENANT_DRIVER_SCHEMA,
@@ -4947,6 +4976,8 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       snapshotPath: directory,
       runtimeArtifactPath,
       runtimeArtifact,
+      driverCommandObservation,
+      gatewayCommandObservation,
       livePaths: [],
     };
     const attestation = await createReturnCovenantDriverAttestation({
@@ -5379,6 +5410,18 @@ test('trusted launcher owns snapshot, isolation, process start, and final cleanu
     assert.notEqual(
       result.attestation.isolation.driverPid,
       result.attestation.isolation.gatewayPid,
+    );
+    assert.equal(
+      result.attestation.gateway.commandObservationSource,
+      'trusted-launcher-pre-title-procfs-v1',
+    );
+    assert.notEqual(
+      result.attestation.gateway.commandLineFingerprint,
+      result.attestation.gateway.currentCommandLineFingerprint,
+    );
+    assert.equal(
+      result.receipt.driver.gatewayCommandObservationSource,
+      'trusted-launcher-pre-title-procfs-v1',
     );
     assert.equal(result.cleanup.snapshotMatchedCandidateAfterRun, true);
     assert.equal(result.cleanup.runRootRemoved, true);

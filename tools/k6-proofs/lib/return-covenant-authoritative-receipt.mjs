@@ -2909,6 +2909,18 @@ export function resolveReturnCovenantAuthoritativeReceipt({
       gatewayArgsFingerprint: fingerprint(
         canonicalJson(driverAttestation?.gatewayCommand?.args),
       ),
+      gatewayCommandLineSha256: safeHex(
+        driverAttestation?.gateway?.commandLineFingerprint,
+        HEX_64,
+      ),
+      gatewayCurrentCommandLineFingerprint: fingerprint(
+        driverAttestation?.gateway?.currentCommandLineFingerprint,
+      ),
+      gatewayCommandObservationSource:
+        driverAttestation?.gateway?.commandObservationSource ===
+          'trusted-launcher-pre-title-procfs-v1'
+          ? driverAttestation.gateway.commandObservationSource
+          : null,
       trustedLauncher:
         driverAttestation?.launcher?.createdByTrustedLauncher === true,
       launcherFingerprint: fingerprint(
@@ -3670,6 +3682,9 @@ function validClosedReceiptShape(receipt) {
       'gatewayCommandSha256',
       'gatewayGitBlob',
       'gatewayArgsFingerprint',
+      'gatewayCommandLineSha256',
+      'gatewayCurrentCommandLineFingerprint',
+      'gatewayCommandObservationSource',
       'trustedLauncher',
       'launcherFingerprint',
       'isolationFingerprint',
@@ -3937,6 +3952,12 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
       receipt.driver?.gatewayGitBlob || '',
     ) &&
     validFingerprint(receipt.driver?.gatewayArgsFingerprint) &&
+    HEX_64.test(receipt.driver?.gatewayCommandLineSha256 || '') &&
+    validFingerprint(
+      receipt.driver?.gatewayCurrentCommandLineFingerprint,
+    ) &&
+    receipt.driver?.gatewayCommandObservationSource ===
+      'trusted-launcher-pre-title-procfs-v1' &&
     receipt.driver?.trustedLauncher === true &&
     validFingerprint(receipt.driver?.launcherFingerprint) &&
     validFingerprint(receipt.driver?.isolationFingerprint) &&

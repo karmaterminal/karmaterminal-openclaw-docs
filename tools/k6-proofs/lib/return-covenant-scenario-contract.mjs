@@ -468,6 +468,11 @@ export function validateReturnCovenantDriverAttestation({
     attestation?.gateway?.runtimeBuildSha !== plan?.target?.runtimeBuildSha ||
     attestation?.gateway?.runtimeConfigSha256 !== plan?.target?.runtimeConfigSha256 ||
     !SHA_256.test(attestation?.gateway?.commandLineFingerprint || '') ||
+    !SHA_256.test(
+      attestation?.gateway?.currentCommandLineFingerprint || '',
+    ) ||
+    attestation?.gateway?.commandObservationSource !==
+      'trusted-launcher-pre-title-procfs-v1' ||
     !SHA_256.test(attestation?.gateway?.startFingerprint || '') ||
     !SHA_256.test(attestation?.gateway?.configPathFingerprint || '') ||
     !/^http:\/\/127\.0\.0\.1(?::[0-9]+)?$/u.test(

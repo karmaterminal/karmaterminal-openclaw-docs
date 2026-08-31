@@ -126,7 +126,11 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(launcher, /materializeReturnCovenantRuntimeArtifact/);
   assert.match(
     launcher,
-    /mount\.source[\s\S]*mount\.destination/,
+    /'--ro-bind',\s*mount\.source,\s*mount\.destination/,
+  );
+  assert.doesNotMatch(
+    launcher,
+    /'--bind',\s*mount\.source,\s*mount\.destination/,
   );
   assert.match(launcher, /--unshare-pid/);
   assert.match(launcher, /--unshare-net/);
@@ -283,6 +287,8 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(mockDriver, /resourceState/);
   assert.match(mockDriver, /candidateClaimsClean/);
   assert.match(supervisor, /childTerminationReason/);
+  assert.match(supervisor, /requireChmodErofs/);
+  assert.match(supervisor, /error\?\.code === 'EROFS'/);
   await Promise.all([
     access(path.join(root, 'tests/fixtures/return-covenant-authority/allowed-pass.json')),
     access(path.join(root, 'tests/fixtures/return-covenant-authority/forbidden-pass.json')),

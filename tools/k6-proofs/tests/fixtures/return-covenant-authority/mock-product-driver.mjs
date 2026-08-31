@@ -2,8 +2,10 @@ import { spawn } from 'node:child_process';
 import { createHash, createHmac } from 'node:crypto';
 import { once } from 'node:events';
 import {
+  chmodSync,
   mkdirSync,
   readFileSync,
+  statSync,
   symlinkSync,
   unlinkSync,
   writeFileSync,
@@ -64,18 +66,32 @@ function assertMountedRuntimeClosure() {
       'export const builtEntry = true;\n',
     ],
   ];
+  const requireChmodErofs = (target, mode) => {
+    const originalMode = statSync(target).mode & 0o777;
+    try {
+      chmodSync(target, mode);
+    } catch (error) {
+      if (error?.code === 'EROFS') return;
+      throw error;
+    }
+    chmodSync(target, originalMode);
+    throw new Error(`runtime artifact chmod unexpectedly succeeded: ${target}`);
+  };
   for (const [relativePath, contents] of expected) {
     const file = path.join(process.cwd(), relativePath);
+    const mountRoot = path.join(process.cwd(), relativePath.split('/')[0]);
     if (readFileSync(file, 'utf8') !== contents) {
       throw new Error(`runtime artifact payload mismatch: ${relativePath}`);
     }
+    requireChmodErofs(mountRoot, 0o755);
+    requireChmodErofs(file, 0o644);
     const probe = `${file}.write-probe`;
     try {
       writeFileSync(probe, 'must not write\n');
       unlinkSync(probe);
       throw new Error(`runtime artifact mount is writable: ${relativePath}`);
     } catch (error) {
-      if (!['EACCES', 'EPERM', 'EROFS'].includes(error?.code)) throw error;
+      if (error?.code !== 'EROFS') throw error;
     }
   }
 }

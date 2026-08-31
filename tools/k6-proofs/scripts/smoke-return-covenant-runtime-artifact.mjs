@@ -38,6 +38,10 @@ import {
   verifyReturnCovenantTrackedCommand,
 } from '../lib/return-covenant-runtime-artifact.mjs';
 import {
+  RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA,
+  validateReturnCovenantRuntimeMountObservation,
+} from '../lib/return-covenant-runtime-artifact-contract.mjs';
+import {
   validateReturnCovenantPlan,
 } from '../lib/return-covenant-scenario-contract.mjs';
 
@@ -460,18 +464,68 @@ async function waitForReady(file, child, capturedError, timeoutMs = 90_000) {
   throw new Error(`runtime smoke timed out: ${capturedError()}`);
 }
 
-async function assertInnerMountReadOnly(candidatePath) {
+async function firstRegularFile(directory) {
+  for (const entry of (await readdir(directory)).toSorted()) {
+    const file = path.join(directory, entry);
+    const info = await lstat(file);
+    if (info.isSymbolicLink()) {
+      throw new Error(`runtime smoke mount contains a symlink: ${file}`);
+    }
+    if (info.isFile()) return file;
+    if (info.isDirectory()) {
+      const nested = await firstRegularFile(file);
+      if (nested) return nested;
+      continue;
+    }
+    throw new Error(`runtime smoke mount contains a special file: ${file}`);
+  }
+  return null;
+}
+
+async function requireInnerChmodErofs(target, mode, label) {
+  const originalMode = (await lstat(target)).mode & 0o777;
+  try {
+    await chmod(target, mode);
+  } catch (error) {
+    if (error?.code === 'EROFS') return 'EROFS';
+    throw new Error(
+      `${label} chmod failed with ${error?.code || error?.message}, expected EROFS`,
+    );
+  }
+  await chmod(target, originalMode);
+  throw new Error(`${label} chmod unexpectedly succeeded`);
+}
+
+async function assertInnerMountReadOnly(candidatePath, label) {
   const info = await lstat(candidatePath);
   if (!info.isDirectory() || info.isSymbolicLink()) {
     throw new Error(`runtime smoke mount is not a real directory: ${candidatePath}`);
   }
+  const file = await firstRegularFile(candidatePath);
+  if (!file) throw new Error(`runtime smoke mount is empty: ${candidatePath}`);
+  const directoryChmodErrno = await requireInnerChmodErofs(
+    candidatePath,
+    0o755,
+    `${label} directory`,
+  );
+  const fileChmodErrno = await requireInnerChmodErofs(
+    file,
+    0o644,
+    `${label} file`,
+  );
   const probe = path.join(candidatePath, '.return-covenant-write-probe');
   try {
     await writeFile(probe, 'must not write\n', { flag: 'wx' });
     await rm(probe, { force: true });
     throw new Error(`runtime smoke mount is writable: ${candidatePath}`);
   } catch (error) {
-    if (!['EACCES', 'EPERM', 'EROFS'].includes(error?.code)) throw error;
+    if (error?.code !== 'EROFS') throw error;
+    return {
+      candidatePath: label,
+      directoryChmodErrno,
+      fileChmodErrno,
+      createErrno: 'EROFS',
+    };
   }
 }
 
@@ -486,10 +540,19 @@ async function innerMain() {
   if (!Array.isArray(gatewayArgs)) {
     throw new Error('--gateway-args must decode to an array');
   }
-  await Promise.all([
-    assertInnerMountReadOnly(path.join(process.cwd(), 'node_modules')),
-    assertInnerMountReadOnly(path.join(process.cwd(), 'dist')),
-  ]);
+  const runtimeMountObservation = {
+    schema: RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA,
+    source: 'trusted-sandbox-supervisor',
+    manifestSha256:
+      process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256,
+    mounts: await Promise.all([
+      assertInnerMountReadOnly(
+        path.join(process.cwd(), 'node_modules'),
+        'node_modules',
+      ),
+      assertInnerMountReadOnly(path.join(process.cwd(), 'dist'), 'dist'),
+    ]),
+  };
   let child;
   let stdout = '';
   let stderr = '';
@@ -538,7 +601,7 @@ async function innerMain() {
       gatewayStartFingerprint: sha256(`${child.pid}:${fields[19]}`),
       listeners,
       listenerSetSha256: fingerprintProcessLoopbackListeners(listeners),
-      mountsReadOnly: true,
+      runtimeMountObservation,
       runtimeArtifactManifestSha256:
         process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256,
     });
@@ -788,7 +851,10 @@ async function outerMain() {
       !Number.isInteger(ready?.gatewayPid) ||
       !Array.isArray(ready?.listeners) ||
       ready.listeners.length < 1 ||
-      ready?.mountsReadOnly !== true ||
+      !validateReturnCovenantRuntimeMountObservation(
+        ready?.runtimeMountObservation,
+        runtimeArtifact.binding,
+      ) ||
       ready?.runtimeArtifactManifestSha256 !==
         runtimeArtifact.binding.manifestSha256 ||
       ready?.listenerSetSha256 !==
@@ -885,6 +951,7 @@ async function outerMain() {
         nodePathAbsent:
           gatewayIdentity.environment.NODE_PATH === undefined,
         mounts: runtimeArtifact.binding.mounts,
+        runtimeMountObservation: ready.runtimeMountObservation,
       },
       cleanup: {
         gatewayStopped: true,

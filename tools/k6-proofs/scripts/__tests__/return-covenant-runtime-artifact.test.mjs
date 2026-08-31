@@ -69,7 +69,13 @@ async function removeTree(target) {
   await rm(target, { recursive: true, force: true });
 }
 
-async function createSyntheticSource(root, { packageManagerVersion = '1.2.3' } = {}) {
+async function createSyntheticSource(
+  root,
+  {
+    packageManagerVersion = '1.2.3',
+    failProductionInstall = false,
+  } = {},
+) {
   const sourceDir = path.join(root, 'source');
   const toolDir = path.join(root, 'tool');
   await Promise.all([
@@ -127,10 +133,17 @@ async function createSyntheticSource(root, { packageManagerVersion = '1.2.3' } =
       "} else if (process.argv[2] === 'run' && process.argv[3] === 'build') {",
       "  process.stdout.write('synthetic build complete\\n');",
       "} else if (process.argv[2] === 'install') {",
+      ...(failProductionInstall
+        ? [
+          "  process.stderr.write('synthetic production install failed\\n');",
+          '  process.exitCode = 9;',
+        ]
+        : [
       "  const target = path.join(process.cwd(), 'node_modules/runtime-package');",
       "  fs.mkdirSync(target, { recursive: true });",
       "  fs.writeFileSync(path.join(target, 'index.js'), 'export const runtimeDependency = true;\\n');",
       "  process.stdout.write('synthetic production install complete\\n');",
+        ]),
       '} else {',
       "  process.stderr.write('unexpected synthetic package-manager command\\n');",
       '  process.exitCode = 2;',
@@ -268,6 +281,53 @@ test('runtime artifact producer and verifier bind an immutable complete closure'
     ));
     assert.notEqual(sourceFile.ino, privateFile.ino);
     assert.equal(privateFile.nlink, 1);
+    assert.equal(
+      await readFile(path.join(
+        fixture.sourceDir,
+        'node_modules/runtime-package/index.js',
+      ), 'utf8'),
+      'export const runtimeDependency = true;\n',
+    );
+  } finally {
+    await removeTree(root);
+  }
+});
+
+test('runtime artifact producer preserves source dependencies and original failure', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'return-covenant-runtime-retry-'));
+  try {
+    const source = await createSyntheticSource(root, {
+      failProductionInstall: true,
+    });
+    const sourceDependency = path.join(
+      source.sourceDir,
+      'node_modules/runtime-package/index.js',
+    );
+    const outputDir = path.join(root, 'failed-artifact');
+    await assert.rejects(
+      createReturnCovenantRuntimeArtifact({
+        sourceDir: source.sourceDir,
+        outputDir,
+        runId: RUN_ID,
+        docsHarnessSha: source.head,
+        packageManagerCommand: [source.packageManager],
+      }),
+      (error) =>
+        error?.code === 9 ||
+        /synthetic production install failed/.test(
+          `${error?.message}\n${error?.stderr || ''}`,
+        ),
+    );
+    assert.equal(
+      await readFile(sourceDependency, 'utf8'),
+      'export const runtimeDependency = true;\n',
+    );
+    await assert.rejects(lstat(outputDir), (error) => error?.code === 'ENOENT');
+    assert.equal(
+      (await readdir(root))
+        .some((entry) => entry.startsWith('.return-covenant-runtime-deps-')),
+      false,
+    );
   } finally {
     await removeTree(root);
   }

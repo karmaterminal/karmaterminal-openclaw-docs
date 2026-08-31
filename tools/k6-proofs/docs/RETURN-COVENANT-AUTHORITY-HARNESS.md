@@ -203,13 +203,16 @@ The reviewed producer
 `build-return-covenant-runtime-artifact.mjs` requires an exact clean product
 checkout and an absolute package-manager argv. It verifies the package-manager
 version against the product's pinned `packageManager`, runs the product build,
-reselects production dependencies for the attested Node
-platform/architecture/libc from the frozen lock, rejects tracked-source
-mutation, materializes dependency and build closures as independent files, and
-freezes all directories/files to mode `0555`/`0444` (retaining `0555` only for
-executable files). The package-manager argv may pin a stable lane-local
-`--store-dir`; that argv and executable digest are part of the toolchain
-identity.
+creates a disposable exact Git scratch checkout, installs production
+dependencies there for the attested Node platform/architecture/libc from the
+frozen lock, and removes the scratch checkout after copying. The caller's full
+build dependency tree is never pruned or replaced, including on install/copy
+failure, so the same exact source can be retried. The producer rejects
+tracked-source mutation, materializes dependency and build closures as
+independent files, and freezes all directories/files to mode `0555`/`0444`
+(retaining `0555` only for executable files). The package-manager argv may pin
+a stable lane-local `--store-dir`; that argv and executable digest are part of
+the toolchain identity.
 
 Before sandbox entry, the trusted launcher:
 
@@ -228,6 +231,15 @@ Before sandbox entry, the trusted launcher:
 5. creates otherwise-empty candidate mount points and read-only binds only
    `payload/node_modules` to `<snapshot>/node_modules` and `payload/dist` to
    `<snapshot>/dist`.
+
+Before it starts the candidate driver, the tracked sandbox supervisor attempts
+to add owner-write permission to each mount root and a payload file, then
+attempts to create a file in each root. Every operation must fail specifically
+with `EROFS`; mode-based `EACCES`/`EPERM` is not read-only mount evidence. The
+supervisor emits one closed observation bound to the artifact manifest digest,
+and the launcher, driver attestation, cleanup chain, and signed public receipt
+retain it. A plain writable bind over mode-0555 payload therefore fails before
+candidate code runs.
 
 The candidate never sees the external artifact pathname, package-manager
 store, host home, credentials, live sockets, or any unrelated dependency
@@ -699,6 +711,7 @@ The repository-local owner test covers:
 | altered manifest or payload digest | launcher rejects before driver execution |
 | missing/extra inventory entry or closure root | launcher rejects before driver execution |
 | writable artifact root/file | launcher rejects before driver execution |
+| mode-0555 payload exposed through writable bind | trusted supervisor `chmod` succeeds, so launch fails before driver execution |
 | symlink, hardlink, path traversal, FIFO, device, or other special file | launcher rejects before driver execution |
 | wrong Node or package-manager identity | producer/verifier rejects before driver execution |
 | dependency closure without build output, or build output without dependencies | launcher rejects before driver execution |

@@ -5,6 +5,7 @@ import {
   chmod,
   lstat,
   mkdir,
+  mkdtemp,
   open,
   readFile,
   readdir,
@@ -876,8 +877,7 @@ async function makeCreatedTreeWritable(target) {
 
 async function rethrowAfterCreatedTreeCleanup(target, originalError) {
   try {
-    await makeCreatedTreeWritable(target);
-    await rm(target, { recursive: true, force: true });
+    await removeCreatedTree(target);
   } catch (cleanupError) {
     throw new AggregateError(
       [originalError, cleanupError],
@@ -887,13 +887,29 @@ async function rethrowAfterCreatedTreeCleanup(target, originalError) {
   throw originalError;
 }
 
+async function removeCreatedTree(target) {
+  await makeCreatedTreeWritable(target);
+  await rm(target, { recursive: true, force: true });
+}
+
+async function preserveFailureAcrossCleanup(target, originalError) {
+  try {
+    await removeCreatedTree(target);
+    return originalError;
+  } catch (cleanupError) {
+    return new AggregateError(
+      [originalError, cleanupError],
+      `${originalError.message}; runtime artifact cleanup also failed: ${cleanupError.message}`,
+    );
+  }
+}
+
 export async function removeReturnCovenantRuntimeArtifact(artifactDir) {
   const artifactPath = path.resolve(artifactDir);
   if (path.basename(artifactPath) !== 'runtime-artifact') {
     throw new Error('refusing to remove a non-runtime-artifact path');
   }
-  await makeCreatedTreeWritable(artifactPath);
-  await rm(artifactPath, { recursive: true, force: true });
+  await removeCreatedTree(artifactPath);
 }
 
 async function packageManagerIdentity({
@@ -1010,6 +1026,7 @@ export async function createReturnCovenantRuntimeArtifact({
     sourceDir: sourcePath,
   });
   const created = { value: false };
+  let dependencyScratchRoot = null;
   try {
     await mkdir(outputPath, { mode: 0o700 });
     created.value = true;
@@ -1036,23 +1053,37 @@ export async function createReturnCovenantRuntimeArtifact({
       '--libc',
       nodeIdentity.libc,
     ];
-    const dependencyDir = path.join(sourcePath, 'node_modules');
-    const dependencyBeforePrune = await lstat(dependencyDir);
-    if (
-      !dependencyBeforePrune.isDirectory() ||
-      dependencyBeforePrune.isSymbolicLink() ||
-      await realpath(dependencyDir) !== dependencyDir
-    ) {
-      throw new Error(
-        'runtime build dependency root must be a real source-owned directory',
-      );
-    }
-    await rm(dependencyDir, { recursive: true, force: true });
+    dependencyScratchRoot = await mkdtemp(
+      path.join(outputParent, '.return-covenant-runtime-deps-'),
+    );
+    await chmod(dependencyScratchRoot, 0o700);
+    const dependencySourcePath = path.join(
+      dependencyScratchRoot,
+      'source',
+    );
+    await execFileAsync('git', [
+      'clone',
+      '--quiet',
+      '--shared',
+      '--no-checkout',
+      sourcePath,
+      dependencySourcePath,
+    ]);
+    await execFileAsync('git', [
+      '-C',
+      dependencySourcePath,
+      '-c',
+      'advice.detachedHead=false',
+      'checkout',
+      '--quiet',
+      '--detach',
+      productSha,
+    ]);
     const dependencyInstall = await execFileAsync(
       packageManagerCommand[0],
       [...packageManagerCommand.slice(1), ...dependencyCommand],
       {
-        cwd: sourcePath,
+        cwd: dependencySourcePath,
         encoding: 'utf8',
         maxBuffer: 64 * 1024 * 1024,
         timeout: 30 * 60_000,
@@ -1081,6 +1112,29 @@ export async function createReturnCovenantRuntimeArtifact({
     )) !== '') {
       throw new Error('runtime build modified tracked product files');
     }
+    const [
+      dependencyHead,
+      dependencyTree,
+      dependencyStatus,
+    ] = await Promise.all([
+      git(dependencySourcePath, ['rev-parse', 'HEAD']),
+      git(dependencySourcePath, ['rev-parse', 'HEAD^{tree}']),
+      git(dependencySourcePath, [
+        'status',
+        '--porcelain=v1',
+        '--untracked-files=no',
+      ]),
+    ]);
+    if (
+      dependencyHead !== productSha ||
+      dependencyTree !== productTreeSha ||
+      dependencyStatus !== ''
+    ) {
+      throw new Error(
+        'runtime dependency scratch checkout differs from the product tree',
+      );
+    }
+    const dependencyDir = path.join(dependencySourcePath, 'node_modules');
     const buildOutputDir = path.join(sourcePath, 'dist');
     const [dependencyInfo, buildInfo] = await Promise.all([
       lstat(dependencyDir),
@@ -1098,6 +1152,7 @@ export async function createReturnCovenantRuntimeArtifact({
     }
     const allowedRoots = [
       sourcePath,
+      dependencySourcePath,
       await realpath(dependencyDir),
       await realpath(buildOutputDir),
     ];
@@ -1135,6 +1190,8 @@ export async function createReturnCovenantRuntimeArtifact({
     };
     validateManifestShape(manifest);
     await writeRuntimeArtifactManifest(outputPath, manifest);
+    await removeCreatedTree(dependencyScratchRoot);
+    dependencyScratchRoot = null;
     return {
       artifactDir: outputPath,
       manifest,
@@ -1147,10 +1204,17 @@ export async function createReturnCovenantRuntimeArtifact({
       },
     };
   } catch (error) {
-    if (created.value) {
-      await rethrowAfterCreatedTreeCleanup(outputPath, error);
+    let failure = error;
+    if (dependencyScratchRoot) {
+      failure = await preserveFailureAcrossCleanup(
+        dependencyScratchRoot,
+        failure,
+      );
     }
-    throw error;
+    if (created.value) {
+      await rethrowAfterCreatedTreeCleanup(outputPath, failure);
+    }
+    throw failure;
   }
 }
 

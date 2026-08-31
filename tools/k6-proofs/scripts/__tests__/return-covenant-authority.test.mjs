@@ -270,6 +270,20 @@ function runtimeArtifactBindingFor(plan) {
   };
 }
 
+function runtimeMountObservationFor(plan) {
+  return {
+    schema: 'openclaw.k6.return-covenant-runtime-mount-observation.v1',
+    source: 'trusted-sandbox-supervisor',
+    manifestSha256: plan.target.runtimeArtifactManifestSha256,
+    mounts: ['node_modules', 'dist'].map((candidatePath) => ({
+      candidatePath,
+      directoryChmodErrno: 'EROFS',
+      fileChmodErrno: 'EROFS',
+      createErrno: 'EROFS',
+    })),
+  };
+}
+
 function setPath(target, dottedPath, value) {
   const parts = dottedPath.split('.');
   const final = parts.pop();
@@ -504,6 +518,7 @@ function driverAttestationFor(plan) {
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
     runtimeArtifact: runtimeArtifactBindingFor(plan),
+    runtimeMountObservation: runtimeMountObservationFor(plan),
     endpoint: 'http://127.0.0.1:18790',
     command: {
       relativePath: plan.driver.fixtureCommand.relativePath,
@@ -4976,6 +4991,7 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       snapshotPath: directory,
       runtimeArtifactPath,
       runtimeArtifact,
+      runtimeMountObservation: runtimeMountObservationFor(plan),
       driverCommandObservation,
       gatewayCommandObservation,
       livePaths: [],
@@ -5870,33 +5886,70 @@ test('sandbox waits report signal-terminated children fail closed', async () => 
     childTerminationReason({ exitCode: null, signalCode: 'SIGTERM' }),
     'signal SIGTERM',
   );
-  const directory = await mkdtemp(path.join(tmpdir(), 'return-covenant-signal-'));
+  const result = await runTrustedLauncherFixture(
+    () => "process.kill(process.pid, 'SIGTERM');\n",
+    { allowPrelaunchFailure: true },
+  );
   try {
-    const driver = path.join(directory, 'signal-driver.mjs');
-    await writeFile(
-      driver,
-      "process.kill(process.pid, 'SIGTERM');\n",
-      { mode: 0o700 },
+    assert.equal(result.launcherExitCode, 1);
+    assert.match(
+      result.launcherStderr,
+      /product driver exited before attestation \(signal SIGTERM\)/,
     );
+  } finally {
+    await result.dispose();
+  }
+});
+
+test('sandbox supervisor rejects writable runtime mounts before driver execution', async () => {
+  const directory = await mkdtemp(
+    path.join(tmpdir(), 'return-covenant-writable-mount-'),
+  );
+  try {
+    const marker = path.join(directory, 'driver-executed');
+    const driver = path.join(directory, 'driver.mjs');
+    const dependencyMount = path.join(directory, 'node_modules');
+    const buildMount = path.join(directory, 'dist');
+    await Promise.all([
+      mkdir(dependencyMount, { mode: 0o700 }),
+      mkdir(buildMount, { mode: 0o700 }),
+    ]);
+    await Promise.all([
+      writeFile(path.join(dependencyMount, 'entry.js'), 'dependency\n'),
+      writeFile(path.join(buildMount, 'entry.js'), 'build\n'),
+      writeFile(
+        driver,
+        `import { writeFileSync } from 'node:fs';\nwriteFileSync(${JSON.stringify(marker)}, 'executed\\n');\n`,
+        { mode: 0o700 },
+      ),
+    ]);
     const result = spawnSync(process.execPath, [
       path.join(root, 'scripts/run-return-covenant-sandbox.mjs'),
       '--driver', driver,
       '--driver-args', '[]',
-      '--attestation', path.join(directory, 'missing-attestation.json'),
+      '--attestation', path.join(directory, 'attestation.json'),
       '--k6', '/bin/true',
       '--k6-config', path.join(directory, 'k6.json'),
       '--k6-home', directory,
       '--scenario', path.join(directory, 'scenario.js'),
       '--plan', path.join(directory, 'plan.json'),
+      '--runtime-mounts', JSON.stringify([
+        {
+          candidatePath: 'node_modules',
+          absolutePath: dependencyMount,
+        },
+        {
+          candidatePath: 'dist',
+          absolutePath: buildMount,
+        },
+      ]),
     ], {
       encoding: 'utf8',
       timeout: 5_000,
     });
     assert.equal(result.status, 1, result.stderr || result.stdout);
-    assert.match(
-      result.stderr,
-      /product driver exited before attestation \(signal SIGTERM\)/,
-    );
+    assert.match(result.stderr, /directory chmod unexpectedly succeeded/);
+    await assert.rejects(lstat(marker), (error) => error?.code === 'ENOENT');
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

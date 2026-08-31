@@ -56,11 +56,16 @@ import {
   removeReturnCovenantRuntimeArtifact,
   verifyReturnCovenantTrackedCommand,
 } from '../lib/return-covenant-runtime-artifact.mjs';
+import {
+  validateReturnCovenantRuntimeMountObservation,
+} from '../lib/return-covenant-runtime-artifact-contract.mjs';
 
 const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const defaultDocsDir = path.resolve(scriptDir, '../../..');
 const SANDBOX_EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
+const RUNTIME_MOUNT_PREFIX =
+  'R_CD_RETURN_COVENANT_AUTHORITY_RUNTIME_MOUNTS ';
 const CANDIDATE_CLEANUP_RETAINED_NAMES = [
   'delegates',
   'queueItems',
@@ -957,6 +962,7 @@ async function main() {
   let runtimeArtifact;
   let runtimeMounts = [];
   let commandObserver = null;
+  let runtimeMountObservation = null;
   const observedGateways = new Map();
   const handleTermination = () => {
     if (child) void terminateProcessGroup(child.pid);
@@ -1144,6 +1150,10 @@ async function main() {
       '--k6-home', k6HomePath,
       '--scenario', scenarioPath,
       '--plan', privatePlanPath,
+      '--runtime-mounts', JSON.stringify(runtimeMounts.map((mount) => ({
+        candidatePath: mount.candidatePath,
+        absolutePath: mount.destination,
+      }))),
     ];
     child = spawn(bwrapPath, bwrapArgs, {
       cwd: snapshotPath,
@@ -1258,6 +1268,23 @@ async function main() {
       }
       throw error;
     }
+    const runtimeMountRecords = capturedK6Log
+      .split(/\r?\n/u)
+      .flatMap((line) => line.startsWith(RUNTIME_MOUNT_PREFIX)
+        ? [JSON.parse(line.slice(RUNTIME_MOUNT_PREFIX.length))]
+        : []);
+    if (
+      runtimeMountRecords.length !== 1 ||
+      !validateReturnCovenantRuntimeMountObservation(
+        runtimeMountRecords[0],
+        runtimeArtifact.binding,
+      )
+    ) {
+      throw new Error(
+        'sandbox did not prove both runtime artifact mounts read-only',
+      );
+    }
+    [runtimeMountObservation] = runtimeMountRecords;
     const hostPids = await resolveReadyHostPids({
       processGroupId: child.pid,
       ready: namespaceReady,
@@ -1309,6 +1336,7 @@ async function main() {
         snapshotPath,
         runtimeArtifactPath,
         runtimeArtifact: runtimeArtifact.binding,
+        runtimeMountObservation,
         driverCommandObservation: hostPids.driverCommandObservation,
         gatewayCommandObservation: hostPids.gatewayCommandObservation,
         livePaths,
@@ -1321,6 +1349,7 @@ async function main() {
       candidateSha: plan.target.candidateSha,
       productTreeSha: plan.target.productTreeSha,
       runtimeArtifact: runtimeArtifact.binding,
+      runtimeMountObservation,
       attestation: path.basename(attestationPath),
       endpoint: attestation.endpoint,
     })}\n`);

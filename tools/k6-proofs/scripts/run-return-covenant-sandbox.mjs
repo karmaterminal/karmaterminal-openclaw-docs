@@ -1,12 +1,24 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import {
+  chmod,
+  lstat,
+  readFile,
+  readdir,
+  unlink,
+  writeFile,
+} from 'node:fs/promises';
 import path from 'node:path';
 import {
   childTerminationReason,
 } from '../lib/return-covenant-candidate-io.mjs';
+import {
+  RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA,
+} from '../lib/return-covenant-runtime-artifact-contract.mjs';
 
 const EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
+const RUNTIME_MOUNT_PREFIX =
+  'R_CD_RETURN_COVENANT_AUTHORITY_RUNTIME_MOUNTS ';
 
 function parseArgs(argv) {
   const values = {};
@@ -27,10 +39,110 @@ function parseArgs(argv) {
     'k6-home',
     'scenario',
     'plan',
+    'runtime-mounts',
   ]) {
     if (!values[name]) throw new Error(`--${name} is required`);
   }
   return values;
+}
+
+async function firstRegularFile(directory) {
+  for (const entry of (await readdir(directory)).toSorted()) {
+    const file = path.join(directory, entry);
+    const info = await lstat(file);
+    if (info.isSymbolicLink()) {
+      throw new Error(`runtime mount contains a symlink: ${file}`);
+    }
+    if (info.isFile()) return file;
+    if (info.isDirectory()) {
+      const nested = await firstRegularFile(file);
+      if (nested) return nested;
+      continue;
+    }
+    throw new Error(`runtime mount contains a special file: ${file}`);
+  }
+  return null;
+}
+
+async function requireChmodErofs(target, writableMode, label) {
+  const originalMode = (await lstat(target)).mode & 0o777;
+  try {
+    await chmod(target, writableMode);
+  } catch (error) {
+    if (error?.code === 'EROFS') return 'EROFS';
+    throw new Error(
+      `${label} chmod failed with ${error?.code || error?.message}, expected EROFS`,
+    );
+  }
+  await chmod(target, originalMode);
+  throw new Error(`${label} chmod unexpectedly succeeded`);
+}
+
+async function requireCreateErofs(directory, label) {
+  const probe = path.join(directory, '.return-covenant-write-probe');
+  try {
+    await writeFile(probe, 'must not write\n', { flag: 'wx' });
+  } catch (error) {
+    if (error?.code === 'EROFS') return 'EROFS';
+    throw new Error(
+      `${label} create failed with ${error?.code || error?.message}, expected EROFS`,
+    );
+  }
+  await unlink(probe);
+  throw new Error(`${label} create unexpectedly succeeded`);
+}
+
+async function observeRuntimeMounts(raw) {
+  let mounts;
+  try {
+    mounts = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`--runtime-mounts is invalid JSON: ${error.message}`);
+  }
+  if (
+    !Array.isArray(mounts) ||
+    mounts.length !== 2 ||
+    mounts.some((entry) =>
+      typeof entry?.candidatePath !== 'string' ||
+      !path.isAbsolute(entry?.absolutePath || ''))
+  ) {
+    throw new Error('--runtime-mounts must name two fixed absolute paths');
+  }
+  const observations = [];
+  for (const mount of mounts) {
+    const info = await lstat(mount.absolutePath);
+    if (!info.isDirectory() || info.isSymbolicLink()) {
+      throw new Error(`runtime mount is not a real directory: ${mount.candidatePath}`);
+    }
+    const file = await firstRegularFile(mount.absolutePath);
+    if (!file) {
+      throw new Error(`runtime mount is empty: ${mount.candidatePath}`);
+    }
+    observations.push({
+      candidatePath: mount.candidatePath,
+      directoryChmodErrno: await requireChmodErofs(
+        mount.absolutePath,
+        0o755,
+        `${mount.candidatePath} directory`,
+      ),
+      fileChmodErrno: await requireChmodErofs(
+        file,
+        0o644,
+        `${mount.candidatePath} file`,
+      ),
+      createErrno: await requireCreateErofs(
+        mount.absolutePath,
+        `${mount.candidatePath} directory`,
+      ),
+    });
+  }
+  return {
+    schema: RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA,
+    source: 'trusted-sandbox-supervisor',
+    manifestSha256:
+      process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256,
+    mounts: observations,
+  };
 }
 
 async function waitForFile(file, child, timeoutMs = 30_000) {
@@ -85,6 +197,12 @@ async function main() {
   process.once('SIGINT', terminate);
   process.once('SIGTERM', terminate);
   try {
+    const runtimeMountObservation = await observeRuntimeMounts(
+      input['runtime-mounts'],
+    );
+    process.stdout.write(
+      `${RUNTIME_MOUNT_PREFIX}${JSON.stringify(runtimeMountObservation)}\n`,
+    );
     driver = spawn(process.execPath, [input.driver, ...driverArgs], {
       cwd: path.dirname(input.driver),
       stdio: ['ignore', 'ignore', 'inherit'],

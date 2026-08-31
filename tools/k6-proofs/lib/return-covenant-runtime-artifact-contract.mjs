@@ -2,6 +2,8 @@ export const RETURN_COVENANT_RUNTIME_ARTIFACT_SCHEMA =
   'openclaw.k6.return-covenant-runtime-artifact.v1';
 export const RETURN_COVENANT_RUNTIME_ARTIFACT_BINDING_SCHEMA =
   'openclaw.k6.return-covenant-runtime-artifact-binding.v1';
+export const RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA =
+  'openclaw.k6.return-covenant-runtime-mount-observation.v1';
 
 export const RETURN_COVENANT_RUNTIME_MOUNTS = Object.freeze([
   Object.freeze({
@@ -93,4 +95,34 @@ export function validateReturnCovenantRuntimeArtifactBinding(binding) {
         RETURN_COVENANT_RUNTIME_MOUNTS[index].candidatePath &&
       entry.readOnly === true &&
       SHA_256.test(entry.inventorySha256 || ''));
+}
+
+export function validateReturnCovenantRuntimeMountObservation(
+  observation,
+  binding,
+) {
+  return validateReturnCovenantRuntimeArtifactBinding(binding) &&
+    exactKeys(observation, [
+      'schema',
+      'source',
+      'manifestSha256',
+      'mounts',
+    ]) &&
+    observation.schema ===
+      RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA &&
+    observation.source === 'trusted-sandbox-supervisor' &&
+    observation.manifestSha256 === binding.manifestSha256 &&
+    Array.isArray(observation.mounts) &&
+    observation.mounts.length === binding.mounts.length &&
+    observation.mounts.every((entry, index) =>
+      exactKeys(entry, [
+        'candidatePath',
+        'directoryChmodErrno',
+        'fileChmodErrno',
+        'createErrno',
+      ]) &&
+      entry.candidatePath === binding.mounts[index].candidatePath &&
+      entry.directoryChmodErrno === 'EROFS' &&
+      entry.fileChmodErrno === 'EROFS' &&
+      entry.createErrno === 'EROFS');
 }

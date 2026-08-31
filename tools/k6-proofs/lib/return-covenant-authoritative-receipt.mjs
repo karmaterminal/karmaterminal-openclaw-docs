@@ -31,6 +31,7 @@ import {
 } from './return-covenant-retention-inspector.mjs';
 import {
   validateReturnCovenantRuntimeArtifactBinding,
+  validateReturnCovenantRuntimeMountObservation,
 } from './return-covenant-runtime-artifact-contract.mjs';
 
 export const RETURN_COVENANT_OBSERVATION_SCHEMA =
@@ -189,6 +190,32 @@ function validPublicRuntimeArtifactBinding(binding) {
       ['node_modules', 'dist'].includes(mount.candidatePath) &&
       mount.readOnly === true &&
       HEX_64.test(mount.inventorySha256 || ''));
+}
+
+function validPublicRuntimeMountObservation(observation) {
+  return exactKeys(observation, [
+    'schema',
+    'source',
+    'manifestSha256',
+    'mounts',
+  ]) &&
+    observation.schema ===
+      'openclaw.k6.return-covenant-runtime-mount-observation.v1' &&
+    observation.source === 'trusted-sandbox-supervisor' &&
+    HEX_64.test(observation.manifestSha256 || '') &&
+    Array.isArray(observation.mounts) &&
+    observation.mounts.length === 2 &&
+    observation.mounts.every((mount) =>
+      exactKeys(mount, [
+        'candidatePath',
+        'directoryChmodErrno',
+        'fileChmodErrno',
+        'createErrno',
+      ]) &&
+      ['node_modules', 'dist'].includes(mount.candidatePath) &&
+      mount.directoryChmodErrno === 'EROFS' &&
+      mount.fileChmodErrno === 'EROFS' &&
+      mount.createErrno === 'EROFS');
 }
 
 function nonEmpty(value, minimum = 1) {
@@ -2958,6 +2985,13 @@ export function resolveReturnCovenantAuthoritativeReceipt({
       runtimeArtifact: publicRuntimeArtifactBinding(
         driverAttestation?.runtimeArtifact,
       ),
+      runtimeMountObservation:
+        validateReturnCovenantRuntimeMountObservation(
+          driverAttestation?.runtimeMountObservation,
+          driverAttestation?.runtimeArtifact,
+        )
+          ? driverAttestation.runtimeMountObservation
+          : null,
       revocationCapability: {
         inventoryComplete:
           driverAttestation?.revocationCapability?.inventoryComplete === true,
@@ -3698,12 +3732,19 @@ function validClosedReceiptShape(receipt) {
       'gatewaySocketFingerprint',
       'runtimeConfigSha256',
       'runtimeArtifact',
+      'runtimeMountObservation',
       'revocationCapability',
       'readyReceiptSha256',
     ]) &&
     (
       receipt.driver.runtimeArtifact === null ||
       validPublicRuntimeArtifactBinding(receipt.driver.runtimeArtifact)
+    ) &&
+    (
+      receipt.driver.runtimeMountObservation === null ||
+      validPublicRuntimeMountObservation(
+        receipt.driver.runtimeMountObservation,
+      )
     ) &&
     exactKeys(receipt.runtimePlugin, [
       'required',
@@ -3974,6 +4015,11 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     receipt.driver.runtimeArtifact.productTreeSha ===
       receipt.target.productTreeSha &&
     receipt.driver.runtimeArtifact.manifestSha256 ===
+      receipt.target.runtimeArtifactManifestSha256 &&
+    validPublicRuntimeMountObservation(
+      receipt.driver?.runtimeMountObservation,
+    ) &&
+    receipt.driver.runtimeMountObservation.manifestSha256 ===
       receipt.target.runtimeArtifactManifestSha256 &&
     exactKeys(receipt.driver?.revocationCapability, [
       'inventoryComplete',

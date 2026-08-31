@@ -17,6 +17,7 @@ import {
 } from './return-covenant-scenario-contract.mjs';
 import {
   validateReturnCovenantRuntimeArtifactBinding,
+  validateReturnCovenantRuntimeMountObservation,
 } from './return-covenant-runtime-artifact-contract.mjs';
 import { canonicalJson } from './signed-observer-receipt.mjs';
 
@@ -318,6 +319,10 @@ export async function createReturnCovenantDriverAttestation({
     !Number.isInteger(launch.processGroupId) ||
     launch.processGroupId <= 1 ||
     !validateReturnCovenantRuntimeArtifactBinding(launch.runtimeArtifact) ||
+    !validateReturnCovenantRuntimeMountObservation(
+      launch.runtimeMountObservation,
+      launch.runtimeArtifact,
+    ) ||
     typeof launch.driverCommandObservation !== 'object' ||
     typeof launch.gatewayCommandObservation !== 'object'
   ) {
@@ -611,6 +616,7 @@ export async function createReturnCovenantDriverAttestation({
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
     runtimeArtifact: launch.runtimeArtifact,
+    runtimeMountObservation: launch.runtimeMountObservation,
     endpoint: driverSocket.endpoint,
     command: {
       relativePath,

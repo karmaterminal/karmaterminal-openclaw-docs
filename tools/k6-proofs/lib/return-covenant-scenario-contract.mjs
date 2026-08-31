@@ -1,5 +1,6 @@
 import {
   validateReturnCovenantRuntimeArtifactBinding,
+  validateReturnCovenantRuntimeMountObservation,
 } from './return-covenant-runtime-artifact-contract.mjs';
 
 export const RETURN_COVENANT_ROW_ID = 'R-CD-RETURN-COVENANT-AUTHORITY';
@@ -417,6 +418,14 @@ export function validateReturnCovenantDriverAttestation({
       plan?.target?.runtimeArtifactManifestSha256
   ) {
     errors.push('runtime artifact is not bound to the exact plan');
+  }
+  if (
+    !validateReturnCovenantRuntimeMountObservation(
+      attestation?.runtimeMountObservation,
+      attestation?.runtimeArtifact,
+    )
+  ) {
+    errors.push('runtime artifact read-only mount observation is invalid');
   }
   if (
     attestation?.command?.relativePath !==

@@ -14,6 +14,7 @@
     "docsHarnessSha",
     "runtimeConfigSha256",
     "runtimeArtifact",
+    "runtimeMountObservation",
     "endpoint",
     "command",
     "gatewayCommand",
@@ -45,6 +46,9 @@
     "docsHarnessSha": { "$ref": "#/$defs/sha40" },
     "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
     "runtimeArtifact": { "$ref": "#/$defs/runtimeArtifactBinding" },
+    "runtimeMountObservation": {
+      "$ref": "#/$defs/runtimeMountObservation"
+    },
     "endpoint": {
       "type": "string",
       "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
@@ -303,6 +307,39 @@
     "sha256": {
       "type": "string",
       "pattern": "^[0-9a-f]{64}$"
+    },
+    "runtimeMountObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "source", "manifestSha256", "mounts"],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-runtime-mount-observation.v1"
+        },
+        "source": { "const": "trusted-sandbox-supervisor" },
+        "manifestSha256": { "$ref": "#/$defs/sha256" },
+        "mounts": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidatePath",
+              "directoryChmodErrno",
+              "fileChmodErrno",
+              "createErrno"
+            ],
+            "properties": {
+              "candidatePath": { "enum": ["node_modules", "dist"] },
+              "directoryChmodErrno": { "const": "EROFS" },
+              "fileChmodErrno": { "const": "EROFS" },
+              "createErrno": { "const": "EROFS" }
+            }
+          }
+        }
+      }
     },
     "runtimeArtifactBinding": {
       "type": "object",

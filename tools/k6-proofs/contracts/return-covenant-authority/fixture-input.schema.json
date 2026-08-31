@@ -31,15 +31,19 @@
       "additionalProperties": false,
       "required": [
         "candidateSha",
+        "productTreeSha",
         "runtimeBuildSha",
         "docsHarnessSha",
-        "runtimeConfigSha256"
+        "runtimeConfigSha256",
+        "runtimeArtifactManifestSha256"
       ],
       "properties": {
         "candidateSha": { "$ref": "#/$defs/sha" },
+        "productTreeSha": { "$ref": "#/$defs/sha" },
         "runtimeBuildSha": { "$ref": "#/$defs/sha" },
         "docsHarnessSha": { "$ref": "#/$defs/sha" },
-        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" }
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "runtimeArtifactManifestSha256": { "$ref": "#/$defs/sha256" }
       }
     },
     "driver": {

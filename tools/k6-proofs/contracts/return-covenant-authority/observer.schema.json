@@ -15,6 +15,7 @@
     "runtimeBuildSha",
     "docsHarnessSha",
     "runtimeConfigSha256",
+    "runtimeArtifactManifestSha256",
     "startedAt",
     "endedAt",
     "returnMode",
@@ -57,6 +58,7 @@
     "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
     "docsHarnessSha": { "$ref": "#/$defs/sha40" },
     "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+    "runtimeArtifactManifestSha256": { "$ref": "#/$defs/sha256" },
     "startedAt": { "$ref": "#/$defs/timestamp" },
     "endedAt": { "$ref": "#/$defs/timestamp" },
     "returnMode": {

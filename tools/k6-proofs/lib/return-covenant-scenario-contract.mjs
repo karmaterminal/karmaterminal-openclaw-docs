@@ -1,3 +1,7 @@
+import {
+  validateReturnCovenantRuntimeArtifactBinding,
+} from './return-covenant-runtime-artifact-contract.mjs';
+
 export const RETURN_COVENANT_ROW_ID = 'R-CD-RETURN-COVENANT-AUTHORITY';
 export const RETURN_COVENANT_PLAN_SCHEMA =
   'openclaw.k6.return-covenant-fixture-input.v1';
@@ -208,13 +212,23 @@ export function validateReturnCovenantPlan(plan) {
   if (!RUN_ID.test(plan.runId || '')) {
     errors.push('runId must be rcv- followed by a 128-bit lowercase hex nonce');
   }
-  for (const name of ['candidateSha', 'runtimeBuildSha', 'docsHarnessSha']) {
+  for (const name of [
+    'candidateSha',
+    'productTreeSha',
+    'runtimeBuildSha',
+    'docsHarnessSha',
+  ]) {
     if (!SHA_40.test(plan.target?.[name] || '')) {
       errors.push(`target.${name} must be a full lowercase SHA`);
     }
   }
-  if (!SHA_256.test(plan.target?.runtimeConfigSha256 || '')) {
-    errors.push('target.runtimeConfigSha256 must be a SHA-256');
+  for (const name of [
+    'runtimeConfigSha256',
+    'runtimeArtifactManifestSha256',
+  ]) {
+    if (!SHA_256.test(plan.target?.[name] || '')) {
+      errors.push(`target.${name} must be a SHA-256`);
+    }
   }
   if (
     SHA_40.test(plan.target?.candidateSha || '') &&
@@ -381,11 +395,28 @@ export function validateReturnCovenantDriverAttestation({
   }
   if (
     attestation?.candidateSha !== plan?.target?.candidateSha ||
+    attestation?.productTreeSha !== plan?.target?.productTreeSha ||
     attestation?.runtimeBuildSha !== plan?.target?.runtimeBuildSha ||
     attestation?.docsHarnessSha !== plan?.target?.docsHarnessSha ||
     attestation?.runtimeConfigSha256 !== plan?.target?.runtimeConfigSha256
   ) {
     errors.push('driver attestation target identity differs from the plan');
+  }
+  if (
+    !validateReturnCovenantRuntimeArtifactBinding(
+      attestation?.runtimeArtifact,
+    ) ||
+    attestation.runtimeArtifact.rowId !== plan?.rowId ||
+    attestation.runtimeArtifact.runId !== plan?.runId ||
+    attestation.runtimeArtifact.productSha !== plan?.target?.candidateSha ||
+    attestation.runtimeArtifact.productTreeSha !==
+      plan?.target?.productTreeSha ||
+    attestation.runtimeArtifact.docsHarnessSha !==
+      plan?.target?.docsHarnessSha ||
+    attestation.runtimeArtifact.manifestSha256 !==
+      plan?.target?.runtimeArtifactManifestSha256
+  ) {
+    errors.push('runtime artifact is not bound to the exact plan');
   }
   if (
     attestation?.command?.relativePath !==
@@ -411,6 +442,7 @@ export function validateReturnCovenantDriverAttestation({
   }
   if (
     attestation?.source?.headSha !== plan?.target?.candidateSha ||
+    attestation?.source?.treeSha !== plan?.target?.productTreeSha ||
     attestation?.source?.docsHeadSha !== plan?.target?.docsHarnessSha ||
     attestation?.source?.trackedWorktreeClean !== true ||
     attestation?.source?.docsHarnessClean !== true
@@ -508,6 +540,11 @@ export function validateReturnCovenantDriverAttestation({
     !SHA_256.test(attestation?.isolation?.stateFingerprint || '') ||
     !SHA_256.test(attestation?.isolation?.configFingerprint || '') ||
     !SHA_256.test(attestation?.isolation?.snapshotFingerprint || '') ||
+    !SHA_256.test(
+      attestation?.isolation?.runtimeArtifactFingerprint || '',
+    ) ||
+    typeof attestation?.isolation?.runtimeArtifactPath !== 'string' ||
+    attestation.isolation.runtimeArtifactPath.length < 1 ||
     !SHA_256.test(attestation?.isolation?.driverStartFingerprint || '') ||
     !SHA_256.test(attestation?.isolation?.gatewayStartFingerprint || '')
   ) {
@@ -555,8 +592,11 @@ export function buildReturnCovenantDriverRequest({
     kind: execution.kind,
     lifecycleEdge: execution.lifecycleEdge,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
   };
   if (phase === 'prepare') {
     return {
@@ -660,8 +700,11 @@ export function buildReturnCovenantRunCleanupRequest(plan, bindings = {}) {
     rowId: plan.rowId,
     phase: 'cleanup-run',
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     ...(bindings.fallback === true
       ? { fallback: true }
       : {
@@ -682,9 +725,12 @@ export function buildReturnCovenantRetentionRequest({
     rowId: plan.rowId,
     runId: plan.runId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     driverAttestationSha256: evidence.driverAttestationSha256,
     observationSetSha256: evidence.cleanupRun.observationSetSha256,
     phaseChainSha256: evidence.cleanupRun.phaseChainSha256,

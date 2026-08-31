@@ -29,6 +29,9 @@ import {
   RETURN_COVENANT_PRODUCT_STORE_CONTRACT_SHA,
   RETURN_COVENANT_STORE_OBSERVATION_SCHEMA,
 } from './return-covenant-retention-inspector.mjs';
+import {
+  validateReturnCovenantRuntimeArtifactBinding,
+} from './return-covenant-runtime-artifact-contract.mjs';
 
 export const RETURN_COVENANT_OBSERVATION_SCHEMA =
   'openclaw.k6.return-covenant-observation.v1';
@@ -123,6 +126,67 @@ function validTimestamp(value) {
 
 function safeHex(value, pattern) {
   return typeof value === 'string' && pattern.test(value) ? value : null;
+}
+
+function publicRuntimeArtifactBinding(binding) {
+  if (!validateReturnCovenantRuntimeArtifactBinding(binding)) return null;
+  return {
+    productTreeSha: binding.productTreeSha,
+    manifestSha256: binding.manifestSha256,
+    closureSha256: binding.closureSha256,
+    node: binding.node,
+    mounts: binding.mounts.map((mount) => ({
+      kind: mount.kind,
+      artifactPath: mount.artifactPath,
+      candidatePath: mount.candidatePath,
+      readOnly: mount.readOnly,
+      inventorySha256: mount.inventorySha256,
+    })),
+  };
+}
+
+function validPublicRuntimeArtifactBinding(binding) {
+  return exactKeys(binding, [
+    'productTreeSha',
+    'manifestSha256',
+    'closureSha256',
+    'node',
+    'mounts',
+  ]) &&
+    SHA_40.test(binding.productTreeSha || '') &&
+    HEX_64.test(binding.manifestSha256 || '') &&
+    HEX_64.test(binding.closureSha256 || '') &&
+    exactKeys(binding.node, [
+      'version',
+      'platform',
+      'arch',
+      'modules',
+      'napi',
+      'executableSha256',
+    ]) &&
+    typeof binding.node.version === 'string' &&
+    typeof binding.node.platform === 'string' &&
+    typeof binding.node.arch === 'string' &&
+    typeof binding.node.modules === 'string' &&
+    typeof binding.node.napi === 'string' &&
+    HEX_64.test(binding.node.executableSha256 || '') &&
+    Array.isArray(binding.mounts) &&
+    binding.mounts.length === 2 &&
+    binding.mounts.every((mount) =>
+      exactKeys(mount, [
+        'kind',
+        'artifactPath',
+        'candidatePath',
+        'readOnly',
+        'inventorySha256',
+      ]) &&
+      ['dependency-closure', 'build-output'].includes(mount.kind) &&
+      ['payload/node_modules', 'payload/dist'].includes(
+        mount.artifactPath,
+      ) &&
+      ['node_modules', 'dist'].includes(mount.candidatePath) &&
+      mount.readOnly === true &&
+      HEX_64.test(mount.inventorySha256 || ''));
 }
 
 function nonEmpty(value, minimum = 1) {
@@ -385,6 +449,7 @@ function rawObservationHasClosedShape(observation) {
     'runtimeBuildSha',
     'docsHarnessSha',
     'runtimeConfigSha256',
+    'runtimeArtifactManifestSha256',
     'startedAt',
     'endedAt',
     'returnMode',
@@ -601,6 +666,7 @@ export function validateReturnCovenantObservation({
     'runtimeBuildSha',
     'docsHarnessSha',
     'runtimeConfigSha256',
+    'runtimeArtifactManifestSha256',
   ]) {
     if (observation[name] !== plan.target[name]) {
       addError(errors, 'identity-mismatch', `${name} differs from the frozen target`);
@@ -1366,8 +1432,10 @@ export function validateReturnCovenantRetentionObservation({
       'rowId',
       'runId',
       'candidateSha',
+      'productTreeSha',
       'runtimeBuildSha',
       'runtimeConfigSha256',
+      'runtimeArtifactManifestSha256',
       'requestNonce',
       'observedAt',
       'gateway',
@@ -1377,8 +1445,11 @@ export function validateReturnCovenantRetentionObservation({
     parsedResponse?.rowId !== plan.rowId ||
     parsedResponse?.runId !== plan.runId ||
     parsedResponse?.candidateSha !== plan.target.candidateSha ||
+    parsedResponse?.productTreeSha !== plan.target.productTreeSha ||
     parsedResponse?.runtimeBuildSha !== plan.target.runtimeBuildSha ||
     parsedResponse?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256 ||
+    parsedResponse?.runtimeArtifactManifestSha256 !==
+      plan.target.runtimeArtifactManifestSha256 ||
     parsedResponse?.requestNonce !== requestNonce ||
     !validTimestamp(parsedResponse?.observedAt) ||
     Date.parse(parsedResponse?.observedAt || '') <
@@ -1642,9 +1713,12 @@ function validateStoreSnapshot({
     rowId: plan.rowId,
     runId: plan.runId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     observationSetSha256: digest(evidence.observations),
     phaseChainSha256: digest(evidence.phaseChains),
     cleanupRunReceiptId: evidence.cleanupRun?.receiptId ?? null,
@@ -2011,6 +2085,8 @@ export function validateReturnCovenantObservationSet({
   if (
     evidence?.k6ExitCode !== 0 ||
     evidence?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256 ||
+    evidence?.runtimeArtifactManifestSha256 !==
+      plan.target.runtimeArtifactManifestSha256 ||
     evidence?.cleanupRun?.completed !== true ||
     !nonEmpty(evidence?.cleanupRun?.receiptId, 8) ||
     evidence?.cleanupRun?.observationSetSha256 !== digest(observations) ||
@@ -2019,6 +2095,8 @@ export function validateReturnCovenantObservationSet({
       driverAttestation?.attestationSha256 ||
     evidence?.cleanupRun?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256
     ||
+    evidence?.cleanupRun?.runtimeArtifactManifestSha256 !==
+      plan.target.runtimeArtifactManifestSha256 ||
     !exactKeys(evidence?.teardown, [
       'schema',
       'runId',
@@ -2334,6 +2412,7 @@ export function validateReturnCovenantCleanup({
       'runtimeBuildSha',
       'docsHarnessSha',
       'runtimeConfigSha256',
+      'runtimeArtifactManifestSha256',
       'startedAt',
       'endedAt',
       'retained',
@@ -2353,6 +2432,7 @@ export function validateReturnCovenantCleanup({
       'driverAttestationSha256',
       'runCleanupReceiptId',
       'snapshotMatchedCandidateAfterRun',
+      'runtimeArtifactRemoved',
       'runRootRemoved',
       'driverExitCode',
       'processGroupEmpty',
@@ -2368,7 +2448,9 @@ export function validateReturnCovenantCleanup({
     cleanup?.candidateSha !== plan.target.candidateSha ||
     cleanup?.runtimeBuildSha !== plan.target.runtimeBuildSha ||
     cleanup?.docsHarnessSha !== plan.target.docsHarnessSha ||
-    cleanup?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256
+    cleanup?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256 ||
+    cleanup?.runtimeArtifactManifestSha256 !==
+      plan.target.runtimeArtifactManifestSha256
   ) {
     addError(errors, 'cleanup-failure', 'cleanup identity is incomplete');
   }
@@ -2468,7 +2550,12 @@ export function validateReturnCovenantCleanup({
       addError(errors, 'resource-retention', `cleanup retained ${name}`);
     }
   }
-  for (const name of ['homeRemoved', 'stateRemoved', 'configRemoved']) {
+  for (const name of [
+    'homeRemoved',
+    'stateRemoved',
+    'configRemoved',
+    'runtimeArtifactRemoved',
+  ]) {
     if (cleanup?.[name] !== true) {
       addError(errors, 'cleanup-failure', `${name} is not proven`);
     }
@@ -2566,6 +2653,7 @@ export function validateReturnCovenantCleanup({
     directCleanup?.stateRemoved !== true ||
     directCleanup?.configRemoved !== true ||
     directCleanup?.snapshotRemoved !== true ||
+    directCleanup?.runtimeArtifactRemoved !== true ||
     directCleanup?.driverStopped !== true ||
     directCleanup?.gatewayStopped !== true ||
     directCleanup?.sandboxStopped !== true ||
@@ -2733,6 +2821,15 @@ export function resolveReturnCovenantAuthoritativeReceipt({
     runtimeConfigSha256 !== plan?.target?.runtimeConfigSha256 ||
     driverAttestation?.runtimeConfigSha256 !== runtimeConfigSha256 ||
     cleanup?.runtimeConfigSha256 !== runtimeConfigSha256 ||
+    !validateReturnCovenantRuntimeArtifactBinding(
+      driverAttestation?.runtimeArtifact,
+    ) ||
+    driverAttestation.runtimeArtifact.manifestSha256 !==
+      plan?.target?.runtimeArtifactManifestSha256 ||
+    cleanup?.runtimeArtifactManifestSha256 !==
+      plan?.target?.runtimeArtifactManifestSha256 ||
+    evidence?.runtimeArtifactManifestSha256 !==
+      plan?.target?.runtimeArtifactManifestSha256 ||
     !nonEmpty(runtimeEvaluation.selectedModelRef, 3) ||
     !runtimeEvaluation.sufficient
   ) {
@@ -2749,9 +2846,12 @@ export function resolveReturnCovenantAuthoritativeReceipt({
     failureCategories: [...failureCategories].sort(),
     target: {
       candidateSha: plan?.target?.candidateSha || null,
+      productTreeSha: plan?.target?.productTreeSha || null,
       runtimeBuildSha: plan?.target?.runtimeBuildSha || null,
       docsHarnessSha: plan?.target?.docsHarnessSha || null,
       runtimeConfigSha256: plan?.target?.runtimeConfigSha256 || null,
+      runtimeArtifactManifestSha256:
+        plan?.target?.runtimeArtifactManifestSha256 || null,
     },
     binding: {
       runFingerprint: fingerprint(plan?.runId),
@@ -2768,6 +2868,9 @@ export function resolveReturnCovenantAuthoritativeReceipt({
       cleanupSha256: digest(cleanup),
       driverAttestationSha256: digest(driverAttestation),
       runtimeConfigSha256,
+      runtimeArtifactSha256: digest(
+        driverAttestation?.runtimeArtifact ?? null,
+      ),
       directCleanupSha256: digest(directCleanup),
     },
     driver: {
@@ -2788,6 +2891,7 @@ export function resolveReturnCovenantAuthoritativeReceipt({
         /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u,
       ),
       sourceHeadSha: safeHex(driverAttestation?.source?.headSha, SHA_40),
+      sourceTreeSha: safeHex(driverAttestation?.source?.treeSha, SHA_40),
       docsHeadSha: safeHex(driverAttestation?.source?.docsHeadSha, SHA_40),
       gatewayCommandPathFingerprint: fingerprint(
         driverAttestation?.gatewayCommand?.relativePath,
@@ -2836,6 +2940,9 @@ export function resolveReturnCovenantAuthoritativeReceipt({
       runtimeConfigSha256: safeHex(
         driverAttestation?.runtimeConfigSha256,
         HEX_64,
+      ),
+      runtimeArtifact: publicRuntimeArtifactBinding(
+        driverAttestation?.runtimeArtifact,
       ),
       revocationCapability: {
         inventoryComplete:
@@ -2948,8 +3055,13 @@ export function resolveReturnCovenantAuthoritativeReceipt({
       ),
       runCleanupReceiptFingerprint: fingerprint(cleanup?.runCleanupReceiptId),
       runtimeConfigSha256: safeHex(cleanup?.runtimeConfigSha256, HEX_64),
+      runtimeArtifactManifestSha256: safeHex(
+        cleanup?.runtimeArtifactManifestSha256,
+        HEX_64,
+      ),
       snapshotMatchedCandidateAfterRun:
         cleanup?.snapshotMatchedCandidateAfterRun === true,
+      runtimeArtifactRemoved: cleanup?.runtimeArtifactRemoved === true,
       runRootRemoved: cleanup?.runRootRemoved === true,
       driverExitCode: Number.isInteger(cleanup?.driverExitCode)
         ? cleanup.driverExitCode
@@ -3521,9 +3633,11 @@ function validClosedReceiptShape(receipt) {
   ]) &&
     exactKeys(receipt.target, [
       'candidateSha',
+      'productTreeSha',
       'runtimeBuildSha',
       'docsHarnessSha',
       'runtimeConfigSha256',
+      'runtimeArtifactManifestSha256',
     ]) &&
     exactKeys(receipt.binding, [
       'runFingerprint',
@@ -3536,6 +3650,7 @@ function validClosedReceiptShape(receipt) {
       'cleanupSha256',
       'driverAttestationSha256',
       'runtimeConfigSha256',
+      'runtimeArtifactSha256',
       'directCleanupSha256',
     ]) &&
     exactKeys(receipt.driver, [
@@ -3547,6 +3662,7 @@ function validClosedReceiptShape(receipt) {
       'commandSha256',
       'gitBlob',
       'sourceHeadSha',
+      'sourceTreeSha',
       'docsHeadSha',
       'gatewayCommandPathFingerprint',
       'gatewayCommandSha256',
@@ -3564,9 +3680,14 @@ function validClosedReceiptShape(receipt) {
       'gatewayEndpointFingerprint',
       'gatewaySocketFingerprint',
       'runtimeConfigSha256',
+      'runtimeArtifact',
       'revocationCapability',
       'readyReceiptSha256',
     ]) &&
+    (
+      receipt.driver.runtimeArtifact === null ||
+      validPublicRuntimeArtifactBinding(receipt.driver.runtimeArtifact)
+    ) &&
     exactKeys(receipt.runtimePlugin, [
       'required',
       'runtime',
@@ -3608,7 +3729,9 @@ function validClosedReceiptShape(receipt) {
       'driverAttestationSha256',
       'runCleanupReceiptFingerprint',
       'runtimeConfigSha256',
+      'runtimeArtifactManifestSha256',
       'snapshotMatchedCandidateAfterRun',
+      'runtimeArtifactRemoved',
       'runRootRemoved',
       'driverExitCode',
       'isolationFingerprint',
@@ -3672,9 +3795,13 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     receipt.candidateOnly !== true ||
     receipt.foldRequiresReview !== true ||
     !SHA_40.test(receipt.target?.candidateSha || '') ||
+    !SHA_40.test(receipt.target?.productTreeSha || '') ||
     receipt.target?.runtimeBuildSha !== receipt.target.candidateSha ||
     !SHA_40.test(receipt.target?.docsHarnessSha || '') ||
     !HEX_64.test(receipt.target?.runtimeConfigSha256 || '') ||
+    !HEX_64.test(
+      receipt.target?.runtimeArtifactManifestSha256 || '',
+    ) ||
     !HEX_16.test(receipt.binding?.runFingerprint || '') ||
     !HEX_64.test(receipt.binding?.planSha256 || '') ||
     !HEX_64.test(receipt.binding?.evidenceSha256 || '') ||
@@ -3685,6 +3812,7 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     !HEX_64.test(receipt.binding?.cleanupSha256 || '') ||
     !HEX_64.test(receipt.binding?.driverAttestationSha256 || '') ||
     receipt.binding?.runtimeConfigSha256 !== receipt.target.runtimeConfigSha256 ||
+    !HEX_64.test(receipt.binding?.runtimeArtifactSha256 || '') ||
     !HEX_64.test(receipt.binding?.directCleanupSha256 || '') ||
     receipt.integrity?.algorithm !== RETURN_COVENANT_INTEGRITY_ALGORITHM
   ) {
@@ -3799,6 +3927,7 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     HEX_64.test(receipt.driver?.commandSha256 || '') &&
     /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u.test(receipt.driver?.gitBlob || '') &&
     receipt.driver?.sourceHeadSha === receipt.target.candidateSha &&
+    receipt.driver?.sourceTreeSha === receipt.target.productTreeSha &&
     receipt.driver?.docsHeadSha === receipt.target.docsHarnessSha &&
     validFingerprint(receipt.driver?.gatewayCommandPathFingerprint) &&
     HEX_64.test(receipt.driver?.gatewayCommandSha256 || '') &&
@@ -3818,6 +3947,11 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     validFingerprint(receipt.driver?.gatewayEndpointFingerprint) &&
     validFingerprint(receipt.driver?.gatewaySocketFingerprint) &&
     receipt.driver?.runtimeConfigSha256 === receipt.target.runtimeConfigSha256 &&
+    validPublicRuntimeArtifactBinding(receipt.driver?.runtimeArtifact) &&
+    receipt.driver.runtimeArtifact.productTreeSha ===
+      receipt.target.productTreeSha &&
+    receipt.driver.runtimeArtifact.manifestSha256 ===
+      receipt.target.runtimeArtifactManifestSha256 &&
     exactKeys(receipt.driver?.revocationCapability, [
       'inventoryComplete',
       'revocationApiExposed',
@@ -3893,7 +4027,10 @@ export function validateReturnCovenantAuthoritativeReceipt(receipt, signingKey) 
     receipt.cleanup?.phaseChainSha256 === receipt.binding.phaseChainSha256 &&
     receipt.cleanup?.driverAttestationSha256 === receipt.driver.attestationSha256 &&
     receipt.cleanup?.runtimeConfigSha256 === receipt.target.runtimeConfigSha256 &&
+    receipt.cleanup?.runtimeArtifactManifestSha256 ===
+      receipt.target.runtimeArtifactManifestSha256 &&
     receipt.cleanup?.snapshotMatchedCandidateAfterRun === true &&
+    receipt.cleanup?.runtimeArtifactRemoved === true &&
     receipt.cleanup?.runRootRemoved === true &&
     receipt.cleanup?.driverExitCode === 0 &&
     receipt.cleanup?.isolationFingerprint ===

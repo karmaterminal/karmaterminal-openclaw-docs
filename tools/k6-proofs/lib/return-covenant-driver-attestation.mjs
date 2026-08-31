@@ -15,6 +15,9 @@ import {
   validateReturnCovenantDriverAttestation,
   validateReturnCovenantPlan,
 } from './return-covenant-scenario-contract.mjs';
+import {
+  validateReturnCovenantRuntimeArtifactBinding,
+} from './return-covenant-runtime-artifact-contract.mjs';
 import { canonicalJson } from './signed-observer-receipt.mjs';
 
 export const RETURN_COVENANT_DRIVER_READY_SCHEMA =
@@ -288,7 +291,8 @@ export async function createReturnCovenantDriverAttestation({
     launch.phaseSigningKey.length < 32
     ||
     !Number.isInteger(launch.processGroupId) ||
-    launch.processGroupId <= 1
+    launch.processGroupId <= 1 ||
+    !validateReturnCovenantRuntimeArtifactBinding(launch.runtimeArtifact)
   ) {
     throw new Error('trusted launcher receipt is required');
   }
@@ -300,15 +304,22 @@ export async function createReturnCovenantDriverAttestation({
     realpath(sourceDir),
     realpath(docsDir),
   ]);
-  const [runRoot, homePath, statePath, configPath] = await Promise.all([
+  const [
+    runRoot,
+    homePath,
+    statePath,
+    configPath,
+    runtimeArtifactPath,
+  ] = await Promise.all([
     realpath(launch.runRoot),
     realpath(launch.homePath),
     realpath(launch.statePath),
     realpath(launch.configPath),
+    realpath(launch.runtimeArtifactPath),
   ]);
   if (
     sourceRoot !== await realpath(launch.snapshotPath) ||
-    ![sourceRoot, homePath, statePath, configPath]
+    ![sourceRoot, homePath, statePath, configPath, runtimeArtifactPath]
       .every((value) => pathWithin(value, runRoot)) ||
     pathWithin(runRoot, docsRoot) ||
     (launch.livePaths || []).some((value) =>
@@ -316,11 +327,18 @@ export async function createReturnCovenantDriverAttestation({
   ) {
     throw new Error('trusted launcher isolation paths overlap live or external state');
   }
-  const [runInfo, homeInfo, stateInfo, configInfo] = await Promise.all([
+  const [
+    runInfo,
+    homeInfo,
+    stateInfo,
+    configInfo,
+    runtimeArtifactInfo,
+  ] = await Promise.all([
     lstat(runRoot),
     lstat(homePath),
     lstat(statePath),
     lstat(configPath),
+    lstat(runtimeArtifactPath),
   ]);
   if (
     !runInfo.isDirectory() ||
@@ -328,7 +346,10 @@ export async function createReturnCovenantDriverAttestation({
     !stateInfo.isDirectory() ||
     !configInfo.isFile() ||
     [runInfo, homeInfo, stateInfo, configInfo].some((info) =>
-      info.isSymbolicLink() || (info.mode & 0o077) !== 0)
+      info.isSymbolicLink() || (info.mode & 0o077) !== 0) ||
+    !runtimeArtifactInfo.isDirectory() ||
+    runtimeArtifactInfo.isSymbolicLink() ||
+    (runtimeArtifactInfo.mode & 0o777) !== 0o555
   ) {
     throw new Error('trusted launcher isolation paths are not private real paths');
   }
@@ -349,6 +370,7 @@ export async function createReturnCovenantDriverAttestation({
 
   const [
     sourceHead,
+    sourceTree,
     docsHead,
     sourceClean,
     docsClean,
@@ -361,6 +383,7 @@ export async function createReturnCovenantDriverAttestation({
     interpreterPath,
   ] = await Promise.all([
     git(sourceRoot, ['rev-parse', 'HEAD']),
+    git(sourceRoot, ['rev-parse', 'HEAD^{tree}']),
     git(docsRoot, ['rev-parse', 'HEAD']),
     trackedTreeClean(sourceRoot),
     trackedTreeClean(docsRoot),
@@ -372,7 +395,11 @@ export async function createReturnCovenantDriverAttestation({
     readFile(gatewayPath),
     realpath(process.execPath),
   ]);
-  if (sourceHead !== plan.target.candidateSha || docsHead !== plan.target.docsHarnessSha) {
+  if (
+    sourceHead !== plan.target.candidateSha ||
+    sourceTree !== plan.target.productTreeSha ||
+    docsHead !== plan.target.docsHarnessSha
+  ) {
     throw new Error('product source or docs harness HEAD differs from the plan');
   }
   if (!sourceClean || !docsClean) {
@@ -405,9 +432,12 @@ export async function createReturnCovenantDriverAttestation({
     ready?.runId !== plan.runId ||
     ready?.rowId !== plan.rowId ||
     ready?.candidateSha !== plan.target.candidateSha ||
+    ready?.productTreeSha !== plan.target.productTreeSha ||
     ready?.runtimeBuildSha !== plan.target.runtimeBuildSha ||
     ready?.docsHarnessSha !== plan.target.docsHarnessSha ||
     ready?.runtimeConfigSha256 !== plan.target.runtimeConfigSha256 ||
+    ready?.runtimeArtifactManifestSha256 !==
+      plan.target.runtimeArtifactManifestSha256 ||
     ready?.commandRelativePath !== relativePath ||
     ready?.commandSha256 !== commandSha256 ||
     ready?.gatewayCommandRelativePath !== gatewayRelativePath ||
@@ -502,6 +532,11 @@ export async function createReturnCovenantDriverAttestation({
       process.environment.OPENCLAW_CONFIG_PATH !== launch.configPath ||
       process.environment.OPENCLAW_RETURN_COVENANT_PHASE_KEY !==
         launch.phaseSigningKey ||
+      process.environment.OPENCLAW_PRODUCT_TREE_SHA !==
+        plan.target.productTreeSha ||
+      process.environment
+        .OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256 !==
+        plan.target.runtimeArtifactManifestSha256 ||
       sha256(process.environment.OPENCLAW_GATEWAY_TOKEN || '') !==
         launch.gatewayTokenFingerprint
     ) {
@@ -522,9 +557,11 @@ export async function createReturnCovenantDriverAttestation({
     runId: plan.runId,
     rowId: plan.rowId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifact: launch.runtimeArtifact,
     endpoint: driverSocket.endpoint,
     command: {
       relativePath,
@@ -543,6 +580,7 @@ export async function createReturnCovenantDriverAttestation({
     },
     source: {
       headSha: sourceHead,
+      treeSha: sourceTree,
       docsHeadSha: docsHead,
       trackedWorktreeClean: true,
       docsHarnessClean: true,
@@ -586,11 +624,13 @@ export async function createReturnCovenantDriverAttestation({
       statePath,
       configPath,
       snapshotPath: sourceRoot,
+      runtimeArtifactPath,
       runRootFingerprint: sha256(launch.runRoot),
       homeFingerprint: sha256(launch.homePath),
       stateFingerprint: sha256(launch.statePath),
       configFingerprint: sha256(launch.configPath),
       snapshotFingerprint: sha256(sourceRoot),
+      runtimeArtifactFingerprint: sha256(runtimeArtifactPath),
       createdByTrustedLauncher: true,
       driverPid: ready.pid,
       gatewayPid: ready.gatewayPid,
@@ -630,6 +670,7 @@ export async function verifyReturnCovenantDirectCleanup(attestation) {
     isolation?.statePath,
     isolation?.configPath,
     isolation?.snapshotPath,
+    isolation?.runtimeArtifactPath,
   ];
   const pathResults = await Promise.all(paths.map(async (value) => {
     if (!path.isAbsolute(value || '')) return false;
@@ -683,6 +724,7 @@ export async function verifyReturnCovenantDirectCleanup(attestation) {
     stateRemoved: pathResults[2] === true,
     configRemoved: pathResults[3] === true,
     snapshotRemoved: pathResults[4] === true,
+    runtimeArtifactRemoved: pathResults[5] === true,
     driverStopped,
     gatewayStopped,
     sandboxStopped,

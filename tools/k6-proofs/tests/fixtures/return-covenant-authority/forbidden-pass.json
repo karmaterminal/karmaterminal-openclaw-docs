@@ -9,6 +9,7 @@
   "runtimeBuildSha": "1111111111111111111111111111111111111111",
   "docsHarnessSha": "2222222222222222222222222222222222222222",
   "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
+  "runtimeArtifactManifestSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "startedAt": "2026-08-28T12:01:00.000Z",
   "endedAt": "2026-08-28T12:01:06.000Z",
   "returnMode": "normal",

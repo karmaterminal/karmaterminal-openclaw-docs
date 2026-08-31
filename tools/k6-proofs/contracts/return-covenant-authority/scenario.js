@@ -458,7 +458,9 @@ export default function () {
     cleanupRun.phaseChainSha256 !== cleanupBindings.phaseChainSha256 ||
     cleanupRun.driverAttestationSha256 !==
       cleanupBindings.driverAttestationSha256 ||
-    cleanupRun.runtimeConfigSha256 !== plan.target.runtimeConfigSha256
+    cleanupRun.runtimeConfigSha256 !== plan.target.runtimeConfigSha256 ||
+    cleanupRun.runtimeArtifactManifestSha256 !==
+      plan.target.runtimeArtifactManifestSha256
   ) {
     throw new Error('cleanup-run response is not bound to completed evidence');
   }
@@ -484,6 +486,8 @@ export default function () {
     scenarioFailures,
     driverAttestationSha256: driverAttestation.attestationSha256,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     cleanupRun,
     cleanupRunProof: cleanupRunResponse.driverBinding,
   };

@@ -47,6 +47,11 @@ import {
 import {
   inspectReturnCovenantDurableStores,
 } from '../lib/return-covenant-retention-inspector.mjs';
+import {
+  materializeReturnCovenantRuntimeArtifact,
+  removeReturnCovenantRuntimeArtifact,
+  verifyReturnCovenantTrackedCommand,
+} from '../lib/return-covenant-runtime-artifact.mjs';
 
 const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -72,6 +77,7 @@ const CANDIDATE_CLEANUP_CLAIM_KEYS = [
 ];
 const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/contracts/return-covenant-authority/retention-observation.schema.json',
+  'tools/k6-proofs/contracts/return-covenant-authority/runtime-artifact.schema.json',
   'tools/k6-proofs/contracts/return-covenant-authority/scenario.js',
   'tools/k6-proofs/k6-proof-binaries.json',
   'tools/k6-proofs/lib/canonical-json.mjs',
@@ -80,6 +86,8 @@ const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/lib/return-covenant-candidate-io.mjs',
   'tools/k6-proofs/lib/return-covenant-driver-attestation.mjs',
   'tools/k6-proofs/lib/return-covenant-retention-inspector.mjs',
+  'tools/k6-proofs/lib/return-covenant-runtime-artifact-contract.mjs',
+  'tools/k6-proofs/lib/return-covenant-runtime-artifact.mjs',
   'tools/k6-proofs/lib/return-covenant-scenario-contract.mjs',
   'tools/k6-proofs/lib/signed-observer-receipt.mjs',
   'tools/k6-proofs/scripts/launch-return-covenant-driver.mjs',
@@ -162,6 +170,7 @@ function parseArgs(argv) {
     'plan',
     'source-dir',
     'runtime-config',
+    'runtime-artifact',
     'control-dir',
     'artifact-dir',
   ]);
@@ -171,6 +180,7 @@ function parseArgs(argv) {
     if (!flag?.startsWith('--') || !value) {
       throw new Error(
         'usage: --plan <json> --source-dir <product> --runtime-config <json> ' +
+        '--runtime-artifact <verified-closure> ' +
         '--control-dir <empty-private-dir> --artifact-dir <empty-private-dir>',
       );
     }
@@ -182,6 +192,7 @@ function parseArgs(argv) {
     'plan',
     'source-dir',
     'runtime-config',
+    'runtime-artifact',
     'control-dir',
     'artifact-dir',
   ]) {
@@ -219,6 +230,38 @@ async function assertEmptyPrivateDirectory(directory, excludedRoots) {
     }
   }
   return resolved;
+}
+
+function assertDisjointPath(value, excludedRoots, label) {
+  for (const root of excludedRoots) {
+    if (pathWithin(value, root) || pathWithin(root, value)) {
+      throw new Error(`${label} overlaps a product, harness, or private run path`);
+    }
+  }
+}
+
+async function prepareRuntimeMountPoints(snapshotPath, mounts) {
+  const mountPoints = [];
+  for (const mount of mounts) {
+    const destination = path.resolve(snapshotPath, mount.candidatePath);
+    if (!pathWithin(destination, snapshotPath)) {
+      throw new Error('runtime artifact candidate mount path escapes the snapshot');
+    }
+    try {
+      await lstat(destination);
+      throw new Error(
+        `runtime artifact would shadow candidate bytes: ${mount.candidatePath}`,
+      );
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    }
+    await mkdir(destination, { mode: 0o555 });
+    mountPoints.push({
+      ...mount,
+      destination,
+    });
+  }
+  return mountPoints;
 }
 
 async function waitForJson(file, child, timeoutMs = 30_000) {
@@ -332,6 +375,8 @@ async function inspectGatewayMember({
   statePath,
   configPath,
   phaseSigningKey,
+  productTreeSha,
+  runtimeArtifactManifestSha256,
   gatewayArgs,
   gatewayTokenFingerprint,
   runtimeConfigSha256,
@@ -373,6 +418,9 @@ async function inspectGatewayMember({
     environment.OPENCLAW_STATE_DIR === statePath &&
     environment.OPENCLAW_CONFIG_PATH === configPath &&
     environment.OPENCLAW_RETURN_COVENANT_PHASE_KEY === phaseSigningKey &&
+    environment.OPENCLAW_PRODUCT_TREE_SHA === productTreeSha &&
+    environment.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256 ===
+      runtimeArtifactManifestSha256 &&
     sha256(environment.OPENCLAW_GATEWAY_TOKEN || '') ===
       gatewayTokenFingerprint &&
     loadedConfigSha256 === runtimeConfigSha256 &&
@@ -476,6 +524,8 @@ async function resolveReadyHostPids({
   statePath,
   configPath,
   phaseSigningKey,
+  productTreeSha,
+  runtimeArtifactManifestSha256,
   gatewayTokenFingerprint,
 }) {
   let lastDebug = [];
@@ -508,6 +558,9 @@ async function resolveReadyHostPids({
           environment.OPENCLAW_STATE_DIR === statePath &&
           environment.OPENCLAW_CONFIG_PATH === configPath &&
           environment.OPENCLAW_RETURN_COVENANT_PHASE_KEY === phaseSigningKey &&
+          environment.OPENCLAW_PRODUCT_TREE_SHA === productTreeSha &&
+          environment.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256 ===
+            runtimeArtifactManifestSha256 &&
           sha256(environment.OPENCLAW_GATEWAY_TOKEN || '') ===
             gatewayTokenFingerprint &&
           await isDescendantOrSelf(pid, processGroupId);
@@ -650,73 +703,6 @@ async function existingLivePaths() {
   return [...new Set(values)];
 }
 
-async function verifySnapshotCommand({
-  snapshotPath,
-  relativePath,
-  candidateSha,
-  expectedSha256,
-}) {
-  const target = path.resolve(snapshotPath, relativePath);
-  const [snapshotRoot, targetInfo, targetReal, treeEntry] = await Promise.all([
-    realpath(snapshotPath),
-    lstat(target),
-    realpath(target),
-    execFileAsync('git', [
-      '-C',
-      snapshotPath,
-      'ls-tree',
-      candidateSha,
-      '--',
-      relativePath,
-    ], { encoding: 'utf8' }).then((result) => result.stdout.trim()),
-  ]);
-  if (
-    !pathWithin(targetReal, snapshotRoot) ||
-    targetReal !== target ||
-    !targetInfo.isFile() ||
-    targetInfo.isSymbolicLink()
-  ) {
-    throw new Error('candidate command must be a contained regular non-symlink file');
-  }
-  const treeMatch = treeEntry.match(
-    /^(100644|100755) blob ([a-f0-9]{40,64})\t(.+)$/u,
-  );
-  if (!treeMatch || treeMatch[3] !== relativePath) {
-    throw new Error('candidate command is not a regular Git blob');
-  }
-  const handle = await open(
-    target,
-    fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW,
-  );
-  try {
-    const handleInfo = await handle.stat();
-    if (
-      !handleInfo.isFile() ||
-      handleInfo.dev !== targetInfo.dev ||
-      handleInfo.ino !== targetInfo.ino
-    ) {
-      throw new Error('candidate command changed during verification');
-    }
-    const bytes = await handle.readFile();
-    const workingBlob = (await execFileAsync('git', [
-      '-C',
-      snapshotPath,
-      'hash-object',
-      '--',
-      relativePath,
-    ], { encoding: 'utf8' })).stdout.trim();
-    if (
-      workingBlob !== treeMatch[2] ||
-      sha256(bytes) !== expectedSha256
-    ) {
-      throw new Error('candidate command bytes differ from the frozen plan');
-    }
-  } finally {
-    await handle.close();
-  }
-  return { path: target, gitMode: treeMatch[1] };
-}
-
 async function preparePinnedK6({ docsDir, runRoot }) {
   const policy = await readJson(
     path.join(docsDir, 'tools/k6-proofs/k6-proof-binaries.json'),
@@ -833,14 +819,28 @@ async function main() {
   const args = parseArgs(process.argv);
   const docsDir = await realpath(defaultDocsDir);
   const sourceDir = await realpath(args['source-dir']);
+  const suppliedRuntimeArtifact = path.resolve(args['runtime-artifact']);
+  const suppliedRuntimeArtifactInfo = await lstat(suppliedRuntimeArtifact);
+  if (
+    !suppliedRuntimeArtifactInfo.isDirectory() ||
+    suppliedRuntimeArtifactInfo.isSymbolicLink()
+  ) {
+    throw new Error('--runtime-artifact must be a real directory');
+  }
+  const runtimeArtifactSource = await realpath(suppliedRuntimeArtifact);
   const livePaths = await existingLivePaths();
+  assertDisjointPath(
+    runtimeArtifactSource,
+    [docsDir, sourceDir, ...livePaths],
+    '--runtime-artifact',
+  );
   const controlDir = await assertEmptyPrivateDirectory(
     args['control-dir'],
-    [docsDir, sourceDir, ...livePaths],
+    [docsDir, sourceDir, runtimeArtifactSource, ...livePaths],
   );
   const artifactDir = await assertEmptyPrivateDirectory(
     args['artifact-dir'],
-    [docsDir, sourceDir, controlDir, ...livePaths],
+    [docsDir, sourceDir, runtimeArtifactSource, controlDir, ...livePaths],
   );
   const [plan, runtimeConfig] = await Promise.all([
     readJson(args.plan),
@@ -849,6 +849,9 @@ async function main() {
   const planErrors = validateReturnCovenantPlan(plan);
   if (planErrors.length > 0) {
     throw new Error(`invalid return covenant plan: ${planErrors.join('; ')}`);
+  }
+  if (plan.driver.fixtureCommand.status !== 'available') {
+    throw new Error('product-owned fixture command is not available');
   }
   if (sha256(canonicalJson(runtimeConfig)) !== plan.target.runtimeConfigSha256) {
     throw new Error('runtime config differs from the frozen plan digest');
@@ -865,6 +868,7 @@ async function main() {
   const ipcDir = path.join(runRoot, 'ipc');
   const attestationDir = path.join(runRoot, 'attestation');
   const retentionSnapshotsPath = path.join(runRoot, 'retention-snapshots');
+  const runtimeArtifactPath = path.join(runRoot, 'runtime-artifact');
   const configPath = path.join(configDir, 'openclaw.json');
   const k6ConfigPath = path.join(configDir, 'k6.json');
   const privatePlanPath = path.join(configDir, 'plan.json');
@@ -898,6 +902,8 @@ async function main() {
   let monitorPromise = null;
   let liveStoreObservationPromise = null;
   let initialGatewayObservation = null;
+  let runtimeArtifact;
+  let runtimeMounts = [];
   const observedGateways = new Map();
   const handleTermination = () => {
     if (child) void terminateProcessGroup(child.pid);
@@ -948,17 +954,34 @@ async function main() {
         flag: 'wx',
       }),
     ]);
+    runtimeArtifact = await materializeReturnCovenantRuntimeArtifact({
+      artifactDir: runtimeArtifactSource,
+      destinationDir: runtimeArtifactPath,
+      sourceDir: snapshotPath,
+      expected: {
+        rowId: plan.rowId,
+        runId: plan.runId,
+        productSha: plan.target.candidateSha,
+        productTreeSha: plan.target.productTreeSha,
+        docsHarnessSha: plan.target.docsHarnessSha,
+        manifestSha256: plan.target.runtimeArtifactManifestSha256,
+      },
+    });
+    runtimeMounts = await prepareRuntimeMountPoints(
+      snapshotPath,
+      runtimeArtifact.mounts,
+    );
     const [driverCommand, gatewayCommand] = await Promise.all([
-      verifySnapshotCommand({
-        snapshotPath,
+      verifyReturnCovenantTrackedCommand({
+        sourceDir: snapshotPath,
         relativePath: plan.driver.fixtureCommand.relativePath,
-        candidateSha: plan.target.candidateSha,
+        productSha: plan.target.candidateSha,
         expectedSha256: plan.driver.fixtureCommand.sha256,
       }),
-      verifySnapshotCommand({
-        snapshotPath,
+      verifyReturnCovenantTrackedCommand({
+        sourceDir: snapshotPath,
         relativePath: plan.driver.gatewayCommand.relativePath,
-        candidateSha: plan.target.candidateSha,
+        productSha: plan.target.candidateSha,
         expectedSha256: plan.driver.gatewayCommand.sha256,
       }),
     ]);
@@ -1023,6 +1046,7 @@ async function main() {
         ipcDir,
         attestationDir,
         configDir,
+        runtimeArtifactPath,
       ]),
       '--ro-bind', process.execPath, process.execPath,
       '--ro-bind', docsDir, docsDir,
@@ -1033,6 +1057,11 @@ async function main() {
       '--ro-bind', attestationDir, attestationDir,
       '--ro-bind', configDir, configDir,
       '--ro-bind', snapshotPath, snapshotPath,
+      ...runtimeMounts.flatMap((mount) => [
+        '--ro-bind',
+        mount.source,
+        mount.destination,
+      ]),
       '--chdir', snapshotPath,
       '--clearenv',
       '--setenv', 'PATH', baseEnvironment.PATH || '',
@@ -1048,7 +1077,10 @@ async function main() {
       '--setenv', 'OPENCLAW_RETURN_COVENANT_ATTESTATION_PATH',
       candidateAttestationPath,
       '--setenv', 'OPENCLAW_CANDIDATE_SHA', plan.target.candidateSha,
+      '--setenv', 'OPENCLAW_PRODUCT_TREE_SHA', plan.target.productTreeSha,
       '--setenv', 'OPENCLAW_PROOFS_DOCS_REF', plan.target.docsHarnessSha,
+      '--setenv', 'OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256',
+      runtimeArtifact.binding.manifestSha256,
       process.execPath,
       supervisorPath,
       '--driver', driverPath,
@@ -1142,7 +1174,20 @@ async function main() {
     await pinnedK6.handle.close();
     pinnedK6.handle = null;
     await spawned;
-    const namespaceReady = await waitForJson(candidateReadyPath, child);
+    let namespaceReady;
+    try {
+      namespaceReady = await waitForJson(candidateReadyPath, child);
+    } catch (error) {
+      const sandboxFailure = capturedDriverLog
+        .split(/\r?\n/u)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .at(-1);
+      if (sandboxFailure) {
+        throw new Error(`${error.message}; ${sandboxFailure}`);
+      }
+      throw error;
+    }
     const hostPids = await resolveReadyHostPids({
       processGroupId: child.pid,
       ready: namespaceReady,
@@ -1154,6 +1199,9 @@ async function main() {
       statePath,
       configPath,
       phaseSigningKey,
+      productTreeSha: plan.target.productTreeSha,
+      runtimeArtifactManifestSha256:
+        plan.target.runtimeArtifactManifestSha256,
       gatewayTokenFingerprint: sha256(gatewayToken),
     });
     ready = {
@@ -1187,6 +1235,8 @@ async function main() {
         statePath,
         configPath,
         snapshotPath,
+        runtimeArtifactPath,
+        runtimeArtifact: runtimeArtifact.binding,
         livePaths,
       },
     });
@@ -1195,6 +1245,8 @@ async function main() {
     process.stdout.write(`${JSON.stringify({
       status: 'ready',
       candidateSha: plan.target.candidateSha,
+      productTreeSha: plan.target.productTreeSha,
+      runtimeArtifact: runtimeArtifact.binding,
       attestation: path.basename(attestationPath),
       endpoint: attestation.endpoint,
     })}\n`);
@@ -1213,6 +1265,9 @@ async function main() {
       statePath,
       configPath,
       phaseSigningKey,
+      productTreeSha: plan.target.productTreeSha,
+      runtimeArtifactManifestSha256:
+        plan.target.runtimeArtifactManifestSha256,
       gatewayArgs: plan.driver.gatewayCommand.args,
       gatewayTokenFingerprint: sha256(gatewayToken),
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
@@ -1262,6 +1317,9 @@ async function main() {
               statePath,
               configPath,
               phaseSigningKey,
+              productTreeSha: plan.target.productTreeSha,
+              runtimeArtifactManifestSha256:
+                plan.target.runtimeArtifactManifestSha256,
               gatewayArgs: plan.driver.gatewayCommand.args,
               gatewayTokenFingerprint: sha256(gatewayToken),
               runtimeConfigSha256: plan.target.runtimeConfigSha256,
@@ -1581,6 +1639,7 @@ async function main() {
       '--porcelain=v1',
       '--untracked-files=no',
     ], { encoding: 'utf8' })).stdout.trim() === '';
+    await removeReturnCovenantRuntimeArtifact(runtimeArtifactPath);
     await rm(runRoot, { recursive: true, force: true });
     let runRootRemoved = false;
     try {
@@ -1597,6 +1656,8 @@ async function main() {
       runtimeBuildSha: plan.target.runtimeBuildSha,
       docsHarnessSha: plan.target.docsHarnessSha,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      runtimeArtifactManifestSha256:
+        runtimeArtifact.binding.manifestSha256,
       startedAt: cleanupStartedAt,
       endedAt: new Date().toISOString(),
       retained: {
@@ -1622,6 +1683,7 @@ async function main() {
       configRemoved: runRootRemoved,
       snapshotMatchedCandidateAfterRun:
         snapshotHead === plan.target.candidateSha && snapshotClean,
+      runtimeArtifactRemoved: runRootRemoved,
       runRootRemoved,
       driverExitCode,
       processGroupEmpty: remainingGroupMembers.length === 0,
@@ -1716,6 +1778,9 @@ async function main() {
       ]);
     }
     if (!completed) {
+      if (runtimeArtifact) {
+        await removeReturnCovenantRuntimeArtifact(runtimeArtifactPath);
+      }
       await rm(runRoot, { recursive: true, force: true });
     }
   }

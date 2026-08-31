@@ -18,6 +18,10 @@ test('return covenant harness is complete but remains outside proof authority re
     cleanupSchemaRaw,
     retentionSchemaRaw,
     retentionInspector,
+    runtimeArtifactSchemaRaw,
+    runtimeArtifactContract,
+    runtimeArtifact,
+    runtimeArtifactBuilder,
     launcher,
     supervisor,
     mockDriver,
@@ -34,6 +38,10 @@ test('return covenant harness is complete but remains outside proof authority re
     read('contracts/return-covenant-authority/cleanup.schema.json'),
     read('contracts/return-covenant-authority/retention-observation.schema.json'),
     read('lib/return-covenant-retention-inspector.mjs'),
+    read('contracts/return-covenant-authority/runtime-artifact.schema.json'),
+    read('lib/return-covenant-runtime-artifact-contract.mjs'),
+    read('lib/return-covenant-runtime-artifact.mjs'),
+    read('scripts/build-return-covenant-runtime-artifact.mjs'),
     read('scripts/launch-return-covenant-driver.mjs'),
     read('scripts/run-return-covenant-sandbox.mjs'),
     read('tests/fixtures/return-covenant-authority/mock-product-driver.mjs'),
@@ -45,16 +53,18 @@ test('return covenant harness is complete but remains outside proof authority re
   const observerSchema = JSON.parse(observerSchemaRaw);
   const cleanupSchema = JSON.parse(cleanupSchemaRaw);
   const retentionSchema = JSON.parse(retentionSchemaRaw);
+  const runtimeArtifactSchema = JSON.parse(runtimeArtifactSchemaRaw);
   const index = JSON.parse(indexRaw);
   const currentManifest = JSON.parse(
     await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
   );
 
-  assert.match(documentation, /retention observer aligned; product fixture seam missing; no proof run/i);
+  assert.match(documentation, /runtime artifact attested; product fixture seam missing; no proof run/i);
   assert.match(documentation, /R-CD-2[\s\S]*current corpus state `partial`/);
   assert.match(documentation, /No exact-head proof ran/);
   assert.match(documentation, /driver\.fixtureCommand\.status=missing-product-seam/);
   assert.match(documentation, /launch-return-covenant-driver\.mjs/);
+  assert.match(documentation, /runtime artifact/i);
   assert.match(documentation, /--artifact-dir/);
   assert.match(documentation, /--log-format raw --log-output stdout/);
   assert.match(documentation, /k6-exit-code\.txt/);
@@ -110,6 +120,12 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(launcher, /O_NOFOLLOW/);
   assert.match(supervisor, /spawn\(input\.k6/);
   assert.match(launcher, /\/usr\/bin\/bwrap/);
+  assert.match(launcher, /--runtime-artifact/);
+  assert.match(launcher, /materializeReturnCovenantRuntimeArtifact/);
+  assert.match(
+    launcher,
+    /mount\.source[\s\S]*mount\.destination/,
+  );
   assert.match(launcher, /--unshare-pid/);
   assert.match(launcher, /--unshare-net/);
   assert.match(launcher, /--unshare-ipc/);
@@ -146,6 +162,10 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.match(launcher, /randomBytes\(32\)/);
   assert.match(launcher, /OPENCLAW_RETURN_COVENANT_PHASE_KEY/);
   assert.match(launcher, /OPENCLAW_STATE_DIR/);
+  assert.match(
+    launcher,
+    /OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256/,
+  );
   assert.match(launcher, /rm\(runRoot, \{ recursive: true, force: true \}\)/);
   const inheritedGatewayObservation = launcher.slice(
     launcher.lastIndexOf(
@@ -202,6 +222,13 @@ test('return covenant harness is complete but remains outside proof authority re
     /fresh-database drift control/,
   );
   assert.match(retentionInspector, /O_NOFOLLOW/);
+  assert.match(runtimeArtifact, /O_NOFOLLOW/);
+  assert.match(runtimeArtifact, /hard-linked/);
+  assert.match(runtimeArtifact, /special file/);
+  assert.match(runtimeArtifact, /runtime artifact Node identity differs/);
+  assert.match(runtimeArtifact, /missing or extra mount roots/);
+  assert.match(runtimeArtifactContract, /readOnly/);
+  assert.match(runtimeArtifactBuilder, /package-manager-command/);
   assert.doesNotMatch(
     retentionInspector,
     /new DatabaseSync\(databasePath/,
@@ -232,6 +259,10 @@ test('return covenant harness is complete but remains outside proof authority re
   assert.equal(
     retentionSchema.properties.schema.const,
     'openclaw.k6.return-covenant-retention-observation.v1',
+  );
+  assert.equal(
+    runtimeArtifactSchema.properties.schema.const,
+    'openclaw.k6.return-covenant-runtime-artifact.v1',
   );
   assert.equal(
     cleanupSchema.properties.retentionAuthority.properties.candidateCleanup.const,

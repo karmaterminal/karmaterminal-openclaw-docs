@@ -2760,9 +2760,12 @@ export async function inspectReturnCovenantDurableStores({
     rowId: plan.rowId,
     runId: plan.runId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     observationSetSha256: sha256(canonicalJson(evidence.observations)),
     phaseChainSha256: sha256(canonicalJson(evidence.phaseChains)),
     cleanupRunReceiptId: evidence.cleanupRun?.receiptId ?? null,

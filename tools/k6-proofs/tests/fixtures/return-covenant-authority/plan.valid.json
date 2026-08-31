@@ -4,9 +4,11 @@
   "runId": "rcv-00000000000000000000000000000001",
   "target": {
     "candidateSha": "1111111111111111111111111111111111111111",
+    "productTreeSha": "3333333333333333333333333333333333333333",
     "runtimeBuildSha": "1111111111111111111111111111111111111111",
     "docsHarnessSha": "2222222222222222222222222222222222222222",
-    "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5"
+    "runtimeConfigSha256": "cc0b9df04fe7354196a2da58dad333aef06a36b3b1e28d31cbae2a15087893c5",
+    "runtimeArtifactManifestSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
   },
   "driver": {
     "schema": "openclaw.k6.return-covenant-fixture-driver.v1",

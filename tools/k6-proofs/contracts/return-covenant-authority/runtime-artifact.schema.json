@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/runtime-artifact.schema.json",
+  "title": "Attested return-covenant runtime artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rowId",
+    "runId",
+    "product",
+    "docsHarnessSha",
+    "build",
+    "toolchain",
+    "inventory"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-runtime-artifact.v1"
+    },
+    "rowId": { "const": "R-CD-RETURN-COVENANT-AUTHORITY" },
+    "runId": { "$ref": "#/$defs/runId" },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commitSha", "treeSha"],
+      "properties": {
+        "commitSha": { "$ref": "#/$defs/sha40" },
+        "treeSha": { "$ref": "#/$defs/sha40" }
+      }
+    },
+    "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputTreeSha", "command", "inputs"],
+      "properties": {
+        "inputTreeSha": { "$ref": "#/$defs/sha40" },
+        "command": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "pnpm" },
+            { "const": "run" },
+            { "const": "build" }
+          ],
+          "items": false
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/buildInput" }
+        }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node", "packageManager"],
+      "properties": {
+        "node": { "$ref": "#/$defs/node" },
+        "packageManager": { "$ref": "#/$defs/packageManager" }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "roots",
+        "entryCount",
+        "fileCount",
+        "directoryCount",
+        "totalBytes",
+        "sha256",
+        "entries"
+      ],
+      "properties": {
+        "roots": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/rootInventory" }
+        },
+        "entryCount": { "type": "integer", "minimum": 5, "maximum": 500000 },
+        "fileCount": { "type": "integer", "minimum": 2, "maximum": 500000 },
+        "directoryCount": { "type": "integer", "minimum": 3, "maximum": 500000 },
+        "totalBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8589934592
+        },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "entries": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 500000,
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/directoryEntry" },
+              { "$ref": "#/$defs/fileEntry" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^rcv-[0-9a-f]{32}$"
+    },
+    "safePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "buildInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "gitBlob", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/safePath" },
+        "gitBlob": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "platform",
+        "arch",
+        "modules",
+        "napi",
+        "executableSha256"
+      ],
+      "properties": {
+        "version": { "type": "string", "minLength": 2 },
+        "platform": { "type": "string", "minLength": 2 },
+        "arch": { "type": "string", "minLength": 2 },
+        "modules": { "type": "string", "minLength": 1 },
+        "napi": { "type": "string", "minLength": 1 },
+        "executableSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "packageManager": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "packageManagerField",
+        "executableSha256",
+        "commandArgs",
+        "commandSha256"
+      ],
+      "properties": {
+        "name": { "const": "pnpm" },
+        "version": { "type": "string", "minLength": 1 },
+        "packageManagerField": {
+          "type": "string",
+          "pattern": "^pnpm@"
+        },
+        "executableSha256": { "$ref": "#/$defs/sha256" },
+        "commandArgs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "commandSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "rootInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "path",
+        "entryCount",
+        "fileCount",
+        "directoryCount",
+        "totalBytes",
+        "sha256"
+      ],
+      "properties": {
+        "kind": { "enum": ["dependency-closure", "build-output"] },
+        "path": {
+          "enum": ["payload/node_modules", "payload/dist"]
+        },
+        "entryCount": { "type": "integer", "minimum": 2 },
+        "fileCount": { "type": "integer", "minimum": 1 },
+        "directoryCount": { "type": "integer", "minimum": 1 },
+        "totalBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8589934592
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "directoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "type", "mode"],
+      "properties": {
+        "path": { "$ref": "#/$defs/safePath" },
+        "type": { "const": "directory" },
+        "mode": { "const": 365 }
+      }
+    },
+    "fileEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "type", "mode", "size", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/safePath" },
+        "type": { "const": "file" },
+        "mode": { "enum": [292, 365] },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8589934592
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}
+

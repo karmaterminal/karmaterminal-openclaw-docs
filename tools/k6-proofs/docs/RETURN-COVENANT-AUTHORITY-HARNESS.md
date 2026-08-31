@@ -1,12 +1,13 @@
 # Return-covenant authority proof harness
 
-Status: **retention observer aligned; product fixture seam missing; no proof run**.
+Status: **runtime artifact attested; product fixture seam missing; no proof run**.
 
 This document defines the reusable k6 and signed-observer contract requested by
 the ClawSweeper review on openclaw/openclaw#129388. It does not claim the
-return covenant is satisfied. Exact-head execution and proof folding remain
-deferred until the product absorb produces a reviewed schema-v19 descendant and
-the product supplies the fixture seam described below.
+return covenant is satisfied. The harness can now launch a tracked gateway blob
+with a closed, read-only runtime artifact, but exact-head matrix execution and
+proof folding remain deferred until the product supplies the fixture seam
+described below.
 
 ## Named-reference contract
 
@@ -160,6 +161,115 @@ API error as proof. Its owner observation is the final composition of:
   counters; and
 - bounded successor transcript plus trusted system-event scans.
 
+## Attested runtime artifact
+
+The detached candidate remains Git-only. Dependencies and build output are not
+copied into that source snapshot and an installed host CLI cannot replace a
+candidate command. Instead, the launcher requires
+`--runtime-artifact <directory>` and the plan freezes both
+`target.productTreeSha` and `target.runtimeArtifactManifestSha256`.
+
+The artifact has exactly this closed layout:
+
+```text
+runtime-artifact/
+  manifest.json
+  payload/
+    node_modules/
+    dist/
+```
+
+`manifest.json` uses
+`openclaw.k6.return-covenant-runtime-artifact.v1`. It binds:
+
+- row ID, 128-bit run ID, docs harness SHA, exact product commit, and exact
+  product tree;
+- the complete product-tree authority plus regular Git blob and SHA-256
+  identities for `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`,
+  `node-version.mjs`, `scripts/build-all.mts`, `scripts/tsx.mjs`, and both
+  tsdown configurations;
+- the exact `pnpm run build` command, package-manager field/version,
+  package-manager executable digest, Node version/platform/architecture,
+  modules/N-API versions, and Node executable digest; and
+- a sorted complete inventory of every payload directory and regular file,
+  including immutable mode, size, per-file SHA-256, per-root inventory
+  digests, total counts/bytes, and one closure digest.
+
+The reviewed producer
+`build-return-covenant-runtime-artifact.mjs` requires an exact clean product
+checkout and an absolute package-manager argv. It verifies the package-manager
+version against the product's pinned `packageManager`, runs the product build,
+rejects tracked-source mutation, materializes dependency and build closures as
+independent files, and freezes all directories/files to mode `0555`/`0444`
+(retaining `0555` only for executable files).
+
+Before sandbox entry, the trusted launcher:
+
+1. rejects an absent artifact or any artifact overlapping product, docs,
+   control, output, or live runtime roots;
+2. opens the manifest and every payload file with `O_NOFOLLOW`, rejects
+   writable modes, hardlinks, symlinks, special files, unsafe paths,
+   missing/extra entries, empty closure roots, count/size overflow, and
+   no-follow identity changes;
+3. verifies the complete inventory, all content digests, product commit/tree,
+   build inputs, package-manager pin, current Node identity, docs SHA, row, and
+   run against the frozen plan;
+4. copies the verified bytes into the launcher-owned mode-0700 run root,
+   re-verifies the private copy, and derives
+   `openclaw.k6.return-covenant-runtime-artifact-binding.v1`; and
+5. creates otherwise-empty candidate mount points and read-only binds only
+   `payload/node_modules` to `<snapshot>/node_modules` and `payload/dist` to
+   `<snapshot>/dist`.
+
+The candidate never sees the external artifact pathname, package-manager
+store, host home, credentials, live sockets, or any unrelated dependency
+tree. The private copy removes the host-mutation race, and bubblewrap makes
+both fixed mounts read-only even to the candidate owner. The fixture and
+gateway receive only the manifest digest and product-tree identity in their
+cleared environment.
+
+The manifest digest is repeated in the driver-ready receipt, every phase
+request and case observation, the retention request/response, live and final
+store identities, launcher cleanup, driver attestation, and signed public
+receipt. The full private binding includes the run ID; the public receipt
+projects only product tree, manifest/closure digests, Node identity, and fixed
+read-only mount inventory digests. A cross-run, cross-row, cross-docs, or
+cross-product artifact therefore fails before driver execution and cannot be
+spliced back into later observation or cleanup material.
+
+`gatewayCommand.relativePath` is unchanged authority: it must still resolve to
+a contained regular Git blob at the exact candidate commit, its working bytes
+must match the planned SHA-256, and the live process must retain the exact
+Node/script/argv/cwd/environment/socket ancestry. The artifact can satisfy
+that blob's imports and `dist` lookup; it cannot supply or replace the
+executable.
+
+Build an artifact only from a same-host exact checkout with dependencies
+installed under the repository's worktree policy:
+
+```bash
+node tools/k6-proofs/scripts/build-return-covenant-runtime-artifact.mjs \
+  --source-dir /private/exact-product-checkout \
+  --output-dir /private/runtime-artifact \
+  --run-id rcv-<32-lowercase-hex> \
+  --docs-harness-sha <DOCS_SHA> \
+  --package-manager-command '["/absolute/path/to/pnpm"]'
+```
+
+The exact-product bootstrap smoke uses the same verifier, private copy, fixed
+mounts, tracked-command check, cleared environment, namespace isolation, and
+process/socket ownership rules without pretending the missing product fixture
+driver exists:
+
+```bash
+node tools/k6-proofs/scripts/smoke-return-covenant-runtime-artifact.mjs \
+  --plan /private/input/plan.json \
+  --source-dir /private/exact-product-checkout \
+  --runtime-config /private/input/openclaw.json \
+  --runtime-artifact /private/runtime-artifact \
+  --receipt /private/output/runtime-smoke.json
+```
+
 ## Product-owned fixture driver
 
 The scenario accepts only an HTTP loopback URL and the protocol
@@ -173,6 +283,9 @@ Before k6 starts, `launch-return-covenant-driver.mjs`:
   containing the executing launcher and all transitive authority modules, each
   revalidated as an exact regular Git blob before launch and final signing;
 - creates a mode-0700 private run root and a detached exact-candidate snapshot;
+- requires and completely verifies the immutable runtime artifact before any
+  candidate process starts, copies it privately, then mounts only its
+  dependency and build-output closures read-only at fixed candidate paths;
 - creates isolated home/state/config paths and a fresh gateway token;
 - runs a reviewed sandbox supervisor under bubblewrap with private PID,
   network, IPC, and user namespaces, fresh `/proc`, masked host home/runtime/tmp
@@ -207,6 +320,9 @@ Before k6 starts, `launch-return-covenant-driver.mjs`:
 - requires distinct driver/gateway loopback sockets owned by their respective PIDs; and
 - requires the canonical runtime-config digest read from the exact non-symlink
   `OPENCLAW_CONFIG_PATH` used by that gateway process.
+- requires the same product tree and runtime-artifact manifest digest in the
+  ready receipt, live driver/gateway environments, observations, cleanup, and
+  final signed receipt.
 
 The resulting private `openclaw.k6.return-covenant-driver-attestation.v1` is
 loaded privately by k6 and later bound into the signed observer receipt. Its
@@ -466,6 +582,7 @@ node tools/k6-proofs/scripts/launch-return-covenant-driver.mjs \
   --plan /private/run/plan.json \
   --source-dir /exact/product/checkout \
   --runtime-config /private/input/openclaw.json \
+  --runtime-artifact /private/input/runtime-artifact \
   --control-dir /private/control \
   --artifact-dir /candidate/R-CD-RETURN-COVENANT-AUTHORITY \
   > /private/launcher.log
@@ -558,6 +675,17 @@ The repository-local owner test covers:
 | mixed explicit-revocation executed/N/A forms | `revocation-capability-mismatch` |
 | loopback socket owned by another process | driver attestation rejected |
 | retained launcher run root | direct cleanup rejected |
+| no runtime artifact | launcher rejects before driver execution |
+| artifact product commit/tree, docs, row, or run mismatch | launcher rejects before driver execution |
+| altered manifest or payload digest | launcher rejects before driver execution |
+| missing/extra inventory entry or closure root | launcher rejects before driver execution |
+| writable artifact root/file | launcher rejects before driver execution |
+| symlink, hardlink, path traversal, FIFO, device, or other special file | launcher rejects before driver execution |
+| wrong Node or package-manager identity | producer/verifier rejects before driver execution |
+| dependency closure without build output, or build output without dependencies | launcher rejects before driver execution |
+| untracked gateway executable substitution | tracked-command verifier rejects before driver execution |
+| valid closure mounted in bubblewrap | both fixed roots are present and unwritable |
+| gateway launch failure after artifact verification | private artifact/run root removed; original sandbox cause retained |
 | runtime config spliced from another run | `isolated-runtime-unavailable` |
 | nonzero k6 exit or mismatched teardown | `scenario-failure` |
 | retained process and incomplete cleanup | `resource-retention` and/or `cleanup-failure` |
@@ -570,6 +698,8 @@ product behavior run, an exact-head receipt, or corpus evidence.
 ## Current completion boundary
 
 - No exact-head proof ran.
+- The exact-product runtime smoke is bootstrap evidence only; it cannot satisfy
+  or promote the absent product-owned fixture seam.
 - No disposable control was run against `7c100aed`.
 - No Mode-B workflow or fleet deployment ran.
 - No live prince, Discord, Telegram, or user data was used.

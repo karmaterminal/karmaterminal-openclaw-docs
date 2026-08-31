@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import http from 'node:http';
@@ -51,6 +52,33 @@ const hostPid = () => Number(
   readFileSync('/proc/self/status', 'utf8')
     .match(/^NSpid:\s+([0-9]+)/mu)?.[1] || process.pid,
 );
+
+function assertMountedRuntimeClosure() {
+  const expected = [
+    [
+      'node_modules/runtime-package/index.js',
+      'export const runtimeDependency = true;\n',
+    ],
+    [
+      'dist/entry.js',
+      'export const builtEntry = true;\n',
+    ],
+  ];
+  for (const [relativePath, contents] of expected) {
+    const file = path.join(process.cwd(), relativePath);
+    if (readFileSync(file, 'utf8') !== contents) {
+      throw new Error(`runtime artifact payload mismatch: ${relativePath}`);
+    }
+    const probe = `${file}.write-probe`;
+    try {
+      writeFileSync(probe, 'must not write\n');
+      unlinkSync(probe);
+      throw new Error(`runtime artifact mount is writable: ${relativePath}`);
+    } catch (error) {
+      if (!['EACCES', 'EPERM', 'EROFS'].includes(error?.code)) throw error;
+    }
+  }
+}
 
 async function postJson(url, value) {
   const target = new URL(url);
@@ -219,9 +247,12 @@ if (process.argv[2] === 'gateway') {
         candidateSha: MOCK_CONTROL.inspectionFault === 'sha'
           ? 'f'.repeat(40)
           : process.env.OPENCLAW_CANDIDATE_SHA,
+        productTreeSha: process.env.OPENCLAW_PRODUCT_TREE_SHA,
         runtimeBuildSha: process.env.OPENCLAW_CANDIDATE_SHA,
         runtimeConfigSha256:
           process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_CONFIG_SHA256,
+        runtimeArtifactManifestSha256:
+          process.env.OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256,
         requestNonce: body.requestNonce,
         observedAt,
         gateway: {
@@ -1077,6 +1108,8 @@ if (process.argv[2] === 'gateway') {
       runtimeBuildSha: plan.target.runtimeBuildSha,
       docsHarnessSha: plan.target.docsHarnessSha,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      runtimeArtifactManifestSha256:
+        plan.target.runtimeArtifactManifestSha256,
       startedAt: state.startedAt,
       endedAt: new Date(nowWall).toISOString(),
       returnMode: state.request.returnMode,
@@ -1168,8 +1201,11 @@ if (process.argv[2] === 'gateway') {
             rowId: plan.rowId,
             runId: plan.runId,
             candidateSha: plan.target.candidateSha,
+            productTreeSha: plan.target.productTreeSha,
             runtimeBuildSha: plan.target.runtimeBuildSha,
             runtimeConfigSha256: plan.target.runtimeConfigSha256,
+            runtimeArtifactManifestSha256:
+              plan.target.runtimeArtifactManifestSha256,
             requestNonce: body.requestNonce,
             observedAt,
             gateway: {
@@ -1318,6 +1354,8 @@ if (process.argv[2] === 'gateway') {
               phaseChainSha256: body.phaseChainSha256,
               driverAttestationSha256: body.driverAttestationSha256,
               runtimeConfigSha256: plan.target.runtimeConfigSha256,
+              runtimeArtifactManifestSha256:
+                plan.target.runtimeArtifactManifestSha256,
             };
           }
           payload = { cleanupRun };
@@ -1389,6 +1427,7 @@ if (process.argv[2] === 'gateway') {
   }
 
   void (async () => {
+    assertMountedRuntimeClosure();
     const initial = await startGateway('initial');
     currentGateway = initial;
     driverServer.listen(0, '127.0.0.1', () => {
@@ -1398,6 +1437,7 @@ if (process.argv[2] === 'gateway') {
         runId: plan.runId,
         rowId: plan.rowId,
         candidateSha: plan.target.candidateSha,
+        productTreeSha: plan.target.productTreeSha,
         runtimeBuildSha: plan.target.runtimeBuildSha,
         docsHarnessSha: plan.target.docsHarnessSha,
         commandRelativePath: plan.driver.fixtureCommand.relativePath,
@@ -1405,6 +1445,8 @@ if (process.argv[2] === 'gateway') {
         gatewayCommandRelativePath: plan.driver.gatewayCommand.relativePath,
         gatewayCommandSha256: plan.driver.gatewayCommand.sha256,
         runtimeConfigSha256: plan.target.runtimeConfigSha256,
+        runtimeArtifactManifestSha256:
+          plan.target.runtimeArtifactManifestSha256,
         launchNonce: process.env.OPENCLAW_RETURN_COVENANT_LAUNCH_NONCE,
         phaseKeyFingerprint:
           process.env.OPENCLAW_RETURN_COVENANT_PHASE_KEY_FINGERPRINT,

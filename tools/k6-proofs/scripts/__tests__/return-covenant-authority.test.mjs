@@ -3,8 +3,10 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createHash, createHmac } from 'node:crypto';
 import { createServer as createHttpServer } from 'node:http';
 import {
+  chmod,
   mkdtemp,
   mkdir,
+  lstat,
   readFile,
   readdir,
   rename,
@@ -58,6 +60,9 @@ import {
   validateReturnCovenantPlan,
 } from '../../lib/return-covenant-scenario-contract.mjs';
 import {
+  createReturnCovenantRuntimeArtifact,
+} from '../../lib/return-covenant-runtime-artifact.mjs';
+import {
   evaluateIsolatedRuntimePlugin,
 } from '../../lib/isolated-runtime-plugin-contract.mjs';
 import {
@@ -89,6 +94,7 @@ async function fixture(name) {
 
 const TRUSTED_HARNESS_FILES = [
   'contracts/return-covenant-authority/retention-observation.schema.json',
+  'contracts/return-covenant-authority/runtime-artifact.schema.json',
   'contracts/return-covenant-authority/scenario.js',
   'k6-proof-binaries.json',
   'lib/canonical-json.mjs',
@@ -97,6 +103,8 @@ const TRUSTED_HARNESS_FILES = [
   'lib/return-covenant-candidate-io.mjs',
   'lib/return-covenant-driver-attestation.mjs',
   'lib/return-covenant-retention-inspector.mjs',
+  'lib/return-covenant-runtime-artifact-contract.mjs',
+  'lib/return-covenant-runtime-artifact.mjs',
   'lib/return-covenant-scenario-contract.mjs',
   'lib/signed-observer-receipt.mjs',
   'scripts/launch-return-covenant-driver.mjs',
@@ -115,9 +123,137 @@ async function copyTrustedHarness(targetRoot) {
   }
 }
 
+async function makeTreeWritable(target) {
+  let info;
+  try {
+    info = await lstat(target);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return;
+    throw error;
+  }
+  if (info.isSymbolicLink()) return;
+  if (info.isDirectory()) {
+    await chmod(target, 0o700);
+    for (const entry of await readdir(target)) {
+      await makeTreeWritable(path.join(target, entry));
+    }
+    return;
+  }
+  await chmod(target, 0o600);
+}
+
+async function readOptionalText(file) {
+  try {
+    return await readFile(file, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') return '';
+    throw error;
+  }
+}
+
+async function readOptionalJson(file) {
+  const contents = await readOptionalText(file);
+  return contents === '' ? null : JSON.parse(contents);
+}
+
+async function writeSyntheticRuntimeInputs(sourceDir, inputDir) {
+  const files = new Map([
+    ['.gitignore', 'node_modules/\ndist/\n'],
+    ['package.json', JSON.stringify({
+      name: 'synthetic-return-covenant-product',
+      packageManager: 'pnpm@1.2.3+sha512.synthetic',
+      scripts: { build: 'synthetic' },
+    }, null, 2)],
+    ['pnpm-lock.yaml', 'lockfileVersion: synthetic\n'],
+    ['pnpm-workspace.yaml', 'packages: []\n'],
+    ['node-version.mjs', 'export const supported = true;\n'],
+    ['scripts/build-all.mts', 'export {};\n'],
+    ['scripts/tsx.mjs', 'export {};\n'],
+    ['tsdown.ai.config.ts', 'export default {};\n'],
+    ['tsdown.config.ts', 'export default {};\n'],
+  ]);
+  for (const [relativePath, contents] of files) {
+    const file = path.join(sourceDir, relativePath);
+    await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
+    await writeFile(file, contents, { mode: 0o600 });
+  }
+  const packageManager = path.join(inputDir, 'synthetic-pnpm');
+  await writeFile(packageManager, [
+    '#!/usr/bin/env node',
+    "if (process.argv[2] === '--version') {",
+    "  process.stdout.write('1.2.3\\n');",
+    "} else if (process.argv[2] === 'run' && process.argv[3] === 'build') {",
+    "  process.stdout.write('synthetic build complete\\n');",
+    '} else {',
+    '  process.exitCode = 2;',
+    '}',
+    '',
+  ].join('\n'), { mode: 0o700 });
+  return packageManager;
+}
+
+async function createSyntheticRuntimePayload(sourceDir) {
+  await Promise.all([
+    mkdir(path.join(sourceDir, 'node_modules/runtime-package'), {
+      recursive: true,
+      mode: 0o700,
+    }),
+    mkdir(path.join(sourceDir, 'dist'), { mode: 0o700 }),
+  ]);
+  await Promise.all([
+    writeFile(
+      path.join(sourceDir, 'node_modules/runtime-package/index.js'),
+      'export const runtimeDependency = true;\n',
+      { mode: 0o600 },
+    ),
+    writeFile(
+      path.join(sourceDir, 'dist/entry.js'),
+      'export const builtEntry = true;\n',
+      { mode: 0o700 },
+    ),
+  ]);
+}
+
 function executionFor(plan, caseId, form) {
   return expandReturnCovenantExecutions(plan)
     .find((entry) => entry.caseId === caseId && entry.form === form);
+}
+
+function runtimeArtifactBindingFor(plan) {
+  return {
+    schema: 'openclaw.k6.return-covenant-runtime-artifact-binding.v1',
+    rowId: plan.rowId,
+    runId: plan.runId,
+    productSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
+    docsHarnessSha: plan.target.docsHarnessSha,
+    manifestSha256: plan.target.runtimeArtifactManifestSha256,
+    closureSha256: 'f'.repeat(64),
+    node: {
+      version: process.version,
+      platform: process.platform,
+      arch: process.arch,
+      modules: process.versions.modules,
+      napi: process.versions.napi,
+      executableSha256: 'e'.repeat(64),
+    },
+    mounts: [
+      {
+        kind: 'dependency-closure',
+        artifactPath: 'payload/node_modules',
+        candidatePath: 'node_modules',
+        readOnly: true,
+        inventorySha256: '1'.repeat(64),
+      },
+      {
+        kind: 'build-output',
+        artifactPath: 'payload/dist',
+        candidatePath: 'dist',
+        readOnly: true,
+        inventorySha256: '2'.repeat(64),
+      },
+    ],
+  };
 }
 
 function setPath(target, dottedPath, value) {
@@ -152,6 +288,8 @@ function generatedObservation({ execution, allowedBase, forbiddenBase, index }) 
   observation.docsHarnessSha = execution.plan.target.docsHarnessSha;
   observation.runtimeConfigSha256 =
     execution.plan.target.runtimeConfigSha256;
+  observation.runtimeArtifactManifestSha256 =
+    execution.plan.target.runtimeArtifactManifestSha256;
   const startedAtMs = Date.UTC(2026, 7, 28, 12, 0, index * 10);
   observation.startedAt = new Date(startedAtMs).toISOString();
   observation.endedAt = new Date(startedAtMs + 6_000).toISOString();
@@ -347,9 +485,11 @@ function driverAttestationFor(plan) {
     runId: plan.runId,
     rowId: plan.rowId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifact: runtimeArtifactBindingFor(plan),
     endpoint: 'http://127.0.0.1:18790',
     command: {
       relativePath: plan.driver.fixtureCommand.relativePath,
@@ -368,6 +508,7 @@ function driverAttestationFor(plan) {
     },
     source: {
       headSha: plan.target.candidateSha,
+      treeSha: plan.target.productTreeSha,
       docsHeadSha: plan.target.docsHarnessSha,
       trackedWorktreeClean: true,
       docsHarnessClean: true,
@@ -423,11 +564,13 @@ function driverAttestationFor(plan) {
       statePath: '/private/synthetic-run/state',
       configPath: '/private/synthetic-run/config/openclaw.json',
       snapshotPath: '/private/synthetic-run/snapshot',
+      runtimeArtifactPath: '/private/synthetic-run/runtime-artifact',
       runRootFingerprint: '6'.repeat(64),
       homeFingerprint: '7'.repeat(64),
       stateFingerprint: '8'.repeat(64),
       configFingerprint: '9'.repeat(64),
       snapshotFingerprint: '5'.repeat(64),
+      runtimeArtifactFingerprint: 'f'.repeat(64),
       createdByTrustedLauncher: true,
       driverPid: 2147483000,
       gatewayPid: 2147483001,
@@ -568,8 +711,11 @@ function retentionObservationFor({
     rowId: plan.rowId,
     runId: plan.runId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     requestNonce,
     observedAt,
     gateway: {
@@ -666,9 +812,12 @@ function durableStoreObservationFor({
     rowId: plan.rowId,
     runId: plan.runId,
     candidateSha: plan.target.candidateSha,
+    productTreeSha: plan.target.productTreeSha,
     runtimeBuildSha: plan.target.runtimeBuildSha,
     docsHarnessSha: plan.target.docsHarnessSha,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     observationSetSha256: jsonSha256(evidence.observations),
     phaseChainSha256: jsonSha256(evidence.phaseChains),
     cleanupRunReceiptId: evidence.cleanupRun.receiptId,
@@ -977,6 +1126,8 @@ async function completeMatrix(options = {}) {
       scenarioFailures: 0,
       driverAttestationSha256: driverAttestation.attestationSha256,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      runtimeArtifactManifestSha256:
+        plan.target.runtimeArtifactManifestSha256,
       k6ExitCode: 0,
     },
   };
@@ -988,6 +1139,8 @@ async function completeMatrix(options = {}) {
     phaseChainSha256: '',
     driverAttestationSha256: driverAttestation.attestationSha256,
     runtimeConfigSha256: plan.target.runtimeConfigSha256,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
   };
   refreshPhaseProofs(evidence, driverAttestation);
   rebindEvidenceForRetention(plan, evidence, driverAttestation);
@@ -1102,6 +1255,8 @@ function bindCleanup(
   const unsigned = {
     ...cleanupWithoutIntegrity,
     runtimeBuildSha: driverAttestation.runtimeBuildSha,
+    runtimeArtifactManifestSha256:
+      plan.target.runtimeArtifactManifestSha256,
     retained: {
       ...cleanupWithoutIntegrity.retained,
       ...retention.retained,
@@ -1117,6 +1272,7 @@ function bindCleanup(
     phaseChainSha256: jsonSha256(evidence.phaseChains),
     driverAttestationSha256: driverAttestation.attestationSha256,
     snapshotMatchedCandidateAfterRun: true,
+    runtimeArtifactRemoved: true,
     runRootRemoved: true,
     driverExitCode: 0,
     isolationFingerprint: driverAttestation.isolation.runRootFingerprint,
@@ -1149,6 +1305,7 @@ function directCleanupFor(driverAttestation) {
     stateRemoved: true,
     configRemoved: true,
     snapshotRemoved: true,
+    runtimeArtifactRemoved: true,
     driverStopped: true,
     gatewayStopped: true,
     sandboxStopped: true,
@@ -4588,11 +4745,13 @@ test('driver attestation binds a running process to an exact candidate Git blob'
   const homePath = path.join(runRoot, 'home');
   const statePath = path.join(runRoot, 'state');
   const configDirectory = path.join(runRoot, 'config');
+  const runtimeArtifactPath = path.join(runRoot, 'runtime-artifact');
   await Promise.all([
     mkdir(directory, { mode: 0o700 }),
     mkdir(homePath, { mode: 0o700 }),
     mkdir(statePath, { mode: 0o700 }),
     mkdir(configDirectory, { mode: 0o700 }),
+    mkdir(runtimeArtifactPath, { mode: 0o555 }),
   ]);
   let child;
   try {
@@ -4636,10 +4795,16 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       cwd: directory,
       encoding: 'utf8',
     }).stdout.trim();
+    const productTreeSha = spawnSync('git', ['rev-parse', 'HEAD^{tree}'], {
+      cwd: directory,
+      encoding: 'utf8',
+    }).stdout.trim();
     const plan = await fixture('plan.valid.json');
     plan.target.candidateSha = head;
+    plan.target.productTreeSha = productTreeSha;
     plan.target.runtimeBuildSha = head;
     plan.target.docsHarnessSha = head;
+    const runtimeArtifact = runtimeArtifactBindingFor(plan);
     plan.settlementWindowMs = 1000;
     plan.driver.fixtureCommand.relativePath = driverRelative;
     plan.driver.fixtureCommand.sha256 = sha256(driverSource);
@@ -4674,6 +4839,9 @@ test('driver attestation binds a running process to an exact candidate Git blob'
         RETURN_COVENANT_GATEWAY_PID_FILE: gatewayPidFile,
         RETURN_COVENANT_GATEWAY_READY_FILE: gatewayReadyFile,
         OPENCLAW_RETURN_COVENANT_PHASE_KEY: phaseSigningKey,
+        OPENCLAW_PRODUCT_TREE_SHA: productTreeSha,
+        OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256:
+          plan.target.runtimeArtifactManifestSha256,
         OPENCLAW_GATEWAY_TOKEN: gatewayToken,
         OPENCLAW_STATE_DIR: statePath,
         OPENCLAW_CONFIG_PATH: runtimeConfigPath,
@@ -4719,6 +4887,7 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       runId: plan.runId,
       rowId: plan.rowId,
       candidateSha: head,
+      productTreeSha,
       runtimeBuildSha: head,
       docsHarnessSha: head,
       commandRelativePath: driverRelative,
@@ -4726,6 +4895,8 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       gatewayCommandRelativePath: driverRelative,
       gatewayCommandSha256: sha256(driverSource),
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      runtimeArtifactManifestSha256:
+        plan.target.runtimeArtifactManifestSha256,
       launchNonce,
       phaseKeyFingerprint: sha256(phaseSigningKey),
       pid: child.pid,
@@ -4764,6 +4935,8 @@ test('driver attestation binds a running process to an exact candidate Git blob'
       statePath,
       configPath: runtimeConfigPath,
       snapshotPath: directory,
+      runtimeArtifactPath,
+      runtimeArtifact,
       livePaths: [],
     };
     const attestation = await createReturnCovenantDriverAttestation({
@@ -4827,7 +5000,10 @@ test('driver attestation binds a running process to an exact candidate Git blob'
   }
 });
 
-async function runTrustedLauncherFixture(transformDriver = (source) => source) {
+async function runTrustedLauncherFixture(
+  transformDriver = (source) => source,
+  options = {},
+) {
   const sourceDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-source-'));
   const inputDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-input-'));
   const controlDir = await mkdtemp(path.join(tmpdir(), 'return-covenant-control-'));
@@ -4842,6 +5018,10 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
       ),
     );
     await writeFile(driverPath, driverSource, { mode: 0o700 });
+    const packageManager = await writeSyntheticRuntimeInputs(
+      sourceDir,
+      inputDir,
+    );
     await copyTrustedHarness(sourceDir);
     for (const args of [
       ['init', '--quiet'],
@@ -4857,11 +5037,16 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
       cwd: sourceDir,
       encoding: 'utf8',
     }).stdout.trim();
+    const productTreeSha = spawnSync('git', ['rev-parse', 'HEAD^{tree}'], {
+      cwd: sourceDir,
+      encoding: 'utf8',
+    }).stdout.trim();
     const [plan, runtimeConfig] = await Promise.all([
       fixture('plan.valid.json'),
       fixture('runtime-config.valid.json'),
     ]);
     plan.target.candidateSha = head;
+    plan.target.productTreeSha = productTreeSha;
     plan.target.runtimeBuildSha = head;
     plan.target.docsHarnessSha = head;
     plan.settlementWindowMs = 1000;
@@ -4875,13 +5060,39 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
       sha256: sha256(driverSource),
       args: ['gateway'],
     };
+    await createSyntheticRuntimePayload(sourceDir);
+    const runtimeArtifactDir = path.join(inputDir, 'runtime-artifact');
+    const runtimeArtifact = await createReturnCovenantRuntimeArtifact({
+      sourceDir,
+      outputDir: runtimeArtifactDir,
+      runId: plan.runId,
+      docsHarnessSha: head,
+      packageManagerCommand: [packageManager],
+    });
+    plan.target.runtimeArtifactManifestSha256 =
+      runtimeArtifact.binding.manifestSha256;
+    if (options.mutateRuntimeArtifact) {
+      await options.mutateRuntimeArtifact({
+        runtimeArtifactDir,
+        runtimeArtifact,
+        plan,
+        sourceDir,
+      });
+    }
+    if (options.transformPlan) {
+      await options.transformPlan(plan, {
+        runtimeArtifactDir,
+        runtimeArtifact,
+        sourceDir,
+      });
+    }
     const planPath = path.join(inputDir, 'plan.json');
     const runtimePath = path.join(inputDir, 'runtime.json');
     await Promise.all([
       writeFile(planPath, JSON.stringify(plan), { mode: 0o600 }),
       writeFile(runtimePath, JSON.stringify(runtimeConfig), { mode: 0o600 }),
     ]);
-    const launched = spawn(process.execPath, [
+    const launcherArgs = [
       path.join(
         sourceDir,
         'tools/k6-proofs/scripts/launch-return-covenant-driver.mjs',
@@ -4889,9 +5100,13 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
       '--plan', planPath,
       '--source-dir', sourceDir,
       '--runtime-config', runtimePath,
+      ...(options.omitRuntimeArtifact
+        ? []
+        : ['--runtime-artifact', runtimeArtifactDir]),
       '--control-dir', controlDir,
       '--artifact-dir', artifactDir,
-    ], {
+    ];
+    const launched = spawn(process.execPath, launcherArgs, {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let launcherStdout = '';
@@ -4906,7 +5121,14 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
     });
     const attestationPath = path.join(controlDir, 'driver-attestation.json');
     let attestation;
-    for (let attempt = 0; attempt < 300 && !attestation; attempt += 1) {
+    for (
+      let attempt = 0;
+      attempt < 300 &&
+      !attestation &&
+      launched.exitCode === null &&
+      launched.signalCode === null;
+      attempt += 1
+    ) {
       try {
         attestation = JSON.parse(await readFile(attestationPath, 'utf8'));
       } catch {
@@ -4915,23 +5137,49 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
     }
     if (!attestation) {
       const earlyExit = await launcherExit;
+      if (options.allowPrelaunchFailure) {
+        return {
+          attestation: null,
+          candidateDiagnostic: null,
+          cleanup: null,
+          controlDir,
+          evidence: null,
+          launcherExitCode: earlyExit,
+          launcherStderr,
+          launcherStdout,
+          receipt: null,
+          runtimeArtifact: runtimeArtifact.binding,
+          debug: {
+            driverLog: await readOptionalText(
+              path.join(controlDir, 'driver.log'),
+            ),
+            k6Exit: '',
+            k6LogTail: [],
+          },
+          async dispose() {
+            await makeTreeWritable(inputDir);
+            await Promise.all([
+              rm(sourceDir, { recursive: true, force: true }),
+              rm(inputDir, { recursive: true, force: true }),
+              rm(controlDir, { recursive: true, force: true }),
+              rm(artifactDir, { recursive: true, force: true }),
+            ]);
+          },
+        };
+      }
       throw new Error(JSON.stringify({
         earlyExit,
         stderr: launcherStderr,
         stdout: launcherStdout,
-        driverLog: await readFile(path.join(controlDir, 'driver.log'), 'utf8')
-          .catch(() => ''),
+        driverLog: await readOptionalText(path.join(controlDir, 'driver.log')),
       }));
     }
     const launcherExitCode = await launcherExit;
-    const readOptionalJson = (file) => readFile(file, 'utf8')
-      .then(JSON.parse)
-      .catch(() => null);
     const [receipt, cleanup, candidateDiagnostic, k6Log] = await Promise.all([
       readOptionalJson(path.join(artifactDir, 'observer-receipt.json')),
       readOptionalJson(path.join(controlDir, 'cleanup.json')),
       readOptionalJson(path.join(controlDir, 'candidate-cleanup-diagnostic.json')),
-      readFile(path.join(controlDir, 'k6.log'), 'utf8').catch(() => ''),
+      readOptionalText(path.join(controlDir, 'k6.log')),
     ]);
     let evidence = null;
     try {
@@ -4949,14 +5197,16 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
       launcherStderr,
       launcherStdout,
       receipt,
+      runtimeArtifact: runtimeArtifact.binding,
       debug: {
-        driverLog: await readFile(path.join(controlDir, 'driver.log'), 'utf8')
-          .catch(() => ''),
-        k6Exit: await readFile(path.join(controlDir, 'k6-exit-code.txt'), 'utf8')
-          .catch(() => ''),
+        driverLog: await readOptionalText(path.join(controlDir, 'driver.log')),
+        k6Exit: await readOptionalText(
+          path.join(controlDir, 'k6-exit-code.txt'),
+        ),
         k6LogTail: k6Log.split('\n').slice(-20),
       },
       async dispose() {
+        await makeTreeWritable(inputDir);
         await Promise.all([
           rm(sourceDir, { recursive: true, force: true }),
           rm(inputDir, { recursive: true, force: true }),
@@ -4966,6 +5216,7 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
       },
     };
   } catch (error) {
+    await makeTreeWritable(inputDir);
     await Promise.all([
       rm(sourceDir, { recursive: true, force: true }),
       rm(inputDir, { recursive: true, force: true }),
@@ -4975,6 +5226,108 @@ async function runTrustedLauncherFixture(transformDriver = (source) => source) {
     throw error;
   }
 }
+
+test('trusted launcher rejects runtime artifacts and gateway substitution before driver execution', async (t) => {
+  const driverMarker = 'RETURN_COVENANT_DRIVER_EXECUTED';
+  const markedDriver = (source) =>
+    `process.stderr.write('${driverMarker}\\n');\n${source}`;
+  const assertPrelaunchFailure = async (options, message) => {
+    const result = await runTrustedLauncherFixture(markedDriver, {
+      ...options,
+      allowPrelaunchFailure: true,
+    });
+    try {
+      assert.equal(result.launcherExitCode, 1);
+      assert.match(result.launcherStderr, message);
+      assert.doesNotMatch(result.debug.driverLog, new RegExp(driverMarker));
+      assert.doesNotMatch(result.launcherStderr, new RegExp(driverMarker));
+      assert.equal(
+        (await readdir(result.controlDir))
+          .some((entry) => entry.startsWith('run-')),
+        false,
+      );
+    } finally {
+      await result.dispose();
+    }
+  };
+
+  await t.test('no artifact supplied', async () => {
+    await assertPrelaunchFailure(
+      { omitRuntimeArtifact: true },
+      /--runtime-artifact is required/,
+    );
+  });
+
+  await t.test('altered artifact payload', async () => {
+    await assertPrelaunchFailure({
+      mutateRuntimeArtifact: async ({ runtimeArtifactDir }) => {
+        const file = path.join(
+          runtimeArtifactDir,
+          'payload/dist/entry.js',
+        );
+        await chmod(runtimeArtifactDir, 0o700);
+        await chmod(path.dirname(file), 0o700);
+        await chmod(file, 0o600);
+        await writeFile(file, 'tampered build output\n');
+        await chmod(file, 0o444);
+        await chmod(path.dirname(file), 0o555);
+        await chmod(runtimeArtifactDir, 0o555);
+      },
+    }, /inventory or payload digest differs/);
+  });
+
+  await t.test('untracked gateway executable substitution', async () => {
+    await assertPrelaunchFailure({
+      transformPlan: async (plan, { sourceDir }) => {
+        const relativePath = 'untracked-gateway.mjs';
+        const bytes = 'process.exit(0);\n';
+        await writeFile(path.join(sourceDir, relativePath), bytes);
+        plan.driver.gatewayCommand = {
+          relativePath,
+          sha256: sha256(bytes),
+          args: ['gateway'],
+        };
+      },
+    }, /ENOENT|regular Git blob/);
+  });
+
+  await t.test('stale product-driver absence remains explicit', async () => {
+    await assertPrelaunchFailure({
+      transformPlan: async (plan) => {
+        plan.driver.fixtureCommand = {
+          status: 'missing-product-seam',
+        };
+      },
+    }, /product-owned fixture command is not available/);
+  });
+});
+
+test('trusted launcher cleans an attested artifact after launch failure without hiding the original error', async () => {
+  const originalFailure = 'ORIGINAL_RUNTIME_LAUNCH_FAILURE';
+  const result = await runTrustedLauncherFixture(
+    () => [
+      `process.stderr.write('${originalFailure}\\n');`,
+      'process.exit(23);',
+      '',
+    ].join('\n'),
+    { allowPrelaunchFailure: true },
+  );
+  try {
+    assert.equal(result.launcherExitCode, 1);
+    assert.match(
+      result.launcherStderr,
+      /product driver exited before ready \(exit 1\).*product driver exited before attestation \(exit 23\)/,
+    );
+    assert.match(result.debug.driverLog, new RegExp(originalFailure));
+    assert.equal(
+      (await readdir(result.controlDir))
+        .some((entry) => entry.startsWith('run-')),
+      false,
+    );
+  } finally {
+    await result.dispose();
+  }
+});
 
 test('trusted launcher owns snapshot, isolation, process start, and final cleanup', async () => {
   const result = await runTrustedLauncherFixture();
@@ -5518,6 +5871,7 @@ test('published closed schemas declare required properties and accept passing fi
     'driver-ready.schema.json',
     'fixture-input.schema.json',
     'observer.schema.json',
+    'runtime-artifact.schema.json',
     'retention-observation.schema.json',
   ];
   const schemas = await Promise.all(schemaNames.map((name) =>
@@ -5630,6 +5984,8 @@ test('explicit revocation N/A requires a complete exact-build capability invento
       runtimeBuildSha: plan.target.runtimeBuildSha,
       docsHarnessSha: plan.target.docsHarnessSha,
       runtimeConfigSha256: plan.target.runtimeConfigSha256,
+      runtimeArtifactManifestSha256:
+        plan.target.runtimeArtifactManifestSha256,
       startedAt: '2026-08-28T12:08:00.000Z',
       endedAt: '2026-08-28T12:08:06.000Z',
       returnMode: execution.returnMode,

@@ -55,7 +55,9 @@
         "maxChainLength": 200,
         "maxDelegatesPerTurn": 500,
         "costCapTokens": 50000000
-      }
+      },
+      "processPid": 768834,
+      "restartCount": 0
     },
     {
       "seat": "silas",
@@ -98,7 +100,9 @@
         "maxChainLength": 200,
         "maxDelegatesPerTurn": 500,
         "costCapTokens": 50000000
-      }
+      },
+      "processPid": 1484609,
+      "restartCount": 0
     },
     {
       "seat": "emeric",
@@ -118,7 +122,9 @@
         "maxChainLength": 200,
         "maxDelegatesPerTurn": 500,
         "costCapTokens": 50000000
-      }
+      },
+      "processPid": 3547670,
+      "restartCount": 0
     },
     {
       "seat": "rune",
@@ -138,7 +144,9 @@
         "maxChainLength": 200,
         "maxDelegatesPerTurn": 500,
         "costCapTokens": 50000000
-      }
+      },
+      "processPid": 2744713,
+      "restartCount": 0
     }
   ],
   "fleetClaim": "6/6 exact-deployed and healthy at runtime dbf5795b; per-seat deployment/readiness receipts recorded.",

@@ -9,6 +9,16 @@ import {
   resolveRepositoryRoot,
 } from '../lib/repo-root.mjs';
 
+async function readContractSnapshot(repoRoot, contract) {
+  const contractPath = resolveRepositoryFile(repoRoot, contract, {
+    label: '--contract',
+  });
+  return {
+    path: contractPath,
+    bytes: await readFile(contractPath),
+  };
+}
+
 async function main() {
   const { root: repoRoot, rest } = resolveRepositoryRoot({
     argv: process.argv.slice(2),
@@ -27,11 +37,8 @@ async function main() {
   for (const required of ['contract', 'source-dir', 'row', 'candidate-sha', 'runtime-sha', 'out']) {
     if (!args[required]) throw new Error(`--${required} is required`);
   }
-  const contractPath = resolveRepositoryFile(repoRoot, args.contract, {
-    label: '--contract',
-  });
-  const contractBytes = await readFile(contractPath);
-  const contract = JSON.parse(contractBytes.toString('utf8'));
+  const contractSnapshot = await readContractSnapshot(repoRoot, args.contract);
+  const contract = JSON.parse(contractSnapshot.bytes.toString('utf8'));
   const receipt = validateAncillaryRuntimeProvenance({
     contract,
     sourceDir: args['source-dir'],
@@ -39,11 +46,11 @@ async function main() {
     canonicalSha: args['candidate-sha'],
     runtimeSha: args['runtime-sha'],
   });
-  const revalidatedPath = resolveRepositoryFile(repoRoot, args.contract, {
-    label: '--contract',
-  });
-  const revalidatedBytes = await readFile(revalidatedPath);
-  if (revalidatedPath !== contractPath || !revalidatedBytes.equals(contractBytes)) {
+  const revalidatedSnapshot = await readContractSnapshot(repoRoot, args.contract);
+  if (
+    revalidatedSnapshot.path !== contractSnapshot.path ||
+    !revalidatedSnapshot.bytes.equals(contractSnapshot.bytes)
+  ) {
     throw new Error('--contract changed during ancillary provenance validation');
   }
   await writeFile(args.out, `${JSON.stringify(receipt, null, 2)}\n`, {

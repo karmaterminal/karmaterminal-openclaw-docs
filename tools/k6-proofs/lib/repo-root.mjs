@@ -53,6 +53,19 @@ function isWithin(parent, candidate) {
     (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
 }
 
+// No file at `candidate` is fine: there is nothing to conflict with the
+// repository-rooted file. Anything else must name that same file.
+function isMissingOrSameRegularFile(candidate, expectedPath) {
+  try {
+    const info = lstatSync(candidate);
+    const resolved = realpathSync.native(candidate);
+    return info.isFile() && !info.isSymbolicLink() && resolved === expectedPath;
+  } catch (error) {
+    if (error?.code === 'ENOENT') return true;
+    throw error;
+  }
+}
+
 /**
  * A directory is a repository root when it directly contains `tools/k6-proofs`
  * and that directory holds both proof catalogs (`manifests` and `scenarios`).
@@ -164,9 +177,7 @@ export function resolveRepositoryFile(root, input, {
   }
 
   const supplied = input.trim();
-  const candidate = path.isAbsolute(supplied)
-    ? path.resolve(supplied)
-    : path.resolve(repositoryRoot, supplied);
+  const candidate = path.resolve(repositoryRoot, supplied);
   if (!isWithin(repositoryRoot, candidate)) {
     throw new Error(`${label} escapes repository root`);
   }
@@ -191,20 +202,11 @@ export function resolveRepositoryFile(root, input, {
 
   if (!path.isAbsolute(supplied)) {
     const cwdCandidate = path.resolve(cwd, supplied);
-    if (cwdCandidate !== candidate) {
-      // No file at the cwd-relative path is fine: there is nothing to conflict
-      // with the repository-rooted file. Anything else must name that same file.
-      let cwdMatchesRepositoryFile = true;
-      try {
-        const cwdInfo = lstatSync(cwdCandidate);
-        const cwdResolved = realpathSync.native(cwdCandidate);
-        cwdMatchesRepositoryFile = cwdInfo.isFile() && !cwdInfo.isSymbolicLink() && cwdResolved === resolved;
-      } catch (error) {
-        if (error?.code !== 'ENOENT') throw error;
-      }
-      if (!cwdMatchesRepositoryFile) {
-        throw new Error(`${label} is ambiguous relative to the caller working directory`);
-      }
+    if (
+      cwdCandidate !== candidate &&
+      !isMissingOrSameRegularFile(cwdCandidate, resolved)
+    ) {
+      throw new Error(`${label} is ambiguous relative to the caller working directory`);
     }
   }
   return resolved;

@@ -620,6 +620,98 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
       `${JSON.stringify({ ...metadata, runtimeBuildSha: 'f'.repeat(40) })}\n`,
     );
     await assert.rejects(invoke({ manifestPath, candidateDir }), /build identity mismatch/);
+
+    const runtimeSha = 'f'.repeat(40);
+    const ancillaryRuntime = {
+      schema: 'openclaw.k6.ancillary-runtime-provenance.v1',
+      row: 'R-CD-TOKEN',
+      valid: true,
+      canonicalSha: sha,
+      canonicalTree: 'b'.repeat(40),
+      runtimeSha,
+      runtimeTree: 'd'.repeat(40),
+      contractSha256: 'e'.repeat(64),
+      changedPathCount: 22,
+      ownerPathsUnchanged: true,
+      canonicalIdentityRemainsPure: true,
+    };
+    const ancillaryRaw = `${JSON.stringify(ancillaryRuntime, null, 2)}\n`;
+    const ancillarySha256 = createHash('sha256').update(ancillaryRaw).digest('hex');
+    const ancillaryMetadata = {
+      ...metadata,
+      runtimeBuildSha: runtimeSha,
+      runtimeProvenance: {
+        class: 'reviewed-ancillary-runtime',
+        receipt: 'ancillary-runtime-provenance.json',
+        receiptSha256: ancillarySha256,
+        canonicalIdentityRemainsPure: true,
+      },
+    };
+    const ancillaryAttemptState = {
+      ...attemptState,
+      runtimeBuildSha: runtimeSha,
+      runtimeProvenanceSha256: ancillarySha256,
+    };
+    const ancillaryEvidence = {
+      ...evidence,
+      runtimeBuildSha: runtimeSha,
+    };
+    const ancillaryReceipt = resolveRcdTokenAuthoritativeReceipt({
+      evidence: ancillaryEvidence,
+      correlation,
+      attemptState: ancillaryAttemptState,
+      metadata: ancillaryMetadata,
+      ancillaryRuntime,
+      signingKey: gatewayKey,
+    });
+    const ancillaryReceiptRaw = `${JSON.stringify(ancillaryReceipt, null, 2)}\n`;
+    const ancillaryReceiptDigest = createHash('sha256')
+      .update(ancillaryReceiptRaw)
+      .digest('hex');
+    await writeFile(
+      path.join(candidateDir, 'runner-metadata.json'),
+      `${JSON.stringify(ancillaryMetadata)}\n`,
+    );
+    await writeFile(
+      path.join(candidateDir, 'ancillary-runtime-provenance.json'),
+      ancillaryRaw,
+    );
+    await writeFile(
+      path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'),
+      ancillaryReceiptRaw,
+    );
+    await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify({
+      effectiveExitCode: 0,
+      verdict: 'PASS-candidate',
+      verdictSource: 'r-cd-token-authoritative-receipt',
+      candidateOnly: true,
+      foldRequiresReview: true,
+      authoritativeReceipt: {
+        file: 'r-cd-token-authoritative-receipt.json',
+        sha256: ancillaryReceiptDigest,
+        validated: true,
+        source: 'r-cd-token-row-scoped-resolver',
+      },
+      observability: {
+        traceStatus: 'present',
+        traceId: 'c'.repeat(32),
+        correlationReceipt: 'continuation-trace-correlation.json',
+      },
+      review: { status: 'ready-for-human-review', pendingReceipts: [] },
+    }, null, 2)}\n`);
+    const ancillaryGood = JSON.parse(
+      (await invoke({ manifestPath, candidateDir })).stdout,
+    );
+    assert.equal(ancillaryGood.candidate.sha, sha);
+    await writeFile(
+      path.join(candidateDir, 'ancillary-runtime-provenance.json'),
+      ancillaryRaw.replace('"changedPathCount": 22', '"changedPathCount": 23'),
+    );
+    await assert.rejects(
+      invoke({ manifestPath, candidateDir }),
+      /ancillary runtime provenance is invalid/,
+    );
+
     await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
     await writeFile(
       path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'),

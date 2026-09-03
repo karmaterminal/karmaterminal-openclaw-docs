@@ -62,6 +62,9 @@ import {
 import {
   verifyPublishedReturnCovenantRuntimeConfig,
 } from '../lib/return-covenant-runtime-config.mjs';
+import {
+  attestReturnCovenantRuntimeArtifactSource,
+} from '../lib/return-covenant-home-artifact.mjs';
 
 const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -97,6 +100,7 @@ const DOCS_AUTHORITY_FILES = [
   'tools/k6-proofs/lib/return-covenant-authoritative-receipt.mjs',
   'tools/k6-proofs/lib/return-covenant-candidate-io.mjs',
   'tools/k6-proofs/lib/return-covenant-driver-attestation.mjs',
+  'tools/k6-proofs/lib/return-covenant-home-artifact.mjs',
   'tools/k6-proofs/lib/return-covenant-process-observer.mjs',
   'tools/k6-proofs/lib/return-covenant-retention-inspector.mjs',
   'tools/k6-proofs/lib/return-covenant-runtime-artifact-contract.mjs',
@@ -891,11 +895,20 @@ async function main() {
   }
   const runtimeArtifactSource = await realpath(suppliedRuntimeArtifact);
   const livePaths = await existingLivePaths();
+  const hostHomePath = process.env.HOME
+    ? await realpath(process.env.HOME).catch(() => null)
+    : null;
+  const nonHomeLivePaths = livePaths.filter((entry) => entry !== hostHomePath);
   assertDisjointPath(
     runtimeArtifactSource,
-    [docsDir, sourceDir, ...livePaths],
+    [docsDir, sourceDir, ...nonHomeLivePaths],
     '--runtime-artifact',
   );
+  await attestReturnCovenantRuntimeArtifactSource({
+    suppliedPath: suppliedRuntimeArtifact,
+    resolvedPath: runtimeArtifactSource,
+    homePath: hostHomePath,
+  });
   const controlDir = await assertEmptyPrivateDirectory(
     args['control-dir'],
     [docsDir, sourceDir, runtimeArtifactSource, ...livePaths],

@@ -16,7 +16,10 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   const k6 = source.indexOf('k6 run "scenarios/$SCENARIO_FILE"');
   assert.ok(buildGate > 0 && prepared > buildGate && surfaceGate > prepared &&
     disposableGate > surfaceGate && k6 > disposableGate);
-  assert.match(source, /OPENCLAW_CANDIDATE_SHA" != "\$OPENCLAW_RUNTIME_BUILD_SHA/);
+  assert.match(source, /validate-ancillary-runtime-provenance\.mjs/);
+  assert.match(source, /reviewed-ancillary-runtime/);
+  assert.match(source, /canonicalIdentityRemainsPure:true/);
+  assert.match(source, /OPENCLAW_RUNTIME_SOURCE_DIR/);
   assert.match(source, /trap finalize_interrupted_token_run EXIT/);
   assert.match(source, /signal-int/);
   assert.match(source, /signal-term/);

@@ -15,7 +15,7 @@
     "ancillary_patch_path_count": 22,
     "materiality": "The composite adds the reviewed #121204 and #124337 operational patches. It is deployment substrate, not continuation feature identity."
   },
-  "harness_sha": "3ff33727eb2992473f73da71b3a4b452969b1225",
+  "harness_sha": "52c0b46f86f2f98a6ff7f17b7a5f380609903484",
   "fire_type": "fresh-final-execution",
   "corpus": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
   "sha_short": "5035aac3",
@@ -476,7 +476,7 @@
     },
     {
       "row": "R-CD-TOKEN",
-      "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+      "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an explicitly agent-bound isolated raw-final-text parent; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
       "owner": "ronan_remaining_runnable_matrix",
       "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-TOKEN/",
@@ -492,14 +492,15 @@
       "pending_receipts": [
         "PASS; exact raw final text; parser/queue/child/return identities; trace correlation"
       ],
-      "summary": "Reviewed ancillary-runtime provenance passed and live dispatch occurred, but no token delegate task or parent return appeared before the observation window expired.",
-      "notes": "Repaired harness 3ff33727; latest run 20260903T060815Z-r-cd-token-0fd4f089. Prior attempts retained; no semantic retry after this result.",
+      "summary": "The authorized explicit-owner replacement attempt stopped before dispatch because the immutable snapshot resolved the repository-relative ancillary contract path from tools/k6-proofs and received ENOENT. The prior consumed semantic PARTIAL remains canonical.",
+      "notes": "Approved harness 52c0b46f; replacement run 20260903T073850Z-r-cd-token-248195ae was infrastructure-before-consumption and was not retried. Consumed semantic run 20260903T060815Z-r-cd-token-0fd4f089 remains unchanged.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-TOKEN/EVIDENCE.md"
       ],
       "test_cases_executed": [
         "20260903T033559Z-r-cd-token-877d5a31",
-        "20260903T060815Z-r-cd-token-0fd4f089"
+        "20260903T060815Z-r-cd-token-0fd4f089",
+        "20260903T073850Z-r-cd-token-248195ae"
       ],
       "traces": []
     },

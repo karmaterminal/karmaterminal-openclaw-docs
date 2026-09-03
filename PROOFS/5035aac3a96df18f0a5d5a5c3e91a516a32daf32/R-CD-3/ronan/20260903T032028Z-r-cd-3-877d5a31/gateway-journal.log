@@ -1,0 +1,5 @@
+2026-09-02T20:20:34.113812-07:00 ronan node[768834]: 2026-09-02T20:20:34.113-07:00 [agent/embedded] [model-fallback] configured fallbacks disabled by user model override run=5aa6ab31-34c0-4f8a-9895-3a10711500d7 session=sha256:d1a699fec2d5
+2026-09-02T20:20:36.650794-07:00 ronan node[768834]: 2026-09-02T20:20:36.650-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:20:36.651146-07:00 ronan node[768834]: 2026-09-02T20:20:36.651-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T20:20:36.651467-07:00 ronan node[768834]: 2026-09-02T20:20:36.651-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:20:36.651770-07:00 ronan node[768834]: 2026-09-02T20:20:36.651-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

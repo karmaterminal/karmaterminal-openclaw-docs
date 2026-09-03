@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "scenario": "r-cd-chained-depth-2.js",
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "runtimeBuildSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seat": "ronan",
+  "sessionConfigured": true,
+  "startedAt": "2026-09-03T03:25:40Z",
+  "docsRef": "8625dbd09c9d095829510e248605377241d09289",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260903T032016Z-8625dbd09c9d-877d5a31",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+  "manifestSha256": "ed8766c5f5122a878c205f10396c141688fca32937be16e06d255e02df9cc3db",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-chained-depth-2.js",
+  "scenarioSha256": "f0250ab4f5ceb20cf4ecc238fb58b21f1c8a086425d794a2507e820a488c0c81"
+}

@@ -44,6 +44,27 @@
       "dispatched": false,
       "cause": "k6 absent from noninteractive PATH",
       "retryDisposition": "not retried after terminal semantic failure was established"
+    },
+    {
+      "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+      "attempts": 1,
+      "classification": "launcher-infrastructure",
+      "behaviorExecuted": false,
+      "cause": "accepted launcher excludes runtime artifacts located inside HOME; available task workspace is HOME-scoped"
+    },
+    {
+      "row": "R-CW-5A",
+      "attempts": 1,
+      "classification": "producer-evidence-missing",
+      "behaviorExecuted": false,
+      "cause": "R-CW-5 producer receipts absent"
+    },
+    {
+      "row": "R-CW-6A",
+      "attempts": 1,
+      "classification": "producer-evidence-missing",
+      "behaviorExecuted": false,
+      "cause": "R-CW-6 producer receipts absent"
     }
   ]
 }

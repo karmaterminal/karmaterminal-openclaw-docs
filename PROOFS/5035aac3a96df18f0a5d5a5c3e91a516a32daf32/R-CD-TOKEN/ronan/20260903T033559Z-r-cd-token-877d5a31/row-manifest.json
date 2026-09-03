@@ -1,0 +1,310 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-TOKEN",
+  "issue": 103,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "bracket-token",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-token-bracket-delegate",
+    "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "tasks.list",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "expectedFile": "r-cd-token-bracket-delegate.js",
+    "registryNotes": "Issue #426 runnable repair: runner owns the attempt/nonce before launch; scenario requires a disposable raw-final-text origin and exactly one nonce-bound origin/delegate task identity through a settle window.",
+    "file": "r-cd-token-bracket-delegate.js"
+  },
+  "seatClassExpectation": {
+    "raw-final-text-seat": "PASS-candidate",
+    "message-body-seat": "PARTIAL-candidate",
+    "reason": "Bracket scanner fires only on scanned-final-text. Seats that route final-text through message(send) body cannot prove this row and remain PARTIAL unless raw-final-text mode is forced (no message-tool call that turn). See TOOLS.md bracket-position-sensitive notes."
+  },
+  "expectedReceipts": [
+    {
+      "name": "exact-candidate-runtime-identity",
+      "required": true,
+      "description": "Exact 40-character candidate and deployed runtime SHAs are equal before dispatch and bound into the signed authority receipt"
+    },
+    {
+      "name": "attempt-state",
+      "required": true,
+      "description": "Runner-owned attempt/nonce fingerprint and automatic-retry disposition persisted before k6 launch"
+    },
+    {
+      "name": "raw-final-text-origin",
+      "required": true,
+      "description": "Declared scanner-supported raw-final-text surface; message-body and unknown surfaces cannot PASS"
+    },
+    {
+      "name": "prompt-injected",
+      "required": true,
+      "description": "sessions.send accepted the bracket-instructing prompt with a concrete run identity"
+    },
+    {
+      "name": "parser-detected",
+      "required": true,
+      "description": "Terminal bracket text observed from the isolated origin child and joined to the token delegate reason fingerprint"
+    },
+    {
+      "name": "queue-identity",
+      "required": true,
+      "description": "Exactly one token delegate task identity appears in the authoritative task ledger"
+    },
+    {
+      "name": "child-spawned",
+      "required": true,
+      "description": "Exactly one nonce-bound token delegate child/run identity is present"
+    },
+    {
+      "name": "child-completed",
+      "required": true,
+      "description": "The one token delegate task reaches succeeded state"
+    },
+    {
+      "name": "parent-return-event",
+      "required": true,
+      "description": "The exact nonce-bound delegate return sentinel is observed on the parent"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace for the token delegate dispatch/fire topology"
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "Reason fingerprint, one dispatch, one fire, chain identity, and absence of a typed continue_delegate tool origin are validated"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Bracket/token path. Message-body delivery cannot prove this contract and remains PARTIAL-candidate. PASS-candidate requires a raw-final-text seat. candidateSha and seat resolve from env at runtime."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "bracket-token-delegate-from-lightcontext-subagent"
+    ],
+    "delaySeconds": 10,
+    "lightContext": true,
+    "taskNamePrefix": "r-cd-token",
+    "idempotencyKeyPrefix": "R-CD-TOKEN",
+    "originSurface": "raw-final-text",
+    "promptTemplate": "{{marker}} reply exactly RCDT-RETURN-{{tag}}",
+    "parserSignalKind": "bracket-delegate"
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "This is the row the census bites hardest. Its whole claim is that the delegate came from a bracket token and not from a typed tool, and it proves that today by the ABSENCE of a typed continue_delegate tool origin in the trace. The census established that accepted entry spans carry no origin and that typed-tool spans and accepted-entry spans cannot be causally joined, so absence-of-a-tool-span is a heuristic, not a positive origin proof. Bracket origin currently has positive evidence only in payload-free Loki effective-signal logs (32 bracket-delegate records in 7d), which are not bound to the trace."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Its ABSENCE is the current bracket-origin heuristic."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row’s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.signal.surface",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "raw-final-text | message-tool-body | typed-tool. The row’s seat-class expectation is exactly this distinction and no span records it."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Delegate task material is published as a digest and a length. The bracket text, the origin child’s final text, raw nonces, session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "bracket text",
+        "final reply text",
+        "task text",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "A disposable raw-final-text origin child emits the terminal bracket, exactly one token-scheduled delegate task identity appears in the authoritative ledger, it completes, and the nonce-bound return sentinel reaches the parent.",
+      "negative": "A message-tool-body surface cannot satisfy the row and stays PARTIAL-candidate; a typed continue_delegate tool origin in the same trace disqualifies the bracket claim; more than one nonce-bound delegate identity through the settle window fails the row.",
+      "notes": "The negative control is currently an absence test. R-OBS-CONT-PROVENANCE converts it into a positive origin assertion."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash",
+        "attempt_fingerprint"
+      ],
+      "notes": "A degraded backend cannot support an absence argument at all: with no completeness metadata, \"no typed tool span\" and \"no data\" are the same response. Backend-partial therefore caps this row at PARTIAL-candidate without exception."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "r-cd-token-authoritative-receipt.json",
+        "attempt-state.json",
+        "build-identity-gate.json",
+        "seat-readiness.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "A runner-owned attempt on a raw-final-text seat with exactly one origin task and one token-scheduled delegate task, exact completion and return binding, and public Tempo topology. Behavioral only: bracket origin is established by surface declaration plus tool-span absence, not by a product origin attribute.",
+      "partial": "Message-body or unknown surfaces, interruption, or a degraded/partial telemetry backend. None of these are auto-retried.",
+      "fail": "More than one nonce-bound delegate identity, a typed continue_delegate tool origin in the row trace, or a missing return binding."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-token-bracket-delegate.js with a runner-owned attempt and nonce established before k6 launches.",
+      "manual": "Manual bracket fires cannot bound the origin surface and are not admissible for this row.",
+      "relationship": "Deterministic k6 is the sole authority here precisely because the origin claim is an absence argument that needs a bounded, owned window."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "exact-candidate-runtime-identity",
+      "attempt-state",
+      "raw-final-text-origin",
+      "prompt-injected",
+      "parser-detected",
+      "queue-identity",
+      "child-spawned",
+      "child-completed",
+      "parent-return-event",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "PASS requires a runner-owned attempt, disposable raw-final-text origin, exactly one origin task and one token-scheduled delegate task through a settle window, exact completion/return binding, and public Tempo topology. Message-body/unknown surfaces and interruption are structured PARTIAL and never auto-retried.",
+    "requiresDisposableSession": true
+  }
+}

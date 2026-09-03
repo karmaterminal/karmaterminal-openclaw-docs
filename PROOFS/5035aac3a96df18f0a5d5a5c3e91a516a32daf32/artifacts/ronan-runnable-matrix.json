@@ -1,0 +1,54 @@
+{
+  "schema": "openclaw.129388.runnable-matrix.v1",
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "docsRef": "8625dbd09c9d095829510e248605377241d09289",
+  "harnessAncestor": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
+  "seat": "ronan",
+  "selectionCountIncludingPreflight": 22,
+  "requiredRowCount": 21,
+  "runnerExitCode": 99,
+  "passRows": [
+    "R-CD-3",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CD-MODEL-DEFAULT",
+    "R-CD-MODEL-TOKEN",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-4",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-OBS-1"
+  ],
+  "partialRows": [
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-MODEL-TOOL",
+    "R-CD-TOKEN"
+  ],
+  "missingRows": [
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CD-RETURN-OVERLAP",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE",
+    "R-OBS-2"
+  ],
+  "semanticFailRows": [],
+  "priorConsumedRowsRetained": [
+    "R-CD-1",
+    "R-CD-2",
+    "R-CD-SILENT",
+    "R-CONFIG-DEFAULTS",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-TOKEN",
+    "R-OBS-STATUS",
+    "R-RC-1",
+    "R-RC-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "noRefires": true
+}

@@ -1,0 +1,9 @@
+2026-09-02T20:21:05.932439-07:00 ronan node[768834]: 2026-09-02T20:21:05.932-07:00 [agent/embedded] embedded run failover decision: runId=R-CD-4-TARGET-PRIME-<redacted-nonce> stage=assistant decision=continue_normal reason=none attempt=1 retry=0 rotations=0 from=openai/gpt-5.6-sol profile=sha256:0b65c92fa836
+2026-09-02T20:21:05.949593-07:00 ronan node[768834]: 2026-09-02T20:21:05.949-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:21:05.950511-07:00 ronan node[768834]: 2026-09-02T20:21:05.950-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T20:21:05.951361-07:00 ronan node[768834]: 2026-09-02T20:21:05.951-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:21:05.952167-07:00 ronan node[768834]: 2026-09-02T20:21:05.952-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T20:22:03.166024-07:00 ronan node[768834]: 2026-09-02T20:22:03.165-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:22:03.166918-07:00 ronan node[768834]: 2026-09-02T20:22:03.166-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T20:22:03.167797-07:00 ronan node[768834]: 2026-09-02T20:22:03.167-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:22:03.168639-07:00 ronan node[768834]: 2026-09-02T20:22:03.168-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

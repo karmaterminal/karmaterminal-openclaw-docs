@@ -1,12 +1,9 @@
 # Execution status
 
-`IN_PROGRESS_CORRECTED`
+`FAIL_CANDIDATE`
 
-Current bootstrap authority supersedes the stale tail-packet seat allocation. Historical `registry:` and `execution:` columns do not gate runnable rows.
+The current-runbook correction was applied. Twelve earlier consumed rows retained one-fire authority; every remaining runnable required row was attempted once on exact-deployed Ronan, without old seat-owner gating.
 
-- 12 rows retain prior consumed one-fire authority and will not be refired.
-- 21 unconsumed runnable required rows are allocated to exact-deployed Ronan.
-- 5 process/hermetic rows remain in the local lane.
-- Fleet disparity does not block `R-OBS-1` scenario fire; only a later genuinely six-seat crosswalk receipt remains conditional.
+Final reviewed rollup: 17 pass, 7 partial, 1 fail, 13 missing. Mandatory R-CD-2 remains the signed semantic fail. Static/current-corpus validators whose producer artifacts were absent remain missing rather than being mislabeled product failures. The authority runtime artifact built, but no matrix observation started because the trusted launcher excludes HOME-scoped artifact paths and the available task workspace is HOME-scoped.
 
-The previously observed `R-CD-2` FAIL and other non-PASS receipts remain preserved; continuing the matrix does not erase or retry them.
+No docs-main, presentation, product, runtime composite, bootstrap, or deployment mutation occurred.

@@ -1,0 +1,20 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: <home>/flesh_beast_best_beast/frond-scribe/.proof-work/129388-docs-5035aac3/tools/k6-proofs/scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-09-02T20:42:17-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-6A\",\"sourceRow\":\"R-CW-6\",\"staticBoundaryVariant\":true,\"manifest_loaded\":true,\"candidateSha\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"currentProofSha\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"sourceEvidenceSha\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"carriedFrom\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"started\":\"2026-09-03T03:42:17.627Z\",\"checks\":{\"verdictPass\":false,\"boundaryPredicate\":false,\"earlyReturn\":false,\"schedulerUnitTest\":false,\"harnessCapped\":false,\"noLiveMutationScope\":false,\"nonLiveBoundary\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/cael-dgx/source/scheduler-source-snippet.txt\",\"workDispatchSource\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/cael-dgx/source/work-dispatch-source-snippet.txt\",\"schedulerTest\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/cael-dgx/source/scheduler-test-snippet.txt\",\"harnessLog\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/cael-dgx/harness/scheduler-boundary-harness.log\"},\"ended\":\"2026-09-03T03:42:17.627Z\",\"duration_ms\":0,\"verdict\":\"FAIL-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+time="2026-09-02T20:42:17-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

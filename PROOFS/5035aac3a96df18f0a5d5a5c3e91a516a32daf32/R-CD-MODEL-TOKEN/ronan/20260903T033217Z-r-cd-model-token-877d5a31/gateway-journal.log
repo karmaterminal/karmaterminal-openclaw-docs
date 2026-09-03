@@ -1,0 +1,4 @@
+2026-09-02T20:32:38.410142-07:00 ronan node[768834]: 2026-09-02T20:32:38.410-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:32:38.411147-07:00 ronan node[768834]: 2026-09-02T20:32:38.411-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T20:32:38.412115-07:00 ronan node[768834]: 2026-09-02T20:32:38.412-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:32:38.413034-07:00 ronan node[768834]: 2026-09-02T20:32:38.412-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

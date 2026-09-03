@@ -76,7 +76,7 @@
       "R-REGRESSION-TRAP-TESTS",
       "R-TRACE-REDACTION-1121"
     ],
-    "ronan_remaining_runnable_matrix": [
+    "ronan_runnable_matrix_attempted_once": [
       "R-CD-3",
       "R-CD-4",
       "R-CD-CHAINED-DEPTH-2",
@@ -109,12 +109,12 @@
   },
   "rollup": {
     "total_rows": 38,
-    "pass": 8,
-    "partial": 3,
+    "pass": 17,
+    "partial": 7,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 26
+    "missing": 13
   },
   "rows": [
     {
@@ -177,78 +177,82 @@
       "row": "R-CD-3",
       "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-3/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; dispatch, delegate staging, compaction request, accepted lifeboat receipt"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-3/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Compaction/lifeboat scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T032028Z-r-cd-3-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-3/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T032028Z-r-cd-3-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-4",
       "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-4/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; return reaches target not parent; identities and trace present"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane emeric_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-4/EVIDENCE.md is provenance only.",
+      "summary": "Parent request and target session were accepted, but no child completion or target return was observed.",
+      "notes": "Run 20260903T032056Z-r-cd-4-877d5a31 on Ronan. No semantic retry; original attempt retained.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-4/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T032056Z-r-cd-4-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
       "title": "Depth-2 delegate chain: parent\u2192child\u2192grandchild\u2192return path.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-CHAINED-DEPTH-2/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; child and grandchild spawn/return; root consumes return; trace"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live-mandatory; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-CHAINED-DEPTH-2/EVIDENCE.md is provenance only.",
+      "summary": "Child/grandchild sentinels appeared, but authoritative spawn and root-return receipts were absent.",
+      "notes": "Run 20260903T032540Z-r-cd-chained-depth-2-877d5a31 on Ronan. No semantic retry; original attempt retained.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T032540Z-r-cd-chained-depth-2-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -262,123 +266,127 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; A-B-C artifact set; root receives sentinel after B collapse; no orphan"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane frond_local_process; accepted action revalidate-offline;live-rerun-if-owner-bytes-changed; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md is provenance only.",
+      "summary": "Static current-corpus validator found its required producer artifacts absent; this is missing evidence, not a product-behavior contradiction.",
+      "notes": "Attempt 20260903T033120Z-r-cd-collection-on-collapse-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033120Z-r-cd-collection-on-collapse-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
       "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-CHAINED-ALT/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; depth-1 and depth-2 observed; alternate requested=observed; return"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Chained alternate-model scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T033127Z-r-cd-model-chained-alt-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033127Z-r-cd-model-chained-alt-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-MODEL-DEFAULT",
       "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-DEFAULT/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-DEFAULT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; no-override child model equals parent; typed and token parity"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-DEFAULT/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Default model inheritance scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T033153Z-r-cd-model-default-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-DEFAULT/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033153Z-r-cd-model-default-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-MODEL-TOKEN",
       "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-TOKEN/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; bracket origin/model modifier; requested=observed child model; return"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOKEN/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Bracket-token model override and return scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T033217Z-r-cd-model-token-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOKEN/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033217Z-r-cd-model-token-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-MODEL-TOOL",
       "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-TOOL/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-MODEL-TOOL/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; explicit override forwarded; child requested=observed; return"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOOL/EVIDENCE.md is provenance only.",
+      "summary": "Dispatch was accepted, but no child session, observed model, or return payload was captured.",
+      "notes": "Run 20260903T033245Z-r-cd-model-tool-877d5a31 on Ronan. No semantic retry; original attempt retained.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOOL/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033245Z-r-cd-model-tool-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -392,19 +400,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; overlapping returns retained with no loss; fixture cleanup receipt"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane frond_local_process; accepted action revalidate-offline-and-exact-covenant-fixture; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-RETURN-OVERLAP/EVIDENCE.md is provenance only.",
+      "summary": "Scenario initialization failed because its required current-corpus evidence file was absent; no behavioral verdict exists.",
+      "notes": "Attempt 20260903T033552Z-r-cd-return-overlap-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-RETURN-OVERLAP/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033552Z-r-cd-return-overlap-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -418,15 +428,15 @@
       "scenario_status": "process-local-accepted-launcher",
       "live_run_classification": "process-local-indivisible-24-observation-matrix",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "artifact-built-matrix-not-fired",
+      "review_status": "launcher-infrastructure-blocked",
       "fired": false,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; all 12 cases x typed-tool+bracket-token exactly once; allowed exact effects; forbidden zero prompt/wake/channel; schema v18/v19; restart replay; signed authority; full cleanup"
       ],
-      "summary": "Exact-pure 3.2 GB attested runtime artifact built; 24-observation matrix not fired after terminal R-CD-2 FAIL-candidate.",
-      "notes": "Artifact run rcv-13428542657bda625490500f560a0ee4; public digest receipt under artifacts/.",
+      "summary": "Exact runtime artifact built; trusted launcher rejected its location because every available task workspace is within HOME, which the launcher excludes.",
+      "notes": "No product process or matrix observation started. Accepted harness remained unchanged.",
       "supporting_docs": [
         "tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@5384acb5a137fdcfe30f1742bdc6af86ef8899d1"
       ],
@@ -465,26 +475,28 @@
       "row": "R-CD-TOKEN",
       "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-TOKEN/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; exact raw final text; parser/queue/child/return identities; trace correlation"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live-mandatory; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-TOKEN/EVIDENCE.md is provenance only.",
+      "summary": "Pre-dispatch exact-candidate/runtime equality gate rejected pure 5035aac3 versus runtime composite dbf5795b; no token dispatch occurred.",
+      "notes": "Run 20260903T033559Z-r-cd-token-877d5a31 on Ronan. No semantic retry; original attempt retained.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-TOKEN/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033559Z-r-cd-token-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -517,52 +529,52 @@
       "row": "R-CONFIG-INTERSESSION",
       "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CONFIG-INTERSESSION/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CONFIG-INTERSESSION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; config persists across session/restart; restore verified"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane emeric_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CONFIG-INTERSESSION/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Intersession config scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T033603Z-r-config-intersession-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CONFIG-INTERSESSION/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033603Z-r-config-intersession-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CW-1",
       "title": "Typed continue_work() tool-form schedule + wake.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-1/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; typed schedule/wake and token sibling parity; deploy/restart persistence; trace"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane rune_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-1/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Schedule/wake scenario emitted PASS-candidate with recovered Tempo trace.",
+      "notes": "Run 20260903T033611Z-r-cw-1-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-1/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033611Z-r-cw-1-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -621,26 +633,26 @@
       "row": "R-CW-4",
       "title": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-4/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; 4+ hops with same chain id and decrementing depth"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane rune_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-4/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Multi-hop chain scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T033650Z-r-cw-4-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-4/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033650Z-r-cw-4-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -680,19 +692,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS at corpus level only with static boundary receipts; never claim live behavior"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action revalidate-offline; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5A/EVIDENCE.md is provenance only.",
+      "summary": "Static helper executed and failed because the required current-corpus R-CW-5 producer receipts are absent.",
+      "notes": "Hermetic static helper attempt retained; absence is not a product-behavior contradiction.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5A/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260902T2045PDT"
+      ],
       "traces": []
     },
     {
@@ -732,19 +746,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS at corpus level only with static boundary receipts; never claim live behavior"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action revalidate-offline; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6A/EVIDENCE.md is provenance only.",
+      "summary": "Static helper executed and failed because the required current-corpus R-CW-6 producer receipts are absent.",
+      "notes": "Hermetic static helper attempt retained; absence is not a product-behavior contradiction.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6A/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260902T2045PDT"
+      ],
       "traces": []
     },
     {
@@ -758,19 +774,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; W3C traceparent preserved across parent/child continuation spans"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane frond_local_process; accepted action revalidate-offline;rerun-live-if-tracer-bytes-changed; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-7/EVIDENCE.md is provenance only.",
+      "summary": "Static traceparent validator found all required current-corpus producer artifacts absent.",
+      "notes": "Attempt 20260903T033814Z-r-cw-7-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-7/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033814Z-r-cw-7-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -784,45 +802,47 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; delegate child takes fresh hop-2 to completion; both forms"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md is provenance only.",
+      "summary": "Current harness entry is a static artifact validator; required live producer artifacts were absent.",
+      "notes": "Attempt 20260903T033821Z-r-cw-delegate-child-live-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033821Z-r-cw-delegate-child-live-877d5a31"
+      ],
       "traces": []
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
       "title": "Fires continue_delegate that internally calls continue_work \u2014 proves hop-2 woke inside a delegate child session.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-DELEGATE-SELF-CONTINUATION/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; delegate accepted; child continue_work accepted/woke; parent return; both forms"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane rune_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Delegate self-continuation scenario emitted PASS-candidate.",
+      "notes": "Run 20260903T033829Z-r-cw-delegate-self-continuation-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033829Z-r-cw-delegate-self-continuation-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -836,19 +856,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; child token drives hop-2 execution; paired typed path"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane rune_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-TOKEN/EVIDENCE.md is provenance only.",
+      "summary": "Current harness entry is a static artifact validator; required token producer artifacts were absent.",
+      "notes": "Attempt 20260903T033857Z-r-cw-delegate-token-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033857Z-r-cw-delegate-token-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -862,19 +884,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; three elections yield three distinct wakes at default/60/120; both forms"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-MULTI/EVIDENCE.md is provenance only.",
+      "summary": "Static multi-election validator found its required producer artifacts absent.",
+      "notes": "Attempt 20260903T033912Z-r-cw-multi-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-MULTI/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033912Z-r-cw-multi-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -888,19 +912,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; within-grace co-drain; stale fold; running never folded; restore receipt"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane emeric_live; accepted action rerun-live-or-exact-fixture; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-MULTI-COLLAPSE/EVIDENCE.md is provenance only.",
+      "summary": "Static collapse validator found its required producer artifacts absent.",
+      "notes": "Attempt 20260903T033904Z-r-cw-multi-collapse-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033904Z-r-cw-multi-collapse-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -933,26 +959,26 @@
       "row": "R-OBS-1",
       "title": "Session-status-card observability via the session_status tool.",
       "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-OBS-1/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-OBS-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; status continuation state visible; complete required-seat crosswalk"
-      ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane fleet_observer_hold; accepted action rerun-fleet; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-1/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Current single-seat session-status observability contract emitted PASS-candidate; no stale six-seat gate was applied.",
+      "notes": "Run 20260903T033919Z-r-obs-1-877d5a31 on Ronan under corrected current-runbook allocation. Canonical pure SHA 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-1/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033919Z-r-obs-1-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -966,19 +992,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "allocated-to-ronan-current-runbook",
-      "fired": false,
+      "review_status": "producer-evidence-missing",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; exported parent-child continuation span tree bound to exact run ids"
       ],
-      "summary": "Unconsumed runnable row allocated to exact-deployed Ronan under current runbook; historical seat-owner labels are non-gating.",
-      "notes": "Execution lane dependent_observer; accepted action revalidate-and-recapture; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-2/EVIDENCE.md is provenance only.",
+      "summary": "Observer initialization failed because the required current-corpus trace tree was absent; no behavioral verdict exists.",
+      "notes": "Attempt 20260903T033944Z-r-obs-2-877d5a31 on Ronan retained. Static/initialization failure does not promote to a semantic product FAIL.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-2/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T033944Z-r-obs-2-877d5a31"
+      ],
       "traces": []
     },
     {
@@ -1126,6 +1154,6 @@
     "targeted_verdict": "PASS"
   },
   "generated": "2026-09-02T19:40:08-07:00",
-  "notes": "Corrected per figs and current runbook: historical row-owner columns are not execution gates. Twelve rows retain their consumed one-fire authority; all 21 unconsumed runnable required rows are allocated to exact-deployed Ronan; five process/hermetic rows remain local. No consumed row will be refired.",
-  "execution_status": "IN_PROGRESS_CORRECTED"
+  "notes": "Current-runbook correction applied. All 33 required runnable rows now have one retained attempt across the 12 previously consumed rows and the 21-row Ronan completion matrix; no consumed row was refired. All five process/hermetic rows were attempted or prepared, with harness/environment blockers retained. Final rollup remains 17 pass, 7 partial, 1 fail, 13 missing.",
+  "execution_status": "FAIL_CANDIDATE"
 }

@@ -2,7 +2,7 @@
   "schema": "openclaw.129388.authority-runtime-artifact-build.v1",
   "row": "R-CD-RETURN-COVENANT-AUTHORITY",
   "runId": "rcv-13428542657bda625490500f560a0ee4",
-  "status": "artifact-built-matrix-not-fired",
+  "status": "artifact-built-launcher-infrastructure-blocked",
   "reasonMatrixNotFired": "Terminal FAIL-candidate was reached first at mandatory R-CD-2.",
   "pureSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
   "pureTree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
@@ -16,5 +16,8 @@
   "directoryCount": 8512,
   "totalBytes": 3038625189,
   "node": "v25.9.0 linux/arm64/glibc",
-  "pnpm": "12.1.0"
+  "pnpm": "12.1.0",
+  "matrixAttempt": "rcv-13428542657bda625490500f560a0ee4",
+  "matrixObservations": 0,
+  "launcherFailure": "Runtime artifact path was inside HOME; accepted launcher excludes HOME and all available task workspaces are HOME-scoped."
 }

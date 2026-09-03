@@ -1,0 +1,16 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "scenario": "r-cd-model-tool.js",
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "runtimeBuildSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seat": "ronan",
+  "sessionConfigured": true,
+  "startedAt": "2026-09-03T03:32:45Z",
+  "docsRef": "8625dbd09c9d095829510e248605377241d09289",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260903T032016Z-8625dbd09c9d-877d5a31",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+  "manifestSha256": "e34095d6c294c30f82ceb35d7a198b2de3b81af3679592abf753a64597606069",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-tool.js",
+  "scenarioSha256": "6522dfadfe41b09303699b9af3b208c560f0c27adb1cddd46a4cf259cee2d266"
+}

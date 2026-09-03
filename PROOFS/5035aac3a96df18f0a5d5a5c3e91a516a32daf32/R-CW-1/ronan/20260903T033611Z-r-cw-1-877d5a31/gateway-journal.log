@@ -1,0 +1,13 @@
+2026-09-02T20:36:32.447243-07:00 ronan node[768834]: 2026-09-02T20:36:32.447-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:36:32.448093-07:00 ronan node[768834]: 2026-09-02T20:36:32.448-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-09-02T20:36:32.448916-07:00 ronan node[768834]: 2026-09-02T20:36:32.448-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T20:36:32.449695-07:00 ronan node[768834]: 2026-09-02T20:36:32.449-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T20:36:32.500054-07:00 ronan node[768834]: 2026-09-02T20:36:32.499-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1 reasonCategory=follow-up-work
+2026-09-02T20:36:32.500712-07:00 ronan node[768834]: 2026-09-02T20:36:32.500-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-09-02T20:36:32.502102-07:00 ronan node[768834]: 2026-09-02T20:36:32.502-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399996ms fireAt=1788492992497 session=<redacted-session-key>
+2026-09-02T20:36:32.543198-07:00 ronan node[768834]: 2026-09-02T20:36:32.543-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=42 session=<redacted-session-key>
+2026-09-02T20:36:32.545924-07:00 ronan node[768834]: 2026-09-02T20:36:32.545-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4998ms fireAt=1788406597543 session=<redacted-session-key>
+2026-09-02T20:36:37.545759-07:00 ronan node[768834]: 2026-09-02T20:36:37.545-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-09-02T20:36:37.555580-07:00 ronan node[768834]: 2026-09-02T20:36:37.547-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59999ms fireAt=1788406657546 session=<redacted-session-key>
+2026-09-02T20:36:37.555580-07:00 ronan node[768834]: 2026-09-02T20:36:37.549-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<redacted-session-key> reasonCategory=follow-up-work
+2026-09-02T20:36:37.699038-07:00 ronan node[768834]: 2026-09-02T20:36:37.698-07:00 [continuation/context-pressure] [context-pressure:fire] band=13 previous=none ratio=16% tokens=44k/272k session=<redacted-session-key>

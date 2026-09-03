@@ -1,10 +1,11 @@
 # R-CD-4 — final proof evidence
 
 - canonical pure SHA: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- product tree: `5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2`
-- execution runtime SHA: `dbf5795bd5dd406f586575d883a7878288e591ad` (ancillary deployment provenance only)
-- harness SHA: `5384acb5a137fdcfe30f1742bdc6af86ef8899d1`
-- assigned lane: `emeric_live`
-- current canonical state: `missing`
+- execution runtime SHA: `dbf5795bd5dd406f586575d883a7878288e591ad` (ancillary)
+- docs ref: `8625dbd09c9d095829510e248605377241d09289`
+- run ID: `20260903T032056Z-r-cd-4-877d5a31`
+- seat: `ronan`
+- canonical state: `partial`
+- candidate verdict: `PARTIAL-candidate`
 
-No current-candidate receipt has been reviewed and folded into this row yet. Historical source `PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-4/EVIDENCE.md` is diagnostic provenance only and does not transfer verdict authority.
+Parent request and target session were accepted, but no child completion or target return was observed.

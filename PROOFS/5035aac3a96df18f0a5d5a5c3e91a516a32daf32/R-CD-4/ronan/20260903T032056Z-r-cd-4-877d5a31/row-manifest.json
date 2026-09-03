@@ -1,0 +1,268 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-4",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-4-target-session-key",
+    "description": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "sessions.get",
+      "tasks.list"
+    ],
+    "status": "runnable",
+    "file": "r-cd-4-target-session-key.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "delaySeconds": 1,
+    "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY}",
+    "promptTemplate": "RCD4:{{nonceSuffix16}} Proof nonce {{nonce}}: reply with TARGET-RECEIVED and the nonce. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-4"
+  },
+  "expectedReceipts": [
+    {
+      "name": "parent-session-created",
+      "required": true,
+      "description": "Disposable parent session was created via sessions.create when disposable mode is enabled"
+    },
+    {
+      "name": "target-session-created",
+      "required": true,
+      "description": "Disposable target session was created via sessions.create when disposable mode is enabled"
+    },
+    {
+      "name": "target-session-primed",
+      "required": true,
+      "description": "The disposable target completes a priming turn and records how to acknowledge the later internal completion"
+    },
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send request that asks the agent to call continue_delegate with targetSessionKey"
+    },
+    {
+      "name": "target-consumption-ack",
+      "required": true,
+      "description": "After the continuation return is enqueued and wakes the recipient, the TARGET session emits exact assistant acknowledgement TARGET-ACK {{nonce}}"
+    },
+    {
+      "name": "child-session-identity",
+      "required": true,
+      "description": "A structured spawn/task record binds the child session key to the same row nonce"
+    },
+    {
+      "name": "no-parent-return",
+      "required": true,
+      "description": "Dispatching parent session does NOT receive the delayed return/wake"
+    },
+    {
+      "name": "task-ledger-entry",
+      "required": false,
+      "description": "Optional context only; continue_delegate may not appear in generic TaskFlow task ledger"
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Trace ID for Tempo correlation when emitted"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-4",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Cross-session targeted return. PASS-candidate requires a primed target, dispatch acceptance, a nonce-bound child identity, exact assistant acknowledgement TARGET-ACK {{nonce}} in the TARGET session after return consumption, and no matching parent acknowledgement. Raw child output, prompt echoes, unrelated messages, and nested session-key mentions fail closed."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "This row’s entire claim is that a return landed in a specified target session and not in the dispatching one. Tempo intentionally drops session identifiers from exported span attributes, so the cross-session claim is provable only from the gateway event stream captured at run time and cannot be rebound from telemetry at all."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "trace-id"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row’s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "continuation.target.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "The targeted return destination. Without it, telemetry cannot tell a targeted return from an ordinary one."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Target and parent session identity is published as a salted fingerprint only. Raw session keys, the row marker text, prompt bodies, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "raw session key",
+        "raw target session key",
+        "prompt body",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The primed target emits exact assistant acknowledgement TARGET-ACK {{nonce}} after consuming the prompt-only continuation return, and a structured spawn record binds the child session key to the same row nonce.",
+      "negative": "The dispatching parent session emits no matching acknowledgement; raw child output, prompt echoes, unrelated messages, and nested session-key mentions do not satisfy the receipt.",
+      "notes": "Both controls are gateway-event controls. The acknowledgement proves recipient consumption rather than assuming prompt-only system events are persisted transcript messages."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "row_nonce_fingerprint"
+      ],
+      "notes": "Because telemetry cannot carry the target-session claim, a degraded backend removes corroboration only; it must still be recorded as partial rather than as an absent return."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.proof-row-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "k6-summary.json",
+        "gateway-events.ndjson",
+        "seat-readiness.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Target primed, dispatch accepted, nonce-bound child identity, exact post-return TARGET-ACK acknowledgement in the target session, and no matching parent acknowledgement. Behavioral only: no telemetry rebind is claimed or possible today.",
+      "partial": "The child identity or the trace receipt is unavailable, or the telemetry backend is degraded or partial.",
+      "fail": "The acknowledgement arrives in the dispatching parent session, or the primed target never acknowledges consuming the return."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-4-target-session-key.js creates disposable parent and target sessions, primes the target, dispatches the delegate, and asserts the target consumption acknowledgement.",
+      "manual": "A reviewed manual run with an explicit target session key is still supported and produces the same artifact shape.",
+      "relationship": "Deterministic disposable-session runs are preferred because manual runs against long-lived sessions cannot bound cross-talk; both remain behavioral-only."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-session-created",
+      "target-session-created",
+      "dispatch-accepted",
+      "child-session-identity",
+      "target-session-primed",
+      "target-consumption-ack",
+      "no-parent-return",
+      "trace-id"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSIONS=true for repeatability; explicit OPENCLAW_TARGET_SESSION_KEY still supported for reviewed manual runs. The detector requires exact row marker, structured target session, and separately nonce-bound child identity."
+  }
+}

@@ -46,19 +46,29 @@ The fixture:
 5. Persist the at-limit count to the temporary session store, clear the cache,
    reload it, and repeat the rejected election through
    `scheduleContinuationWork` to prove recovery does not reset the budget.
-6. Enter `runAgentAttempt`, use its forwarded continuation options to build the
-   production continuation tool registry, invoke the registered `continue_work`
-   executor three times, and require only the two in-budget TaskFlow rows plus
-   the multi-election cap notice.
-7. Run a parameterized delegate test at the same selected maximum to prove the
+6. Run the runtime/durable and typed-tool generated files as independent
+   candidate-local Vitest commands. The typed fixture enters `runAgentAttempt`
+   through the candidate's current `createTestPreparedRunAdmission` seam and
+   supplies the current routing/plugin-generation contract. It uses the
+   forwarded continuation options to build the production continuation tool
+   registry, invokes the registered `continue_work` executor three times, and
+   requires only the two in-budget TaskFlow rows plus the multi-election cap
+   notice.
+7. Run a third independent parameterized delegate test at the same selected
+   maximum, importing the current
+   `src/agents/subagents/spawn/subagent-spawn.ts` owner, to prove the
    at-limit delegate spawns, the first-over delegate is rejected before a
    second spawn, and its TaskFlow is failed. Also run the exact candidate's
    `delegate-dispatch.chain-depth-exhaustion.test.ts` as a regression companion.
 8. Immediately after install, re-check the candidate worktree SHA and tracked
    state. Re-check both again after all proof surfaces, then remove the
    disposable worktree and isolated state before emitting the final result.
-9. Reject any public receipt containing the source, artifact, or disposable
-   worktree path, or secret/session/environment/process-output fields.
+9. Retain each generated command's raw receipt, stdout, and stderr in the
+   explicitly selected private diagnostics directory outside `PROOFS` and the
+   public artifact tree, even when a different generated command fails. A
+   sibling failure never synthesizes another surface's receipt as false.
+10. Reject any public receipt containing the source, artifact, or disposable
+    worktree path, or secret/session/environment/process-output fields.
 
 This is not a copied implementation of the predicate. The matrix imports
 `checkContinuationBudget`; the runtime receipt uses
@@ -74,6 +84,7 @@ node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
   --source-dir <clean-exact-candidate-source-worktree> \
   --candidate-sha <40-char-candidate-sha> \
   --artifact-dir <new-empty-private-directory> \
+  --private-diagnostics-dir <new-empty-private-directory-outside-PROOFS> \
   --max-chain-length 3 --json
 ```
 
@@ -96,6 +107,8 @@ The command refuses:
   `node_modules/.bin/vitest` after that verified install;
 - a reused, group/world-readable, file, symlink, or symlink-ancestor artifact
   path;
+- a reused or group/world-readable private diagnostics directory;
+- a diagnostics directory inside `PROOFS` or the public artifact directory;
 - unknown mutation/restart arguments;
 - any missing structured runtime, typed-tool, dispatcher, recovery, readiness,
   cleanup, or public-artifact-safety receipt.
@@ -110,6 +123,11 @@ package-manager versions, the exact frozen install command, the local
 executable contract, and post-install/post-proof worktree integrity checks.
 Any failed install, lockfile/tree/version alignment, SHA/state check, or
 cleanup fails closed. Any missing or failed receipt is `FAIL-fixture`, never a PASS.
+
+Raw generated receipts and command output are intentionally not public
+receipts. They remain in the explicitly supplied private diagnostics directory
+for detached failure attribution and cannot be placed inside `PROOFS` or the
+public artifact directory.
 
 ## Required receipts
 

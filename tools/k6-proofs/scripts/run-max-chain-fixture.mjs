@@ -16,7 +16,6 @@ import {
   readFileSync,
   readdirSync,
   realpathSync,
-  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
@@ -36,9 +35,13 @@ const SOURCE_MARKERS = [
   'package.json',
   'pnpm-lock.yaml',
 ];
-const TOOL_SURFACE_TEMPLATE = path.resolve(
+const RUNTIME_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-tool-surface.test.ts',
+);
+const TYPED_TOOL_SURFACE_TEMPLATE = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../fixtures/r-cw-6/max-chain-typed-tool-surface.test.ts',
 );
 const DELEGATE_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -48,7 +51,9 @@ function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \\
   --source-dir <exact-candidate-worktree> \\
   --candidate-sha <40-hex-sha> \\
-  --artifact-dir <safe-output-dir> [--max-chain-length <integer-at-least-2>] [--json]`;
+  --artifact-dir <safe-output-dir> \\
+  --private-diagnostics-dir <safe-output-dir-outside-PROOFS-and-source> \\
+  [--max-chain-length <integer-at-least-2>] [--json]`;
 }
 
 export function parseArgs(argv, env = process.env) {
@@ -56,6 +61,7 @@ export function parseArgs(argv, env = process.env) {
     sourceDir: env.OPENCLAW_RCW6_SOURCE_DIR || '',
     candidateSha: env.OPENCLAW_CANDIDATE_SHA || '',
     artifactDir: env.OPENCLAW_RCW6_ARTIFACT_DIR || '',
+    diagnosticsDir: env.OPENCLAW_RCW6_PRIVATE_DIAGNOSTICS_DIR || '',
     maxChainLength: Number(env.OPENCLAW_RCW6_MAX_CHAIN_LENGTH || DEFAULT_MAX_CHAIN_LENGTH),
     json: false,
   };
@@ -74,6 +80,7 @@ export function parseArgs(argv, env = process.env) {
     if (arg === '--source-dir') args.sourceDir = next();
     else if (arg === '--candidate-sha') args.candidateSha = next();
     else if (arg === '--artifact-dir') args.artifactDir = next();
+    else if (arg === '--private-diagnostics-dir') args.diagnosticsDir = next();
     else if (arg === '--max-chain-length') args.maxChainLength = Number(next());
     else throw new Error(`unexpected argument: ${arg}`);
   }
@@ -83,6 +90,11 @@ export function parseArgs(argv, env = process.env) {
 function assertArgs(args) {
   if (!args.sourceDir) throw new Error('--source-dir or OPENCLAW_RCW6_SOURCE_DIR is required');
   if (!args.artifactDir) throw new Error('--artifact-dir or OPENCLAW_RCW6_ARTIFACT_DIR is required');
+  if (!args.diagnosticsDir) {
+    throw new Error(
+      '--private-diagnostics-dir or OPENCLAW_RCW6_PRIVATE_DIAGNOSTICS_DIR is required',
+    );
+  }
   if (!/^[0-9a-f]{40}$/u.test(args.candidateSha)) {
     throw new Error('--candidate-sha or OPENCLAW_CANDIDATE_SHA must be a 40-character lowercase SHA');
   }
@@ -377,33 +389,79 @@ export function verifyInstalledCandidateDependencies(worktreeDir, candidatePacka
   };
 }
 
-export function prepareArtifactDir(input) {
-  const artifactDir = path.resolve(input);
-  const parsed = path.parse(artifactDir);
+// Shared by prepareArtifactDir and preparePrivateDiagnosticsDir: both dirs
+// must be a real, non-symlinked, non-group/world-accessible, empty directory
+// before this fixture may create or reuse them.
+function prepareEmptyPrivateDir(dir, messages) {
+  if (existsSync(dir)) {
+    const stats = lstatSync(dir);
+    if (!stats.isDirectory() || stats.isSymbolicLink()) {
+      throw new Error(messages.notRealDirectory);
+    }
+    if ((stats.mode & 0o077) !== 0) {
+      throw new Error(messages.groupWorldAccessible);
+    }
+    if (readdirSync(dir).length !== 0) {
+      throw new Error(messages.notEmpty);
+    }
+  } else {
+    mkdirSync(dir, { recursive: true, mode: 0o700 });
+  }
+  return dir;
+}
+
+function assertNoSymlinkComponents(target, label) {
+  const parsed = path.parse(target);
   let componentPath = parsed.root;
-  for (const component of path.relative(parsed.root, artifactDir).split(path.sep)) {
+  for (const component of path.relative(parsed.root, target).split(path.sep)) {
     if (!component) continue;
     componentPath = path.join(componentPath, component);
     if (!existsSync(componentPath)) break;
     if (lstatSync(componentPath).isSymbolicLink()) {
-      throw new Error('artifact dir path must not contain a symlink component');
+      throw new Error(`${label} path must not contain a symlink component`);
     }
   }
-  if (existsSync(artifactDir)) {
-    const stats = lstatSync(artifactDir);
-    if (!stats.isDirectory() || stats.isSymbolicLink()) {
-      throw new Error('artifact dir must be a real directory, not a file or symlink');
-    }
-    if ((stats.mode & 0o077) !== 0) {
-      throw new Error('artifact dir must not be group/world accessible (mode 0700 required)');
-    }
-    if (readdirSync(artifactDir).length !== 0) {
-      throw new Error('artifact dir must be empty; refusing to overwrite an earlier receipt');
-    }
-  } else {
-    mkdirSync(artifactDir, { recursive: true, mode: 0o700 });
+}
+
+export function prepareArtifactDir(input) {
+  const artifactDir = path.resolve(input);
+  assertNoSymlinkComponents(artifactDir, 'artifact dir');
+  return prepareEmptyPrivateDir(artifactDir, {
+    notRealDirectory: 'artifact dir must be a real directory, not a file or symlink',
+    groupWorldAccessible: 'artifact dir must not be group/world accessible (mode 0700 required)',
+    notEmpty: 'artifact dir must be empty; refusing to overwrite an earlier receipt',
+  });
+}
+
+export function preparePrivateDiagnosticsDir(input, artifactDir, sourceDir) {
+  const diagnosticsDir = path.resolve(input);
+  const publicArtifactDir = path.resolve(artifactDir);
+  const candidateSourceDir = path.resolve(sourceDir);
+  assertNoSymlinkComponents(diagnosticsDir, 'private diagnostics dir');
+  const segments = diagnosticsDir.split(path.sep).map((segment) => segment.toLowerCase());
+  if (
+    diagnosticsDir === publicArtifactDir ||
+    isPathInside(publicArtifactDir, diagnosticsDir) ||
+    segments.includes('proofs')
+  ) {
+    throw new Error('private diagnostics dir must remain outside the public corpus/artifact tree');
   }
-  return artifactDir;
+  if (
+    diagnosticsDir === candidateSourceDir ||
+    isPathInside(candidateSourceDir, diagnosticsDir)
+  ) {
+    throw new Error('private diagnostics dir must remain outside the candidate source worktree');
+  }
+  return prepareEmptyPrivateDir(diagnosticsDir, {
+    notRealDirectory: 'private diagnostics path must be a real directory',
+    groupWorldAccessible: 'private diagnostics dir must not be group/world accessible',
+    notEmpty: 'private diagnostics dir must be empty; refusing to overwrite diagnostics',
+  });
+}
+
+function retainCommandDiagnostics(diagnosticsDir, label, result) {
+  writeFileSync(path.join(diagnosticsDir, `${label}.stdout.log`), result.stdout, { mode: 0o600 });
+  writeFileSync(path.join(diagnosticsDir, `${label}.stderr.log`), result.stderr, { mode: 0o600 });
 }
 
 export function renderToolSurfaceTemplate(template, maxChainLength) {
@@ -511,16 +569,26 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxChainLength }) {
-  for (const template of [TOOL_SURFACE_TEMPLATE, DELEGATE_BOUNDARY_TEMPLATE]) {
+function runDisposableToolSurface({
+  sourceDir,
+  candidateSha,
+  artifactDir,
+  diagnosticsDir,
+  maxChainLength,
+}) {
+  for (const template of [
+    RUNTIME_BOUNDARY_TEMPLATE,
+    TYPED_TOOL_SURFACE_TEMPLATE,
+    DELEGATE_BOUNDARY_TEMPLATE,
+  ]) {
     if (!existsSync(template)) throw new Error(`fixture template missing: ${template}`);
   }
   const worktreeDir = path.join(artifactDir, `.r-cw-6-runtime-${process.pid}-${Date.now()}`);
   const add = run('git', ['-C', sourceDir, 'worktree', 'add', '--detach', worktreeDir, candidateSha]);
   if (!add.ok) throw new Error(`cannot create disposable candidate worktree: ${add.stderr.trim()}`);
-  const rawRuntimeReceiptPath = path.join(artifactDir, '.runtime-boundary.raw.json');
-  const rawTypedReceiptPath = path.join(artifactDir, '.typed-surface.raw.json');
-  const rawDelegateReceiptPath = path.join(artifactDir, '.delegate-boundary.raw.json');
+  const rawRuntimeReceiptPath = path.join(diagnosticsDir, 'runtime-boundary.raw.json');
+  const rawTypedReceiptPath = path.join(diagnosticsDir, 'typed-surface.raw.json');
+  const rawDelegateReceiptPath = path.join(diagnosticsDir, 'delegate-boundary.raw.json');
   let result;
   try {
     const candidateBeforeInstall = assertCandidateWorktree(worktreeDir, candidateSha, 'frozen install');
@@ -573,17 +641,31 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       },
       hostToolchainHermetic: false,
     };
-    const runtimeTestDir = path.join(worktreeDir, 'test', 'r-cw-6-runtime-fixture');
-    const delegateTestDir = path.join(worktreeDir, 'test', 'r-cw-6-delegate-fixture');
-    mkdirSync(runtimeTestDir, { recursive: true, mode: 0o700 });
-    mkdirSync(delegateTestDir, { recursive: true, mode: 0o700 });
+    const generatedTestDir = path.join(worktreeDir, 'src', 'auto-reply', 'continuation');
+    const runtimeTestPath = path.join(
+      generatedTestDir,
+      'r-cw-6-runtime-fixture.generated.test.ts',
+    );
+    const typedTestPath = path.join(
+      generatedTestDir,
+      'r-cw-6-typed-fixture.generated.test.ts',
+    );
+    const delegateTestPath = path.join(
+      generatedTestDir,
+      'r-cw-6-delegate-fixture.generated.test.ts',
+    );
     writeFileSync(
-      path.join(runtimeTestDir, 'max-chain-tool-surface.test.ts'),
-      renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), maxChainLength),
+      runtimeTestPath,
+      renderToolSurfaceTemplate(readFileSync(RUNTIME_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
     writeFileSync(
-      path.join(delegateTestDir, 'max-chain-delegate-boundary.test.ts'),
+      typedTestPath,
+      renderToolSurfaceTemplate(readFileSync(TYPED_TOOL_SURFACE_TEMPLATE, 'utf8'), maxChainLength),
+      { mode: 0o600 },
+    );
+    writeFileSync(
+      delegateTestPath,
       renderToolSurfaceTemplate(readFileSync(DELEGATE_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
@@ -596,6 +678,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       ['--eval', matrixEval(maxChainLength)],
       { cwd: worktreeDir, env: isolatedEnv },
     );
+    retainCommandDiagnostics(diagnosticsDir, 'boundary-matrix', matrixRun);
     let matrix = null;
     if (matrixRun.ok) {
       try {
@@ -616,6 +699,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       ],
       { cwd: worktreeDir, env: isolatedEnv },
     );
+    retainCommandDiagnostics(diagnosticsDir, 'candidate-regression', dispatchRun);
     const dispatchAssertions = {
       atLimitRejectsBeforeSpawn: /rejects a delegate when currentChainCount equals maxChainLength/u.test(
         dispatchRun.stdout,
@@ -632,8 +716,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
         'run',
         '--config',
         'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-delegate-fixture',
+        'src/auto-reply/continuation/r-cw-6-delegate-fixture.generated.test.ts',
         '--reporter=verbose',
       ],
       {
@@ -641,18 +724,16 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
         env: { ...isolatedEnv, RCW6_DELEGATE_RECEIPT_PATH: rawDelegateReceiptPath },
       },
     );
-    const selectedDelegateReceipt = selectedDelegateRun.ok
-      ? readJsonIfValid(rawDelegateReceiptPath)
-      : null;
+    retainCommandDiagnostics(diagnosticsDir, 'selected-delegate', selectedDelegateRun);
+    const selectedDelegateReceipt = readJsonIfValid(rawDelegateReceiptPath);
 
-    const test = run(
+    const runtimeRun = run(
       verifiedDependencies.executables.vitest,
       [
         'run',
         '--config',
         'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-runtime-fixture',
+        'src/auto-reply/continuation/r-cw-6-runtime-fixture.generated.test.ts',
         '--reporter=verbose',
       ],
       {
@@ -660,18 +741,47 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
         env: {
           ...isolatedEnv,
           RCW6_RUNTIME_RECEIPT_PATH: rawRuntimeReceiptPath,
+        },
+      },
+    );
+    retainCommandDiagnostics(diagnosticsDir, 'runtime-boundary', runtimeRun);
+    const runtimeReceipt = readJsonIfValid(rawRuntimeReceiptPath);
+
+    const typedRun = run(
+      verifiedDependencies.executables.vitest,
+      [
+        'run',
+        '--config',
+        'test/vitest/vitest.auto-reply.config.ts',
+        'src/auto-reply/continuation/r-cw-6-typed-fixture.generated.test.ts',
+        '--reporter=verbose',
+      ],
+      {
+        cwd: worktreeDir,
+        env: {
+          ...isolatedEnv,
           RCW6_TYPED_RECEIPT_PATH: rawTypedReceiptPath,
         },
       },
     );
-    const runtimeReceipt = test.ok ? readJsonIfValid(rawRuntimeReceiptPath) : null;
-    const typedReceipt = test.ok ? readJsonIfValid(rawTypedReceiptPath) : null;
+    retainCommandDiagnostics(diagnosticsDir, 'typed-tool-surface', typedRun);
+    const typedReceipt = readJsonIfValid(rawTypedReceiptPath);
+    const runtimeBoundaryAsserted =
+      /proves below-limit, at-limit, and first-over-limit with durable recovery/u.test(
+        runtimeRun.stdout,
+      );
+    const typedToolBoundaryAsserted =
+      /captures typed continue_work elections and creates no first-over-limit flow/u.test(
+        typedRun.stdout,
+      );
     result = {
-      passed: test.ok && /2 passed/u.test(test.stdout),
-      exitCode: test.exitCode,
+      runtimePassed: runtimeRun.ok && runtimeBoundaryAsserted,
+      typedPassed: typedRun.ok && typedToolBoundaryAsserted,
+      runtimeExitCode: runtimeRun.exitCode,
+      typedExitCode: typedRun.exitCode,
       asserted: {
-        runtimeBoundary: /proves below-limit, at-limit, and first-over-limit with durable recovery/u.test(test.stdout),
-        typedToolBoundary: /captures typed continue_work elections and creates no first-over-limit flow/u.test(test.stdout),
+        runtimeBoundary: runtimeBoundaryAsserted,
+        typedToolBoundary: typedToolBoundaryAsserted,
       },
       matrixRun,
       matrix,
@@ -679,6 +789,8 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       dispatchAssertions,
       selectedDelegateRun,
       selectedDelegateReceipt,
+      runtimeRun,
+      typedRun,
       runtimeReceipt,
       typedReceipt,
       candidateRuntime,
@@ -704,11 +816,17 @@ export function runFixture(args) {
   assertArgs(args);
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
+  const diagnosticsDir = preparePrivateDiagnosticsDir(
+    args.diagnosticsDir,
+    artifactDir,
+    sourceDir,
+  );
 
   const runtimeSurface = runDisposableToolSurface({
     sourceDir,
     candidateSha: args.candidateSha,
     artifactDir,
+    diagnosticsDir,
     maxChainLength: args.maxChainLength,
   });
   const readiness = buildReadiness({
@@ -757,14 +875,14 @@ export function runFixture(args) {
       matrix.cases[2]?.attemptedHop === args.maxChainLength + 1,
   );
   const boundaryMatrixReceipt = {
+    ...(matrix || {}),
+    ...candidateRuntimeReceipt,
     schema: 'openclaw.project81.r-cw-6.boundary-matrix.v1',
     maxChainLength: args.maxChainLength,
     passed: matrixPassed,
-    ...(matrix || {}),
     command: ['node_modules/.bin/tsx', '--eval', '<production-module-eval>'],
     exitCode: matrixRun.exitCode,
     exactCandidateDisposableWorktree: true,
-    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'boundary-matrix.json'), boundaryMatrixReceipt);
 
@@ -808,8 +926,7 @@ export function runFixture(args) {
         'run',
         '--config',
         'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-delegate-fixture',
+        'src/auto-reply/continuation/r-cw-6-delegate-fixture.generated.test.ts',
         '--reporter=verbose',
       ],
       exitCode: runtimeSurface.selectedDelegateRun.exitCode,
@@ -857,48 +974,66 @@ export function runFixture(args) {
       typedReceipt?.capNoticeObserved === true,
   );
   const runtimeSurfacePassed =
-    runtimeSurface.passed &&
+    runtimeSurface.runtimePassed &&
+    runtimeSurface.typedPassed &&
     Object.values(runtimeSurface.asserted).every(Boolean) &&
     structuredReceiptPassed &&
     durableRecoveryPassed &&
     typedSurfacePassed;
 
+  const runtimeBoundaryPassed = runtimeSurface.runtimePassed && structuredReceiptPassed;
+  const durableStateRecoveryPassed = runtimeSurface.runtimePassed && durableRecoveryPassed;
+  const typedToolSurfacePassed = runtimeSurface.typedPassed && typedSurfacePassed;
   const runtimeBoundaryReceipt = {
     ...runtimeReceipt,
-    passed: structuredReceiptPassed,
-    fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
     ...candidateRuntimeReceipt,
+    schema: 'openclaw.project81.r-cw-6.runtime-boundary.v1',
+    passed: runtimeBoundaryPassed,
+    command: [
+      'node_modules/.bin/vitest',
+      'run',
+      '--config',
+      'test/vitest/vitest.auto-reply.config.ts',
+      'src/auto-reply/continuation/r-cw-6-runtime-fixture.generated.test.ts',
+      '--reporter=verbose',
+    ],
+    exitCode: runtimeSurface.runtimeExitCode,
+    fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
   };
   const durableStateRecoveryReceipt = {
-    schema: 'openclaw.project81.r-cw-6.durable-state-recovery.v1',
-    passed: durableRecoveryPassed,
-    configuredMaximum: args.maxChainLength,
-    ...runtimeReceipt?.durableState,
+    persistedCount: runtimeReceipt?.durableState?.persistedCount,
+    reloadedCount: runtimeReceipt?.durableState?.reloadedCount,
+    recoveredBudgetReason: runtimeReceipt?.durableState?.recoveredBudgetReason,
+    recoveredAttemptScheduled: runtimeReceipt?.durableState?.recoveredAttemptScheduled,
     ...candidateRuntimeReceipt,
+    schema: 'openclaw.project81.r-cw-6.durable-state-recovery.v1',
+    passed: durableStateRecoveryPassed,
+    configuredMaximum: args.maxChainLength,
   };
   const typedToolSurfaceReceipt = {
     ...typedReceipt,
-    passed: typedSurfacePassed,
+    ...candidateRuntimeReceipt,
+    schema: 'openclaw.project81.r-cw-6.typed-tool-surface.v1',
+    passed: typedToolSurfacePassed,
+    command: [
+      'node_modules/.bin/vitest',
+      'run',
+      '--config',
+      'test/vitest/vitest.auto-reply.config.ts',
+      'src/auto-reply/continuation/r-cw-6-typed-fixture.generated.test.ts',
+      '--reporter=verbose',
+    ],
+    exitCode: runtimeSurface.typedExitCode,
     fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceDirMutated: false,
     disposableWorktreeCreated: true,
     disposableWorktreeRemoved: runtimeSurface.disposableWorktreeRemoved,
-    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'runtime-boundary.json'), runtimeBoundaryReceipt);
   writeJson(path.join(artifactDir, 'durable-state-recovery.json'), durableStateRecoveryReceipt);
   writeJson(path.join(artifactDir, 'typed-tool-surface.json'), typedToolSurfaceReceipt);
-
-  for (const raw of [
-    '.runtime-boundary.raw.json',
-    '.typed-surface.raw.json',
-    '.delegate-boundary.raw.json',
-  ]) {
-    const rawPath = path.join(artifactDir, raw);
-    if (existsSync(rawPath)) unlinkSync(rawPath);
-  }
 
   const finalHead = gitHead(sourceDir);
   if (finalHead !== args.candidateSha) {
@@ -940,10 +1075,11 @@ export function runFixture(args) {
       matrixPassed,
       dispatchPassed,
       runtimeSurfacePassed,
-      structuredChainCapped: structuredReceiptPassed,
-      noRejectedHopSpawn: structuredReceiptPassed && dispatchPassed && typedSurfacePassed,
-      durableRecoveryPassed,
-      typedSurfacePassed,
+      structuredChainCapped: runtimeBoundaryPassed,
+      noRejectedHopSpawn:
+        runtimeBoundaryPassed && dispatchPassed && typedToolSurfacePassed,
+      durableRecoveryPassed: durableStateRecoveryPassed,
+      typedSurfacePassed: typedToolSurfacePassed,
       exactCandidateDisposableWorktree: runtimeSurface.disposableWorktreeRemoved,
       candidatePackageManagerVersionMatchesExecuting:
         candidateRuntimeReceipt.candidatePackageManagerVersion ===
@@ -979,7 +1115,12 @@ export function runFixture(args) {
   if (JSON.stringify(actualPreFinalFiles) !== JSON.stringify(expectedPreFinalFiles)) {
     throw new Error('artifact directory contains a missing or unexpected file before final receipts');
   }
-  const privatePaths = [sourceDir, artifactDir, runtimeSurface.privateWorktreePath];
+  const privatePaths = [
+    sourceDir,
+    artifactDir,
+    diagnosticsDir,
+    runtimeSurface.privateWorktreePath,
+  ];
   for (const [label, value] of publicReceiptEntries) {
     assertPublicArtifactSafe(value, { label, privatePaths });
   }

@@ -45,3 +45,25 @@ test('every static scenario records active and source evidence SHAs', async () =
     assert.match(source, /sourceEvidenceSha/);
   }
 });
+
+test('R-CW-5A and R-CW-6A consume reviewed current-corpus producer receipts', async () => {
+  const source = await readFile(
+    join(repoRoot, 'tools/k6-proofs/scenarios/static-corpus-row-validator.js'),
+    'utf8',
+  );
+  assert.match(source, /loadBoundaryProducer\('R-CW-5'\)/);
+  assert.match(source, /loadBoundaryProducer\('R-CW-6'\)/);
+  assert.match(source, /selectReviewedBoundaryProducer/);
+  assert.match(source, /validateBoundaryProducerReceiptSet/);
+  assert.match(source, /currentProofManifest/);
+  assert.match(source, /reviewedProducerReceiptSetPassed/);
+
+  const library = await readFile(
+    join(repoRoot, 'tools/k6-proofs/lib/static-boundary-producer-receipts.mjs'),
+    'utf8',
+  );
+  assert.match(library, /\/local\/\$\{runIds\[0\]\}/);
+  assert.doesNotMatch(library, /cael-dgx/);
+  assert.match(library, /runtime-boundary\.json/);
+  assert.match(library, /durable-state-recovery\.json/);
+});

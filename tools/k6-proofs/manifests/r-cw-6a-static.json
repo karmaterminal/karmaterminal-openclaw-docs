@@ -9,12 +9,13 @@
   "toolSurface": "read-only",
   "mutates": false,
   "timeoutSeconds": 15,
-  "scenario": {"name":"static-corpus-row-validator","description":"Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.","methods":["static-artifact-parse","source-harness-contract"],"status":"runnable","file":"static-corpus-row-validator.js"},
+  "scenario": {"name":"static-corpus-row-validator","description":"Offline consumer of exactly one reviewed current-corpus R-CW-6 producer receipt set; cannot establish the process-local runtime boundary independently.","methods":["static-artifact-parse","reviewed-producer-receipt-contract"],"status":"runnable","file":"static-corpus-row-validator.js"},
   "expectedReceipts": [
-    {"name":"static-source-harness-evidence","required":true,"description":"Static source and harness checks for the chain-cap guard."},
+    {"name":"reviewed-current-producer","required":true,"description":"The current corpus identifies exactly one reviewed R-CW-6 PASS-candidate run; a terminal producer FAIL cannot satisfy this receipt."},
+    {"name":"complete-producer-receipt-set","required":true,"description":"Fixture result, readiness, boundary, runtime, durable-state, typed-tool, dispatch, dependency-integrity, cleanup, and public-safety receipts agree and pass."},
     {"name":"non-runtime-boundary","required":true,"description":"The output explicitly says it is not R-CW-6 process-local runtime evidence."}
   ],
   "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-6A","seat":"${OPENCLAW_SEAT_NAME:-rune}","runDirPrefix":"k6-run"},
   "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"Static boundary check only; it cannot produce or fold a runtime R-CW-6 PASS."},
-  "liveRunSafety": {"classification":"static-preflight-only","requiresLiveGatewayToken":false,"requiresTargetSessionKey":false,"requiresCandidateSha":true,"requiresExternalAgentOrToolInvocation":false,"sameSessionConcurrencySafe":true,"expectedArtifactClass":"construct-only","requiredReceipts":["static-source-harness-evidence","non-runtime-boundary"],"foldRequiresReview":true,"notes":"Offline validation is intentionally excluded from live-suite and from process-local R-CW-6 certification."}
+  "liveRunSafety": {"classification":"static-preflight-only","requiresLiveGatewayToken":false,"requiresTargetSessionKey":false,"requiresCandidateSha":true,"requiresExternalAgentOrToolInvocation":false,"sameSessionConcurrencySafe":true,"expectedArtifactClass":"construct-only","requiredReceipts":["reviewed-current-producer","complete-producer-receipt-set","non-runtime-boundary"],"foldRequiresReview":true,"notes":"Offline validation is intentionally excluded from live-suite and from process-local R-CW-6 certification."}
 }

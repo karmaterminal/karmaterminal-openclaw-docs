@@ -30,6 +30,7 @@ import {
   parseArgs,
   parsePinnedPnpmPackageManager,
   prepareArtifactDir,
+  preparePrivateDiagnosticsDir,
   renderToolSurfaceTemplate,
   verifyInstalledCandidateDependencies,
 } from '../run-max-chain-fixture.mjs';
@@ -64,6 +65,8 @@ test('R-CW-6 fixture accepts an explicit isolated source contract', () => {
     '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     '--artifact-dir',
     '/tmp/rcw6-artifacts',
+    '--private-diagnostics-dir',
+    '/proof-private/rcw6-diagnostics',
     '--max-chain-length',
     '3',
     '--json',
@@ -72,6 +75,7 @@ test('R-CW-6 fixture accepts an explicit isolated source contract', () => {
     sourceDir: '/tmp/exact-openclaw',
     candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     artifactDir: '/tmp/rcw6-artifacts',
+    diagnosticsDir: '/proof-private/rcw6-diagnostics',
     maxChainLength: 3,
     json: true,
   });
@@ -105,6 +109,61 @@ test('R-CW-6 fixture refuses to overwrite or expose an artifact directory', asyn
   assert.throws(
     () => prepareArtifactDir(path.join(linkedParent, 'new-artifacts')),
     /must not contain a symlink component/,
+  );
+});
+
+test('R-CW-6 fixture retains private diagnostics separately and refuses overwrite', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-private-diagnostics-'));
+  const artifactDir = path.join(root, 'artifacts');
+  const diagnosticsInput = path.join(root, 'private', 'diagnostics');
+  const sourceDir = path.join(root, 'candidate-source');
+  await mkdir(artifactDir, { mode: 0o700 });
+  const diagnosticsDir = preparePrivateDiagnosticsDir(diagnosticsInput, artifactDir, sourceDir);
+  assert.equal(diagnosticsDir, diagnosticsInput);
+  await writeFile(path.join(diagnosticsDir, 'runtime-boundary.stderr.log'), 'rejected-base');
+  assert.throws(
+    () => preparePrivateDiagnosticsDir(diagnosticsInput, artifactDir, sourceDir),
+    /must be empty; refusing to overwrite diagnostics/,
+  );
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(artifactDir, 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /outside the public corpus\/artifact tree/,
+  );
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(root, 'PROOFS', 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /outside the public corpus\/artifact tree/,
+  );
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(sourceDir, 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /outside the candidate source worktree/,
+  );
+  const linkedTarget = path.join(root, 'private-linked-target');
+  const linkedParent = path.join(root, 'private-linked-parent');
+  await mkdir(linkedTarget, { mode: 0o700 });
+  await symlink(linkedTarget, linkedParent);
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(linkedParent, 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /private diagnostics dir path must not contain a symlink component/,
   );
 });
 
@@ -362,6 +421,22 @@ test('R-CW-6 creates the detached candidate worktree, frozen-installs it, then u
   assert.match(script, /verifyInstalledCandidateDependencies/);
   assert.match(script, /verifiedDependencies\.executables\.tsx/);
   assert.match(script, /verifiedDependencies\.executables\.vitest/);
+  assert.match(script, /src\/auto-reply\/continuation\/r-cw-6-runtime-fixture\.generated\.test\.ts/);
+  assert.match(script, /src\/auto-reply\/continuation\/r-cw-6-typed-fixture\.generated\.test\.ts/);
+  assert.match(script, /src\/auto-reply\/continuation\/r-cw-6-delegate-fixture\.generated\.test\.ts/);
+  assert.match(script, /retainCommandDiagnostics\(diagnosticsDir, 'runtime-boundary'/);
+  assert.match(script, /retainCommandDiagnostics\(diagnosticsDir, 'typed-tool-surface'/);
+  assert.match(script, /retainCommandDiagnostics\(diagnosticsDir, 'selected-delegate'/);
+  assert.match(script, /const runtimeReceipt = readJsonIfValid\(rawRuntimeReceiptPath\)/);
+  assert.match(script, /const typedReceipt = readJsonIfValid\(rawTypedReceiptPath\)/);
+  assert.match(script, /const selectedDelegateReceipt = readJsonIfValid\(rawDelegateReceiptPath\)/);
+  assert.doesNotMatch(script, /test\.ok \? readJsonIfValid/);
+  assert.match(script, /runtimeSurface\.runtimePassed && structuredReceiptPassed/);
+  assert.match(script, /runtimeSurface\.runtimePassed && durableRecoveryPassed/);
+  assert.match(script, /runtimeSurface\.typedPassed && typedSurfacePassed/);
+  assert.match(script, /structuredChainCapped:\s*runtimeBoundaryPassed/);
+  assert.match(script, /durableRecoveryPassed:\s*durableStateRecoveryPassed/);
+  assert.match(script, /typedSurfacePassed:\s*typedToolSurfacePassed/);
   assert.doesNotMatch(script, /symlinkSync\(path\.join\(sourceDir, 'node_modules'\)/);
 });
 
@@ -386,10 +461,16 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
 
 test('R-CW-6 typed template enters runAgentAttempt and omits the rejected flow', async () => {
   const template = await readFile(
-    fileURLToPath(new URL('../../fixtures/r-cw-6/max-chain-tool-surface.test.ts', import.meta.url)),
+    fileURLToPath(
+      new URL('../../fixtures/r-cw-6/max-chain-typed-tool-surface.test.ts', import.meta.url),
+    ),
     'utf8',
   );
   assert.match(template, /runAgentAttempt/);
+  assert.match(template, /createTestPreparedRunAdmission/);
+  assert.match(template, /preparedRunAdmission:\s*createTestPreparedRunAdmission/);
+  assert.match(template, /modelRoutingProvenance:/);
+  assert.match(template, /pluginGeneration:\s*undefined/);
   assert.match(template, /createOpenClawContinuationTools/);
   assert.match(template, /tool\.name === "continue_work"/);
   assert.match(template, /continueWorkTool\.execute/);
@@ -405,6 +486,11 @@ test('R-CW-6 delegate template uses the selected maximum and proves reject-befor
     'utf8',
   );
   const rendered = renderToolSurfaceTemplate(template, 7);
+  assert.match(
+    rendered,
+    /\.\.\/\.\.\/agents\/subagents\/spawn\/subagent-spawn\.js/,
+  );
+  assert.doesNotMatch(rendered, /agents\/subagent-spawn\.js/);
   assert.match(rendered, /const maxChainLength = 7/);
   assert.match(rendered, /currentChainCount: maxChainLength - 1/);
   assert.match(rendered, /rejectedBeforeSecondSpawn/);

@@ -1,0 +1,37 @@
+{
+  "row": "R-CW-5A",
+  "sourceRow": "R-CW-5",
+  "staticBoundaryVariant": true,
+  "manifest_loaded": true,
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "currentProofSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "sourceEvidenceSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "carriedFrom": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "started": "2026-09-03T08:37:14.697Z",
+  "checks": {
+    "reviewedCurrentProducerSelected": true,
+    "receiptSetComplete": true,
+    "exactSchemas": true,
+    "exactCandidate": true,
+    "reviewedPass": true,
+    "receiptMapComplete": true,
+    "readinessClean": true,
+    "producerSurfacesPassed": true,
+    "dependencyAgreement": true,
+    "dependencyValid": true,
+    "cleanupComplete": true,
+    "reviewedProducerReceiptSetPassed": true,
+    "nonLiveBoundary": true
+  },
+  "source_files": {
+    "fixture-result.json": "../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/local/run-20260903T055951Z-734fb48c/fixture-result.json",
+    "fixture-readiness.json": "../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/local/run-20260903T055951Z-734fb48c/fixture-readiness.json",
+    "boundary-matrix.json": "../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/local/run-20260903T055951Z-734fb48c/boundary-matrix.json",
+    "typed-tool-surface.json": "../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/local/run-20260903T055951Z-734fb48c/typed-tool-surface.json",
+    "dispatch-boundary-suite.json": "../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/local/run-20260903T055951Z-734fb48c/dispatch-boundary-suite.json",
+    "cleanup.json": "../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/local/run-20260903T055951Z-734fb48c/cleanup.json"
+  },
+  "ended": "2026-09-03T08:37:14.697Z",
+  "duration_ms": 0,
+  "verdict": "construct-only"
+}

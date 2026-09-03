@@ -1,9 +1,22 @@
-# R-CW-6A — repaired-harness dependent revalidation
+# R-CW-6A — strict reviewed-producer consumer PASS
 
 - canonical pure SHA: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed harness: `3ff33727eb2992473f73da71b3a4b452969b1225`
-- attempt: `run-20260903T061634Z-da38a4bf`
-- canonical state: `missing`
-- scenario verdict: `FAIL-candidate`
+- ancillary runtime provenance: `dbf5795bd5dd406f586575d883a7878288e591ad`
+- approved source harness: `f90999198987f7710924ab05512df01d2408c160`
+- producer: `R-CW-6/local/run-20260903T083304Z-159f4b0e`
+- consumer run: `run-20260903T083721Z-597334cc`
+- canonical state: `pass`
+- scenario verdict: `construct-only`
 
-Static validator did not promote the terminal R-CW-6 FAIL-fixture and its expected legacy producer artifacts remain absent.
+The consumer ran only after the repaired producer was reviewed PASS. It
+selected exactly that one producer bundle and passed:
+
+- exact candidate and complete result-check set;
+- readiness and dependency-provenance agreement;
+- boundary, runtime, durable-state, typed-tool, delegate/regression surfaces;
+- clean source/worktree cleanup; and
+- public-artifact safety.
+
+This is a reviewed corpus-level static consumer PASS. It does not replace the
+producer's process-local behavior evidence. Earlier failed static attempts
+remain preserved.

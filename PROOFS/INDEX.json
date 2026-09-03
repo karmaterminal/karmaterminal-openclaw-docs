@@ -12,17 +12,17 @@
   "clawsweeper_path": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/CLAWSSWEEPER.md",
   "execution_runtime_sha": "dbf5795bd5dd406f586575d883a7878288e591ad",
   "execution_runtime_tree": "cf19ec824826b830822074eca90f801120f675ab",
-  "harness_sha": "af001b21dd17d7da788502d3ad1c2215c59d9922",
+  "harness_sha": "d01af8c6f7c778d77b154f7fe7a61a4a0d90de95",
   "rollup": {
     "total_rows": 38,
-    "pass": 19,
+    "pass": 21,
     "partial": 7,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 11
+    "missing": 9
   },
-  "disposition_note": "R-CW family refire in progress: approved f909 R-CW-6 producer is PASS and folded; R-CW-5A/R-CW-6A strict consumer runs remain pending. Canonical rollup is 19 pass, 7 partial, 1 fail, 11 missing.",
+  "disposition_note": "R-CW family refire complete: R-CW-6, R-CW-5A, and R-CW-6A are PASS. Canonical rollup is 21 pass, 7 partial, 1 fail, 9 missing; remaining non-PASS rows still block presentation.",
   "generated": "2026-09-02",
   "generated_by": "frond-scribe"
 }

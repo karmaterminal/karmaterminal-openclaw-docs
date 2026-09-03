@@ -15,7 +15,7 @@
     "ancillary_patch_path_count": 22,
     "materiality": "The composite adds the reviewed #121204 and #124337 operational patches. It is deployment substrate, not continuation feature identity."
   },
-  "harness_sha": "af001b21dd17d7da788502d3ad1c2215c59d9922",
+  "harness_sha": "d01af8c6f7c778d77b154f7fe7a61a4a0d90de95",
   "fire_type": "fresh-final-execution",
   "corpus": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
   "sha_short": "5035aac3",
@@ -109,12 +109,12 @@
   },
   "rollup": {
     "total_rows": 38,
-    "pass": 19,
+    "pass": 21,
     "partial": 7,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 11
+    "missing": 9
   },
   "rows": [
     {
@@ -692,28 +692,27 @@
       "row": "R-CW-5A",
       "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
       "owner": "frond_local_process_and_hermetic",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5A/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5A/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-contract-not-satisfied",
+      "candidate_verdict": "construct-only",
+      "review_status": "reviewed",
       "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS at corpus level only with static boundary receipts; never claim live behavior"
       ],
-      "summary": "Static validator still requires legacy cael-dgx source/log artifacts and did not consume the repaired R-CW-5 fixture receipts.",
-      "notes": "Hermetic static helper attempt retained; absence is not a product-behavior contradiction.",
+      "summary": "Strict current-corpus consumer selected exactly one reviewed R-CW-5 PASS producer and validated its complete agreeing fixture, readiness, boundary, typed-tool, dispatch, dependency-integrity, and cleanup receipts.",
+      "notes": "Run run-20260903T083714Z-26910927 under approved f909 consumer bytes and published producer checkpoint d01af8c6. Earlier legacy static attempts remain preserved.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5A/EVIDENCE.md"
       ],
       "test_cases_executed": [
-        "run-20260902T2045PDT",
-        "run-20260903T061633Z-372b4d35"
+        "run-20260903T083714Z-26910927"
       ],
       "traces": []
     },
@@ -749,28 +748,27 @@
       "row": "R-CW-6A",
       "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
       "owner": "frond_local_process_and_hermetic",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6A/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6A/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-contract-not-satisfied",
+      "candidate_verdict": "construct-only",
+      "review_status": "reviewed",
       "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS at corpus level only with static boundary receipts; never claim live behavior"
       ],
-      "summary": "Static validator did not promote the terminal R-CW-6 FAIL-fixture and its expected legacy producer artifacts remain absent.",
-      "notes": "Hermetic static helper attempt retained; absence is not a product-behavior contradiction.",
+      "summary": "Strict current-corpus consumer selected the reviewed repaired R-CW-6 PASS producer and validated its complete agreeing runtime, durable-state, typed-tool, delegate, regression, dependency-provenance, cleanup, and public-safety receipts.",
+      "notes": "Run run-20260903T083721Z-597334cc after R-CW-6 producer checkpoint d01af8c6. Earlier legacy static attempts remain preserved.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6A/EVIDENCE.md"
       ],
       "test_cases_executed": [
-        "run-20260902T2045PDT",
-        "run-20260903T061634Z-da38a4bf"
+        "run-20260903T083721Z-597334cc"
       ],
       "traces": []
     },
@@ -1166,6 +1164,6 @@
     "targeted_verdict": "PASS"
   },
   "generated": "2026-09-02T19:40:08-07:00",
-  "notes": "Approved R-CW family refire in progress. R-CW-6 producer PASS is folded from run-20260903T083304Z-159f4b0e; R-CW-5A and R-CW-6A strict consumer runs remain pending. R-CD-2 FAIL, R-CD-TOKEN PARTIAL, and R-RC-2 PARTIAL remain preserved.",
-  "execution_status": "IN_PROGRESS_CW6_FAMILY_REFIRE"
+  "notes": "Approved R-CW family refire complete. R-CW-6 producer PASS run-20260903T083304Z-159f4b0e and strict consumers R-CW-5A run-20260903T083714Z-26910927 / R-CW-6A run-20260903T083721Z-597334cc are folded. R-CD-2 FAIL, R-CD-TOKEN PARTIAL, and R-RC-2 PARTIAL remain preserved.",
+  "execution_status": "READY_FOR_SCRIBE_REVIEW"
 }

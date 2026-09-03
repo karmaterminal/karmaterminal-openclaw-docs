@@ -28,15 +28,19 @@ export function createTokenSessionProvisioner({
     key: normalized(disposableKey),
     label: normalized(label),
   };
-  let phase = bindingKey
-    ? 'resolve-binding'
-    : allowUnownedControl
-      ? 'create-unowned-control'
-      : 'failed';
+  let phase = 'failed';
   let ownerAgentId = null;
   let createdSessionKey = null;
   let verificationCount = 0;
-  let failureReason = bindingKey || allowUnownedControl ? null : 'owner-binding-required';
+  let failureReason = 'owner-binding-required';
+
+  if (bindingKey) {
+    phase = 'resolve-binding';
+    failureReason = null;
+  } else if (allowUnownedControl) {
+    phase = 'create-unowned-control';
+    failureReason = null;
+  }
 
   function fail(reason) {
     phase = 'failed';
@@ -55,18 +59,16 @@ export function createTokenSessionProvisioner({
     };
   }
 
+  function createRequest(params) {
+    phase = 'creating';
+    return { method: 'sessions.create', params };
+  }
+
   function nextRequest() {
     if (phase === 'resolve-binding') return resolveRequest(bindingKey);
-    if (phase === 'create-unowned-control') {
-      phase = 'creating';
-      return { method: 'sessions.create', params: createParams };
-    }
+    if (phase === 'create-unowned-control') return createRequest(createParams);
     if (phase === 'create-owned') {
-      phase = 'creating';
-      return {
-        method: 'sessions.create',
-        params: { ...createParams, agentId: ownerAgentId },
-      };
+      return createRequest({ ...createParams, agentId: ownerAgentId });
     }
     if (phase === 'verify-created') {
       phase = 'verifying';

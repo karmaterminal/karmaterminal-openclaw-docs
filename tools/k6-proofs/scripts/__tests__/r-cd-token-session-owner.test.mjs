@@ -10,10 +10,13 @@ import {
 } from '../../lib/r-cd-token-contract.js';
 import { createTokenSessionProvisioner } from '../../lib/r-cd-token-session-owner.js';
 
-const hash = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
 const exactToken = '[[CONTINUE_DELEGATE: D-0123456789ab reply exactly RCDT-RETURN-0123456789abcdef +10s]]';
 const targetSessionKey = 'agent:return-router:main';
 const ownerBindingSessionKey = 'agent:research:main';
+
+function hash(value) {
+  return createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
+}
 
 class MultiAgentGateway {
   constructor({ visibleAgents = ['main', 'research'] } = {}) {

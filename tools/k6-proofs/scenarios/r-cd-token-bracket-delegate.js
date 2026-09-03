@@ -126,7 +126,6 @@ export default function () {
     let originSubscriptionRequestId = null;
     let originSubscriptionTarget = null;
     let proofStarted = false;
-    let ownerVerificationForTaskPoll = false;
     const pendingReturnEvents = [];
 
     function syncProvisioningEvidence() {
@@ -232,7 +231,6 @@ export default function () {
         taskSnapshot = [];
         taskSnapshotPages = 0;
         taskCursorSeen = {};
-        ownerVerificationForTaskPoll = true;
         if (!sendProvisioningRequest(provisioner.verifyAgain())) {
           evidence.terminal_reason = 'session-owner-verification-not-ready';
           failures.add(1);
@@ -396,8 +394,7 @@ export default function () {
             socket.close();
           } else if (next) {
             sendProvisioningRequest(next);
-          } else if (state.ready && ownerVerificationForTaskPoll) {
-            ownerVerificationForTaskPoll = false;
+          } else if (state.ready && taskPollPending) {
             requestTaskPage(null);
           } else if (state.ready && !proofStarted) {
             proofStarted = true;

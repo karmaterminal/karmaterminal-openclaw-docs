@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.129388.fleet-readiness-crosswalk.v1",
+  "pureSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seatCount": 6,
+  "allExactRuntime": true,
+  "allGatewayActive": true,
+  "allZeroRestartsAtReceipt": true,
+  "rObs1Refired": false,
+  "rObs1ConsumedRun": "20260903T033919Z-r-obs-1-877d5a31",
+  "deployRuns": {
+    "cael": 33711268147,
+    "ronan": 33662503111,
+    "silas": 33706242629,
+    "elliott": 33688624301,
+    "emeric": 33662513335,
+    "rune": 33678609410
+  },
+  "disposition": "Fleet readiness/crosswalk folded after convergence without refiring consumed R-OBS-1."
+}

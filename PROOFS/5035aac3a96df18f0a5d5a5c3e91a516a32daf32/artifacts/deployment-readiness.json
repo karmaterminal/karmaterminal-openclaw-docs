@@ -6,23 +6,35 @@
   "harnessSha": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
   "seats": [
     {
-      "seat": "elliott",
-      "deployRun": 33688624301,
-      "architecture": "x86_64",
-      "deployStart": "2026-09-02T22:05:43Z",
-      "deployEnd": "2026-09-02T22:24:53Z",
-      "processStart": "2026-09-02T15:22:33-07:00",
+      "seat": "cael",
+      "deployRun": 33711268147,
+      "architecture": "aarch64",
+      "deployStart": "2026-09-03T03:24:55Z",
+      "deployEnd": "2026-09-03T03:41:20Z",
+      "processStart": "2026-09-02T20:36:00-07:00",
+      "processPid": 397774,
+      "restartCount": 0,
       "runtimeVersion": "2026.8.1",
       "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
-      "distSha256": "590ff964554581429c757428cfb138114a07a6653a6ed731476e73ea1abe1cd4",
+      "distSha256": "da8196a04188d5d43eee54303c356c73083868d955274e685a0cff87c3ee8955",
       "lockfileSha256": "e84fdc40640c415f4e9d43a4b84516b43253439c6219dd80f179cb7b7a54a111",
-      "rollbackTarget": "b70aeb305f7a5d12b42baa6e164c50008924cee6",
+      "preDeployCommit": "dbf5795bd5dd406f586575d883a7878288e591ad",
       "readiness": "PASS-candidate",
+      "k6": "v2.0.0 linux/arm64",
       "continuation": {
         "enabled": true,
         "maxChainLength": 200,
         "maxDelegatesPerTurn": 500,
         "costCapTokens": 50000000
+      },
+      "recovery": {
+        "corepackNativeVersion": "12.1.0",
+        "neutralWrapperProofVersion": "10.33",
+        "configBytePreserved": true,
+        "doctorUsed": false,
+        "startupStableSeconds": 60,
+        "postConfigStableSeconds": 15,
+        "recoveryAuthority": "terminally committed"
       }
     },
     {
@@ -35,6 +47,49 @@
       "runtimeVersion": "2026.8.1",
       "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
       "distSha256": "d4b7178f9eafdb63917115bdf6c929041ebf5a2de580e4545a097e61bb3bce09",
+      "lockfileSha256": "e84fdc40640c415f4e9d43a4b84516b43253439c6219dd80f179cb7b7a54a111",
+      "rollbackTarget": "b70aeb305f7a5d12b42baa6e164c50008924cee6",
+      "readiness": "PASS-candidate",
+      "continuation": {
+        "enabled": true,
+        "maxChainLength": 200,
+        "maxDelegatesPerTurn": 500,
+        "costCapTokens": 50000000
+      }
+    },
+    {
+      "seat": "silas",
+      "deployRun": 33706242629,
+      "architecture": "x86_64",
+      "deployStart": "2026-09-03T02:05:00Z",
+      "deployEnd": "2026-09-03T02:36:14Z",
+      "processStart": "2026-09-02T19:33:42-07:00",
+      "processPid": 4058713,
+      "restartCount": 0,
+      "runtimeVersion": "2026.8.1",
+      "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+      "distSha256": "590ff964554581429c757428cfb138114a07a6653a6ed731476e73ea1abe1cd4",
+      "lockfileSha256": "e84fdc40640c415f4e9d43a4b84516b43253439c6219dd80f179cb7b7a54a111",
+      "rollbackTarget": "b70aeb305f7a5d12b42baa6e164c50008924cee6",
+      "readiness": "PASS-candidate",
+      "k6": "v2.0.0 linux/amd64",
+      "continuation": {
+        "enabled": true,
+        "maxChainLength": 200,
+        "maxDelegatesPerTurn": 500,
+        "costCapTokens": 50000000
+      }
+    },
+    {
+      "seat": "elliott",
+      "deployRun": 33688624301,
+      "architecture": "x86_64",
+      "deployStart": "2026-09-02T22:05:43Z",
+      "deployEnd": "2026-09-02T22:24:53Z",
+      "processStart": "2026-09-02T15:22:33-07:00",
+      "runtimeVersion": "2026.8.1",
+      "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+      "distSha256": "590ff964554581429c757428cfb138114a07a6653a6ed731476e73ea1abe1cd4",
       "lockfileSha256": "e84fdc40640c415f4e9d43a4b84516b43253439c6219dd80f179cb7b7a54a111",
       "rollbackTarget": "b70aeb305f7a5d12b42baa6e164c50008924cee6",
       "readiness": "PASS-candidate",
@@ -86,5 +141,6 @@
       }
     }
   ],
-  "fleetClaim": "4/6 exact-deployed and ready; Silas and Cael intentionally unclaimed"
+  "fleetClaim": "6/6 exact-deployed and healthy at runtime dbf5795b; per-seat deployment/readiness receipts recorded.",
+  "fleetReadyAt": "2026-09-03T03:41:20Z"
 }

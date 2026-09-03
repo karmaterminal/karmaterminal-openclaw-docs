@@ -10,3 +10,7 @@
 - candidate verdict: `PASS-candidate`
 
 Current single-seat session-status observability contract emitted PASS-candidate; no stale six-seat gate was applied.
+
+## Fleet readiness crosswalk
+
+Fleet convergence reached 6/6 exact runtime `dbf5795b...` after this row was already consumed. The readiness crosswalk was folded from deployment receipts without refiring `R-OBS-1`. See `fleet-readiness-crosswalk.json`.

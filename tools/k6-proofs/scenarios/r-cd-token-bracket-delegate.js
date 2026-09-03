@@ -16,6 +16,7 @@ import {
   tokenLedgerHasTerminalTasks,
   tokenLedgerRuntimeIdentity,
 } from '../lib/r-cd-token-contract.js';
+import { createTokenSessionProvisioner } from '../lib/r-cd-token-session-owner.js';
 
 export const options = {
   scenarios: {
@@ -54,8 +55,9 @@ function invocationCfg() {
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLW_GATEWAY_TOKEN || __ENV.OPENCLAW_GATEWAY_TOKEN;
-  const requestedSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
-  let sessionKey = requestedSessionKey;
+  const targetSessionKey = manifest?.sessionKey || __ENV.OPENCLAW_SESSION_KEY || DEFAULTS.sessionKey;
+  const ownerBindingSessionKey = __ENV.OPENCLAW_R_CD_TOKEN_OWNER_SESSION_KEY || '';
+  let sessionKey = targetSessionKey;
   const createDisposableSession = boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSION') ||
     boolEnv('OPENCLAW_CREATE_DISPOSABLE_SESSIONS');
   const surfaceClass = __ENV.OPENCLAW_SEAT_CLASS || 'unknown';
@@ -77,6 +79,12 @@ export default function () {
   const bracket = `[[CONTINUE_DELEGATE: ${delegateTask} +${inv.delaySeconds}s]]`;
   const childTask = `Reply exactly RCDT-HOP1-${tag}, then put this exact terminal bracket on its own final line: ${bracket} Do not call continue_delegate. Put no text after the closing brackets. Do not mutate files.`;
   const ledger = createTokenLedger({ surfaceClass });
+  const provisioner = createTokenSessionProvisioner({
+    ownerBindingSessionKey,
+    targetSessionKey,
+    disposableKey: `r-cd-token-${tag}`,
+    label: `k6 R-CD-TOKEN ${tag}`,
+  });
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) {
     const errors = validateManifest(manifest);
@@ -84,7 +92,12 @@ export default function () {
   }
   const evidence = {
     row: 'R-CD-TOKEN', manifest_loaded: !!manifest, seat,
-    requested_session_hash: hash(requestedSessionKey), session_hash: hash(sessionKey),
+    target_session_hash: hash(targetSessionKey), session_hash: hash(sessionKey),
+    owner_binding_session_hash: ownerBindingSessionKey ? hash(ownerBindingSessionKey) : null,
+    session_owner_agent_hash: null,
+    session_owner_bound: false,
+    session_owner_verified: false,
+    session_owner_verification_count: 0,
     disposable_creation_requested: createDisposableSession,
     disposable_origin_ready: false,
     session_created: false,
@@ -112,7 +125,29 @@ export default function () {
     let settleStartedAt = null;
     let originSubscriptionRequestId = null;
     let originSubscriptionTarget = null;
+    let proofStarted = false;
+    let ownerVerificationForTaskPoll = false;
     const pendingReturnEvents = [];
+
+    function syncProvisioningEvidence() {
+      const state = provisioner.snapshot();
+      evidence.session_owner_agent_hash = state.ownerAgentId ? hash(state.ownerAgentId) : null;
+      evidence.session_owner_bound = Boolean(state.ownerAgentId && state.createdSessionKey);
+      evidence.session_owner_verified = state.ready && state.verificationCount > 0;
+      evidence.session_owner_verification_count = state.verificationCount;
+      if (state.createdSessionKey) {
+        sessionKey = state.createdSessionKey;
+        evidence.session_hash = hash(sessionKey);
+        evidence.session_created = true;
+      }
+      return state;
+    }
+
+    function sendProvisioningRequest(request) {
+      if (!request) return false;
+      tracker.send(socket, request.method, request.params);
+      return true;
+    }
 
     function tryReturnEvent(eventData) {
       const identity = tokenLedgerRuntimeIdentity(ledger);
@@ -155,6 +190,8 @@ export default function () {
         summary.delegate_task_unique_count === 1 &&
         summary.delegate_requester_matches_origin_child === true &&
         summary.delegate_parent_mismatch !== true &&
+        evidence.session_owner_verified === true &&
+        evidence.session_owner_verification_count >= 2 &&
         evidence.task_snapshot_consistent === true &&
         evidence.task_snapshot_stable_count >= REQUIRED_STABLE_TASK_SNAPSHOTS &&
         evidence.origin_subscription_accepted && evidence.delegate_return_observed;
@@ -195,7 +232,13 @@ export default function () {
         taskSnapshot = [];
         taskSnapshotPages = 0;
         taskCursorSeen = {};
-        requestTaskPage(null);
+        ownerVerificationForTaskPoll = true;
+        if (!sendProvisioningRequest(provisioner.verifyAgain())) {
+          evidence.terminal_reason = 'session-owner-verification-not-ready';
+          failures.add(1);
+          closed = true;
+          socket.close();
+        }
       }, delay);
     }
 
@@ -269,11 +312,11 @@ export default function () {
       if (!tokenDisposableOriginReady({
         creationRequested: createDisposableSession,
         sessionCreated: evidence.session_created,
-        requestedSessionKey,
+        requestedSessionKey: targetSessionKey,
         activeSessionKey: sessionKey,
-      })) {
+      }) || !evidence.session_owner_verified) {
         evidence.interrupted = false;
-        evidence.terminal_reason = 'pre-dispatch-disposable-origin-required';
+        evidence.terminal_reason = 'pre-dispatch-owned-disposable-origin-required';
         failures.add(1);
         closed = true;
         socket.close();
@@ -310,10 +353,15 @@ export default function () {
         return;
       }
       socket.setTimeout(() => {
-        tracker.send(socket, 'sessions.create', {
-          key: `r-cd-token-${tag}`,
-          label: `k6 R-CD-TOKEN ${tag}`,
-        });
+        const request = provisioner.nextRequest();
+        if (!sendProvisioningRequest(request)) {
+          evidence.interrupted = false;
+          evidence.terminal_reason = provisioner.snapshot().failureReason ||
+            'owner-binding-provisioning-not-started';
+          failures.add(1);
+          closed = true;
+          socket.close();
+        }
       }, 250);
     });
 
@@ -336,16 +384,24 @@ export default function () {
             failures.add(1);
           }
         }
-        if (classified.kind === 'response' && classified.method === 'sessions.create') {
-          const createdSessionKey = String(classified.payload?.key || '').trim();
-          if (classified.ok && createdSessionKey && createdSessionKey !== requestedSessionKey) {
-            sessionKey = createdSessionKey;
-            evidence.session_hash = hash(sessionKey);
-            evidence.session_created = true;
+        if (classified.kind === 'response' &&
+            (classified.method === 'sessions.resolve' ||
+              classified.method === 'sessions.create')) {
+          const next = provisioner.accept(classified.method, classified);
+          const state = syncProvisioningEvidence();
+          if (state.failed) {
+            failures.add(1);
+            evidence.terminal_reason = state.failureReason || 'disposable-session-rejected';
+            closed = true;
+            socket.close();
+          } else if (next) {
+            sendProvisioningRequest(next);
+          } else if (state.ready && ownerVerificationForTaskPoll) {
+            ownerVerificationForTaskPoll = false;
+            requestTaskPage(null);
+          } else if (state.ready && !proofStarted) {
+            proofStarted = true;
             startProofFlow();
-          } else {
-            failures.add(1); evidence.terminal_reason = 'disposable-session-rejected';
-            closed = true; socket.close();
           }
         }
         if (classified.kind === 'response' && classified.method === 'sessions.send') {
@@ -389,6 +445,8 @@ export default function () {
     'raw final text surface declared': () => evidence.surface_class === 'raw-final-text',
     'disposable session created and distinct': () => evidence.session_created &&
       evidence.disposable_origin_ready,
+    'disposable session owner resolved and persisted': () => evidence.session_owner_bound &&
+      evidence.session_owner_verified && evidence.session_owner_verification_count >= 2,
     'send accepted with run identity': () => evidence.send_accepted && !!evidence.send_run_id_hash,
     'task ledger fully paginated': () => evidence.task_pagination_exhausted,
     'task ledger snapshot stable across full traversals': () => evidence.task_snapshot_consistent &&

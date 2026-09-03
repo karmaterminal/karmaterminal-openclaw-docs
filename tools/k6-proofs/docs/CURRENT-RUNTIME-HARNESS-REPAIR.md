@@ -69,13 +69,34 @@ OPENCLAW_RUNTIME_BUILD_SHA=dbf5795bd5dd406f586575d883a7878288e591ad \
 OPENCLAW_RUNTIME_SOURCE_DIR=<exact-runtime-git-checkout> \
 OPENCLAW_ANCILLARY_RUNTIME_CONTRACT=tools/k6-proofs/contracts/ancillary-runtime/129388-pure5035-dbf5795.json \
 OPENCLAW_SEAT_CLASS=raw-final-text \
+OPENCLAW_R_CD_TOKEN_OWNER_SESSION_KEY=agent:<intended-agent>:<existing-visible-session> \
 ./tools/k6-proofs/scripts/run-proofs.sh --live \
   --docs-ref <accepted-repair-docs-sha> \
   R-CD-TOKEN 5035aac3a96df18f0a5d5a5c3e91a516a32daf32
 ```
 
+The owner binding is a dedicated, existing, agent-qualified session. The
+scenario resolves it through `sessions.resolve`, uses only the returned
+`agentId` in `sessions.create`, and re-resolves the new disposable parent
+before dispatch and across task-ledger polling. `OPENCLAW_SESSION_KEY` remains
+return routing only and is never used to select the disposable parent owner.
+A missing, invisible, nonexistent, or mismatched owner binding stops before
+child creation.
+
 Expected pre-dispatch receipt:
 `ancillary-runtime-provenance.json`, proving the exact pure/runtime trees,
 two-commit chain, both patch digests, exact 22-path union, and unchanged
-R-CD-TOKEN owner paths. The signed row receipt keeps candidate/corpus identity
-on pure `5035aac3...` and records the runtime only as ancillary provenance.
+R-CD-TOKEN owner paths. Required row receipts are
+`exact-candidate-or-reviewed-ancillary-runtime-identity`, `attempt-state`,
+`raw-final-text-origin`, `session-owner-binding`, `prompt-injected`,
+`parser-detected`, `queue-identity`, `child-spawned`, `child-completed`,
+`parent-return-event`, `tempo-trace-json`, and
+`continuation-trace-correlation`. The signed row receipt keeps
+candidate/corpus identity on pure `5035aac3...`, binds the hashed owner session
+and agent through repeated verification, and records the runtime only as
+ancillary provenance.
+
+Consumed attempt
+`20260903T060815Z-r-cd-token-0fd4f089` is terminal evidence and must not be
+refired. The command above is documentation for a separately authorized,
+post-review run with a new attempt identifier only.

@@ -560,6 +560,9 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   };
   const evidence = {
     surface_class: 'raw-final-text', session_created: true, disposable_origin_ready: true,
+    session_owner_bound: true, session_owner_verified: true,
+    session_owner_verification_count: 3,
+    owner_binding_session_hash: h('0'), session_owner_agent_hash: h('f'),
     prompt_injected: true,
     send_accepted: true, send_run_id_hash: h('1'), row_nonce_hash: h('2'),
     attempt_id_hash: h('3'), candidateSha: sha, runtimeBuildSha: sha,
@@ -580,7 +583,7 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   const attemptState = {
     schema: 'openclaw.k6.r-cd-token.attempt-state.v1', row: 'R-CD-TOKEN',
     attemptIdHash: h('3'), rowNonceHash: h('2'), candidateSha: sha,
-    runtimeBuildSha: sha, automaticRetryAllowed: false,
+    runtimeBuildSha: sha, ownerBindingSessionHash: h('0'), automaticRetryAllowed: false,
   };
   const correlation = {
     traceId: 'c'.repeat(32), chainId: '11111111-1111-4111-8111-111111111111',

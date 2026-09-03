@@ -202,6 +202,8 @@ export function classifyTokenEvidence(evidence) {
     evidence.delegate_requester_session_hash,
     evidence.delegate_child_session_hash,
     evidence.send_run_id_hash,
+    evidence.owner_binding_session_hash,
+    evidence.session_owner_agent_hash,
     evidence.row_nonce_hash,
     evidence.attempt_id_hash,
     evidence.return_target_session_hash,
@@ -210,6 +212,9 @@ export function classifyTokenEvidence(evidence) {
   const taskStates = evidence.origin_task_status === 'completed' && evidence.delegate_task_status === 'completed';
   const complete = evidence.session_created === true &&
     evidence.disposable_origin_ready === true &&
+    evidence.session_owner_bound === true &&
+    evidence.session_owner_verified === true &&
+    Number(evidence.session_owner_verification_count || 0) >= 2 &&
     evidence.prompt_injected === true &&
     evidence.send_accepted === true &&
     evidence.origin_subscription_accepted === true &&

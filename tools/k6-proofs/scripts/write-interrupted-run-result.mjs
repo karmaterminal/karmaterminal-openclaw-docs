@@ -76,7 +76,7 @@ async function main() {
     },
     review: {
       status: 'review-pending',
-      pendingReceipts: ['parser-detected', 'queue-identity', 'child-spawned', 'child-completed', 'parent-return-event', 'tempo-trace-json', 'continuation-trace-correlation'],
+      pendingReceipts: ['session-owner-binding', 'parser-detected', 'queue-identity', 'child-spawned', 'child-completed', 'parent-return-event', 'tempo-trace-json', 'continuation-trace-correlation'],
     },
   }, null, 2)}\n`);
 }

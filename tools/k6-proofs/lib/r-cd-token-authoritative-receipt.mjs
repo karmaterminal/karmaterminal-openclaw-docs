@@ -102,6 +102,7 @@ function runnerIdentityMatches({ evidence, attemptState, metadata, ancillaryRunt
     attemptState?.row === 'R-CD-TOKEN' &&
     attemptState?.attemptIdHash === evidence?.attempt_id_hash &&
     attemptState?.rowNonceHash === evidence?.row_nonce_hash &&
+    attemptState?.ownerBindingSessionHash === evidence?.owner_binding_session_hash &&
     attemptState?.candidateSha === candidateSha &&
     attemptState?.runtimeBuildSha === runtimeBuildSha &&
     (candidateSha === runtimeBuildSha ||
@@ -147,6 +148,11 @@ export function resolveRcdTokenAuthoritativeReceipt({
         runnerNonce: attemptState?.rowNonceHash || null,
         sessionCreated: evidence?.session_created === true,
         disposableOriginReady: evidence?.disposable_origin_ready === true,
+        sessionOwnerBound: evidence?.session_owner_bound === true,
+        sessionOwnerVerified: evidence?.session_owner_verified === true,
+        ownerBindingSession: evidence?.owner_binding_session_hash || null,
+        sessionOwnerAgent: evidence?.session_owner_agent_hash || null,
+        ownerVerificationCount: evidence?.session_owner_verification_count || 0,
         send: evidence?.send_run_id_hash || null,
         origin: evidence?.origin_run_id_hash || null,
         delegate: evidence?.delegate_run_id_hash || null,
@@ -185,6 +191,9 @@ export function resolveRcdTokenAuthoritativeReceipt({
     lifecycle: {
       surfaceClass: 'raw-final-text',
       disposableOriginReady: true,
+      sessionOwnerBound: true,
+      sessionOwnerVerified: true,
+      sessionOwnerVerificationCount: evidence.session_owner_verification_count,
       parserDetected: true,
       exactlyOneOriginTask: true,
       exactlyOneTokenDelegateTask: true,
@@ -200,6 +209,8 @@ export function resolveRcdTokenAuthoritativeReceipt({
       attemptIdHash: evidence.attempt_id_hash,
       rowNonceHash: evidence.row_nonce_hash,
       sendRunIdHash: evidence.send_run_id_hash,
+      ownerBindingSessionHash: evidence.owner_binding_session_hash,
+      sessionOwnerAgentHash: evidence.session_owner_agent_hash,
       originRunIdHash: evidence.origin_run_id_hash,
       delegateRunIdHash: evidence.delegate_run_id_hash,
       returnTargetSessionHash: evidence.return_target_session_hash,
@@ -243,17 +254,21 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
   }
   const lifecycle = receipt.lifecycle;
   const requiredTrue = [
-    'disposableOriginReady', 'parserDetected', 'exactlyOneOriginTask', 'exactlyOneTokenDelegateTask',
+    'disposableOriginReady', 'sessionOwnerBound', 'sessionOwnerVerified', 'parserDetected',
+    'exactlyOneOriginTask', 'exactlyOneTokenDelegateTask',
     'taskLedgerFullyPaginated', 'childCompleted', 'parentReturnObserved',
     'returnBoundToDelegateChild', 'delegateOwnedByOriginChild', 'noTypedToolOrigin',
     'sameTrace', 'sameChain',
   ];
   const hashes = [
-    'attemptIdHash', 'rowNonceHash', 'sendRunIdHash', 'originRunIdHash',
+    'attemptIdHash', 'rowNonceHash', 'sendRunIdHash', 'ownerBindingSessionHash',
+    'sessionOwnerAgentHash', 'originRunIdHash',
     'delegateRunIdHash', 'returnTargetSessionHash', 'returnSourceSessionHash',
     'traceFingerprint', 'chainFingerprint',
   ];
   const pass = lifecycle?.surfaceClass === 'raw-final-text' &&
+    Number.isInteger(lifecycle?.sessionOwnerVerificationCount) &&
+    lifecycle.sessionOwnerVerificationCount >= 2 &&
     typeof lifecycle?.ancillaryRuntime === 'boolean' &&
     (receipt.binding.runtimeBuildSha === receipt.binding.candidateSha
       ? lifecycle.ancillaryRuntime === false

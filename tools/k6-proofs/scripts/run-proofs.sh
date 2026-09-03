@@ -1025,7 +1025,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           > "$RUN_DIR/build-identity-gate.json"
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-or-reviewed-ancillary-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-or-reviewed-ancillary-runtime-identity","attempt-state","raw-final-text-origin","session-owner-binding","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
@@ -1036,6 +1036,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       ATTEMPT_UUID="$(cat /proc/sys/kernel/random/uuid)"
       export OPENCLAW_PROOF_ATTEMPT_ID="${RUN_ID}-${ATTEMPT_UUID}"
       export OPENCLAW_ROW_NONCE="R-CD-TOKEN-${ATTEMPT_UUID}"
+      TOKEN_OWNER_BINDING_KEY="${OPENCLAW_R_CD_TOKEN_OWNER_SESSION_KEY:-}"
+      TOKEN_OWNER_BINDING_HASH=""
+      if [[ -n "$TOKEN_OWNER_BINDING_KEY" ]]; then
+        TOKEN_OWNER_BINDING_HASH="$(printf '%s' "$TOKEN_OWNER_BINDING_KEY" | sha256sum | cut -c1-16)"
+      fi
       ACTIVE_TOKEN_RUN_DIR="$RUN_DIR"
       ACTIVE_TOKEN_PHASE="prepared"
       ACTIVE_TOKEN_ATTEMPT_HASH="$(printf '%s' "$OPENCLAW_PROOF_ATTEMPT_ID" | sha256sum | cut -c1-16)"
@@ -1046,8 +1051,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
         --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
         --arg runtimeProvenanceSha256 "$TOKEN_RUNTIME_PROVENANCE_SHA256" \
+        --arg ownerBindingSessionHash "$TOKEN_OWNER_BINDING_HASH" \
         --arg startedAt "$RUN_STARTED_AT" \
-        '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,runtimeProvenanceSha256:(if $runtimeProvenanceSha256=="" then null else $runtimeProvenanceSha256 end),startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
+        '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,runtimeProvenanceSha256:(if $runtimeProvenanceSha256=="" then null else $runtimeProvenanceSha256 end),ownerBindingSessionHash:(if $ownerBindingSessionHash=="" then null else $ownerBindingSessionHash end),startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
         > "$RUN_DIR/attempt-state.json"
     fi
     if [[ -f "$SEAT_READINESS_JSON" ]]; then
@@ -1066,7 +1072,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
           --arg surfaceClass "$OPENCLAW_SEAT_CLASS" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-surface-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",surface_class:$surfaceClass,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["raw-final-text-origin","session-owner-binding","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         ACTIVE_TOKEN_PHASE="pre-dispatch-surface-gate"
@@ -1074,6 +1080,25 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         echo "[$ROW_ID] PARTIAL-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
+        continue
+      fi
+      if [[ ! "$TOKEN_OWNER_BINDING_KEY" =~ ^agent:[^:]+:.+ ]]; then
+        RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        jq \
+          --arg endedAt "$RUN_ENDED_AT" \
+          '. + {endedAt:$endedAt,phase:"pre-dispatch-owner-binding-gate",proofTerminal:true,consumptionState:"not-dispatched",automaticRetryAllowed:false,verdict:"PARTIAL-candidate",effectiveExitCode:0}' \
+          "$RUN_DIR/attempt-state.json" > "$RUN_DIR/attempt-state.json.tmp"
+        mv "$RUN_DIR/attempt-state.json.tmp" "$RUN_DIR/attempt-state.json"
+        jq -n \
+          --arg endedAt "$RUN_ENDED_AT" \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-owner-binding-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false,session_owner_bound:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["session-owner-binding","prompt-injected","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          > "$RUN_DIR/run-result.json"
+        rm -f "$RUN_DIR/.started"
+        ACTIVE_TOKEN_PHASE="pre-dispatch-owner-binding-gate"
+        ACTIVE_TOKEN_RUN_DIR=""
+        PROVISIONAL_RUN_DIR=""
+        ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
+        echo "[R-CD-TOKEN] PARTIAL-candidate: an agent-qualified OPENCLAW_R_CD_TOKEN_OWNER_SESSION_KEY is required; no dispatch occurred."
         continue
       fi
       # R-CD-TOKEN is never allowed to fall back to the configured/live

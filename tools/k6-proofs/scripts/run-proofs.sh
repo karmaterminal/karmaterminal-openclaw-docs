@@ -984,37 +984,35 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       TOKEN_RUNTIME_PROVENANCE_FILE=""
       TOKEN_RUNTIME_IDENTITY_VALID=false
       if [[ "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ &&
-            "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ &&
-            "$OPENCLAW_CANDIDATE_SHA" == "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
-        TOKEN_RUNTIME_IDENTITY_VALID=true
-      fi
-      if [[ "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ &&
-            "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ &&
-            "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
-        ANCILLARY_CONTRACT="${OPENCLAW_ANCILLARY_RUNTIME_CONTRACT:-$REPO_ROOT/tools/k6-proofs/contracts/ancillary-runtime/129388-pure5035-dbf5795.json}"
-        ANCILLARY_SOURCE="${OPENCLAW_RUNTIME_SOURCE_DIR:-}"
-        TOKEN_RUNTIME_PROVENANCE_FILE="$RUN_DIR/ancillary-runtime-provenance.json"
-        if [[ -n "$ANCILLARY_SOURCE" ]] &&
-          node "$SCRIPT_DIR/validate-ancillary-runtime-provenance.mjs" \
-            --contract "$ANCILLARY_CONTRACT" \
-            --source-dir "$ANCILLARY_SOURCE" \
-            --row R-CD-TOKEN \
-            --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
-            --runtime-sha "$OPENCLAW_RUNTIME_BUILD_SHA" \
-            --out "$TOKEN_RUNTIME_PROVENANCE_FILE" \
-            > "$RUN_DIR/ancillary-runtime-provenance.stdout.json" \
-            2> "$RUN_DIR/ancillary-runtime-provenance.error.log"; then
-          TOKEN_RUNTIME_PROVENANCE_SHA256="$(sha256sum "$TOKEN_RUNTIME_PROVENANCE_FILE" | awk '{print $1}')"
-          jq \
-            --arg receipt "ancillary-runtime-provenance.json" \
-            --arg receiptSha256 "$TOKEN_RUNTIME_PROVENANCE_SHA256" \
-            '. + {runtimeProvenance:{class:"reviewed-ancillary-runtime",receipt:$receipt,receiptSha256:$receiptSha256,canonicalIdentityRemainsPure:true}}' \
-            "$RUN_DIR/runner-metadata.json" > "$RUN_DIR/runner-metadata.json.tmp"
-          mv "$RUN_DIR/runner-metadata.json.tmp" "$RUN_DIR/runner-metadata.json"
+            "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+        if [[ "$OPENCLAW_CANDIDATE_SHA" == "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
           TOKEN_RUNTIME_IDENTITY_VALID=true
         else
-          rm -f "$TOKEN_RUNTIME_PROVENANCE_FILE"
-          TOKEN_RUNTIME_PROVENANCE_FILE=""
+          ANCILLARY_CONTRACT="${OPENCLAW_ANCILLARY_RUNTIME_CONTRACT:-$REPO_ROOT/tools/k6-proofs/contracts/ancillary-runtime/129388-pure5035-dbf5795.json}"
+          ANCILLARY_SOURCE="${OPENCLAW_RUNTIME_SOURCE_DIR:-}"
+          TOKEN_RUNTIME_PROVENANCE_FILE="$RUN_DIR/ancillary-runtime-provenance.json"
+          if [[ -n "$ANCILLARY_SOURCE" ]] &&
+            node "$SCRIPT_DIR/validate-ancillary-runtime-provenance.mjs" \
+              --contract "$ANCILLARY_CONTRACT" \
+              --source-dir "$ANCILLARY_SOURCE" \
+              --row R-CD-TOKEN \
+              --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+              --runtime-sha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+              --out "$TOKEN_RUNTIME_PROVENANCE_FILE" \
+              > "$RUN_DIR/ancillary-runtime-provenance.stdout.json" \
+              2> "$RUN_DIR/ancillary-runtime-provenance.error.log"; then
+            TOKEN_RUNTIME_PROVENANCE_SHA256="$(sha256sum "$TOKEN_RUNTIME_PROVENANCE_FILE" | awk '{print $1}')"
+            jq \
+              --arg receipt "ancillary-runtime-provenance.json" \
+              --arg receiptSha256 "$TOKEN_RUNTIME_PROVENANCE_SHA256" \
+              '. + {runtimeProvenance:{class:"reviewed-ancillary-runtime",receipt:$receipt,receiptSha256:$receiptSha256,canonicalIdentityRemainsPure:true}}' \
+              "$RUN_DIR/runner-metadata.json" > "$RUN_DIR/runner-metadata.json.tmp"
+            mv "$RUN_DIR/runner-metadata.json.tmp" "$RUN_DIR/runner-metadata.json"
+            TOKEN_RUNTIME_IDENTITY_VALID=true
+          else
+            rm -f "$TOKEN_RUNTIME_PROVENANCE_FILE"
+            TOKEN_RUNTIME_PROVENANCE_FILE=""
+          fi
         fi
       fi
       if [[ "$TOKEN_RUNTIME_IDENTITY_VALID" != "true" ]]; then

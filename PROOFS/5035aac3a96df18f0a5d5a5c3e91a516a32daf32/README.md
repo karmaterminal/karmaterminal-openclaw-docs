@@ -1,7 +1,8 @@
 # Final continuation proof corpus — `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
 
 Status: **BLOCKED** on the remaining non-PASS rows; the authorized R-CW family
-refire is complete and ready for scribe review.
+refire is complete, while the final R-CD-TOKEN replacement remains a signed
+terminal PARTIAL.
 
 - canonical pure/corpus SHA: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
 - deployment runtime: `dbf5795bd5dd406f586575d883a7878288e591ad` (ancillary only)
@@ -11,6 +12,10 @@ refire is complete and ready for scribe review.
   `af001b21dd17d7da788502d3ad1c2215c59d9922`
 - before R-CW family refire: 18 PASS / 7 PARTIAL / 2 FAIL / 11 MISSING
 - after R-CW family fold: 21 PASS / 7 PARTIAL / 1 FAIL / 9 MISSING
+- approved explicit-owner harness:
+  `a545c1444c3b88823e7fc52a6e20cdd4a2773ac1`
+- before explicit-owner replacement: 21 PASS / 7 PARTIAL / 1 FAIL / 9 MISSING
+- after explicit-owner replacement: 21 PASS / 7 PARTIAL / 1 FAIL / 9 MISSING
 - `R-CW-5`: PASS
 - `R-CW-6`: PASS
 - `R-CD-TOKEN`: PARTIAL
@@ -33,3 +38,10 @@ remains preserved. Strict consumers `R-CW-5A`
 `run-20260903T083714Z-26910927` and `R-CW-6A`
 `run-20260903T083721Z-597334cc` both passed their exact reviewed-producer
 contracts. Rollup is now 21 PASS / 7 PARTIAL / 1 FAIL / 9 MISSING.
+
+Final replacement run `20260903T083244Z-r-cd-token-0bd7d5ac` passed
+pure/runtime ancillary provenance and repeatedly verified the explicit session
+owner. The exact terminal token was emitted and parsed, but completion
+announcement still failed with `AgentSelectionRequiredError`; the stable task
+ledger contained one completed origin task and zero delegate tasks. Its signed
+terminal receipt is `PARTIAL-candidate`. No retry was performed.

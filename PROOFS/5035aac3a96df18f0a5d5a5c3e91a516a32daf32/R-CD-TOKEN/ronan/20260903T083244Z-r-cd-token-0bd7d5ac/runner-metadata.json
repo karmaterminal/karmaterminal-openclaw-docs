@@ -1,0 +1,22 @@
+{
+  "row": "R-CD-TOKEN",
+  "scenario": "r-cd-token-bracket-delegate.js",
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "runtimeBuildSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seat": "ronan",
+  "sessionConfigured": true,
+  "startedAt": "2026-09-03T08:32:44Z",
+  "docsRef": "a545c1444c3b88823e7fc52a6e20cdd4a2773ac1",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260903T083241Z-a545c1444c3b-0bd7d5ac",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+  "manifestSha256": "c07095fb8586d4bfaad118a2891888719dd884b95b0d3f788dee51d8f4e7ab0c",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js",
+  "scenarioSha256": "05161a70c4869a4cdbce5eb7ee501d207eb697a3aefe74fe8c9968b1c9f428b1",
+  "runtimeProvenance": {
+    "class": "reviewed-ancillary-runtime",
+    "receipt": "ancillary-runtime-provenance.json",
+    "receiptSha256": "a5097850e9af54e25a190c8ee26f27ce86b620b8a028db05d07f194aed0e7eda",
+    "canonicalIdentityRemainsPure": true
+  }
+}

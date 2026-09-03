@@ -492,15 +492,16 @@
       "pending_receipts": [
         "PASS; exact raw final text; parser/queue/child/return identities; trace correlation"
       ],
-      "summary": "The authorized explicit-owner replacement attempt stopped before dispatch because the immutable snapshot resolved the repository-relative ancillary contract path from tools/k6-proofs and received ENOENT. The prior consumed semantic PARTIAL remains canonical.",
-      "notes": "Approved harness 52c0b46f; replacement run 20260903T073850Z-r-cd-token-248195ae was infrastructure-before-consumption and was not retried. Consumed semantic run 20260903T060815Z-r-cd-token-0fd4f089 remains unchanged.",
+      "summary": "Final explicit-owner replacement passed ancillary provenance, verified ownership 208 times, and parsed the exact terminal delegate token, but completion announcement failed with AgentSelectionRequiredError; the stable ledger retained one completed origin task and zero delegate tasks.",
+      "notes": "Approved harness a545c144; final run 20260903T083244Z-r-cd-token-0bd7d5ac is a signed terminal semantic PARTIAL and was not retried. Consumed semantic run 20260903T060815Z-r-cd-token-0fd4f089 and pre-dispatch ENOENT run 20260903T073850Z-r-cd-token-248195ae remain unchanged.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-TOKEN/EVIDENCE.md"
       ],
       "test_cases_executed": [
         "20260903T033559Z-r-cd-token-877d5a31",
         "20260903T060815Z-r-cd-token-0fd4f089",
-        "20260903T073850Z-r-cd-token-248195ae"
+        "20260903T073850Z-r-cd-token-248195ae",
+        "20260903T083244Z-r-cd-token-0bd7d5ac"
       ],
       "traces": []
     },

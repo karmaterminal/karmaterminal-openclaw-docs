@@ -22,7 +22,7 @@
     "honest_limit": 0,
     "missing": 9
   },
-  "disposition_note": "R-CW family refire complete: R-CW-6, R-CW-5A, and R-CW-6A are PASS. Canonical rollup is 21 pass, 7 partial, 1 fail, 9 missing; remaining non-PASS rows still block presentation.",
+  "disposition_note": "R-CW family refire complete: R-CW-6, R-CW-5A, and R-CW-6A are PASS. Final R-CD-TOKEN explicit-owner replacement is a signed terminal PARTIAL with no delegate task, child, return, or trace. Canonical rollup is 21 pass, 7 partial, 1 fail, 9 missing; remaining non-PASS rows block presentation.",
   "generated": "2026-09-02",
   "generated_by": "frond-scribe"
 }

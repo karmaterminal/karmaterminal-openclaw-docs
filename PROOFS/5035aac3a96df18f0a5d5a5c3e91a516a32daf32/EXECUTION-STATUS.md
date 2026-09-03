@@ -1,9 +1,12 @@
 # Execution status
 
-`FAIL_CANDIDATE`
+`IN_PROGRESS_CORRECTED`
 
-Mandatory `R-CD-2` run `20260903T030022Z-r-cd-2-e5b29554` produced an HMAC-signed authoritative `FAIL-candidate` receipt with failure category `missing-terminal-sentinel`. This is a semantic terminal boundary and was not retried.
+Current bootstrap authority supersedes the stale tail-packet seat allocation. Historical `registry:` and `execution:` columns do not gate runnable rows.
 
-`R-RC-2` run `20260903T025704Z-r-rc-2-ecde7aa4` produced `PARTIAL-candidate`: the outer parent request was accepted, but no child session or nonce-bound structured `request_compaction` tool result existed. A text-only threshold report cannot become HONEST-LIMIT.
+- 12 rows retain prior consumed one-fire authority and will not be refired.
+- 21 unconsumed runnable required rows are allocated to exact-deployed Ronan.
+- 5 process/hermetic rows remain in the local lane.
+- Fleet disparity does not block `R-OBS-1` scenario fire; only a later genuinely six-seat crosswalk receipt remains conditional.
 
-No rows were started after this terminal boundary. Already-running work was allowed to finish and retained.
+The previously observed `R-CD-2` FAIL and other non-PASS receipts remain preserved; continuing the matrix does not erase or retry them.

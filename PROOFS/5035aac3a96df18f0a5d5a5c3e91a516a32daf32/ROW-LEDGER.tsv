@@ -21,7 +21,7 @@ R-CW-3	consumed_prior_one_fire	completed	pass	none	20260903T025532Z-r-cw-3-ecde7
 R-CW-4	ronan_runnable_matrix_attempted_once	completed	pass	none	20260903T033650Z-r-cw-4-877d5a31	1
 R-CW-5	frond_local_process_and_hermetic	completed	pass	none	run-20260903T055951Z-734fb48c	4
 R-CW-5A	frond_local_process_and_hermetic	completed	missing	dependent_static_contract_not_satisfied	run-20260903T061633Z-372b4d35	2
-R-CW-6	frond_local_process_and_hermetic	completed	fail	dependency_provenance_and_boundary_matrix_passed_but_runtime_durable_recovery_typed_tool_and_selected_delegate_boundary_receipts_failed_candidate_regression_companion_passed	run-20260903T055951Z-ff3429fc	4
+R-CW-6	frond_local_process_and_hermetic	completed	pass	none	run-20260903T083304Z-159f4b0e	5
 R-CW-6A	frond_local_process_and_hermetic	completed	missing	dependent_static_contract_not_satisfied	run-20260903T061634Z-da38a4bf	2
 R-CW-7	ronan_runnable_matrix_attempted_once	completed	missing	producer_artifacts_or_initialization_evidence_absent	20260903T033814Z-r-cw-7-877d5a31	1
 R-CW-DELEGATE-CHILD-LIVE	ronan_runnable_matrix_attempted_once	completed	missing	producer_artifacts_or_initialization_evidence_absent	20260903T033821Z-r-cw-delegate-child-live-877d5a31	1

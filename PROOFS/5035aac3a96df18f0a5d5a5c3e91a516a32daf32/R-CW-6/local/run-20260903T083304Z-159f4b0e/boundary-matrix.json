@@ -1,0 +1,76 @@
+{
+  "maxChainLength": 3,
+  "cases": [
+    {
+      "currentChainCount": 1,
+      "attemptedHop": 2,
+      "outcome": null
+    },
+    {
+      "currentChainCount": 2,
+      "attemptedHop": 3,
+      "outcome": null
+    },
+    {
+      "currentChainCount": 3,
+      "attemptedHop": 4,
+      "outcome": "chain-capped"
+    }
+  ],
+  "candidateWorktreeHead": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "candidateLockfileSha256": "e84fdc40640c415f4e9d43a4b84516b43253439c6219dd80f179cb7b7a54a111",
+  "installedLockfileSha256": "b36885fe78c698c69bee74ae07535abc524ef107a27417821daf64d95305da3c",
+  "candidateWorkspaceGraphSha256": "b36885fe78c698c69bee74ae07535abc524ef107a27417821daf64d95305da3c",
+  "packageManagerBootstrapSha256": "4996a7f8e02d9bbdcd96028427290f78e6c72a5e85369dc86f214f7386c36c6c",
+  "installedGraphMatchesCandidate": true,
+  "packageManagerBootstrapValidated": true,
+  "candidatePackageManager": "pnpm@12.1.0+sha512.d9b8276d97f6ec86e49815877f91ee9f63cee61f2063b304e43b6dab8fa07ce8a9afd46d2facd39f921e6a9d06b3c75a81349c7b888c2d22886bae0229901037",
+  "candidatePackageManagerVersion": "12.1.0",
+  "executingPackageManagerVersion": "12.1.0",
+  "installedPackageManager": "pnpm@12.1.0",
+  "installedPackageManagerVersion": "12.1.0",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "installExitCode": 0,
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "hostToolchainHermetic": false,
+  "schema": "openclaw.project81.r-cw-6.boundary-matrix.v1",
+  "passed": true,
+  "command": [
+    "node_modules/.bin/tsx",
+    "--eval",
+    "<production-module-eval>"
+  ],
+  "exitCode": 0,
+  "exactCandidateDisposableWorktree": true
+}

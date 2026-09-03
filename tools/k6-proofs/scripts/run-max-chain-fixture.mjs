@@ -47,6 +47,24 @@ const DELEGATE_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-delegate-boundary.test.ts',
 );
+const VITEST_CONFIG = 'test/vitest/vitest.auto-reply.config.ts';
+const CANDIDATE_REGRESSION_TEST =
+  'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts';
+const RUNTIME_BOUNDARY_TEST =
+  'src/auto-reply/continuation/r-cw-6-runtime-fixture.generated.test.ts';
+const TYPED_TOOL_SURFACE_TEST =
+  'src/auto-reply/continuation/r-cw-6-typed-fixture.generated.test.ts';
+const DELEGATE_BOUNDARY_TEST =
+  'src/auto-reply/continuation/r-cw-6-delegate-fixture.generated.test.ts';
+
+function vitestArgs(testFile) {
+  return ['run', '--config', VITEST_CONFIG, testFile, '--reporter=verbose'];
+}
+
+function publicVitestCommand(testFile) {
+  return ['node_modules/.bin/vitest', ...vitestArgs(testFile)];
+}
+
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \\
   --source-dir <exact-candidate-worktree> \\
@@ -641,31 +659,18 @@ function runDisposableToolSurface({
       },
       hostToolchainHermetic: false,
     };
-    const generatedTestDir = path.join(worktreeDir, 'src', 'auto-reply', 'continuation');
-    const runtimeTestPath = path.join(
-      generatedTestDir,
-      'r-cw-6-runtime-fixture.generated.test.ts',
-    );
-    const typedTestPath = path.join(
-      generatedTestDir,
-      'r-cw-6-typed-fixture.generated.test.ts',
-    );
-    const delegateTestPath = path.join(
-      generatedTestDir,
-      'r-cw-6-delegate-fixture.generated.test.ts',
-    );
     writeFileSync(
-      runtimeTestPath,
+      path.join(worktreeDir, RUNTIME_BOUNDARY_TEST),
       renderToolSurfaceTemplate(readFileSync(RUNTIME_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
     writeFileSync(
-      typedTestPath,
+      path.join(worktreeDir, TYPED_TOOL_SURFACE_TEST),
       renderToolSurfaceTemplate(readFileSync(TYPED_TOOL_SURFACE_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
     writeFileSync(
-      delegateTestPath,
+      path.join(worktreeDir, DELEGATE_BOUNDARY_TEST),
       renderToolSurfaceTemplate(readFileSync(DELEGATE_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
@@ -690,13 +695,7 @@ function runDisposableToolSurface({
 
     const dispatchRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts',
-        '--reporter=verbose',
-      ],
+      vitestArgs(CANDIDATE_REGRESSION_TEST),
       { cwd: worktreeDir, env: isolatedEnv },
     );
     retainCommandDiagnostics(diagnosticsDir, 'candidate-regression', dispatchRun);
@@ -712,13 +711,7 @@ function runDisposableToolSurface({
 
     const selectedDelegateRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/r-cw-6-delegate-fixture.generated.test.ts',
-        '--reporter=verbose',
-      ],
+      vitestArgs(DELEGATE_BOUNDARY_TEST),
       {
         cwd: worktreeDir,
         env: { ...isolatedEnv, RCW6_DELEGATE_RECEIPT_PATH: rawDelegateReceiptPath },
@@ -729,13 +722,7 @@ function runDisposableToolSurface({
 
     const runtimeRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/r-cw-6-runtime-fixture.generated.test.ts',
-        '--reporter=verbose',
-      ],
+      vitestArgs(RUNTIME_BOUNDARY_TEST),
       {
         cwd: worktreeDir,
         env: {
@@ -749,13 +736,7 @@ function runDisposableToolSurface({
 
     const typedRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/r-cw-6-typed-fixture.generated.test.ts',
-        '--reporter=verbose',
-      ],
+      vitestArgs(TYPED_TOOL_SURFACE_TEST),
       {
         cwd: worktreeDir,
         env: {
@@ -836,32 +817,7 @@ export function runFixture(args) {
     maxChainLength: args.maxChainLength,
   });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
-  const candidateRuntimeReceipt = {
-    candidateWorktreeHead: runtimeSurface.candidateRuntime.candidateWorktreeHead,
-    candidateLockfileSha256: runtimeSurface.candidateRuntime.candidateLockfileSha256,
-    installedLockfileSha256: runtimeSurface.candidateRuntime.installedLockfileSha256,
-    candidateWorkspaceGraphSha256:
-      runtimeSurface.candidateRuntime.candidateWorkspaceGraphSha256,
-    packageManagerBootstrapSha256:
-      runtimeSurface.candidateRuntime.packageManagerBootstrapSha256,
-    installedGraphMatchesCandidate:
-      runtimeSurface.candidateRuntime.installedGraphMatchesCandidate,
-    packageManagerBootstrapValidated:
-      runtimeSurface.candidateRuntime.packageManagerBootstrapValidated,
-    candidatePackageManager: runtimeSurface.candidateRuntime.candidatePackageManager,
-    candidatePackageManagerVersion: runtimeSurface.candidateRuntime.candidatePackageManagerVersion,
-    executingPackageManagerVersion: runtimeSurface.candidateRuntime.executingPackageManagerVersion,
-    installedPackageManager: runtimeSurface.candidateRuntime.installedPackageManager,
-    installedPackageManagerVersion: runtimeSurface.candidateRuntime.installedPackageManagerVersion,
-    virtualStoreDir: runtimeSurface.candidateRuntime.virtualStoreDir,
-    virtualStoreContainedWithinCandidateNodeModules:
-      runtimeSurface.candidateRuntime.virtualStoreContainedWithinCandidateNodeModules,
-    installCommand: runtimeSurface.candidateRuntime.installCommand,
-    installExitCode: runtimeSurface.candidateRuntime.installExitCode,
-    localExecutableContract: runtimeSurface.candidateRuntime.localExecutableContract,
-    worktreeIntegrity: runtimeSurface.candidateRuntime.worktreeIntegrity,
-    hostToolchainHermetic: runtimeSurface.candidateRuntime.hostToolchainHermetic,
-  };
+  const candidateRuntimeReceipt = { ...runtimeSurface.candidateRuntime };
   const matrixRun = runtimeSurface.matrixRun;
   const matrix = runtimeSurface.matrix;
   const matrixPassed = Boolean(
@@ -921,22 +877,12 @@ export function runFixture(args) {
       ...selectedDelegateReceipt,
       passed: selectedDelegatePassed,
       asserted: selectedDelegateAssertions,
-      command: [
-        'node_modules/.bin/vitest',
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/r-cw-6-delegate-fixture.generated.test.ts',
-        '--reporter=verbose',
-      ],
+      command: publicVitestCommand(DELEGATE_BOUNDARY_TEST),
       exitCode: runtimeSurface.selectedDelegateRun.exitCode,
     },
     candidateRegressionSuite: {
       passed: candidateDispatchSuitePassed,
-      command: [
-        'node_modules/.bin/vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts', '--reporter=verbose',
-      ],
+      command: publicVitestCommand(CANDIDATE_REGRESSION_TEST),
       exitCode: dispatchRun.exitCode,
       asserted: dispatchAssertions,
     },
@@ -989,14 +935,7 @@ export function runFixture(args) {
     ...candidateRuntimeReceipt,
     schema: 'openclaw.project81.r-cw-6.runtime-boundary.v1',
     passed: runtimeBoundaryPassed,
-    command: [
-      'node_modules/.bin/vitest',
-      'run',
-      '--config',
-      'test/vitest/vitest.auto-reply.config.ts',
-      'src/auto-reply/continuation/r-cw-6-runtime-fixture.generated.test.ts',
-      '--reporter=verbose',
-    ],
+    command: publicVitestCommand(RUNTIME_BOUNDARY_TEST),
     exitCode: runtimeSurface.runtimeExitCode,
     fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
   };
@@ -1015,14 +954,7 @@ export function runFixture(args) {
     ...candidateRuntimeReceipt,
     schema: 'openclaw.project81.r-cw-6.typed-tool-surface.v1',
     passed: typedToolSurfacePassed,
-    command: [
-      'node_modules/.bin/vitest',
-      'run',
-      '--config',
-      'test/vitest/vitest.auto-reply.config.ts',
-      'src/auto-reply/continuation/r-cw-6-typed-fixture.generated.test.ts',
-      '--reporter=verbose',
-    ],
+    command: publicVitestCommand(TYPED_TOOL_SURFACE_TEST),
     exitCode: runtimeSurface.typedExitCode,
     fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
     productionConfigTouched: false,

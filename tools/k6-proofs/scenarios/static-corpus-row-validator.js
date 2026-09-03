@@ -79,13 +79,17 @@ function loadBoundaryProducer(rowId) {
   }
 }
 
+function sourceRowFor(rowId) {
+  if (rowId === 'R-CW-5A') return 'R-CW-5';
+  if (rowId === 'R-CW-6A') return 'R-CW-6';
+  return rowId;
+}
+
 const selectedRow = manifest?.rowId || '';
 // R-CW-5A/6A validate the same committed source/harness material as the live
 // cap rows, but deliberately emit a construct-only result.  They must never
 // be mistaken for a freshly fired R-CW-5/6 cap receipt.
-const sourceRow = selectedRow === 'R-CW-5A' ? 'R-CW-5'
-  : selectedRow === 'R-CW-6A' ? 'R-CW-6'
-    : selectedRow;
+const sourceRow = sourceRowFor(selectedRow);
 const isStaticBoundaryVariant = sourceRow !== selectedRow;
 const roots = {
   rcw7: rowRoot('R-CW-7'),
@@ -322,6 +326,14 @@ function validateBoundaryProducerConsumer(producer) {
   };
 }
 
+function validateRcw5A() {
+  return validateBoundaryProducerConsumer(corpus.rcw5Producer);
+}
+
+function validateRcw6A() {
+  return validateBoundaryProducerConsumer(corpus.rcw6Producer);
+}
+
 const validators = {
   'R-CW-7': validateRcw7,
   'R-CW-DELEGATE-CHILD-LIVE': validateDelegateChildLive,
@@ -331,8 +343,8 @@ const validators = {
   'R-CW-MULTI-COLLAPSE': validateRcwMultiCollapse,
   'R-CW-5': validateRcw5,
   'R-CW-6': validateRcw6,
-  'R-CW-5A': () => validateBoundaryProducerConsumer(corpus.rcw5Producer),
-  'R-CW-6A': () => validateBoundaryProducerConsumer(corpus.rcw6Producer),
+  'R-CW-5A': validateRcw5A,
+  'R-CW-6A': validateRcw6A,
 };
 
 export default function () {

@@ -199,6 +199,31 @@ function validRcw6Provenance(provenance, candidateSha) {
   );
 }
 
+function rcw6Provenance(receipt) {
+  if (!receipt || typeof receipt !== 'object') return null;
+  return {
+    candidateWorktreeHead: receipt.candidateWorktreeHead ?? receipt.candidateSha,
+    candidateLockfileSha256: receipt.candidateLockfileSha256,
+    installedLockfileSha256: receipt.installedLockfileSha256,
+    candidateWorkspaceGraphSha256: receipt.candidateWorkspaceGraphSha256,
+    packageManagerBootstrapSha256: receipt.packageManagerBootstrapSha256,
+    installedGraphMatchesCandidate: receipt.installedGraphMatchesCandidate,
+    packageManagerBootstrapValidated: receipt.packageManagerBootstrapValidated,
+    candidatePackageManager: receipt.candidatePackageManager,
+    candidatePackageManagerVersion: receipt.candidatePackageManagerVersion,
+    executingPackageManagerVersion: receipt.executingPackageManagerVersion,
+    installedPackageManager: receipt.installedPackageManager,
+    installedPackageManagerVersion: receipt.installedPackageManagerVersion,
+    virtualStoreDir: receipt.virtualStoreDir,
+    virtualStoreContainedWithinCandidateNodeModules:
+      receipt.virtualStoreContainedWithinCandidateNodeModules,
+    installCommand: receipt.installCommand,
+    localExecutableContract: receipt.localExecutableContract,
+    worktreeIntegrity: receipt.worktreeIntegrity,
+    hostToolchainHermetic: receipt.hostToolchainHermetic,
+  };
+}
+
 function validateRcw5(candidateSha, receipts) {
   const result = receipts['fixture-result.json'];
   const readiness = receipts['fixture-readiness.json'];
@@ -277,30 +302,7 @@ function validateRcw6(candidateSha, receipts) {
     typed,
     dispatch,
     cleanup,
-  ].map((receipt) => {
-    if (!receipt || typeof receipt !== 'object') return null;
-    return {
-      candidateWorktreeHead: receipt.candidateWorktreeHead ?? receipt.candidateSha,
-      candidateLockfileSha256: receipt.candidateLockfileSha256,
-      installedLockfileSha256: receipt.installedLockfileSha256,
-      candidateWorkspaceGraphSha256: receipt.candidateWorkspaceGraphSha256,
-      packageManagerBootstrapSha256: receipt.packageManagerBootstrapSha256,
-      installedGraphMatchesCandidate: receipt.installedGraphMatchesCandidate,
-      packageManagerBootstrapValidated: receipt.packageManagerBootstrapValidated,
-      candidatePackageManager: receipt.candidatePackageManager,
-      candidatePackageManagerVersion: receipt.candidatePackageManagerVersion,
-      executingPackageManagerVersion: receipt.executingPackageManagerVersion,
-      installedPackageManager: receipt.installedPackageManager,
-      installedPackageManagerVersion: receipt.installedPackageManagerVersion,
-      virtualStoreDir: receipt.virtualStoreDir,
-      virtualStoreContainedWithinCandidateNodeModules:
-        receipt.virtualStoreContainedWithinCandidateNodeModules,
-      installCommand: receipt.installCommand,
-      localExecutableContract: receipt.localExecutableContract,
-      worktreeIntegrity: receipt.worktreeIntegrity,
-      hostToolchainHermetic: receipt.hostToolchainHermetic,
-    };
-  });
+  ].map(rcw6Provenance);
   const provenanceAgreement =
     provenances.every(Boolean) && provenances.every((value) => sameValue(value, provenances[0]));
   const provenanceValid = provenanceAgreement && validRcw6Provenance(provenances[0], candidateSha);
@@ -381,10 +383,12 @@ export function validateBoundaryProducerReceiptSet({ rowId, candidateSha, receip
       },
     };
   }
-  const validation =
-    rowId === 'R-CW-5'
-      ? validateRcw5(candidateSha, receipts)
-      : validateRcw6(candidateSha, receipts);
+  let validation;
+  if (rowId === 'R-CW-5') {
+    validation = validateRcw5(candidateSha, receipts);
+  } else {
+    validation = validateRcw6(candidateSha, receipts);
+  }
   return {
     passed: validation.passed,
     checks: {

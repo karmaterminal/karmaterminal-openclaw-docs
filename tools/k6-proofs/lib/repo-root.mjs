@@ -19,7 +19,7 @@
  * this module: a caller standing outside any proof harness fails closed with an
  * explicit contract error instead of validating an unrelated catalog.
  */
-import { realpathSync, statSync } from 'node:fs';
+import { lstatSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 export const PROOFS_TOOL_DIR = path.join('tools', 'k6-proofs');
@@ -45,6 +45,12 @@ function canonical(candidate) {
   } catch {
     return path.resolve(candidate);
   }
+}
+
+function isWithin(parent, candidate) {
+  const relative = path.relative(parent, candidate);
+  return relative === '' ||
+    (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
 }
 
 /**
@@ -130,4 +136,76 @@ export function resolveRepositoryRoot({ argv = [], cwd = process.cwd(), env = pr
 /** Join a path underneath the resolved `tools/k6-proofs` directory. */
 export function proofsToolPath(root, ...segments) {
   return path.join(root, PROOFS_TOOL_DIR, ...segments);
+}
+
+/**
+ * Resolve a regular, non-symlink file inside one canonical repository root.
+ * Relative inputs are always rooted at the repository, never process.cwd().
+ * A relative input must also resolve unambiguously: if the caller's actual
+ * working directory names a different file at that same relative path,
+ * resolution fails closed instead of silently preferring the repository-rooted
+ * interpretation.
+ *
+ * @param {string} root - the repository root, resolved to its canonical path.
+ * @param {string} input - an absolute path, or a path relative to the repository root.
+ * @param {{cwd?: string, label?: string}} [options]
+ * @returns {string} the canonical, symlink-free absolute path to the file.
+ */
+export function resolveRepositoryFile(root, input, {
+  cwd = process.cwd(),
+  label = 'repository file',
+} = {}) {
+  const repositoryRoot = canonical(path.resolve(root));
+  if (!isRepositoryRoot(repositoryRoot)) {
+    throw new Error(`${label} repository root is not a proof harness: ${repositoryRoot}`);
+  }
+  if (typeof input !== 'string' || !input.trim()) {
+    throw new Error(`${label} path is required`);
+  }
+
+  const supplied = input.trim();
+  const candidate = path.isAbsolute(supplied)
+    ? path.resolve(supplied)
+    : path.resolve(repositoryRoot, supplied);
+  if (!isWithin(repositoryRoot, candidate)) {
+    throw new Error(`${label} escapes repository root`);
+  }
+
+  let info;
+  try {
+    info = lstatSync(candidate);
+  } catch (error) {
+    if (error?.code === 'ENOENT') throw new Error(`${label} does not exist under repository root`);
+    throw error;
+  }
+  if (info.isSymbolicLink()) throw new Error(`${label} must not be a symbolic link`);
+  if (!info.isFile()) throw new Error(`${label} must be a regular file`);
+
+  const resolved = realpathSync.native(candidate);
+  if (!isWithin(repositoryRoot, resolved)) {
+    throw new Error(`${label} resolves outside repository root`);
+  }
+  if (resolved !== candidate) {
+    throw new Error(`${label} path contains a symbolic link`);
+  }
+
+  if (!path.isAbsolute(supplied)) {
+    const cwdCandidate = path.resolve(cwd, supplied);
+    if (cwdCandidate !== candidate) {
+      // No file at the cwd-relative path is fine: there is nothing to conflict
+      // with the repository-rooted file. Anything else must name that same file.
+      let cwdMatchesRepositoryFile = true;
+      try {
+        const cwdInfo = lstatSync(cwdCandidate);
+        const cwdResolved = realpathSync.native(cwdCandidate);
+        cwdMatchesRepositoryFile = cwdInfo.isFile() && !cwdInfo.isSymbolicLink() && cwdResolved === resolved;
+      } catch (error) {
+        if (error?.code !== 'ENOENT') throw error;
+      }
+      if (!cwdMatchesRepositoryFile) {
+        throw new Error(`${label} is ambiguous relative to the caller working directory`);
+      }
+    }
+  }
+  return resolved;
 }

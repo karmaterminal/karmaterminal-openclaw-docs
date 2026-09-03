@@ -83,6 +83,15 @@ return routing only and is never used to select the disposable parent owner.
 A missing, invisible, nonexistent, or mismatched owner binding stops before
 child creation.
 
+Repository-relative `OPENCLAW_ANCILLARY_RUNTIME_CONTRACT` values are resolved
+from the immutable snapshot's canonical docs repository root, independent of
+the caller working directory. The resolver rejects path escape, symlinks,
+missing or nonregular files, and conflicting cwd-relative shadows. Absolute
+paths are accepted only when their lexical and real paths identify the same
+regular file inside that canonical repository root. Contract bytes are read
+again after provenance validation and must remain identical before a receipt
+is written.
+
 Expected pre-dispatch receipt:
 `ancillary-runtime-provenance.json`, proving the exact pure/runtime trees,
 two-commit chain, both patch digests, exact 22-path union, and unchanged

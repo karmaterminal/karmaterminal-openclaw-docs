@@ -18,6 +18,11 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.ok(buildGate > 0 && prepared > buildGate && surfaceGate > prepared &&
     ownerGate > surfaceGate && disposableGate > ownerGate && k6 > disposableGate);
   assert.match(source, /validate-ancillary-runtime-provenance\.mjs/);
+  assert.match(source, /--repo-root "\$EXEC_ROOT"/);
+  assert.match(
+    source,
+    /OPENCLAW_ANCILLARY_RUNTIME_CONTRACT:-tools\/k6-proofs\/contracts\/ancillary-runtime\/129388-pure5035-dbf5795\.json/,
+  );
   assert.match(source, /reviewed-ancillary-runtime/);
   assert.match(source, /canonicalIdentityRemainsPure:true/);
   assert.match(source, /OPENCLAW_RUNTIME_SOURCE_DIR/);

@@ -1,19 +1,24 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
   readAncillaryRuntimeContract,
   validateAncillaryRuntimeProvenance,
 } from '../../lib/ancillary-runtime-provenance.mjs';
+import { resolveRepositoryFile } from '../../lib/repo-root.mjs';
 
 const git = (root, args) =>
   execFileSync('/usr/bin/git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
 const hash = (value) => createHash('sha256').update(value).digest('hex');
+const harnessRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
+const validator = path.join(harnessRoot, 'tools/k6-proofs/scripts/validate-ancillary-runtime-provenance.mjs');
+const contractRelative = 'tools/k6-proofs/contracts/ancillary-runtime/test-contract.json';
 
 async function buildRepository() {
   const root = await mkdtemp(path.join(os.tmpdir(), 'ancillary-runtime-'));
@@ -32,6 +37,7 @@ async function buildRepository() {
     await mkdir(path.dirname(path.join(root, relative)), { recursive: true });
     await writeFile(path.join(root, relative), `${relative}\n`);
   }
+
   git(root, ['add', '.']);
   git(root, ['commit', '--quiet', '-m', 'component one']);
   const first = git(root, ['rev-parse', 'HEAD']);
@@ -81,6 +87,35 @@ async function buildRepository() {
       },
     },
   };
+}
+
+async function buildHarness(contract) {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ancillary-contract-root-'));
+  const proofs = path.join(root, 'tools/k6-proofs');
+  const contractPath = path.join(root, contractRelative);
+  await mkdir(path.join(proofs, 'manifests'), { recursive: true });
+  await mkdir(path.join(proofs, 'scenarios'), { recursive: true });
+  await mkdir(path.dirname(contractPath), { recursive: true });
+  await mkdir(path.join(proofs, 'scripts/nested'), { recursive: true });
+  await writeFile(contractPath, `${JSON.stringify(contract, null, 2)}\n`);
+  return { root, proofs, contractPath };
+}
+
+function invokeValidator({ cwd, docsRoot, runtime, contract = contractRelative, out }) {
+  return spawnSync(process.execPath, [
+    validator,
+    '--repo-root', docsRoot,
+    '--contract', contract,
+    '--source-dir', runtime.root,
+    '--row', 'R-CD-TOKEN',
+    '--candidate-sha', runtime.contract.canonicalSha,
+    '--runtime-sha', runtime.contract.runtimeSha,
+    '--out', out,
+  ], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, OPENCLAW_PROOFS_REPO_ROOT: '' },
+  });
 }
 
 test('strict ancillary runtime provenance accepts only the reviewed two-commit union', async () => {
@@ -137,4 +172,84 @@ test('committed 129388 contract keeps pure identity and exact reviewed runtime',
   assert.equal(contract.runtimeSha, 'dbf5795bd5dd406f586575d883a7878288e591ad');
   assert.equal(contract.changedPaths.length, 22);
   assert.deepEqual(contract.materiality.allowedRows, ['R-CD-TOKEN']);
+});
+
+test('rejected-base cwd lookup reproduces ENOENT while repository-root resolution is identical', async () => {
+  const runtime = await buildRepository();
+  const docs = await buildHarness(runtime.contract);
+  try {
+    assert.throws(
+      () => readAncillaryRuntimeContract(path.resolve(docs.proofs, contractRelative)),
+      /ENOENT/,
+    );
+
+    const workingDirectories = [
+      docs.root,
+      docs.proofs,
+      path.join(docs.proofs, 'scripts/nested'),
+    ];
+    const receipts = [];
+    for (const [index, cwd] of workingDirectories.entries()) {
+      const out = path.join(docs.root, `receipt-${index}.json`);
+      const result = invokeValidator({ cwd, docsRoot: docs.root, runtime, out });
+      assert.equal(result.status, 0, result.stderr);
+      receipts.push(JSON.parse(await readFile(out, 'utf8')));
+    }
+    assert.deepEqual(receipts[1], receipts[0]);
+    assert.deepEqual(receipts[2], receipts[0]);
+    assert.equal(receipts[0].contractSha256, hash(`${JSON.stringify(runtime.contract)}\n`));
+  } finally {
+    await rm(docs.root, { recursive: true, force: true });
+    await rm(runtime.root, { recursive: true, force: true });
+  }
+});
+
+test('repository contract resolver rejects escape, symlink, missing, nonregular, and cwd ambiguity', async () => {
+  const runtime = await buildRepository();
+  const docs = await buildHarness(runtime.contract);
+  const outside = path.join(path.dirname(docs.root), `${path.basename(docs.root)}-outside.json`);
+  const linked = path.join(path.dirname(docs.contractPath), 'linked.json');
+  const nested = path.join(docs.proofs, 'scripts/nested');
+  try {
+    await writeFile(outside, '{}\n');
+    await symlink(docs.contractPath, linked);
+    await mkdir(path.join(docs.root, 'directory-contract'));
+
+    assert.throws(
+      () => resolveRepositoryFile(docs.root, `../${path.basename(outside)}`),
+      /escapes repository root/,
+    );
+    assert.throws(
+      () => resolveRepositoryFile(docs.root, path.relative(docs.root, linked)),
+      /symbolic link/,
+    );
+    assert.throws(
+      () => resolveRepositoryFile(docs.root, 'tools/k6-proofs/contracts/missing.json'),
+      /does not exist/,
+    );
+    assert.throws(
+      () => resolveRepositoryFile(docs.root, 'directory-contract'),
+      /regular file/,
+    );
+    assert.equal(
+      resolveRepositoryFile(docs.root, docs.contractPath),
+      docs.contractPath,
+    );
+    assert.throws(
+      () => resolveRepositoryFile(docs.root, outside),
+      /escapes repository root/,
+    );
+
+    const shadow = path.resolve(nested, contractRelative);
+    await mkdir(path.dirname(shadow), { recursive: true });
+    await writeFile(shadow, '{}\n');
+    assert.throws(
+      () => resolveRepositoryFile(docs.root, contractRelative, { cwd: nested }),
+      /ambiguous relative to the caller working directory/,
+    );
+  } finally {
+    await rm(outside, { force: true });
+    await rm(docs.root, { recursive: true, force: true });
+    await rm(runtime.root, { recursive: true, force: true });
+  }
 });

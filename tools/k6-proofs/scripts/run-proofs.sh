@@ -988,11 +988,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         if [[ "$OPENCLAW_CANDIDATE_SHA" == "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
           TOKEN_RUNTIME_IDENTITY_VALID=true
         else
-          ANCILLARY_CONTRACT="${OPENCLAW_ANCILLARY_RUNTIME_CONTRACT:-$REPO_ROOT/tools/k6-proofs/contracts/ancillary-runtime/129388-pure5035-dbf5795.json}"
+          ANCILLARY_CONTRACT="${OPENCLAW_ANCILLARY_RUNTIME_CONTRACT:-tools/k6-proofs/contracts/ancillary-runtime/129388-pure5035-dbf5795.json}"
           ANCILLARY_SOURCE="${OPENCLAW_RUNTIME_SOURCE_DIR:-}"
           TOKEN_RUNTIME_PROVENANCE_FILE="$RUN_DIR/ancillary-runtime-provenance.json"
           if [[ -n "$ANCILLARY_SOURCE" ]] &&
             node "$SCRIPT_DIR/validate-ancillary-runtime-provenance.mjs" \
+              --repo-root "$EXEC_ROOT" \
               --contract "$ANCILLARY_CONTRACT" \
               --source-dir "$ANCILLARY_SOURCE" \
               --row R-CD-TOKEN \

@@ -1,0 +1,30 @@
+{
+  "schema": "openclaw.k6.ancillary-runtime-provenance.v1",
+  "row": "R-CD-TOKEN",
+  "valid": true,
+  "canonicalSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "canonicalTree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
+  "runtimeSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "runtimeTree": "cf19ec824826b830822074eca90f801120f675ab",
+  "contractSha256": "21072a0e3d59aa0c7b598424fab4e1c20b8938cc6d71b2d79a74670ab99f3a7f",
+  "commitChain": [
+    {
+      "sha": "b56152b165689044b07449a1ce50ef9d292d5700",
+      "parent": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+      "tree": "ff9daab672c141d3ef68c5cd1c08803bbb74a64d",
+      "component": "#124337",
+      "patchSha256": "e942709ff4a6893b72e949e91f8d27c59b78f2faaa63336a524f0eee46dda995"
+    },
+    {
+      "sha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+      "parent": "b56152b165689044b07449a1ce50ef9d292d5700",
+      "tree": "cf19ec824826b830822074eca90f801120f675ab",
+      "component": "#121204",
+      "patchSha256": "486499bad1f175b187666acc14fb712dafbca1ce1d055336c1162607797b357a"
+    }
+  ],
+  "changedPathCount": 22,
+  "changedPathsSha256": "1fb1f58584b2a48cf2eaa7dbd6c76ed13ec92ace4c9b2332b27263b0e3b10fd2",
+  "ownerPathsUnchanged": true,
+  "canonicalIdentityRemainsPure": true
+}

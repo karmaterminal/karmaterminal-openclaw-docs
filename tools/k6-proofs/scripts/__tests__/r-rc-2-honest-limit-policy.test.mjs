@@ -17,13 +17,27 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   assert.match(scenario, /childSessionKeyForRow\([\s\S]*classified\.payload,[\s\S]*rowNonce,[\s\S]*\[taskIdentityToken\]/);
   assert.match(scenario, /compactTaskIdentityToken\('RRC2', rowNonce\)/);
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate, rowNonce\)/);
-  assert.match(scenario, /findRequestCompactionReceipt\(messages, \{ rowNonce \}\)/);
+  assert.match(
+    scenario,
+    /findRequestCompactionReceipt\(messages, \{[\s\S]*rowNonce,[\s\S]*requireCanonicalNumericThreshold: true/,
+  );
   assert.match(scenario, /request_compaction_receipt_role = 'toolResult'/);
   assert.match(scenario, /request_compaction_receipt_tool_name = 'request_compaction'/);
   assert.match(scenario, /request_compaction_invocation_bound = receipt\.nonceBound === true/);
   assert.match(scenario, /receipt\.kind === 'threshold_rejected' && receipt\.nonceBound === true/);
   assert.match(scenario, /function maybeCloseCompletedProof\(\)/);
   assert.match(scenario, /hasAuthoritativeThresholdReceipt\(\)[\s\S]+child_reported_context_threshold/);
+  assert.match(scenario, /isCanonicalThresholdRejectionReceipt/);
+  assert.match(scenario, /reported_context_usage === evidence\.context_usage/);
+  assert.match(scenario, /reported_threshold === evidence\.threshold/);
+  assert.match(scenario, /eventSessionKey === evidence\.child_session_key/);
+  assert.match(scenario, /parent_delegate_tool_call_count/);
+  assert.match(scenario, /parent_delegate_arguments_exact/);
+  assert.match(scenario, /findContinueDelegateCall/);
+  assert.match(scenario, /observeRrc2ParentDelegateCall/);
+  assert.match(scenario, /\\d\+\(\?:\\\.\\d\+\)\?/);
+  assert.match(scenario, /Call continue_delegate exactly once with only mode="normal", delaySeconds=0/);
+  assert.match(scenario, /Do not add recipientContext, returnOptions/);
   assert.match(scenario, /const verifiedThresholdOutcome =[\s\S]+child_reported_context_threshold/);
   assert.match(scenario, /verifiedThresholdOutcome[\s\S]+HONEST-LIMIT-candidate/);
   assert.match(scenario, /const verifiedPostCompactionOutcome =[\s\S]+post_compaction_path_observed/);
@@ -104,6 +118,10 @@ async function postprocessOutcome({
 test('R-RC-2 summary processing cannot promote report-only evidence', async () => {
   const base = {
     row: 'R-RC-2',
+    parent_delegate_argument_policy_valid: true,
+    parent_delegate_tool_call_count: 1,
+    parent_delegate_argument_keys: ['delaySeconds', 'mode', 'task'],
+    parent_delegate_arguments_exact: true,
     parent_dispatch_accepted: true,
     delegate_requested: true,
     child_session_observed: true,
@@ -131,9 +149,53 @@ test('R-RC-2 summary processing cannot promote report-only evidence', async () =
       request_compaction_receipt_status: 'rejected',
       request_compaction_rejected_context_threshold: true,
       guard: 'context_threshold',
+      context_usage: 10,
+      threshold: 70,
+      reported_context_usage: 10,
+      reported_threshold: 70,
     },
     runId: 'threshold-receipt',
   }), 'HONEST-LIMIT-candidate');
+  assert.equal(await postprocessOutcome({
+    evidence: {
+      ...base,
+      child_reported_context_threshold: true,
+      request_compaction_receipt_status: 'rejected',
+      request_compaction_rejected_context_threshold: true,
+      guard: 'context_threshold',
+      context_usage: 12.5,
+      threshold: 70,
+      reported_context_usage: 12.5,
+      reported_threshold: 70,
+    },
+    runId: 'decimal-threshold-receipt',
+  }), 'HONEST-LIMIT-candidate');
+  for (const invalidNumeric of [
+    { context_usage: null },
+    { threshold: null },
+    { context_usage: Number.NaN },
+    { threshold: 71 },
+    { context_usage: 70 },
+    { reported_context_usage: null },
+    { reported_threshold: null },
+    { reported_context_usage: 11 },
+  ]) {
+    assert.equal(await postprocessOutcome({
+      evidence: {
+        ...base,
+        child_reported_context_threshold: true,
+        request_compaction_receipt_status: 'rejected',
+        request_compaction_rejected_context_threshold: true,
+        guard: 'context_threshold',
+        context_usage: 10,
+        threshold: 70,
+        reported_context_usage: 10,
+        reported_threshold: 70,
+        ...invalidNumeric,
+      },
+      runId: `invalid-numeric-${Object.keys(invalidNumeric)[0]}`,
+    }), 'PARTIAL-candidate');
+  }
   assert.equal(await postprocessOutcome({
     evidence: {
       ...base,

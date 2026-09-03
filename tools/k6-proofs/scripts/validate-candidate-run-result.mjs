@@ -8,6 +8,9 @@
 import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import {
+  hasVerifiedRrc2Outcome,
+} from '../lib/request-compaction-receipt.js';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
@@ -136,40 +139,6 @@ function scenarioName(manifest) {
 function manifestCandidateSha(manifest) {
   const value = manifest?.candidateSha;
   return SHA.test(value || '') ? value : null;
-}
-
-function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {
-  if (rowId !== 'R-RC-2') return verdict !== 'HONEST-LIMIT-candidate';
-  if (verdict === 'HONEST-LIMIT-candidate') return (
-    evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.child_reported_context_threshold === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_rejected_context_threshold === true &&
-    evidence.guard === 'context_threshold'
-  );
-  if (verdict === 'PASS-candidate') return (
-    evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.post_compaction_path_observed === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'accepted' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_accepted === true
-  );
-  return true;
 }
 
 function authoritativeReceiptContract(rowId) {

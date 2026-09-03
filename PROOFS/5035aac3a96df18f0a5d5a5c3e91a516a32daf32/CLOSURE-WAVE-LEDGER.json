@@ -1,0 +1,333 @@
+{
+  "schema": "openclaw.proofs.closure-wave-ledger.v1",
+  "status": "PROOF_WAVE_READY",
+  "canonical": {
+    "pure_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+    "pure_tree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
+    "structural_checkpoint": "5112637f92033f25276a7925d3c209d5da2f593a",
+    "rollup": {
+      "total_rows": 38,
+      "pass": 21,
+      "partial": 7,
+      "thin": 0,
+      "fail": 1,
+      "honest_limit": 0,
+      "missing": 9
+    }
+  },
+  "runtime": {
+    "deployed_sha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+    "tree": "cf19ec824826b830822074eca90f801120f675ab",
+    "classification": "deployment-composite-not-final-product",
+    "fleet_exact": true,
+    "acceptance_reuse_after_successor": false
+  },
+  "presentation": {
+    "visible_sha": "43c8fb88",
+    "dirty_against_upstream": true,
+    "successor_sha": null,
+    "successor_fleet_deployed": false
+  },
+  "closed_r_cw_rows": [
+    {
+      "row": "R-CW-5",
+      "state": "pass",
+      "run_id": "run-20260903T055951Z-734fb48c"
+    },
+    {
+      "row": "R-CW-5A",
+      "state": "pass",
+      "run_id": "run-20260903T083714Z-26910927"
+    },
+    {
+      "row": "R-CW-6",
+      "state": "pass",
+      "run_id": "run-20260903T083304Z-159f4b0e"
+    },
+    {
+      "row": "R-CW-6A",
+      "state": "pass",
+      "run_id": "run-20260903T083721Z-597334cc"
+    }
+  ],
+  "existing_lanes": [
+    {
+      "scope": "R-CD-TOKEN product owner propagation",
+      "branch": "codeagent/1270-completion-owner-propagation",
+      "head": "7013c8e8a19f0ecdaab939d8d8cbab429f2404f3",
+      "tree": "7344cce912953739dadbd2f80a96eb5b0e5c19ac",
+      "status": "approved",
+      "reuse": "integrate into final successor; do not duplicate"
+    },
+    {
+      "scope": "R-RC-2 numeric child context and diagnostics",
+      "branch": "codeagent/129388-rrc2-threshold-log-regression",
+      "head": "e008fe0f1bd922211a7cf280827556626da9a341",
+      "tree": "aad05880143adbb2a0419e212b9c10d1da69be1b",
+      "status": "pending final successor integration and exact deployed child E2E",
+      "reuse": "preserve lane evidence; do not duplicate product work"
+    }
+  ],
+  "rrc2_path_specific_evidence": [
+    {
+      "path": "elliott",
+      "turn": 2,
+      "context_usage": 10,
+      "threshold": 70,
+      "classification": "numeric-live-runner-control",
+      "discord_messages": [
+        "1544929079554347151",
+        "1544929082704142356"
+      ]
+    },
+    {
+      "path": "rune",
+      "turn": 2,
+      "context_usage": null,
+      "threshold": null,
+      "classification": "path-specific-unknown-no-causal-attribution",
+      "discord_messages": [
+        "1544924842439090209",
+        "1544924976417734669"
+      ]
+    }
+  ],
+  "policy": {
+    "immediate_acceptance_refires": [],
+    "immediate_work": [
+      "corpus reconciliation",
+      "R-RC-2 parser and candidate-envelope numeric controls",
+      "producer command and artifact-contract preparation",
+      "five live PARTIAL rejected-base/successor controls",
+      "authority restart-transition control preparation",
+      "successor integration and refire matrix"
+    ],
+    "reason_no_immediate_acceptance_refires": "dbf5795b is the current deployment composite, not the pending final successor product. Evidence produced before the successor and its fleet deployment cannot close changed behavior.",
+    "only_permitted_final_non_pass": "R-RC-2 HONEST-LIMIT with nonce-bound structured request_compaction receipt, finite numeric contextUsage below canonical threshold 70, matching numeric child report, and trace"
+  },
+  "producer_rows": [
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE"
+  ],
+  "partial_control_rows": [
+    "R-CD-1",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-MODEL-TOOL",
+    "R-CD-SILENT"
+  ],
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "state": "partial",
+      "attempts": [
+        "20260903T025503Z-r-cd-1-e5b29554"
+      ],
+      "owner": "proof-conductor",
+      "command": "LIVE-R-CD-1",
+      "rejected_base": "parent send accepted; no authoritative scheduled child, return, or trace",
+      "successor_control": "one exact typed delegate task, one child, one bound return, and one correlated trace",
+      "gate": "final-successor-fleet-deployed"
+    },
+    {
+      "row": "R-CD-2",
+      "state": "fail",
+      "attempts": [
+        "20260903T030022Z-r-cd-2-e5b29554"
+      ],
+      "owner": "proof-conductor",
+      "command": "LIVE-R-CD-2",
+      "rejected_base": "signed missing-terminal-sentinel under mutable lifecycle-window correlation",
+      "successor_control": "deterministic ordered event identity binds scheduled tool result, exact terminal sentinel, lifecycle end, wake, and no channel delivery",
+      "gate": "reviewed-correlation-control-and-final-successor-fleet"
+    },
+    {
+      "row": "R-CD-4",
+      "state": "partial",
+      "attempts": [
+        "20260903T032056Z-r-cd-4-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "LIVE-R-CD-4",
+      "rejected_base": "target accepted; no child completion or target return",
+      "successor_control": "two disposable sessions prove exactly one return at target and none at parent",
+      "gate": "final-successor-fleet-deployed"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "state": "partial",
+      "attempts": [
+        "20260903T032540Z-r-cd-chained-depth-2-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "LIVE-R-CD-CHAINED-DEPTH-2",
+      "rejected_base": "child and grandchild prose appeared without authoritative spawn and root-return receipts",
+      "successor_control": "serial Chain-1/2/3 task identities with child, grandchild, and root return on one trace lineage",
+      "gate": "final-successor-fleet-deployed"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "state": "partial",
+      "attempts": [
+        "20260903T033245Z-r-cd-model-tool-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "LIVE-R-CD-MODEL-TOOL",
+      "rejected_base": "dispatch accepted; no child session, observed model, or return",
+      "successor_control": "one explicit model override bound to child task identity, observed runtime model, return, and trace",
+      "gate": "final-successor-fleet-deployed-and-model-available"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "state": "partial",
+      "attempts": [
+        "20260903T030457Z-r-cd-silent-e5b29554"
+      ],
+      "owner": "proof-conductor",
+      "command": "LIVE-R-CD-SILENT",
+      "rejected_base": "parent send accepted; no authoritative child completion, internal follow-up, or trace",
+      "successor_control": "one silent delegate completes and returns internally with zero channel delivery",
+      "gate": "final-successor-fleet-deployed"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "state": "partial",
+      "attempts": [
+        "20260903T033559Z-r-cd-token-877d5a31",
+        "20260903T060815Z-r-cd-token-0fd4f089",
+        "20260903T073850Z-r-cd-token-248195ae",
+        "20260903T083244Z-r-cd-token-0bd7d5ac"
+      ],
+      "owner": "codeagent/1270-completion-owner-propagation",
+      "command": "LIVE-R-CD-TOKEN",
+      "rejected_base": "exact token parsed, but completion owner was absent and delegate TaskFlow was never admitted",
+      "successor_control": "integrate approved 7013c8e8; exactly one owner-bound token delegate task, child, return, and trace",
+      "gate": "7013c8e8-in-final-successor-and-fleet-deployed"
+    },
+    {
+      "row": "R-RC-2",
+      "state": "partial",
+      "attempts": [
+        "20260903T025704Z-r-rc-2-ecde7aa4"
+      ],
+      "owner": "codeagent/129388-rrc2-threshold-log-regression",
+      "command": "LIVE-R-RC-2",
+      "rejected_base": "no child or structured receipt; prose echo and null numeric fields are non-authoritative",
+      "successor_control": "exact parent argument shape; child-bound toolResult; finite numeric contextUsage and canonical threshold 70; matching child report; preserve Elliott and Rune separately",
+      "gate": "approved-rrc2-fix-in-final-successor-and-fleet-deployed"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "state": "missing",
+      "attempts": [
+        "20260903T033120Z-r-cd-collection-on-collapse-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "PRODUCER-R-CD-COLLECTION-ON-COLLAPSE",
+      "rejected_base": "only the static consumer ran; no A-to-B-to-delayed-C producer packet exists",
+      "successor_control": "root A receives C after B terminal collapse with no orphan and exact task/trace lineage",
+      "gate": "reviewed-producer-harness-and-final-successor-fleet"
+    },
+    {
+      "row": "R-CW-7",
+      "state": "missing",
+      "attempts": [
+        "20260903T033814Z-r-cw-7-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "PRODUCER-R-CW-7",
+      "rejected_base": "static consumer found no current traceparent producer artifacts",
+      "successor_control": "exact final-product source/test receipt plus run-bound parent-child W3C traceparent propagation",
+      "gate": "final-successor-and-trace-producing-run"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "state": "missing",
+      "attempts": [
+        "20260903T033821Z-r-cw-delegate-child-live-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "PRODUCER-R-CW-DELEGATE-CHILD-LIVE",
+      "rejected_base": "only the static consumer ran; no live hop-2 completion packet exists",
+      "successor_control": "quiet owner-bound child schedules and completes fresh hop-2 with task and trace receipts",
+      "gate": "7013c8e8-in-final-successor-and-fleet-deployed"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "state": "missing",
+      "attempts": [
+        "20260903T033857Z-r-cw-delegate-token-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "PRODUCER-R-CW-DELEGATE-TOKEN",
+      "rejected_base": "only the static consumer ran; no light-context token hop-2 producer exists",
+      "successor_control": "owner-bound light-context child has no typed tool, emits terminal work token, and completes hop-2",
+      "gate": "7013c8e8-in-final-successor-and-fleet-deployed"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "state": "missing",
+      "attempts": [
+        "20260903T033912Z-r-cw-multi-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "PRODUCER-R-CW-MULTI",
+      "rejected_base": "only the static consumer ran; no three-election producer packet exists",
+      "successor_control": "one turn elects default, 60, and 120 second work; all three distinct outcomes and provenance are retained",
+      "gate": "final-successor-fleet-deployed"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "state": "missing",
+      "attempts": [
+        "20260903T033904Z-r-cw-multi-collapse-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "PRODUCER-R-CW-MULTI-COLLAPSE",
+      "rejected_base": "only the static consumer ran; no current stale/new collapse producer packet exists",
+      "successor_control": "newest and within-grace rows drive; stale older row folds; running row never folds; baseline restores",
+      "gate": "reviewed-isolated-fixture-on-final-successor"
+    },
+    {
+      "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+      "state": "missing",
+      "attempts": [
+        "rcv-f213595ab87cb6639a92bbe3bdb66ebf",
+        "rcv-bc6b9eb3a5dc1eaca1e36e001ce693ec"
+      ],
+      "owner": "proof-conductor",
+      "command": "AUTHORITY-RESTART-CONTROL",
+      "rejected_base": "first gateway-restart transition cleared current generation before replacement became usable; exact failure body was lost",
+      "successor_control": "one restart case/form retains transition HTTP body, replacement stdout/stderr, old/new process and socket fingerprints, observation, and cleanup",
+      "gate": "reviewed-restart-control-on-final-successor"
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "state": "missing",
+      "attempts": [
+        "20260903T033552Z-r-cd-return-overlap-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "CONSUMER-R-CD-RETURN-OVERLAP",
+      "rejected_base": "static consumer has no current authority/overlap producer receipt",
+      "successor_control": "consume only a complete authority fixture overlap receipt; no independent historical promotion",
+      "gate": "authority-pass"
+    },
+    {
+      "row": "R-OBS-2",
+      "state": "missing",
+      "attempts": [
+        "20260903T033944Z-r-obs-2-877d5a31"
+      ],
+      "owner": "proof-conductor",
+      "command": "OBSERVER-R-OBS-2",
+      "rejected_base": "static observer has no current run-bound trace tree",
+      "successor_control": "export exact parent-child trace trees after all trace-producing rows finish; bind every tree to row/run IDs",
+      "gate": "all-trace-producing-rows-terminal"
+    }
+  ]
+}

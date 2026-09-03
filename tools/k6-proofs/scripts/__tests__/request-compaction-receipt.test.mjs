@@ -5,8 +5,19 @@ import {
   effectiveToolNames,
   findRequestCompactionReceipt,
   hasEffectiveTool,
+  observeRrc2ParentDelegateCall,
   requestCompactionToolCallIdForNonce,
 } from '../../lib/request-compaction-receipt.js';
+
+function thresholdReceipt(overrides = {}) {
+  return {
+    status: 'rejected',
+    guard: 'context_threshold',
+    contextUsage: 10,
+    threshold: 70,
+    ...overrides,
+  };
+}
 
 test('reads request_compaction from the effective tool inventory', () => {
   const payload = {
@@ -44,7 +55,7 @@ test('accepts only a structured below-threshold tool result', () => {
 });
 
 test('accepts details-backed structured receipts', () => {
-  const receipt = { status: 'rejected', guard: 'context_threshold', threshold: 70 };
+  const receipt = thresholdReceipt();
   assert.equal(classifyRequestCompactionReceipt({
     message: {
       role: 'toolResult',
@@ -55,6 +66,91 @@ test('accepts details-backed structured receipts', () => {
   }).kind, 'threshold_rejected');
 });
 
+test('keeps the shared R-RC-1 classifier compatible with numeric-less threshold receipts', () => {
+  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  assert.equal(classifyRequestCompactionReceipt({
+    message: {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      details: receipt,
+    },
+  }).kind, 'threshold_rejected');
+  assert.equal(classifyRequestCompactionReceipt({
+    message: {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      details: receipt,
+    },
+  }, { requireCanonicalNumericThreshold: true }).kind, 'invalid');
+});
+
+test('deduplicates one parent continue_delegate tool call and rejects distinct or mutated calls', () => {
+  const args = { task: 'R-RC-2 child', mode: 'normal', delaySeconds: 0 };
+  const first = observeRrc2ParentDelegateCall(
+    { fingerprints: {} },
+    { toolCallId: 'call-one', args },
+  );
+  assert.deepEqual(
+    { count: first.count, keys: first.keys, exact: first.exact, violation: first.violation },
+    {
+      count: 1,
+      keys: ['delaySeconds', 'mode', 'task'],
+      exact: true,
+      violation: false,
+    },
+  );
+
+  const duplicate = observeRrc2ParentDelegateCall(first.state, {
+    toolCallId: 'call-one',
+    args: { ...args },
+  });
+  assert.equal(duplicate.count, 1);
+  assert.equal(duplicate.exact, true);
+  assert.equal(duplicate.violation, false);
+
+  const mutated = observeRrc2ParentDelegateCall(duplicate.state, {
+    toolCallId: 'call-one',
+    args: { ...args, recipientContext: 'invalid' },
+  });
+  assert.equal(mutated.count, 1);
+  assert.equal(mutated.violation, true);
+
+  const second = observeRrc2ParentDelegateCall(duplicate.state, {
+    toolCallId: 'call-two',
+    args,
+  });
+  assert.equal(second.count, 2);
+  assert.equal(second.violation, true);
+});
+
+test('rejects null, non-finite, non-numeric, and non-below-threshold receipts', () => {
+  const invalid = [
+    thresholdReceipt({ contextUsage: null }),
+    thresholdReceipt({ threshold: null }),
+    thresholdReceipt({ contextUsage: '10' }),
+    thresholdReceipt({ threshold: '70' }),
+    thresholdReceipt({ contextUsage: Number.NaN }),
+    thresholdReceipt({ contextUsage: Number.POSITIVE_INFINITY }),
+    thresholdReceipt({ contextUsage: -1 }),
+    thresholdReceipt({ contextUsage: 70 }),
+    thresholdReceipt({ threshold: 71 }),
+  ];
+  for (const receipt of invalid) {
+    const result = classifyRequestCompactionReceipt(
+      {
+        message: {
+          role: 'toolResult',
+          toolName: 'request_compaction',
+          toolCallId: 'call-invalid',
+          details: receipt,
+        },
+      },
+      { requireCanonicalNumericThreshold: true },
+    );
+    assert.equal(result.kind, 'invalid');
+  }
+});
+
 test('does not accept assistant sentinel prose as a tool receipt', () => {
   assert.deepEqual(classifyRequestCompactionReceipt({
     message: { role: 'assistant', content: [{ type: 'text', text: 'RC1-REJECTED' }] },
@@ -63,7 +159,7 @@ test('does not accept assistant sentinel prose as a tool receipt', () => {
 
 test('finds only the receipt bound to the current nonce-bearing tool call', () => {
   const rowNonce = 'R-RC-1-current-nonce';
-  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  const receipt = thresholdReceipt();
   const result = findRequestCompactionReceipt([
     { role: 'user', content: 'invoke it' },
     {
@@ -106,7 +202,7 @@ test('extracts the current request_compaction tool-call id from its nonce-bearin
 });
 
 test('rejects a prior valid result when the current nonce has no matching tool call/result', () => {
-  const priorReceipt = { status: 'rejected', guard: 'context_threshold' };
+  const priorReceipt = thresholdReceipt();
   assert.deepEqual(findRequestCompactionReceipt([
     {
       role: 'assistant',
@@ -129,7 +225,7 @@ test('rejects a prior valid result when the current nonce has no matching tool c
 });
 
 test('ignores a newer unrelated result and returns the result linked to the current call id', () => {
-  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  const receipt = thresholdReceipt();
   const result = findRequestCompactionReceipt([
     {
       role: 'assistant',
@@ -159,7 +255,7 @@ test('ignores a newer unrelated result and returns the result linked to the curr
 
 test('fails closed when the current nonce appears in two distinct request_compaction invocations', () => {
   const rowNonce = 'R-RC-1-current';
-  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  const receipt = thresholdReceipt();
   assert.deepEqual(findRequestCompactionReceipt([
     {
       role: 'assistant',
@@ -204,7 +300,7 @@ test('fails closed when a repeated current-nonce invocation has a non-threshold 
       role: 'toolResult',
       toolName: 'request_compaction',
       toolCallId: 'call-first',
-      content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', guard: 'context_threshold' }) }],
+      content: [{ type: 'text', text: JSON.stringify(thresholdReceipt()) }],
     },
     {
       role: 'assistant',
@@ -232,7 +328,7 @@ test('accepts duplicate transcript copies of the same current invocation id', ()
     name: 'request_compaction',
     arguments: { reason: `proof ${rowNonce}` },
   };
-  const receipt = { status: 'rejected', guard: 'context_threshold' };
+  const receipt = thresholdReceipt();
   const result = findRequestCompactionReceipt([
     { role: 'assistant', content: [call] },
     { role: 'assistant', content: [{ ...call }] },

@@ -45,3 +45,15 @@ owner. The exact terminal token was emitted and parsed, but completion
 announcement still failed with `AgentSelectionRequiredError`; the stable task
 ledger contained one completed origin task and zero delegate tasks. Its signed
 terminal receipt is `PARTIAL-candidate`. No retry was performed.
+
+## Closure wave after presentation advance
+
+`CLOSURE-WAVE-LEDGER.json` is the restart-safe authority for the remaining 17
+non-PASS rows. The executable staging packet is:
+
+`tools/k6-proofs/docs/FINAL-PROOF-CLOSURE-AFTER-PRESENTATION.md`
+
+Current `dbf5795b...` remains deployment provenance, not the pending final
+successor. No acceptance refire is authorized until the successor exists and
+its exact runtime is deployed fleet-wide. Harness/parser controls and producer
+command preparation may proceed now.

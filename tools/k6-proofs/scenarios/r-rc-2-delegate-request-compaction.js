@@ -17,7 +17,12 @@ import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { findRequestCompactionReceipt } from '../lib/request-compaction-receipt.js';
+import {
+  findRequestCompactionReceipt,
+  hasExactRrc2ParentDelegateArguments,
+  isCanonicalThresholdRejectionReceipt,
+  observeRrc2ParentDelegateCall,
+} from '../lib/request-compaction-receipt.js';
 import {
   childSessionKeyForRow,
   compactTaskIdentityToken,
@@ -54,6 +59,42 @@ function boolEnv(name, fallback = false) {
 
 function eventText(classified) {
   return JSON.stringify(classified.data || classified.payload || {});
+}
+
+function parseToolArguments(part) {
+  if (part?.arguments && typeof part.arguments === 'object') return part.arguments;
+  if (typeof part?.arguments === 'string') {
+    try { return JSON.parse(part.arguments); } catch { return null; }
+  }
+  if (part?.input && typeof part.input === 'object') return part.input;
+  if (typeof part?.input === 'string') {
+    try { return JSON.parse(part.input); } catch { return null; }
+  }
+  return null;
+}
+
+function findContinueDelegateCall(eventData, rowNonce) {
+  const message = eventData?.message || eventData?.payload?.message || eventData;
+  if (message?.role !== 'assistant' || !Array.isArray(message.content)) return null;
+  for (const part of message.content) {
+    if (part?.type !== 'toolCall') continue;
+    if ((part.name || part.toolName) !== 'continue_delegate') continue;
+    const args = parseToolArguments(part);
+    if (typeof args?.task === 'string' && args.task.includes(rowNonce)) {
+      return {
+        toolCallId: part.id || part.toolCallId || null,
+        args,
+      };
+    }
+  }
+  return null;
+}
+
+function sameStrings(left, right) {
+  if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) return false;
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((value, index) => value === sortedRight[index]);
 }
 
 export default function () {
@@ -93,6 +134,11 @@ export default function () {
     reason_hash: null,
     reason_length: null,
     delegate_mode: null,
+    parent_delegate_argument_policy_valid: false,
+    parent_delegate_tool_call_count: 0,
+    parent_delegate_argument_keys: [],
+    parent_delegate_arguments_exact: false,
+    parent_delegate_argument_violation: false,
     child_session_observed: false,
     child_session_key: null,
     child_history_requests: 0,
@@ -128,20 +174,29 @@ export default function () {
     let childHistoryPolls = 0;
     let childHistoryPollScheduled = false;
     let childHistoryPollInFlight = false;
+    let parentDelegateCallState = { fingerprints: {} };
 
     function hasAuthoritativeThresholdReceipt() {
-      return evidence.child_session_observed &&
+      return hasExactRrc2ParentDelegateArguments(evidence) &&
+        evidence.child_session_observed &&
         evidence.request_compaction_tool_result_observed &&
         evidence.request_compaction_receipt_role === 'toolResult' &&
         evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
         evidence.request_compaction_receipt_status === 'rejected' &&
         evidence.request_compaction_invocation_bound &&
         evidence.request_compaction_rejected_context_threshold &&
-        evidence.guard === 'context_threshold';
+        evidence.guard === 'context_threshold' &&
+        isCanonicalThresholdRejectionReceipt({
+          status: evidence.request_compaction_receipt_status,
+          guard: evidence.guard,
+          contextUsage: evidence.context_usage,
+          threshold: evidence.threshold,
+        });
     }
 
     function hasAuthoritativeAcceptedReceipt() {
-      return evidence.child_session_observed &&
+      return hasExactRrc2ParentDelegateArguments(evidence) &&
+        evidence.child_session_observed &&
         evidence.request_compaction_tool_result_observed &&
         evidence.request_compaction_receipt_role === 'toolResult' &&
         evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
@@ -154,7 +209,9 @@ export default function () {
       const thresholdComplete =
         hasAuthoritativeThresholdReceipt() &&
         evidence.delegate_child_report_observed &&
-        evidence.child_reported_context_threshold;
+        evidence.child_reported_context_threshold &&
+        evidence.reported_context_usage === evidence.context_usage &&
+        evidence.reported_threshold === evidence.threshold;
       const acceptedComplete =
         hasAuthoritativeAcceptedReceipt() &&
         evidence.delegate_child_report_observed &&
@@ -194,10 +251,29 @@ export default function () {
         evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
         evidence.reason_length = childTask.length;
         evidence.delegate_mode = inv.mode || 'normal';
+        evidence.parent_delegate_argument_policy_valid =
+          sameStrings(inv.allowedArguments, ['task', 'mode', 'delaySeconds']) &&
+          sameStrings(inv.forbiddenArguments, [
+            'recipientContext',
+            'returnOptions',
+            'attachments',
+            'attachAs',
+            'targetSessionKey',
+            'targetSessionKeys',
+            'fanoutMode',
+            'model',
+          ]);
+        if (!evidence.parent_delegate_argument_policy_valid) {
+          console.error('✗ R-RC-2 manifest delegate argument policy is invalid');
+          failures.add(1);
+          socket.close();
+          return;
+        }
         const instruction =
           `${HARNESS_MARKER} R-RC-2 nonce ${rowNonce}. ` +
-          `Call continue_delegate with mode="normal", delaySeconds=0, task="${childTask}". ` +
-          `No other action.`;
+          `Call continue_delegate exactly once with only mode="normal", delaySeconds=0, ` +
+          `and task=${JSON.stringify(childTask)}. Do not add recipientContext, returnOptions, ` +
+          `attachments, targeting, model, or any other argument. No other action.`;
         evidence.delegate_requested = true;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
@@ -293,7 +369,10 @@ export default function () {
           } else {
             const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
             evidence.child_history_available = true;
-            const receipt = findRequestCompactionReceipt(messages, { rowNonce });
+            const receipt = findRequestCompactionReceipt(messages, {
+              rowNonce,
+              requireCanonicalNumericThreshold: true,
+            });
             if (receipt.kind !== 'missing') {
               evidence.request_compaction_tool_result_observed = true;
               evidence.request_compaction_receipt_role = 'toolResult';
@@ -328,6 +407,24 @@ export default function () {
 
         if (classified.kind === 'event') {
           const eventData = classified.data || {};
+          const parentDelegateCall = findContinueDelegateCall(eventData, rowNonce);
+          if (parentDelegateCall) {
+            const observation = observeRrc2ParentDelegateCall(
+              parentDelegateCallState,
+              parentDelegateCall,
+            );
+            parentDelegateCallState = observation.state;
+            evidence.parent_delegate_tool_call_count = observation.count;
+            evidence.parent_delegate_argument_keys = observation.keys;
+            evidence.parent_delegate_arguments_exact = observation.exact;
+            evidence.parent_delegate_argument_violation = observation.violation;
+            if (evidence.parent_delegate_argument_violation) {
+              console.error('✗ R-RC-2 parent continue_delegate arguments violated exact policy');
+              failures.add(1);
+              socket.close();
+              return;
+            }
+          }
           const observedChildSessionKey = childSessionKeyForRow(
             eventData,
             rowNonce,
@@ -341,24 +438,37 @@ export default function () {
           }
           const text = eventText(classified);
           if (!text.includes(rowNonce)) return;
+          const eventSessionKey =
+            typeof eventData.sessionKey === 'string' ? eventData.sessionKey : null;
+          const boundChildReport =
+            evidence.child_session_key !== null &&
+            eventSessionKey === evidence.child_session_key;
           if (text.includes(HARNESS_MARKER)) {
             console.log('ℹ Ignoring harness prompt echo event');
-          } else if (text.includes(`REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce}`)) {
+          } else if (
+            boundChildReport &&
+            text.includes(`REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce}`)
+          ) {
             evidence.delegate_child_report_observed = true;
             evidence.child_reported_context_threshold = true;
-            const usage = text.match(/CONTEXT[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
-            const threshold = text.match(/THRESHOLD[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
+            const usage =
+              text.match(/CONTEXT[^0-9A-Za-z]+(\d+(?:\.\d+)?|unknown)/)?.[1] || 'unknown';
+            const threshold =
+              text.match(/THRESHOLD[^0-9A-Za-z]+(\d+(?:\.\d+)?|unknown)/)?.[1] || 'unknown';
             evidence.reported_context_usage = usage !== 'unknown' ? Number(usage) : null;
             evidence.reported_threshold = threshold !== 'unknown' ? Number(threshold) : null;
             console.log(`✓ auxiliary delegated threshold report observed: context=${usage} threshold=${threshold}`);
             maybeCloseCompletedProof();
             if (!hasAuthoritativeThresholdReceipt()) requestChildHistory(250);
-          } else if (text.includes(`REQUEST_COMPACTION_ACCEPTED ${rowNonce}`)) {
+          } else if (boundChildReport && text.includes(`REQUEST_COMPACTION_ACCEPTED ${rowNonce}`)) {
             evidence.delegate_child_report_observed = true;
             evidence.request_compaction_accepted_reported = true;
             console.log('✓ auxiliary delegated request_compaction accepted report observed');
             requestChildHistory(250);
-          } else if (text.includes(`REQUEST_COMPACTION_POST_COMPACTION ${rowNonce}`)) {
+          } else if (
+            boundChildReport &&
+            text.includes(`REQUEST_COMPACTION_POST_COMPACTION ${rowNonce}`)
+          ) {
             evidence.delegate_child_report_observed = true;
             evidence.post_compaction_path_observed = true;
             console.log('✓ delegated request_compaction post-compaction sentinel observed');
@@ -387,7 +497,13 @@ export default function () {
     evidence.request_compaction_receipt_status === 'rejected' &&
     evidence.request_compaction_invocation_bound &&
     evidence.request_compaction_rejected_context_threshold &&
-    evidence.guard === 'context_threshold';
+    evidence.guard === 'context_threshold' &&
+    isCanonicalThresholdRejectionReceipt({
+      status: evidence.request_compaction_receipt_status,
+      guard: evidence.guard,
+      contextUsage: evidence.context_usage,
+      threshold: evidence.threshold,
+    });
   const authoritativeAcceptedReceipt =
     evidence.child_session_observed &&
     evidence.request_compaction_tool_result_observed &&
@@ -399,7 +515,9 @@ export default function () {
   const verifiedThresholdOutcome =
     authoritativeThresholdReceipt &&
     evidence.delegate_child_report_observed &&
-    evidence.child_reported_context_threshold;
+    evidence.child_reported_context_threshold &&
+    evidence.reported_context_usage === evidence.context_usage &&
+    evidence.reported_threshold === evidence.threshold;
   const verifiedPostCompactionOutcome =
     authoritativeAcceptedReceipt &&
     evidence.delegate_child_report_observed &&
@@ -412,24 +530,32 @@ export default function () {
     evidence.request_compaction_accepted ||
     evidence.request_compaction_accepted_reported ||
     evidence.post_compaction_path_observed;
-  evidence.verdict = verifiedPostCompactionOutcome
-    ? 'PASS-candidate'
-    : (verifiedThresholdOutcome
-      ? 'HONEST-LIMIT-candidate'
-      : (partialOutcomeEvidence ? 'PARTIAL-candidate' : 'FAIL-candidate'));
+  if (evidence.parent_delegate_argument_violation) {
+    evidence.verdict = 'FAIL-candidate';
+  } else if (verifiedPostCompactionOutcome) {
+    evidence.verdict = 'PASS-candidate';
+  } else if (verifiedThresholdOutcome) {
+    evidence.verdict = 'HONEST-LIMIT-candidate';
+  } else if (partialOutcomeEvidence) {
+    evidence.verdict = 'PARTIAL-candidate';
+  } else {
+    evidence.verdict = 'FAIL-candidate';
+  }
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
   const acceptedOutcome =
     verifiedThresholdOutcome ||
-    verifiedPostCompactionOutcome ||
-    evidence.child_reported_context_threshold ||
-    evidence.request_compaction_accepted ||
-    evidence.request_compaction_accepted_reported;
+    verifiedPostCompactionOutcome;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'parent dispatch accepted': () => evidence.parent_dispatch_accepted,
     'delegate requested': () => evidence.delegate_requested,
+    'parent delegate argument policy valid': () =>
+      evidence.parent_delegate_argument_policy_valid,
+    'exactly one parent delegate tool call': () =>
+      evidence.parent_delegate_tool_call_count === 1,
+    'parent delegate arguments exact': () => evidence.parent_delegate_arguments_exact,
     'child report observed': () => evidence.delegate_child_report_observed,
     'accepted threshold/compaction outcome': () => acceptedOutcome,
     'honest-limit has authoritative threshold receipt': () =>
@@ -437,7 +563,15 @@ export default function () {
     'pass has authoritative accepted receipt': () =>
       evidence.verdict !== 'PASS-candidate' || verifiedPostCompactionOutcome,
   });
-  if (!evidence.parent_dispatch_accepted || !evidence.delegate_requested || !evidence.delegate_child_report_observed || !acceptedOutcome) failures.add(1);
+  if (
+    !evidence.parent_dispatch_accepted ||
+    !evidence.delegate_requested ||
+    !evidence.parent_delegate_argument_policy_valid ||
+    evidence.parent_delegate_tool_call_count !== 1 ||
+    !evidence.parent_delegate_arguments_exact ||
+    !evidence.delegate_child_report_observed ||
+    !acceptedOutcome
+  ) failures.add(1);
 
   console.log('\n--- R-RC-2 EVIDENCE SUMMARY ---');
   console.log(JSON.stringify(evidence, null, 2));

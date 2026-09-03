@@ -412,6 +412,10 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
   };
   const verifiedEvidence = {
     row: 'R-RC-2',
+    parent_delegate_argument_policy_valid: true,
+    parent_delegate_tool_call_count: 1,
+    parent_delegate_argument_keys: ['delaySeconds', 'mode', 'task'],
+    parent_delegate_arguments_exact: true,
     parent_dispatch_accepted: true,
     delegate_requested: true,
     child_session_observed: true,
@@ -424,6 +428,10 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
     request_compaction_invocation_bound: true,
     request_compaction_rejected_context_threshold: true,
     guard: 'context_threshold',
+    context_usage: 10,
+    threshold: 70,
+    reported_context_usage: 10,
+    reported_threshold: 70,
   };
   const invalidResult = runResult({
     verdict: 'HONEST-LIMIT-candidate',
@@ -456,6 +464,54 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
       runResult: invalidResult,
       runDir: setup.candidateDir,
     }), false);
+
+    const invalidArgumentsResult = runResult({
+      verdict: 'HONEST-LIMIT-candidate',
+      evidence: {
+        ...verifiedEvidence,
+        parent_delegate_argument_keys: ['delaySeconds', 'mode', 'recipientContext', 'task'],
+        parent_delegate_arguments_exact: false,
+      },
+    });
+    await writeFile(
+      path.join(setup.candidateDir, 'run-result.json'),
+      `${JSON.stringify(invalidArgumentsResult, null, 2)}\n`,
+    );
+    await assert.rejects(invoke(setup), /nonce-bound structured request_compaction/);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope,
+      manifest: manifestValue,
+      metadata,
+      runResult: invalidArgumentsResult,
+      runDir: setup.candidateDir,
+    }), false);
+
+    for (const invalidNumeric of [
+      { context_usage: null },
+      { threshold: null },
+      { context_usage: 70 },
+      { threshold: 71 },
+      { reported_context_usage: null },
+      { reported_threshold: null },
+      { reported_context_usage: 11 },
+    ]) {
+      const invalidNumericResult = runResult({
+        verdict: 'HONEST-LIMIT-candidate',
+        evidence: { ...verifiedEvidence, ...invalidNumeric },
+      });
+      await writeFile(
+        path.join(setup.candidateDir, 'run-result.json'),
+        `${JSON.stringify(invalidNumericResult, null, 2)}\n`,
+      );
+      await assert.rejects(invoke(setup), /nonce-bound structured request_compaction/);
+      assert.equal(candidateEnvelopeMatchesSiblings({
+        envelope,
+        manifest: manifestValue,
+        metadata,
+        runResult: invalidNumericResult,
+        runDir: setup.candidateDir,
+      }), false);
+    }
 
     const verifiedPassEvidence = {
       ...verifiedEvidence,

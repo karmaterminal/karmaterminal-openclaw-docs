@@ -2,6 +2,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import {
+  isVerifiedRrc2HonestLimitEvidence,
+  isVerifiedRrc2PassEvidence,
+} from '../lib/request-compaction-receipt.js';
 import { readFileSync } from 'node:fs';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 
@@ -66,6 +70,14 @@ function failureClassFrom({ outcome, failureCount, checkRate, receipts, summary,
   return 'none';
 }
 
+function outcomeReason(outcome, downgradeReasons) {
+  if (downgradeReasons.length) return `withheld from PASS-candidate: ${downgradeReasons.join('; ')}`;
+  if (outcome === 'construct-only') return 'manifest caps this row at construct-only; it is not behavioral candidate evidence';
+  if (outcome === 'FAIL-candidate') return 'k6 proof_failures metric is non-zero';
+  if (outcome === 'PARTIAL-candidate') return 'k6 checks or required receipts did not all pass; preserve as proof debt';
+  return 'k6 checks passed and proof_failures is zero; receipts still need human review';
+}
+
 /**
  * Summarise the row's telemetry rebind contract against the receipts actually
  * observed (karmaterminal/openclaw#1254).
@@ -118,44 +130,13 @@ function receiptStatusFromName(name, summary) {
   }
 }
 
-function verifiedRrc2ThresholdEvidence(evidence) {
-  return evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.child_reported_context_threshold === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_rejected_context_threshold === true &&
-    evidence.guard === 'context_threshold';
-}
-
-function verifiedRrc2AcceptedEvidence(evidence) {
-  return evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.post_compaction_path_observed === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'accepted' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_accepted === true;
-}
-
 function outcomeFromSummary(summary, expectedArtifactClass, rowId) {
   // Some rows deliberately validate only a static contract.  A green k6
   // summary must not upgrade that contract into a candidate behavioral PASS.
   if (expectedArtifactClass === 'construct-only') return 'construct-only';
   if (rowId === 'R-RC-2') {
-    if (verifiedRrc2AcceptedEvidence(summary?.evidence)) return 'PASS-candidate';
-    if (verifiedRrc2ThresholdEvidence(summary?.evidence)) return 'HONEST-LIMIT-candidate';
+    if (isVerifiedRrc2PassEvidence(summary?.evidence)) return 'PASS-candidate';
+    if (isVerifiedRrc2HonestLimitEvidence(summary?.evidence)) return 'HONEST-LIMIT-candidate';
     return 'PARTIAL-candidate';
   }
   if (summary?.verdict === 'FAIL-candidate') return 'FAIL-candidate';
@@ -353,15 +334,7 @@ async function main() {
       foldRequiresReview: manifest.liveRunSafety.foldRequiresReview === true,
     } : null,
     failureClass,
-    reason: downgradeReasons.length
-      ? `withheld from PASS-candidate: ${downgradeReasons.join('; ')}`
-      : outcome === 'construct-only'
-      ? 'manifest caps this row at construct-only; it is not behavioral candidate evidence'
-      : outcome === 'FAIL-candidate'
-      ? 'k6 proof_failures metric is non-zero'
-      : outcome === 'PARTIAL-candidate'
-        ? 'k6 checks or required receipts did not all pass; preserve as proof debt'
-        : 'k6 checks passed and proof_failures is zero; receipts still need human review',
+    reason: outcomeReason(outcome, downgradeReasons),
     candidateOnly: true,
     foldRequiresReview: true,
   };

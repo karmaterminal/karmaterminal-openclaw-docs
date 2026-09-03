@@ -28,6 +28,21 @@
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 0,
+    "allowedArguments": [
+      "task",
+      "mode",
+      "delaySeconds"
+    ],
+    "forbiddenArguments": [
+      "recipientContext",
+      "returnOptions",
+      "attachments",
+      "attachAs",
+      "targetSessionKey",
+      "targetSessionKeys",
+      "fanoutMode",
+      "model"
+    ],
     "promptTemplate": "RRC2:{{nonceSuffix16}} R-RC-2 child nonce {{nonce}}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
   },
   "expectedReceipts": [
@@ -49,7 +64,7 @@
     {
       "name": "threshold-rejection-or-accepted-compaction",
       "required": true,
-      "description": "Either structured context-threshold rejection or accepted/post-compaction path observed"
+      "description": "Either accepted/post-compaction path or a structured context-threshold rejection with finite numeric contextUsage below canonical threshold 70 and a matching child report"
     },
     {
       "name": "trace-id",

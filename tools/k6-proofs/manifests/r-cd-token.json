@@ -34,9 +34,9 @@
   },
   "expectedReceipts": [
     {
-      "name": "exact-candidate-runtime-identity",
+      "name": "exact-candidate-or-reviewed-ancillary-runtime-identity",
       "required": true,
-      "description": "Exact 40-character candidate and deployed runtime SHAs are equal before dispatch and bound into the signed authority receipt"
+      "description": "Candidate/runtime are either exact-equal or bound by the reviewed pure-5035 to dbf5795 two-component ancillary-runtime contract; canonical corpus identity always remains the pure candidate SHA"
     },
     {
       "name": "attempt-state",
@@ -291,7 +291,7 @@
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "exact-candidate-runtime-identity",
+      "exact-candidate-or-reviewed-ancillary-runtime-identity",
       "attempt-state",
       "raw-final-text-origin",
       "prompt-injected",

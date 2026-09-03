@@ -22,6 +22,10 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import {
+  parseExactPnpmPackageManager,
+  verifyPnpmLockProvenance,
+} from '../lib/pnpm-provenance.mjs';
 
 const DEFAULT_MAX_CHAIN_LENGTH = 3;
 const SOURCE_MARKERS = [
@@ -40,11 +44,6 @@ const DELEGATE_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-delegate-boundary.test.ts',
 );
-// A candidate must name one fixed pnpm release.  Corepack-style integrity
-// suffixes are allowed only when they begin with `sha`; ranges, tags, and
-// alternate package managers never identify one executable version.
-const EXACT_PNPM_PACKAGE_MANAGER = /^pnpm@((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)(\+sha[0-9A-Za-z._~+/=-]+)?$/u;
-
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \\
   --source-dir <exact-candidate-worktree> \\
@@ -181,20 +180,17 @@ function assertRealDirectory(directory, label) {
 }
 
 export function parsePinnedPnpmPackageManager(declaration, label = 'candidate package.json packageManager') {
-  if (typeof declaration !== 'string') {
-    throw new Error(`dependency provenance requires ${label} to be an exact pnpm@<semver> declaration`);
+  try {
+    const parsed = parseExactPnpmPackageManager(declaration, { label });
+    return {
+      declaration: parsed.declaration,
+      version: parsed.version,
+      integritySuffix: parsed.integrityHex ? `+sha512.${parsed.integrityHex}` : '',
+      integrityHex: parsed.integrityHex,
+    };
+  } catch (error) {
+    throw new Error(`dependency provenance requires ${error.message}`);
   }
-  const match = EXACT_PNPM_PACKAGE_MANAGER.exec(declaration);
-  if (!match) {
-    throw new Error(
-      `dependency provenance requires ${label} to be exact pnpm@<semver> (optional +sha... suffix only)`,
-    );
-  }
-  return {
-    declaration,
-    version: match[1],
-    integritySuffix: match[2] || '',
-  };
 }
 
 function yamlScalar(raw, field) {
@@ -236,13 +232,11 @@ export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageM
     path.join(dependencyDir, '.pnpm', 'lock.yaml'),
     'node_modules/.pnpm/lock.yaml',
   );
-  const candidateLock = readFileSync(candidateLockPath);
-  const installedLock = readFileSync(installedLockPath);
-  const candidateLockfileSha256 = sha256File(candidateLockPath);
-  const installedLockfileSha256 = sha256File(installedLockPath);
-  if (!candidateLock.equals(installedLock) || candidateLockfileSha256 !== installedLockfileSha256) {
-    throw new Error('installed node_modules/.pnpm/lock.yaml bytes do not match candidate pnpm-lock.yaml');
-  }
+  const lockProvenance = verifyPnpmLockProvenance({
+    candidateLock: readFileSync(candidateLockPath),
+    installedLock: readFileSync(installedLockPath),
+    packageManager: candidatePackageManager.declaration,
+  });
 
   const modulesPath = assertRealFile(path.join(dependencyDir, '.modules.yaml'), 'node_modules/.modules.yaml');
   const modulesRaw = readFileSync(modulesPath, 'utf8');
@@ -279,9 +273,12 @@ export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageM
   }
 
   return {
-    candidateLockfileSha256,
-    installedLockfileSha256,
-    lockfileMatchesCandidate: true,
+    candidateLockfileSha256: lockProvenance.candidateLockfileSha256,
+    installedLockfileSha256: lockProvenance.installedLockfileSha256,
+    candidateWorkspaceGraphSha256: lockProvenance.candidateWorkspaceGraphSha256,
+    packageManagerBootstrapSha256: lockProvenance.packageManagerBootstrapSha256,
+    installedGraphMatchesCandidate: lockProvenance.installedGraphMatchesCandidate,
+    packageManagerBootstrapValidated: lockProvenance.packageManagerBootstrapValidated,
     installedPackageManager: installedPackageManager.declaration,
     installedPackageManagerVersion: installedPackageManager.version,
     virtualStoreDir,
@@ -433,7 +430,10 @@ export function buildReadiness({ candidateSha, head, candidateRuntime, maxChainL
     hostToolchainHermetic: false,
     candidateLockfileSha256: candidateRuntime.candidateLockfileSha256,
     installedLockfileSha256: candidateRuntime.installedLockfileSha256,
-    lockfileMatchesCandidate: candidateRuntime.lockfileMatchesCandidate,
+    candidateWorkspaceGraphSha256: candidateRuntime.candidateWorkspaceGraphSha256,
+    packageManagerBootstrapSha256: candidateRuntime.packageManagerBootstrapSha256,
+    installedGraphMatchesCandidate: candidateRuntime.installedGraphMatchesCandidate,
+    packageManagerBootstrapValidated: candidateRuntime.packageManagerBootstrapValidated,
     candidatePackageManager: candidateRuntime.candidatePackageManager,
     candidatePackageManagerVersion: candidateRuntime.candidatePackageManagerVersion,
     executingPackageManagerVersion: candidateRuntime.executingPackageManagerVersion,
@@ -544,7 +544,14 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       candidateWorktreeHead: candidateBeforeInstall.head,
       candidateLockfileSha256: candidateBeforeInstall.candidateLockfileSha256,
       installedLockfileSha256: verifiedDependencies.dependencyProvenance.installedLockfileSha256,
-      lockfileMatchesCandidate: verifiedDependencies.dependencyProvenance.lockfileMatchesCandidate,
+      candidateWorkspaceGraphSha256:
+        verifiedDependencies.dependencyProvenance.candidateWorkspaceGraphSha256,
+      packageManagerBootstrapSha256:
+        verifiedDependencies.dependencyProvenance.packageManagerBootstrapSha256,
+      installedGraphMatchesCandidate:
+        verifiedDependencies.dependencyProvenance.installedGraphMatchesCandidate,
+      packageManagerBootstrapValidated:
+        verifiedDependencies.dependencyProvenance.packageManagerBootstrapValidated,
       candidatePackageManager: candidateBeforeInstall.candidatePackageManager.declaration,
       candidatePackageManagerVersion: candidateBeforeInstall.candidatePackageManager.version,
       executingPackageManagerVersion: installation.executingPackageManagerVersion,
@@ -715,7 +722,14 @@ export function runFixture(args) {
     candidateWorktreeHead: runtimeSurface.candidateRuntime.candidateWorktreeHead,
     candidateLockfileSha256: runtimeSurface.candidateRuntime.candidateLockfileSha256,
     installedLockfileSha256: runtimeSurface.candidateRuntime.installedLockfileSha256,
-    lockfileMatchesCandidate: runtimeSurface.candidateRuntime.lockfileMatchesCandidate,
+    candidateWorkspaceGraphSha256:
+      runtimeSurface.candidateRuntime.candidateWorkspaceGraphSha256,
+    packageManagerBootstrapSha256:
+      runtimeSurface.candidateRuntime.packageManagerBootstrapSha256,
+    installedGraphMatchesCandidate:
+      runtimeSurface.candidateRuntime.installedGraphMatchesCandidate,
+    packageManagerBootstrapValidated:
+      runtimeSurface.candidateRuntime.packageManagerBootstrapValidated,
     candidatePackageManager: runtimeSurface.candidateRuntime.candidatePackageManager,
     candidatePackageManagerVersion: runtimeSurface.candidateRuntime.candidatePackageManagerVersion,
     executingPackageManagerVersion: runtimeSurface.candidateRuntime.executingPackageManagerVersion,
@@ -934,7 +948,7 @@ export function runFixture(args) {
       candidatePackageManagerVersionMatchesExecuting:
         candidateRuntimeReceipt.candidatePackageManagerVersion ===
         candidateRuntimeReceipt.executingPackageManagerVersion,
-      installedLockMatchesCandidate: candidateRuntimeReceipt.lockfileMatchesCandidate,
+      installedGraphMatchesCandidate: candidateRuntimeReceipt.installedGraphMatchesCandidate,
       verifiedDependencyTreeContainsLocalExecutables: Object.values(
         candidateRuntimeReceipt.localExecutableContract,
       ).every((contract) => contract.realpathWithinVerifiedDependencyTree === true),

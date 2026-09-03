@@ -226,7 +226,10 @@ the toolchain identity.
 Before sandbox entry, the trusted launcher:
 
 1. rejects an absent artifact or any artifact overlapping product, docs,
-   control, output, or live runtime roots;
+   control, output, or live state/config roots. A HOME-contained source
+   artifact is accepted only when every path component is real, current-user
+   owned, the root is not group/world writable, and a no-follow directory
+   descriptor confirms stable device/inode identity;
 2. opens the manifest and every payload file with `O_NOFOLLOW`, rejects
    writable modes, hardlinks, symlinks, special files, unsafe paths,
    missing/extra entries, empty closure roots, count/size overflow, and
@@ -252,7 +255,9 @@ candidate code runs.
 
 The candidate never sees the external artifact pathname, package-manager
 store, host home, credentials, live sockets, or any unrelated dependency
-tree. The private copy removes the host-mutation race, and bubblewrap makes
+tree. The sandbox masks `/home` before binding the launcher-owned private
+snapshot, so accepting one attested source below HOME does not expose its
+siblings. The private copy removes the host-mutation race, and bubblewrap makes
 both fixed mounts read-only even to the candidate owner. The fixture and
 gateway receive only the manifest digest and product-tree identity in their
 cleared environment.

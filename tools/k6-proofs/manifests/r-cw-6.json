@@ -39,7 +39,7 @@
     {
       "name": "fixture-readiness",
       "required": true,
-      "description": "Exact source/SHA, installed dependencies, explicit maxChainLength, and zero production mutation are proven before execution."
+      "description": "Exact source/SHA, installed workspace graph/importers/package integrity, validated package-manager bootstrap metadata, explicit maxChainLength, and zero production mutation are proven before execution."
     },
     {
       "name": "boundary-matrix",

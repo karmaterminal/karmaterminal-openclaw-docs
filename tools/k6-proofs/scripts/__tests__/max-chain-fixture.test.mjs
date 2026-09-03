@@ -158,13 +158,14 @@ test('R-CW-6 accepts only a fixed pnpm packageManager declaration and exact exec
   for (const invalid of ['pnpm@latest', 'pnpm@^11.2.2', 'pnpm@11', 'npm@11.2.2', 'pnpm@11.2.2 || pnpm@11.3.0']) {
     assert.throws(
       () => parsePinnedPnpmPackageManager(invalid),
-      /exact pnpm@<semver>/,
+      /pin pnpm@<semver>/,
       `${invalid} must not identify one candidate pnpm release`,
     );
   }
-  const pinned = parsePinnedPnpmPackageManager('pnpm@11.2.2+sha512.abcd_ef-1');
+  const integrity = 'a'.repeat(128);
+  const pinned = parsePinnedPnpmPackageManager(`pnpm@11.2.2+sha512.${integrity}`);
   assert.equal(pinned.version, '11.2.2');
-  assert.equal(pinned.integritySuffix, '+sha512.abcd_ef-1');
+  assert.equal(pinned.integritySuffix, `+sha512.${integrity}`);
   assert.equal(assertExecutingPnpmVersion(pinned, '11.2.2'), '11.2.2');
   assert.throws(
     () => assertExecutingPnpmVersion(pinned, '11.2.3'),
@@ -172,8 +173,8 @@ test('R-CW-6 accepts only a fixed pnpm packageManager declaration and exact exec
   );
 });
 
-test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contained virtual store', async () => {
-  const candidate = parsePinnedPnpmPackageManager('pnpm@11.2.2+sha512.candidate');
+test('R-CW-6 verifies candidate workspace graph, pnpm metadata, and candidate-contained virtual store', async () => {
+  const candidate = parsePinnedPnpmPackageManager(`pnpm@11.2.2+sha512.${'a'.repeat(128)}`);
 
   const staleLock = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-stale-lock-'));
   await writeInstalledPnpmTree(staleLock, {
@@ -182,7 +183,7 @@ test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contain
   });
   assert.throws(
     () => assertInstalledPnpmDependencyTree(staleLock, candidate),
-    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+    /workspace graph\/importers\/package integrity differ/,
   );
 
   const incompatibleMetadata = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-incompatible-metadata-'));
@@ -220,6 +221,53 @@ test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contain
   );
 });
 
+test('R-CW-6 accepts pnpm 12 package-manager bootstrap plus exact workspace graph', async () => {
+  const integrityHex = 'a'.repeat(128);
+  const integrity = `sha512-${Buffer.from(integrityHex, 'hex').toString('base64')}`;
+  const workspace = "lockfileVersion: '9.0'\nsettings:\n  autoInstallPeers: true\npackages:\n  example@1.0.0:\n    resolution: {integrity: sha512-ZXhhbXBsZQ==}\n";
+  const candidateLock = [
+    '---',
+    "lockfileVersion: '9.0'",
+    'importers:',
+    '  .:',
+    '    configDependencies: {}',
+    '    packageManagerDependencies:',
+    '      pnpm:',
+    '        specifier: 12.1.0',
+    '        version: 12.1.0',
+    'packages:',
+    "  'pnpm@12.1.0':",
+    `    resolution: {integrity: ${integrity}}`,
+    '---',
+    workspace.trimEnd(),
+    '',
+  ].join('\n');
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm12-lock-'));
+  await writeInstalledPnpmTree(root, {
+    candidateLock,
+    installedLock: workspace,
+    packageManager: 'pnpm@12.1.0',
+  });
+  const result = assertInstalledPnpmDependencyTree(
+    root,
+    parsePinnedPnpmPackageManager(`pnpm@12.1.0+sha512.${integrityHex}`),
+  );
+  assert.equal(result.installedGraphMatchesCandidate, true);
+  assert.equal(result.packageManagerBootstrapValidated, true);
+
+  await writeFile(
+    path.join(root, 'node_modules', '.pnpm', 'lock.yaml'),
+    workspace.replace('example@1.0.0', 'example@1.0.1'),
+  );
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(
+      root,
+      parsePinnedPnpmPackageManager(`pnpm@12.1.0+sha512.${integrityHex}`),
+    ),
+    /workspace graph\/importers\/package integrity differ/,
+  );
+});
+
 test('R-CW-6 rejects a fake PATH pnpm that reports the candidate version but cannot produce the required tree metadata', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-worktree-'));
   const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-bin-'));
@@ -247,7 +295,7 @@ test('R-CW-6 rejects a fake PATH pnpm that reports the candidate version but can
   assert.deepEqual(installation.command, ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts']);
   assert.throws(
     () => verifyInstalledCandidateDependencies(worktree, candidate),
-    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+    /workspace graph\/importers\/package integrity differ/,
   );
 });
 
@@ -382,9 +430,12 @@ test('R-CW-6 public readiness has no private source path or fleet mutation claim
     head: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     candidateRuntime: {
       candidateLockfileSha256: 'b'.repeat(64),
-      installedLockfileSha256: 'b'.repeat(64),
-      lockfileMatchesCandidate: true,
-      candidatePackageManager: 'pnpm@11.2.2+sha512.candidate',
+      installedLockfileSha256: 'c'.repeat(64),
+      candidateWorkspaceGraphSha256: 'c'.repeat(64),
+      packageManagerBootstrapSha256: 'd'.repeat(64),
+      installedGraphMatchesCandidate: true,
+      packageManagerBootstrapValidated: true,
+      candidatePackageManager: `pnpm@11.2.2+sha512.${'a'.repeat(128)}`,
       candidatePackageManagerVersion: '11.2.2',
       executingPackageManagerVersion: '11.2.2',
       installedPackageManager: 'pnpm@11.2.2',
@@ -409,8 +460,9 @@ test('R-CW-6 public readiness has no private source path or fleet mutation claim
   assert.equal(readiness.productionStateTouched, false);
   assert.equal(readiness.gatewayStarted, false);
   assert.equal(readiness.candidateLockfileSha256, 'b'.repeat(64));
-  assert.equal(readiness.installedLockfileSha256, 'b'.repeat(64));
-  assert.equal(readiness.candidatePackageManager, 'pnpm@11.2.2+sha512.candidate');
+  assert.equal(readiness.installedLockfileSha256, 'c'.repeat(64));
+  assert.equal(readiness.installedGraphMatchesCandidate, true);
+  assert.equal(readiness.candidatePackageManager, `pnpm@11.2.2+sha512.${'a'.repeat(128)}`);
   assert.equal(readiness.executingPackageManagerVersion, '11.2.2');
   assert.equal(readiness.installedPackageManager, 'pnpm@11.2.2');
   assert.equal(readiness.hostToolchainHermetic, false);

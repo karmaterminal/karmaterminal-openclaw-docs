@@ -23,6 +23,11 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import {
+  parseExactPnpmPackageManager,
+  resolvePinnedPnpmFromNodeModules,
+  verifyPnpmLockProvenance,
+} from '../lib/pnpm-provenance.mjs';
 
 const DEFAULT_CAP = 100;
 const CHILD_OUTPUT_LIMIT_BYTES = 64 * 1024 * 1024;
@@ -42,6 +47,7 @@ function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \\
   --source-dir <exact-candidate-worktree> \\
   --candidate-sha <40-hex-sha> \\
+  --pnpm-node-modules <preinstalled-pnpm-node_modules> \\
   --artifact-dir <safe-output-dir> [--cap <positive-int>] [--json]`;
 }
 
@@ -49,6 +55,7 @@ export function parseArgs(argv, env = process.env) {
   const args = {
     sourceDir: env.OPENCLAW_RCW5_SOURCE_DIR || '',
     candidateSha: env.OPENCLAW_CANDIDATE_SHA || '',
+    packageManagerRoot: env.OPENCLAW_RCW5_PNPM_NODE_MODULES || '',
     artifactDir: env.OPENCLAW_RCW5_ARTIFACT_DIR || '',
     cap: Number(env.OPENCLAW_RCW5_CAP || DEFAULT_CAP),
     json: false,
@@ -67,6 +74,7 @@ export function parseArgs(argv, env = process.env) {
     };
     if (arg === '--source-dir') args.sourceDir = next();
     else if (arg === '--candidate-sha') args.candidateSha = next();
+    else if (arg === '--pnpm-node-modules') args.packageManagerRoot = next();
     else if (arg === '--artifact-dir') args.artifactDir = next();
     else if (arg === '--cap') args.cap = Number(next());
     else throw new Error(`unexpected argument: ${arg}`);
@@ -76,6 +84,11 @@ export function parseArgs(argv, env = process.env) {
 
 function assertArgs(args) {
   if (!args.sourceDir) throw new Error('--source-dir or OPENCLAW_RCW5_SOURCE_DIR is required');
+  if (!args.packageManagerRoot) {
+    throw new Error(
+      '--pnpm-node-modules or OPENCLAW_RCW5_PNPM_NODE_MODULES is required; package-manager download is forbidden',
+    );
+  }
   if (!args.artifactDir) throw new Error('--artifact-dir or OPENCLAW_RCW5_ARTIFACT_DIR is required');
   if (!/^[0-9a-f]{40}$/u.test(args.candidateSha)) {
     throw new Error('--candidate-sha or OPENCLAW_CANDIDATE_SHA must be a 40-character lowercase SHA');
@@ -239,84 +252,38 @@ function isInside(child, parent) {
 
 function requireCandidatePackageManager(worktreeDir) {
   const packageJson = JSON.parse(readFileSync(path.join(worktreeDir, 'package.json'), 'utf8'));
-  const packageManager = packageJson?.packageManager;
-  const match = typeof packageManager === 'string' &&
-    /^pnpm@(\d+\.\d+\.\d+)\+sha512\.([a-f0-9]{128})$/u.exec(packageManager);
-  if (!match) {
-    throw new Error('candidate package.json must pin pnpm with an exact version and sha512 integrity');
-  }
-  return { packageManager, pnpmVersion: match[1], integrityHex: match[2] };
+  return parseExactPnpmPackageManager(packageJson?.packageManager, {
+    requireIntegrity: true,
+  });
 }
 
-export function resolvePinnedPnpm(worktreeDir) {
-  const { packageManager, pnpmVersion, integrityHex } = requireCandidatePackageManager(worktreeDir);
-  const nodePrefix = path.resolve(path.dirname(process.execPath), '..');
-  const npmScript = path.join(nodePrefix, 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
-  if (!existsSync(npmScript) || !lstatSync(npmScript).isFile() || lstatSync(npmScript).isSymbolicLink()) {
-    throw new Error('runner has no real Node-local npm script for installing the candidate packageManager pin');
-  }
-  const resolvedNpmScript = realpathSync(npmScript);
-  assertReservedPathAbsent(worktreeDir, '.r-cw-5-pnpm-toolchain');
-  const toolchainDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-pnpm-toolchain');
+export function resolvePinnedPnpm(worktreeDir, packageManagerRoot) {
+  const manager = requireCandidatePackageManager(worktreeDir);
   const packageManagerEnv = privatePackageManagerEnv(worktreeDir);
-  const install = run(
-    process.execPath,
-    [
-      resolvedNpmScript,
-      'install',
-      '--prefix',
-      toolchainDir,
-      '--ignore-scripts',
-      '--package-lock=true',
-      '--save=false',
-      '--no-audit',
-      '--no-fund',
-      '--prefer-offline',
-      '--registry=https://registry.npmjs.org',
-      `pnpm@${pnpmVersion}`,
-    ],
-    { cwd: toolchainDir, env: packageManagerEnv },
-  );
-  if (!install.ok) {
-    throw new Error(`cannot install candidate-pinned pnpm: ${install.stderr.trim()}`);
-  }
-  const toolchainLock = JSON.parse(
-    readFileSync(path.join(toolchainDir, 'node_modules', '.package-lock.json'), 'utf8'),
-  );
-  const installedIntegrity = toolchainLock?.packages?.['node_modules/pnpm']?.integrity;
-  const installedIntegrityMatch = typeof installedIntegrity === 'string' &&
-    /^sha512-([A-Za-z0-9+/]+={0,2})$/u.exec(installedIntegrity);
-  const installedIntegrityHex = installedIntegrityMatch
-    ? Buffer.from(installedIntegrityMatch[1], 'base64').toString('hex')
-    : '';
-  if (installedIntegrityHex !== integrityHex) {
-    throw new Error('installed pnpm integrity does not match candidate packageManager pin');
-  }
-  const pnpmScript = path.join(toolchainDir, 'node_modules', 'pnpm', 'bin', 'pnpm.cjs');
-  if (!existsSync(pnpmScript) || !lstatSync(pnpmScript).isFile() || lstatSync(pnpmScript).isSymbolicLink()) {
-    throw new Error('candidate-pinned pnpm install did not produce a real pnpm script');
-  }
-  const resolvedPnpmScript = realpathSync(pnpmScript);
-  if (!isInside(resolvedPnpmScript, realpathSync(path.join(toolchainDir, 'node_modules')))) {
-    throw new Error('candidate-pinned pnpm script resolves outside the private toolchain');
-  }
-  const versionResult = run(
-    process.execPath,
-    [resolvedPnpmScript, '--version'],
-    { cwd: worktreeDir, env: packageManagerEnv },
-  );
-  if (!versionResult.ok) {
-    throw new Error(`cannot execute candidate-pinned pnpm: ${versionResult.stderr.trim()}`);
-  }
-  const version = versionResult.stdout.trim();
-  if (version !== pnpmVersion) {
-    throw new Error(`installed pnpm version ${version || '<missing>'} does not match candidate pin ${pnpmVersion}`);
-  }
+  const resolved = resolvePinnedPnpmFromNodeModules({
+    candidatePackageManager: manager,
+    candidateLock: readFileSync(path.join(worktreeDir, 'pnpm-lock.yaml'), 'utf8'),
+    nodeModulesDir: packageManagerRoot,
+    runVersion: (executable) => {
+      const result = run(executable, ['--version'], {
+        cwd: worktreeDir,
+        env: packageManagerEnv,
+      });
+      if (!result.ok) {
+        throw new Error(`cannot execute candidate-pinned pnpm: ${result.stderr.trim()}`);
+      }
+      return result.stdout.trim();
+    },
+  });
   return {
-    packageManager,
-    pnpmVersion,
-    pnpmIntegritySha512: integrityHex,
-    pnpmScript: resolvedPnpmScript,
+    packageManager: resolved.packageManager,
+    pnpmVersion: resolved.pnpmVersion,
+    pnpmIntegritySha512: resolved.pnpmIntegritySha512,
+    pnpmScript: resolved.executable,
+    packageManagerExecutableSha256: resolved.executableSha256,
+    packageManagerMetadataSha256: resolved.metadataLockSha256,
+    nativePackage: resolved.nativePackage,
+    nativePackageIntegrity: resolved.nativePackageIntegrity,
     packageManagerEnv,
   };
 }
@@ -545,7 +512,14 @@ function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
   };
 }
 
-function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, cap, sourceLockfileSha256 }) {
+function runVerifiedCandidateWorktree({
+  sourceDir,
+  candidateSha,
+  artifactDir,
+  cap,
+  sourceLockfileSha256,
+  packageManagerRoot,
+}) {
   assertSafeLocalGitConfig(sourceDir);
   const worktreeDir = path.join(artifactDir, `.r-cw-5-verified-${process.pid}-${Date.now()}`);
   const cleanup = { disposableWorktreeCreated: false, disposableWorktreeRemoved: false };
@@ -558,13 +532,12 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     if (lockfileSha256 !== sourceLockfileSha256) {
       throw new Error('disposable candidate lockfile does not match the verified source lockfile');
     }
-    const packageManager = resolvePinnedPnpm(worktreeDir);
+    const packageManager = resolvePinnedPnpm(worktreeDir, packageManagerRoot);
     assertReservedPathAbsent(worktreeDir, '.r-cw-5-pnpm-store');
     const pnpmStoreDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-pnpm-store');
     const install = run(
-      process.execPath,
+      packageManager.pnpmScript,
       [
-        packageManager.pnpmScript,
         'install',
         '--frozen-lockfile',
         '--prefer-offline',
@@ -583,9 +556,14 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
       throw new Error('frozen-lockfile install did not create a real disposable node_modules directory');
     }
     const virtualStoreLock = path.join(worktreeDir, 'node_modules', '.pnpm', 'lock.yaml');
-    if (!existsSync(virtualStoreLock) || fileSha256(virtualStoreLock) !== lockfileSha256) {
-      throw new Error('disposable pnpm virtual-store lock does not byte-match the committed candidate lockfile');
+    if (!existsSync(virtualStoreLock)) {
+      throw new Error('disposable pnpm virtual-store lock is missing');
     }
+    const lockProvenance = verifyPnpmLockProvenance({
+      candidateLock: readFileSync(path.join(worktreeDir, 'pnpm-lock.yaml')),
+      installedLock: readFileSync(virtualStoreLock),
+      packageManager: packageManager.packageManager,
+    });
     const afterInstall = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'proof execution after install');
     const tsxExecutable = resolveCandidateLocalExecutable(worktreeDir, 'tsx');
     const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
@@ -610,6 +588,10 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
         packageManager: packageManager.packageManager,
         pnpmVersion: packageManager.pnpmVersion,
         pnpmIntegritySha512: packageManager.pnpmIntegritySha512,
+        packageManagerExecutableSha256: packageManager.packageManagerExecutableSha256,
+        packageManagerMetadataSha256: packageManager.packageManagerMetadataSha256,
+        nativePackage: packageManager.nativePackage,
+        nativePackageIntegrity: packageManager.nativePackageIntegrity,
         installCommand: [
           'node',
           '<candidate-pinned-pnpm>',
@@ -625,7 +607,10 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
         ],
         packageManagerStateConfinedToDisposableWorktree: true,
         lockfileSha256,
-        virtualStoreLockSha256: fileSha256(virtualStoreLock),
+        virtualStoreLockSha256: lockProvenance.installedLockfileSha256,
+        workspaceGraphSha256: lockProvenance.candidateWorkspaceGraphSha256,
+        installedGraphMatchesCandidate: lockProvenance.installedGraphMatchesCandidate,
+        packageManagerBootstrapValidated: lockProvenance.packageManagerBootstrapValidated,
         frozenLockfileVerified: true,
         sourceNodeModulesTrusted: false,
         executionWorktreeIntegrity: { beforeInstall, afterInstall, afterExecution },
@@ -654,6 +639,7 @@ export function runFixture(args) {
     artifactDir,
     cap: args.cap,
     sourceLockfileSha256: lockfileSha256,
+    packageManagerRoot: args.packageManagerRoot,
   });
   const { matrixRun, matrix, dispatchRun, toolSurface } = verified;
   const matrixPassed = Boolean(

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import {
   resolveRcdTokenAuthoritativeReceipt,
@@ -68,12 +69,17 @@ const correlation = {
   continuation: { tool: 'continue_delegate', originSurface: 'raw-final-text' },
 };
 
+function override(overrides, key, fallback) {
+  return Object.hasOwn(overrides, key) ? overrides[key] : fallback;
+}
+
 function resolve(overrides = {}) {
   return resolveRcdTokenAuthoritativeReceipt({
-    evidence: overrides.evidence || evidence,
-    correlation: overrides.correlation || correlation,
-    attemptState: overrides.attemptState || attemptState,
-    metadata: overrides.metadata || metadata,
+    evidence: override(overrides, 'evidence', evidence),
+    correlation: override(overrides, 'correlation', correlation),
+    attemptState: override(overrides, 'attemptState', attemptState),
+    metadata: override(overrides, 'metadata', metadata),
+    ancillaryRuntime: override(overrides, 'ancillaryRuntime', null),
     signingKey: key,
   });
 }
@@ -83,6 +89,7 @@ test('only the complete exactly-once bracket lifecycle plus matching topology ca
   assert.equal(receipt.verdict, 'PASS-candidate');
   assert.equal(receipt.binding.candidateSha, sha);
   assert.equal(receipt.binding.runtimeBuildSha, sha);
+  assert.equal(receipt.lifecycle.ancillaryRuntime, false);
   assert.deepEqual(validateRcdTokenAuthoritativeReceipt(receipt, key), {
     valid: true, verdict: 'PASS-candidate',
   });
@@ -108,6 +115,50 @@ test('candidate/runtime mismatch is signed non-PASS and cannot become authority'
   });
   assert.equal(receipt.verdict, 'PARTIAL-candidate');
   assert.equal(validateRcdTokenAuthoritativeReceipt(receipt, key).valid, false);
+});
+
+test('missing metadata degrades to a signed non-PASS receipt', () => {
+  const receipt = resolve({ metadata: null });
+  assert.equal(receipt.verdict, 'PARTIAL-candidate');
+  assert.equal(receipt.failureCategory, 'runner-or-build-identity-mismatch');
+  assert.equal(validateRcdTokenAuthoritativeReceipt(receipt, key).valid, false);
+});
+
+test('reviewed ancillary runtime provenance preserves pure canonical identity', () => {
+  const runtimeSha = 'f'.repeat(40);
+  const ancillaryRuntime = {
+    schema: 'openclaw.k6.ancillary-runtime-provenance.v1',
+    row: 'R-CD-TOKEN',
+    valid: true,
+    canonicalSha: sha,
+    canonicalTree: 'b'.repeat(40),
+    runtimeSha,
+    runtimeTree: 'c'.repeat(40),
+    contractSha256: 'd'.repeat(64),
+    ownerPathsUnchanged: true,
+    canonicalIdentityRemainsPure: true,
+  };
+  const runtimeProvenanceSha256 = createHash('sha256')
+    .update(`${JSON.stringify(ancillaryRuntime, null, 2)}\n`)
+    .digest('hex');
+  const receipt = resolve({
+    metadata: { ...metadata, runtimeBuildSha: runtimeSha },
+    attemptState: {
+      ...attemptState,
+      runtimeBuildSha: runtimeSha,
+      runtimeProvenanceSha256,
+    },
+    evidence: { ...evidence, runtimeBuildSha: runtimeSha },
+    ancillaryRuntime,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.equal(receipt.binding.candidateSha, sha);
+  assert.equal(receipt.binding.runtimeBuildSha, runtimeSha);
+  assert.equal(receipt.lifecycle.ancillaryRuntime, true);
+  assert.deepEqual(validateRcdTokenAuthoritativeReceipt(receipt, key), {
+    valid: true,
+    verdict: 'PASS-candidate',
+  });
 });
 
 test('tampering invalidates the signed receipt', () => {

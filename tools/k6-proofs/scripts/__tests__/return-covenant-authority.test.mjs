@@ -106,6 +106,7 @@ const TRUSTED_HARNESS_FILES = [
   'lib/return-covenant-authoritative-receipt.mjs',
   'lib/return-covenant-candidate-io.mjs',
   'lib/return-covenant-driver-attestation.mjs',
+  'lib/return-covenant-home-artifact.mjs',
   'lib/return-covenant-process-observer.mjs',
   'lib/return-covenant-retention-inspector.mjs',
   'lib/return-covenant-runtime-artifact-contract.mjs',

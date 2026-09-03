@@ -980,24 +980,57 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
-      if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
-            ! "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ||
-            "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
+      TOKEN_RUNTIME_PROVENANCE_SHA256=""
+      TOKEN_RUNTIME_PROVENANCE_FILE=""
+      TOKEN_RUNTIME_IDENTITY_VALID=false
+      if [[ "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ &&
+            "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+        if [[ "$OPENCLAW_CANDIDATE_SHA" == "$OPENCLAW_RUNTIME_BUILD_SHA" ]]; then
+          TOKEN_RUNTIME_IDENTITY_VALID=true
+        else
+          ANCILLARY_CONTRACT="${OPENCLAW_ANCILLARY_RUNTIME_CONTRACT:-$REPO_ROOT/tools/k6-proofs/contracts/ancillary-runtime/129388-pure5035-dbf5795.json}"
+          ANCILLARY_SOURCE="${OPENCLAW_RUNTIME_SOURCE_DIR:-}"
+          TOKEN_RUNTIME_PROVENANCE_FILE="$RUN_DIR/ancillary-runtime-provenance.json"
+          if [[ -n "$ANCILLARY_SOURCE" ]] &&
+            node "$SCRIPT_DIR/validate-ancillary-runtime-provenance.mjs" \
+              --contract "$ANCILLARY_CONTRACT" \
+              --source-dir "$ANCILLARY_SOURCE" \
+              --row R-CD-TOKEN \
+              --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+              --runtime-sha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+              --out "$TOKEN_RUNTIME_PROVENANCE_FILE" \
+              > "$RUN_DIR/ancillary-runtime-provenance.stdout.json" \
+              2> "$RUN_DIR/ancillary-runtime-provenance.error.log"; then
+            TOKEN_RUNTIME_PROVENANCE_SHA256="$(sha256sum "$TOKEN_RUNTIME_PROVENANCE_FILE" | awk '{print $1}')"
+            jq \
+              --arg receipt "ancillary-runtime-provenance.json" \
+              --arg receiptSha256 "$TOKEN_RUNTIME_PROVENANCE_SHA256" \
+              '. + {runtimeProvenance:{class:"reviewed-ancillary-runtime",receipt:$receipt,receiptSha256:$receiptSha256,canonicalIdentityRemainsPure:true}}' \
+              "$RUN_DIR/runner-metadata.json" > "$RUN_DIR/runner-metadata.json.tmp"
+            mv "$RUN_DIR/runner-metadata.json.tmp" "$RUN_DIR/runner-metadata.json"
+            TOKEN_RUNTIME_IDENTITY_VALID=true
+          else
+            rm -f "$TOKEN_RUNTIME_PROVENANCE_FILE"
+            TOKEN_RUNTIME_PROVENANCE_FILE=""
+          fi
+        fi
+      fi
+      if [[ "$TOKEN_RUNTIME_IDENTITY_VALID" != "true" ]]; then
         RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         jq -n \
           --arg candidateSha "$(safe_sha_or_marker "$OPENCLAW_CANDIDATE_SHA")" \
           --arg runtimeBuildSha "$(safe_sha_or_marker "$OPENCLAW_RUNTIME_BUILD_SHA")" \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,dispatched:false,verdict:"PARTIAL-candidate",endedAt:$endedAt}' \
+          '{schema:"openclaw.k6.r-cd-token.build-identity-gate.v1",row:"R-CD-TOKEN",candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,reviewedAncillaryRuntime:false,dispatched:false,verdict:"PARTIAL-candidate",endedAt:$endedAt}' \
           > "$RUN_DIR/build-identity-gate.json"
         jq -n \
           --arg endedAt "$RUN_ENDED_AT" \
-          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
+          '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:"R-CD-TOKEN",dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-applicable",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-or-reviewed-ancillary-runtime-identity","attempt-state","raw-final-text-origin","parser-detected","queue-identity","child-spawned","child-completed","parent-return-event","tempo-trace-json","continuation-trace-correlation"]}}' \
           > "$RUN_DIR/run-result.json"
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
-        echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
+        echo "[$ROW_ID] PARTIAL-candidate: exact candidate/runtime equality or the reviewed ancillary-runtime contract is required; no dispatch occurred."
         continue
       fi
       ATTEMPT_UUID="$(cat /proc/sys/kernel/random/uuid)"
@@ -1012,8 +1045,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --arg rowNonceHash "$ACTIVE_TOKEN_NONCE_HASH" \
         --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
         --arg runtimeBuildSha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+        --arg runtimeProvenanceSha256 "$TOKEN_RUNTIME_PROVENANCE_SHA256" \
         --arg startedAt "$RUN_STARTED_AT" \
-        '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
+        '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,runtimeProvenanceSha256:(if $runtimeProvenanceSha256=="" then null else $runtimeProvenanceSha256 end),startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
         > "$RUN_DIR/attempt-state.json"
     fi
     if [[ -f "$SEAT_READINESS_JSON" ]]; then

@@ -13,10 +13,13 @@ the candidate committed `package.json` and `pnpm-lock.yaml`, requires the
 suffix is allowed), checks that host-resolved `pnpm --version` is exactly that
 semantic version, then runs `pnpm install --frozen-lockfile --prefer-offline
 --ignore-scripts` in that worktree before any proof command. It then requires
-the installed virtual-store `lock.yaml` bytes and SHA-256 to match the
-candidate lockfile, `.modules.yaml` package-manager metadata to match the
-candidate pnpm version (the metadata may omit the integrity suffix), and the
-declared virtual store plus `tsx`/`vitest` realpaths to remain inside that
+the installed virtual-store workspace graph—including importers and package
+integrities—to byte-match the candidate lockfile's workspace document. pnpm 12
+may place package-manager bootstrap metadata in a separate YAML document; that
+document is validated independently against the exact `packageManager` pin and
+is not confused with the installed dependency graph. `.modules.yaml`
+package-manager metadata must match the candidate pnpm version, and the
+declared virtual store plus `tsx`/`vitest` realpaths must remain inside that
 candidate `node_modules` tree. Source-tree `node_modules` is ignored. The
 worktree has a temporary session store and isolated state directory. This is a
 manual-only component fixture, intentionally outside the generic k6 runner and
@@ -85,8 +88,9 @@ The command refuses:
   or a `pnpm --version` that does not exactly equal the candidate's fixed
   semantic version;
 - a failed `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`;
-- a missing/indirect `node_modules`, missing or byte/SHA-mismatched installed
-  `.pnpm/lock.yaml`, incompatible `.modules.yaml packageManager`, or a
+- a missing/indirect `node_modules`, installed workspace graph/importer/package
+  integrity mismatch, invalid package-manager bootstrap document, incompatible
+  `.modules.yaml packageManager`, or a
   virtual store that escapes candidate `node_modules`;
 - missing or non-candidate-local `node_modules/.bin/tsx` or
   `node_modules/.bin/vitest` after that verified install;

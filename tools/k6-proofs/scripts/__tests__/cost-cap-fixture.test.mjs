@@ -14,7 +14,7 @@ import {
   resolvePinnedPnpm,
   renderToolSurfaceTemplate,
 } from '../run-cost-cap-fixture.mjs';
-import { chmod, mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -22,6 +22,80 @@ import path from 'node:path';
 
 const PNPM_11_2_2 =
   'pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f';
+const PNPM_12_INTEGRITY = 'a'.repeat(128);
+const PNPM_12 = `pnpm@12.1.0+sha512.${PNPM_12_INTEGRITY}`;
+
+function nativePackageName() {
+  if (process.platform === 'darwin') return `@pnpm/exe.darwin-${process.arch}`;
+  if (process.platform === 'win32') return `@pnpm/exe.win32-${process.arch}`;
+  return `@pnpm/exe.linux-${process.arch}`;
+}
+
+async function writePinnedPnpmFixture(root) {
+  const nodeModules = path.join(root, 'node_modules');
+  const pnpmRoot = path.join(nodeModules, 'pnpm');
+  const nativeName = nativePackageName();
+  const nativeRoot = path.join(nodeModules, nativeName);
+  const nativeIntegrity = `sha512-${Buffer.from('b'.repeat(128), 'hex').toString('base64')}`;
+  await mkdir(pnpmRoot, { recursive: true });
+  await mkdir(nativeRoot, { recursive: true });
+  await writeFile(
+    path.join(pnpmRoot, 'package.json'),
+    JSON.stringify({
+      name: 'pnpm',
+      version: '12.1.0',
+      bin: { pnpm: 'pnpm' },
+      optionalDependencies: { [nativeName]: '12.1.0' },
+    }),
+  );
+  await writeFile(path.join(pnpmRoot, 'pnpm'), 'placeholder');
+  await writeFile(
+    path.join(nativeRoot, 'package.json'),
+    JSON.stringify({ name: nativeName, version: '12.1.0' }),
+  );
+  await writeFile(path.join(nativeRoot, 'pnpm'), '#!/bin/sh\nprintf "12.1.0\\n"\n');
+  await chmod(path.join(nativeRoot, 'pnpm'), 0o700);
+  await writeFile(
+    path.join(nodeModules, '.package-lock.json'),
+    JSON.stringify({
+      packages: {
+        'node_modules/pnpm': {
+          version: '12.1.0',
+          integrity: `sha512-${Buffer.from(PNPM_12_INTEGRITY, 'hex').toString('base64')}`,
+        },
+        [`node_modules/${nativeName}`]: {
+          version: '12.1.0',
+          integrity: nativeIntegrity,
+        },
+      },
+    }),
+  );
+  const lock = [
+    '---',
+    "lockfileVersion: '9.0'",
+    '',
+    'importers:',
+    '  .:',
+    '    configDependencies: {}',
+    '    packageManagerDependencies:',
+    '      pnpm:',
+    '        specifier: 12.1.0',
+    '        version: 12.1.0',
+    '',
+    'packages:',
+    `  '${nativeName}@12.1.0':`,
+    `    resolution: {integrity: ${nativeIntegrity}}`,
+    '',
+    "  'pnpm@12.1.0':",
+    `    resolution: {integrity: sha512-${Buffer.from(PNPM_12_INTEGRITY, 'hex').toString('base64')}}`,
+    '',
+    '---',
+    "lockfileVersion: '9.0'",
+    'settings: {}',
+    '',
+  ].join('\n');
+  return { nodeModules, lock };
+}
 
 test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
   const parsed = parseArgs([
@@ -31,6 +105,8 @@ test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
     '/tmp/exact-openclaw',
     '--candidate-sha',
     '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
+    '--pnpm-node-modules',
+    '/opt/pinned-pnpm/node_modules',
     '--artifact-dir',
     '/tmp/rcw5-artifacts',
     '--cap',
@@ -40,6 +116,7 @@ test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
   assert.deepEqual(parsed, {
     sourceDir: '/tmp/exact-openclaw',
     candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
+    packageManagerRoot: '/opt/pinned-pnpm/node_modules',
     artifactDir: '/tmp/rcw5-artifacts',
     cap: 100,
     json: true,
@@ -126,9 +203,11 @@ test('R-CW-5 fixture rechecks committed candidate files after disposable worktre
   );
 });
 
-test('R-CW-5 fixture ignores fake PATH pnpm and verifies version plus integrity', async () => {
+test('R-CW-5 fixture resolves the candidate-pinned native package without PATH or download', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-pinned-pnpm-'));
-  await writeFile(path.join(worktree, 'package.json'), `${JSON.stringify({ packageManager: PNPM_11_2_2 })}\n`);
+  const fixture = await writePinnedPnpmFixture(worktree);
+  await writeFile(path.join(worktree, 'package.json'), `${JSON.stringify({ packageManager: PNPM_12 })}\n`);
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), fixture.lock);
   const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-fake-pnpm-'));
   const fakePnpm = path.join(fakeBin, 'pnpm');
   await writeFile(fakePnpm, '#!/bin/sh\necho FAKE-PNPM-RAN >&2\nexit 97\n');
@@ -136,13 +215,43 @@ test('R-CW-5 fixture ignores fake PATH pnpm and verifies version plus integrity'
   const priorPath = process.env.PATH;
   try {
     process.env.PATH = fakeBin;
-    const pinned = resolvePinnedPnpm(worktree);
-    assert.equal(pinned.pnpmVersion, '11.2.2');
-    assert.equal(pinned.packageManager, PNPM_11_2_2);
-    assert.equal(pinned.pnpmIntegritySha512, PNPM_11_2_2.split('+sha512.')[1]);
+    const pinned = resolvePinnedPnpm(worktree, fixture.nodeModules);
+    assert.equal(pinned.pnpmVersion, '12.1.0');
+    assert.equal(pinned.packageManager, PNPM_12);
+    assert.equal(pinned.pnpmIntegritySha512, PNPM_12_INTEGRITY);
+    assert.match(pinned.nativePackage, /^@pnpm\/exe\./);
   } finally {
     process.env.PATH = priorPath;
   }
+});
+
+test('R-CW-5 fixture rejects tampered package integrity and native executable paths', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-pnpm-integrity-'));
+  const fixture = await writePinnedPnpmFixture(root);
+  await writeFile(path.join(root, 'package.json'), `${JSON.stringify({ packageManager: PNPM_12 })}\n`);
+  await writeFile(path.join(root, 'pnpm-lock.yaml'), fixture.lock);
+
+  const metadataPath = path.join(fixture.nodeModules, '.package-lock.json');
+  const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+  metadata.packages['node_modules/pnpm'].integrity = `sha512-${Buffer.from('c'.repeat(128), 'hex').toString('base64')}`;
+  await writeFile(metadataPath, JSON.stringify(metadata));
+  assert.throws(
+    () => resolvePinnedPnpm(root, fixture.nodeModules),
+    /version\/integrity/,
+  );
+
+  const linkedRoot = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-pnpm-linked-'));
+  const fresh = await writePinnedPnpmFixture(linkedRoot);
+  await writeFile(path.join(linkedRoot, 'package.json'), `${JSON.stringify({ packageManager: PNPM_12 })}\n`);
+  await writeFile(path.join(linkedRoot, 'pnpm-lock.yaml'), fresh.lock);
+  const nativeRoot = path.join(fresh.nodeModules, nativePackageName());
+  await writeFile(path.join(linkedRoot, 'outside-pnpm'), '#!/bin/sh\nprintf "12.1.0\\n"\n');
+  await rm(path.join(nativeRoot, 'pnpm'));
+  await symlink(path.join(linkedRoot, 'outside-pnpm'), path.join(nativeRoot, 'pnpm'));
+  assert.throws(
+    () => resolvePinnedPnpm(linkedRoot, fresh.nodeModules),
+    /regular non-symlink file/,
+  );
 });
 
 test('R-CW-5 fixture confines package-manager state and rejects inherited hooks', async () => {

@@ -70,6 +70,7 @@ worktree, and never changes a running gateway or fleet config:
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --source-dir <exact-candidate-worktree> \
   --candidate-sha <40-char-sha> \
+  --pnpm-node-modules <preinstalled-exact-pnpm-node_modules> \
   --artifact-dir <empty-private-directory> --cap 100 --json
 ```
 
@@ -91,12 +92,13 @@ regression suite. It does not infer chain behavior from the R-CW-5
 cost-cap fixture or mutate fleet config/state:
 
 Before proofs, the detached worktree must declare exact `pnpm@<semver>` in its
-committed `package.json` (an optional `+sha...` suffix is accepted). The runner
-checks `pnpm --version`, requires that exact semantic version, runs
+committed `package.json` (an optional `+sha...` suffix is accepted). The runner checks `pnpm --version`, requires that exact semantic version, runs
 `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`, and then
-requires candidate-lock bytes, `.modules.yaml` package-manager metadata,
-candidate-contained virtual-store metadata, and local `tsx`/`vitest` realpaths
-to align. This is **not hermetic host-toolchain or cryptographic provenance
+requires the installed virtual-store workspace graph, importers, and package
+integrities to equal the candidate lockfile's workspace document.
+Candidate-only package-manager bootstrap metadata is validated separately.
+`.modules.yaml` package-manager metadata, candidate-contained virtual-store
+metadata, and local `tsx`/`vitest` realpaths must also align. This is **not hermetic host-toolchain or cryptographic provenance
 proof**: the host-resolved `pnpm` is version-checked and the resulting tree is
 verified for lockfile/tree/version alignment.
 
@@ -615,8 +617,9 @@ selected-max delegate dispatch boundary all run inside one detached disposable c
 worktree without a gateway or fleet mutation. The fixture first requires the
 candidate's committed `package.json` and `pnpm-lock.yaml`, runs `pnpm install
 --frozen-lockfile --prefer-offline --ignore-scripts` inside that detached worktree,
-checks the installed virtual-store lock bytes/SHA-256, `.modules.yaml`
-package-manager and virtual-store metadata, and invokes
+checks the installed virtual-store graph SHA-256 against the candidate
+workspace graph, validates the separate package-manager bootstrap document,
+checks `.modules.yaml` package-manager and virtual-store metadata, and invokes
 only its absolute `node_modules/.bin/tsx` and `node_modules/.bin/vitest`
 binaries; source-tree `node_modules` is ignored. Before the final result is
 written, candidate SHA/tracked-state checks run immediately after install and

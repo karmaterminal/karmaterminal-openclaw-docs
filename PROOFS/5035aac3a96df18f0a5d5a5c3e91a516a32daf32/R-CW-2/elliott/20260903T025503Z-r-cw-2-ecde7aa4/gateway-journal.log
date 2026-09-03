@@ -1,0 +1,13 @@
+2026-09-02T19:55:09.533667-07:00 elliott node[1484609]: 2026-09-02T19:55:09.533-07:00 [ws] ⇄ res ✓ sessions.send 757ms runId=R-CW-2-DISPATCH-<redacted-nonce> conn=a2fbbe2e…f3e2 id=1-0-1788404108756-nf4685
+2026-09-02T19:55:11.076866-07:00 elliott node[1484609]: 2026-09-02T19:55:11.076-07:00 [agent/embedded] workspace bootstrap file USER.md is 6810 chars (limit 4000); truncating in injected context (sessionKey=<redacted-session-key>)
+2026-09-02T19:55:27.108863-07:00 elliott node[1484609]: 2026-09-02T19:55:27.108-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T19:55:27.109953-07:00 elliott node[1484609]: 2026-09-02T19:55:27.109-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-09-02T19:55:27.111023-07:00 elliott node[1484609]: 2026-09-02T19:55:27.110-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T19:55:27.112014-07:00 elliott node[1484609]: 2026-09-02T19:55:27.111-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T19:55:27.140308-07:00 elliott node[1484609]: 2026-09-02T19:55:27.140-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1 reasonCategory=follow-up-work
+2026-09-02T19:55:27.141576-07:00 elliott node[1484609]: 2026-09-02T19:55:27.141-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-09-02T19:55:27.143893-07:00 elliott node[1484609]: 2026-09-02T19:55:27.143-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399995ms fireAt=1788490527137 session=<redacted-session-key>
+2026-09-02T19:55:27.182345-07:00 elliott node[1484609]: 2026-09-02T19:55:27.182-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=41 session=<redacted-session-key>
+2026-09-02T19:55:27.189086-07:00 elliott node[1484609]: 2026-09-02T19:55:27.188-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59996ms fireAt=1788404187183 session=<redacted-session-key>
+2026-09-02T19:55:27.190748-07:00 elliott node[1484609]: 2026-09-02T19:55:27.190-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<redacted-session-key> reasonCategory=follow-up-work
+2026-09-02T19:55:28.099412-07:00 elliott node[1484609]: 2026-09-02T19:55:28.099-07:00 [continuation/context-pressure] [context-pressure:fire] band=13 previous=none ratio=15% tokens=40k/272k session=<redacted-session-key>

@@ -1,0 +1,49 @@
+{
+  "schema": "openclaw.129388.final-proof-infrastructure-attempts.v1",
+  "attempts": [
+    {
+      "scope": "seat-readiness-workflow",
+      "runIds": [
+        33709075431,
+        33709076978,
+        33709078388,
+        33709079766
+      ],
+      "classification": "infrastructure",
+      "dispatchedRows": 0,
+      "cause": "bootstrap wrapper did not forward the exact docs ref",
+      "replacement": "manual exact-harness readiness passed on all four seats"
+    },
+    {
+      "row": "R-CW-5",
+      "attempts": 3,
+      "classification": "harness-infrastructure",
+      "behaviorExecuted": false,
+      "terminalCause": "accepted harness expects pnpm/bin/pnpm.cjs, but exact candidate pnpm 12.1.0 package exposes pnpm.mjs and wrapper entrypoints"
+    },
+    {
+      "row": "R-CW-6",
+      "attempts": 3,
+      "classification": "harness-infrastructure",
+      "behaviorExecuted": false,
+      "terminalCause": "accepted harness requires node_modules/.pnpm/lock.yaml byte-equal to pnpm-lock.yaml, but exact candidate pnpm 12.1.0 writes its virtual-store lock in a distinct format"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "attempts": 2,
+      "classification": "infrastructure",
+      "firstDispatched": false,
+      "cause": "k6 absent from noninteractive PATH",
+      "replacementRunId": "20260903T025546Z-r-config-defaults-6b09c413",
+      "replacementOutcome": "PASS-candidate"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "attempts": 1,
+      "classification": "infrastructure",
+      "dispatched": false,
+      "cause": "k6 absent from noninteractive PATH",
+      "retryDisposition": "not retried after terminal semantic failure was established"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.k6.r-cw-3-reason-telemetry-review.v1",
+  "row": "R-CW-3",
+  "runId": "20260903T025532Z-r-cw-3-ecde7aa4",
+  "traceId": "bb629e2feff0d339829e77ac4874864a",
+  "verdict": "reason-telemetry-redaction-review-passed",
+  "publicSafe": true,
+  "checks": {
+    "dispatchAccepted": true,
+    "scheduledSentinel": true,
+    "wakeObserved": true,
+    "publicArtifactRawReasonAbsent": true,
+    "tempoTraceJson": true,
+    "safeReasonAttrsPresent": true,
+    "rawReasonAbsentFromTempo": true
+  },
+  "safeReasonAttributeKeys": [
+    "reason.hash",
+    "reason.length",
+    "reason.present"
+  ]
+}

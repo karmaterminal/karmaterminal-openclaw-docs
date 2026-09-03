@@ -1,0 +1,16 @@
+{
+  "row": "R-RC-2",
+  "scenario": "r-rc-2-delegate-request-compaction.js",
+  "candidateSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "runtimeBuildSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seat": "elliott",
+  "sessionConfigured": true,
+  "startedAt": "2026-09-03T02:57:04Z",
+  "docsRef": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260903T025500Z-5384acb5a137-ecde7aa4",
+  "manifestPath": "tools/k6-proofs/manifests/r-rc-2.json",
+  "manifestSha256": "3a113a47e8751f3b26b323b22ccd26bbd0e54e1b7b43bd5c4caeea8b1fec035e",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-rc-2-delegate-request-compaction.js",
+  "scenarioSha256": "93be8096130dd918b78a233734e711e32d1359dd2a170a8c4d620cc5beaa53d8"
+}

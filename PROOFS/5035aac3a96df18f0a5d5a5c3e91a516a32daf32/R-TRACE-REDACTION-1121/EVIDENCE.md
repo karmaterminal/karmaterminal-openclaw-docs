@@ -4,7 +4,9 @@
 - product tree: `5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2`
 - execution runtime SHA: `dbf5795bd5dd406f586575d883a7878288e591ad` (ancillary deployment provenance only)
 - harness SHA: `5384acb5a137fdcfe30f1742bdc6af86ef8899d1`
-- assigned lane: `frond_local_process`
-- current canonical state: `missing`
+- run ID: `run-20260902T2015PDT`
+- execution seat: `local`
+- canonical state: `pass`
+- candidate verdict: `PASS-candidate`
 
-No current-candidate receipt has been reviewed and folded into this row yet. Historical source `PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-TRACE-REDACTION-1121/EVIDENCE.md` is diagnostic provenance only and does not transfer verdict authority.
+Exact-pure continuation tracer/redaction tests passed within the 273-test run.

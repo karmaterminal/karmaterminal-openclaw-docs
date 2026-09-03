@@ -1,0 +1,16 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",scenario="r-cd-2-silent-wake.js",run_id="20260903T030022Z-r-cd-2-e5b29554",tool_surface="typed-tool",transport="websocket",outcome="PARTIAL-candidate",candidate_only="true",fold_requires_review="true",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",scenario="r-cd-2-silent-wake.js",run_id="20260903T030022Z-r-cd-2-e5b29554",failure_class="threshold"} 1
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",outcome="PARTIAL-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",scenario="r-cd-2-silent-wake.js",run_id="20260903T030022Z-r-cd-2-e5b29554",outcome="PARTIAL-candidate"} 72640
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="continuation-trace-correlation",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="tempo-trace-json",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="seat-readiness",receipt_required="true",receipt_status="present"} 1
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="send-run-lifecycle",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="typed-delegate-topology",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="row-scoped-authoritative-receipt",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-CD-2",seat="ronan",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T030022Z-r-cd-2-e5b29554",receipt_name="no-channel-delivery",receipt_required="true",receipt_status="unknown"} 0

@@ -1,0 +1,2 @@
+2026-09-02T19:56:14.980035-07:00 elliott node[1484609]: 2026-09-02T19:56:14.979-07:00 [agent/embedded] workspace bootstrap file USER.md is 6810 chars (limit 4000); truncating in injected context (sessionKey=<redacted-session-key>)
+2026-09-02T19:56:27.186734-07:00 elliott node[1484609]: 2026-09-02T19:56:27.186-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>

@@ -1,0 +1,19 @@
+{
+  "row": "R-RC-2",
+  "sha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seat": "elliott",
+  "timestamp": "2026-09-03T02:59:08.515Z",
+  "verdict": "PASS-candidate",
+  "evidence": null,
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "med": 120316,
+      "max": 120316,
+      "p(90)": 120316,
+      "p(95)": 120316,
+      "avg": 120316,
+      "min": 120316
+    }
+  }
+}

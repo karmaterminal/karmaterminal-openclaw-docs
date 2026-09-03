@@ -117,64 +117,68 @@
   },
   "rollup": {
     "total_rows": 38,
-    "pass": 0,
-    "partial": 0,
+    "pass": 8,
+    "partial": 3,
     "thin": 0,
-    "fail": 0,
+    "fail": 1,
     "honest_limit": 0,
-    "missing": 38
+    "missing": 26
   },
   "rows": [
     {
       "row": "R-CD-1",
       "title": "Typed continue_delegate() schedule/spawn/return.",
       "owner": "ronan_live",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-1/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; typed schedule/spawn/return; seat-readiness; accepted tool; parent return; trace"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-1/EVIDENCE.md is provenance only.",
+      "summary": "Accepted parent send but no authoritative scheduled sentinel, parent return, or trace.",
+      "notes": "Run 20260903T025503Z-r-cd-1-e5b29554 on ronan. Accepted parent send but no authoritative scheduled sentinel, parent return, or trace. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-1/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025503Z-r-cd-1-e5b29554"
+      ],
       "traces": []
     },
     {
       "row": "R-CD-2",
       "title": "continue_delegate(mode='silent-wake') full path.",
       "owner": "ronan_live",
-      "state": "missing",
+      "state": "fail",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-2/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "FAIL-candidate",
+      "review_status": "terminal-fail",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; one typed delegate topology; authoritative row receipt; no channel delivery; trace"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live-mandatory; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-2/EVIDENCE.md is provenance only.",
+      "summary": "Authoritative signed receipt: missing-terminal-sentinel.",
+      "notes": "Run 20260903T030022Z-r-cd-2-e5b29554 on ronan. Authoritative signed receipt: missing-terminal-sentinel. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-2/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T030022Z-r-cd-2-e5b29554"
+      ],
       "traces": []
     },
     {
@@ -422,15 +426,15 @@
       "scenario_status": "process-local-accepted-launcher",
       "live_run_classification": "process-local-indivisible-24-observation-matrix",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
+      "review_status": "artifact-built-matrix-not-fired",
       "fired": false,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; all 12 cases x typed-tool+bracket-token exactly once; allowed exact effects; forbidden zero prompt/wake/channel; schema v18/v19; restart replay; signed authority; full cleanup"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action rerun-process-local-full-matrix-mandatory; historical source tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@5384acb5a137fdcfe30f1742bdc6af86ef8899d1 is provenance only.",
+      "summary": "Exact-pure 3.2 GB attested runtime artifact built; 24-observation matrix not fired after terminal R-CD-2 FAIL-candidate.",
+      "notes": "Artifact run rcv-13428542657bda625490500f560a0ee4; public digest receipt under artifacts/.",
       "supporting_docs": [
         "tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@5384acb5a137fdcfe30f1742bdc6af86ef8899d1"
       ],
@@ -441,26 +445,28 @@
       "row": "R-CD-SILENT",
       "title": "Typed continue_delegate(mode='silent') proof.",
       "owner": "ronan_live",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-SILENT/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CD-SILENT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; child completion and internal context; no channel delivery"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane ronan_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-SILENT/EVIDENCE.md is provenance only.",
+      "summary": "Accepted parent send but no authoritative child completion, follow-up, internal context, or trace.",
+      "notes": "Run 20260903T030457Z-r-cd-silent-e5b29554 on ronan. Accepted parent send but no authoritative child completion, follow-up, internal context, or trace. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-SILENT/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T030457Z-r-cd-silent-e5b29554"
+      ],
       "traces": []
     },
     {
@@ -493,26 +499,26 @@
       "row": "R-CONFIG-DEFAULTS",
       "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
       "owner": "emeric_live",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CONFIG-DEFAULTS/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CONFIG-DEFAULTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; enabled/default values present from fresh bootstrap"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane emeric_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CONFIG-DEFAULTS/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Reviewed complete candidate receipt after retained infrastructure attempt.",
+      "notes": "Run 20260903T025546Z-r-config-defaults-6b09c413 on emeric. Reviewed complete candidate receipt after retained infrastructure attempt. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CONFIG-DEFAULTS/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025546Z-r-config-defaults-6b09c413"
+      ],
       "traces": []
     },
     {
@@ -571,52 +577,52 @@
       "row": "R-CW-2",
       "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
       "owner": "elliott_live",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-2/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; chain counter decrements on immediate wake; prompt echo excluded"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-2/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Reviewed complete candidate receipt.",
+      "notes": "Run 20260903T025503Z-r-cw-2-ecde7aa4 on elliott. Reviewed complete candidate receipt. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-2/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025503Z-r-cw-2-ecde7aa4"
+      ],
       "traces": []
     },
     {
       "row": "R-CW-3",
       "title": "continue_work reason telemetry/redaction partial candidate.",
       "owner": "elliott_live",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-3/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; reason captured and redacted; exact trace JSON and review receipt"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-3/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Runner partial was review-promoted only after recovered Tempo correlation and redaction review passed.",
+      "notes": "Run 20260903T025532Z-r-cw-3-ecde7aa4 on elliott. Runner partial was review-promoted only after recovered Tempo correlation and redaction review passed. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-3/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025532Z-r-cw-3-ecde7aa4"
+      ],
       "traces": []
     },
     {
@@ -656,15 +662,15 @@
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
+      "review_status": "blocked-harness-infrastructure",
       "fired": false,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; boundary matrix; typed tool; dispatch reject/no-spawn; readiness; cleanup"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action rerun-process-local-fixture; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5/EVIDENCE.md is provenance only.",
+      "summary": "No behavior executed: accepted harness cannot resolve candidate-pinned pnpm 12.1.0 package layout.",
+      "notes": "Three retained infrastructure attempts; no semantic retry occurred.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5/EVIDENCE.md"
       ],
@@ -708,15 +714,15 @@
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
+      "review_status": "blocked-harness-infrastructure",
       "fired": false,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; below/at/over matrix; no-spawn; durable recovery; selected delegate; cleanup; safety"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action rerun-process-local-fixture-mandatory; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6/EVIDENCE.md is provenance only.",
+      "summary": "No behavior executed: accepted harness lockfile byte-equality predicate is incompatible with pnpm 12.1.0 virtual-store lock format.",
+      "notes": "Three retained infrastructure attempts; no semantic retry occurred.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6/EVIDENCE.md"
       ],
@@ -909,26 +915,26 @@
       "row": "R-CW-TOKEN",
       "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
       "owner": "elliott_live",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-TOKEN/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; terminal CONTINUE_WORK token parsed at bracketIdx=0 and hop-2 executes; typed sibling"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-TOKEN/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Reviewed complete candidate receipt.",
+      "notes": "Run 20260903T025609Z-r-cw-token-ecde7aa4 on elliott. Reviewed complete candidate receipt. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-TOKEN/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025609Z-r-cw-token-ecde7aa4"
+      ],
       "traces": []
     },
     {
@@ -987,130 +993,132 @@
       "row": "R-OBS-STATUS",
       "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
       "owner": "frond_local_process",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-OBS-STATUS/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-OBS-STATUS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; candidate source hash; active continuation line; clean-session absence"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action revalidate-server-source; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-STATUS/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Exact-pure source contract passed.",
+      "notes": "Run run-20260902T2020PDT on local. Exact-pure source contract passed. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-STATUS/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260902T2020PDT"
+      ],
       "traces": []
     },
     {
       "row": "R-RC-1",
       "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
       "owner": "elliott_live",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-RC-1/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-RC-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; tool registered/invoked; structured context-threshold rejection"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-RC-1/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Reviewed structured threshold rejection.",
+      "notes": "Run 20260903T025635Z-r-rc-1-ecde7aa4 on elliott. Reviewed structured threshold rejection. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-RC-1/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025635Z-r-rc-1-ecde7aa4"
+      ],
       "traces": []
     },
     {
       "row": "R-RC-2",
       "title": "Parent fires continue_delegate to a child that calls request_compaction.",
       "owner": "elliott_live",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-RC-2/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-RC-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "HONEST-LIMIT only; child invokes request_compaction; authoritative insufficient-context threshold receipt; trace"
       ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane elliott_live; accepted action rerun-live-exact-honest-limit; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-RC-2/EVIDENCE.md is provenance only.",
+      "summary": "No child session or nonce-bound structured request_compaction tool result; text-only threshold report is insufficient.",
+      "notes": "Run 20260903T025704Z-r-rc-2-ecde7aa4 on elliott. No child session or nonce-bound structured request_compaction tool result; text-only threshold report is insufficient. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-RC-2/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "20260903T025704Z-r-rc-2-ecde7aa4"
+      ],
       "traces": []
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
       "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
       "owner": "frond_local_process",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-REGRESSION-TRAP-TESTS/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; every owned sister/trap test enumerated and green"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action rerun-hermetic; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-REGRESSION-TRAP-TESTS/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Twenty exact-pure files, 273 tests, five serial Vitest shards passed.",
+      "notes": "Run run-20260902T2015PDT on local. Twenty exact-pure files, 273 tests, five serial Vitest shards passed. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260902T2015PDT"
+      ],
       "traces": []
     },
     {
       "row": "R-TRACE-REDACTION-1121",
       "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
       "owner": "frond_local_process",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-TRACE-REDACTION-1121/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-TRACE-REDACTION-1121/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "execution-in-progress",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; redaction contracts/tests; zero secrets/private paths"
-      ],
-      "summary": "Fresh final proof row; no reviewed current-candidate receipt folded yet.",
-      "notes": "Execution lane frond_local_process; accepted action rerun-hermetic; historical source PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-TRACE-REDACTION-1121/EVIDENCE.md is provenance only.",
+      "pending_receipts": [],
+      "summary": "Exact-pure continuation tracer/redaction tests passed within the 273-test run.",
+      "notes": "Run run-20260902T2015PDT on local. Exact-pure continuation tracer/redaction tests passed within the 273-test run. Canonical corpus identity remains pure 5035aac3a96df18f0a5d5a5c3e91a516a32daf32; runtime dbf5795bd5dd406f586575d883a7878288e591ad is ancillary.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-TRACE-REDACTION-1121/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260902T2015PDT"
+      ],
       "traces": []
     }
   ],
@@ -1126,5 +1134,6 @@
     "targeted_verdict": "PASS"
   },
   "generated": "2026-09-02T19:40:08-07:00",
-  "notes": "Execution is active. R-OBS-1 is held for Silas/Cael exact deployment; R-OBS-2 waits for producer traces. No branch evidence is canonical until row review."
+  "notes": "Terminal FAIL_CANDIDATE: mandatory R-CD-2 produced a signed FAIL-candidate (missing-terminal-sentinel). R-RC-2 produced PARTIAL rather than the sole permitted HONEST-LIMIT. No later rows were started after the exact terminal boundary.",
+  "execution_status": "FAIL_CANDIDATE"
 }

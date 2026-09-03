@@ -15,14 +15,14 @@
   "harness_sha": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
   "rollup": {
     "total_rows": 38,
-    "pass": 0,
-    "partial": 0,
+    "pass": 8,
+    "partial": 3,
     "thin": 0,
-    "fail": 0,
+    "fail": 1,
     "honest_limit": 0,
-    "missing": 38
+    "missing": 26
   },
-  "disposition_note": "Execution in progress on a protected review branch; docs main remains unchanged.",
+  "disposition_note": "FAIL_CANDIDATE on review branch: mandatory R-CD-2 signed failure; docs main unchanged.",
   "generated": "2026-09-02",
   "generated_by": "frond-scribe"
 }

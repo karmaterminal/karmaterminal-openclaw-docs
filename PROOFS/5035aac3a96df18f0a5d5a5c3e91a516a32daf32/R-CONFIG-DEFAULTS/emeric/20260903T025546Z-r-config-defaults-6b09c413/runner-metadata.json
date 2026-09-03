@@ -1,0 +1,16 @@
+{
+  "row": "R-CONFIG-DEFAULTS",
+  "scenario": "r-config-defaults.js",
+  "candidateSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "runtimeBuildSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+  "seat": "emeric",
+  "sessionConfigured": true,
+  "startedAt": "2026-09-03T02:55:46Z",
+  "docsRef": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20260903T025544Z-5384acb5a137-6b09c413",
+  "manifestPath": "tools/k6-proofs/manifests/r-config-defaults.json",
+  "manifestSha256": "dec0be0a591aecf9ea4c74371d9c54b2239aa95f498e3d9e9933659112a2e29b",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-config-defaults.js",
+  "scenarioSha256": "ee6994ff6e2963dce172f078f24d05f504719db4fb49876a4eb08250c908dada"
+}

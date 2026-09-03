@@ -1,0 +1,16 @@
+# TYPE openclaw_proofs_k6_run_total counter
+openclaw_proofs_k6_run_total{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",scenario="r-rc-2-delegate-request-compaction.js",run_id="20260903T025704Z-r-rc-2-ecde7aa4",tool_surface="typed-tool",transport="websocket",outcome="PASS-candidate",candidate_only="true",fold_requires_review="true",failure_class="missing-receipt"} 1
+# TYPE openclaw_proofs_k6_proof_failures_total counter
+openclaw_proofs_k6_proof_failures_total{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",scenario="r-rc-2-delegate-request-compaction.js",run_id="20260903T025704Z-r-rc-2-ecde7aa4",failure_class="missing-receipt"} 0
+# TYPE openclaw_proofs_k6_candidate_pending_review gauge
+openclaw_proofs_k6_candidate_pending_review{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",outcome="PASS-candidate",fold_requires_review="true"} 1
+# TYPE openclaw_proofs_k6_duration_ms gauge
+openclaw_proofs_k6_duration_ms{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",scenario="r-rc-2-delegate-request-compaction.js",run_id="20260903T025704Z-r-rc-2-ecde7aa4",outcome="PASS-candidate"} 120316
+# TYPE openclaw_proofs_k6_receipt_status gauge
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="continuation-trace-correlation",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="tempo-trace-json",receipt_required="true",receipt_status="missing"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="parent-dispatch-accepted",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="delegate-requested",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="child-report-observed",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="threshold-rejection-or-accepted-compaction",receipt_required="true",receipt_status="unknown"} 0
+openclaw_proofs_k6_receipt_status{row_id="R-RC-2",seat="elliott",candidate_sha="dbf5795bd5dd406f586575d883a7878288e591ad",run_id="20260903T025704Z-r-rc-2-ecde7aa4",receipt_name="trace-id",receipt_required="true",receipt_status="missing"} 0

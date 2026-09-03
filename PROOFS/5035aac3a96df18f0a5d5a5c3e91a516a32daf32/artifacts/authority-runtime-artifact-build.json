@@ -1,0 +1,20 @@
+{
+  "schema": "openclaw.129388.authority-runtime-artifact-build.v1",
+  "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "rcv-13428542657bda625490500f560a0ee4",
+  "status": "artifact-built-matrix-not-fired",
+  "reasonMatrixNotFired": "Terminal FAIL-candidate was reached first at mandatory R-CD-2.",
+  "pureSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "pureTree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
+  "harnessSha": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
+  "manifestFileSha256": "aca927b245bb5f215bb90aed0b085e6ec3bd3c068e3a49c9de7388ddbee425c4",
+  "closureSha256": "bec8b32b559810f53654347ff4e83b8d9c9acd0d0ae6a26cf353e95508ea7e7f",
+  "dependencyInventorySha256": "1f0a854be49efe5c53cc13c0e8adc5bb6a486b92c910dc2b6c3130b050954eac",
+  "buildOutputInventorySha256": "937636cb1e82bc33c048feb780c3f37f03ea05be7687dda2f6b249169533235f",
+  "entryCount": 114675,
+  "fileCount": 106163,
+  "directoryCount": 8512,
+  "totalBytes": 3038625189,
+  "node": "v25.9.0 linux/arm64/glibc",
+  "pnpm": "12.1.0"
+}

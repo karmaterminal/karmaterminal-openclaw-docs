@@ -1,0 +1,58 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-09-03T02:55:49Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": null,
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [],
+  "evidence": {
+    "row": "R-CONFIG-DEFAULTS",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "candidateSha": "dbf5795bd5dd406f586575d883a7878288e591ad",
+    "started": "2026-09-03T02:55:48.808Z",
+    "rpc": {
+      "method": "config.get",
+      "operator_surface": true,
+      "response_ok": true,
+      "response_shape": {
+        "config_present": true,
+        "continuation_present": true
+      }
+    },
+    "config_read": true,
+    "enabled": true,
+    "max_chain_length": 200,
+    "max_delegates_per_turn": 500,
+    "cost_cap_tokens": 50000000,
+    "trace_id": null,
+    "correlation": {
+      "service": "emeric-prince",
+      "query_window_start": "2026-09-03T02:55:48.808Z",
+      "query_window_end": "2026-09-03T02:55:49.673Z"
+    },
+    "ended": "2026-09-03T02:55:49.673Z",
+    "duration_ms": 865
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": []
+  }
+}

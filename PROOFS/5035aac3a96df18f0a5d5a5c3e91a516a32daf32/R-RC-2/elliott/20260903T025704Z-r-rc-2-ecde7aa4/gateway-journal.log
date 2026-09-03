@@ -1,0 +1,14 @@
+2026-09-02T19:57:09.990820-07:00 elliott node[1484609]: 2026-09-02T19:57:09.990-07:00 [agent/embedded] workspace bootstrap file USER.md is 6810 chars (limit 4000); truncating in injected context (sessionKey=<redacted-session-key>)
+2026-09-02T19:57:26.006317-07:00 elliott node[1484609]: 2026-09-02T19:57:26.006-07:00 [tools] continue_delegate failed: recipientContext is only valid when managed artifact returns are optional or required. raw_params={"task":<redacted-payload>
+2026-09-02T19:57:43.960507-07:00 elliott node[1484609]: 2026-09-02T19:57:43.960-07:00 [tools] continue_delegate failed: recipientContext is only valid when managed artifact returns are optional or required. raw_params={"task":<redacted-payload>
+2026-09-02T19:57:43.989570-07:00 elliott node[1484609]: 2026-09-02T19:57:43.989-07:00 [agent/embedded] embedded run agent end: runId=R-RC-2-<redacted-nonce> isError=true model=gpt-5.6-sol provider=openai error=⚠️ openai/gpt-5.6-sol request failed. rawError=Repeated tool-call failure loop.
+2026-09-02T19:57:44.052358-07:00 elliott node[1484609]: 2026-09-02T19:57:44.052-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-09-02T19:57:44.053546-07:00 elliott node[1484609]: 2026-09-02T19:57:44.053-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-09-02T19:57:44.090117-07:00 elliott node[1484609]: 2026-09-02T19:57:44.090-07:00 [diagnostic] message dispatch completed: channel=webchat sessionId=unknown sessionKey=<redacted-session-key> source=replyResolver outcome=error duration=35062ms
+2026-09-02T19:57:44.091546-07:00 elliott node[1484609]: 2026-09-02T19:57:44.091-07:00 [diagnostic] message processed: channel=webchat chatId=unknown messageId=R-RC-2-<redacted-nonce> sessionId=e699b909-a3a8-45aa-93f3-6a8f90e79e78 sessionKey=<redacted-session-key> outcome=error duration=35069ms
+2026-09-02T19:57:59.574376-07:00 elliott node[1484609]: 2026-09-02T19:57:59.574-07:00 [agents/subagent-registry] requester settle wake failed
+2026-09-02T19:57:59.575308-07:00 elliott node[1484609]: 2026-09-02T19:57:59.575-07:00 [agents/subagent-registry] requester settle wake failed
+2026-09-02T19:57:59.576162-07:00 elliott node[1484609]: 2026-09-02T19:57:59.576-07:00 [agents/subagent-registry] requester settle wake failed
+2026-09-02T19:58:59.588453-07:00 elliott node[1484609]: 2026-09-02T19:58:59.588-07:00 [agents/subagent-registry] requester settle wake failed
+2026-09-02T19:58:59.603965-07:00 elliott node[1484609]: 2026-09-02T19:58:59.589-07:00 [agents/subagent-registry] requester settle wake failed
+2026-09-02T19:58:59.603965-07:00 elliott node[1484609]: 2026-09-02T19:58:59.590-07:00 [agents/subagent-registry] requester settle wake failed

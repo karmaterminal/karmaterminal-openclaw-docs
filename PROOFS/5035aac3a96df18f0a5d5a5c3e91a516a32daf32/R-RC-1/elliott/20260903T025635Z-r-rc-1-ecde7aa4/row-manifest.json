@@ -1,0 +1,78 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-RC-1",
+  "issue": 422,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-r-rc-reject}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 60,
+  "scenario": {
+    "name": "r-rc-1-threshold-reject",
+    "description": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+    "methods": [
+      "sessions.create",
+      "tools.effective",
+      "sessions.messages.subscribe",
+      "sessions.send",
+      "sessions.get"
+    ],
+    "status": "runnable",
+    "file": "r-rc-1-threshold-reject.js"
+  },
+  "invocation": {
+    "tool": "request_compaction"
+  },
+  "expectedReceipts": [
+    {
+      "name": "tool-registered",
+      "required": true,
+      "description": "Direct tools.effective inventory contains request_compaction for the disposable session"
+    },
+    {
+      "name": "tool-invoked",
+      "required": true,
+      "description": "The current row nonce appears in a typed request_compaction invocation with a correlation ID"
+    },
+    {
+      "name": "tool-invoke-rejected",
+      "required": true,
+      "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-RC-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Threshold Reject. Validates direct typed-tool registration, this row's nonce-bearing invocation, and the matching structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose and Tempo traces are diagnostic only and cannot satisfy or block this synchronous reject row."
+  },
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "tool-registered",
+      "tool-invoked",
+      "tool-invoke-rejected"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult context_threshold rejection. Assistant prose cannot pass the row; no Tempo trace is required for a synchronous non-mutating rejection."
+  }
+}

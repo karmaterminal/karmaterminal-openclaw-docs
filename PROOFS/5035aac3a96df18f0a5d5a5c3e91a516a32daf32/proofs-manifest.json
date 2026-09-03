@@ -15,7 +15,7 @@
     "ancillary_patch_path_count": 22,
     "materiality": "The composite adds the reviewed #121204 and #124337 operational patches. It is deployment substrate, not continuation feature identity."
   },
-  "harness_sha": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
+  "harness_sha": "3ff33727eb2992473f73da71b3a4b452969b1225",
   "fire_type": "fresh-final-execution",
   "corpus": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
   "sha_short": "5035aac3",
@@ -109,12 +109,12 @@
   },
   "rollup": {
     "total_rows": 38,
-    "pass": 17,
+    "pass": 18,
     "partial": 7,
     "thin": 0,
-    "fail": 1,
+    "fail": 2,
     "honest_limit": 0,
-    "missing": 13
+    "missing": 11
   },
   "rows": [
     {
@@ -489,13 +489,14 @@
       "pending_receipts": [
         "PASS; exact raw final text; parser/queue/child/return identities; trace correlation"
       ],
-      "summary": "Pre-dispatch exact-candidate/runtime equality gate rejected pure 5035aac3 versus runtime composite dbf5795b; no token dispatch occurred.",
-      "notes": "Run 20260903T033559Z-r-cd-token-877d5a31 on Ronan. No semantic retry; original attempt retained.",
+      "summary": "Reviewed ancillary-runtime provenance passed and live dispatch occurred, but no token delegate task or parent return appeared before the observation window expired.",
+      "notes": "Repaired harness 3ff33727; latest run 20260903T060815Z-r-cd-token-0fd4f089. Prior attempts retained; no semantic retry after this result.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-TOKEN/EVIDENCE.md"
       ],
       "test_cases_executed": [
-        "20260903T033559Z-r-cd-token-877d5a31"
+        "20260903T033559Z-r-cd-token-877d5a31",
+        "20260903T060815Z-r-cd-token-0fd4f089"
       ],
       "traces": []
     },
@@ -659,26 +660,28 @@
       "row": "R-CW-5",
       "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond_local_process_and_hermetic",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "blocked-harness-infrastructure",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; boundary matrix; typed tool; dispatch reject/no-spawn; readiness; cleanup"
       ],
-      "summary": "No behavior executed: accepted harness cannot resolve candidate-pinned pnpm 12.1.0 package layout.",
-      "notes": "Three retained infrastructure attempts; no semantic retry occurred.",
+      "summary": "Repaired exact-pure process fixture passed dependency provenance, boundary matrix, typed-tool, dispatch, and cleanup.",
+      "notes": "Repaired harness 3ff33727; latest run run-20260903T055951Z-734fb48c. Prior attempts retained; no semantic retry after this result.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260903T055951Z-734fb48c"
+      ],
       "traces": []
     },
     {
@@ -713,26 +716,28 @@
       "row": "R-CW-6",
       "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond_local_process_and_hermetic",
-      "state": "missing",
+      "state": "fail",
       "dir": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/",
       "evidence_doc": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-6/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
       "scenario_status": "scaffold",
       "live_run_classification": "orchestration-required",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "blocked-harness-infrastructure",
-      "fired": false,
+      "candidate_verdict": "FAIL-fixture",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; below/at/over matrix; no-spawn; durable recovery; selected delegate; cleanup; safety"
       ],
-      "summary": "No behavior executed: accepted harness lockfile byte-equality predicate is incompatible with pnpm 12.1.0 virtual-store lock format.",
-      "notes": "Three retained infrastructure attempts; no semantic retry occurred.",
+      "summary": "Dependency provenance and boundary matrix passed, but runtime, durable recovery, typed-tool, and selected delegate boundary receipts failed. Candidate regression companion passed.",
+      "notes": "Repaired harness 3ff33727; latest run run-20260903T055951Z-ff3429fc. Prior attempts retained; no semantic retry after this result.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6/EVIDENCE.md"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "run-20260903T055951Z-ff3429fc"
+      ],
       "traces": []
     },
     {
@@ -1155,6 +1160,6 @@
     "targeted_verdict": "PASS"
   },
   "generated": "2026-09-02T19:40:08-07:00",
-  "notes": "Current-runbook correction applied. All 33 required runnable rows now have one retained attempt across the 12 previously consumed rows and the 21-row Ronan completion matrix; no consumed row was refired. All five process/hermetic rows were attempted or prepared, with harness/environment blockers retained. Final rollup remains 17 pass, 7 partial, 1 fail, 13 missing. Fleet readiness subsequently reached 6/6 exact dbf5795b; R-OBS-1 was not refired and its crosswalk receipt was folded separately.",
-  "execution_status": "FAIL_CANDIDATE"
+  "notes": "Reviewed harness refire in progress. R-CW-5 PASS; R-CW-6 terminal FAIL-fixture; R-CD-TOKEN terminal PARTIAL after ancillary provenance passed. R-RC-2 and R-CD-2 untouched.",
+  "execution_status": "REFIRE_IN_PROGRESS"
 }

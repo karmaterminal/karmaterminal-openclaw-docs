@@ -1,11 +1,11 @@
-# R-CD-TOKEN — final proof evidence
+# R-CD-TOKEN — repaired-harness refire evidence
 
 - canonical pure SHA: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- execution runtime SHA: `dbf5795bd5dd406f586575d883a7878288e591ad` (ancillary)
-- docs ref: `8625dbd09c9d095829510e248605377241d09289`
-- run ID: `20260903T033559Z-r-cd-token-877d5a31`
-- seat: `ronan`
+- reviewed harness: `3ff33727eb2992473f73da71b3a4b452969b1225`
+- latest run: `20260903T060815Z-r-cd-token-0fd4f089`
 - canonical state: `partial`
 - candidate verdict: `PARTIAL-candidate`
 
-Pre-dispatch exact-candidate/runtime equality gate rejected pure 5035aac3 versus runtime composite dbf5795b; no token dispatch occurred.
+Reviewed ancillary-runtime provenance passed and live dispatch occurred, but no token delegate task or parent return appeared before the observation window expired.
+
+All earlier attempts remain under the row directory or prior checkpoint history.

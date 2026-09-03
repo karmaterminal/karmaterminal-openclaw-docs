@@ -12,17 +12,17 @@
   "clawsweeper_path": "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/CLAWSSWEEPER.md",
   "execution_runtime_sha": "dbf5795bd5dd406f586575d883a7878288e591ad",
   "execution_runtime_tree": "cf19ec824826b830822074eca90f801120f675ab",
-  "harness_sha": "5384acb5a137fdcfe30f1742bdc6af86ef8899d1",
+  "harness_sha": "3ff33727eb2992473f73da71b3a4b452969b1225",
   "rollup": {
     "total_rows": 38,
-    "pass": 17,
+    "pass": 18,
     "partial": 7,
     "thin": 0,
-    "fail": 1,
+    "fail": 2,
     "honest_limit": 0,
-    "missing": 13
+    "missing": 11
   },
-  "disposition_note": "FAIL_CANDIDATE after complete one-fire runnable-matrix attempt under corrected current-runbook allocation; docs main unchanged.",
+  "disposition_note": "Reviewed-harness selected-row refire in progress; canonical identity remains pure 5035aac3.",
   "generated": "2026-09-02",
   "generated_by": "frond-scribe"
 }

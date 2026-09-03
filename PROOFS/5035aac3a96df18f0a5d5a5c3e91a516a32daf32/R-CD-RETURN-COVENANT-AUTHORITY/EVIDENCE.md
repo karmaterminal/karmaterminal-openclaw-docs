@@ -1,10 +1,8 @@
-# R-CD-RETURN-COVENANT-AUTHORITY — final proof evidence
+# R-CD-RETURN-COVENANT-AUTHORITY — repaired-harness refire evidence
 
 - canonical pure SHA: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- product tree: `5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2`
-- execution runtime SHA: `dbf5795bd5dd406f586575d883a7878288e591ad` (ancillary deployment provenance only)
-- harness SHA: `5384acb5a137fdcfe30f1742bdc6af86ef8899d1`
-- assigned lane: `frond_local_process`
-- current canonical state: `missing`
+- reviewed harness: `3ff33727eb2992473f73da71b3a4b452969b1225`
+- canonical state: `missing`
+- latest candidate verdict: `PARTIAL-candidate`
 
-No current-candidate receipt has been reviewed and folded into this row yet. Historical source `tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@5384acb5a137fdcfe30f1742bdc6af86ef8899d1` is diagnostic provenance only and does not transfer verdict authority.
+The first repaired-harness attempt was an infrastructure plan error and produced zero observations. The new-run retry reached product-driver readiness and proved both runtime mounts read-only, but the fixture gateway was not running for phase calls. All 16 scenario phase assertions failed, `cleanup-run` returned HTTP 500, no signed observer receipt was created, and the sandbox emitted no trusted exit record. The indivisible 24-observation contract is therefore absent.

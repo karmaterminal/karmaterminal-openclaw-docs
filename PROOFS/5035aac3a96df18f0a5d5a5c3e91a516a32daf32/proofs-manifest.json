@@ -427,20 +427,23 @@
       "manifest": "tools/k6-proofs/manifests/r-cd-return-covenant-authority.json",
       "scenario_status": "process-local-accepted-launcher",
       "live_run_classification": "process-local-indivisible-24-observation-matrix",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "launcher-infrastructure-blocked",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS; all 12 cases x typed-tool+bracket-token exactly once; allowed exact effects; forbidden zero prompt/wake/channel; schema v18/v19; restart replay; signed authority; full cleanup"
       ],
-      "summary": "Exact runtime artifact built; trusted launcher rejected its location because every available task workspace is within HOME, which the launcher excludes.",
-      "notes": "No product process or matrix observation started. Accepted harness remained unchanged.",
+      "summary": "Repaired launcher reached readiness and read-only mounts, but fixture gateway phase calls failed; zero of 24 observations and no signed cleanup/observer receipt.",
+      "notes": "First repaired attempt was a retained plan infrastructure failure; corrected new-run retry is terminal PARTIAL and must not be retried by this lane.",
       "supporting_docs": [
         "tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@5384acb5a137fdcfe30f1742bdc6af86ef8899d1"
       ],
-      "test_cases_executed": [],
+      "test_cases_executed": [
+        "rcv-f213595ab87cb6639a92bbe3bdb66ebf",
+        "rcv-bc6b9eb3a5dc1eaca1e36e001ce693ec"
+      ],
       "traces": []
     },
     {
@@ -695,20 +698,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-evidence-missing",
+      "review_status": "producer-contract-not-satisfied",
       "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS at corpus level only with static boundary receipts; never claim live behavior"
       ],
-      "summary": "Static helper executed and failed because the required current-corpus R-CW-5 producer receipts are absent.",
+      "summary": "Static validator still requires legacy cael-dgx source/log artifacts and did not consume the repaired R-CW-5 fixture receipts.",
       "notes": "Hermetic static helper attempt retained; absence is not a product-behavior contradiction.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5A/EVIDENCE.md"
       ],
       "test_cases_executed": [
-        "run-20260902T2045PDT"
+        "run-20260902T2045PDT",
+        "run-20260903T061633Z-372b4d35"
       ],
       "traces": []
     },
@@ -751,20 +755,21 @@
       "scenario_status": "runnable",
       "live_run_classification": "static-preflight-only",
       "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-evidence-missing",
+      "review_status": "producer-contract-not-satisfied",
       "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": true,
       "pending_receipts": [
         "PASS at corpus level only with static boundary receipts; never claim live behavior"
       ],
-      "summary": "Static helper executed and failed because the required current-corpus R-CW-6 producer receipts are absent.",
+      "summary": "Static validator did not promote the terminal R-CW-6 FAIL-fixture and its expected legacy producer artifacts remain absent.",
       "notes": "Hermetic static helper attempt retained; absence is not a product-behavior contradiction.",
       "supporting_docs": [
         "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6A/EVIDENCE.md"
       ],
       "test_cases_executed": [
-        "run-20260902T2045PDT"
+        "run-20260902T2045PDT",
+        "run-20260903T061634Z-da38a4bf"
       ],
       "traces": []
     },
@@ -1160,6 +1165,6 @@
     "targeted_verdict": "PASS"
   },
   "generated": "2026-09-02T19:40:08-07:00",
-  "notes": "Reviewed harness refire in progress. R-CW-5 PASS; R-CW-6 terminal FAIL-fixture; R-CD-TOKEN terminal PARTIAL after ancillary provenance passed. R-RC-2 and R-CD-2 untouched.",
-  "execution_status": "REFIRE_IN_PROGRESS"
+  "notes": "Reviewed harness selected-row refire complete. R-CW-5 PASS; R-CW-6 FAIL-fixture; R-CD-TOKEN PARTIAL after valid ancillary runtime and live dispatch; authority matrix PARTIAL with zero observations; dependent R-CW-5A/R-CW-6A remain missing. R-CD-2 FAIL and R-RC-2 PARTIAL preserved.",
+  "execution_status": "READY_FOR_SCRIBE_REVIEW"
 }

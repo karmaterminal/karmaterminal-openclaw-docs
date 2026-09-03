@@ -22,7 +22,7 @@
     "honest_limit": 0,
     "missing": 11
   },
-  "disposition_note": "Reviewed-harness selected-row refire in progress; canonical identity remains pure 5035aac3.",
+  "disposition_note": "READY_FOR_SCRIBE_REVIEW after repaired-harness selected-row refire; 18 pass, 7 partial, 2 fail, 11 missing.",
   "generated": "2026-09-02",
   "generated_by": "frond-scribe"
 }

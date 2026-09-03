@@ -1,0 +1,20 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: <home>/flesh_beast_best_beast/frond-scribe/.proof-work/129388-docs-5035aac3/tools/k6-proofs/scenarios/static-corpus-row-validator.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 45s max duration (incl. graceful stop):
+              * static_corpus_row_validator: 1 iterations shared among 1 VUs (maxDuration: 15s, gracefulStop: 30s)
+
+time="2026-09-02T23:16:33-07:00" level=info msg="STATIC_CORPUS_ROW_EVIDENCE {\"row\":\"R-CW-5A\",\"sourceRow\":\"R-CW-5\",\"staticBoundaryVariant\":true,\"manifest_loaded\":true,\"candidateSha\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"currentProofSha\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"sourceEvidenceSha\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"carriedFrom\":\"5035aac3a96df18f0a5d5a5c3e91a516a32daf32\",\"started\":\"2026-09-03T06:16:33.413Z\",\"checks\":{\"verdictPass\":false,\"sourceGuard\":false,\"delegateRejection\":false,\"announceGuards\":false,\"costCapSuite\":false,\"boundaryAllowed\":false,\"noLiveMutationScope\":false,\"nonLiveBoundary\":true},\"source_files\":{\"evidence\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/EVIDENCE.md\",\"schedulerSource\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/scheduler-source.txt\",\"delegateSource\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/delegate-dispatch-cost-cap-source.txt\",\"announceBracketSource\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/subagent-announce-bracket-cost-cap-source.txt\",\"announceToolSource\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/subagent-announce-tool-cost-cap-source.txt\",\"costCapLog\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/vitest-delegate-dispatch-cost-cap-exhaustion.log\",\"chainGuardLog\":\"../../../PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-CW-5/cael-dgx/vitest-chain-guard-cost-cap.log\"},\"ended\":\"2026-09-03T06:16:33.413Z\",\"duration_ms\":0,\"verdict\":\"FAIL-candidate\"}" source=console
+
+running (00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+static_corpus_row_validator ✓ [ 100% ] 1 VUs  00.0s/15s  1/1 shared iters
+time="2026-09-02T23:16:33-07:00" level=error msg="thresholds on metrics 'proof_failures' have been crossed"

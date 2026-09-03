@@ -1,0 +1,19 @@
+{
+  "schema": "openclaw.k6.return-covenant-runtime-mount-observation.v1",
+  "source": "trusted-sandbox-supervisor",
+  "manifestSha256": "75fae23cf12870a47d2a024b5166c74cba54b423a59df15e0ab05d756a0db92f",
+  "mounts": [
+    {
+      "candidatePath": "node_modules",
+      "directoryChmodErrno": "EROFS",
+      "fileChmodErrno": "EROFS",
+      "createErrno": "EROFS"
+    },
+    {
+      "candidatePath": "dist",
+      "directoryChmodErrno": "EROFS",
+      "fileChmodErrno": "EROFS",
+      "createErrno": "EROFS"
+    }
+  ]
+}

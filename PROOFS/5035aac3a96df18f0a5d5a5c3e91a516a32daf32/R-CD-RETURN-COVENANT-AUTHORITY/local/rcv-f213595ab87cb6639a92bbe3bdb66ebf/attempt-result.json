@@ -1,0 +1,12 @@
+{
+  "schema": "openclaw.129388.authority-attempt.v1",
+  "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "rcv-f213595ab87cb6639a92bbe3bdb66ebf",
+  "harnessSha": "3ff33727eb2992473f73da71b3a4b452969b1225",
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "state": "infrastructure-failure",
+  "matrixObservations": 0,
+  "cause": "plan gateway command did not match the product-owned fixture command",
+  "retryAllowed": true,
+  "supersededBy": "rcv-bc6b9eb3a5dc1eaca1e36e001ce693ec"
+}

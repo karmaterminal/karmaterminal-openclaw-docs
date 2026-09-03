@@ -1,0 +1,18 @@
+{
+  "schema": "openclaw.129388.authority-attempt.v1",
+  "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "rcv-bc6b9eb3a5dc1eaca1e36e001ce693ec",
+  "harnessSha": "3ff33727eb2992473f73da71b3a4b452969b1225",
+  "candidateSha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "productTree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
+  "state": "partial-candidate",
+  "matrixObservations": 0,
+  "scenarioFailures": 16,
+  "signedObserverReceiptPresent": false,
+  "cleanupReceiptPresent": false,
+  "runtimeArtifactManifestSha256": "75fae23cf12870a47d2a024b5166c74cba54b423a59df15e0ab05d756a0db92f",
+  "runtimeArtifactClosureSha256": "16f2794522ac8617f5bf6a0076be6297e419305e30ae2cbf4243c207053d17f1",
+  "runtimeMountsReadOnly": true,
+  "cause": "product fixture gateway was not running during phase calls; cleanup-run returned HTTP 500; sandbox emitted no trusted exit record",
+  "retryAllowed": false
+}

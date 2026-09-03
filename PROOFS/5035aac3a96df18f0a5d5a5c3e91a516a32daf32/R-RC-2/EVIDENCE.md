@@ -10,3 +10,7 @@
 - candidate verdict: `PARTIAL-candidate`
 
 No child session or nonce-bound structured request_compaction tool result; text-only threshold report is insufficient.
+
+## Ownership handoff
+
+A dedicated lane owns further threshold/log regression attribution and any unit fix. This PARTIAL attempt remains immutable read-only provenance and must not be refired by the final-proof lane.

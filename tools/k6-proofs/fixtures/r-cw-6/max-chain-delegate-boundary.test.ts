@@ -4,23 +4,24 @@
 // receipts; it is deliberately not run in this docs checkout.
 import fs from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { clearRuntimeConfigSnapshot } from "../../src/config/config.js";
-import { resetContinuationTracer } from "../../src/infra/continuation-tracer.js";
+import { clearRuntimeConfigSnapshot } from "../../config/config.js";
+import { resetContinuationTracer } from "../../infra/continuation-tracer.js";
 
 const mockFlows = new Map<string, Record<string, unknown>>();
 const enqueueSystemEventMock = vi.fn();
 const spawnSubagentDirectMock = vi.fn();
 let flowIdCounter = 0;
 
-vi.mock("../../src/agents/subagent-spawn.js", () => ({
+vi.mock("../../agents/subagents/spawn/subagent-spawn.js", () => ({
   spawnSubagentDirect: (...args: unknown[]) => spawnSubagentDirectMock(...args),
 }));
 
-vi.mock("../../src/infra/system-events.js", () => ({
+vi.mock("../../infra/system-events.js", () => ({
   enqueueSystemEvent: (text: string, options: unknown) => enqueueSystemEventMock(text, options),
+  enqueueSystemEventRaw: (text: string, options: unknown) => enqueueSystemEventMock(text, options),
 }));
 
-vi.mock("../../src/logging/subsystem.js", () => {
+vi.mock("../../logging/subsystem.js", () => {
   const sink = () => undefined;
   const logger = {
     subsystem: "r-cw-6-fixture",
@@ -37,7 +38,7 @@ vi.mock("../../src/logging/subsystem.js", () => {
   return { createSubsystemLogger: () => logger };
 });
 
-vi.mock("../../src/tasks/task-flow-registry.js", () => ({
+vi.mock("../../tasks/task-flow-registry.js", () => ({
   createManagedTaskFlow: vi.fn((params: Record<string, unknown>) => {
     const flowId = `flow-${++flowIdCounter}`;
     const flow = {
@@ -97,9 +98,9 @@ vi.mock("../../src/tasks/task-flow-registry.js", () => ({
 import {
   dispatchToolDelegates,
   resetDelegateDispatchHedgesForTests,
-} from "../../src/auto-reply/continuation/delegate-dispatch.js";
-import { enqueuePendingDelegate } from "../../src/auto-reply/continuation/delegate-store.js";
-import { resetContinuationStateForTests } from "../../src/auto-reply/continuation/state.js";
+} from "./delegate-dispatch.js";
+import { enqueuePendingDelegate } from "./delegate-store.js";
+import { resetContinuationStateForTests } from "./state.js";
 
 const maxChainLength = __RCW6_MAX_CHAIN_LENGTH__;
 const runtimeConfig = {

@@ -68,15 +68,45 @@ on:
         type: string
         default: ""
       gateway_ws:
-        description: "Target gateway WebSocket URL (e.g. ws://10.0.0.246:18789). Defaults to local."
+        description: "Explicit target gateway WebSocket URL; never inferred from runner config."
         required: false
         type: string
-        default: "ws://127.0.0.1:18789"
+        default: ""
+      gateway_url_fingerprint:
+        description: "Canonical target URL SHA-256 fingerprint"
+        required: false
+        type: string
+        default: ""
+      runtime_sha:
+        description: "40-char runtime SHA deployed to the explicit target"
+        required: false
+        type: string
+        default: ""
+      gateway_unit:
+        description: "Target gateway unit identity"
+        required: false
+        type: string
+        default: ""
+      required_max_spawn_depth:
+        description: "Minimum target continuation depth"
+        required: false
+        type: string
+        default: "2"
+      expected_max_spawn_depth:
+        description: "Expected target continuation depth"
+        required: false
+        type: string
+        default: ""
+      selected_rows:
+        description: "Selected rows bound in the readiness receipt"
+        required: false
+        type: string
+        default: ""
       session_key:
-        description: "Target session key"
+        description: "Disposable target session key (never main)"
         required: false
         type: string
-        default: "main"
+        default: "agent:proof-disposable"
       dry_run:
         description: "Preflight/dry mode: run preflight only, write NO proof verdicts"
         required: false
@@ -109,6 +139,11 @@ jobs:
           ROW: ${{ github.event.inputs.row }}
           CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
           MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
+          GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
+          GATEWAY_FINGERPRINT: ${{ github.event.inputs.gateway_url_fingerprint }}
+          RUNTIME_SHA: ${{ github.event.inputs.runtime_sha }}
+          GATEWAY_UNIT: ${{ github.event.inputs.gateway_unit }}
+          EXPECTED_DEPTH: ${{ github.event.inputs.expected_max_spawn_depth }}
         run: |
           set -euo pipefail
           if printf '%s' "$SCENARIO" | grep -Eq '/|\.js$'; then
@@ -133,6 +168,9 @@ jobs:
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
               exit 1
             fi
+            for required in GATEWAY_WS GATEWAY_FINGERPRINT RUNTIME_SHA GATEWAY_UNIT EXPECTED_DEPTH; do
+              if [ -z "${!required}" ]; then echo "::error::${required} is required when dry_run=false"; exit 1; fi
+            done
           fi
           echo "inputs validated (dry_run=$DRY_RUN, scenario=$SCENARIO)"
 
@@ -150,14 +188,21 @@ jobs:
 
       - name: Seat readiness preflight
         env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
           OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
+          OPENCLAW_GATEWAY_URL_FINGERPRINT: ${{ github.event.inputs.gateway_url_fingerprint }}
           OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
           OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          OPENCLAW_RUNTIME_SHA: ${{ github.event.inputs.runtime_sha }}
+          OPENCLAW_DOCS_SHA: ${{ github.sha }}
           OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
+          OPENCLAW_GATEWAY_UNIT: ${{ github.event.inputs.gateway_unit }}
+          OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH: ${{ github.event.inputs.required_max_spawn_depth }}
+          OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH: ${{ github.event.inputs.expected_max_spawn_depth }}
+          OPENCLAW_SELECTED_ROWS: ${{ github.event.inputs.selected_rows }}
           OPENCLAW_EXPECTED_K6_VERSION: v2.0.0
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
-          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser("~/.openclaw/openclaw.json")))["gateway"]["auth"]["token"])')"
           set +x
           set -euo pipefail
           if ! node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json | tee /tmp/seat-readiness.json; then
@@ -174,6 +219,7 @@ jobs:
         # registered secrets in logs, and we keep `set +x` so the env line is
         # not traced. k6 reads OPENCLAW_GATEWAY_TOKEN from the environment.
         env:
+          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
           OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
           OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
           OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
@@ -181,7 +227,6 @@ jobs:
           OPENCLAW_ROW_MANIFEST: ${{ github.event.inputs.manifest_path }}
           SCENARIO: ${{ github.event.inputs.scenario }}
         run: |
-          export OPENCLAW_GATEWAY_TOKEN="$(python3 -c 'import json, os; print(json.load(open(os.path.expanduser(\"~/.openclaw/openclaw.json\")))[\"gateway\"][\"auth\"][\"token\"])')"
           set +x
           set -euo pipefail
           if [ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]; then

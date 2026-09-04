@@ -152,6 +152,10 @@ export default function () {
     channel_message_observed: false, // MUST stay false for PASS
     silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
+    dispatch_terminal_sentinel_at_ms: null,
+    dispatch_lifecycle_end_at_ms: null,
+    wake_lifecycle_at_ms: null,
+    post_wake_quiet_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     child_session: null,
@@ -334,6 +338,7 @@ export default function () {
             }
             if (phase === 'end' && eventRunId === acceptedRunId) {
               dispatchLifecycleActive = false;
+              evidence.dispatch_lifecycle_end_at_ms = Date.now();
               if (!sameRun) evidence.send_run_mismatch = true;
               else if (!gatewayLifecycleSucceeded(eventData)) {
                 evidence.dispatch_failure_observed = true;
@@ -352,11 +357,15 @@ export default function () {
             if (wakeRunId && elapsed >= evidence.wake_gate_ms) {
               evidence.parent_wake_observed = true;
               evidence.wake_lifecycle_observed = true;
+              evidence.wake_lifecycle_at_ms = Date.now();
               evidence.wake_run_fingerprint = crypto.sha256(String(wakeRunId), 'hex').slice(0, 16);
               if (!evidence.post_wake_quiet_timer_started) {
                 evidence.post_wake_quiet_timer_started = true;
                 socket.setTimeout(() => {
-                  if (!evidence.channel_message_observed) evidence.post_wake_quiet = true;
+                  if (!evidence.channel_message_observed) {
+                    evidence.post_wake_quiet = true;
+                    evidence.post_wake_quiet_at_ms = Date.now();
+                  }
                   socket.close();
                 }, evidence.post_wake_quiet_ms);
               }
@@ -382,6 +391,7 @@ export default function () {
             )) {
               evidence.dispatch_terminal_sentinel_observed = true;
               evidence.dispatch_terminal_sentinel_same_run_window = true;
+              evidence.dispatch_terminal_sentinel_at_ms = Date.now();
               maybeRecordDispatchTerminalSuccess();
               console.log('✓ exact post-tool dispatch terminal sentinel observed within dispatch lifecycle');
             }

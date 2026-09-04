@@ -592,6 +592,7 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
       acceptedSendRunFingerprint: 'a'.repeat(16),
       nonceFingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
       acceptedSendTraceId: traceId,
+      acceptedSendTraceSource: 'sessions-send-response',
     });
     assert.doesNotMatch(receiptText, /R-CD-2-example/);
   } finally {
@@ -627,6 +628,11 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       post_wake_quiet: true,
       channel_message_observed: false,
       dispatch_failure_observed: false,
+      dispatch_accepted_at_ms: 100,
+      dispatch_terminal_sentinel_at_ms: 200,
+      dispatch_lifecycle_end_at_ms: 300,
+      wake_lifecycle_at_ms: 400,
+      post_wake_quiet_at_ms: 500,
     },
   });
   const server = await listen((request, response) => {

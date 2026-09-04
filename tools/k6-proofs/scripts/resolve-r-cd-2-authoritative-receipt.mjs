@@ -26,7 +26,12 @@ async function main() {
   const receipt = resolveRcd2AuthoritativeReceipt({ evidence, correlation, signingKey: process.env.OPENCLAW_GATEWAY_TOKEN });
   const target = path.join(runDir, 'r-cd-2-authoritative-receipt.json');
   await writeFile(target, `${JSON.stringify(receipt, null, 2)}\n`);
-  process.stdout.write(`${JSON.stringify({ verdict: receipt.verdict, receipt: path.basename(target) })}\n`);
+  process.stdout.write(`${JSON.stringify({
+    verdict: receipt.verdict,
+    failureCategory: receipt.failureCategory || null,
+    diagnostics: receipt.diagnostics,
+    receipt: path.basename(target),
+  })}\n`);
 }
 
 main().catch((error) => {

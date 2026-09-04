@@ -575,7 +575,10 @@ async function main() {
                 rowBinding: {
                   acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
                   nonceFingerprint: evidence.row_nonce_fingerprint || null,
-                  acceptedSendTraceId: evidence.accepted_send_trace_id || null,
+                  acceptedSendTraceId: evidence.accepted_send_trace_id || traceId,
+                  acceptedSendTraceSource: evidence.accepted_send_trace_id
+                    ? 'sessions-send-response'
+                    : 'unique-reason-bound-trace',
                 },
               }
             : {}),

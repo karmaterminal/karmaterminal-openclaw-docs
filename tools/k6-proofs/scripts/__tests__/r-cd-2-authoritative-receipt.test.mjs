@@ -30,6 +30,11 @@ function evidence(overrides = {}) {
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: run,
     row_nonce_fingerprint: 'e'.repeat(16),
     accepted_send_trace_id: 'b'.repeat(32),
+    dispatch_accepted_at_ms: 100,
+    dispatch_terminal_sentinel_at_ms: 200,
+    dispatch_lifecycle_end_at_ms: 300,
+    wake_lifecycle_at_ms: 400,
+    post_wake_quiet_at_ms: 500,
     ...overrides,
   };
 }
@@ -44,6 +49,7 @@ function correlation(overrides = {}) {
       acceptedSendRunFingerprint: run,
       nonceFingerprint: 'e'.repeat(16),
       acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
     },
     ...overrides,
   };
@@ -54,6 +60,81 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   assert.equal(receipt.verdict, 'PASS-candidate');
   assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
   assert.doesNotMatch(JSON.stringify(receipt), /private-chain-id|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/);
+  assert.equal(receipt.diagnostics.lifecycleComplete, true);
+  assert.equal(receipt.diagnostics.topologyComplete, true);
+  assert.equal(receipt.diagnostics.joinComplete, true);
+});
+
+test('R-CD-2 binds a trace-less sessions.send through one unique nonce-reason trace', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ accepted_send_trace_id: null }),
+    correlation: correlation({
+      rowBinding: {
+        acceptedSendRunFingerprint: run,
+        nonceFingerprint: 'e'.repeat(16),
+        acceptedSendTraceId: 'b'.repeat(32),
+        acceptedSendTraceSource: 'unique-reason-bound-trace',
+      },
+    }),
+    signingKey,
+  });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.deepEqual(receipt.diagnostics.joins, {
+    acceptedTrace: true,
+    acceptedRun: true,
+    rowNonce: true,
+  });
+});
+
+test('R-CD-2 signed diagnostics isolate lifecycle, topology, and join misses', () => {
+  const cases = [
+    {
+      expectedGroup: 'lifecycle', expectedGate: 'wakeBeforeQuietWindow',
+      rowEvidence: evidence({ post_wake_quiet_at_ms: 350 }), rowCorrelation: correlation(),
+    },
+    {
+      expectedGroup: 'topology', expectedGate: 'silentWake',
+      rowEvidence: evidence(), rowCorrelation: correlation({ delegate: { mode: 'normal' } }),
+    },
+    {
+      expectedGroup: 'joins', expectedGate: 'rowNonce',
+      rowEvidence: evidence(),
+      rowCorrelation: correlation({ rowBinding: {
+        acceptedSendRunFingerprint: run,
+        nonceFingerprint: 'f'.repeat(16),
+        acceptedSendTraceId: 'b'.repeat(32),
+        acceptedSendTraceSource: 'sessions-send-response',
+      } }),
+    },
+  ];
+  for (const { expectedGroup, expectedGate, rowEvidence, rowCorrelation } of cases) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: rowEvidence, correlation: rowCorrelation, signingKey,
+    });
+    assert.notEqual(receipt.verdict, 'PASS-candidate');
+    const falseGates = Object.entries(receipt.diagnostics[expectedGroup])
+      .filter(([, value]) => value === false).map(([key]) => key);
+    assert.deepEqual(falseGates, [expectedGate]);
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+  }
+});
+
+test('R-CD-2 diagnostics are boolean-only and publish no private identities', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(), correlation: correlation(), signingKey,
+  });
+  for (const group of ['lifecycle', 'topology', 'joins']) {
+    assert.ok(Object.values(receipt.diagnostics[group]).every((value) => typeof value === 'boolean'));
+  }
+  assert.doesNotMatch(JSON.stringify(receipt.diagnostics), /private-chain-id|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/);
+});
+
+test('R-CD-2 diagnostic tampering invalidates the signed authority', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(), correlation: correlation(), signingKey,
+  });
+  receipt.diagnostics.lifecycle.wakeLifecycle = false;
+  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, false);
 });
 
 test('R-CD-2 rejects outer-send acceptance plus an unrelated delayed message', () => {

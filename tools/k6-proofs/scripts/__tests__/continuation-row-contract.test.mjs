@@ -73,8 +73,13 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
   const reason = manifest.invocation.promptTemplate.replaceAll('{{nonce}}', nonce);
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const now = new Date().toISOString();
+  const dispatchAt = Date.now();
   const evidence = {
-    row: 'R-CD-2', nonce, started: now, ended: now, dispatch_accepted_at_ms: Date.now(),
+    row: 'R-CD-2', nonce, started: now, ended: now, dispatch_accepted_at_ms: dispatchAt,
+    dispatch_terminal_sentinel_at_ms: dispatchAt + 1,
+    dispatch_lifecycle_end_at_ms: dispatchAt + 2,
+    wake_lifecycle_at_ms: dispatchAt + 3,
+    post_wake_quiet_at_ms: dispatchAt + 4,
     delegate_mode: 'silent-wake', reason_hash: reasonHash, reason_length: reason.length,
     session_created: true, session_unbound_confirmed: true, send_accepted: true,
     send_run_captured: true, terminal_success_same_run: true, typed_delegate_success_same_run: true,

@@ -1,0 +1,9 @@
+{
+  "schema": "openclaw.k6.proof-binaries.v1",
+  "entries": {
+    "linux-arm64": {
+      "version": "k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/arm64)",
+      "sha256": "6fcd167ac6525e444bb710a2cb98dbe200ef12a6e0a4e9f83d062a4acabc1e70"
+    }
+  }
+}

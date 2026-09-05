@@ -22,7 +22,7 @@ export function gatewayLifecyclePhase(value) {
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
   const status = String(value.data?.status || value.status || '').toLowerCase();
-  return !['error', 'failed', 'failure', 'aborted'].includes(status) && value.data?.replayInvalid !== true;
+  return !['error', 'failed', 'failure', 'aborted'].includes(status);
 }
 
 export function gatewayWakeRunId(value, acceptedRunId) {

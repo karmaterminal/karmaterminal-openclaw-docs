@@ -16,12 +16,15 @@ import {
   readFileSync,
   readdirSync,
   realpathSync,
-  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import {
+  parseExactPnpmPackageManager,
+  verifyPnpmLockProvenance,
+} from '../lib/pnpm-provenance.mjs';
 
 const DEFAULT_MAX_CHAIN_LENGTH = 3;
 const SOURCE_MARKERS = [
@@ -32,24 +35,43 @@ const SOURCE_MARKERS = [
   'package.json',
   'pnpm-lock.yaml',
 ];
-const TOOL_SURFACE_TEMPLATE = path.resolve(
+const RUNTIME_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-tool-surface.test.ts',
+);
+const TYPED_TOOL_SURFACE_TEMPLATE = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../fixtures/r-cw-6/max-chain-typed-tool-surface.test.ts',
 );
 const DELEGATE_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-delegate-boundary.test.ts',
 );
-// A candidate must name one fixed pnpm release.  Corepack-style integrity
-// suffixes are allowed only when they begin with `sha`; ranges, tags, and
-// alternate package managers never identify one executable version.
-const EXACT_PNPM_PACKAGE_MANAGER = /^pnpm@((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)(\+sha[0-9A-Za-z._~+/=-]+)?$/u;
+const VITEST_CONFIG = 'test/vitest/vitest.auto-reply.config.ts';
+const CANDIDATE_REGRESSION_TEST =
+  'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts';
+const RUNTIME_BOUNDARY_TEST =
+  'src/auto-reply/continuation/r-cw-6-runtime-fixture.generated.test.ts';
+const TYPED_TOOL_SURFACE_TEST =
+  'src/auto-reply/continuation/r-cw-6-typed-fixture.generated.test.ts';
+const DELEGATE_BOUNDARY_TEST =
+  'src/auto-reply/continuation/r-cw-6-delegate-fixture.generated.test.ts';
+
+function vitestArgs(testFile) {
+  return ['run', '--config', VITEST_CONFIG, testFile, '--reporter=verbose'];
+}
+
+function publicVitestCommand(testFile) {
+  return ['node_modules/.bin/vitest', ...vitestArgs(testFile)];
+}
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \\
   --source-dir <exact-candidate-worktree> \\
   --candidate-sha <40-hex-sha> \\
-  --artifact-dir <safe-output-dir> [--max-chain-length <integer-at-least-2>] [--json]`;
+  --artifact-dir <safe-output-dir> \\
+  --private-diagnostics-dir <safe-output-dir-outside-PROOFS-and-source> \\
+  [--max-chain-length <integer-at-least-2>] [--json]`;
 }
 
 export function parseArgs(argv, env = process.env) {
@@ -57,6 +79,7 @@ export function parseArgs(argv, env = process.env) {
     sourceDir: env.OPENCLAW_RCW6_SOURCE_DIR || '',
     candidateSha: env.OPENCLAW_CANDIDATE_SHA || '',
     artifactDir: env.OPENCLAW_RCW6_ARTIFACT_DIR || '',
+    diagnosticsDir: env.OPENCLAW_RCW6_PRIVATE_DIAGNOSTICS_DIR || '',
     maxChainLength: Number(env.OPENCLAW_RCW6_MAX_CHAIN_LENGTH || DEFAULT_MAX_CHAIN_LENGTH),
     json: false,
   };
@@ -75,6 +98,7 @@ export function parseArgs(argv, env = process.env) {
     if (arg === '--source-dir') args.sourceDir = next();
     else if (arg === '--candidate-sha') args.candidateSha = next();
     else if (arg === '--artifact-dir') args.artifactDir = next();
+    else if (arg === '--private-diagnostics-dir') args.diagnosticsDir = next();
     else if (arg === '--max-chain-length') args.maxChainLength = Number(next());
     else throw new Error(`unexpected argument: ${arg}`);
   }
@@ -84,6 +108,11 @@ export function parseArgs(argv, env = process.env) {
 function assertArgs(args) {
   if (!args.sourceDir) throw new Error('--source-dir or OPENCLAW_RCW6_SOURCE_DIR is required');
   if (!args.artifactDir) throw new Error('--artifact-dir or OPENCLAW_RCW6_ARTIFACT_DIR is required');
+  if (!args.diagnosticsDir) {
+    throw new Error(
+      '--private-diagnostics-dir or OPENCLAW_RCW6_PRIVATE_DIAGNOSTICS_DIR is required',
+    );
+  }
   if (!/^[0-9a-f]{40}$/u.test(args.candidateSha)) {
     throw new Error('--candidate-sha or OPENCLAW_CANDIDATE_SHA must be a 40-character lowercase SHA');
   }
@@ -181,20 +210,17 @@ function assertRealDirectory(directory, label) {
 }
 
 export function parsePinnedPnpmPackageManager(declaration, label = 'candidate package.json packageManager') {
-  if (typeof declaration !== 'string') {
-    throw new Error(`dependency provenance requires ${label} to be an exact pnpm@<semver> declaration`);
+  try {
+    const parsed = parseExactPnpmPackageManager(declaration, { label });
+    return {
+      declaration: parsed.declaration,
+      version: parsed.version,
+      integritySuffix: parsed.integrityHex ? `+sha512.${parsed.integrityHex}` : '',
+      integrityHex: parsed.integrityHex,
+    };
+  } catch (error) {
+    throw new Error(`dependency provenance requires ${error.message}`);
   }
-  const match = EXACT_PNPM_PACKAGE_MANAGER.exec(declaration);
-  if (!match) {
-    throw new Error(
-      `dependency provenance requires ${label} to be exact pnpm@<semver> (optional +sha... suffix only)`,
-    );
-  }
-  return {
-    declaration,
-    version: match[1],
-    integritySuffix: match[2] || '',
-  };
 }
 
 function yamlScalar(raw, field) {
@@ -236,13 +262,11 @@ export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageM
     path.join(dependencyDir, '.pnpm', 'lock.yaml'),
     'node_modules/.pnpm/lock.yaml',
   );
-  const candidateLock = readFileSync(candidateLockPath);
-  const installedLock = readFileSync(installedLockPath);
-  const candidateLockfileSha256 = sha256File(candidateLockPath);
-  const installedLockfileSha256 = sha256File(installedLockPath);
-  if (!candidateLock.equals(installedLock) || candidateLockfileSha256 !== installedLockfileSha256) {
-    throw new Error('installed node_modules/.pnpm/lock.yaml bytes do not match candidate pnpm-lock.yaml');
-  }
+  const lockProvenance = verifyPnpmLockProvenance({
+    candidateLock: readFileSync(candidateLockPath),
+    installedLock: readFileSync(installedLockPath),
+    packageManager: candidatePackageManager.declaration,
+  });
 
   const modulesPath = assertRealFile(path.join(dependencyDir, '.modules.yaml'), 'node_modules/.modules.yaml');
   const modulesRaw = readFileSync(modulesPath, 'utf8');
@@ -279,9 +303,12 @@ export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageM
   }
 
   return {
-    candidateLockfileSha256,
-    installedLockfileSha256,
-    lockfileMatchesCandidate: true,
+    candidateLockfileSha256: lockProvenance.candidateLockfileSha256,
+    installedLockfileSha256: lockProvenance.installedLockfileSha256,
+    candidateWorkspaceGraphSha256: lockProvenance.candidateWorkspaceGraphSha256,
+    packageManagerBootstrapSha256: lockProvenance.packageManagerBootstrapSha256,
+    installedGraphMatchesCandidate: lockProvenance.installedGraphMatchesCandidate,
+    packageManagerBootstrapValidated: lockProvenance.packageManagerBootstrapValidated,
     installedPackageManager: installedPackageManager.declaration,
     installedPackageManagerVersion: installedPackageManager.version,
     virtualStoreDir,
@@ -380,33 +407,79 @@ export function verifyInstalledCandidateDependencies(worktreeDir, candidatePacka
   };
 }
 
-export function prepareArtifactDir(input) {
-  const artifactDir = path.resolve(input);
-  const parsed = path.parse(artifactDir);
+// Shared by prepareArtifactDir and preparePrivateDiagnosticsDir: both dirs
+// must be a real, non-symlinked, non-group/world-accessible, empty directory
+// before this fixture may create or reuse them.
+function prepareEmptyPrivateDir(dir, messages) {
+  if (existsSync(dir)) {
+    const stats = lstatSync(dir);
+    if (!stats.isDirectory() || stats.isSymbolicLink()) {
+      throw new Error(messages.notRealDirectory);
+    }
+    if ((stats.mode & 0o077) !== 0) {
+      throw new Error(messages.groupWorldAccessible);
+    }
+    if (readdirSync(dir).length !== 0) {
+      throw new Error(messages.notEmpty);
+    }
+  } else {
+    mkdirSync(dir, { recursive: true, mode: 0o700 });
+  }
+  return dir;
+}
+
+function assertNoSymlinkComponents(target, label) {
+  const parsed = path.parse(target);
   let componentPath = parsed.root;
-  for (const component of path.relative(parsed.root, artifactDir).split(path.sep)) {
+  for (const component of path.relative(parsed.root, target).split(path.sep)) {
     if (!component) continue;
     componentPath = path.join(componentPath, component);
     if (!existsSync(componentPath)) break;
     if (lstatSync(componentPath).isSymbolicLink()) {
-      throw new Error('artifact dir path must not contain a symlink component');
+      throw new Error(`${label} path must not contain a symlink component`);
     }
   }
-  if (existsSync(artifactDir)) {
-    const stats = lstatSync(artifactDir);
-    if (!stats.isDirectory() || stats.isSymbolicLink()) {
-      throw new Error('artifact dir must be a real directory, not a file or symlink');
-    }
-    if ((stats.mode & 0o077) !== 0) {
-      throw new Error('artifact dir must not be group/world accessible (mode 0700 required)');
-    }
-    if (readdirSync(artifactDir).length !== 0) {
-      throw new Error('artifact dir must be empty; refusing to overwrite an earlier receipt');
-    }
-  } else {
-    mkdirSync(artifactDir, { recursive: true, mode: 0o700 });
+}
+
+export function prepareArtifactDir(input) {
+  const artifactDir = path.resolve(input);
+  assertNoSymlinkComponents(artifactDir, 'artifact dir');
+  return prepareEmptyPrivateDir(artifactDir, {
+    notRealDirectory: 'artifact dir must be a real directory, not a file or symlink',
+    groupWorldAccessible: 'artifact dir must not be group/world accessible (mode 0700 required)',
+    notEmpty: 'artifact dir must be empty; refusing to overwrite an earlier receipt',
+  });
+}
+
+export function preparePrivateDiagnosticsDir(input, artifactDir, sourceDir) {
+  const diagnosticsDir = path.resolve(input);
+  const publicArtifactDir = path.resolve(artifactDir);
+  const candidateSourceDir = path.resolve(sourceDir);
+  assertNoSymlinkComponents(diagnosticsDir, 'private diagnostics dir');
+  const segments = diagnosticsDir.split(path.sep).map((segment) => segment.toLowerCase());
+  if (
+    diagnosticsDir === publicArtifactDir ||
+    isPathInside(publicArtifactDir, diagnosticsDir) ||
+    segments.includes('proofs')
+  ) {
+    throw new Error('private diagnostics dir must remain outside the public corpus/artifact tree');
   }
-  return artifactDir;
+  if (
+    diagnosticsDir === candidateSourceDir ||
+    isPathInside(candidateSourceDir, diagnosticsDir)
+  ) {
+    throw new Error('private diagnostics dir must remain outside the candidate source worktree');
+  }
+  return prepareEmptyPrivateDir(diagnosticsDir, {
+    notRealDirectory: 'private diagnostics path must be a real directory',
+    groupWorldAccessible: 'private diagnostics dir must not be group/world accessible',
+    notEmpty: 'private diagnostics dir must be empty; refusing to overwrite diagnostics',
+  });
+}
+
+function retainCommandDiagnostics(diagnosticsDir, label, result) {
+  writeFileSync(path.join(diagnosticsDir, `${label}.stdout.log`), result.stdout, { mode: 0o600 });
+  writeFileSync(path.join(diagnosticsDir, `${label}.stderr.log`), result.stderr, { mode: 0o600 });
 }
 
 export function renderToolSurfaceTemplate(template, maxChainLength) {
@@ -433,7 +506,10 @@ export function buildReadiness({ candidateSha, head, candidateRuntime, maxChainL
     hostToolchainHermetic: false,
     candidateLockfileSha256: candidateRuntime.candidateLockfileSha256,
     installedLockfileSha256: candidateRuntime.installedLockfileSha256,
-    lockfileMatchesCandidate: candidateRuntime.lockfileMatchesCandidate,
+    candidateWorkspaceGraphSha256: candidateRuntime.candidateWorkspaceGraphSha256,
+    packageManagerBootstrapSha256: candidateRuntime.packageManagerBootstrapSha256,
+    installedGraphMatchesCandidate: candidateRuntime.installedGraphMatchesCandidate,
+    packageManagerBootstrapValidated: candidateRuntime.packageManagerBootstrapValidated,
     candidatePackageManager: candidateRuntime.candidatePackageManager,
     candidatePackageManagerVersion: candidateRuntime.candidatePackageManagerVersion,
     executingPackageManagerVersion: candidateRuntime.executingPackageManagerVersion,
@@ -511,16 +587,26 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxChainLength }) {
-  for (const template of [TOOL_SURFACE_TEMPLATE, DELEGATE_BOUNDARY_TEMPLATE]) {
+function runDisposableToolSurface({
+  sourceDir,
+  candidateSha,
+  artifactDir,
+  diagnosticsDir,
+  maxChainLength,
+}) {
+  for (const template of [
+    RUNTIME_BOUNDARY_TEMPLATE,
+    TYPED_TOOL_SURFACE_TEMPLATE,
+    DELEGATE_BOUNDARY_TEMPLATE,
+  ]) {
     if (!existsSync(template)) throw new Error(`fixture template missing: ${template}`);
   }
   const worktreeDir = path.join(artifactDir, `.r-cw-6-runtime-${process.pid}-${Date.now()}`);
   const add = run('git', ['-C', sourceDir, 'worktree', 'add', '--detach', worktreeDir, candidateSha]);
   if (!add.ok) throw new Error(`cannot create disposable candidate worktree: ${add.stderr.trim()}`);
-  const rawRuntimeReceiptPath = path.join(artifactDir, '.runtime-boundary.raw.json');
-  const rawTypedReceiptPath = path.join(artifactDir, '.typed-surface.raw.json');
-  const rawDelegateReceiptPath = path.join(artifactDir, '.delegate-boundary.raw.json');
+  const rawRuntimeReceiptPath = path.join(diagnosticsDir, 'runtime-boundary.raw.json');
+  const rawTypedReceiptPath = path.join(diagnosticsDir, 'typed-surface.raw.json');
+  const rawDelegateReceiptPath = path.join(diagnosticsDir, 'delegate-boundary.raw.json');
   let result;
   try {
     const candidateBeforeInstall = assertCandidateWorktree(worktreeDir, candidateSha, 'frozen install');
@@ -544,7 +630,14 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       candidateWorktreeHead: candidateBeforeInstall.head,
       candidateLockfileSha256: candidateBeforeInstall.candidateLockfileSha256,
       installedLockfileSha256: verifiedDependencies.dependencyProvenance.installedLockfileSha256,
-      lockfileMatchesCandidate: verifiedDependencies.dependencyProvenance.lockfileMatchesCandidate,
+      candidateWorkspaceGraphSha256:
+        verifiedDependencies.dependencyProvenance.candidateWorkspaceGraphSha256,
+      packageManagerBootstrapSha256:
+        verifiedDependencies.dependencyProvenance.packageManagerBootstrapSha256,
+      installedGraphMatchesCandidate:
+        verifiedDependencies.dependencyProvenance.installedGraphMatchesCandidate,
+      packageManagerBootstrapValidated:
+        verifiedDependencies.dependencyProvenance.packageManagerBootstrapValidated,
       candidatePackageManager: candidateBeforeInstall.candidatePackageManager.declaration,
       candidatePackageManagerVersion: candidateBeforeInstall.candidatePackageManager.version,
       executingPackageManagerVersion: installation.executingPackageManagerVersion,
@@ -566,17 +659,18 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       },
       hostToolchainHermetic: false,
     };
-    const runtimeTestDir = path.join(worktreeDir, 'test', 'r-cw-6-runtime-fixture');
-    const delegateTestDir = path.join(worktreeDir, 'test', 'r-cw-6-delegate-fixture');
-    mkdirSync(runtimeTestDir, { recursive: true, mode: 0o700 });
-    mkdirSync(delegateTestDir, { recursive: true, mode: 0o700 });
     writeFileSync(
-      path.join(runtimeTestDir, 'max-chain-tool-surface.test.ts'),
-      renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), maxChainLength),
+      path.join(worktreeDir, RUNTIME_BOUNDARY_TEST),
+      renderToolSurfaceTemplate(readFileSync(RUNTIME_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
     writeFileSync(
-      path.join(delegateTestDir, 'max-chain-delegate-boundary.test.ts'),
+      path.join(worktreeDir, TYPED_TOOL_SURFACE_TEST),
+      renderToolSurfaceTemplate(readFileSync(TYPED_TOOL_SURFACE_TEMPLATE, 'utf8'), maxChainLength),
+      { mode: 0o600 },
+    );
+    writeFileSync(
+      path.join(worktreeDir, DELEGATE_BOUNDARY_TEST),
       renderToolSurfaceTemplate(readFileSync(DELEGATE_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
       { mode: 0o600 },
     );
@@ -589,6 +683,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       ['--eval', matrixEval(maxChainLength)],
       { cwd: worktreeDir, env: isolatedEnv },
     );
+    retainCommandDiagnostics(diagnosticsDir, 'boundary-matrix', matrixRun);
     let matrix = null;
     if (matrixRun.ok) {
       try {
@@ -600,15 +695,10 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
 
     const dispatchRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts',
-        '--reporter=verbose',
-      ],
+      vitestArgs(CANDIDATE_REGRESSION_TEST),
       { cwd: worktreeDir, env: isolatedEnv },
     );
+    retainCommandDiagnostics(diagnosticsDir, 'candidate-regression', dispatchRun);
     const dispatchAssertions = {
       atLimitRejectsBeforeSpawn: /rejects a delegate when currentChainCount equals maxChainLength/u.test(
         dispatchRun.stdout,
@@ -621,50 +711,58 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
 
     const selectedDelegateRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-delegate-fixture',
-        '--reporter=verbose',
-      ],
+      vitestArgs(DELEGATE_BOUNDARY_TEST),
       {
         cwd: worktreeDir,
         env: { ...isolatedEnv, RCW6_DELEGATE_RECEIPT_PATH: rawDelegateReceiptPath },
       },
     );
-    const selectedDelegateReceipt = selectedDelegateRun.ok
-      ? readJsonIfValid(rawDelegateReceiptPath)
-      : null;
+    retainCommandDiagnostics(diagnosticsDir, 'selected-delegate', selectedDelegateRun);
+    const selectedDelegateReceipt = readJsonIfValid(rawDelegateReceiptPath);
 
-    const test = run(
+    const runtimeRun = run(
       verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-runtime-fixture',
-        '--reporter=verbose',
-      ],
+      vitestArgs(RUNTIME_BOUNDARY_TEST),
       {
         cwd: worktreeDir,
         env: {
           ...isolatedEnv,
           RCW6_RUNTIME_RECEIPT_PATH: rawRuntimeReceiptPath,
+        },
+      },
+    );
+    retainCommandDiagnostics(diagnosticsDir, 'runtime-boundary', runtimeRun);
+    const runtimeReceipt = readJsonIfValid(rawRuntimeReceiptPath);
+
+    const typedRun = run(
+      verifiedDependencies.executables.vitest,
+      vitestArgs(TYPED_TOOL_SURFACE_TEST),
+      {
+        cwd: worktreeDir,
+        env: {
+          ...isolatedEnv,
           RCW6_TYPED_RECEIPT_PATH: rawTypedReceiptPath,
         },
       },
     );
-    const runtimeReceipt = test.ok ? readJsonIfValid(rawRuntimeReceiptPath) : null;
-    const typedReceipt = test.ok ? readJsonIfValid(rawTypedReceiptPath) : null;
+    retainCommandDiagnostics(diagnosticsDir, 'typed-tool-surface', typedRun);
+    const typedReceipt = readJsonIfValid(rawTypedReceiptPath);
+    const runtimeBoundaryAsserted =
+      /proves below-limit, at-limit, and first-over-limit with durable recovery/u.test(
+        runtimeRun.stdout,
+      );
+    const typedToolBoundaryAsserted =
+      /captures typed continue_work elections and creates no first-over-limit flow/u.test(
+        typedRun.stdout,
+      );
     result = {
-      passed: test.ok && /2 passed/u.test(test.stdout),
-      exitCode: test.exitCode,
+      runtimePassed: runtimeRun.ok && runtimeBoundaryAsserted,
+      typedPassed: typedRun.ok && typedToolBoundaryAsserted,
+      runtimeExitCode: runtimeRun.exitCode,
+      typedExitCode: typedRun.exitCode,
       asserted: {
-        runtimeBoundary: /proves below-limit, at-limit, and first-over-limit with durable recovery/u.test(test.stdout),
-        typedToolBoundary: /captures typed continue_work elections and creates no first-over-limit flow/u.test(test.stdout),
+        runtimeBoundary: runtimeBoundaryAsserted,
+        typedToolBoundary: typedToolBoundaryAsserted,
       },
       matrixRun,
       matrix,
@@ -672,6 +770,8 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       dispatchAssertions,
       selectedDelegateRun,
       selectedDelegateReceipt,
+      runtimeRun,
+      typedRun,
       runtimeReceipt,
       typedReceipt,
       candidateRuntime,
@@ -697,11 +797,17 @@ export function runFixture(args) {
   assertArgs(args);
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
+  const diagnosticsDir = preparePrivateDiagnosticsDir(
+    args.diagnosticsDir,
+    artifactDir,
+    sourceDir,
+  );
 
   const runtimeSurface = runDisposableToolSurface({
     sourceDir,
     candidateSha: args.candidateSha,
     artifactDir,
+    diagnosticsDir,
     maxChainLength: args.maxChainLength,
   });
   const readiness = buildReadiness({
@@ -711,25 +817,7 @@ export function runFixture(args) {
     maxChainLength: args.maxChainLength,
   });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
-  const candidateRuntimeReceipt = {
-    candidateWorktreeHead: runtimeSurface.candidateRuntime.candidateWorktreeHead,
-    candidateLockfileSha256: runtimeSurface.candidateRuntime.candidateLockfileSha256,
-    installedLockfileSha256: runtimeSurface.candidateRuntime.installedLockfileSha256,
-    lockfileMatchesCandidate: runtimeSurface.candidateRuntime.lockfileMatchesCandidate,
-    candidatePackageManager: runtimeSurface.candidateRuntime.candidatePackageManager,
-    candidatePackageManagerVersion: runtimeSurface.candidateRuntime.candidatePackageManagerVersion,
-    executingPackageManagerVersion: runtimeSurface.candidateRuntime.executingPackageManagerVersion,
-    installedPackageManager: runtimeSurface.candidateRuntime.installedPackageManager,
-    installedPackageManagerVersion: runtimeSurface.candidateRuntime.installedPackageManagerVersion,
-    virtualStoreDir: runtimeSurface.candidateRuntime.virtualStoreDir,
-    virtualStoreContainedWithinCandidateNodeModules:
-      runtimeSurface.candidateRuntime.virtualStoreContainedWithinCandidateNodeModules,
-    installCommand: runtimeSurface.candidateRuntime.installCommand,
-    installExitCode: runtimeSurface.candidateRuntime.installExitCode,
-    localExecutableContract: runtimeSurface.candidateRuntime.localExecutableContract,
-    worktreeIntegrity: runtimeSurface.candidateRuntime.worktreeIntegrity,
-    hostToolchainHermetic: runtimeSurface.candidateRuntime.hostToolchainHermetic,
-  };
+  const candidateRuntimeReceipt = { ...runtimeSurface.candidateRuntime };
   const matrixRun = runtimeSurface.matrixRun;
   const matrix = runtimeSurface.matrix;
   const matrixPassed = Boolean(
@@ -743,14 +831,14 @@ export function runFixture(args) {
       matrix.cases[2]?.attemptedHop === args.maxChainLength + 1,
   );
   const boundaryMatrixReceipt = {
+    ...(matrix || {}),
+    ...candidateRuntimeReceipt,
     schema: 'openclaw.project81.r-cw-6.boundary-matrix.v1',
     maxChainLength: args.maxChainLength,
     passed: matrixPassed,
-    ...(matrix || {}),
     command: ['node_modules/.bin/tsx', '--eval', '<production-module-eval>'],
     exitCode: matrixRun.exitCode,
     exactCandidateDisposableWorktree: true,
-    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'boundary-matrix.json'), boundaryMatrixReceipt);
 
@@ -789,23 +877,12 @@ export function runFixture(args) {
       ...selectedDelegateReceipt,
       passed: selectedDelegatePassed,
       asserted: selectedDelegateAssertions,
-      command: [
-        'node_modules/.bin/vitest',
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-delegate-fixture',
-        '--reporter=verbose',
-      ],
+      command: publicVitestCommand(DELEGATE_BOUNDARY_TEST),
       exitCode: runtimeSurface.selectedDelegateRun.exitCode,
     },
     candidateRegressionSuite: {
       passed: candidateDispatchSuitePassed,
-      command: [
-        'node_modules/.bin/vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts', '--reporter=verbose',
-      ],
+      command: publicVitestCommand(CANDIDATE_REGRESSION_TEST),
       exitCode: dispatchRun.exitCode,
       asserted: dispatchAssertions,
     },
@@ -843,48 +920,52 @@ export function runFixture(args) {
       typedReceipt?.capNoticeObserved === true,
   );
   const runtimeSurfacePassed =
-    runtimeSurface.passed &&
+    runtimeSurface.runtimePassed &&
+    runtimeSurface.typedPassed &&
     Object.values(runtimeSurface.asserted).every(Boolean) &&
     structuredReceiptPassed &&
     durableRecoveryPassed &&
     typedSurfacePassed;
 
+  const runtimeBoundaryPassed = runtimeSurface.runtimePassed && structuredReceiptPassed;
+  const durableStateRecoveryPassed = runtimeSurface.runtimePassed && durableRecoveryPassed;
+  const typedToolSurfacePassed = runtimeSurface.typedPassed && typedSurfacePassed;
   const runtimeBoundaryReceipt = {
     ...runtimeReceipt,
-    passed: structuredReceiptPassed,
-    fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
     ...candidateRuntimeReceipt,
+    schema: 'openclaw.project81.r-cw-6.runtime-boundary.v1',
+    passed: runtimeBoundaryPassed,
+    command: publicVitestCommand(RUNTIME_BOUNDARY_TEST),
+    exitCode: runtimeSurface.runtimeExitCode,
+    fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
   };
   const durableStateRecoveryReceipt = {
-    schema: 'openclaw.project81.r-cw-6.durable-state-recovery.v1',
-    passed: durableRecoveryPassed,
-    configuredMaximum: args.maxChainLength,
-    ...runtimeReceipt?.durableState,
+    persistedCount: runtimeReceipt?.durableState?.persistedCount,
+    reloadedCount: runtimeReceipt?.durableState?.reloadedCount,
+    recoveredBudgetReason: runtimeReceipt?.durableState?.recoveredBudgetReason,
+    recoveredAttemptScheduled: runtimeReceipt?.durableState?.recoveredAttemptScheduled,
     ...candidateRuntimeReceipt,
+    schema: 'openclaw.project81.r-cw-6.durable-state-recovery.v1',
+    passed: durableStateRecoveryPassed,
+    configuredMaximum: args.maxChainLength,
   };
   const typedToolSurfaceReceipt = {
     ...typedReceipt,
-    passed: typedSurfacePassed,
+    ...candidateRuntimeReceipt,
+    schema: 'openclaw.project81.r-cw-6.typed-tool-surface.v1',
+    passed: typedToolSurfacePassed,
+    command: publicVitestCommand(TYPED_TOOL_SURFACE_TEST),
+    exitCode: runtimeSurface.typedExitCode,
     fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceDirMutated: false,
     disposableWorktreeCreated: true,
     disposableWorktreeRemoved: runtimeSurface.disposableWorktreeRemoved,
-    ...candidateRuntimeReceipt,
   };
   writeJson(path.join(artifactDir, 'runtime-boundary.json'), runtimeBoundaryReceipt);
   writeJson(path.join(artifactDir, 'durable-state-recovery.json'), durableStateRecoveryReceipt);
   writeJson(path.join(artifactDir, 'typed-tool-surface.json'), typedToolSurfaceReceipt);
-
-  for (const raw of [
-    '.runtime-boundary.raw.json',
-    '.typed-surface.raw.json',
-    '.delegate-boundary.raw.json',
-  ]) {
-    const rawPath = path.join(artifactDir, raw);
-    if (existsSync(rawPath)) unlinkSync(rawPath);
-  }
 
   const finalHead = gitHead(sourceDir);
   if (finalHead !== args.candidateSha) {
@@ -926,15 +1007,16 @@ export function runFixture(args) {
       matrixPassed,
       dispatchPassed,
       runtimeSurfacePassed,
-      structuredChainCapped: structuredReceiptPassed,
-      noRejectedHopSpawn: structuredReceiptPassed && dispatchPassed && typedSurfacePassed,
-      durableRecoveryPassed,
-      typedSurfacePassed,
+      structuredChainCapped: runtimeBoundaryPassed,
+      noRejectedHopSpawn:
+        runtimeBoundaryPassed && dispatchPassed && typedToolSurfacePassed,
+      durableRecoveryPassed: durableStateRecoveryPassed,
+      typedSurfacePassed: typedToolSurfacePassed,
       exactCandidateDisposableWorktree: runtimeSurface.disposableWorktreeRemoved,
       candidatePackageManagerVersionMatchesExecuting:
         candidateRuntimeReceipt.candidatePackageManagerVersion ===
         candidateRuntimeReceipt.executingPackageManagerVersion,
-      installedLockMatchesCandidate: candidateRuntimeReceipt.lockfileMatchesCandidate,
+      installedGraphMatchesCandidate: candidateRuntimeReceipt.installedGraphMatchesCandidate,
       verifiedDependencyTreeContainsLocalExecutables: Object.values(
         candidateRuntimeReceipt.localExecutableContract,
       ).every((contract) => contract.realpathWithinVerifiedDependencyTree === true),
@@ -965,7 +1047,12 @@ export function runFixture(args) {
   if (JSON.stringify(actualPreFinalFiles) !== JSON.stringify(expectedPreFinalFiles)) {
     throw new Error('artifact directory contains a missing or unexpected file before final receipts');
   }
-  const privatePaths = [sourceDir, artifactDir, runtimeSurface.privateWorktreePath];
+  const privatePaths = [
+    sourceDir,
+    artifactDir,
+    diagnosticsDir,
+    runtimeSurface.privateWorktreePath,
+  ];
   for (const [label, value] of publicReceiptEntries) {
     assertPublicArtifactSafe(value, { label, privatePaths });
   }

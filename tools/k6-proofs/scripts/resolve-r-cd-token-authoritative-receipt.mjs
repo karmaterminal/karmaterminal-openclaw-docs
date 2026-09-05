@@ -22,17 +22,19 @@ async function readJson(file) {
 const args = argsOf(process.argv);
 if (!args['run-dir'] || !args.evidence) throw new Error('run-dir and evidence are required');
 const runDir = path.resolve(args['run-dir']);
-const [evidence, attemptState, metadata, correlation] = await Promise.all([
+const [evidence, attemptState, metadata, correlation, ancillaryRuntime] = await Promise.all([
   readJson(args.evidence),
   readJson(path.join(runDir, 'attempt-state.json')),
   readJson(path.join(runDir, 'runner-metadata.json')),
   readJson(args.correlation || path.join(runDir, 'continuation-trace-correlation.json')),
+  readJson(path.join(runDir, 'ancillary-runtime-provenance.json')),
 ]);
 const receipt = resolveRcdTokenAuthoritativeReceipt({
   evidence,
   correlation,
   attemptState,
   metadata,
+  ancillaryRuntime,
   signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
 });
 const target = path.join(runDir, 'r-cd-token-authoritative-receipt.json');

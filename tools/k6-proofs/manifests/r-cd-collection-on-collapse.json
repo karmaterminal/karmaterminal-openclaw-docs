@@ -1,48 +1,60 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
-  "issue": 119,
+  "issue": 459,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 15,
+  "timeoutSeconds": 180,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
+    "name": "r-cd-collection-on-collapse-producer",
+    "description": "Live producer: A\u2192detached session-mode B\u2192delayed C. Default one-parent return: C must reach A after B terminalizes. fanoutMode=tree is a distinct ancestry-return control and is not this fire.",
     "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
     ],
     "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "file": "r-cd-collection-on-collapse-producer.js"
   },
   "invocation": {
     "tool": "continue_delegate",
     "forms": [
       "typed-tool"
     ],
-    "mode": "silent-wake",
-    "delaySeconds": 1,
-    "promptTemplate": "Proof nonce {{nonce}}: construct A→B→C collection-on-collapse chain with detached intermediate only when explicitly live-fired. Do not mutate files. Do not post to any channel.",
+    "mode": "session",
+    "delaySeconds": 2,
+    "childDelaySeconds": 4,
+    "promptTemplate": "Proof nonce {{nonce}}: A spawns detached session-mode B; B schedules delayed C then terminalizes; C returns to A (default one-parent, do not set fanoutMode). Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-COLLECT-COLLAPSE"
   },
   "expectedReceipts": [
     {
-      "name": "collection-collapse-artifacts",
+      "name": "tool-invoke-accepted",
       "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
+      "description": "sessions.send dispatch accepted for the A\u2192B\u2192C producer"
     },
     {
       "name": "root-collection-after-intermediate-finalized",
       "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
+      "description": "Root A observes C-DONE sentinel after B terminalizes; not B-only and not orphan"
+    },
+    {
+      "name": "no-orphan-or-b-only-delivery",
+      "required": true,
+      "description": "Negative guard: C return is not orphaned and not delivered only to B"
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Trace id for Tempo join of the producer run"
     }
   ],
   "artifactDestination": {
@@ -55,22 +67,177 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CD-COLLECTION-ON-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
+    "notes": "Live producer for collection-on-collapse. Historical static PASS packets are fixtures only. Default one-parent return, not fanoutMode=tree. Diagnostic unless runtime SHA is the exact final successor. Never promote from static-corpus-row-validator."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "Only 8 continuation.work entry spans were accepted fleet-wide in 24h (182 in 7d). This row\u2019s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire by shared trace, which is the only join available: the entry span carries no origin, session, turn, or run identity, and there is no proof marker separating this row\u2019s fire from an organic one."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "trace-id"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.work",
+          "role": "accepted-entry",
+          "emittedByProduct": true
+        },
+        {
+          "name": "continuation.work.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and already asserted by the row\u2019s trace-correlation resolver. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row\u2019s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "The wake reason is published as a digest and a length. The raw reason, the wake sentinel instruction body, raw session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "raw reason",
+        "prompt body",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "A, detached B, and delayed C identities are retained; C reaches A after B terminalizes.",
+      "negative": "B-only delivery, orphan C, or fanoutMode=tree must not satisfy this row.",
+      "notes": "Deploy-persistence, the second half of this row\u2019s historical scope, has no telemetry expression at all and rests on chain-counter observation."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded Tempo makes the trace receipt unavailable. That is receipt debt, not evidence that no wake occurred."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.proof-row-result.v1",
+      "requiredFiles": [
+        "EVIDENCE.md",
+        "row-result.json",
+        "k6-summary.json",
+        "seat-readiness.json",
+        "artifacts/wake_event_trace.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Dispatch accepted, observable scheduled tool result, wake event, and a trace receipt. Behavioral only.",
+      "partial": "The trace receipt is missing or the backend is degraded or partial; a disposable-session run that stops at scheduled-only is PARTIAL, never PASS.",
+      "fail": "The scheduled sentinel appears without a wake, or the wake fires without an accepted schedule."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-collection-on-collapse-producer.js is the live producer; static-corpus-row-validator is a consumer only.",
+      "manual": "Per-seat cross-walk fires remain manual and file under the row\u2019s canonical path.",
+      "relationship": "Deterministic k6 is the verdict authority; manual cross-walks add seat coverage only."
+    }
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
-    "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "collection-collapse-artifacts",
-      "root-collection-after-intermediate-finalized"
+      "tool-invoke-accepted",
+      "root-collection-after-intermediate-finalized",
+      "no-orphan-or-b-only-delivery",
+      "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "Live A\u2192B\u2192C producer. Prefer disposable session. Diagnostic if seat runtime is not the exact candidate. Static validator is not this producer."
   }
 }

@@ -34,7 +34,76 @@ tools/k6-proofs/
   - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
   - `OPENCLAW_EXPECTED_K6_VERSION` — expected k6 version for seat-readiness preflight (default: `v2.0.0`)
 
+## Harness qualification
+
+Before allocating final proof rows, run the qualifier from a clean checkout at
+the exact reviewed docs SHA. It does not fire proof rows. It binds product,
+runtime, docs, corpus, gateway, seat, disposable session, and run identities;
+checks the pnpm workspace/install graph; probes gateway, diagnostics-otel, Tempo
+query/intake, and disposable-session cleanup; validates the producer DAG; and
+inventories stale managed proof flows without deleting them.
+
+```bash
+node tools/k6-proofs/scripts/qualify-proof-harness.mjs \
+  --product-dir "$FINAL_PRODUCT_CHECKOUT" \
+  --product-sha "$FINAL_SUCCESSOR_SHA" \
+  --runtime-sha "$FINAL_RUNTIME_SHA" \
+  --docs-sha "$APPROVED_DOCS_SHA" \
+  --corpus-sha "$FINAL_SUCCESSOR_SHA" \
+  --gateway-url ws://127.0.0.1:18789 \
+  --gateway-id "$GATEWAY_INSTANCE_ID" \
+  --seat "$SELECTED_SEAT" \
+  --agent-id main \
+  --session-id "agent:main:proof-qualification-$QUALIFICATION_RUN_ID" \
+  --run-id "$QUALIFICATION_RUN_ID" \
+  --tempo-query-url http://tempo.dandelion.cult \
+  --tempo-intake-url http://otel-collector.observability.svc.cluster.local:4318/v1/traces \
+  --out-dir "$HOME/.openclaw-proof-qualification/$QUALIFICATION_RUN_ID"
+```
+
+The gateway build receipt must expose the full bound runtime SHA; a shortened
+build prefix is not accepted as exact identity. The command exits nonzero for every acceptance blocker, prints every non-PASS
+condition, and writes `qualification-receipt.json` plus
+`qualification-report.txt`. The receipt includes only fingerprints for managed
+flow and owner identities. Existing queued proof flows are never drained or
+deleted. A final rerun may add `--producer-receipts <json>` and
+`--producer-signing-key-file <private-file>` plus
+`--terminal-rollup <json>`; consumers are rejected unless their exact producer
+receipt matches the same row/run/session/product/runtime/docs/corpus/seat
+binding, carries a valid HMAC and active issuance/expiry window, is unconsumed,
+and is PASS. The signing key remains private and is never copied into the
+qualification receipt.
+
+Legacy seat-allocation labels are not execution gates. The current
+`required_rows` list and the reviewed producer catalog are authoritative.
+`R-RC-2` is the only allowed terminal `HONEST-LIMIT`, and only with its
+nonce-bound structured numeric threshold-rejection receipt and matching child
+report. All `PARTIAL`, `MISSING`, `THIN`, and `FAIL` outcomes remain terminal
+qualification failures.
+
 ## Usage
+
+### Return-covenant authority harness (construction only)
+
+[`docs/RETURN-COVENANT-AUTHORITY-HARNESS.md`](docs/RETURN-COVENANT-AUTHORITY-HARNESS.md)
+defines the proposed `R-CD-RETURN-COVENANT-AUTHORITY` matrix for
+openclaw/openclaw#129388. The target-parameterized k6 scenario, versioned
+fixture schemas, signed observer resolver, and deterministic controls are
+present under
+[`contracts/return-covenant-authority/`](contracts/return-covenant-authority/),
+along with a closed runtime-artifact manifest, producer, verifier, read-only
+sandbox mounts, and exact tracked-gateway smoke. These cure Git-only candidate
+bootstrap without exposing ambient host dependencies or replacing the tracked
+gateway command, but the scenario is deliberately outside `scenarios/` and
+absent from the
+runnable manifest/workflow registry. The final schema-v19 product candidate does not yet expose the
+product-owned hold/transition/release driver or authority-generation diagnostic
+surface required to execute it.
+
+Do not treat the scenario's presence as proof or run it against a live session.
+It becomes executable only after the missing product seam is reviewed and the
+manifest is promoted separately. No current `PROOFS/**` corpus is read or
+modified by this construction harness.
 
 ### R-CW-5: isolated typed-tool fixture
 
@@ -48,6 +117,7 @@ worktree, and never changes a running gateway or fleet config:
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --source-dir <exact-candidate-worktree> \
   --candidate-sha <40-char-sha> \
+  --pnpm-node-modules <preinstalled-exact-pnpm-node_modules> \
   --artifact-dir <empty-private-directory> --cap 100 --json
 ```
 
@@ -69,12 +139,13 @@ regression suite. It does not infer chain behavior from the R-CW-5
 cost-cap fixture or mutate fleet config/state:
 
 Before proofs, the detached worktree must declare exact `pnpm@<semver>` in its
-committed `package.json` (an optional `+sha...` suffix is accepted). The runner
-checks `pnpm --version`, requires that exact semantic version, runs
+committed `package.json` (an optional `+sha...` suffix is accepted). The runner checks `pnpm --version`, requires that exact semantic version, runs
 `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`, and then
-requires candidate-lock bytes, `.modules.yaml` package-manager metadata,
-candidate-contained virtual-store metadata, and local `tsx`/`vitest` realpaths
-to align. This is **not hermetic host-toolchain or cryptographic provenance
+requires the installed virtual-store workspace graph, importers, and package
+integrities to equal the candidate lockfile's workspace document.
+Candidate-only package-manager bootstrap metadata is validated separately.
+`.modules.yaml` package-manager metadata, candidate-contained virtual-store
+metadata, and local `tsx`/`vitest` realpaths must also align. This is **not hermetic host-toolchain or cryptographic provenance
 proof**: the host-resolved `pnpm` is version-checked and the resulting tree is
 verified for lockfile/tree/version alignment.
 
@@ -593,8 +664,9 @@ selected-max delegate dispatch boundary all run inside one detached disposable c
 worktree without a gateway or fleet mutation. The fixture first requires the
 candidate's committed `package.json` and `pnpm-lock.yaml`, runs `pnpm install
 --frozen-lockfile --prefer-offline --ignore-scripts` inside that detached worktree,
-checks the installed virtual-store lock bytes/SHA-256, `.modules.yaml`
-package-manager and virtual-store metadata, and invokes
+checks the installed virtual-store graph SHA-256 against the candidate
+workspace graph, validates the separate package-manager bootstrap document,
+checks `.modules.yaml` package-manager and virtual-store metadata, and invokes
 only its absolute `node_modules/.bin/tsx` and `node_modules/.bin/vitest`
 binaries; source-tree `node_modules` is ignored. Before the final result is
 written, candidate SHA/tracked-state checks run immediately after install and

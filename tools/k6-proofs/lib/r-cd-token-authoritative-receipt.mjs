@@ -1,11 +1,22 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { classifyTokenEvidence } from './r-cd-token-contract.js';
+import {
+  GATEWAY_HMAC_RECEIPT_ALGORITHM,
+  sealSignedObserverReceipt,
+  validateSignedObserverReceiptIntegrity,
+} from './signed-observer-receipt.mjs';
 
 export const R_CD_TOKEN_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-token-authoritative-receipt.v1';
 const SHA = /^[a-f0-9]{40}$/;
-const hex = (value, length) => typeof value === 'string' &&
-  new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
-const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+
+function hex(value, length) {
+  return typeof value === 'string' &&
+    new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
+}
+
+function digest(value) {
+  return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
 
 function canonical(receipt) {
   return JSON.stringify({
@@ -22,14 +33,11 @@ function canonical(receipt) {
 }
 
 function seal(receipt, key) {
-  if (typeof key !== 'string' || !key) throw new Error('missing gateway signing key');
-  return {
-    ...receipt,
-    integrity: {
-      algorithm: 'hmac-sha256-gateway-token-v1',
-      signature: createHmac('sha256', key).update(canonical(receipt)).digest('hex'),
-    },
-  };
+  return sealSignedObserverReceipt({
+    receipt,
+    signingKey: key,
+    canonicalize: canonical,
+  });
 }
 
 function topologyPasses(correlation) {
@@ -50,19 +58,54 @@ function sameReasonBinding(evidence, correlation) {
     Number(evidence?.reason_length) === Number(correlation?.reason?.length);
 }
 
-function runnerIdentityMatches({ evidence, attemptState, metadata }) {
+function runtimeIdentityMatches({ candidateSha, runtimeBuildSha, ancillaryRuntime }) {
+  if (candidateSha === runtimeBuildSha) return true;
+  return ancillaryRuntime?.schema === 'openclaw.k6.ancillary-runtime-provenance.v1' &&
+    ancillaryRuntime?.row === 'R-CD-TOKEN' &&
+    ancillaryRuntime?.valid === true &&
+    ancillaryRuntime?.canonicalSha === candidateSha &&
+    ancillaryRuntime?.runtimeSha === runtimeBuildSha &&
+    ancillaryRuntime?.canonicalIdentityRemainsPure === true &&
+    ancillaryRuntime?.ownerPathsUnchanged === true &&
+    SHA.test(ancillaryRuntime?.canonicalTree || '') &&
+    SHA.test(ancillaryRuntime?.runtimeTree || '') &&
+    hex(ancillaryRuntime?.contractSha256, 64);
+}
+
+function ancillaryRuntimeProvenanceSha256(ancillaryRuntime) {
+  if (!ancillaryRuntime) return null;
+  return createHash('sha256').update(`${JSON.stringify(ancillaryRuntime, null, 2)}\n`).digest('hex');
+}
+
+function partialFailureCategory({
+  identityMatches,
+  evidenceVerdict,
+  correlation,
+  reasonMatches,
+}) {
+  if (!identityMatches) return 'runner-or-build-identity-mismatch';
+  if (evidenceVerdict !== 'PASS-candidate') return 'incomplete-or-nonunique-lifecycle';
+  if (!correlation) return 'missing-continuation-topology';
+  if (!reasonMatches) return 'reason-topology-mismatch';
+  return 'invalid-continuation-topology';
+}
+
+function runnerIdentityMatches({ evidence, attemptState, metadata, ancillaryRuntime }) {
   const candidateSha = metadata?.candidateSha;
   const runtimeBuildSha = metadata?.runtimeBuildSha;
+  const ancillarySha256 = ancillaryRuntimeProvenanceSha256(ancillaryRuntime);
   return metadata?.row === 'R-CD-TOKEN' &&
     SHA.test(candidateSha || '') &&
     SHA.test(runtimeBuildSha || '') &&
-    candidateSha === runtimeBuildSha &&
+    runtimeIdentityMatches({ candidateSha, runtimeBuildSha, ancillaryRuntime }) &&
     attemptState?.schema === 'openclaw.k6.r-cd-token.attempt-state.v1' &&
     attemptState?.row === 'R-CD-TOKEN' &&
     attemptState?.attemptIdHash === evidence?.attempt_id_hash &&
     attemptState?.rowNonceHash === evidence?.row_nonce_hash &&
     attemptState?.candidateSha === candidateSha &&
     attemptState?.runtimeBuildSha === runtimeBuildSha &&
+    (candidateSha === runtimeBuildSha ||
+      attemptState?.runtimeProvenanceSha256 === ancillarySha256) &&
     attemptState?.automaticRetryAllowed === false &&
     evidence?.candidateSha === candidateSha &&
     evidence?.runtimeBuildSha === runtimeBuildSha;
@@ -73,10 +116,20 @@ export function resolveRcdTokenAuthoritativeReceipt({
   correlation,
   attemptState,
   metadata,
+  ancillaryRuntime,
   signingKey,
 }) {
-  const identityMatches = runnerIdentityMatches({ evidence, attemptState, metadata });
+  const identityMatches = runnerIdentityMatches({
+    evidence,
+    attemptState,
+    metadata,
+    ancillaryRuntime,
+  });
+  const ancillaryRuntimeSha256 = ancillaryRuntimeProvenanceSha256(ancillaryRuntime);
   const evidenceVerdict = identityMatches ? classifyTokenEvidence(evidence) : 'PARTIAL-candidate';
+  const topologyMatches = topologyPasses(correlation);
+  const reasonMatches = sameReasonBinding(evidence, correlation);
+  const ancillaryRuntimeUsed = metadata?.candidateSha !== metadata?.runtimeBuildSha;
   const base = {
     schema: R_CD_TOKEN_RECEIPT_SCHEMA,
     row: 'R-CD-TOKEN',
@@ -86,6 +139,7 @@ export function resolveRcdTokenAuthoritativeReceipt({
     binding: {
       candidateSha: metadata?.candidateSha || null,
       runtimeBuildSha: metadata?.runtimeBuildSha || null,
+      ancillaryRuntimeProvenanceSha256: ancillaryRuntimeSha256,
       localEvidenceFingerprint: digest({
         attempt: evidence?.attempt_id_hash || null,
         runnerAttempt: attemptState?.attemptIdHash || null,
@@ -112,22 +166,16 @@ export function resolveRcdTokenAuthoritativeReceipt({
     },
   };
 
-  if (evidenceVerdict !== 'PASS-candidate' ||
-      !topologyPasses(correlation) ||
-      !sameReasonBinding(evidence, correlation)) {
-    const failureCategory = !identityMatches
-      ? 'runner-or-build-identity-mismatch'
-      : evidenceVerdict !== 'PASS-candidate'
-        ? 'incomplete-or-nonunique-lifecycle'
-        : !correlation
-          ? 'missing-continuation-topology'
-          : !sameReasonBinding(evidence, correlation)
-            ? 'reason-topology-mismatch'
-            : 'invalid-continuation-topology';
+  if (evidenceVerdict !== 'PASS-candidate' || !topologyMatches || !reasonMatches) {
     return seal({
       ...base,
       verdict: 'PARTIAL-candidate',
-      failureCategory,
+      failureCategory: partialFailureCategory({
+        identityMatches,
+        evidenceVerdict,
+        correlation,
+        reasonMatches,
+      }),
     }, signingKey);
   }
 
@@ -146,6 +194,7 @@ export function resolveRcdTokenAuthoritativeReceipt({
       returnBoundToDelegateChild: true,
       delegateOwnedByOriginChild: true,
       noTypedToolOrigin: true,
+      ancillaryRuntime: ancillaryRuntimeUsed,
       sameTrace: true,
       sameChain: true,
       attemptIdHash: evidence.attempt_id_hash,
@@ -169,16 +218,21 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
       receipt.candidateOnly !== true ||
       receipt.foldRequiresReview !== true ||
       !SHA.test(receipt.binding?.candidateSha || '') ||
-      receipt.binding?.runtimeBuildSha !== receipt.binding.candidateSha ||
+      !SHA.test(receipt.binding?.runtimeBuildSha || '') ||
+      (receipt.binding.runtimeBuildSha !== receipt.binding.candidateSha &&
+        !hex(receipt.binding?.ancillaryRuntimeProvenanceSha256, 64)) ||
       !hex(receipt.binding?.localEvidenceFingerprint, 64) ||
       !hex(receipt.binding?.topologyFingerprint, 64) ||
-      receipt.integrity?.algorithm !== 'hmac-sha256-gateway-token-v1' ||
+      receipt.integrity?.algorithm !== GATEWAY_HMAC_RECEIPT_ALGORITHM ||
       !hex(receipt.integrity?.signature, 64) ||
       typeof key !== 'string' || !key) {
     return { valid: false, reason: 'invalid-shape' };
   }
-  const expected = createHmac('sha256', key).update(canonical(receipt)).digest('hex');
-  if (!timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(receipt.integrity.signature, 'hex'))) {
+  if (!validateSignedObserverReceiptIntegrity({
+    receipt,
+    signingKey: key,
+    canonicalize: canonical,
+  })) {
     return { valid: false, reason: 'invalid-integrity' };
   }
   if (receipt.verdict !== 'PASS-candidate') {
@@ -200,6 +254,10 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
     'traceFingerprint', 'chainFingerprint',
   ];
   const pass = lifecycle?.surfaceClass === 'raw-final-text' &&
+    typeof lifecycle?.ancillaryRuntime === 'boolean' &&
+    (receipt.binding.runtimeBuildSha === receipt.binding.candidateSha
+      ? lifecycle.ancillaryRuntime === false
+      : lifecycle.ancillaryRuntime === true) &&
     requiredTrue.every((name) => lifecycle[name] === true) &&
     hashes.every((name) => hex(lifecycle?.[name], 16)) &&
     lifecycle.originRunIdHash !== lifecycle.delegateRunIdHash &&

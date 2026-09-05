@@ -41,7 +41,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CD-RETURN-OVERLAP. Validates committed PASS-with-caveat corpus receipts; does not claim isolated wake causality."
+    "notes": "Consumer only. Must consume the exact complete R-CD-RETURN-COVENANT-AUTHORITY receipt from docs#536. Historical INDEX corpus packets are fixtures, not current authority. Do not fire while #536 is incomplete. Static-corpus-row-validator is not this producer."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",

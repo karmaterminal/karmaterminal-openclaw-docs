@@ -8,6 +8,9 @@
 import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import {
+  hasVerifiedRrc2Outcome,
+} from '../lib/request-compaction-receipt.js';
 import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
@@ -138,40 +141,6 @@ function manifestCandidateSha(manifest) {
   return SHA.test(value || '') ? value : null;
 }
 
-function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {
-  if (rowId !== 'R-RC-2') return verdict !== 'HONEST-LIMIT-candidate';
-  if (verdict === 'HONEST-LIMIT-candidate') return (
-    evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.child_reported_context_threshold === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_rejected_context_threshold === true &&
-    evidence.guard === 'context_threshold'
-  );
-  if (verdict === 'PASS-candidate') return (
-    evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.post_compaction_path_observed === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'accepted' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_accepted === true
-  );
-  return true;
-}
-
 function authoritativeReceiptContract(rowId) {
   if (rowId === 'R-CD-2') {
     return {
@@ -248,11 +217,47 @@ async function main() {
     authoritativeReceipt = JSON.parse(raw);
     const integrity = authoritative.validate(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
     if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`${rowId} authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
-    if (rowId === 'R-CD-TOKEN' && (
-      authoritativeReceipt.binding?.candidateSha !== candidateSha ||
-      authoritativeReceipt.binding?.runtimeBuildSha !== requireSha(metadata.runtimeBuildSha, 'runner metadata runtimeBuildSha') ||
-      authoritativeReceipt.binding.runtimeBuildSha !== candidateSha
-    )) throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
+    if (rowId === 'R-CD-TOKEN') {
+      const runtimeBuildSha = requireSha(
+        metadata.runtimeBuildSha,
+        'runner metadata runtimeBuildSha',
+      );
+      if (
+        authoritativeReceipt.binding?.candidateSha !== candidateSha ||
+        authoritativeReceipt.binding?.runtimeBuildSha !== runtimeBuildSha
+      ) {
+        throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
+      }
+      if (runtimeBuildSha !== candidateSha) {
+        const provenanceName = metadata.runtimeProvenance?.receipt;
+        const provenanceSha256 = metadata.runtimeProvenance?.receiptSha256;
+        if (
+          metadata.runtimeProvenance?.class !== 'reviewed-ancillary-runtime' ||
+          metadata.runtimeProvenance?.canonicalIdentityRemainsPure !== true ||
+          provenanceName !== 'ancillary-runtime-provenance.json' ||
+          !/^[a-f0-9]{64}$/iu.test(provenanceSha256 || '')
+        ) {
+          throw new Error('R-CD-TOKEN ancillary runtime metadata is missing or invalid');
+        }
+        const provenanceRaw = await readFile(path.join(candidateDir, provenanceName));
+        const provenanceDigest = createHash('sha256').update(provenanceRaw).digest('hex');
+        const provenance = JSON.parse(provenanceRaw);
+        if (
+          provenanceDigest !== provenanceSha256 ||
+          provenanceDigest !== authoritativeReceipt.binding.ancillaryRuntimeProvenanceSha256 ||
+          provenance?.schema !== 'openclaw.k6.ancillary-runtime-provenance.v1' ||
+          provenance?.row !== 'R-CD-TOKEN' ||
+          provenance?.valid !== true ||
+          provenance?.canonicalSha !== candidateSha ||
+          provenance?.runtimeSha !== runtimeBuildSha ||
+          provenance?.canonicalIdentityRemainsPure !== true ||
+          provenance?.ownerPathsUnchanged !== true ||
+          provenance?.changedPathCount !== 22
+        ) {
+          throw new Error('R-CD-TOKEN ancillary runtime provenance is invalid');
+        }
+      }
+    }
   }
   const artifacts = {
     manifest: COPIED_MANIFEST,

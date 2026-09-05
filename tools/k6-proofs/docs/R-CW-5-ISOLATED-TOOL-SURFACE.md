@@ -43,13 +43,19 @@ the real delegate-dispatch boundary suite.
 node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \
   --source-dir <exact-6ee7eca-worktree> \
   --candidate-sha 6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d \
+  --pnpm-node-modules <preinstalled-exact-pnpm-node_modules> \
   --artifact-dir <empty-private-directory> --cap 100 --json
 ```
 
 The command refuses a SHA/source mismatch, a missing or altered candidate
-lockfile, or any failure to create and remove its disposable worktree. It runs
-`pnpm install --frozen-lockfile --prefer-offline` only in that disposable
-worktree using the exact version and sha512 integrity pinned by the candidate.
+lockfile, or any failure to create and remove its disposable worktree. It does
+not download or select a package manager. The caller supplies a preinstalled
+`node_modules` root; the fixture resolves the current-platform native pnpm
+package from `pnpm/package.json`, verifies pnpm and native-package
+version/integrity against both `.package-lock.json` and the candidate lockfile,
+and rejects wrapper, symlink, path-escape, or PATH substitution. It runs
+`pnpm install --frozen-lockfile --prefer-offline` only in the disposable
+candidate worktree.
 It never trusts or mutates source `node_modules`, starts a gateway, writes
 OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.

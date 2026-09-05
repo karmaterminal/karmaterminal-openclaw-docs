@@ -28,6 +28,21 @@
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 0,
+    "allowedArguments": [
+      "task",
+      "mode",
+      "delaySeconds"
+    ],
+    "forbiddenArguments": [
+      "recipientContext",
+      "returnOptions",
+      "attachments",
+      "attachAs",
+      "targetSessionKey",
+      "targetSessionKeys",
+      "fanoutMode",
+      "model"
+    ],
     "promptTemplate": "RRC2:{{nonceSuffix16}} R-RC-2 child nonce {{nonce}}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
   },
   "expectedReceipts": [
@@ -49,7 +64,7 @@
     {
       "name": "threshold-rejection-or-accepted-compaction",
       "required": true,
-      "description": "Either structured context-threshold rejection or accepted/post-compaction path observed"
+      "description": "Either accepted/post-compaction path or a structured context-threshold rejection with finite numeric contextUsage below canonical threshold 70 and a matching child report"
     },
     {
       "name": "trace-id",
@@ -220,7 +235,7 @@
         "continuation.chain.id",
         "compaction_request_id"
       ],
-      "notes": "Because refusal has no canonical span, a degraded backend cannot be used to argue either outcome. Backend-partial caps the row at PARTIAL-candidate and never converts into HONEST-LIMIT."
+      "notes": "A refusal has no canonical continuation span. The nonce-bound structured numeric toolResult and matching child report are sufficient only for HONEST-LIMIT; PASS still requires complete accepted-path observability. Backend degradation never manufactures either outcome."
     },
     "artifact": {
       "schema": "openclaw.k6.proof-row-result.v1",
@@ -235,7 +250,7 @@
     "verdictAuthority": {
       "passScope": "behavioral-only",
       "pass": "A genuine accepted compaction with the post-compaction path observed and the structured accepted toolResult receipt.",
-      "partial": "Any other incomplete substrate, including a degraded or partial telemetry backend, a missing trace receipt, or a prose-only child report.",
+      "partial": "Any other incomplete substrate, including missing accepted-path observability, a malformed or nonnumeric threshold receipt, or a prose-only child report.",
       "fail": "The structured receipt contradicts the observed path, or request_compaction is never reached by the child.",
       "honestLimit": "The sole corpus HONEST-LIMIT: a structured toolResult receipt proving request_compaction was refused because context pressure remained below threshold. It requires the structured receipt and is never inferred from absence."
     },
@@ -262,7 +277,7 @@
       "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Runs in disposable session by default and delegates request_compaction to child. Does not mutate config; if compaction unexpectedly accepts, mutation is confined to proof child/session and result is review-gated."
+    "notes": "Runs in disposable session by default and delegates request_compaction to child. The trace receipt remains required for PASS. The sole HONEST-LIMIT exception is complete only with the nonce-bound structured numeric threshold-rejection receipt and matching child report; it carries no trace/review debt because the refusal has no canonical continuation span."
   },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",

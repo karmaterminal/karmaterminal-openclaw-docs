@@ -1,0 +1,20 @@
+{
+  "gateway": {
+    "mode": "local"
+  },
+  "agents": {
+    "defaults": {
+      "model": "openai/gpt-5.6-sol",
+      "agentRuntime": {
+        "id": "codex"
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "codex": {
+        "enabled": true
+      }
+    }
+  }
+}

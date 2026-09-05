@@ -8,6 +8,11 @@
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import {
+  boundaryProducerSelectionFailureCode,
+  selectReviewedBoundaryProducer,
+  validateBoundaryProducerReceiptSet,
+} from '../lib/static-boundary-producer-receipts.mjs';
 
 export const options = {
   scenarios: { static_corpus_row_validator: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '15s' } },
@@ -26,15 +31,65 @@ function includesAny(text, needles) { return needles.some((needle) => text.inclu
 function allPresent(obj) { return Object.values(obj).every(Boolean); }
 function rowRoot(row) { return `../../../PROOFS/${sourceEvidenceSha}/${row}/cael-dgx`; }
 function readMaybe(path) { try { return open(path); } catch (e) { return ''; } }
-function readJsonMaybe(path) { const raw = readMaybe(path); return raw ? JSON.parse(raw) : null; }
+function readJsonMaybe(path) {
+  const raw = readMaybe(path);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function loadBoundaryProducer(rowId) {
+  try {
+    const currentProofManifest = readJsonMaybe(
+      `../../../PROOFS/${currentSha}/proofs-manifest.json`,
+    );
+    if (!currentProofManifest) throw new Error('current proofs manifest is unavailable');
+    const selection = selectReviewedBoundaryProducer({
+      proofsManifest: currentProofManifest,
+      rowId,
+      candidateSha: currentSha,
+    });
+    const receipts = {};
+    const sourceFiles = {};
+    for (const file of selection.files) {
+      const source = `${selection.relativeRoot}/${file}`;
+      receipts[file] = readJsonMaybe(source);
+      sourceFiles[file] = source;
+    }
+    return {
+      selection,
+      sourceFiles,
+      validation: validateBoundaryProducerReceiptSet({
+        rowId,
+        candidateSha: currentSha,
+        receipts,
+      }),
+    };
+  } catch (error) {
+    const failureCode = boundaryProducerSelectionFailureCode(error);
+    console.error(`Boundary producer selection failed for ${rowId}: ${failureCode}`);
+    return {
+      selection: null,
+      sourceFiles: {},
+      failureCode,
+      validation: {
+        passed: false,
+        checks: {},
+      },
+    };
+  }
+}
+
+function sourceRowFor(rowId) {
+  if (rowId === 'R-CW-5A') return 'R-CW-5';
+  if (rowId === 'R-CW-6A') return 'R-CW-6';
+  return rowId;
+}
 
 const selectedRow = manifest?.rowId || '';
 // R-CW-5A/6A validate the same committed source/harness material as the live
 // cap rows, but deliberately emit a construct-only result.  They must never
 // be mistaken for a freshly fired R-CW-5/6 cap receipt.
-const sourceRow = selectedRow === 'R-CW-5A' ? 'R-CW-5'
-  : selectedRow === 'R-CW-6A' ? 'R-CW-6'
-    : selectedRow;
+const sourceRow = sourceRowFor(selectedRow);
 const isStaticBoundaryVariant = sourceRow !== selectedRow;
 const roots = {
   rcw7: rowRoot('R-CW-7'),
@@ -109,7 +164,9 @@ if (selectedRow === 'R-CW-MULTI-COLLAPSE') {
     tempoAttrs: readMaybe(`${roots.multiCollapse}/tempo-attribute-receipt.txt`),
   };
 }
-if (sourceRow === 'R-CW-5') {
+if (selectedRow === 'R-CW-5A') {
+  corpus.rcw5Producer = loadBoundaryProducer('R-CW-5');
+} else if (sourceRow === 'R-CW-5') {
   corpus.rcw5 = {
     evidence: readMaybe(`${roots.rcw5}/EVIDENCE.md`),
     schedulerSource: readMaybe(`${roots.rcw5}/scheduler-source.txt`),
@@ -120,7 +177,9 @@ if (sourceRow === 'R-CW-5') {
     chainGuardLog: readMaybe(`${roots.rcw5}/vitest-chain-guard-cost-cap.log`),
   };
 }
-if (sourceRow === 'R-CW-6') {
+if (selectedRow === 'R-CW-6A') {
+  corpus.rcw6Producer = loadBoundaryProducer('R-CW-6');
+} else if (sourceRow === 'R-CW-6') {
   corpus.rcw6 = {
     evidence: readMaybe(`${roots.rcw6}/EVIDENCE.md`),
     schedulerSource: readMaybe(`${roots.rcw6}/source/scheduler-source-snippet.txt`),
@@ -254,6 +313,27 @@ function validateRcw6() {
   return { checks, source_files: { evidence: `${root}/EVIDENCE.md`, schedulerSource: `${root}/source/scheduler-source-snippet.txt`, workDispatchSource: `${root}/source/work-dispatch-source-snippet.txt`, schedulerTest: `${root}/source/scheduler-test-snippet.txt`, harnessLog: `${root}/harness/scheduler-boundary-harness.log` } };
 }
 
+function validateBoundaryProducerConsumer(producer) {
+  const selected = producer.selection !== null;
+  return {
+    checks: {
+      reviewedCurrentProducerSelected: selected,
+      ...(producer.validation?.checks ?? {}),
+      reviewedProducerReceiptSetPassed: producer.validation?.passed === true,
+    },
+    source_files: producer.sourceFiles,
+    producer_failure: producer.failureCode ?? null,
+  };
+}
+
+function validateRcw5A() {
+  return validateBoundaryProducerConsumer(corpus.rcw5Producer);
+}
+
+function validateRcw6A() {
+  return validateBoundaryProducerConsumer(corpus.rcw6Producer);
+}
+
 const validators = {
   'R-CW-7': validateRcw7,
   'R-CW-DELEGATE-CHILD-LIVE': validateDelegateChildLive,
@@ -263,8 +343,8 @@ const validators = {
   'R-CW-MULTI-COLLAPSE': validateRcwMultiCollapse,
   'R-CW-5': validateRcw5,
   'R-CW-6': validateRcw6,
-  'R-CW-5A': validateRcw5,
-  'R-CW-6A': validateRcw6,
+  'R-CW-5A': validateRcw5A,
+  'R-CW-6A': validateRcw6A,
 };
 
 export default function () {
@@ -291,6 +371,7 @@ export default function () {
     started: new Date(started).toISOString(),
     checks: result.checks,
     source_files: result.source_files,
+    ...(result.producer_failure ? { producer_failure: result.producer_failure } : {}),
   };
   const ok = allPresent(result.checks);
   evidence.ended = new Date().toISOString();

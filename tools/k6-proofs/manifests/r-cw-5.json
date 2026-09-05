@@ -31,7 +31,7 @@
     "fixtureState": "temporary session store seeded with accumulatedChainTokens=101"
   },
   "expectedReceipts": [
-    {"name":"fixture-readiness","required":true,"description":"Exact source/SHA, installed dependencies, and zero production mutation are proven before execution."},
+    {"name":"fixture-readiness","required":true,"description":"Exact source/SHA, preinstalled candidate-pinned pnpm package/native integrity, candidate workspace-graph dependency provenance, and zero production mutation are proven before execution."},
     {"name":"boundary-matrix","required":true,"description":"Below/equal/over cap results are null/null/cost-capped at the production budget predicate."},
     {"name":"typed-tool-surface","required":true,"description":"The real attempt runner receives two typed continue_work callbacks and creates no durable work when over cap."},
     {"name":"dispatch-boundary-suite","required":true,"description":"Production dispatcher asserts no rejected-hop spawn and failed-flow persistence."},

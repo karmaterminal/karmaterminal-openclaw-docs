@@ -41,7 +41,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "R-OBS-2 static artifact validator. It validates committed corpus artifact shape, not fresh live gateway behavior."
+    "notes": "Consumer only. Must consume terminal exact-run trace receipts from the restored live producers (including R-CW-7 and other trace-producing rows). Historical INDEX packets are fixtures, not current authority. Static-corpus-row-validator is not this producer."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",

@@ -1,0 +1,134 @@
+{
+  "schema": "openclaw.k6.proof-producer-catalog.v1",
+  "rows": {
+    "R-CD-COLLECTION-ON-COLLAPSE": {
+      "kind": "harness-live",
+      "command": "OPENCLAW_ROW_MANIFEST=tools/k6-proofs/manifests/r-cd-collection-on-collapse.json k6 run tools/k6-proofs/scenarios/r-cd-collection-on-collapse-producer.js",
+      "requiredPaths": [
+        "tools/k6-proofs/scenarios/r-cd-collection-on-collapse-producer.js"
+      ],
+      "reviewed": true
+    },
+    "R-CW-7": {
+      "kind": "process-local-plus-live-trace",
+      "command": "node \"$FINAL_PRODUCT_CHECKOUT/scripts/run-vitest.mjs\" \"$FINAL_PRODUCT_CHECKOUT/src/auto-reply/continuation/trace-context-propagation.integration.test.ts\" \"$FINAL_PRODUCT_CHECKOUT/src/agents/tools/continuation-tools.current-span-traceparent.test.ts\" \"$FINAL_PRODUCT_CHECKOUT/src/infra/continuation-tracer.test.ts\"",
+      "requiredPaths": [
+        "tools/k6-proofs/scenarios/r-cw-7-producer.js"
+      ],
+      "requiredProductPaths": [
+        "scripts/run-vitest.mjs",
+        "src/auto-reply/continuation/trace-context-propagation.integration.test.ts",
+        "src/agents/tools/continuation-tools.current-span-traceparent.test.ts",
+        "src/infra/continuation-tracer.test.ts"
+      ],
+      "reviewed": true,
+      "requiresLiveTrace": true,
+      "liveCommand": "./tools/k6-proofs/scripts/run-proofs.sh --live --docs-ref \"$APPROVED_DOCS_SHA\" R-CW-7 \"$FINAL_SUCCESSOR_SHA\""
+    },
+    "R-CW-DELEGATE-CHILD-LIVE": {
+      "kind": "harness-live",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --live --docs-ref \"$APPROVED_DOCS_SHA\" R-CW-DELEGATE-CHILD-LIVE \"$FINAL_SUCCESSOR_SHA\"",
+      "requiredPaths": [
+        "tools/k6-proofs/scenarios/r-cw-delegate-child-live-producer.js"
+      ],
+      "reviewed": true
+    },
+    "R-CW-DELEGATE-TOKEN": {
+      "kind": "harness-live",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --live --docs-ref \"$APPROVED_DOCS_SHA\" R-CW-DELEGATE-TOKEN \"$FINAL_SUCCESSOR_SHA\"",
+      "requiredPaths": [
+        "tools/k6-proofs/scenarios/r-cw-delegate-token-producer.js"
+      ],
+      "reviewed": true
+    },
+    "R-CW-MULTI": {
+      "kind": "harness-live",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --live --docs-ref \"$APPROVED_DOCS_SHA\" R-CW-MULTI \"$FINAL_SUCCESSOR_SHA\"",
+      "requiredPaths": [
+        "tools/k6-proofs/scenarios/r-cw-multi-producer.js"
+      ],
+      "reviewed": true
+    },
+    "R-CW-MULTI-COLLAPSE": {
+      "kind": "process-local",
+      "command": "node tools/k6-proofs/scripts/run-multi-collapse-fixture.mjs --source-dir \"$FINAL_PRODUCT_CHECKOUT\" --candidate-sha \"$FINAL_SUCCESSOR_SHA\" --artifact-dir \"$PRIVATE_ARTIFACT_ROOT/R-CW-MULTI-COLLAPSE\" --json",
+      "requiredPaths": [
+        "tools/k6-proofs/scripts/run-multi-collapse-fixture.mjs"
+      ],
+      "reviewed": true
+    },
+    "R-CD-RETURN-COVENANT-AUTHORITY": {
+      "kind": "process-local",
+      "command": "node tools/k6-proofs/scripts/launch-return-covenant-driver.mjs --plan \"$PRIVATE_PLAN\" --source-dir \"$FINAL_PRODUCT_CHECKOUT\" --runtime-config \"$RUNTIME_CONFIG\" --runtime-artifact \"$RUNTIME_ARTIFACT\" --control-dir \"$PRIVATE_CONTROL_ROOT\" --artifact-dir \"$PRIVATE_ARTIFACT_ROOT/R-CD-RETURN-COVENANT-AUTHORITY\"",
+      "requiredPaths": [
+        "tools/k6-proofs/scripts/launch-return-covenant-driver.mjs"
+      ],
+      "reviewed": true
+    },
+    "R-CD-RETURN-OVERLAP": {
+      "kind": "consumer",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --live --docs-ref \"$APPROVED_DOCS_SHA\" R-CD-RETURN-OVERLAP \"$FINAL_SUCCESSOR_SHA\"",
+      "dependsOn": [
+        "R-CD-RETURN-COVENANT-AUTHORITY"
+      ],
+      "reviewed": true
+    },
+    "R-CW-5": {
+      "kind": "process-local",
+      "command": "node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs --source-dir \"$FINAL_PRODUCT_CHECKOUT\" --candidate-sha \"$FINAL_SUCCESSOR_SHA\" --pnpm-node-modules \"$FINAL_PRODUCT_CHECKOUT/node_modules\" --artifact-dir \"$PRIVATE_ARTIFACT_ROOT/R-CW-5\" --cap 100 --json",
+      "requiredPaths": [
+        "tools/k6-proofs/scripts/run-cost-cap-fixture.mjs"
+      ],
+      "reviewed": true
+    },
+    "R-CW-5A": {
+      "kind": "consumer",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --docs-ref \"$APPROVED_DOCS_SHA\" R-CW-5A \"$FINAL_SUCCESSOR_SHA\"",
+      "dependsOn": [
+        "R-CW-5"
+      ],
+      "reviewed": true
+    },
+    "R-CW-6": {
+      "kind": "process-local",
+      "command": "node tools/k6-proofs/scripts/run-max-chain-fixture.mjs --source-dir \"$FINAL_PRODUCT_CHECKOUT\" --candidate-sha \"$FINAL_SUCCESSOR_SHA\" --artifact-dir \"$PRIVATE_ARTIFACT_ROOT/R-CW-6\" --max-chain-length 3 --json",
+      "requiredPaths": [
+        "tools/k6-proofs/scripts/run-max-chain-fixture.mjs"
+      ],
+      "reviewed": true
+    },
+    "R-CW-6A": {
+      "kind": "consumer",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --docs-ref \"$APPROVED_DOCS_SHA\" R-CW-6A \"$FINAL_SUCCESSOR_SHA\"",
+      "dependsOn": [
+        "R-CW-6"
+      ],
+      "reviewed": true
+    },
+    "R-OBS-2": {
+      "kind": "consumer",
+      "command": "./tools/k6-proofs/scripts/run-proofs.sh --live --docs-ref \"$APPROVED_DOCS_SHA\" R-OBS-2 \"$FINAL_SUCCESSOR_SHA\"",
+      "dependsOn": [
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-MODEL-TOOL",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI",
+        "R-RC-2"
+      ],
+      "reviewed": true
+    }
+  }
+}

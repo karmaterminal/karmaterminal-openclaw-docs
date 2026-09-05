@@ -24,3 +24,18 @@ test('uses only top-level lifecycle envelopes for terminal and wake identity', (
   assert.equal(gatewayWakeRunId({ stream: 'lifecycle', data: { phase: 'start', runId: 'nested' } }, 'send-run-1'), null);
   assert.equal(gatewayWakeRunId({ runId: 'send-run-1', stream: 'lifecycle', data: { phase: 'start' } }, 'send-run-1'), null);
 });
+
+test('keeps replay safety separate from successful lifecycle completion', () => {
+  assert.equal(gatewayLifecycleSucceeded({
+    runId: 'side-effecting-run',
+    stream: 'lifecycle',
+    data: { phase: 'end', status: 'ok', replayInvalid: true },
+  }), true);
+  for (const status of ['error', 'failed', 'failure', 'aborted']) {
+    assert.equal(gatewayLifecycleSucceeded({
+      runId: 'failed-run',
+      stream: 'lifecycle',
+      data: { phase: 'end', status, replayInvalid: false },
+    }), false);
+  }
+});

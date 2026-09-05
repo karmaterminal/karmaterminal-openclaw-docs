@@ -1,0 +1,523 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/observer.schema.json",
+  "title": "Private return covenant observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rowId",
+    "runId",
+    "caseId",
+    "form",
+    "kind",
+    "candidateSha",
+    "runtimeBuildSha",
+    "docsHarnessSha",
+    "runtimeConfigSha256",
+    "runtimeArtifactManifestSha256",
+    "startedAt",
+    "endedAt",
+    "returnMode",
+    "logicalSessionKey",
+    "caseHandle",
+    "database",
+    "isolation",
+    "effects",
+    "settlement",
+    "scans"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-observation.v1"
+    },
+    "rowId": {
+      "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+    },
+    "runId": { "$ref": "#/$defs/runId" },
+    "caseId": {
+      "enum": [
+        "allowed-ordinary-new",
+        "allowed-ordinary-reset",
+        "allowed-provider-fallback",
+        "allowed-compaction",
+        "allowed-gateway-restart-replay",
+        "allowed-session-id-rollover",
+        "allowed-late-materialization",
+        "forbidden-delete-recreate",
+        "forbidden-owner-reassignment",
+        "forbidden-member-access-removal",
+        "forbidden-restrictive-visibility",
+        "forbidden-explicit-revocation"
+      ]
+    },
+    "form": { "enum": ["typed-tool", "bracket-token"] },
+    "kind": { "enum": ["allowed", "forbidden"] },
+    "applicability": { "enum": ["executed", "not-exposed"] },
+    "candidateSha": { "$ref": "#/$defs/sha40" },
+    "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+    "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+    "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+    "runtimeArtifactManifestSha256": { "$ref": "#/$defs/sha256" },
+    "startedAt": { "$ref": "#/$defs/timestamp" },
+    "endedAt": { "$ref": "#/$defs/timestamp" },
+    "returnMode": {
+      "enum": ["normal", "silent", "silent-wake", "post-compaction"]
+    },
+    "logicalSessionKey": {
+      "type": "string",
+      "pattern": "^agent:proof:rcv-[0-9a-f]{32}:[a-z0-9-]+$"
+    },
+    "caseHandle": { "$ref": "#/$defs/id" },
+    "resultMarker": {
+      "type": "string",
+      "pattern": "^RCV-[0-9a-f]{32}$"
+    },
+    "database": { "$ref": "#/$defs/database" },
+    "isolation": { "$ref": "#/$defs/isolation" },
+    "dispatch": { "$ref": "#/$defs/dispatch" },
+    "lifecycle": { "$ref": "#/$defs/lifecycle" },
+    "authorityDiagnostic": { "$ref": "#/$defs/authorityDiagnostic" },
+    "delivery": { "$ref": "#/$defs/delivery" },
+    "effects": { "$ref": "#/$defs/effects" },
+    "settlement": { "$ref": "#/$defs/settlement" },
+    "scans": { "$ref": "#/$defs/scans" },
+    "capability": { "$ref": "#/$defs/capability" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["applicability"],
+        "properties": {
+          "applicability": { "const": "not-exposed" }
+        }
+      },
+      "then": {
+        "required": ["capability"],
+        "not": {
+          "anyOf": [
+            { "required": ["resultMarker"] },
+            { "required": ["dispatch"] },
+            { "required": ["lifecycle"] },
+            { "required": ["authorityDiagnostic"] },
+            { "required": ["delivery"] }
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "resultMarker",
+          "dispatch",
+          "lifecycle",
+          "authorityDiagnostic",
+          "delivery"
+        ],
+        "not": { "required": ["capability"] },
+        "properties": {
+          "settlement": {
+            "required": [
+              "releasedAt",
+              "scansCompletedAt",
+              "elapsedMs",
+              "monotonicElapsedMs"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^rcv-[0-9a-f]{32}$"
+    },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "sourceSchemaVersion",
+        "targetSchemaVersion",
+        "fixtureShape",
+        "productOwnedFixture",
+        "canonicalFixtureReceiptId",
+        "freshInstall",
+        "migrationApplied",
+        "reopenIdempotent"
+      ],
+      "properties": {
+        "profile": {
+          "enum": [
+            "fresh-v19",
+            "covenant-v18-upgrade",
+            "participant-v18-upgrade",
+            "idempotent-v19-reopen"
+          ]
+        },
+        "sourceSchemaVersion": {
+          "type": ["integer", "null"],
+          "enum": [null, 18, 19]
+        },
+        "targetSchemaVersion": { "const": 19 },
+        "fixtureShape": {
+          "enum": ["fresh", "covenant-v18", "participant-v18", "v19-reopen"]
+        },
+        "productOwnedFixture": { "const": true },
+        "canonicalFixtureReceiptId": { "$ref": "#/$defs/id" },
+        "freshInstall": { "type": "boolean" },
+        "migrationApplied": { "type": "boolean" },
+        "reopenIdempotent": { "type": "boolean" }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home", "state", "config", "syntheticData"],
+      "properties": {
+        "home": { "const": true },
+        "state": { "const": true },
+        "config": { "const": true },
+        "syntheticData": { "const": true }
+      }
+    },
+    "originEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "observedForm",
+        "receiptId",
+        "typedToolExecutions",
+        "bracketParses",
+        "rawFinalText"
+      ],
+      "properties": {
+        "source": { "const": "product-owned" },
+        "observedForm": { "enum": ["typed-tool", "bracket-token"] },
+        "receiptId": { "$ref": "#/$defs/id" },
+        "typedToolExecutions": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "bracketParses": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "rawFinalText": { "type": "boolean" }
+      }
+    },
+    "dispatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseHandle",
+        "prepareReceiptId",
+        "accepted",
+        "completionHeld",
+        "receiptId",
+        "heldResultId",
+        "capturedAuthorityGeneration",
+        "resultMarker",
+        "originEvidence"
+      ],
+      "properties": {
+        "caseHandle": { "$ref": "#/$defs/id" },
+        "prepareReceiptId": { "$ref": "#/$defs/id" },
+        "accepted": { "const": true },
+        "completionHeld": { "const": true },
+        "receiptId": { "$ref": "#/$defs/id" },
+        "heldResultId": { "$ref": "#/$defs/id" },
+        "capturedAuthorityGeneration": { "$ref": "#/$defs/id" },
+        "resultMarker": {
+          "type": "string",
+          "pattern": "^RCV-[0-9a-f]{32}$"
+        },
+        "originEvidence": { "$ref": "#/$defs/originEvidence" }
+      }
+    },
+    "restart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stoppedAfterAcceptance",
+        "restartedBeforeRelease",
+        "replayRecovered",
+        "receiptId",
+        "originalGatewayPid",
+        "originalGatewayStartFingerprint",
+        "replacementGatewayPid",
+        "replacementGatewayStartFingerprint",
+        "gatewayCommandSha256",
+        "runtimeConfigSha256",
+        "processGroupId",
+        "replacementGatewayEndpoint"
+      ],
+      "properties": {
+        "stoppedAfterAcceptance": { "const": true },
+        "restartedBeforeRelease": { "const": true },
+        "replayRecovered": { "const": true },
+        "receiptId": { "$ref": "#/$defs/id" },
+        "originalGatewayPid": { "type": "integer", "minimum": 2 },
+        "originalGatewayStartFingerprint": { "$ref": "#/$defs/sha256" },
+        "replacementGatewayPid": { "type": "integer", "minimum": 2 },
+        "replacementGatewayStartFingerprint": { "$ref": "#/$defs/sha256" },
+        "gatewayCommandSha256": { "$ref": "#/$defs/sha256" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "processGroupId": { "type": "integer", "minimum": 2 },
+        "replacementGatewayEndpoint": {
+          "type": "string",
+          "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge",
+        "occurredAfterAcceptance",
+        "completedBeforeRelease",
+        "preSessionId",
+        "postSessionId",
+        "successorIdentity",
+        "receiptId",
+        "acceptedDispatchReceiptId",
+        "generationAdvanced",
+        "effectiveAuthorityUnchanged"
+      ],
+      "properties": {
+        "edge": {
+          "enum": [
+            "ordinary-new",
+            "ordinary-reset",
+            "provider-fallback",
+            "compaction",
+            "gateway-restart-replay",
+            "session-id-rollover",
+            "late-recipient-materialization",
+            "explicit-delete-recreate",
+            "effective-owner-reassignment",
+            "actual-member-access-removal",
+            "restrictive-visibility-change",
+            "explicit-revocation"
+          ]
+        },
+        "occurredAfterAcceptance": { "const": true },
+        "completedBeforeRelease": { "const": true },
+        "preSessionId": {
+          "type": ["string", "null"],
+          "minLength": 8
+        },
+        "postSessionId": { "$ref": "#/$defs/id" },
+        "successorIdentity": { "$ref": "#/$defs/id" },
+        "receiptId": { "$ref": "#/$defs/id" },
+        "acceptedDispatchReceiptId": { "$ref": "#/$defs/id" },
+        "generationAdvanced": { "type": "boolean" },
+        "effectiveAuthorityUnchanged": { "type": "boolean" },
+        "restart": { "$ref": "#/$defs/restart" },
+        "operations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "deletionObserved",
+            "deletionReceiptId",
+            "recreationObserved",
+            "recreationReceiptId"
+          ],
+          "properties": {
+            "deletionObserved": { "const": true },
+            "deletionReceiptId": { "$ref": "#/$defs/id" },
+            "recreationObserved": { "const": true },
+            "recreationReceiptId": { "$ref": "#/$defs/id" }
+          }
+        }
+      }
+    },
+    "authorityDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "surface",
+        "capturedAuthorityGeneration",
+        "currentAuthorityGeneration"
+      ],
+      "properties": {
+        "source": { "const": "product-owned" },
+        "surface": { "$ref": "#/$defs/id" },
+        "capturedAuthorityGeneration": { "$ref": "#/$defs/id" },
+        "currentAuthorityGeneration": { "$ref": "#/$defs/id" }
+      }
+    },
+    "queue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordId",
+        "status",
+        "acknowledged",
+        "removed",
+        "retryScheduled"
+      ],
+      "properties": {
+        "recordId": { "$ref": "#/$defs/id" },
+        "status": {
+          "enum": [
+            "adopted",
+            "stale-acknowledged",
+            "unauthorized-acknowledged",
+            "revoked-acknowledged"
+          ]
+        },
+        "acknowledged": { "const": true },
+        "removed": { "const": true },
+        "retryScheduled": { "const": false }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acceptedDispatchReceiptId",
+        "heldResultAuthorityGeneration",
+        "caseHandle",
+        "transitionReceiptId",
+        "releaseReceiptId",
+        "resultReleased",
+        "admission",
+        "queue"
+      ],
+      "properties": {
+        "acceptedDispatchReceiptId": { "$ref": "#/$defs/id" },
+        "heldResultAuthorityGeneration": { "$ref": "#/$defs/id" },
+        "caseHandle": { "$ref": "#/$defs/id" },
+        "transitionReceiptId": { "$ref": "#/$defs/id" },
+        "releaseReceiptId": { "$ref": "#/$defs/id" },
+        "resultReleased": { "const": true },
+        "admission": {
+          "enum": ["adopted", "stale", "unauthorized", "revoked"]
+        },
+        "queue": { "$ref": "#/$defs/queue" }
+      }
+    },
+    "effectCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["promptAdoptions", "wakes", "channelDeliveries"],
+      "properties": {
+        "promptAdoptions": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "wakes": { "type": "integer", "minimum": 0, "maximum": 1 },
+        "channelDeliveries": { "type": "integer", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "effectSources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["promptAdoptions", "wakes", "channelDeliveries"],
+      "properties": {
+        "promptAdoptions": { "$ref": "#/$defs/id" },
+        "wakes": { "$ref": "#/$defs/id" },
+        "channelDeliveries": { "$ref": "#/$defs/id" }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["distinguishable", "sources", "expected", "observed"],
+      "properties": {
+        "distinguishable": { "const": true },
+        "sources": { "$ref": "#/$defs/effectSources" },
+        "expected": { "$ref": "#/$defs/effectCounts" },
+        "observed": { "$ref": "#/$defs/effectCounts" }
+      }
+    },
+    "settlement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bounded", "complete", "windowMs"],
+      "properties": {
+        "bounded": { "const": true },
+        "complete": { "const": true },
+        "windowMs": { "type": "integer", "minimum": 1000, "maximum": 30000 },
+        "releasedAt": { "$ref": "#/$defs/timestamp" },
+        "scansCompletedAt": { "$ref": "#/$defs/timestamp" },
+        "elapsedMs": { "type": "integer", "minimum": 1000 },
+        "monotonicElapsedMs": { "type": "number", "minimum": 1000 }
+      }
+    },
+    "scan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "marker", "matches", "receiptId"],
+      "properties": {
+        "source": { "const": "product-owned" },
+        "marker": {
+          "type": ["string", "null"],
+          "pattern": "^RCV-[0-9a-f]{32}$"
+        },
+        "matches": { "const": 0 },
+        "receiptId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "scans": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resultMarker", "successorTranscript", "trustedSystemEvents"],
+      "properties": {
+        "resultMarker": {
+          "type": ["string", "null"],
+          "pattern": "^RCV-[0-9a-f]{32}$"
+        },
+        "successorTranscript": { "$ref": "#/$defs/scan" },
+        "trustedSystemEvents": { "$ref": "#/$defs/scan" }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source",
+        "productSha",
+        "runtimeBuildSha",
+        "runtimeConfigSha256",
+        "docsHarnessSha",
+        "runId",
+        "caseId",
+        "form",
+        "inventoryComplete",
+        "revocationApiExposed",
+        "surface",
+        "receiptId"
+      ],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-capability-inventory.v1"
+        },
+        "source": { "const": "product-owned" },
+        "productSha": { "$ref": "#/$defs/sha40" },
+        "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+        "runId": { "$ref": "#/$defs/runId" },
+        "caseId": { "const": "forbidden-explicit-revocation" },
+        "form": { "enum": ["typed-tool", "bracket-token"] },
+        "inventoryComplete": { "const": true },
+        "revocationApiExposed": { "const": false },
+        "surface": { "$ref": "#/$defs/id" },
+        "receiptId": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}

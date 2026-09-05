@@ -30,6 +30,7 @@ import {
   parseArgs,
   parsePinnedPnpmPackageManager,
   prepareArtifactDir,
+  preparePrivateDiagnosticsDir,
   renderToolSurfaceTemplate,
   verifyInstalledCandidateDependencies,
 } from '../run-max-chain-fixture.mjs';
@@ -64,6 +65,8 @@ test('R-CW-6 fixture accepts an explicit isolated source contract', () => {
     '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     '--artifact-dir',
     '/tmp/rcw6-artifacts',
+    '--private-diagnostics-dir',
+    '/proof-private/rcw6-diagnostics',
     '--max-chain-length',
     '3',
     '--json',
@@ -72,6 +75,7 @@ test('R-CW-6 fixture accepts an explicit isolated source contract', () => {
     sourceDir: '/tmp/exact-openclaw',
     candidateSha: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     artifactDir: '/tmp/rcw6-artifacts',
+    diagnosticsDir: '/proof-private/rcw6-diagnostics',
     maxChainLength: 3,
     json: true,
   });
@@ -105,6 +109,61 @@ test('R-CW-6 fixture refuses to overwrite or expose an artifact directory', asyn
   assert.throws(
     () => prepareArtifactDir(path.join(linkedParent, 'new-artifacts')),
     /must not contain a symlink component/,
+  );
+});
+
+test('R-CW-6 fixture retains private diagnostics separately and refuses overwrite', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-private-diagnostics-'));
+  const artifactDir = path.join(root, 'artifacts');
+  const diagnosticsInput = path.join(root, 'private', 'diagnostics');
+  const sourceDir = path.join(root, 'candidate-source');
+  await mkdir(artifactDir, { mode: 0o700 });
+  const diagnosticsDir = preparePrivateDiagnosticsDir(diagnosticsInput, artifactDir, sourceDir);
+  assert.equal(diagnosticsDir, diagnosticsInput);
+  await writeFile(path.join(diagnosticsDir, 'runtime-boundary.stderr.log'), 'rejected-base');
+  assert.throws(
+    () => preparePrivateDiagnosticsDir(diagnosticsInput, artifactDir, sourceDir),
+    /must be empty; refusing to overwrite diagnostics/,
+  );
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(artifactDir, 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /outside the public corpus\/artifact tree/,
+  );
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(root, 'PROOFS', 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /outside the public corpus\/artifact tree/,
+  );
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(sourceDir, 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /outside the candidate source worktree/,
+  );
+  const linkedTarget = path.join(root, 'private-linked-target');
+  const linkedParent = path.join(root, 'private-linked-parent');
+  await mkdir(linkedTarget, { mode: 0o700 });
+  await symlink(linkedTarget, linkedParent);
+  assert.throws(
+    () =>
+      preparePrivateDiagnosticsDir(
+        path.join(linkedParent, 'diagnostics'),
+        artifactDir,
+        sourceDir,
+      ),
+    /private diagnostics dir path must not contain a symlink component/,
   );
 });
 
@@ -158,13 +217,14 @@ test('R-CW-6 accepts only a fixed pnpm packageManager declaration and exact exec
   for (const invalid of ['pnpm@latest', 'pnpm@^11.2.2', 'pnpm@11', 'npm@11.2.2', 'pnpm@11.2.2 || pnpm@11.3.0']) {
     assert.throws(
       () => parsePinnedPnpmPackageManager(invalid),
-      /exact pnpm@<semver>/,
+      /pin pnpm@<semver>/,
       `${invalid} must not identify one candidate pnpm release`,
     );
   }
-  const pinned = parsePinnedPnpmPackageManager('pnpm@11.2.2+sha512.abcd_ef-1');
+  const integrity = 'a'.repeat(128);
+  const pinned = parsePinnedPnpmPackageManager(`pnpm@11.2.2+sha512.${integrity}`);
   assert.equal(pinned.version, '11.2.2');
-  assert.equal(pinned.integritySuffix, '+sha512.abcd_ef-1');
+  assert.equal(pinned.integritySuffix, `+sha512.${integrity}`);
   assert.equal(assertExecutingPnpmVersion(pinned, '11.2.2'), '11.2.2');
   assert.throws(
     () => assertExecutingPnpmVersion(pinned, '11.2.3'),
@@ -172,8 +232,8 @@ test('R-CW-6 accepts only a fixed pnpm packageManager declaration and exact exec
   );
 });
 
-test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contained virtual store', async () => {
-  const candidate = parsePinnedPnpmPackageManager('pnpm@11.2.2+sha512.candidate');
+test('R-CW-6 verifies candidate workspace graph, pnpm metadata, and candidate-contained virtual store', async () => {
+  const candidate = parsePinnedPnpmPackageManager(`pnpm@11.2.2+sha512.${'a'.repeat(128)}`);
 
   const staleLock = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-stale-lock-'));
   await writeInstalledPnpmTree(staleLock, {
@@ -182,7 +242,7 @@ test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contain
   });
   assert.throws(
     () => assertInstalledPnpmDependencyTree(staleLock, candidate),
-    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+    /workspace graph\/importers\/package integrity differ/,
   );
 
   const incompatibleMetadata = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-incompatible-metadata-'));
@@ -220,6 +280,53 @@ test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contain
   );
 });
 
+test('R-CW-6 accepts pnpm 12 package-manager bootstrap plus exact workspace graph', async () => {
+  const integrityHex = 'a'.repeat(128);
+  const integrity = `sha512-${Buffer.from(integrityHex, 'hex').toString('base64')}`;
+  const workspace = "lockfileVersion: '9.0'\nsettings:\n  autoInstallPeers: true\npackages:\n  example@1.0.0:\n    resolution: {integrity: sha512-ZXhhbXBsZQ==}\n";
+  const candidateLock = [
+    '---',
+    "lockfileVersion: '9.0'",
+    'importers:',
+    '  .:',
+    '    configDependencies: {}',
+    '    packageManagerDependencies:',
+    '      pnpm:',
+    '        specifier: 12.1.0',
+    '        version: 12.1.0',
+    'packages:',
+    "  'pnpm@12.1.0':",
+    `    resolution: {integrity: ${integrity}}`,
+    '---',
+    workspace.trimEnd(),
+    '',
+  ].join('\n');
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm12-lock-'));
+  await writeInstalledPnpmTree(root, {
+    candidateLock,
+    installedLock: workspace,
+    packageManager: 'pnpm@12.1.0',
+  });
+  const result = assertInstalledPnpmDependencyTree(
+    root,
+    parsePinnedPnpmPackageManager(`pnpm@12.1.0+sha512.${integrityHex}`),
+  );
+  assert.equal(result.installedGraphMatchesCandidate, true);
+  assert.equal(result.packageManagerBootstrapValidated, true);
+
+  await writeFile(
+    path.join(root, 'node_modules', '.pnpm', 'lock.yaml'),
+    workspace.replace('example@1.0.0', 'example@1.0.1'),
+  );
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(
+      root,
+      parsePinnedPnpmPackageManager(`pnpm@12.1.0+sha512.${integrityHex}`),
+    ),
+    /workspace graph\/importers\/package integrity differ/,
+  );
+});
+
 test('R-CW-6 rejects a fake PATH pnpm that reports the candidate version but cannot produce the required tree metadata', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-worktree-'));
   const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-bin-'));
@@ -247,7 +354,7 @@ test('R-CW-6 rejects a fake PATH pnpm that reports the candidate version but can
   assert.deepEqual(installation.command, ['pnpm', 'install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts']);
   assert.throws(
     () => verifyInstalledCandidateDependencies(worktree, candidate),
-    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+    /workspace graph\/importers\/package integrity differ/,
   );
 });
 
@@ -314,6 +421,22 @@ test('R-CW-6 creates the detached candidate worktree, frozen-installs it, then u
   assert.match(script, /verifyInstalledCandidateDependencies/);
   assert.match(script, /verifiedDependencies\.executables\.tsx/);
   assert.match(script, /verifiedDependencies\.executables\.vitest/);
+  assert.match(script, /src\/auto-reply\/continuation\/r-cw-6-runtime-fixture\.generated\.test\.ts/);
+  assert.match(script, /src\/auto-reply\/continuation\/r-cw-6-typed-fixture\.generated\.test\.ts/);
+  assert.match(script, /src\/auto-reply\/continuation\/r-cw-6-delegate-fixture\.generated\.test\.ts/);
+  assert.match(script, /retainCommandDiagnostics\(diagnosticsDir, 'runtime-boundary'/);
+  assert.match(script, /retainCommandDiagnostics\(diagnosticsDir, 'typed-tool-surface'/);
+  assert.match(script, /retainCommandDiagnostics\(diagnosticsDir, 'selected-delegate'/);
+  assert.match(script, /const runtimeReceipt = readJsonIfValid\(rawRuntimeReceiptPath\)/);
+  assert.match(script, /const typedReceipt = readJsonIfValid\(rawTypedReceiptPath\)/);
+  assert.match(script, /const selectedDelegateReceipt = readJsonIfValid\(rawDelegateReceiptPath\)/);
+  assert.doesNotMatch(script, /test\.ok \? readJsonIfValid/);
+  assert.match(script, /runtimeSurface\.runtimePassed && structuredReceiptPassed/);
+  assert.match(script, /runtimeSurface\.runtimePassed && durableRecoveryPassed/);
+  assert.match(script, /runtimeSurface\.typedPassed && typedSurfacePassed/);
+  assert.match(script, /structuredChainCapped:\s*runtimeBoundaryPassed/);
+  assert.match(script, /durableRecoveryPassed:\s*durableStateRecoveryPassed/);
+  assert.match(script, /typedSurfacePassed:\s*typedToolSurfacePassed/);
   assert.doesNotMatch(script, /symlinkSync\(path\.join\(sourceDir, 'node_modules'\)/);
 });
 
@@ -338,10 +461,16 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
 
 test('R-CW-6 typed template enters runAgentAttempt and omits the rejected flow', async () => {
   const template = await readFile(
-    fileURLToPath(new URL('../../fixtures/r-cw-6/max-chain-tool-surface.test.ts', import.meta.url)),
+    fileURLToPath(
+      new URL('../../fixtures/r-cw-6/max-chain-typed-tool-surface.test.ts', import.meta.url),
+    ),
     'utf8',
   );
   assert.match(template, /runAgentAttempt/);
+  assert.match(template, /createTestPreparedRunAdmission/);
+  assert.match(template, /preparedRunAdmission:\s*createTestPreparedRunAdmission/);
+  assert.match(template, /modelRoutingProvenance:/);
+  assert.match(template, /pluginGeneration:\s*undefined/);
   assert.match(template, /createOpenClawContinuationTools/);
   assert.match(template, /tool\.name === "continue_work"/);
   assert.match(template, /continueWorkTool\.execute/);
@@ -357,6 +486,11 @@ test('R-CW-6 delegate template uses the selected maximum and proves reject-befor
     'utf8',
   );
   const rendered = renderToolSurfaceTemplate(template, 7);
+  assert.match(
+    rendered,
+    /\.\.\/\.\.\/agents\/subagents\/spawn\/subagent-spawn\.js/,
+  );
+  assert.doesNotMatch(rendered, /agents\/subagent-spawn\.js/);
   assert.match(rendered, /const maxChainLength = 7/);
   assert.match(rendered, /currentChainCount: maxChainLength - 1/);
   assert.match(rendered, /rejectedBeforeSecondSpawn/);
@@ -382,9 +516,12 @@ test('R-CW-6 public readiness has no private source path or fleet mutation claim
     head: '6ee7eca2a4ce1a3e8efa7e51f9dd02d03081741d',
     candidateRuntime: {
       candidateLockfileSha256: 'b'.repeat(64),
-      installedLockfileSha256: 'b'.repeat(64),
-      lockfileMatchesCandidate: true,
-      candidatePackageManager: 'pnpm@11.2.2+sha512.candidate',
+      installedLockfileSha256: 'c'.repeat(64),
+      candidateWorkspaceGraphSha256: 'c'.repeat(64),
+      packageManagerBootstrapSha256: 'd'.repeat(64),
+      installedGraphMatchesCandidate: true,
+      packageManagerBootstrapValidated: true,
+      candidatePackageManager: `pnpm@11.2.2+sha512.${'a'.repeat(128)}`,
       candidatePackageManagerVersion: '11.2.2',
       executingPackageManagerVersion: '11.2.2',
       installedPackageManager: 'pnpm@11.2.2',
@@ -409,8 +546,9 @@ test('R-CW-6 public readiness has no private source path or fleet mutation claim
   assert.equal(readiness.productionStateTouched, false);
   assert.equal(readiness.gatewayStarted, false);
   assert.equal(readiness.candidateLockfileSha256, 'b'.repeat(64));
-  assert.equal(readiness.installedLockfileSha256, 'b'.repeat(64));
-  assert.equal(readiness.candidatePackageManager, 'pnpm@11.2.2+sha512.candidate');
+  assert.equal(readiness.installedLockfileSha256, 'c'.repeat(64));
+  assert.equal(readiness.installedGraphMatchesCandidate, true);
+  assert.equal(readiness.candidatePackageManager, `pnpm@11.2.2+sha512.${'a'.repeat(128)}`);
   assert.equal(readiness.executingPackageManagerVersion, '11.2.2');
   assert.equal(readiness.installedPackageManager, 'pnpm@11.2.2');
   assert.equal(readiness.hostToolchainHermetic, false);

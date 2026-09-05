@@ -1,4 +1,9 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash } from 'node:crypto';
+import {
+  GATEWAY_HMAC_RECEIPT_ALGORITHM,
+  sealSignedObserverReceipt,
+  validateSignedObserverReceiptIntegrity,
+} from './signed-observer-receipt.mjs';
 
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
@@ -40,14 +45,11 @@ function canonical(receipt) {
 }
 
 function seal(receipt, key) {
-  if (typeof key !== 'string' || key.length === 0) throw new Error('missing gateway signing key');
-  return {
-    ...receipt,
-    integrity: {
-      algorithm: 'hmac-sha256-gateway-token-v1',
-      signature: createHmac('sha256', key).update(canonical(receipt)).digest('hex'),
-    },
-  };
+  return sealSignedObserverReceipt({
+    receipt,
+    signingKey: key,
+    canonicalize: canonical,
+  });
 }
 
 function evidencePasses(evidence) {
@@ -197,10 +199,13 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
   if (!receipt || receipt.schema !== R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA || receipt.row !== 'R-CD-2' ||
       receipt.authoritativeSource !== 'r-cd-2-row-scoped-resolver' || receipt.candidateOnly !== true ||
       receipt.foldRequiresReview !== true || !hex(receipt.binding?.localEvidenceFingerprint, 64) ||
-      !hex(receipt.binding?.topologyFingerprint, 64) || receipt.integrity?.algorithm !== 'hmac-sha256-gateway-token-v1' ||
+      !hex(receipt.binding?.topologyFingerprint, 64) || receipt.integrity?.algorithm !== GATEWAY_HMAC_RECEIPT_ALGORITHM ||
       !hex(receipt.integrity?.signature, 64)) return { valid: false, reason: 'invalid-shape' };
-  const expected = createHmac('sha256', signingKey).update(canonical(receipt)).digest('hex');
-  if (!timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(receipt.integrity.signature, 'hex'))) return { valid: false, reason: 'invalid-integrity' };
+  if (!validateSignedObserverReceiptIntegrity({
+    receipt,
+    signingKey,
+    canonicalize: canonical,
+  })) return { valid: false, reason: 'invalid-integrity' };
   if (receipt.verdict === 'PARTIAL-candidate') return FAILURE_CATEGORIES.has(receipt.failureCategory) &&
     !CONCLUSIVE_FAILURE_CATEGORIES.has(receipt.failureCategory)
     ? { valid: true, verdict: receipt.verdict } : { valid: false, reason: 'invalid-failure-category' };

@@ -1417,6 +1417,97 @@ test('deduplicates retried exports of the same R-CW-3 tool span', async () => {
   }
 });
 
+test('R-CW-3 scopes a shared trace to the reason-bound continue_work origin', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work', workVariant: 'reason-prefix' });
+  const traceId = '46464646464646464646464646464646';
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  trace.batches[0].scopeSpans[0].spans.unshift(
+    span(
+      'openclaw.tool.execution',
+      traceId,
+      '9898989898989898',
+      'dddddddddddddddd',
+      [attr('gen_ai.tool.name', 'continue_work')],
+      'OK',
+      {
+        startTimeUnixNano: '1785580316865000000',
+        endTimeUnixNano: '1785580316868000000',
+      },
+    ),
+  );
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-dgx', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const publicTrace = JSON.parse(await readFile(path.join(fixture.dir, result.traceFile), 'utf8'));
+    assert.deepEqual(receipt.toolSpanIds, ['aaaaaaaaaaaaaaaa']);
+    assert.equal(
+      publicTrace.spans.some((entry) => entry.spanId === '9898989898989898'),
+      false,
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CW-3 rejects two plausible continue_work origins in the causal window', async () => {
+  const fixture = await fixtureDir({ tool: 'continue_work', workVariant: 'reason-prefix' });
+  const traceId = '47474747474747474747474747474747';
+  const trace = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  const tool = trace.batches[0].scopeSpans[0].spans
+    .find((entry) => entry.name === 'openclaw.tool.execution');
+  trace.batches[0].scopeSpans[0].spans.unshift({
+    ...tool,
+    spanId: b64('9797979797979797'),
+    startTimeUnixNano: String(BigInt(tool.startTimeUnixNano) + 1n),
+  });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify(
+      new URL(request.url, 'http://localhost').pathname === '/api/search'
+        ? { traces: [{ traceID: traceId }] }
+        : trace,
+    ));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-dgx', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /contains 2 continue_work tool spans/);
+        return true;
+      },
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
 test('rejects ambiguous hash correlation instead of selecting the first trace', async () => {
   const fixture = await fixtureDir();
   const server = await listen((_request, response) => {

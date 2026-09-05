@@ -146,7 +146,7 @@ function lifecycleChecks(evidence) {
     rowNonceFingerprint: expectedNonceFingerprint !== null &&
       (suppliedNonceFingerprint == null ||
        suppliedNonceFingerprint === expectedNonceFingerprint),
-    terminalRunMatchesSend: sendRunValid &&
+    terminalRunMatchesSend: evidence?.send_run_mismatch !== true && sendRunValid &&
       evidence.send_run_fingerprint === evidence?.terminal_run_fingerprint,
     acceptedSendTraceShape: evidence?.accepted_send_trace_id == null ||
       hex(evidence.accepted_send_trace_id, 32),

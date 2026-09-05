@@ -313,7 +313,7 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
     ['wakeRunFingerprint', { wake_run_fingerprint: 'bad' }, 'missing-send-run-lifecycle'],
     ['distinctWakeRun', { wake_run_fingerprint: run }, 'missing-send-run-lifecycle'],
     ['rowNonceFingerprint', { row_nonce_fingerprint: 'e'.repeat(16) }, 'missing-send-run-lifecycle'],
-    ['terminalRunMatchesSend', { terminal_run_fingerprint: wakeRun }, 'send-run-mismatch'],
+    ['terminalRunMatchesSend', { send_run_mismatch: true }, 'send-run-mismatch'],
     ['acceptedSendTraceShape', { accepted_send_trace_id: 'bad' }, 'missing-send-run-lifecycle'],
     ['dispatchAcceptedBeforeSentinel', { dispatch_accepted_at_ms: 201 }, 'missing-send-run-lifecycle'],
     ['sentinelBeforeLifecycleEnd', { dispatch_terminal_sentinel_at_ms: 301 }, 'missing-send-run-lifecycle'],

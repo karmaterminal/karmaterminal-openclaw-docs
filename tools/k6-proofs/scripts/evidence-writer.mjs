@@ -25,6 +25,7 @@
 
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { isRcd2AuthorityRequired } from '../lib/r-cd-2-authority-context.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 function parseArgs(argv) {
@@ -106,7 +107,11 @@ try {
   process.exit(1);
 }
 
-if (args.row === 'R-CD-2') {
+if (isRcd2AuthorityRequired({
+  manifest,
+  evidence,
+  metadata: { row: args.row, manifestPath: args.manifest },
+})) {
   throw new Error(
     'R-CD-2 requires complete runner identity; evidence-writer cannot validate or emit this row',
   );

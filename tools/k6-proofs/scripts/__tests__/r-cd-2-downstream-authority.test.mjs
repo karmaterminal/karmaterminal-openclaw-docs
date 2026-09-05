@@ -83,6 +83,20 @@ test('synthetic corpus arithmetic and arbitrary evidence cannot promote R-CD-2',
     ]);
     assert.notEqual(result.status, 0);
     assert.match(`${result.stdout}\n${result.stderr}`, /R-CD-2.*authorit|authorit.*R-CD-2/i);
+    const report = JSON.parse(result.stdout);
+    assert.deepEqual(report.reports[0].shaReport.talliedRollup, {
+      pass: 0,
+      partial: 0,
+      thin: 0,
+      fail: 0,
+      honest_limit: 0,
+      missing: 0,
+      total_rows: 0,
+    });
+    const rollupCheck = report.reports[0].checks.find(
+      (check) => check.name === 'rollup-matches-manifest',
+    );
+    assert.equal(rollupCheck.ok, false);
   } finally {
     await workspace.cleanup();
   }
@@ -98,25 +112,105 @@ test('legacy workflow rejects every R-CD-2 selector before readiness or live acq
   assert.match(validation, /r-cd-2-silent-wake/);
   assert.match(validation, /r-cd-2\.json/);
   assert.match(validation, /project81-k6-proof\.yml/i);
+  assert.match(validation, /manifest_invokes_rcd2/);
+  assert.match(validation, /artifactDestination\.row/);
+  assert.match(validation, /manifest rowId must agree with the row input/);
   assert.match(validation, /exit 1/);
 });
 
-test('immutable harness snapshot tracks every R-CD-2 authority dependency and fixture', async () => {
-  const { status, stdout, stderr } = await run('git', [
-    '-C', repoRoot, 'ls-tree', '-r', '--name-only', 'HEAD',
-  ]);
-  assert.equal(status, 0, stderr);
-  const tracked = new Set(stdout.trim().split('\n'));
-  for (const file of [
-    'tools/k6-proofs/lib/canonical-json.mjs',
-    'tools/k6-proofs/lib/signed-observer-receipt.mjs',
-    'tools/k6-proofs/lib/r-cd-2-authority-context.mjs',
-    'tools/k6-proofs/scripts/__tests__/helpers/r-cd-2-authority-fixture.mjs',
-  ]) {
-    assert.equal(tracked.has(file), true, `${file} must be materialized by the full-tree snapshot`);
+test('legacy workflow rejects semantic R-CD-2 manifests under arbitrary filenames', async () => {
+  const workspace = await testWorkspace(repoRoot, 'rcd2-legacy-manifest');
+  try {
+    const source = await readFile(legacyWorkflow, 'utf8');
+    const validationStart = source.indexOf('- name: Validate inputs');
+    const nextStep = source.indexOf('\n      - name:', validationStart + 1);
+    const section = source.slice(validationStart, nextStep);
+    const scriptStart = section.indexOf('        run: |\n');
+    const validationScript = section
+      .slice(scriptStart + '        run: |\n'.length)
+      .split('\n')
+      .map((line) => line.startsWith('          ') ? line.slice(10) : line)
+      .join('\n');
+    const manifest = path.join(workspace.root, 'innocent-name.json');
+    await writeFile(manifest, `${JSON.stringify({
+      schema: 'openclaw.k6.proof-row-manifest.v1',
+      rowId: 'R-CW-1',
+      scenario: { name: 'preflight', file: 'preflight.js' },
+      invocation: { tool: 'continue_delegate', mode: 'silent-wake' },
+      artifactDestination: { row: 'R-CW-1' },
+      receiptAuthority: 'r-cd-2-row-scoped-resolver',
+    })}\n`);
+    const result = await run('bash', ['-c', validationScript], {
+      env: {
+        DRY_RUN: 'true',
+        SCENARIO: 'preflight',
+        ROW: 'R-CW-1',
+        CANDIDATE_SHA: '',
+        MANIFEST_PATH: manifest,
+      },
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(`${result.stdout}\n${result.stderr}`, /R-CD-2 is not supported/);
+  } finally {
+    await workspace.cleanup();
   }
-  const runner = await readFile(path.join(scripts, 'run-proofs.sh'), 'utf8');
-  assert.match(runner, /git[\s\S]+archive[\s\S]+tools\/k6-proofs/);
+});
+
+test('immutable harness snapshot tracks every R-CD-2 authority dependency and fixture', async () => {
+  const workspace = await testWorkspace(repoRoot, 'rcd2-git-archive');
+  try {
+    const dependencies = [
+      'tools/k6-proofs/lib/canonical-json.mjs',
+      'tools/k6-proofs/lib/signed-observer-receipt.mjs',
+      'tools/k6-proofs/lib/r-cd-2-authoritative-receipt.mjs',
+      'tools/k6-proofs/lib/r-cd-2-authority-context.mjs',
+      'tools/k6-proofs/scripts/candidate-run-result-contract.mjs',
+      'tools/k6-proofs/scripts/export-prometheus-metrics.mjs',
+      'tools/k6-proofs/scripts/export-row-metrics.mjs',
+      'tools/k6-proofs/scripts/summarize-review-debt.mjs',
+      'tools/k6-proofs/scripts/__tests__/helpers/r-cd-2-authority-fixture.mjs',
+    ];
+    for (const file of dependencies) {
+      const tracked = await run('git', ['ls-files', '--error-unmatch', '--', file]);
+      assert.equal(tracked.status, 0, `${file} must be present in the real index:\n${tracked.stderr}`);
+    }
+
+    const tree = await run('git', ['write-tree']);
+    assert.equal(tree.status, 0, tree.stderr);
+    const extracted = path.join(workspace.root, 'extracted-index');
+    await mkdir(extracted);
+    const archived = await run('bash', [
+      '-c',
+      'git archive --format=tar "$1" tools/k6-proofs | tar -xf - -C "$2"',
+      'snapshot-archive',
+      tree.stdout.trim(),
+      extracted,
+    ]);
+    assert.equal(archived.status, 0, archived.stderr);
+    for (const file of dependencies) {
+      assert.equal(await readFile(path.join(extracted, file), 'utf8').then(
+        () => true,
+        () => false,
+      ), true, `${file} must be materialized by the exact index-tree snapshot`);
+    }
+    const imported = await run(process.execPath, [
+      '--input-type=module',
+      '--eval',
+      `await import(${JSON.stringify(
+        new URL(
+          `file://${path.join(extracted, 'tools/k6-proofs/lib/r-cd-2-authority-context.mjs')}`,
+        ).href,
+      )})`,
+    ]);
+    assert.equal(imported.status, 0, imported.stderr);
+    const consumer = await run(process.execPath, [
+      path.join(extracted, 'tools/k6-proofs/scripts/export-prometheus-metrics.mjs'),
+      '--help',
+    ]);
+    assert.equal(consumer.status, 0, consumer.stderr);
+  } finally {
+    await workspace.cleanup();
+  }
 });
 
 test('unaffected generic, construct-only, R-RC-2, and R-CD-TOKEN controls remain accepted', async (t) => {

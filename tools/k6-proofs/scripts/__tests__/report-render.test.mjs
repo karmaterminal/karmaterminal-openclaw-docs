@@ -86,7 +86,8 @@ test('renders public-safe HTML report from row-list runner artifacts', async () 
     assert.match(html, /Project 81 k6 PROOFS report/);
     assert.match(html, /R-CD-2/);
     // A k6 summary cannot promote R-CD-2 without the signed row authority.
-    assert.match(html, /PARTIAL-candidate/);
+    assert.match(html, /UNVERIFIED-infrastructure/);
+    assert.match(html, /review-pending/);
     assert.doesNotMatch(html, /<td>PASS-candidate<\/td>/);
     assert.match(html, /trace-id: missing|tempo-trace-json: missing/);
     assert.doesNotMatch(html, /agent:main|secret/);

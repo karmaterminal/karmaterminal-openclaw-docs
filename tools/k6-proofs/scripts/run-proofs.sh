@@ -973,12 +973,38 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg docsRef "$DOCS_REF" \
       --arg repository "$DOCS_REPOSITORY" \
       --arg matrixId "$MATRIX_ID" \
+      --arg runId "$RUN_ID" \
       --arg manifestPath "$ROW_MANIFEST_REL" \
       --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
       --arg scenarioPath "$ROW_SCENARIO_REL" \
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, runId:$runId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
+    if [[ "$ROW_ID" == "R-CD-2" ]]; then
+      if ! node "$R_CD_2_RECEIPT_RESOLVER" \
+        --run-dir "$RUN_DIR" \
+        --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+        --runtime-sha "$OPENCLAW_RUNTIME_BUILD_SHA" \
+        --docs-ref "$DOCS_REF" \
+        --repository "$DOCS_REPOSITORY" \
+        --seat "$OPENCLAW_SEAT_NAME" \
+        --matrix-id "$MATRIX_ID" \
+        --run-id "$RUN_ID" \
+        --row "$ROW_ID" \
+        --manifest-path "$ROW_MANIFEST_REL" \
+        --manifest-sha256 "$ROW_MANIFEST_DIGEST" \
+        --scenario "$SCENARIO_FILE" \
+        --scenario-path "$ROW_SCENARIO_REL" \
+        --scenario-sha256 "$ROW_SCENARIO_DIGEST" \
+        --context-only true \
+        > "$RUN_DIR/r-cd-2-authority-context.json"; then
+        fail_harness \
+          "harness-identity" \
+          "R-CD-2 selected execution context is invalid; refusing acquisition" \
+          "$(jq -n --arg row "$ROW_ID" --arg matrixId "$MATRIX_ID" \
+            '{check:"r-cd-2-authority-context",row:$row,matrixId:$matrixId}')"
+      fi
+    fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       TOKEN_RUNTIME_PROVENANCE_SHA256=""
       TOKEN_RUNTIME_PROVENANCE_FILE=""
@@ -1315,6 +1341,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
       if node "$CONTINUATION_TRACE_COLLECTOR" \
         --run-dir "$RUN_DIR" \
+        --root "$OUT_ROOT" \
+        --matrix-id "$MATRIX_ID" \
         --manifest "$MANIFEST_FILE" \
         --seat "$OPENCLAW_SEAT_NAME" \
         --evidence "$PRIVATE_EVIDENCE_FILE" \
@@ -1384,11 +1412,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     R_CD_2_RECEIPT_SHA256=""
     if [[ "$ROW_ID" == "R-CD-2" ]]; then
       R_CD_2_RECEIPT="r-cd-2-authoritative-receipt.json"
-      RESOLVER_ARGS=(--run-dir "$RUN_DIR" --evidence "$PRIVATE_EVIDENCE_FILE")
+      RESOLVER_ARGS=(
+        --run-dir "$RUN_DIR"
+        --root "$OUT_ROOT"
+        --matrix-id "$MATRIX_ID"
+        --evidence "$PRIVATE_EVIDENCE_FILE"
+      )
       if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
         RESOLVER_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
       fi
-      if node "$R_CD_2_RECEIPT_RESOLVER" "${RESOLVER_ARGS[@]}" > "$RUN_DIR/r-cd-2-authoritative-resolution.json"; then
+      if node "$R_CD_2_RECEIPT_RESOLVER" "${RESOLVER_ARGS[@]}" > "$RUN_DIR/r-cd-2-authoritative-resolution.json" &&
+         jq -e --arg matrixId "$MATRIX_ID" \
+           '.authorityValidated == true and .matrixId == $matrixId' \
+           "$RUN_DIR/r-cd-2-authoritative-resolution.json" >/dev/null; then
         # The row-list runner itself—not only the writer/postprocessor path—must
         # carry the signed receipt declaration into run-result.json.  Candidate
         # routing verifies this digest before it can publish an R-CD-2 envelope.

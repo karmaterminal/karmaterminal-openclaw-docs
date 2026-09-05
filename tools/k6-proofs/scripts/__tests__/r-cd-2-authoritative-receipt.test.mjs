@@ -766,12 +766,8 @@ test('every production R-CD-2 receipt consumer binds or rejects complete run ide
   ])));
   for (const name of ['candidate-run-result-contract.mjs', 'render-run-report.mjs']) {
     const source = sources.get(name);
-    assert.match(source, /rCd2AuthorityIdentity/);
-    assert.match(
-      source,
-      /validateRcd2AuthoritativeReceipt|authoritative\.validate/,
-    );
-    assert.match(source, /path\.basename\(runDir\)/);
+    assert.match(source, /r-cd-2-authority-context/);
+    assert.match(source, /consumeRcd2Authority/);
   }
   for (const name of ['evidence-writer.mjs', 'postprocess-k6-summary.mjs']) {
     assert.match(

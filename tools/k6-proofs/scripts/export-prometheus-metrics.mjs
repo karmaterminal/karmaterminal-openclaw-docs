@@ -12,6 +12,11 @@
 
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import {
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
+import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 
 function parseArgs(argv) {
   const out = { root: 'PROOFS', out: null };
@@ -115,22 +120,65 @@ function numberFromDuration(raw) {
 
 function normalizeRun(root, resultPath) {
   const result = readJson(resultPath);
-  if (!result) return null;
   const runDir = path.dirname(resultPath);
   const pathInfo = parseArtifactPath(root, resultPath);
   const manifest = readJson(path.join(runDir, 'row-manifest.json')) || {};
+  const metadata = readJson(path.join(runDir, 'runner-metadata.json')) || {};
   const summary = findSiblingSummary(runDir) || {};
+  const rowResult = path.basename(resultPath) === 'row-result.json' ? result : null;
+  const rawRunResult = path.basename(resultPath) === 'run-result.json'
+    ? result
+    : readJson(path.join(runDir, 'run-result.json'));
+  const candidatePath = path.join(runDir, 'candidate-run-result.json');
+  const candidate = existsSync(candidatePath) ? readJson(candidatePath) : null;
+  const rCd2Required = isRcd2AuthorityRequired({
+    root,
+    runDir,
+    envelope: candidate,
+    manifest,
+    metadata,
+    runResult: rawRunResult,
+    summary,
+    rowResult,
+  });
+  if (!result && !rCd2Required) return null;
+  if (
+    rCd2Required &&
+    existsSync(candidatePath) &&
+    !candidateEnvelopeMatchesSiblings({
+      envelope: candidate,
+      manifest,
+      metadata,
+      runResult: rawRunResult,
+      runDir,
+    })
+  ) {
+    throw new Error(`R-CD-2 candidate sidecar is invalid: ${candidatePath}`);
+  }
+  const authority = rCd2Required
+    ? consumeRcd2Authority({
+        root,
+        runDir,
+        envelope: candidate,
+        manifest,
+        metadata,
+        runResult: rawRunResult,
+        summary,
+        rowResult,
+      })
+    : null;
 
-  const rowId = result.rowId || summary.row || manifest.rowId || pathInfo.rowId;
-  const candidateSha = result.candidateSha || summary.sha || manifest.candidateSha || pathInfo.candidateSha;
-  const seat = result.seat || summary.seat || manifest.seat || pathInfo.seat;
-  const runId = result.runId || pathInfo.runId;
-  const outcome = result.outcome || summary.verdict || (result.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
-  const scenario = result.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
+  const rowId = authority?.identity.row || result.rowId || summary.row || manifest.rowId || pathInfo.rowId;
+  const candidateSha = authority?.identity.candidateSha || result.candidateSha || summary.sha || manifest.candidateSha || pathInfo.candidateSha;
+  const seat = authority?.identity.seat || result.seat || summary.seat || manifest.seat || pathInfo.seat;
+  const runId = authority?.identity.runId || result.runId || pathInfo.runId;
+  const outcome = authority?.outcome || result.outcome || summary.verdict || (result.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  const scenario = authority?.identity.scenario || result.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
   const toolSurface = result.toolSurface || manifest.toolSurface || 'unknown';
   const transport = result.transport || manifest.transport || 'unknown';
-  const candidateOnly = result.candidateOnly !== false;
-  const foldRequiresReview = result.foldRequiresReview !== false;
+  const candidateOnly = authority?.candidateOnly ?? (result.candidateOnly !== false);
+  const foldRequiresReview = authority?.foldRequiresReview ??
+    (result.foldRequiresReview !== false);
   const failureClass = result.failureClass || (result.k6ExitCode && result.k6ExitCode !== 0 ? 'postprocess' : 'none');
   const proofFailures = result.metrics?.proofFailures ?? summary.metrics?.failures ?? (result.k6ExitCode === 0 ? 0 : 1);
   const durationMs = result.metrics?.durationMs ?? numberFromDuration(summary.metrics?.duration_ms);
@@ -164,7 +212,10 @@ function normalizeRun(root, resultPath) {
   lines.push(metric('openclaw_proofs_k6_candidate_pending_review', { row_id: rowId, seat, candidate_sha: candidateSha, run_id: runId, outcome, fold_requires_review: boolLabel(foldRequiresReview) }, candidateOnly && foldRequiresReview ? 1 : 0));
 
   const receipts = Array.isArray(result.receipts) ? [...result.receipts] : [];
-  const pending = result.review?.pendingReceipts || summary.review?.pendingReceipts || [];
+  const pending = authority?.review?.pendingReceipts ||
+    result.review?.pendingReceipts ||
+    summary.review?.pendingReceipts ||
+    [];
   for (const name of pending) {
     if (!receipts.some((r) => r.name === name)) receipts.push({ name, required: true, status: 'missing' });
   }

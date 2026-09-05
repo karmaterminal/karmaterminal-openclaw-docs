@@ -5,6 +5,7 @@ import {
   isVerifiedRrc2HonestLimitEvidence,
   isVerifiedRrc2PassEvidence,
 } from '../lib/request-compaction-receipt.js';
+import { isRcd2AuthorityRequired } from '../lib/r-cd-2-authority-context.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -227,6 +228,15 @@ async function main() {
   if (manifest.liveRunSafety && manifest.liveRunSafety.foldRequiresReview !== true) {
     throw new Error('manifest liveRunSafety must declare foldRequiresReview=true');
   }
+  if (isRcd2AuthorityRequired({
+    manifest,
+    summary,
+    metadata: { manifestPath: args.manifest },
+  })) {
+    throw new Error(
+      'R-CD-2 requires complete runner identity; postprocess-k6-summary cannot validate or emit this row',
+    );
+  }
 
   const dest = manifest.artifactDestination || {};
   const outRoot = args['out-root'] || dest.root || 'PROOFS';
@@ -239,11 +249,6 @@ async function main() {
   const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
   let outcome = outcomeFromSummary(summary, expectedArtifactClass, manifest.rowId);
   let verdictSource = 'k6-summary';
-  if (manifest.rowId === 'R-CD-2') {
-    throw new Error(
-      'R-CD-2 requires complete runner identity; postprocess-k6-summary cannot validate or emit this row',
-    );
-  }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');

@@ -3,9 +3,12 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { hasVerifiedRrc2Outcome } from '../lib/request-compaction-receipt.js';
 import {
-  rCd2AuthorityIdentity,
-  validateRcd2AuthoritativeReceipt,
-} from '../lib/r-cd-2-authoritative-receipt.mjs';
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+  R_CD_2_RECEIPT_FILE,
+  R_CD_2_RECEIPT_SOURCE,
+  R_CD_2_VERDICT_SOURCE,
+} from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
@@ -25,7 +28,7 @@ const OUTCOMES = new Set(['PASS-candidate', 'HONEST-LIMIT-candidate', 'PARTIAL-c
 export const SAFE_CANDIDATE_ARTIFACTS = new Set([
   COPIED_MANIFEST, COPIED_SCENARIO, 'runner-metadata.json', 'run-result.json',
   'candidate-run-result.json', 'seat-readiness.json', 'evidence.jsonl',
-  'r-cd-2-authoritative-receipt.json',
+  'r-cd-2-authoritative-receipt.json', 'r-cd-2-selected-context-receipt.json',
   'attempt-state.json', 'build-identity-gate.json', 'interruption-receipt.json',
   'r-cd-token-authoritative-receipt.json',
   'evidence-lines.log', 'evidence-redaction.json', 'gateway-journal.log',
@@ -154,10 +157,10 @@ function scenarioName(manifest) {
 function authoritativeReceiptContract(rowId) {
   if (rowId === 'R-CD-2') {
     return {
-      file: 'r-cd-2-authoritative-receipt.json',
-      source: 'r-cd-2-row-scoped-resolver',
-      verdictSource: 'r-cd-2-authoritative-receipt',
-      validate: validateRcd2AuthoritativeReceipt,
+      file: R_CD_2_RECEIPT_FILE,
+      source: R_CD_2_RECEIPT_SOURCE,
+      verdictSource: R_CD_2_VERDICT_SOURCE,
+      validate: null,
     };
   }
   if (rowId === 'R-CD-TOKEN') {
@@ -174,7 +177,29 @@ function authoritativeReceiptContract(rowId) {
 // Consumers must use this before a sidecar can replace its sibling raw result.
 // It deliberately proves only candidate-review routing consistency, never a
 // canonical fold or behavioral PASS.
-export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir }) {
+export function candidateEnvelopeMatchesSiblings({
+  envelope,
+  manifest,
+  metadata,
+  runResult,
+  runDir,
+  signingKey = process.env.OPENCLAW_GATEWAY_TOKEN,
+}) {
+  let rCd2Authority = null;
+  if (isRcd2AuthorityRequired({ runDir, envelope, manifest, metadata, runResult })) {
+    try {
+      rCd2Authority = consumeRcd2Authority({
+        runDir,
+        envelope,
+        manifest,
+        metadata,
+        runResult,
+        signingKey,
+      });
+    } catch {
+      return false;
+    }
+  }
   if (!envelope || envelope.schema !== CANDIDATE_RUN_RESULT_SCHEMA) return false;
   if (!envelopeShapeIsCanonical(envelope)) return false;
   if (envelope.candidateOnly !== true || envelope.foldRequiresReview !== true || envelope.canonicalFoldForbidden !== true) return false;
@@ -219,23 +244,25 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
         envelope.authoritativeReceipt?.sha256 !== declared?.sha256 ||
         !/^[a-f0-9]{64}$/iu.test(declared?.sha256 || '')) return false;
     try {
-      const raw = readFileSync(path.join(runDir, declared.file));
-      if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) return false;
-      const receipt = JSON.parse(raw.toString('utf8'));
-      const expectedIdentity = rowId === 'R-CD-2'
-        ? rCd2AuthorityIdentity(metadata, path.basename(runDir))
-        : undefined;
-      const integrity = authoritative.validate(
-        receipt,
-        process.env.OPENCLAW_GATEWAY_TOKEN,
-        expectedIdentity,
-      );
-      if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
-      if (rowId === 'R-CD-TOKEN' && (
-        receipt.binding?.candidateSha !== candidateSha ||
-        receipt.binding?.runtimeBuildSha !== candidateSha ||
-        metadata.runtimeBuildSha !== candidateSha
-      )) return false;
+      if (rowId === 'R-CD-2') {
+        if (!rCd2Authority ||
+            rCd2Authority.outcome !== runResult.verdict ||
+            rCd2Authority.authoritativeReceipt.sha256 !== declared.sha256) return false;
+      } else {
+        const raw = readFileSync(path.join(runDir, declared.file));
+        if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) return false;
+        const receipt = JSON.parse(raw.toString('utf8'));
+        const integrity = authoritative.validate(
+          receipt,
+          process.env.OPENCLAW_GATEWAY_TOKEN,
+        );
+        if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
+        if (rowId === 'R-CD-TOKEN' && (
+          receipt.binding?.candidateSha !== candidateSha ||
+          receipt.binding?.runtimeBuildSha !== candidateSha ||
+          metadata.runtimeBuildSha !== candidateSha
+        )) return false;
+      }
     } catch { return false; }
   }
   if (manifest.liveRunSafety?.expectedArtifactClass === 'construct-only' && envelope.result.outcome !== 'construct-only') return false;

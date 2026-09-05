@@ -10,6 +10,10 @@ import {
   publicTempoStatusCode as publicStatusCode,
   tempoAttributeValue as attributeValue,
 } from '../lib/public-tempo-trace.mjs';
+import {
+  establishRcd2AuthorityContext,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
@@ -40,7 +44,7 @@ function parseArgs(argv, env = process.env) {
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -455,7 +459,21 @@ async function main() {
   const runDir = path.resolve(args.runDir);
   const evidencePath = path.resolve(args.evidence || path.join(runDir, 'evidence.jsonl'));
   const evidence = await readEvidence(evidencePath);
-  const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
+  let manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
+  let rCd2Context = null;
+  if (isRcd2AuthorityRequired({ root: args.root, runDir, manifest, evidence })) {
+    rCd2Context = establishRcd2AuthorityContext({
+      root: args.root,
+      runDir,
+      selectedMatrixId: args.matrixId,
+      manifest,
+      evidence,
+    });
+    if (args.seat !== rCd2Context.selected.seat) {
+      throw new Error('R-CD-2 authority identity mismatch for collector seat');
+    }
+    manifest = rCd2Context.manifest;
+  }
   let rowNonceFingerprint = null;
   if (evidence.row === 'R-CD-2') {
     if (typeof evidence.nonce !== 'string' || evidence.nonce.length === 0) {
@@ -660,6 +678,7 @@ async function main() {
           // reason hash; retain only fingerprints, never raw run IDs/nonces.
           ...(evidence.row === 'R-CD-2'
             ? {
+                authorityIdentity: rCd2Context.identity,
                 // The resolver consumes the native continuation/delegate
                 // shape emitted below plus topology.toolSpanIds.  Keep the
                 // row binding public-safe and opaque, but never manufacture

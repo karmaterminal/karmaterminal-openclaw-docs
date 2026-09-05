@@ -2,16 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { resolveRcd2AuthoritativeReceipt } from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  rCd2AuthorityIdentity,
+  resolveRcd2AuthoritativeReceipt,
+} from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  R_CD_2_SELECTION_RECEIPT_FILE,
+  signRcd2SelectedContextReceipt,
+} from '../../lib/r-cd-2-authority-context.mjs';
 import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
 
 const execFileAsync = promisify(execFile);
+const rCd2SigningKey = 'collect-continuation-trace-r-cd-2-test-key';
+process.env.OPENCLAW_GATEWAY_TOKEN ||= rCd2SigningKey;
 const script = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../collect-continuation-trace.mjs',
@@ -27,6 +37,10 @@ const preservedTracePaths = {
     'PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/silas/20260719T191326Z-r-cw-1/tempo-trace-postrun.json',
   ),
 };
+const fixtureRoots = new Set();
+process.once('exit', () => {
+  for (const root of fixtureRoots) rmSync(root, { recursive: true, force: true });
+});
 
 function b64(hex) {
   return Buffer.from(hex, 'hex').toString('base64');
@@ -158,10 +172,23 @@ async function fixtureDir({
   nonceOverride,
   extraEvidence = {},
 } = {}) {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
+  const root = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
   const isWork = tool === 'continue_work';
   const isReasonPrefix = isWork && workVariant === 'reason-prefix';
   const resolvedRowId = rowId || (isReasonPrefix ? 'R-CW-3' : isWork ? 'R-CW-1' : 'R-CD-1');
+  const rCd2 = resolvedRowId === 'R-CD-2';
+  const candidateSha = '1'.repeat(40);
+  const docsRef = '3'.repeat(40);
+  const seat = 'cael-prince';
+  const matrixId = '20260905T032057Z-333333333333-deadbeef';
+  const runId = '20260905T032100Z-r-cd-2-deadbeef';
+  const dir = rCd2
+    ? path.join(root, candidateSha, resolvedRowId, seat, runId)
+    : root;
+  if (rCd2) {
+    fixtureRoots.add(root);
+    await mkdir(dir, { recursive: true });
+  }
   const generatedNonce = isReasonPrefix
     ? 'R-CW-3-example'
     : isWork
@@ -177,6 +204,20 @@ async function fixtureDir({
   const reason = templatedReason;
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const manifest = {
+    ...(rCd2 ? {
+      schema: 'openclaw.k6.proof-row-manifest.v1',
+      candidateSha,
+      seat,
+      transport: 'websocket',
+      toolSurface: 'typed-tool',
+      scenario: { name: 'r-cd-2-silent-wake', file: 'r-cd-2-silent-wake.js' },
+      review: { candidateOnly: true, foldRequiresReview: true },
+      liveRunSafety: {
+        expectedArtifactClass: 'PASS-candidate',
+        foldRequiresReview: true,
+        requiredReceipts: ['dispatch-accepted', 'parent-wake-event', 'no-channel-delivery'],
+      },
+    } : {}),
     rowId: resolvedRowId,
     invocation: isWork
       ? { tool, reason: template }
@@ -192,10 +233,95 @@ async function fixtureDir({
     ...(isWork ? {} : { delegate_mode: delegateMode || 'normal' }),
     ...extraEvidence,
   };
-  const manifestPath = path.join(dir, 'manifest.json');
-  await writeFile(manifestPath, JSON.stringify(manifest));
+  const manifestBody = JSON.stringify(manifest);
+  const scenarioBody = 'export default function () {}\n';
+  const manifestPath = path.join(dir, rCd2 ? 'row-manifest.json' : 'manifest.json');
+  await writeFile(manifestPath, manifestBody);
   await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify(evidence)}\n`);
-  return { dir, manifestPath, reason, reasonHash, reasonLength: reason.length };
+  if (rCd2) {
+    const manifestSha256 = createHash('sha256').update(manifestBody).digest('hex');
+    const scenarioSha256 = createHash('sha256').update(scenarioBody).digest('hex');
+    await writeFile(path.join(dir, 'row-scenario.js'), scenarioBody);
+    await writeFile(path.join(dir, 'runner-metadata.json'), `${JSON.stringify({
+      row: resolvedRowId,
+      scenario: 'r-cd-2-silent-wake.js',
+      candidateSha,
+      runtimeBuildSha: candidateSha,
+      seat,
+      docsRef,
+      repository: 'karmaterminal/karmaterminal-openclaw-docs',
+      matrixId,
+      runId,
+      manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+      manifestSha256,
+      scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+      scenarioSha256,
+    })}\n`);
+    const seatReadinessBody = `${JSON.stringify({
+      schema: 'openclaw.k6.seat-readiness.v1',
+      outcome: 'PASS-candidate',
+      candidate: { sha: candidateSha, valid40Hex: true },
+      seat: { name: seat, class: 'message-body' },
+    })}\n`;
+    const authorityIdentity = rCd2AuthorityIdentity({
+      candidateSha,
+      runtimeBuildSha: candidateSha,
+      docsRef,
+      repository: 'karmaterminal/karmaterminal-openclaw-docs',
+      seat,
+      matrixId,
+      row: resolvedRowId,
+      scenario: 'r-cd-2-silent-wake.js',
+      manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+      manifestSha256,
+      scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+      scenarioSha256,
+    }, runId);
+    const selectionReceipt = signRcd2SelectedContextReceipt({
+      identity: authorityIdentity,
+      signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+    });
+    const provenance = {
+      schema: 'openclaw.k6.harness-provenance.v1',
+      classification: 'harness-provenance',
+      matrixId,
+      mode: 'live',
+      docsRef,
+      docsRefSource: 'approved-input',
+      repository: 'karmaterminal/karmaterminal-openclaw-docs',
+      harnessIdentityVerified: true,
+      candidateSha,
+      runtimeIdentity: {
+        seat,
+        runtimeBuildSha: candidateSha,
+        candidateMatchesRuntime: true,
+        seatReadinessReceipt: 'seat-readiness.json',
+        seatReadinessSha256: createHash('sha256').update(seatReadinessBody).digest('hex'),
+      },
+      rowSelection: [resolvedRowId],
+      rows: [{
+        rowId: resolvedRowId,
+        manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+        manifestSha256,
+        scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+        scenarioSha256,
+      }],
+      candidateOnly: true,
+      foldRequiresReview: true,
+    };
+    await mkdir(path.join(root, 'harness-provenance'), { recursive: true });
+    await writeFile(path.join(root, 'seat-readiness.json'), seatReadinessBody);
+    await writeFile(path.join(dir, 'seat-readiness.json'), seatReadinessBody);
+    await writeFile(
+      path.join(dir, R_CD_2_SELECTION_RECEIPT_FILE),
+      `${JSON.stringify(selectionReceipt)}\n`,
+    );
+    await writeFile(
+      path.join(root, 'harness-provenance', `${matrixId}.json`),
+      `${JSON.stringify(provenance)}\n`,
+    );
+  }
+  return { root, dir, manifestPath, reason, reasonHash, reasonLength: reason.length };
 }
 
 test('correlates a unique trace and validates tool/fire/dispatch topology', async () => {
@@ -723,6 +849,10 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
       acceptedSendTraceId: traceId,
       acceptedSendTraceSource: 'sessions-send-response',
     });
+    assert.equal(receipt.authorityIdentity.candidateSha, '1'.repeat(40));
+    assert.equal(receipt.authorityIdentity.runtimeBuildSha, '1'.repeat(40));
+    assert.equal(receipt.authorityIdentity.matrixId, '20260905T032057Z-333333333333-deadbeef');
+    assert.equal(receipt.authorityIdentity.runId, '20260905T032100Z-r-cd-2-deadbeef');
     assert.doesNotMatch(receiptText, /R-CD-2-example/);
   } finally {
     await server.close();
@@ -840,7 +970,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       identity: {
         schema: 'openclaw.k6.r-cd-2-authority-identity.v1',
         candidateSha: '1'.repeat(40),
-        runtimeBuildSha: '2'.repeat(40),
+        runtimeBuildSha: '1'.repeat(40),
         docsRef: '3'.repeat(40),
         repository: 'karmaterminal/karmaterminal-openclaw-docs',
         seat: 'cael-prince',

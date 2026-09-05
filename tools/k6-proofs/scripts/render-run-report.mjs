@@ -14,9 +14,9 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 import {
-  rCd2AuthorityIdentity,
-  validateRcd2AuthoritativeReceipt,
-} from '../lib/r-cd-2-authoritative-receipt.mjs';
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 function usage() {
@@ -85,13 +85,6 @@ function numberFromDuration(raw) {
 }
 
 function authoritativeReceiptContract(rowId) {
-  if (rowId === 'R-CD-2') {
-    return {
-      file: 'r-cd-2-authoritative-receipt.json',
-      verdictSource: 'r-cd-2-authoritative-receipt',
-      validate: validateRcd2AuthoritativeReceipt,
-    };
-  }
   if (rowId === 'R-CD-TOKEN') {
     return {
       file: 'r-cd-token-authoritative-receipt.json',
@@ -149,7 +142,37 @@ async function rowFromRunResult(root, runResultPath) {
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
   let outcome = safeText(runResult.verdict || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
-  const authoritative = authoritativeReceiptContract(metadata?.row || manifest?.rowId);
+  const rCd2Required = isRcd2AuthorityRequired({
+    root,
+    runDir,
+    manifest,
+    metadata,
+    runResult,
+    summary,
+    evidence: evidenceRows[0],
+  });
+  let rCd2Authority = null;
+  let rCd2Rejected = false;
+  if (rCd2Required) {
+    try {
+      rCd2Authority = consumeRcd2Authority({
+        root,
+        runDir,
+        manifest,
+        metadata,
+        runResult,
+        summary,
+        evidence: evidenceRows[0],
+      });
+      outcome = safeText(rCd2Authority.outcome);
+    } catch {
+      rCd2Rejected = true;
+      outcome = 'UNVERIFIED-infrastructure';
+    }
+  }
+  const authoritative = rCd2Required
+    ? null
+    : authoritativeReceiptContract(metadata?.row || manifest?.rowId);
   if (authoritative) {
     const declared = runResult.authoritativeReceipt;
     try {
@@ -157,13 +180,9 @@ async function rowFromRunResult(root, runResultPath) {
       const raw = await readFile(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error('authoritative receipt digest mismatch');
       const receipt = JSON.parse(raw.toString('utf8'));
-      const expectedIdentity = (metadata?.row || manifest?.rowId) === 'R-CD-2'
-        ? rCd2AuthorityIdentity(metadata, path.basename(runDir))
-        : undefined;
       const integrity = authoritative.validate(
         receipt,
         process.env.OPENCLAW_GATEWAY_TOKEN,
-        expectedIdentity,
       );
       if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error('authoritative receipt invalid');
       if ((metadata?.row || manifest?.rowId) === 'R-CD-TOKEN' && (
@@ -177,17 +196,30 @@ async function rowFromRunResult(root, runResultPath) {
     }
   }
   return {
-    rowId: safeText(metadata?.row || manifest?.rowId),
-    candidateSha: safeText(metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
-    seat: safeText(metadata?.seat || manifest?.seat || summary?.seat),
-    scenario: safeText(metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),
+    rowId: safeText(rCd2Authority?.identity.row || (rCd2Required ? 'R-CD-2' : metadata?.row || manifest?.rowId)),
+    candidateSha: safeText(rCd2Authority?.identity.candidateSha || metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
+    seat: safeText(rCd2Authority?.identity.seat || metadata?.seat || manifest?.seat || summary?.seat),
+    scenario: safeText(rCd2Authority?.identity.scenario || metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),
     outcome,
-    reviewStatus: safeText(runResult?.review?.status || (runResult?.review?.pendingReceipts?.length ? 'review-pending' : 'ready-for-human-review')),
+    reviewStatus: rCd2Rejected
+      ? 'review-pending'
+      : safeText(
+          rCd2Authority?.review?.status ||
+          runResult?.review?.status ||
+          (runResult?.review?.pendingReceipts?.length
+            ? 'review-pending'
+            : 'ready-for-human-review'),
+        ),
     proofFailures,
     durationMs: numberFromDuration(summary?.metrics?.duration_ms),
     checksRate: summary?.metrics?.checks?.rate ?? summary?.metrics?.checksRate ?? null,
     traceStatus: safeText(runResult?.observability?.traceStatus || 'unknown'),
-    receipts: receiptSummary({ manifest, runResult, evidenceRows }),
+    receipts: rCd2Rejected
+      ? [
+          ...receiptSummary({ manifest, runResult, evidenceRows }),
+          { name: 'r-cd-2-authority-context', required: true, status: 'missing' },
+        ]
+      : receiptSummary({ manifest, runResult, evidenceRows }),
     rel,
   };
 }
@@ -200,8 +232,31 @@ async function rowFromCandidateEnvelope(root, envelopePath) {
     readJson(path.join(runDir, 'runner-metadata.json')),
     readJson(path.join(runDir, 'run-result.json')),
   ]);
-  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) return null;
   const rel = path.relative(root, path.dirname(envelopePath)).split(path.sep).join('/');
+  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) {
+    if (!isRcd2AuthorityRequired({
+      root,
+      runDir,
+      envelope,
+      manifest,
+      metadata,
+      runResult,
+    })) return null;
+    return {
+      rowId: 'R-CD-2',
+      candidateSha: safeText(metadata?.candidateSha || envelope?.candidate?.sha),
+      seat: safeText(metadata?.seat || envelope?.run?.seat),
+      scenario: safeText(metadata?.scenario || envelope?.run?.scenario),
+      outcome: 'UNVERIFIED-infrastructure',
+      reviewStatus: 'review-pending',
+      proofFailures: null,
+      durationMs: null,
+      checksRate: null,
+      traceStatus: 'unverified',
+      receipts: [{ name: 'r-cd-2-authority-context', required: true, status: 'missing' }],
+      rel,
+    };
+  }
   return {
     rowId: safeText(envelope.run?.rowId),
     candidateSha: safeText(envelope.candidate?.sha),

@@ -8,6 +8,10 @@ import {
   rCd2AuthorityIdentity,
   validateRcd2AuthoritativeReceipt,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  R_CD_2_SELECTION_RECEIPT_FILE,
+  validateRcd2SelectedContextReceipt,
+} from '../../lib/r-cd-2-authority-context.mjs';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
 import {
   BASE,
@@ -62,6 +66,7 @@ function siblingMatch(fixture) {
     metadata: fixture.metadata,
     runResult: fixture.runResult,
     runDir: fixture.runDir,
+    signingKey: SIGNING_KEY,
   });
 }
 
@@ -110,6 +115,193 @@ test('signed R-CD-2 PASS, PARTIAL, and FAIL remain valid positive authorities', 
         await fixture.cleanup();
       }
     });
+
+  }
+});
+
+test('selected-context receipt rejects unknown keys, wrong types, and tampering', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  try {
+    assert.equal(
+      validateRcd2SelectedContextReceipt(
+        fixture.selectionReceipt,
+        SIGNING_KEY,
+        rCd2AuthorityIdentity(fixture.metadata, BASE.runId),
+      ).valid,
+      true,
+    );
+    for (const mutation of [
+      (receipt) => { receipt.unexpected = true; },
+      (receipt) => { receipt.candidateOnly = 'true'; },
+      (receipt) => { receipt.identity.harness.manifestSha256 = 1; },
+      (receipt) => { receipt.identity.seat = FOREIGN.seat; },
+      (receipt) => { receipt.integrity.signature = false; },
+    ]) {
+      const receipt = structuredClone(fixture.selectionReceipt);
+      mutation(receipt);
+      assert.equal(
+        validateRcd2SelectedContextReceipt(receipt, SIGNING_KEY).valid,
+        false,
+      );
+    }
+
+    const tampered = structuredClone(fixture.selectionReceipt);
+    tampered.identity.seat = FOREIGN.seat;
+    await writeFile(
+      path.join(fixture.runDir, R_CD_2_SELECTION_RECEIPT_FILE),
+      `${JSON.stringify(tampered, null, 2)}\n`,
+    );
+    const metrics = await exportRun(fixture);
+    assert.notEqual(metrics.status, 0);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('complete selected R-CD-2 context remains usable at every downstream boundary', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  try {
+    const emitted = await run(process.execPath, [
+      candidateEmitter,
+      '--manifest', fixture.manifestPath,
+      '--candidate-dir', fixture.runDir,
+      '--docs-ref', BASE.docsRef,
+      '--out', path.join(fixture.runDir, 'candidate-run-result.json'),
+    ]);
+    assert.equal(emitted.status, 0, emitted.stderr);
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope: JSON.parse(emitted.stdout),
+      manifest: fixture.manifest,
+      metadata: fixture.metadata,
+      runResult: fixture.runResult,
+      runDir: fixture.runDir,
+      signingKey: SIGNING_KEY,
+    }), true);
+
+    const metrics = await exportRun(fixture);
+    assert.equal(metrics.status, 0, metrics.stderr);
+    assert.equal(JSON.parse(metrics.stdout).outcome, 'PASS-candidate');
+
+    const report = await render(fixture);
+    assert.equal(report.status, 0, report.stderr);
+    assert.match(report.html, /<td>PASS-candidate<\/td>/);
+
+    const debt = await run(process.execPath, [
+      debtSummarizer, '--run-root', fixture.root, '--json',
+    ]);
+    assert.equal(debt.status, 0, debt.stderr);
+    assert.equal(JSON.parse(debt.stdout).pendingRows, 0);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('historical R-CD-2 authority uses its digest-bound run-local readiness receipt', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  try {
+    await writeFile(path.join(fixture.root, 'seat-readiness.json'), `${JSON.stringify({
+      schema: 'openclaw.k6.seat-readiness.v1',
+      outcome: 'FAIL-candidate',
+      candidate: { sha: 'f'.repeat(40), valid40Hex: true },
+      seat: { name: FOREIGN.seat, class: 'message-body' },
+    }, null, 2)}\n`);
+
+    const metrics = await exportRun(fixture);
+    assert.equal(metrics.status, 0, metrics.stderr);
+    assert.equal(JSON.parse(metrics.stdout).outcome, 'PASS-candidate');
+
+    const debt = await run(process.execPath, [
+      debtSummarizer, '--run-root', fixture.root, '--json',
+    ]);
+    assert.equal(debt.status, 0, debt.stderr);
+    assert.equal(JSON.parse(debt.stdout).pendingRows, 0);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('broad and nested scan roots still detect the canonical R-CD-2 run path', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  const outer = await testWorkspace(repoRoot, 'rcd2-nested-scan');
+  try {
+    const authorityRoot = path.join(outer.root, 'nested', 'authority-root');
+    await cp(fixture.root, authorityRoot, { recursive: true });
+    const copiedRunDir = path.join(
+      authorityRoot,
+      path.relative(fixture.root, fixture.runDir),
+    );
+    const broadRoot = outer.root;
+    const reportPath = path.join(outer.root, 'nested-report.html');
+    const report = await run(process.execPath, [
+      reportRenderer,
+      '--root', broadRoot,
+      '--out', reportPath,
+    ]);
+    assert.equal(report.status, 0, report.stderr);
+    assert.match(await readFile(reportPath, 'utf8'), /<td>PASS-candidate<\/td>/);
+
+    assert.equal(await exists(path.join(copiedRunDir, 'run-result.json')), true);
+    const prom = path.join(outer.root, 'nested.prom');
+    const metrics = await run(process.execPath, [
+      bulkExporter,
+      '--root', broadRoot,
+      '--out', prom,
+    ]);
+    assert.equal(metrics.status, 0, metrics.stderr);
+    assert.match(await readFile(prom, 'utf8'), /row_id="R-CD-2"/);
+  } finally {
+    await outer.cleanup();
+    await fixture.cleanup();
+  }
+});
+
+test('forged R-CD-2 review flags cannot clear review debt or publish metrics', async () => {
+  const mutations = [
+    ['run candidateOnly', (fixture) => ({
+      file: 'run-result.json',
+      value: { ...fixture.runResult, candidateOnly: false },
+    })],
+    ['run foldRequiresReview', (fixture) => ({
+      file: 'run-result.json',
+      value: { ...fixture.runResult, foldRequiresReview: false },
+    })],
+    ['run review status', (fixture) => ({
+      file: 'run-result.json',
+      value: {
+        ...fixture.runResult,
+        review: { status: 'review-pending', pendingReceipts: [] },
+      },
+    })],
+    ['envelope canonicalFoldForbidden', (fixture) => ({
+      file: 'candidate-run-result.json',
+      value: { ...fixture.envelope, canonicalFoldForbidden: false },
+    })],
+    ['envelope review status', (fixture) => ({
+      file: 'candidate-run-result.json',
+      value: {
+        ...fixture.envelope,
+        review: { ...fixture.envelope.review, status: 'approved' },
+      },
+    })],
+  ];
+  for (const [label, mutate] of mutations) {
+    const fixture = await writeRcd2Bundle(repoRoot);
+    try {
+      const mutation = mutate(fixture);
+      await writeFile(
+        path.join(fixture.runDir, mutation.file),
+        `${JSON.stringify(mutation.value, null, 2)}\n`,
+      );
+      const metrics = await exportRun(fixture);
+      assert.notEqual(metrics.status, 0, `${label} must block metric publication`);
+      const debt = await run(process.execPath, [
+        debtSummarizer, '--run-root', fixture.root, '--json',
+      ]);
+      assert.equal(debt.status, 0, debt.stderr);
+      assert.equal(JSON.parse(debt.stdout).pendingRows, 1, `${label} must remain review debt`);
+    } finally {
+      await fixture.cleanup();
+    }
   }
 });
 
@@ -137,6 +329,94 @@ test('single-row metrics rejects unsigned R-CD-2 PASS before files or OTLP publi
   } finally {
     await new Promise((resolve) => server.close(resolve));
     await fixture.cleanup();
+  }
+});
+
+test('invalid R-CD-2 candidate sidecar cannot raw-fallback to PASS in debt or metrics', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  const forged = {
+    ...fixture.envelope,
+    unknownAuthorityField: 'must-be-rejected',
+  };
+  await writeFile(
+    path.join(fixture.runDir, 'candidate-run-result.json'),
+    `${JSON.stringify(forged, null, 2)}\n`,
+  );
+
+  let requests = 0;
+  const server = createServer((_request, response) => {
+    requests += 1;
+    response.writeHead(204);
+    response.end();
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const debt = await run(process.execPath, [
+      debtSummarizer, '--run-root', fixture.root, '--json',
+    ]);
+    assert.equal(debt.status, 0, debt.stderr);
+    const summary = JSON.parse(debt.stdout);
+    assert.equal(summary.pendingRows, 1);
+    assert.equal(summary.pending[0].reviewStatus, 'review-pending');
+    assert.deepEqual(
+      new Set(summary.pending[0].pendingReceipts),
+      new Set(['candidate-run-result-invalid', 'r-cd-2-authority-context']),
+    );
+
+    const prom = path.join(fixture.root, 'single.prom');
+    const otlp = path.join(fixture.root, 'single.otlp.json');
+    const endpoint = `http://127.0.0.1:${server.address().port}/v1/metrics`;
+    const single = await run(process.execPath, [
+      exporter,
+      '--run-dir', fixture.runDir,
+      '--prometheus-out', prom,
+      '--otlp-out', otlp,
+      '--push-otlp', endpoint,
+    ]);
+    assert.notEqual(single.status, 0);
+    assert.equal(await exists(prom), false);
+    assert.equal(await exists(otlp), false);
+    assert.equal(requests, 0);
+
+    const bulk = path.join(fixture.root, 'bulk.prom');
+    const exported = await run(process.execPath, [
+      bulkExporter,
+      '--root', fixture.root,
+      '--out', bulk,
+    ]);
+    assert.notEqual(exported.status, 0);
+    assert.equal(await exists(bulk), false);
+    assert.doesNotMatch(exported.stdout, /openclaw_proofs_k6_run_total/);
+    assert.equal(requests, 0);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    await fixture.cleanup();
+  }
+});
+
+test('generic metrics preserve raw fallback when an unrelated sidecar is malformed', async () => {
+  const workspace = await testWorkspace(repoRoot, 'generic-invalid-sidecar');
+  try {
+    const rowResult = path.join(workspace.root, 'row-result.json');
+    await writeFile(rowResult, `${JSON.stringify({
+      schema: 'openclaw.k6.proof-row-result.v1',
+      runId: 'generic-run',
+      rowId: 'R-CW-1',
+      candidateSha: BASE.candidateSha,
+      seat: BASE.seat,
+      scenario: 'r-cw-1',
+      outcome: 'PASS-candidate',
+      metrics: { proofFailures: 0, checksRate: 1 },
+      receipts: [],
+      candidateOnly: true,
+      foldRequiresReview: true,
+    })}\n`);
+    await writeFile(path.join(workspace.root, 'candidate-run-result.json'), '{invalid\n');
+    const result = await run(process.execPath, [exporter, '--row-result', rowResult]);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).outcome, 'PASS-candidate');
+  } finally {
+    await workspace.cleanup();
   }
 });
 

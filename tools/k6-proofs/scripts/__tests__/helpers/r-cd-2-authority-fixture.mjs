@@ -5,6 +5,10 @@ import {
   rCd2AuthorityIdentity,
   resolveRcd2AuthoritativeReceipt,
 } from '../../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  R_CD_2_SELECTION_RECEIPT_FILE,
+  signRcd2SelectedContextReceipt,
+} from '../../../lib/r-cd-2-authority-context.mjs';
 
 export const SIGNING_KEY = 'r-cd-2-authority-consumer-test-key';
 export const BASE = Object.freeze({
@@ -182,6 +186,7 @@ function envelopeFor(identity, harness, receiptSha256, verdict) {
         'row-scenario.js',
         'runner-metadata.json',
         'run-result.json',
+        R_CD_2_SELECTION_RECEIPT_FILE,
         'r-cd-2-authoritative-receipt.json',
         'r-cd-2-summary.json',
         'evidence.jsonl',
@@ -234,6 +239,7 @@ export async function writeRcd2Bundle(repoRoot, {
     docsRef: claimed.docsRef,
     repository: claimed.repository,
     matrixId: claimed.matrixId,
+    runId: claimed.runId,
     ...harness,
   };
   const evidence = privateEvidence(
@@ -241,8 +247,10 @@ export async function writeRcd2Bundle(repoRoot, {
       ? { dispatch_failure_observed: true, failureCategory: 'provider-or-turn-failure' }
       : {},
   );
-  const traceCorrelation = verdict === 'PARTIAL-candidate' ? null : correlation(evidence);
   const authorityIdentity = rCd2AuthorityIdentity(metadata, claimed.runId);
+  const traceCorrelation = verdict === 'PARTIAL-candidate'
+    ? null
+    : { ...correlation(evidence), authorityIdentity };
   const receipt = resolveRcd2AuthoritativeReceipt({
     evidence,
     correlation: traceCorrelation,
@@ -292,6 +300,26 @@ export async function writeRcd2Bundle(repoRoot, {
     },
   };
   const envelope = envelopeFor(claimed, harness, receiptSha256, verdict);
+  const seatReadinessBody = `${JSON.stringify({
+    schema: 'openclaw.k6.seat-readiness.v1',
+    outcome: 'PASS-candidate',
+    candidate: { sha: selected.candidateSha, valid40Hex: true },
+    seat: { name: selected.seat, class: 'message-body' },
+  }, null, 2)}\n`;
+  const selectedHarness = {
+    manifestPath: selected.manifestPath,
+    manifestSha256: digest(`${JSON.stringify(manifestFor(selected), null, 2)}\n`),
+    scenarioPath: selected.scenarioPath,
+    scenarioSha256: digest(scenarioFor()),
+  };
+  const selectedAuthorityIdentity = rCd2AuthorityIdentity({
+    ...selected,
+    ...selectedHarness,
+  }, selected.runId);
+  const selectionReceipt = signRcd2SelectedContextReceipt({
+    identity: selectedAuthorityIdentity,
+    signingKey: SIGNING_KEY,
+  });
   const provenance = {
     schema: 'openclaw.k6.harness-provenance.v1',
     classification: 'harness-provenance',
@@ -307,15 +335,15 @@ export async function writeRcd2Bundle(repoRoot, {
       runtimeBuildSha: selected.runtimeBuildSha,
       candidateMatchesRuntime: selected.candidateSha === selected.runtimeBuildSha,
       seatReadinessReceipt: 'seat-readiness.json',
-      seatReadinessSha256: '9'.repeat(64),
+      seatReadinessSha256: digest(seatReadinessBody),
     },
     rowSelection: [selected.row],
     rows: [{
       rowId: selected.row,
       manifestPath: selected.manifestPath,
-      manifestSha256: digest(`${JSON.stringify(manifestFor(selected), null, 2)}\n`),
+      manifestSha256: selectedHarness.manifestSha256,
       scenarioPath: selected.scenarioPath,
-      scenarioSha256: digest(scenarioFor()),
+      scenarioSha256: selectedHarness.scenarioSha256,
     }],
     candidateOnly: true,
     foldRequiresReview: true,
@@ -341,6 +369,12 @@ export async function writeRcd2Bundle(repoRoot, {
       2,
     )}\n`),
     writeFile(path.join(workspace.root, 'harness-provenance.json'), `${JSON.stringify(provenance, null, 2)}\n`),
+    writeFile(path.join(workspace.root, 'seat-readiness.json'), seatReadinessBody),
+    writeFile(path.join(runDir, 'seat-readiness.json'), seatReadinessBody),
+    writeFile(
+      path.join(runDir, R_CD_2_SELECTION_RECEIPT_FILE),
+      `${JSON.stringify(selectionReceipt, null, 2)}\n`,
+    ),
     writeFile(
       path.join(workspace.root, 'harness-provenance', `${selected.matrixId}.json`),
       `${JSON.stringify(provenance, null, 2)}\n`,
@@ -370,6 +404,7 @@ export async function writeRcd2Bundle(repoRoot, {
     summary,
     envelope,
     provenance,
+    selectionReceipt,
     manifestPath: path.join(runDir, 'row-manifest.json'),
   };
 }

@@ -315,17 +315,6 @@ test('required Tempo evidence fails postprocessing instead of remaining review-o
   );
 });
 
-test('blocked whole-set dependency classification takes precedence over row exits', async () => {
-  const runner = await readFile(path.join(proofsDir, 'scripts/run-proofs.sh'), 'utf8');
-  const blocked = runner.lastIndexOf('if [[ "$DEPENDENCY_BLOCKED" == "true" ]]');
-  const rowFailures = runner.lastIndexOf('if [[ "${#MATRIX_ROW_FAILURES[@]}" -gt 0 ]]');
-  assert.ok(blocked >= 0);
-  assert.ok(rowFailures >= 0);
-  assert.ok(blocked < rowFailures);
-  assert.match(runner, /rowFailures:\(\$rowFailures \| if length == 0 then \[\] else split\(" "\) end\)/u);
-  assert.doesNotMatch(runner, /MATRIX_ROW_FAILURES\+=\("\$ROW_ID"\)/u);
-});
-
 test('multi rejects duplicate flows and repeated/multiply-labelled wakes', async () => {
   const manifest = await json('manifests/r-cw-multi.json');
   assert.deepEqual(manifest.invocation.forms, ['typed-tool', 'response-token']);

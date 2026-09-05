@@ -1,0 +1,12 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/figs/flesh_beast_best_beast/source/WORKTREES/oc-composite-20260811[39m
+
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 2766[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain.freshness.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 960[2mms[22m[39m
+ [32m✓[39m [30m[43m channels [49m[39m src/channels/message/ingress-drain-pending-disposition.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 128[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m37 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 07:47:08
+[2m   Duration [22m 4.65s[2m (transform 541ms, setup 414ms, import 277ms, tests 3.85s, environment 0ms)[22m
+

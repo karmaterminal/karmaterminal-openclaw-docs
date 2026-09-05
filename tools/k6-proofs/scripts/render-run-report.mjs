@@ -140,8 +140,11 @@ async function rowFromRunResult(root, runResultPath) {
   const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : {};
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const rel = path.relative(root, runDir).split(path.sep).join('/');
-  const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
-  let outcome = safeText(runResult.verdict || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
+  const effectiveExitCode = Number(runResult.effectiveExitCode ?? runResult.k6ExitCode ?? 0);
+  const proofFailures = Number(
+    summary?.metrics?.failures ?? runResult.proofFailures ?? (effectiveExitCode === 0 ? 0 : 1),
+  );
+  let outcome = safeText(runResult.verdict || summary?.verdict || (effectiveExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
   const rCd2Required = isRcd2AuthorityRequired({
     root,
     runDir,
@@ -190,7 +193,7 @@ async function rowFromRunResult(root, runResultPath) {
     }
   }
   return {
-    rowId: safeText(rCd2Authority?.identity.row || (rCd2Required ? 'R-CD-2' : metadata?.row || manifest?.rowId)),
+    rowId: safeText(rCd2Authority?.identity.row || (rCd2Required ? 'R-CD-2' : metadata?.row || manifest?.rowId || runResult?.evidence?.row)),
     candidateSha: safeText(rCd2Authority?.identity.candidateSha || metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
     seat: safeText(rCd2Authority?.identity.seat || metadata?.seat || manifest?.seat || summary?.seat),
     scenario: safeText(rCd2Authority?.identity.scenario || metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),

@@ -110,6 +110,22 @@ test('catalog fails a required behavioral row backed only by a static validator'
   assert.ok(registry.failures.some((failure) => failure.code === 'producer.behavioral-static-only'));
 });
 
+test('catalog rejects absent and non-runnable required behavioral producers', () => {
+  const catalog = {
+    schema: 'test',
+    requiredBehavioralRows: ['R-MISSING'],
+    defaults: { 'k6-runnable': 'behavioral-live' },
+    rows: {
+      'R-CW-5': { classification: 'behavioral-live', scenario: 'r-cw-5-cost-cap-reject.js' },
+    },
+  };
+  const registry = buildProducerRegistry({ proofsDir, catalog });
+  assert.ok(registry.failures.some((failure) =>
+    failure.code === 'producer.behavioral-not-runnable' && failure.rowId === 'R-CW-5'));
+  assert.ok(registry.failures.some((failure) =>
+    failure.code === 'producer.required-behavioral-missing' && failure.rowId === 'R-MISSING'));
+});
+
 test('dependency-gated consumers require fresh exact candidate and docs receipts', () => {
   const registry = buildProducerRegistry({ proofsDir });
   const base = {
@@ -329,6 +345,8 @@ test('process-local rows use private artifact directories and emit standard term
   assert.match(runner, /openclaw\.k6\.process-local-prerequisite-receipt\.v1/u);
   assert.match(runner, /verdictSource:"process-local-prerequisite-missing"/u);
   assert.match(runner, /"process-local-propagation-tests","live-behavioral-receipt"/u);
+  assert.match(runner, /export_run_metrics "\$ROW_ID" "\$PROCESS_RUN_DIR"/u);
+  assert.match(runner, /pendingReceipts:\(if \$effectiveExitCode == 0 then \[\] else \["process-local-behavioral-receipt"\] end\)/u);
   assert.doesNotMatch(runner, /process-local-prerequisite\/stdout\.log/u);
   assert.doesNotMatch(runner, /process-local-prerequisite\/stderr\.log/u);
 });

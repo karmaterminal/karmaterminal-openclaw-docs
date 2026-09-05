@@ -56,7 +56,15 @@ export function buildProducerRegistry({ proofsDir, catalog = loadProducerCatalog
 
     const scenario = override.scenario || manifestEntry?.manifest.scenario?.file || null;
     if (classification === 'behavioral-live') {
-      if (!scenario || scenario === 'static-corpus-row-validator.js') {
+      if (!manifestEntry ||
+          manifestEntry.manifest.scenario?.status !== 'runnable' ||
+          manifestEntry.manifest.liveRunSafety?.classification !== 'k6-runnable') {
+        failures.push({
+          code: 'producer.behavioral-not-runnable',
+          rowId,
+          message: `${rowId} behavioral producer is not declared runnable and k6-runnable`,
+        });
+      } else if (!scenario || scenario === 'static-corpus-row-validator.js') {
         failures.push({
           code: 'producer.behavioral-static-only',
           rowId,
@@ -103,6 +111,15 @@ export function buildProducerRegistry({ proofsDir, catalog = loadProducerCatalog
       dependsOn: override.dependsOn || [],
       blockedBy: override.blockedBy || null,
     };
+  }
+  for (const rowId of catalog.requiredBehavioralRows || []) {
+    if (!rows[rowId]) {
+      failures.push({
+        code: 'producer.required-behavioral-missing',
+        rowId,
+        message: `${rowId} is required behavioral coverage but has no catalog or manifest entry`,
+      });
+    }
   }
   return { schema: catalog.schema, rows, failures };
 }

@@ -270,6 +270,23 @@ write_harness_control_receipt() {
   echo "Row executions before this failure: ${ROWS_DISPATCHED:-0}; pre-dispatch terminal results: ${ROWS_TERMINAL_PRE_DISPATCH:-0}." >&2
 }
 
+export_run_metrics() {
+  local row_id="$1"
+  local run_dir="$2"
+  local metrics_args=(--run-dir "$run_dir" --prometheus-out "$run_dir/openclaw-proofs-k6.prom" --otlp-out "$run_dir/openclaw-proofs-k6.otlp.json")
+  if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then
+    metrics_args+=(--push-otlp "$OPENCLAW_PROOFS_K6_OTLP_ENDPOINT")
+  fi
+  if node scripts/export-row-metrics.mjs "${metrics_args[@]}" > "$run_dir/metrics-export.json"; then
+    echo "[$row_id] METRICS: $run_dir/openclaw-proofs-k6.prom"
+  else
+    echo "[$row_id] METRICS EXPORT FAILED; see $run_dir/metrics-export.json" >&2
+    if [[ "${OPENCLAW_PROOFS_K6_METRICS_REQUIRED:-false}" == "true" ]]; then
+      exit 1
+    fi
+  fi
+}
+
 safe_sha_or_marker() {
   if [[ "$1" =~ ^[0-9a-f]{40}$ ]]; then printf '%s' "$1"
   elif [[ -n "$1" ]]; then printf 'malformed'
@@ -963,6 +980,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     PROCESS_RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]')-${MATRIX_NONCE}"
     PROCESS_RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$PROCESS_RUN_ID"
     (umask 077; mkdir -p "$PROCESS_RUN_DIR")
+    cp "$MANIFEST_FILE" "$PROCESS_RUN_DIR/row-manifest.json"
+    jq -n \
+      --arg row "$ROW_ID" \
+      --arg scenario "$SCENARIO_FILE" \
+      --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
+      --arg seat "$OPENCLAW_SEAT_NAME" \
+      '{row:$row,scenario:$scenario,candidateSha:$candidateSha,seat:$seat,producerClassification:"process-local"}' \
+      > "$PROCESS_RUN_DIR/runner-metadata.json"
     if [[ -z "${FINAL_PRODUCT_CHECKOUT:-}" ]] ||
        ! git -C "$FINAL_PRODUCT_CHECKOUT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
       echo "[$ROW_ID] FINAL_PRODUCT_CHECKOUT must identify an exact local candidate checkout." >&2
@@ -974,6 +999,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
       MATRIX_EXIT_CODE=1
       MATRIX_ROW_FAILURES+=("$ROW_ID:1")
+      export_run_metrics "$ROW_ID" "$PROCESS_RUN_DIR"
       continue
     fi
     ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
@@ -1009,12 +1035,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg fixtureResult "$process_result_file" \
       --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       --argjson effectiveExitCode "$process_rc" \
-      '{k6ExitCode:0,postprocessExitCode:$effectiveExitCode,effectiveExitCode:$effectiveExitCode,endedAt:$endedAt,verdict:$verdict,verdictSource:"process-local-producer",summaryFileVerdict:$verdict,vuLogVerdict:null,summaryFiles:(if $fixtureResult == "" then [] else [$fixtureResult] end),evidence:{row:$row,dispatched:true,fixtureResult:(if $fixtureResult == "" then null else $fixtureResult end)},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:[]}}' \
+      '{k6ExitCode:0,postprocessExitCode:$effectiveExitCode,effectiveExitCode:$effectiveExitCode,endedAt:$endedAt,verdict:$verdict,verdictSource:"process-local-producer",summaryFileVerdict:$verdict,vuLogVerdict:null,summaryFiles:(if $fixtureResult == "" then [] else [$fixtureResult] end),evidence:{row:$row,dispatched:true,fixtureResult:(if $fixtureResult == "" then null else $fixtureResult end)},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:(if $effectiveExitCode == 0 then [] else ["process-local-behavioral-receipt"] end)}}' \
       > "$PROCESS_RUN_DIR/run-result.json"
     if [[ "$process_rc" -ne 0 ]]; then
       MATRIX_EXIT_CODE=1
       MATRIX_ROW_FAILURES+=("$ROW_ID:$process_rc")
     fi
+    export_run_metrics "$ROW_ID" "$PROCESS_RUN_DIR"
     continue
   fi
 
@@ -1806,18 +1833,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       rm -f "$RUN_DIR/candidate-run-result.json"
       echo "[$ROW_ID] Candidate routing envelope withheld: review is incomplete or its identity contract did not validate." >&2
     fi
-    METRICS_ARGS=(--run-dir "$RUN_DIR" --prometheus-out "$RUN_DIR/openclaw-proofs-k6.prom" --otlp-out "$RUN_DIR/openclaw-proofs-k6.otlp.json")
-    if [[ -n "${OPENCLAW_PROOFS_K6_OTLP_ENDPOINT:-}" ]]; then
-      METRICS_ARGS+=(--push-otlp "$OPENCLAW_PROOFS_K6_OTLP_ENDPOINT")
-    fi
-    if node scripts/export-row-metrics.mjs "${METRICS_ARGS[@]}" > "$RUN_DIR/metrics-export.json"; then
-      echo "[$ROW_ID] METRICS: $RUN_DIR/openclaw-proofs-k6.prom"
-    else
-      echo "[$ROW_ID] METRICS EXPORT FAILED; see $RUN_DIR/metrics-export.json" >&2
-      if [[ "${OPENCLAW_PROOFS_K6_METRICS_REQUIRED:-false}" == "true" ]]; then
-        exit 1
-      fi
-    fi
+    export_run_metrics "$ROW_ID" "$RUN_DIR"
     rm -f "$RUN_DIR/.started"
 
     echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"

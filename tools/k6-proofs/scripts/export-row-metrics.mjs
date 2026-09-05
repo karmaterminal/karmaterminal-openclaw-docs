@@ -18,6 +18,11 @@
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
+import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 
 const METRIC_PREFIX = 'openclaw_proofs_k6';
 
@@ -66,6 +71,14 @@ function nowNs() {
 
 async function readJson(file) {
   return JSON.parse(await readFile(file, 'utf8'));
+}
+
+async function readOptionalJson(file) {
+  try {
+    return await readJson(file);
+  } catch {
+    return null;
+  }
 }
 
 function pickSummaryFile(files) {
@@ -178,19 +191,57 @@ async function normalizeFromRunDir(runDir) {
   const manifest = files.includes('row-manifest.json') ? await readJson(path.join(runDir, 'row-manifest.json')) : {};
   const runResult = files.includes('run-result.json') ? await readJson(path.join(runDir, 'run-result.json')) : {};
   const metadata = files.includes('runner-metadata.json') ? await readJson(path.join(runDir, 'runner-metadata.json')) : {};
+  const candidate = files.includes('candidate-run-result.json')
+    ? await readOptionalJson(path.join(runDir, 'candidate-run-result.json'))
+    : null;
   const readiness = files.includes('seat-readiness.json') ? await readJson(path.join(runDir, 'seat-readiness.json')) : null;
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const summaryName = pickSummaryFile(files);
   const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : {};
+  const rCd2Required = isRcd2AuthorityRequired({
+    runDir,
+    envelope: candidate,
+    manifest,
+    metadata,
+    runResult,
+    summary,
+    evidence: evidenceRows[0],
+  });
+  if (
+    rCd2Required &&
+    files.includes('candidate-run-result.json') &&
+    !candidateEnvelopeMatchesSiblings({
+      envelope: candidate,
+      manifest,
+      metadata,
+      runResult,
+      runDir,
+    })
+  ) {
+    throw new Error('R-CD-2 candidate sidecar is invalid');
+  }
+  const authority = rCd2Required
+    ? consumeRcd2Authority({
+        runDir,
+        envelope: candidate,
+        manifest,
+        metadata,
+        runResult,
+        summary,
+        evidence: evidenceRows[0],
+      })
+    : null;
 
-  const rowId = metadata.row || manifest.rowId || summary.row || 'unknown';
-  const candidateSha = metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
-  const seat = metadata.seat || manifest.seat || summary.seat || 'unknown';
-  const scenario = metadata.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
-  const outcome = summary.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  const rowId = authority?.identity.row || metadata.row || manifest.rowId || summary.row || 'unknown';
+  const candidateSha = authority?.identity.candidateSha || metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
+  const seat = authority?.identity.seat || metadata.seat || manifest.seat || summary.seat || 'unknown';
+  const scenario = authority?.identity.scenario || metadata.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
+  const outcome = authority?.outcome || summary.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
-  const candidateOnly = runResult.candidateOnly !== undefined ? Boolean(runResult.candidateOnly) : true;
-  const foldRequiresReview = runResult.foldRequiresReview !== undefined ? Boolean(runResult.foldRequiresReview) : true;
+  const candidateOnly = authority?.candidateOnly ??
+    (runResult.candidateOnly !== undefined ? Boolean(runResult.candidateOnly) : true);
+  const foldRequiresReview = authority?.foldRequiresReview ??
+    (runResult.foldRequiresReview !== undefined ? Boolean(runResult.foldRequiresReview) : true);
 
   return {
     schema: 'openclaw.k6.proof-row-result.v1',
@@ -216,13 +267,70 @@ async function normalizeFromRunDir(runDir) {
     candidateOnly,
     foldRequiresReview,
     observability: runResult.observability || null,
-    review: runResult.review || null,
+    review: authority?.review || runResult.review || null,
   };
 }
 
 async function normalizeInput(args) {
   if (args['row-result'] && args['run-dir']) throw new Error('choose exactly one of --row-result or --run-dir');
-  if (args['row-result']) return readJson(args['row-result']);
+  if (args['row-result']) {
+    const rowResultPath = path.resolve(args['row-result']);
+    const result = await readJson(rowResultPath);
+    const runDir = path.dirname(rowResultPath);
+    const files = await readdir(runDir);
+    const [manifest, metadata, runResult, candidate] = await Promise.all([
+      files.includes('row-manifest.json') ? readJson(path.join(runDir, 'row-manifest.json')) : {},
+      files.includes('runner-metadata.json') ? readJson(path.join(runDir, 'runner-metadata.json')) : {},
+      files.includes('run-result.json') ? readJson(path.join(runDir, 'run-result.json')) : null,
+      files.includes('candidate-run-result.json')
+        ? readOptionalJson(path.join(runDir, 'candidate-run-result.json'))
+        : null,
+    ]);
+    const rCd2Required = isRcd2AuthorityRequired({
+      runDir,
+      envelope: candidate,
+      manifest,
+      metadata,
+      runResult,
+      rowResult: result,
+    });
+    if (
+      rCd2Required &&
+      files.includes('candidate-run-result.json') &&
+      !candidateEnvelopeMatchesSiblings({
+        envelope: candidate,
+        manifest,
+        metadata,
+        runResult,
+        runDir,
+      })
+    ) {
+      throw new Error('R-CD-2 candidate sidecar is invalid');
+    }
+    if (rCd2Required) {
+      const authority = consumeRcd2Authority({
+        runDir,
+        envelope: candidate,
+        manifest,
+        metadata,
+        runResult,
+        rowResult: result,
+      });
+      return {
+        ...result,
+        rowId: authority.identity.row,
+        runId: authority.identity.runId,
+        candidateSha: authority.identity.candidateSha,
+        seat: authority.identity.seat,
+        scenario: authority.identity.scenario,
+        outcome: authority.outcome,
+        candidateOnly: authority.candidateOnly,
+        foldRequiresReview: authority.foldRequiresReview,
+        review: authority.review,
+      };
+    }
+    return result;
+  }
   if (args['run-dir']) return normalizeFromRunDir(args['run-dir']);
   throw new Error('missing --row-result or --run-dir');
 }

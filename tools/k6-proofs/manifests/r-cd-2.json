@@ -196,6 +196,7 @@
       "requiredFiles": [
         "EVIDENCE.md",
         "row-result.json",
+        "r-cd-2-selected-context-receipt.json",
         "r-cd-2-authoritative-receipt.json",
         "candidate-run-result.json",
         "seat-readiness.json"

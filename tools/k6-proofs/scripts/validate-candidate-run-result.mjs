@@ -8,7 +8,12 @@
 import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+  R_CD_2_RECEIPT_FILE,
+  R_CD_2_VERDICT_SOURCE,
+} from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 
@@ -175,9 +180,9 @@ function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {
 function authoritativeReceiptContract(rowId) {
   if (rowId === 'R-CD-2') {
     return {
-      file: 'r-cd-2-authoritative-receipt.json',
-      verdictSource: 'r-cd-2-authoritative-receipt',
-      validate: validateRcd2AuthoritativeReceipt,
+      file: R_CD_2_RECEIPT_FILE,
+      verdictSource: R_CD_2_VERDICT_SOURCE,
+      validate: null,
     };
   }
   if (rowId === 'R-CD-TOKEN') {
@@ -208,6 +213,16 @@ async function main() {
   const manifest = await readJson(manifestPath, 'manifest');
   const metadata = await readJson(path.join(candidateDir, 'runner-metadata.json'), 'runner metadata');
   const runResult = await readJson(path.join(candidateDir, 'run-result.json'), 'run result');
+  let rCd2Authority = null;
+  if (isRcd2AuthorityRequired({ runDir: candidateDir, manifest, metadata, runResult })) {
+    rCd2Authority = consumeRcd2Authority({
+      runDir: candidateDir,
+      manifest,
+      metadata,
+      runResult,
+    });
+    same(docsRef, rCd2Authority.identity.docsRef, 'R-CD-2 selected docs ref');
+  }
 
   same(manifest.schema, 'openclaw.k6.proof-row-manifest.v1', 'manifest schema');
   if (manifest.review?.candidateOnly !== true || manifest.review?.foldRequiresReview !== true) throw new Error('manifest must remain candidateOnly and require human fold review');
@@ -246,8 +261,19 @@ async function main() {
     const raw = await readFile(path.join(candidateDir, declared.file));
     if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error(`${rowId} authoritative receipt digest mismatch`);
     authoritativeReceipt = JSON.parse(raw);
-    const integrity = authoritative.validate(authoritativeReceipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-    if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`${rowId} authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
+    if (rowId === 'R-CD-2') {
+      if (!rCd2Authority ||
+          rCd2Authority.outcome !== runResult.verdict ||
+          rCd2Authority.authoritativeReceipt.sha256 !== declared.sha256) {
+        throw new Error('R-CD-2 authoritative receipt is not usable in the selected context');
+      }
+    } else {
+      const integrity = authoritative.validate(
+        authoritativeReceipt,
+        process.env.OPENCLAW_GATEWAY_TOKEN,
+      );
+      if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error(`${rowId} authoritative receipt invalid: ${integrity.reason || 'verdict mismatch'}`);
+    }
     if (rowId === 'R-CD-TOKEN' && (
       authoritativeReceipt.binding?.candidateSha !== candidateSha ||
       authoritativeReceipt.binding?.runtimeBuildSha !== requireSha(metadata.runtimeBuildSha, 'runner metadata runtimeBuildSha') ||

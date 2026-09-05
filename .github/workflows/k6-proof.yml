@@ -111,6 +111,15 @@ jobs:
           MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
         run: |
           set -euo pipefail
+          row_upper="$(printf '%s' "$ROW" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr '[:lower:]' '[:upper:]')"
+          scenario_lower="$(printf '%s' "$SCENARIO" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]')"
+          manifest_lower="$(printf '%s' "$MANIFEST_PATH" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]')"
+          if [ "$row_upper" = "R-CD-2" ] ||
+             [ "$scenario_lower" = "r-cd-2-silent-wake" ] ||
+             [ "$scenario_lower" = "r-cd-2-silent-wake.js" ]; then
+            echo "::error::R-CD-2 is not supported by this legacy workflow; use project81-k6-proof.yml"
+            exit 1
+          fi
           if printf '%s' "$SCENARIO" | grep -Eq '/|\.js$'; then
             echo "::error::scenario must be a basename without path or .js suffix: $SCENARIO"
             exit 1
@@ -123,6 +132,58 @@ jobs:
           if [ -n "$MANIFEST_PATH" ] && [ ! -f "$MANIFEST_PATH" ]; then
             echo "::error::manifest path not found: $MANIFEST_PATH"
             exit 1
+          fi
+          if [ -n "$MANIFEST_PATH" ]; then
+            if ! jq -e 'type == "object"' "$MANIFEST_PATH" >/dev/null; then
+              echo "::error::manifest must be valid JSON object: $MANIFEST_PATH"
+              exit 1
+            fi
+            manifest_row="$(jq -r '.rowId // "" | if type == "string" then gsub("^\\s+|\\s+$"; "") | ascii_upcase else "" end' "$MANIFEST_PATH")"
+            manifest_destination_row="$(jq -r '.artifactDestination.row // "" | if type == "string" then gsub("^\\s+|\\s+$"; "") | ascii_upcase else "" end' "$MANIFEST_PATH")"
+            mapfile -t manifest_scenarios < <(
+              jq -r '[.scenario.name?, .scenario.file?]
+                | map(select(type == "string") | ascii_downcase | sub("\\.js$"; ""))
+                | unique[]' "$MANIFEST_PATH"
+            )
+            manifest_identifies_rcd2_authority="$(
+              jq -r '
+                [
+                  paths(scalars) as $path
+                  | select(any($path[]; tostring | test("authorit"; "i")))
+                  | getpath($path)
+                  | select(type == "string")
+                  | ascii_downcase
+                  | select(contains("r-cd-2"))
+                ] | length > 0
+              ' "$MANIFEST_PATH"
+            )"
+            if [ "$manifest_row" = "R-CD-2" ] ||
+               [ "$manifest_destination_row" = "R-CD-2" ] ||
+               printf '%s\n' "${manifest_scenarios[@]}" | grep -Fxq 'r-cd-2-silent-wake' ||
+               [ "$manifest_identifies_rcd2_authority" = "true" ] ||
+               [ "${manifest_lower##*/}" = "r-cd-2.json" ]; then
+              echo "::error::R-CD-2 is not supported by this legacy workflow; use project81-k6-proof.yml"
+              exit 1
+            fi
+            if [ -z "$manifest_row" ] || [ "$manifest_row" != "$row_upper" ]; then
+              echo "::error::manifest rowId must agree with the row input"
+              exit 1
+            fi
+            if [ -n "$manifest_destination_row" ] &&
+               [ "$manifest_destination_row" != "$manifest_row" ]; then
+              echo "::error::manifest artifactDestination.row must agree with rowId"
+              exit 1
+            fi
+            if [ "${#manifest_scenarios[@]}" -eq 0 ]; then
+              echo "::error::manifest must declare scenario.name or scenario.file"
+              exit 1
+            fi
+            for manifest_scenario in "${manifest_scenarios[@]}"; do
+              if [ "$manifest_scenario" != "$scenario_lower" ]; then
+                echo "::error::manifest scenario must agree with the scenario input"
+                exit 1
+              fi
+            done
           fi
           if [ "$DRY_RUN" != "true" ]; then
             if [ -z "$ROW" ]; then

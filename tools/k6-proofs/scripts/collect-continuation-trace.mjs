@@ -10,6 +10,10 @@ import {
   publicTempoStatusCode as publicStatusCode,
   tempoAttributeValue as attributeValue,
 } from '../lib/public-tempo-trace.mjs';
+import {
+  establishRcd2AuthorityContext,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
@@ -21,7 +25,8 @@ function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
-  [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000]`);
+  [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000] \\
+  [--settle-ms <defaults-to-poll-ms>]`);
 }
 
 function parseArgs(argv, env = process.env) {
@@ -35,10 +40,11 @@ function parseArgs(argv, env = process.env) {
     // as missing its originating tool span.
     timeoutMs: 180000,
     pollMs: 2000,
+    settleMs: null,
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -48,6 +54,7 @@ function parseArgs(argv, env = process.env) {
   }
   out.timeoutMs = Number(out.timeoutMs);
   out.pollMs = Number(out.pollMs);
+  out.settleMs = out.settleMs == null ? out.pollMs : Number(out.settleMs);
   return out;
 }
 
@@ -444,14 +451,45 @@ async function main() {
     return;
   }
   if (!Number.isFinite(args.timeoutMs) || args.timeoutMs < 0 ||
-      !Number.isFinite(args.pollMs) || args.pollMs < 1) {
-    throw new Error('timeout and poll values must be positive numbers');
+      !Number.isFinite(args.pollMs) || args.pollMs < 1 ||
+      !Number.isFinite(args.settleMs) || args.settleMs < 1) {
+    throw new Error('timeout must be non-negative and poll/settle values must be positive numbers');
   }
 
   const runDir = path.resolve(args.runDir);
   const evidencePath = path.resolve(args.evidence || path.join(runDir, 'evidence.jsonl'));
   const evidence = await readEvidence(evidencePath);
-  const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
+  let manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
+  let rCd2Context = null;
+  if (isRcd2AuthorityRequired({ root: args.root, runDir, manifest, evidence })) {
+    rCd2Context = establishRcd2AuthorityContext({
+      root: args.root,
+      runDir,
+      selectedMatrixId: args.matrixId,
+      manifest,
+      evidence,
+    });
+    if (args.seat !== rCd2Context.selected.seat) {
+      throw new Error('R-CD-2 authority identity mismatch for collector seat');
+    }
+    manifest = rCd2Context.manifest;
+  }
+  let rowNonceFingerprint = null;
+  if (evidence.row === 'R-CD-2') {
+    if (typeof evidence.nonce !== 'string' || evidence.nonce.length === 0) {
+      throw new Error('R-CD-2 evidence nonce is required for row binding');
+    }
+    rowNonceFingerprint = createHash('sha256')
+      .update(String(evidence.nonce))
+      .digest('hex')
+      .slice(0, 16);
+    if (evidence.row_nonce_fingerprint != null &&
+        evidence.row_nonce_fingerprint !== rowNonceFingerprint) {
+      throw new Error(
+        `evidence row_nonce_fingerprint mismatch: expected ${rowNonceFingerprint}`,
+      );
+    }
+  }
 
   const contract = traceContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
@@ -479,9 +517,17 @@ async function main() {
   let trace = null;
   let topology = null;
   let validationError = null;
+  let searchQueryCount = 0;
+  let stabilizationQueryCount = 0;
+  let finalQueryCount = 0;
+
+  const search = async () => {
+    searchQueryCount += 1;
+    return tempoSearch(args.tempoUrl, query, start, end);
+  };
 
   do {
-    candidates = await tempoSearch(args.tempoUrl, query, start, end);
+    candidates = await search();
     if (candidates.length > 1) {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
@@ -519,6 +565,63 @@ async function main() {
       : `tool ${contract.tool} in the evidence window`;
     throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
   }
+
+  const provisionalTraceId = traceId;
+  const stabilizationDeadline = Date.now() + args.settleMs;
+  while (Date.now() < stabilizationDeadline) {
+    await sleep(Math.min(args.pollMs, stabilizationDeadline - Date.now()));
+    candidates = await search();
+    stabilizationQueryCount += 1;
+    if (candidates.length !== 1) {
+      throw new Error(
+        candidates.length > 1
+          ? `trace correlation is ambiguous: ${candidates.length} Tempo traces matched`
+          : 'trace correlation candidate set changed during stabilization: no traces matched',
+      );
+    }
+    const stableTraceId = safeHex(
+      candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
+      32,
+      'search trace id',
+    );
+    if (stableTraceId !== provisionalTraceId) {
+      throw new Error('trace correlation candidate set changed during stabilization');
+    }
+  }
+
+  candidates = await search();
+  finalQueryCount += 1;
+  if (candidates.length !== 1) {
+    throw new Error(
+      candidates.length > 1
+        ? `trace correlation is ambiguous: ${candidates.length} Tempo traces matched`
+        : 'final trace correlation query found no matching Tempo trace',
+    );
+  }
+  traceId = safeHex(
+    candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
+    32,
+    'search trace id',
+  );
+  if (traceId !== provisionalTraceId) {
+    throw new Error('trace correlation candidate set changed before finality');
+  }
+  trace = await fetchTrace(args.tempoUrl, traceId);
+  topology = contract.kind === 'continuation'
+    ? validateTrace(trace, {
+        tool: contract.tool,
+        reasonHash: contract.hash,
+        reasonLength: contract.length,
+        mode: contract.mode,
+        acceptSpanName: contract.acceptSpanName,
+        fireSpanName: contract.fireSpanName,
+        originSurface: contract.originSurface,
+      })
+    : validateToolTrace(trace, { tool: contract.tool });
+  if (topology.traceId !== traceId) {
+    throw new Error('Tempo final search and trace payload IDs disagree');
+  }
+
   assertTraceIsPublicSafe(trace, evidence, contract);
   const publicTrace = contract.kind === 'continuation'
     ? projectScopedContinuationTrace(trace, traceId, topology)
@@ -546,6 +649,13 @@ async function main() {
       paddingSeconds: CORRELATION_WINDOW_PADDING_SECONDS,
       source: Number.isFinite(evidenceEndMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
     },
+    stabilization: {
+      ingestionSettleMs: args.settleMs,
+      pollIntervalMs: args.pollMs,
+      searchQueryCount,
+      stabilizationQueryCount,
+      finalQueryCount,
+    },
     traceJson: path.basename(traceOut),
     ...topology,
     ...(contract.kind === 'continuation'
@@ -568,20 +678,25 @@ async function main() {
           // reason hash; retain only fingerprints, never raw run IDs/nonces.
           ...(evidence.row === 'R-CD-2'
             ? {
+                authorityIdentity: rCd2Context.identity,
                 // The resolver consumes the native continuation/delegate
                 // shape emitted below plus topology.toolSpanIds.  Keep the
                 // row binding public-safe and opaque, but never manufacture
                 // a second top-level topology schema for a fixture to fake.
                 rowBinding: {
                   acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
-                  nonceFingerprint: evidence.row_nonce_fingerprint || null,
-                  acceptedSendTraceId: evidence.accepted_send_trace_id || null,
+                  nonceFingerprint: rowNonceFingerprint,
+                  acceptedSendTraceId: evidence.accepted_send_trace_id || traceId,
+                  acceptedSendTraceSource: evidence.accepted_send_trace_id
+                    ? 'sessions-send-response'
+                    : 'unique-reason-bound-trace',
                 },
               }
             : {}),
           ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
           sameTrace: true,
           distinctSpans: true,
+          resultClass: 'unique',
         }
       : {
           tool: {

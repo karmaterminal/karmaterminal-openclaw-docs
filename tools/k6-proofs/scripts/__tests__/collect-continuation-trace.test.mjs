@@ -2,16 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { resolveRcd2AuthoritativeReceipt } from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  rCd2AuthorityIdentity,
+  resolveRcd2AuthoritativeReceipt,
+} from '../../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  R_CD_2_SELECTION_RECEIPT_FILE,
+  signRcd2SelectedContextReceipt,
+} from '../../lib/r-cd-2-authority-context.mjs';
 import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
 
 const execFileAsync = promisify(execFile);
+const rCd2SigningKey = 'collect-continuation-trace-r-cd-2-test-key';
+process.env.OPENCLAW_GATEWAY_TOKEN ||= rCd2SigningKey;
 const script = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../collect-continuation-trace.mjs',
@@ -27,6 +37,10 @@ const preservedTracePaths = {
     'PROOFS/4c235d8c1997e8964160117f8d6bf650ad1e8203/artifacts/silas-lothric/comparator-20260719/prior-two-row/raw/4c235d8c1997e8964160117f8d6bf650ad1e8203/R-CW-1/silas/20260719T191326Z-r-cw-1/tempo-trace-postrun.json',
   ),
 };
+const fixtureRoots = new Set();
+process.once('exit', () => {
+  for (const root of fixtureRoots) rmSync(root, { recursive: true, force: true });
+});
 
 function b64(hex) {
   return Buffer.from(hex, 'hex').toString('base64');
@@ -158,10 +172,23 @@ async function fixtureDir({
   nonceOverride,
   extraEvidence = {},
 } = {}) {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
+  const root = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
   const isWork = tool === 'continue_work';
   const isReasonPrefix = isWork && workVariant === 'reason-prefix';
   const resolvedRowId = rowId || (isReasonPrefix ? 'R-CW-3' : isWork ? 'R-CW-1' : 'R-CD-1');
+  const rCd2 = resolvedRowId === 'R-CD-2';
+  const candidateSha = '1'.repeat(40);
+  const docsRef = '3'.repeat(40);
+  const seat = 'cael-prince';
+  const matrixId = '20260905T032057Z-333333333333-deadbeef';
+  const runId = '20260905T032100Z-r-cd-2-deadbeef';
+  const dir = rCd2
+    ? path.join(root, candidateSha, resolvedRowId, seat, runId)
+    : root;
+  if (rCd2) {
+    fixtureRoots.add(root);
+    await mkdir(dir, { recursive: true });
+  }
   const generatedNonce = isReasonPrefix
     ? 'R-CW-3-example'
     : isWork
@@ -177,6 +204,20 @@ async function fixtureDir({
   const reason = templatedReason;
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const manifest = {
+    ...(rCd2 ? {
+      schema: 'openclaw.k6.proof-row-manifest.v1',
+      candidateSha,
+      seat,
+      transport: 'websocket',
+      toolSurface: 'typed-tool',
+      scenario: { name: 'r-cd-2-silent-wake', file: 'r-cd-2-silent-wake.js' },
+      review: { candidateOnly: true, foldRequiresReview: true },
+      liveRunSafety: {
+        expectedArtifactClass: 'PASS-candidate',
+        foldRequiresReview: true,
+        requiredReceipts: ['dispatch-accepted', 'parent-wake-event', 'no-channel-delivery'],
+      },
+    } : {}),
     rowId: resolvedRowId,
     invocation: isWork
       ? { tool, reason: template }
@@ -192,10 +233,95 @@ async function fixtureDir({
     ...(isWork ? {} : { delegate_mode: delegateMode || 'normal' }),
     ...extraEvidence,
   };
-  const manifestPath = path.join(dir, 'manifest.json');
-  await writeFile(manifestPath, JSON.stringify(manifest));
+  const manifestBody = JSON.stringify(manifest);
+  const scenarioBody = 'export default function () {}\n';
+  const manifestPath = path.join(dir, rCd2 ? 'row-manifest.json' : 'manifest.json');
+  await writeFile(manifestPath, manifestBody);
   await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify(evidence)}\n`);
-  return { dir, manifestPath, reason, reasonHash, reasonLength: reason.length };
+  if (rCd2) {
+    const manifestSha256 = createHash('sha256').update(manifestBody).digest('hex');
+    const scenarioSha256 = createHash('sha256').update(scenarioBody).digest('hex');
+    await writeFile(path.join(dir, 'row-scenario.js'), scenarioBody);
+    await writeFile(path.join(dir, 'runner-metadata.json'), `${JSON.stringify({
+      row: resolvedRowId,
+      scenario: 'r-cd-2-silent-wake.js',
+      candidateSha,
+      runtimeBuildSha: candidateSha,
+      seat,
+      docsRef,
+      repository: 'karmaterminal/karmaterminal-openclaw-docs',
+      matrixId,
+      runId,
+      manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+      manifestSha256,
+      scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+      scenarioSha256,
+    })}\n`);
+    const seatReadinessBody = `${JSON.stringify({
+      schema: 'openclaw.k6.seat-readiness.v1',
+      outcome: 'PASS-candidate',
+      candidate: { sha: candidateSha, valid40Hex: true },
+      seat: { name: seat, class: 'message-body' },
+    })}\n`;
+    const authorityIdentity = rCd2AuthorityIdentity({
+      candidateSha,
+      runtimeBuildSha: candidateSha,
+      docsRef,
+      repository: 'karmaterminal/karmaterminal-openclaw-docs',
+      seat,
+      matrixId,
+      row: resolvedRowId,
+      scenario: 'r-cd-2-silent-wake.js',
+      manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+      manifestSha256,
+      scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+      scenarioSha256,
+    }, runId);
+    const selectionReceipt = signRcd2SelectedContextReceipt({
+      identity: authorityIdentity,
+      signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+    });
+    const provenance = {
+      schema: 'openclaw.k6.harness-provenance.v1',
+      classification: 'harness-provenance',
+      matrixId,
+      mode: 'live',
+      docsRef,
+      docsRefSource: 'approved-input',
+      repository: 'karmaterminal/karmaterminal-openclaw-docs',
+      harnessIdentityVerified: true,
+      candidateSha,
+      runtimeIdentity: {
+        seat,
+        runtimeBuildSha: candidateSha,
+        candidateMatchesRuntime: true,
+        seatReadinessReceipt: 'seat-readiness.json',
+        seatReadinessSha256: createHash('sha256').update(seatReadinessBody).digest('hex'),
+      },
+      rowSelection: [resolvedRowId],
+      rows: [{
+        rowId: resolvedRowId,
+        manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+        manifestSha256,
+        scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+        scenarioSha256,
+      }],
+      candidateOnly: true,
+      foldRequiresReview: true,
+    };
+    await mkdir(path.join(root, 'harness-provenance'), { recursive: true });
+    await writeFile(path.join(root, 'seat-readiness.json'), seatReadinessBody);
+    await writeFile(path.join(dir, 'seat-readiness.json'), seatReadinessBody);
+    await writeFile(
+      path.join(dir, R_CD_2_SELECTION_RECEIPT_FILE),
+      `${JSON.stringify(selectionReceipt)}\n`,
+    );
+    await writeFile(
+      path.join(root, 'harness-provenance', `${matrixId}.json`),
+      `${JSON.stringify(provenance)}\n`,
+    );
+  }
+  return { root, dir, manifestPath, reason, reasonHash, reasonLength: reason.length };
 }
 
 test('correlates a unique trace and validates tool/fire/dispatch topology', async () => {
@@ -235,12 +361,140 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     assert.equal(receipt.reason.source, 'manifest-nonce');
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
+    assert.equal(receipt.stabilization.ingestionSettleMs, 10);
+    assert.equal(receipt.stabilization.pollIntervalMs, 10);
+    assert.ok(receipt.stabilization.searchQueryCount >= 2);
+    assert.ok(receipt.stabilization.stabilizationQueryCount >= 1);
+    assert.equal(receipt.stabilization.finalQueryCount, 1);
     assert.deepEqual(receipt.childSpans, [{
       name: 'openclaw.harness.run',
       spanId: 'eeeeeeeeeeeeeeee',
     }]);
     assert.match(observedQuery, new RegExp(`reason\\.hash="${fixture.reasonHash}"`));
     assert.doesNotMatch(JSON.stringify(receipt), /Proof nonce/);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('treats the first valid Tempo trace as provisional until uniqueness stabilizes', async () => {
+  const fixture = await fixtureDir();
+  const traceA = '17171717171717171717171717171717';
+  const traceB = '18181818181818181818181818181818';
+  let searchCount = 0;
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      searchCount += 1;
+      response.end(JSON.stringify({
+        traces: searchCount === 1
+          ? [{ traceID: traceA }]
+          : [{ traceID: traceA }, { traceID: traceB }],
+      }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({
+      traceId: traceA,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /trace correlation is ambiguous: 2 Tempo traces matched/);
+        return true;
+      },
+    );
+    assert.ok(searchCount >= 2);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('fails closed when the Tempo candidate set churns during stabilization', async () => {
+  const fixture = await fixtureDir();
+  const traceA = '19191919191919191919191919191919';
+  const traceB = '20202020202020202020202020202020';
+  let searchCount = 0;
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      searchCount += 1;
+      response.end(JSON.stringify({
+        traces: [{ traceID: searchCount === 1 ? traceA : traceB }],
+      }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({
+      traceId: traceA,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /candidate set changed during stabilization/);
+        return true;
+      },
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('fails closed when no Tempo trace appears before the bounded timeout', async () => {
+  const fixture = await fixtureDir();
+  let searchCount = 0;
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    searchCount += 1;
+    response.end(JSON.stringify({ traces: [] }));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '30',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /no Tempo trace matched .* before timeout/);
+        return true;
+      },
+    );
+    assert.ok(searchCount >= 1);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
@@ -567,6 +821,7 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
       accepted_send_trace_id: '1'.repeat(32),
     },
   });
+
   const traceId = '1'.repeat(32);
   const server = await listen((request, response) => {
     response.setHeader('content-type', 'application/json');
@@ -592,11 +847,70 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
       acceptedSendRunFingerprint: 'a'.repeat(16),
       nonceFingerprint: createHash('sha256').update(rowNonce).digest('hex').slice(0, 16),
       acceptedSendTraceId: traceId,
+      acceptedSendTraceSource: 'sessions-send-response',
     });
+    assert.equal(receipt.authorityIdentity.candidateSha, '1'.repeat(40));
+    assert.equal(receipt.authorityIdentity.runtimeBuildSha, '1'.repeat(40));
+    assert.equal(receipt.authorityIdentity.matrixId, '20260905T032057Z-333333333333-deadbeef');
+    assert.equal(receipt.authorityIdentity.runId, '20260905T032100Z-r-cd-2-deadbeef');
     assert.doesNotMatch(receiptText, /R-CD-2-example/);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 derives the nonce fingerprint and rejects a supplied copied mismatch', async () => {
+  const rowNonce = 'R-CD-2-derived-fingerprint';
+  const derived = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
+  const wrong = 'e'.repeat(16);
+  assert.notEqual(wrong, derived);
+
+  for (const supplied of [undefined, derived, wrong]) {
+    const fixture = await fixtureDir({
+      rowId: 'R-CD-2',
+      delegateMode: 'silent-wake',
+      nonceOverride: rowNonce,
+      extraEvidence: {
+        send_run_fingerprint: 'a'.repeat(16),
+        ...(supplied === undefined ? {} : { row_nonce_fingerprint: supplied }),
+        accepted_send_trace_id: '7'.repeat(32),
+      },
+    });
+    const traceId = '7'.repeat(32);
+    const server = await listen((request, response) => {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify(
+        new URL(request.url, 'http://localhost').pathname === '/api/search'
+          ? { traces: [{ traceID: traceId }] }
+          : traceFixture({
+              traceId,
+              reasonHash: fixture.reasonHash,
+              reasonLength: fixture.reasonLength,
+              mode: 'silent-wake',
+            }),
+      ));
+    });
+    try {
+      const collect = () => execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince', '--tempo-url', server.url,
+        '--timeout-ms', '100', '--poll-ms', '10',
+      ]);
+      if (supplied === wrong) {
+        await assert.rejects(collect(), /row_nonce_fingerprint mismatch/);
+      } else {
+        const { stdout } = await collect();
+        const result = JSON.parse(stdout);
+        const receipt = JSON.parse(
+          await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'),
+        );
+        assert.equal(receipt.rowBinding.nonceFingerprint, derived);
+      }
+    } finally {
+      await server.close();
+      await rm(fixture.dir, { recursive: true, force: true });
+    }
   }
 });
 
@@ -612,7 +926,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
     extraEvidence: {
       send_run_fingerprint: runFingerprint,
       terminal_run_fingerprint: runFingerprint,
-      wake_run_fingerprint: runFingerprint,
+      wake_run_fingerprint: 'f'.repeat(16),
       row_nonce_fingerprint: nonceFingerprint,
       accepted_send_trace_id: traceId,
       session_created: true,
@@ -624,9 +938,15 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       terminal_success_same_run: true,
       typed_delegate_success_same_run: true,
       wake_lifecycle_observed: true,
+      wake_session_bound: true,
       post_wake_quiet: true,
       channel_message_observed: false,
       dispatch_failure_observed: false,
+      dispatch_accepted_at_ms: 100,
+      dispatch_terminal_sentinel_at_ms: 200,
+      dispatch_lifecycle_end_at_ms: 300,
+      wake_lifecycle_at_ms: 400,
+      post_wake_quiet_at_ms: 500,
     },
   });
   const server = await listen((request, response) => {
@@ -648,6 +968,24 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
     const resolved = resolveRcd2AuthoritativeReceipt({
       evidence,
       correlation,
+      identity: {
+        schema: 'openclaw.k6.r-cd-2-authority-identity.v1',
+        candidateSha: '1'.repeat(40),
+        runtimeBuildSha: '1'.repeat(40),
+        docsRef: '3'.repeat(40),
+        repository: 'karmaterminal/karmaterminal-openclaw-docs',
+        seat: 'cael-prince',
+        matrixId: '20260905T032057Z-333333333333-deadbeef',
+        runId: path.basename(fixture.dir),
+        row: 'R-CD-2',
+        scenario: 'r-cd-2-silent-wake.js',
+        harness: {
+          manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+          manifestSha256: '4'.repeat(64),
+          scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+          scenarioSha256: '5'.repeat(64),
+        },
+      },
       signingKey: 'collector-shaped-r-cd-2-test-key',
     });
     assert.equal(resolved.verdict, 'PASS-candidate');
@@ -1480,7 +1818,7 @@ test('retries until the matched trace has complete continuation topology', async
       '--timeout-ms', '500',
       '--poll-ms', '10',
     ]);
-    assert.equal(traceFetches, 2);
+    assert.equal(traceFetches, 3);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

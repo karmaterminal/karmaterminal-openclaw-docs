@@ -2,6 +2,10 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
+import {
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\n`;
@@ -61,6 +65,7 @@ function classifyPending(row, receipt) {
 
 async function loadRows(root) {
   const candidateFiles = await walk(root, new Set(['candidate-run-result.json']));
+  const candidateDirs = new Set(candidateFiles.map((file) => path.dirname(file)));
   const files = await walk(root, new Set(['run-result.json']));
   const rows = [];
   for (const file of candidateFiles.sort()) {
@@ -98,14 +103,57 @@ async function loadRows(root) {
       readJson(path.join(dir, 'runner-metadata.json')).catch(() => null),
       readJson(file),
     ]);
-    if (candidateEnvelopeMatchesSiblings({ envelope: candidate, manifest, metadata, runResult: raw, runDir: dir })) continue;
-    const pendingReceipts = asArray(raw.review?.pendingReceipts);
-    const rowId = raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
+    const candidateValid = candidateEnvelopeMatchesSiblings({
+      envelope: candidate,
+      manifest,
+      metadata,
+      runResult: raw,
+      runDir: dir,
+    });
+    if (candidateValid) continue;
+    const rCd2Required = isRcd2AuthorityRequired({
+      root,
+      runDir: dir,
+      envelope: candidate,
+      manifest,
+      metadata,
+      runResult: raw,
+    });
+    let authorityInvalid = false;
+    if (rCd2Required) {
+      try {
+        consumeRcd2Authority({
+          root,
+          runDir: dir,
+          envelope: candidate,
+          manifest,
+          metadata,
+          runResult: raw,
+        });
+      } catch {
+        authorityInvalid = true;
+      }
+    }
+    const invalidCandidateSidecar = rCd2Required && candidateDirs.has(dir) && !candidateValid;
+    if (invalidCandidateSidecar) authorityInvalid = true;
+    const pendingReceipts = [...asArray(raw.review?.pendingReceipts)];
+    if (
+      invalidCandidateSidecar &&
+      !pendingReceipts.includes('candidate-run-result-invalid')
+    ) {
+      pendingReceipts.push('candidate-run-result-invalid');
+    }
+    if (authorityInvalid && !pendingReceipts.includes('r-cd-2-authority-context')) {
+      pendingReceipts.push('r-cd-2-authority-context');
+    }
+    const rowId = rCd2Required ? 'R-CD-2' : raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
     const traceId = raw.observability?.traceId || raw.traceId || null;
     rows.push({
       rowId,
       file: path.relative(root, file),
-      reviewStatus: raw.review?.status || (pendingReceipts.length ? 'review-pending' : 'ready-for-human-review'),
+      reviewStatus: authorityInvalid
+        ? 'review-pending'
+        : raw.review?.status || (pendingReceipts.length ? 'review-pending' : 'ready-for-human-review'),
       pendingReceipts,
       traceId,
       pending: pendingReceipts.map((receipt) => classifyPending({ traceId }, receipt)),

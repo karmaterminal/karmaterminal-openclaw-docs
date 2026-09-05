@@ -62,3 +62,19 @@ test('terminal lifecycle success uses the documented explicit allowlist', async 
     data: { phase: 'end', status: 'ok', replayInvalid: true },
   }), true);
 });
+
+test('terminal lifecycle success does not fall back to a top-level status', async (t) => {
+  for (const [name, data] of [
+    ['missing nested status', { phase: 'end' }],
+    ['null nested status', { phase: 'end', status: null }],
+  ]) {
+    await t.test(name, () => {
+      assert.equal(gatewayLifecycleSucceeded({
+        runId: 'send-run-1',
+        stream: 'lifecycle',
+        data,
+        status: 'ok',
+      }), false);
+    });
+  }
+});

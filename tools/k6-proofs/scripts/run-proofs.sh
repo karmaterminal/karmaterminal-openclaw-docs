@@ -465,11 +465,13 @@ exec_sha256() {
 assert_row_bytes_frozen() {
   local row="$1"
   local phase="$2"
+  local require_scenario="${3:-true}"
   local manifest_rel="${ROW_MANIFEST_RELPATH[$row]:-}"
   local scenario_rel="${ROW_SCENARIO_RELPATH[$row]:-}"
   local expected_manifest="${ROW_MANIFEST_SHA256[$row]:-}"
   local expected_scenario="${ROW_SCENARIO_SHA256[$row]:-}"
-  if [[ -z "$manifest_rel" || -z "$scenario_rel" || -z "$expected_manifest" || -z "$expected_scenario" ]]; then
+  if [[ -z "$manifest_rel" || -z "$expected_manifest" ||
+        ( "$require_scenario" == "true" && ( -z "$scenario_rel" || -z "$expected_scenario" ) ) ]]; then
     fail_harness \
       "harness-identity" \
       "row $row has no frozen manifest/scenario digest bound to the approved docs ref" \
@@ -477,9 +479,13 @@ assert_row_bytes_frozen() {
   fi
   local actual_manifest actual_scenario
   actual_manifest="$(exec_sha256 "$manifest_rel" || true)"
-  actual_scenario="$(exec_sha256 "$scenario_rel" || true)"
-  if [[ -z "$actual_manifest" || -z "$actual_scenario" ||
-        "$actual_manifest" != "$expected_manifest" || "$actual_scenario" != "$expected_scenario" ]]; then
+  actual_scenario=""
+  if [[ "$require_scenario" == "true" ]]; then
+    actual_scenario="$(exec_sha256 "$scenario_rel" || true)"
+  fi
+  if [[ -z "$actual_manifest" || "$actual_manifest" != "$expected_manifest" ||
+        ( "$require_scenario" == "true" &&
+          ( -z "$actual_scenario" || "$actual_scenario" != "$expected_scenario" ) ) ]]; then
     fail_harness \
       "harness-identity" \
       "row $row harness bytes changed after the approved docs ref was frozen; refusing to execute unapproved source" \
@@ -747,23 +753,34 @@ if [[ "$DRY_RUN" == "false" ]]; then
         "manifest '$BIND_MANIFEST' could not be read while binding row $BIND_ROW" \
         "$(jq -n --arg row "$BIND_ROW" --arg manifest "$BIND_MANIFEST" '{check:"manifest-readable", row:$row, manifest:$manifest}')"
     fi
-    [[ "$BIND_STATUS" == "runnable" ]] || continue
+    BIND_CLASSIFICATION="$(jq -r --arg row "$BIND_ROW" '.rows[] | select(.rowId == $row) | .classification' "$PRODUCER_PLAN_FILE")"
+    BIND_MANIFEST_REL="$PROOFS_TOOL_RELPATH/$BIND_MANIFEST"
+    BIND_PATHS=("$BIND_MANIFEST_REL")
     BIND_SCENARIO=""
-    if ! BIND_SCENARIO="$(jq -r '.scenario.file // .scenario.name // empty' "$BIND_MANIFEST" 2>/dev/null)"; then
+    if [[ "$BIND_CLASSIFICATION" != "process-local" ]]; then
+      [[ "$BIND_STATUS" == "runnable" ]] || continue
+      if ! BIND_SCENARIO="$(jq -r '.scenario.file // .scenario.name // empty' "$BIND_MANIFEST" 2>/dev/null)"; then
+        fail_harness \
+          "catalog-preflight" \
+          "manifest '$BIND_MANIFEST' could not be read while binding row $BIND_ROW" \
+          "$(jq -n --arg row "$BIND_ROW" --arg manifest "$BIND_MANIFEST" '{check:"manifest-readable", row:$row, manifest:$manifest}')"
+      fi
+      if [[ -z "$BIND_SCENARIO" || ! -f "scenarios/$BIND_SCENARIO" ]]; then
+        fail_harness \
+          "harness-identity" \
+          "row $BIND_ROW is runnable but its scenario file is missing from the harness tree" \
+          "$(jq -n --arg row "$BIND_ROW" --arg scenario "$BIND_SCENARIO" '{check:"scenario-present", row:$row, scenario:(if $scenario == "" then null else $scenario end)}')"
+      fi
+      BIND_SCENARIO_REL="$PROOFS_TOOL_RELPATH/scenarios/$BIND_SCENARIO"
+      BIND_PATHS+=("$BIND_SCENARIO_REL")
+    fi
+    if [[ -z "$BIND_CLASSIFICATION" ]]; then
       fail_harness \
         "catalog-preflight" \
-        "manifest '$BIND_MANIFEST' could not be read while binding row $BIND_ROW" \
-        "$(jq -n --arg row "$BIND_ROW" --arg manifest "$BIND_MANIFEST" '{check:"manifest-readable", row:$row, manifest:$manifest}')"
+        "producer plan has no classification for row $BIND_ROW" \
+        "$(jq -n --arg row "$BIND_ROW" '{check:"producer-classification-present", row:$row}')"
     fi
-    if [[ -z "$BIND_SCENARIO" || ! -f "scenarios/$BIND_SCENARIO" ]]; then
-      fail_harness \
-        "harness-identity" \
-        "row $BIND_ROW is runnable but its scenario file is missing from the harness tree" \
-        "$(jq -n --arg row "$BIND_ROW" --arg scenario "$BIND_SCENARIO" '{check:"scenario-present", row:$row, scenario:(if $scenario == "" then null else $scenario end)}')"
-    fi
-    BIND_MANIFEST_REL="$PROOFS_TOOL_RELPATH/$BIND_MANIFEST"
-    BIND_SCENARIO_REL="$PROOFS_TOOL_RELPATH/scenarios/$BIND_SCENARIO"
-    for BIND_PATH in "$BIND_MANIFEST_REL" "$BIND_SCENARIO_REL"; do
+    for BIND_PATH in "${BIND_PATHS[@]}"; do
       BIND_TRACKED=""
       BIND_TRACKED="$(tracked_blob_sha256 "$BIND_PATH" || true)"
       if [[ -z "$BIND_TRACKED" ]]; then
@@ -1002,7 +1019,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       export_run_metrics "$ROW_ID" "$PROCESS_RUN_DIR"
       continue
     fi
-    assert_row_bytes_frozen "$ROW_ID" "pre-process-local-execution"
+    assert_row_bytes_frozen "$ROW_ID" "pre-process-local-execution" false
     ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
     set +e
     node "$CATALOG_PRODUCER_RUNNER" \

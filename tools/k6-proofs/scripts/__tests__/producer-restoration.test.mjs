@@ -494,6 +494,50 @@ test('delegate-child lineage fails without the parent delegate flow', async () =
   assert.ok(result.failures.some((failure) => failure.includes('parent-owned delegate flow')));
 });
 
+test('delegate-child lineage renders the exact delegated task placeholders', async () => {
+  const manifest = await json('manifests/r-cw-delegate-child-live.json');
+  const evidence = {
+    nonce: 'NONCE',
+    parent_session_key: 'parent-session',
+    parent_run_id: 'parent-run',
+    delegate_flow_id: 'delegate-flow',
+    child_session_key: 'child-session',
+    child_initial_run_id: 'child-run',
+  };
+  const reason = manifest.invocation.reason.replaceAll('{{nonce}}', evidence.nonce);
+  const childTask = manifest.invocation.promptTemplate
+    .replaceAll('{{nonce}}', evidence.nonce)
+    .replaceAll('{{reason}}', reason)
+    .replaceAll('{{delaySeconds}}', String(manifest.invocation.cwDelaySeconds));
+  const result = validateLineage({
+    row: 'R-CW-DELEGATE-CHILD-LIVE',
+    evidence,
+    manifest,
+    flows: [{
+      flowId: evidence.delegate_flow_id,
+      controllerId: 'core/continuation-delegate',
+      ownerKey: evidence.parent_session_key,
+      status: 'succeeded',
+      stateJson: {
+        task: childTask,
+        originRunId: evidence.parent_run_id,
+        childSessionKey: evidence.child_session_key,
+      },
+    }, {
+      flowId: 'work-flow',
+      controllerId: 'core/continuation-work',
+      ownerKey: evidence.child_session_key,
+      status: 'succeeded',
+      stateJson: {
+        reason,
+        originRunId: evidence.child_initial_run_id,
+        disposition: 'granted',
+      },
+    }],
+  });
+  assert.equal(result.ok, true);
+});
+
 test('restored source does not import return-covenant implementation or corpus artifacts', async () => {
   const files = [
     'qualification/producer-catalog.json',

@@ -14,13 +14,17 @@ export function compactTaskIdentityToken(prefix, rowNonce) {
   return `${prefix}:${rowNonce.slice(-TASK_IDENTITY_NONCE_SUFFIX_CHARS)}`;
 }
 
-export function renderRowTaskTemplate(template, rowNonce) {
+export function renderRowTaskTemplate(template, rowNonce, replacements = {}) {
   if (typeof template !== 'string' || typeof rowNonce !== 'string' || rowNonce.length === 0) {
     return null;
   }
-  return template
+  let rendered = template
     .replaceAll('{{nonceSuffix16}}', rowNonce.slice(-TASK_IDENTITY_NONCE_SUFFIX_CHARS))
     .replaceAll('{{nonce}}', rowNonce);
+  for (const [name, value] of Object.entries(replacements)) {
+    rendered = rendered.replaceAll(`{{${name}}}`, String(value));
+  }
+  return rendered;
 }
 
 function directTaskIdentityValues(record) {

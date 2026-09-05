@@ -6,6 +6,10 @@ import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import {
+  rCd2AuthorityIdentity,
+  resolveRcd2AuthoritativeReceipt,
+} from '../../lib/r-cd-2-authoritative-receipt.mjs';
 import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
 
@@ -594,6 +598,120 @@ test('refuses output outside the candidate directory', async () => {
     );
   } finally {
     await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 candidate envelope rejects a signed receipt copied from another seat', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'candidate-rcd2-'));
+  const candidateDir = path.join(root, 'candidate');
+  await mkdir(candidateDir);
+  const manifestPath = path.join(root, 'manifest.json');
+  const rcd2Manifest = {
+    schema: 'openclaw.k6.proof-row-manifest.v1',
+    rowId: 'R-CD-2',
+    candidateSha: sha,
+    scenario: { name: 'r-cd-2-silent-wake' },
+    review: { candidateOnly: true, foldRequiresReview: true },
+    liveRunSafety: { expectedArtifactClass: 'PASS-candidate' },
+  };
+  const manifestBody = `${JSON.stringify(rcd2Manifest, null, 2)}\n`;
+  const metadata = {
+    row: 'R-CD-2',
+    candidateSha: sha,
+    runtimeBuildSha: sha,
+    seat: 'ronan-dgx',
+    scenario: 'r-cd-2-silent-wake.js',
+    matrixId: '20260905T032057Z-bbbbbbbbbbbb-deadbeef',
+    ...harnessMetadata({ manifestBody, rowFile: 'r-cd-2' }),
+  };
+  const nonce = 'R-CD-2-candidate-envelope';
+  const nonceFingerprint = createHash('sha256').update(nonce).digest('hex').slice(0, 16);
+  const runFingerprint = '1'.repeat(16);
+  const traceId = '2'.repeat(32);
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    identity: rCd2AuthorityIdentity(metadata, path.basename(candidateDir)),
+    evidence: {
+      nonce,
+      session_created: true,
+      session_unbound_confirmed: true,
+      send_accepted: true,
+      send_run_captured: true,
+      dispatch_terminal_sentinel_observed: true,
+      dispatch_terminal_sentinel_same_run_window: true,
+      terminal_success_same_run: true,
+      typed_delegate_success_same_run: true,
+      wake_lifecycle_observed: true,
+      post_wake_quiet: true,
+      channel_message_observed: false,
+      dispatch_failure_observed: false,
+      send_run_fingerprint: runFingerprint,
+      terminal_run_fingerprint: runFingerprint,
+      wake_run_fingerprint: '3'.repeat(16),
+      row_nonce_fingerprint: nonceFingerprint,
+      accepted_send_trace_id: traceId,
+      dispatch_accepted_at_ms: 100,
+      dispatch_terminal_sentinel_at_ms: 200,
+      dispatch_lifecycle_end_at_ms: 300,
+      wake_lifecycle_at_ms: 400,
+      post_wake_quiet_at_ms: 500,
+    },
+    correlation: {
+      continuation: { tool: 'continue_delegate' },
+      delegate: { mode: 'silent-wake' },
+      sameTrace: true,
+      sameChain: true,
+      toolSpanIds: ['4'.repeat(16)],
+      resultClass: 'unique',
+      traceId,
+      chainId: 'public-chain',
+      dispatchSpanId: '5'.repeat(16),
+      fireSpanId: '6'.repeat(16),
+      rowBinding: {
+        acceptedSendRunFingerprint: runFingerprint,
+        nonceFingerprint,
+        acceptedSendTraceId: traceId,
+        acceptedSendTraceSource: 'sessions-send-response',
+      },
+    },
+    signingKey: gatewayKey,
+  });
+  const receiptRaw = `${JSON.stringify(receipt, null, 2)}\n`;
+  await writeFile(manifestPath, manifestBody);
+  await writeHarnessSources(candidateDir, manifestBody);
+  await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
+  await writeFile(path.join(candidateDir, 'r-cd-2-authoritative-receipt.json'), receiptRaw);
+  await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify({
+    effectiveExitCode: 0,
+    verdict: 'PASS-candidate',
+    verdictSource: 'r-cd-2-authoritative-receipt',
+    candidateOnly: true,
+    foldRequiresReview: true,
+    authoritativeReceipt: {
+      file: 'r-cd-2-authoritative-receipt.json',
+      sha256: digest(receiptRaw),
+      validated: true,
+      source: 'r-cd-2-row-scoped-resolver',
+    },
+    observability: {
+      traceStatus: 'present',
+      traceId,
+      correlationReceipt: 'continuation-trace-correlation.json',
+    },
+    review: { status: 'ready-for-human-review', pendingReceipts: [] },
+  }, null, 2)}\n`);
+
+  try {
+    await invoke({ manifestPath, candidateDir });
+    await writeFile(
+      path.join(candidateDir, 'runner-metadata.json'),
+      `${JSON.stringify({ ...metadata, seat: 'other-seat' })}\n`,
+    );
+    await assert.rejects(
+      invoke({ manifestPath, candidateDir }),
+      /R-CD-2 authoritative receipt invalid: identity-mismatch/,
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
 

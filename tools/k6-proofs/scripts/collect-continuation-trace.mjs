@@ -21,7 +21,8 @@ function usage() {
   console.error(`Usage: node collect-continuation-trace.mjs \\
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
-  [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000]`);
+  [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000] \\
+  [--settle-ms <defaults-to-poll-ms>]`);
 }
 
 function parseArgs(argv, env = process.env) {
@@ -35,10 +36,11 @@ function parseArgs(argv, env = process.env) {
     // as missing its originating tool span.
     timeoutMs: 180000,
     pollMs: 2000,
+    settleMs: null,
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -48,6 +50,7 @@ function parseArgs(argv, env = process.env) {
   }
   out.timeoutMs = Number(out.timeoutMs);
   out.pollMs = Number(out.pollMs);
+  out.settleMs = out.settleMs == null ? out.pollMs : Number(out.settleMs);
   return out;
 }
 
@@ -444,8 +447,9 @@ async function main() {
     return;
   }
   if (!Number.isFinite(args.timeoutMs) || args.timeoutMs < 0 ||
-      !Number.isFinite(args.pollMs) || args.pollMs < 1) {
-    throw new Error('timeout and poll values must be positive numbers');
+      !Number.isFinite(args.pollMs) || args.pollMs < 1 ||
+      !Number.isFinite(args.settleMs) || args.settleMs < 1) {
+    throw new Error('timeout must be non-negative and poll/settle values must be positive numbers');
   }
 
   const runDir = path.resolve(args.runDir);
@@ -495,9 +499,17 @@ async function main() {
   let trace = null;
   let topology = null;
   let validationError = null;
+  let searchQueryCount = 0;
+  let stabilizationQueryCount = 0;
+  let finalQueryCount = 0;
+
+  const search = async () => {
+    searchQueryCount += 1;
+    return tempoSearch(args.tempoUrl, query, start, end);
+  };
 
   do {
-    candidates = await tempoSearch(args.tempoUrl, query, start, end);
+    candidates = await search();
     if (candidates.length > 1) {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
@@ -535,6 +547,63 @@ async function main() {
       : `tool ${contract.tool} in the evidence window`;
     throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
   }
+
+  const provisionalTraceId = traceId;
+  const stabilizationDeadline = Date.now() + args.settleMs;
+  while (Date.now() < stabilizationDeadline) {
+    await sleep(Math.min(args.pollMs, stabilizationDeadline - Date.now()));
+    candidates = await search();
+    stabilizationQueryCount += 1;
+    if (candidates.length !== 1) {
+      throw new Error(
+        candidates.length > 1
+          ? `trace correlation is ambiguous: ${candidates.length} Tempo traces matched`
+          : 'trace correlation candidate set changed during stabilization: no traces matched',
+      );
+    }
+    const stableTraceId = safeHex(
+      candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
+      32,
+      'search trace id',
+    );
+    if (stableTraceId !== provisionalTraceId) {
+      throw new Error('trace correlation candidate set changed during stabilization');
+    }
+  }
+
+  candidates = await search();
+  finalQueryCount += 1;
+  if (candidates.length !== 1) {
+    throw new Error(
+      candidates.length > 1
+        ? `trace correlation is ambiguous: ${candidates.length} Tempo traces matched`
+        : 'final trace correlation query found no matching Tempo trace',
+    );
+  }
+  traceId = safeHex(
+    candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
+    32,
+    'search trace id',
+  );
+  if (traceId !== provisionalTraceId) {
+    throw new Error('trace correlation candidate set changed before finality');
+  }
+  trace = await fetchTrace(args.tempoUrl, traceId);
+  topology = contract.kind === 'continuation'
+    ? validateTrace(trace, {
+        tool: contract.tool,
+        reasonHash: contract.hash,
+        reasonLength: contract.length,
+        mode: contract.mode,
+        acceptSpanName: contract.acceptSpanName,
+        fireSpanName: contract.fireSpanName,
+        originSurface: contract.originSurface,
+      })
+    : validateToolTrace(trace, { tool: contract.tool });
+  if (topology.traceId !== traceId) {
+    throw new Error('Tempo final search and trace payload IDs disagree');
+  }
+
   assertTraceIsPublicSafe(trace, evidence, contract);
   const publicTrace = contract.kind === 'continuation'
     ? projectScopedContinuationTrace(trace, traceId, topology)
@@ -561,6 +630,13 @@ async function main() {
       endUnixSeconds: end,
       paddingSeconds: CORRELATION_WINDOW_PADDING_SECONDS,
       source: Number.isFinite(evidenceEndMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
+    },
+    stabilization: {
+      ingestionSettleMs: args.settleMs,
+      pollIntervalMs: args.pollMs,
+      searchQueryCount,
+      stabilizationQueryCount,
+      finalQueryCount,
     },
     traceJson: path.basename(traceOut),
     ...topology,

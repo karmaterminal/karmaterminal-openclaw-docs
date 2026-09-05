@@ -347,10 +347,13 @@ export default function () {
               if (!sameRun) evidence.send_run_mismatch = true;
               else if (!gatewayLifecycleSucceeded(eventData)) {
                 evidence.dispatch_failure_observed = true;
-                evidence.failureCategory = eventData.data?.replayInvalid === true
-                  ? 'delegate-replay-unsafe' : 'provider-or-turn-failure';
+                evidence.failureCategory = 'provider-or-turn-failure';
               } else {
                 evidence.send_run_success_end_observed = true;
+                if (eventData.data?.replayInvalid === true) {
+                  evidence.replay_invalid_observed = true;
+                  evidence.failureCategory = 'delegate-replay-unsafe';
+                }
                 maybeRecordDispatchTerminalSuccess();
               }
             }

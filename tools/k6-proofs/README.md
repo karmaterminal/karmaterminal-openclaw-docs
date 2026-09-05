@@ -317,9 +317,13 @@ as `tempo-trace-<trace>.json`; raw Tempo/OTLP responses are never public proof a
 For trace-required tool rows whose primary `trace_id` is null, the collector
 instead searches by seat service, tool fingerprint, and an evidence-derived
 bounded dispatch window. It accepts exactly one candidate, fails closed on
-zero or multiple candidates, and saves a public-safe projection containing
-only proof topology plus allowlisted telemetry attributes, together with a
-deterministic correlation receipt containing the exact query window. Fetch or
+zero or multiple candidates, and treats the first complete trace as provisional.
+After the bounded ingestion-settle interval (`--settle-ms`, defaulting to the
+poll interval), it performs a final uniqueness search and rejects trace-set
+churn. The public-safe correlation receipt records the settle/poll intervals
+and search counts alongside the exact query window. It saves a public-safe
+projection containing only proof topology plus allowlisted telemetry
+attributes. Fetch or
 correlation failures are kept non-fatal by default and leave
 `tempo-trace-json` review-pending. Set `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true`
 only when a missing trace JSON should fail the run.
@@ -333,6 +337,9 @@ and validates that the originating `continue_delegate` tool span plus
 distinct IDs and one chain. The public-safe trace projection and
 `continuation-trace-correlation.json` are saved beside the row artifacts; raw
 task text and `traceparent` are not persisted in the correlation receipt.
+R-CD-2 additionally signs the full candidate/runtime/docs/seat/matrix/run and
+harness-source identity into its authority receipt; candidate-envelope
+validation requires every identity field to match the enclosing run metadata.
 
 Portable endpoint env vars for reviewer/fork runs:
 

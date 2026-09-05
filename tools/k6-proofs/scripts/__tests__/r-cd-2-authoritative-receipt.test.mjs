@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import {
-  resolveRcd2AuthoritativeReceipt,
+  resolveRcd2AuthoritativeReceipt as resolveRcd2AuthoritativeReceiptRaw,
   validateRcd2AuthoritativeReceipt,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 
@@ -39,6 +39,10 @@ const authorityIdentity = {
     scenarioSha256: '5'.repeat(64),
   },
 };
+const resolveRcd2AuthoritativeReceipt = (input) => resolveRcd2AuthoritativeReceiptRaw({
+  identity: authorityIdentity,
+  ...input,
+});
 
 function evidence(overrides = {}) {
   return {
@@ -86,6 +90,7 @@ function canonical(receipt) {
     authoritativeSource: receipt.authoritativeSource,
     candidateOnly: receipt.candidateOnly,
     foldRequiresReview: receipt.foldRequiresReview,
+    identity: receipt.identity,
     verdict: receipt.verdict,
     failureCategory: receipt.failureCategory || null,
     lifecycle: receipt.lifecycle || null,
@@ -143,6 +148,13 @@ test('R-CD-2 signed authority cannot be replayed across enclosing run identities
       { valid: false, reason: 'identity-mismatch' },
       key,
     );
+    const tampered = structuredClone(first);
+    tampered.identity = changedIdentity;
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(tampered, signingKey, changedIdentity),
+      { valid: false, reason: 'invalid-integrity' },
+      `${key} post-sign mutation`,
+    );
   }
 
   for (const [key, value] of [
@@ -167,10 +179,25 @@ test('R-CD-2 signed authority cannot be replayed across enclosing run identities
       { valid: false, reason: 'identity-mismatch' },
       `harness.${key}`,
     );
+    const tampered = structuredClone(first);
+    tampered.identity = changedIdentity;
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(tampered, signingKey, changedIdentity),
+      { valid: false, reason: 'invalid-integrity' },
+      `harness.${key} post-sign mutation`,
+    );
   }
 
   assert.deepEqual(first.identity, authorityIdentity);
   assert.deepEqual(Object.keys(first.identity).sort(), Object.keys(authorityIdentity).sort());
+
+  const oldReceipt = structuredClone(first);
+  delete oldReceipt.identity;
+  resign(oldReceipt);
+  assert.deepEqual(
+    validateRcd2AuthoritativeReceipt(oldReceipt, signingKey, authorityIdentity),
+    { valid: false, reason: 'invalid-shape' },
+  );
 });
 
 test('R-CD-2 binds a trace-less sessions.send through one unique nonce-reason trace', () => {
@@ -306,6 +333,8 @@ test('R-CD-2 rejects unsigned and signed receipt extension fields by exact shape
   for (const mutate of [
     (receipt) => { receipt.binding.unsigned = true; },
     (receipt) => { receipt.integrity.unsigned = true; },
+    (receipt) => { receipt.identity.unsigned = true; },
+    (receipt) => { receipt.identity.harness.unsigned = true; },
     (receipt) => { receipt.lifecycle.unsigned = true; },
     (receipt) => { receipt.diagnostics.lifecycle.unsigned = true; },
   ]) {

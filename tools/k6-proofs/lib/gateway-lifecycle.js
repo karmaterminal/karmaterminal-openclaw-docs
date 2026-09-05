@@ -21,8 +21,8 @@ export function gatewayLifecyclePhase(value) {
 
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
-  const status = String(value.data?.status || value.status || '').toLowerCase();
-  return !['error', 'failed', 'failure', 'aborted'].includes(status) && value.data?.replayInvalid !== true;
+  const status = value.data?.status ?? value.status;
+  return typeof status === 'string' && status.toLowerCase() === 'ok';
 }
 
 export function gatewayWakeRunId(value, acceptedRunId) {

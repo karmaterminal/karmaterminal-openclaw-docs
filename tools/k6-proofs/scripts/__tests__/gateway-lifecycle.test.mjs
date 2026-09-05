@@ -30,6 +30,8 @@ test('terminal lifecycle success uses the documented explicit allowlist', async 
     ['undefined', undefined, false],
     ['null', null, false],
     ['empty', '', false],
+    ['object', {}, false],
+    ['array', ['ok'], false],
     ['cancelled', 'cancelled', false],
     ['timeout', 'timeout', false],
     ['rejected', 'rejected', false],
@@ -37,8 +39,11 @@ test('terminal lifecycle success uses the documented explicit allowlist', async 
     ['failed', 'failed', false],
     ['failure', 'failure', false],
     ['aborted', 'aborted', false],
+    ['completed', 'completed', false],
+    ['success', 'success', false],
     ['unknown', 'future-terminal-status', false],
     ['ok', 'ok', true],
+    ['uppercase ok', 'OK', true],
   ];
   for (const [name, status, expected] of cases) {
     await t.test(name, () => {

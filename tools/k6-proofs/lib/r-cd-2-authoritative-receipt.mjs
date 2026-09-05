@@ -9,6 +9,7 @@ import {
 // acquisition data; this module joins it with the private Tempo topology and
 // emits the only public-safe receipt allowed to promote a candidate verdict.
 export const R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-2-authoritative-receipt.v1';
+export const R_CD_2_AUTHORITY_IDENTITY_SCHEMA = 'openclaw.k6.r-cd-2-authority-identity.v1';
 
 const FAILURE_CATEGORIES = new Set([
   'missing-send-run-lifecycle',
@@ -46,7 +47,7 @@ const TOPOLOGY_DIAGNOSTIC_KEYS = [
 const JOIN_DIAGNOSTIC_KEYS = ['acceptedTrace', 'acceptedRun', 'rowNonce'];
 const RECEIPT_BASE_KEYS = [
   'authoritativeSource', 'binding', 'candidateOnly', 'diagnostics',
-  'foldRequiresReview', 'integrity', 'row', 'schema', 'verdict',
+  'foldRequiresReview', 'identity', 'integrity', 'row', 'schema', 'verdict',
 ];
 const PASS_LIFECYCLE_KEYS = [
   'acceptedSendRunFingerprint', 'acceptedSendTraceFingerprint',
@@ -60,6 +61,20 @@ const PASS_LIFECYCLE_KEYS = [
 ];
 const BINDING_KEYS = ['localEvidenceFingerprint', 'topologyFingerprint'];
 const INTEGRITY_KEYS = ['algorithm', 'signature'];
+const IDENTITY_KEYS = [
+  'candidateSha', 'docsRef', 'harness', 'matrixId', 'repository', 'row',
+  'runId', 'runtimeBuildSha', 'scenario', 'schema', 'seat',
+];
+const HARNESS_IDENTITY_KEYS = [
+  'manifestPath', 'manifestSha256', 'scenarioPath', 'scenarioSha256',
+];
+const SHA = /^[0-9a-f]{40}$/;
+const DIGEST = /^[0-9a-f]{64}$/;
+const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const PUBLIC_ID = /^[A-Za-z0-9._:-]+$/;
+const SCENARIO_NAME = /^[A-Za-z0-9._-]+\.js$/;
+const MANIFEST_PATH = /^tools\/k6-proofs\/manifests\/[A-Za-z0-9._-]+\.json$/;
+const SCENARIO_PATH = /^tools\/k6-proofs\/scenarios\/[A-Za-z0-9._-]+\.js$/;
 
 const hex = (value, length) => typeof value === 'string' && new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
 const fingerprint = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
@@ -74,6 +89,27 @@ function derivedNonceFingerprint(evidence) {
     : null;
 }
 
+function canonicalIdentity(identity) {
+  return {
+    schema: identity?.schema,
+    candidateSha: identity?.candidateSha,
+    runtimeBuildSha: identity?.runtimeBuildSha,
+    docsRef: identity?.docsRef,
+    repository: identity?.repository,
+    seat: identity?.seat,
+    matrixId: identity?.matrixId,
+    runId: identity?.runId,
+    row: identity?.row,
+    scenario: identity?.scenario,
+    harness: {
+      manifestPath: identity?.harness?.manifestPath,
+      manifestSha256: identity?.harness?.manifestSha256,
+      scenarioPath: identity?.harness?.scenarioPath,
+      scenarioSha256: identity?.harness?.scenarioSha256,
+    },
+  };
+}
+
 function canonical(receipt) {
   return JSON.stringify({
     schema: receipt.schema,
@@ -81,12 +117,57 @@ function canonical(receipt) {
     authoritativeSource: receipt.authoritativeSource,
     candidateOnly: receipt.candidateOnly,
     foldRequiresReview: receipt.foldRequiresReview,
+    identity: canonicalIdentity(receipt.identity),
     verdict: receipt.verdict,
     failureCategory: receipt.failureCategory || null,
     lifecycle: receipt.lifecycle || null,
     diagnostics: receipt.diagnostics,
     binding: receipt.binding,
   });
+}
+
+function validAuthorityIdentity(identity) {
+  return exactKeys(identity, IDENTITY_KEYS) &&
+    identity.schema === R_CD_2_AUTHORITY_IDENTITY_SCHEMA &&
+    SHA.test(identity.candidateSha || '') &&
+    SHA.test(identity.runtimeBuildSha || '') &&
+    SHA.test(identity.docsRef || '') &&
+    REPOSITORY.test(identity.repository || '') &&
+    PUBLIC_ID.test(identity.seat || '') &&
+    PUBLIC_ID.test(identity.matrixId || '') &&
+    PUBLIC_ID.test(identity.runId || '') &&
+    identity.row === 'R-CD-2' &&
+    SCENARIO_NAME.test(identity.scenario || '') &&
+    exactKeys(identity.harness, HARNESS_IDENTITY_KEYS) &&
+    MANIFEST_PATH.test(identity.harness.manifestPath || '') &&
+    DIGEST.test(identity.harness.manifestSha256 || '') &&
+    SCENARIO_PATH.test(identity.harness.scenarioPath || '') &&
+    DIGEST.test(identity.harness.scenarioSha256 || '');
+}
+
+export function rCd2AuthorityIdentity(metadata, runId) {
+  const identity = {
+    schema: R_CD_2_AUTHORITY_IDENTITY_SCHEMA,
+    candidateSha: metadata?.candidateSha,
+    runtimeBuildSha: metadata?.runtimeBuildSha,
+    docsRef: metadata?.docsRef,
+    repository: metadata?.repository,
+    seat: metadata?.seat,
+    matrixId: metadata?.matrixId,
+    runId,
+    row: metadata?.row,
+    scenario: metadata?.scenario,
+    harness: {
+      manifestPath: metadata?.manifestPath,
+      manifestSha256: metadata?.manifestSha256,
+      scenarioPath: metadata?.scenarioPath,
+      scenarioSha256: metadata?.scenarioSha256,
+    },
+  };
+  if (!validAuthorityIdentity(identity)) {
+    throw new Error('R-CD-2 authority identity is missing or malformed');
+  }
+  return identity;
 }
 
 function seal(receipt, key) {
@@ -266,7 +347,10 @@ function categoryFor(evidence, correlation, diagnostics) {
   throw new Error('R-CD-2 failure category requested with no failed authority gate');
 }
 
-export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signingKey }) {
+export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identity, signingKey }) {
+  if (!validAuthorityIdentity(identity)) {
+    throw new Error('R-CD-2 authority identity is missing or malformed');
+  }
   const diagnostics = rCd2AuthorityChecks(evidence, correlation);
   const base = {
     schema: R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA,
@@ -274,6 +358,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
     authoritativeSource: 'r-cd-2-row-scoped-resolver',
     candidateOnly: true,
     foldRequiresReview: true,
+    identity: canonicalIdentity(identity),
     diagnostics,
     binding: {
       localEvidenceFingerprint: binding({
@@ -347,7 +432,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
   }, signingKey);
 }
 
-export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
+export function validateRcd2AuthoritativeReceipt(receipt, signingKey, expectedIdentity) {
   const isPass = receipt?.verdict === 'PASS-candidate';
   const expectedTopLevel = isPass
     ? [...RECEIPT_BASE_KEYS, 'lifecycle']
@@ -356,12 +441,19 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey) {
       (isPass && !exactKeys(receipt.lifecycle, PASS_LIFECYCLE_KEYS)) ||
       receipt.schema !== R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA || receipt.row !== 'R-CD-2' ||
       receipt.authoritativeSource !== 'r-cd-2-row-scoped-resolver' || receipt.candidateOnly !== true ||
-      receipt.foldRequiresReview !== true || !exactKeys(receipt.binding, BINDING_KEYS) ||
+      receipt.foldRequiresReview !== true || !validAuthorityIdentity(receipt.identity) ||
+      !exactKeys(receipt.binding, BINDING_KEYS) ||
       !hex(receipt.binding?.localEvidenceFingerprint, 64) ||
       !hex(receipt.binding?.topologyFingerprint, 64) || !validDiagnostics(receipt.diagnostics) ||
       !exactKeys(receipt.integrity, INTEGRITY_KEYS) ||
       receipt.integrity.algorithm !== GATEWAY_HMAC_RECEIPT_ALGORITHM ||
       !hex(receipt.integrity?.signature, 64)) return { valid: false, reason: 'invalid-shape' };
+  if (expectedIdentity !== undefined &&
+      (!validAuthorityIdentity(expectedIdentity) ||
+       JSON.stringify(canonicalIdentity(receipt.identity)) !==
+         JSON.stringify(canonicalIdentity(expectedIdentity)))) {
+    return { valid: false, reason: 'identity-mismatch' };
+  }
   if (!validateSignedObserverReceiptIntegrity({
     receipt,
     signingKey,

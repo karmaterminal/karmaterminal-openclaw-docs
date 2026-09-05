@@ -235,6 +235,11 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
     assert.equal(receipt.reason.source, 'manifest-nonce');
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
+    assert.equal(receipt.stabilization.ingestionSettleMs, 10);
+    assert.equal(receipt.stabilization.pollIntervalMs, 10);
+    assert.ok(receipt.stabilization.searchQueryCount >= 2);
+    assert.ok(receipt.stabilization.stabilizationQueryCount >= 1);
+    assert.equal(receipt.stabilization.finalQueryCount, 1);
     assert.deepEqual(receipt.childSpans, [{
       name: 'openclaw.harness.run',
       spanId: 'eeeeeeeeeeeeeeee',
@@ -288,6 +293,82 @@ test('treats the first valid Tempo trace as provisional until uniqueness stabili
       },
     );
     assert.ok(searchCount >= 2);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('fails closed when the Tempo candidate set churns during stabilization', async () => {
+  const fixture = await fixtureDir();
+  const traceA = '19191919191919191919191919191919';
+  const traceB = '20202020202020202020202020202020';
+  let searchCount = 0;
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      searchCount += 1;
+      response.end(JSON.stringify({
+        traces: [{ traceID: searchCount === 1 ? traceA : traceB }],
+      }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({
+      traceId: traceA,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /candidate set changed during stabilization/);
+        return true;
+      },
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('fails closed when no Tempo trace appears before the bounded timeout', async () => {
+  const fixture = await fixtureDir();
+  let searchCount = 0;
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    searchCount += 1;
+    response.end(JSON.stringify({ traces: [] }));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '30',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /no Tempo trace matched .* before timeout/);
+        return true;
+      },
+    );
+    assert.ok(searchCount >= 1);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
@@ -756,6 +837,24 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
     const resolved = resolveRcd2AuthoritativeReceipt({
       evidence,
       correlation,
+      identity: {
+        schema: 'openclaw.k6.r-cd-2-authority-identity.v1',
+        candidateSha: '1'.repeat(40),
+        runtimeBuildSha: '2'.repeat(40),
+        docsRef: '3'.repeat(40),
+        repository: 'karmaterminal/karmaterminal-openclaw-docs',
+        seat: 'cael-prince',
+        matrixId: '20260905T032057Z-333333333333-deadbeef',
+        runId: path.basename(fixture.dir),
+        row: 'R-CD-2',
+        scenario: 'r-cd-2-silent-wake.js',
+        harness: {
+          manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+          manifestSha256: '4'.repeat(64),
+          scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+          scenarioSha256: '5'.repeat(64),
+        },
+      },
       signingKey: 'collector-shaped-r-cd-2-test-key',
     });
     assert.equal(resolved.verdict, 'PASS-candidate');
@@ -1588,7 +1687,7 @@ test('retries until the matched trace has complete continuation topology', async
       '--timeout-ms', '500',
       '--poll-ms', '10',
     ]);
-    assert.equal(traceFetches, 2);
+    assert.equal(traceFetches, 3);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

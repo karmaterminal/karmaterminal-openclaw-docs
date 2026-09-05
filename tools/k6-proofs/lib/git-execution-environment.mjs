@@ -1,8 +1,13 @@
 import { realpathSync } from 'node:fs';
 import path from 'node:path';
 
+export const TRUSTED_SYSTEM_PATH = '/usr/bin:/bin';
+
 export function withoutGitControlVariables(env = process.env) {
-  return Object.fromEntries(Object.entries(env).filter(([name]) => !name.startsWith('GIT_')));
+  return {
+    ...Object.fromEntries(Object.entries(env).filter(([name]) => !name.startsWith('GIT_'))),
+    PATH: TRUSTED_SYSTEM_PATH,
+  };
 }
 
 export function canonicalDirectory(directory) {

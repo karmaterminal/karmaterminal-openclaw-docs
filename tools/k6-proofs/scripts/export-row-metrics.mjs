@@ -17,7 +17,7 @@
  * raw events, or local private paths are emitted into metric labels.
  */
 import { readdir, readFile, rm } from 'node:fs/promises';
-import { publishArtifacts } from '../lib/atomic-artifacts.mjs';
+import { publishArtifacts, readPublishedArtifacts } from '../lib/atomic-artifacts.mjs';
 import { effectiveFailure, effectiveOutcome } from '../lib/effective-result.mjs';
 import { processTerminalValid, resolveProcessRowIdentity } from '../lib/process-terminal-authority.mjs';
 import path from 'node:path';
@@ -500,14 +500,19 @@ async function main() {
   const prom = prometheusText(samples);
 
   let push = null;
-  await publishArtifacts([
+  const generation = await publishArtifacts([
     ...(args['prometheus-out'] ? [[args['prometheus-out'], prom]] : []),
     ...(args['otlp-out'] ? [[args['otlp-out'], `${JSON.stringify(otlp, null, 2)}\n`]] : []),
   ]);
   if (args['push-otlp']) {
-    const publishedOtlp = args['otlp-out']
-      ? JSON.parse(await readFile(args['otlp-out'], 'utf8'))
-      : otlp;
+    let publishedOtlp = otlp;
+    if (args['otlp-out']) {
+      const file = path.resolve(args['otlp-out']);
+      const pinned = generation
+        ? await readPublishedArtifacts([file], generation)
+        : { artifacts: new Map([[file, await readFile(file)]]) };
+      publishedOtlp = JSON.parse(pinned.artifacts.get(file).toString('utf8'));
+    }
     push = await pushOtlp(args['push-otlp'], publishedOtlp);
   }
 

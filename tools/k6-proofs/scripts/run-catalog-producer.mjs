@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { readFileSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, realpathSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -78,6 +78,29 @@ try {
     if (result.status !== 0) throw new Error('product Git identity command failed');
     return result.stdout.trim();
   };
+  const trustedNode = realpathSync(process.execPath);
+  const runnerPath = path.resolve(repoRoot, argv[1]);
+  const runnerRelative = path.relative(repoRoot, runnerPath);
+  let committedRunnerDigest = null;
+  if (!args.prerequisite) {
+    if (runnerRelative.startsWith('..') || path.isAbsolute(runnerRelative)) {
+      throw new Error('catalog runner must be repository-owned');
+    }
+    const docsRoot = assertCanonicalGitCheckout(
+      process.env.OPENCLAW_PROOFS_ORIGIN_ROOT || repoRoot,
+      git,
+    );
+    if (git(docsRoot, ['rev-parse', 'HEAD']) !== args.docsSha) {
+      throw new Error('docs authority checkout is not the approved commit');
+    }
+    const committedRunner = spawnSync('git', ['-C', docsRoot, 'show',
+      `${args.docsSha}:${runnerRelative}`], { env: gitEnv });
+    if (committedRunner.status !== 0) throw new Error('catalog runner is absent from approved docs commit');
+    committedRunnerDigest = sha256(committedRunner.stdout);
+    if (sha256(readFileSync(runnerPath)) !== committedRunnerDigest) {
+      throw new Error('catalog runner does not match the approved docs commit');
+    }
+  }
   const productDir = assertCanonicalGitCheckout(args.productDir, git);
   const head = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD'], {
     encoding: 'utf8', env: gitEnv,
@@ -117,6 +140,7 @@ try {
   }
   if (existsSync(terminalPath)) throw new Error('process receipt cannot be replayed');
   const [command, ...commandArgs] = argv;
+  if (command !== 'node') throw new Error('catalog command must use the trusted Node runtime');
   const childEnv = {};
   for (const name of [
     'CI',
@@ -126,7 +150,6 @@ try {
     'LC_ALL',
     'NO_COLOR',
     'NODE_ENV',
-    'OPENCLAW_COREPACK_BIN',
     'PATH',
     'PNPM_HOME',
     'TMPDIR',
@@ -142,7 +165,7 @@ try {
         artifactDir: args.artifactDir,
         env: childEnv,
       })
-    : spawnSync(command, commandArgs, {
+    : spawnSync(trustedNode, commandArgs, {
         cwd: repoRoot,
         env: childEnv,
         encoding: 'utf8',
@@ -160,6 +183,11 @@ try {
   if (afterHead.status !== 0 || afterHead.stdout.trim() !== args.candidateSha ||
       afterStatus.status !== 0 || afterStatus.stdout.trim()) {
     throw new Error('process-local producer changed the exact candidate checkout');
+  }
+  if (!args.prerequisite &&
+      (sha256(readFileSync(runnerPath)) !== bindings.scriptSha256 ||
+       committedRunnerDigest !== bindings.scriptSha256)) {
+    throw new Error('catalog runner changed during process-local execution');
   }
   if (run.status !== 0) throw new Error('process suite failed');
   let checks;

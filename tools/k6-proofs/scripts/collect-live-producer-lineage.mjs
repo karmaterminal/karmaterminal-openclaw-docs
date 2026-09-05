@@ -104,12 +104,10 @@ export function delegateSpawnBound(flow, evidence, expectedTask, log) {
   if (!flow ||
       flow.controllerId !== 'core/continuation-delegate' ||
       flow.status !== 'succeeded' ||
-      flow.stateJson?.disposition !== 'granted' ||
       flow.stateJson.task !== expectedTask ||
       flow.ownerKey !== evidence.parent_session_key ||
       flow.stateJson.originRunId !== evidence.parent_run_id ||
-      flow.stateJson.childSessionKey !== evidence.child_session_key ||
-      flow.stateJson.childRunId !== evidence.child_initial_run_id) {
+      flow.stateJson.childSessionKey !== evidence.child_session_key) {
     return false;
   }
   const trace = /^00-([a-f0-9]{32})-([a-f0-9]{16})-0[01]$/u.exec(

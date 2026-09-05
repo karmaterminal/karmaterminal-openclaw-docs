@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   mkdir,
   mkdtemp,
@@ -55,7 +55,7 @@ test('Git authentication environment removes every inherited Git control variabl
     GIT_NAMESPACE: 'other',
     GIT_CEILING_DIRECTORIES: '/',
   });
-  assert.deepEqual(clean, { PATH: '/bin' });
+  assert.deepEqual(clean, { PATH: '/usr/bin:/bin' });
 });
 
 test('ignored Vitest shim must match the freshly authenticated dependency closure', async () =>
@@ -73,14 +73,14 @@ function signedReceipt(rowId, index, now, key, docsSha, runId) {
   return signProducerReceipt({
     schema: DEPENDENCY_RECEIPT_SCHEMA,
     issuer: 'v5-observer',
-    receiptId: `receipt-${index}`,
+    receiptId: `receipt-${runId}-${index}`,
     rowId,
     verdict: 'PASS',
     candidateSha: REQUIRED_PRODUCT_SHA,
     runtimeSha: REQUIRED_PRODUCT_SHA,
     docsSha,
     runId,
-    producerEvidenceId: `evidence-${index}`,
+    producerEvidenceId: `evidence-${runId}-${index}`,
     artifactDigests: { 'evidence.json': 'c'.repeat(64) },
     issuedAt: new Date(now - 1000).toISOString(),
     expiresAt: new Date(now + 60000).toISOString(),
@@ -91,7 +91,7 @@ test('durable receipt store rejects replay across caller output roots', async ()
   workspace(async (directory) => {
     const key = 'v5-test-key';
     const docsSha = 'b'.repeat(40);
-    const runId = 'v5-replay';
+    const runId = `v5-replay-${randomUUID()}`;
     const receipt = signedReceipt('R-CD-RETURN-COVENANT-AUTHORITY', 1, Date.now(), key, docsSha, runId);
     const receipts = path.join(directory, 'receipts.json');
     const trust = path.join(directory, 'trust.json');
@@ -115,21 +115,18 @@ test('failed receipt bundle consumes no identities', async () =>
   workspace(async (directory) => {
     const key = 'v5-test-key';
     const docsSha = 'b'.repeat(40);
-    const runId = 'v5-atomic';
+    const runId = `v5-atomic-${randomUUID()}`;
     const now = Date.now();
+    const first = signedReceipt('R-CD-RETURN-COVENANT-AUTHORITY', 1, now, key, docsSha, runId);
     const receipts = [
-      signedReceipt('R-CD-RETURN-COVENANT-AUTHORITY', 1, now, key, docsSha, runId),
-      signedReceipt('R-CD-RETURN-OVERLAP', 2, now, key, docsSha, runId),
+      first,
+      signedReceipt('R-CD-RETURN-OVERLAP', 2, now, key, docsSha, `${runId}-wrong`),
     ];
     const receiptFile = path.join(directory, 'receipts.json');
     const trust = path.join(directory, 'trust.json');
     const store = path.join(directory, 'verifier-store');
     await writeFile(receiptFile, JSON.stringify(receipts));
     await writeFile(trust, JSON.stringify({ 'v5-observer': key }));
-    await mkdir(store);
-    await writeFile(path.join(store, 'prior.json'), JSON.stringify({
-      identities: [receipts[1].integrity.signature],
-    }));
     const run = spawnSync(process.execPath, [resolver,
       '--selection', 'R-CD-RETURN-COVENANT-AUTHORITY,R-CD-RETURN-OVERLAP',
       '--candidate-sha', REQUIRED_PRODUCT_SHA, '--docs-sha', docsSha,
@@ -140,7 +137,16 @@ test('failed receipt bundle consumes no identities', async () =>
       OPENCLAW_PRODUCER_RECEIPT_STORE: store,
     } });
     assert.equal(run.status, 2);
-    assert.deepEqual((await readdir(store)).sort(), ['prior.json']);
+    await writeFile(receiptFile, JSON.stringify([first]));
+    const retry = spawnSync(process.execPath, [resolver,
+      '--selection', first.rowId, '--candidate-sha', REQUIRED_PRODUCT_SHA,
+      '--docs-sha', docsSha, '--run-id', runId, '--receipts', receiptFile,
+    ], { env: {
+      ...process.env,
+      OPENCLAW_PRODUCER_TRUST_FILE: trust,
+      OPENCLAW_PRODUCER_RECEIPT_STORE: store,
+    } });
+    assert.equal(retry.status, 0);
   }));
 
 test('service logs publish only structured allowlisted fields and fingerprints', () => {

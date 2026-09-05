@@ -23,6 +23,7 @@ const repoRoot = path.resolve(proofsDir, '../..');
 const docsSha = 'b'.repeat(40);
 const runId = 'matrix-v4';
 const key = 'test-observer-key-not-a-production-secret';
+const receiptNamespace = randomUUID();
 const nowMs = Date.parse('2026-09-05T18:00:00.000Z');
 const registry = buildProducerRegistry({ proofsDir });
 const clone = (value) => structuredClone(value);
@@ -39,11 +40,11 @@ async function workspace(fn) {
 function body(rowId, schema = DEPENDENCY_RECEIPT_SCHEMA) {
   return {
     schema, issuer: 'trusted-observer', rowId, verdict: 'PASS',
-    receiptId: `receipt-${rowId}`, candidateSha: REQUIRED_PRODUCT_SHA,
+    receiptId: `receipt-${receiptNamespace}-${rowId}`, candidateSha: REQUIRED_PRODUCT_SHA,
     runtimeSha: REQUIRED_PRODUCT_SHA, docsSha, runId,
     issuedAt: new Date(nowMs - 1000).toISOString(),
     expiresAt: new Date(nowMs + 60000).toISOString(),
-    producerEvidenceId: `evidence-${rowId}`,
+    producerEvidenceId: `evidence-${receiptNamespace}-${rowId}`,
     artifactDigests: { 'evidence.json': 'c'.repeat(64) },
   };
 }

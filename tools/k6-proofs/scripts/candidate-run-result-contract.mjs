@@ -71,6 +71,7 @@ const ENVELOPE_KEYS = {
     optional: [],
   },
   artifactAuthority: { required: ['schema', 'files', 'integrity'], optional: [] },
+  artifactIntegrity: { required: ['algorithm', 'signature'], optional: [] },
   authoritativeReceipt: { required: ['file', 'sha256'], optional: [] },
 };
 
@@ -85,6 +86,7 @@ function hasExactKeys(value, spec) {
 function envelopeShapeIsCanonical(envelope) {
   if (!hasExactKeys(envelope, ENVELOPE_KEYS.root)) return false;
   if (!hasExactKeys(envelope.artifactAuthority, ENVELOPE_KEYS.artifactAuthority)) return false;
+  if (!hasExactKeys(envelope.artifactAuthority.integrity, ENVELOPE_KEYS.artifactIntegrity)) return false;
   for (const section of ['candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts']) {
     if (!hasExactKeys(envelope[section], ENVELOPE_KEYS[section])) return false;
   }

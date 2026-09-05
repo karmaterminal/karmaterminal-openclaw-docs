@@ -6,6 +6,13 @@ import { pathToFileURL } from 'node:url';
 
 const RAW_PAYLOAD_KEYS = new Set([
   'agentinstruction',
+  'apikey',
+  'args',
+  'authorization',
+  'content',
+  'credential',
+  'credentials',
+  'delta',
   'events',
   'expectedtask',
   'message',
@@ -14,8 +21,13 @@ const RAW_PAYLOAD_KEYS = new Set([
   'raw',
   'rawevents',
   'rawfinaltext',
+  'result',
+  'secret',
   'spawntask',
   'schedulecalls',
+  'text',
+  'token',
+  'password',
   'redactedevents',
   'task',
 ]);
@@ -68,19 +80,38 @@ function sensitiveCategory(key) {
   if (normalized.includes('toolcallid')) return 'tool-call-id';
   if (normalized.includes('idempotencykey')) return 'idempotency-key';
   if (RAW_PAYLOAD_KEYS.has(normalized)) return 'payload';
+  if (normalized.endsWith('token') ||
+      normalized.includes('secret') ||
+      normalized.includes('password') ||
+      normalized.includes('apikey') ||
+      normalized.includes('authorization') ||
+      normalized.includes('credential')) return 'credential';
   return null;
+}
+
+function collectCategoryTokens(value, category, tokens) {
+  if (Array.isArray(value)) {
+    value.forEach((child) => collectCategoryTokens(child, category, tokens));
+    return;
+  }
+  if (value && typeof value === 'object') {
+    Object.values(value).forEach((child) => collectCategoryTokens(child, category, tokens));
+    return;
+  }
+  if (typeof value !== 'string' && typeof value !== 'number') return;
+  const token = String(value);
+  if (token.length >= 6) tokens.set(token, `<redacted-${category}>`);
 }
 
 function collectSensitiveTokens(value, tokens) {
   if (!value || typeof value !== 'object') return;
   for (const [key, child] of Object.entries(value)) {
     const category = sensitiveCategory(key);
-    if (category && (typeof child === 'string' || typeof child === 'number')) {
-      const token = String(child);
-      if (token.length >= 6) tokens.set(token, `<redacted-${category}>`);
+    if (category) {
+      collectCategoryTokens(child, category, tokens);
       continue;
     }
-    if (!category) collectSensitiveTokens(child, tokens);
+    collectSensitiveTokens(child, tokens);
   }
 }
 
@@ -243,6 +274,18 @@ const PUBLIC_SERVICE_FIELDS = new Map([
   ['row', 'row'],
 ]);
 
+const SERVICE_STRING_SCHEMAS = new Map([
+  ['timestamp', (value) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/u.test(value)],
+  ['level', (value) => /^(?:trace|debug|info|warn|warning|error|fatal)$/iu.test(value)],
+  ['event', (value) => /^(?:continuation|continuation\.[a-z0-9._-]+|task\.[a-z0-9._-]+)$/iu.test(value)],
+  ['kind', (value) => /^(?:work|delegate|compaction|tool|token|bracket)$/u.test(value)],
+  ['status', (value) => /^(?:ok|accepted|pending|running|succeeded|completed|rejected|failed|error|cancelled)$/u.test(value)],
+  ['phase', (value) => /^(?:start|dispatch|accepted|running|end|complete|completed|failed|error)$/u.test(value)],
+  ['disposition', (value) => /^(?:granted|accepted|rejected|delivered|folded|failed|cancelled)$/u.test(value)],
+  ['controllerId', (value) => /^core\/continuation-(?:work|delegate)$/u.test(value)],
+  ['row', (value) => /^R-[A-Z0-9-]+$/u.test(value)],
+]);
+
 function publicServiceProjection(fields, orderedTokens) {
   const projected = {};
   for (const [rawKey, value] of fields) {
@@ -272,7 +315,7 @@ function publicServiceProjection(fields, orderedTokens) {
     if (!publicKey) continue;
     if (typeof value === 'number' || typeof value === 'boolean') {
       projected[publicKey] = value;
-    } else if (typeof value === 'string' && /^[A-Za-z0-9_.:/-]{1,120}$/u.test(value)) {
+    } else if (typeof value === 'string' && SERVICE_STRING_SCHEMAS.get(publicKey)?.(value)) {
       projected[publicKey] = value;
     }
   }

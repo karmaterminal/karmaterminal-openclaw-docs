@@ -3,6 +3,7 @@ import { lstatSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
   canonicalJson,
+  GATEWAY_HMAC_RECEIPT_ALGORITHM,
   sealSignedObserverReceipt,
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
@@ -57,7 +58,12 @@ function inspectArtifact(directory, name) {
 
 function canonicalAuthority(authority) {
   const { integrity, ...body } = authority;
-  return canonicalJson(body);
+  return canonicalJson({
+    ...body,
+    integrity: {
+      algorithm: integrity?.algorithm || GATEWAY_HMAC_RECEIPT_ALGORITHM,
+    },
+  });
 }
 
 export function buildArtifactAuthority({ directory, names, signingKey }) {
@@ -77,6 +83,10 @@ export function buildArtifactAuthority({ directory, names, signingKey }) {
 export function validateArtifactAuthority({ authority, directory, names, signingKey }) {
   if (!authority || authority.schema !== ARTIFACT_AUTHORITY_SCHEMA ||
       !Array.isArray(authority.files) ||
+      !authority.integrity || typeof authority.integrity !== 'object' ||
+      Array.isArray(authority.integrity) ||
+      JSON.stringify(Object.keys(authority.integrity).sort()) !==
+        JSON.stringify(['algorithm', 'signature']) ||
       !validateSignedObserverReceiptIntegrity({
         receipt: authority,
         signingKey,

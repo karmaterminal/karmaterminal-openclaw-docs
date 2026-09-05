@@ -1,10 +1,11 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   existsSync,
   lstatSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   realpathSync,
   rmSync,
 } from 'node:fs';
@@ -20,6 +21,69 @@ const RUNNER_FILES = [
 
 function digestFile(file) {
   return createHash('sha256').update(readFileSync(file)).digest('hex');
+}
+
+function corepackAtNode(node) {
+  const prefix = path.resolve(path.dirname(node), '..');
+  for (const candidate of [
+    path.join(path.dirname(node), 'corepack'),
+    path.join(prefix, 'lib/node_modules/corepack/dist/corepack.js'),
+  ]) {
+    try {
+      const resolved = realpathSync(candidate);
+      if (lstatSync(resolved).isFile()) return resolved;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+  return null;
+}
+
+export function resolveTrustedCorepack(trustedNode = realpathSync(process.execPath)) {
+  const adjacent = corepackAtNode(trustedNode);
+  if (adjacent) return adjacent;
+  const home = os.userInfo().homedir;
+  const roots = [
+    path.join(home, '.nvm/versions/node'),
+    path.join(home, 'actions-runner/_work/_tool/node'),
+  ];
+  const candidates = [];
+  for (const root of roots) {
+    let versions = [];
+    try {
+      versions = readdirSync(root, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+        .reverse();
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    for (const version of versions) {
+      candidates.push(path.join(root, version, 'x64/bin/node'));
+      candidates.push(path.join(root, version, 'bin/node'));
+    }
+  }
+  for (const candidate of candidates) {
+    try {
+      const corepack = corepackAtNode(realpathSync(candidate));
+      if (corepack) return corepack;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+  throw new Error('verifier-controlled Corepack installation is unavailable');
+}
+
+function gitIdentity(checkout, env) {
+  const head = requireSuccess(execute('git', ['-C', checkout, 'rev-parse', 'HEAD'], { env }),
+    'authenticated product HEAD').stdout.trim();
+  const tree = requireSuccess(execute('git', ['-C', checkout, 'rev-parse', 'HEAD^{tree}'], { env }),
+    'authenticated product tree').stdout.trim();
+  const status = requireSuccess(execute('git', [
+    '-C', checkout, 'status', '--porcelain', '--untracked-files=all',
+  ], { env }), 'authenticated product status').stdout.trim();
+  return { head, tree, status };
 }
 
 export function sourceVitestMatchesAuthenticated(sourceVitest, installedVitest) {
@@ -60,31 +124,32 @@ export function runAuthenticatedVitest({
       { env: cleanEnv }), 'authenticated product clone');
     requireSuccess(execute('git', ['-C', checkout, 'checkout', '--quiet', '--detach', candidateSha],
       { env: cleanEnv }), 'authenticated product checkout');
-    const head = execFileSync('git', ['-C', checkout, 'rev-parse', 'HEAD'],
-      { encoding: 'utf8', env: cleanEnv }).trim();
-    if (head !== candidateSha) throw new Error('authenticated product checkout identity mismatch');
+    const initialIdentity = gitIdentity(checkout, cleanEnv);
+    if (initialIdentity.head !== candidateSha || initialIdentity.status) {
+      throw new Error('authenticated product checkout identity mismatch');
+    }
 
     const packageJson = JSON.parse(readFileSync(path.join(checkout, 'package.json'), 'utf8'));
     const packageManager = String(packageJson.packageManager || '');
     const managerMatch = /^pnpm@([0-9]+\.[0-9]+\.[0-9]+)\+sha512\.[A-Za-z0-9+/=]+$/u.exec(packageManager);
     if (!managerMatch) throw new Error('candidate packageManager must pin pnpm version and sha512');
-    const corepack = realpathSync(cleanEnv.OPENCLAW_COREPACK_BIN ||
-      path.join(path.dirname(realpathSync(process.execPath)), 'corepack'));
-    const managerVersion = requireSuccess(execute(corepack, ['pnpm', '--version'],
+    const trustedNode = realpathSync(process.execPath);
+    const corepack = resolveTrustedCorepack(trustedNode);
+    const managerVersion = requireSuccess(execute(trustedNode, [corepack, 'pnpm', '--version'],
       { cwd: checkout, env: cleanEnv }), 'pinned package manager version').stdout.trim();
     if (managerVersion !== managerMatch[1]) throw new Error('executing package manager version mismatch');
 
-    requireSuccess(execute(corepack, [
+    requireSuccess(execute(trustedNode, [corepack,
       'pnpm', 'install', '--frozen-lockfile', '--force', '--ignore-scripts',
     ], { cwd: checkout, env: cleanEnv }), 'authenticated dependency installation');
-    const changedTrackedFiles = requireSuccess(execute('git', [
-      '-C', checkout, 'status', '--porcelain', '--untracked-files=no',
-    ], { env: cleanEnv }), 'authenticated product post-install identity').stdout.trim();
-    if (changedTrackedFiles) {
-      throw new Error('authenticated dependency installation modified tracked product bytes');
+    const installedIdentity = gitIdentity(checkout, cleanEnv);
+    if (installedIdentity.head !== candidateSha ||
+        installedIdentity.tree !== initialIdentity.tree ||
+        installedIdentity.status) {
+      throw new Error('authenticated dependency installation changed product identity');
     }
 
-    const installedGraph = requireSuccess(execute(corepack, [
+    const installedGraph = requireSuccess(execute(trustedNode, [corepack,
       'pnpm', 'list', '--json', '--depth', 'Infinity',
     ], { cwd: checkout, env: cleanEnv }), 'installed dependency graph');
     const installedVitest = path.join(checkout, 'node_modules/.bin/vitest');
@@ -101,17 +166,25 @@ export function runAuthenticatedVitest({
       name,
       digestFile(path.join(checkout, name)),
     ]));
-    const result = execute(process.execPath, [
+    const result = execute(trustedNode, [
       path.join(checkout, 'scripts/run-vitest.mjs'),
       ...testArgs,
     ], { cwd: checkout, env: cleanEnv });
+    const finalIdentity = gitIdentity(checkout, cleanEnv);
+    if (finalIdentity.head !== candidateSha ||
+        finalIdentity.tree !== initialIdentity.tree ||
+        finalIdentity.status ||
+        RUNNER_FILES.some((name) =>
+          digestFile(path.join(checkout, name)) !== runnerDigests[name])) {
+      throw new Error('authenticated product changed during test execution');
+    }
     return {
       ...result,
       attestation: {
         schema: 'openclaw.k6.authenticated-test-runtime.v1',
         candidateSha,
         nodeVersion: process.version,
-        nodeExecutableSha256: digestFile(realpathSync(process.execPath)),
+        nodeExecutableSha256: digestFile(trustedNode),
         corepackSha256: digestFile(corepack),
         packageManager,
         lockfileSha256: digestFile(path.join(checkout, 'pnpm-lock.yaml')),

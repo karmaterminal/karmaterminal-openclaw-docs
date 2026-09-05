@@ -21,6 +21,17 @@ tools/k6-proofs/
 
 ## Prerequisites
 
+Whole-set selection is producer-catalog driven. `all` and `live-suite` resolve
+through `qualification/producer-catalog.json`, including process-local
+producers and dependency-gated rows; they do not mean “all runnable manifest
+files.” The runner writes `producer-plan.json` with the `behavioral-live`,
+`process-local`, `static-only`, `construct-only`, and `dependency-gated`
+classifications. A behavioral row backed only by a static validator fails
+catalog validation. A dependency-gated row remains blocked until a fresh PASS
+receipt matches both candidate and docs SHAs. Live runs that include
+process-local producers require `FINAL_PRODUCT_CHECKOUT` to identify the clean,
+exact-candidate OpenClaw checkout.
+
 - [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is centralized in [`seat-readiness.policy.json`](seat-readiness.policy.json) (`v2.0.0` unless the policy or row issue explicitly says otherwise).
 - A running OpenClaw gateway on the local seat.
 - Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `PARTIAL-candidate`, not product failure.

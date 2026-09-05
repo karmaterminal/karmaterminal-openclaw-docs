@@ -1,0 +1,120 @@
+{
+  "schema": "openclaw.k6.proof-producer-catalog.v2",
+  "requiredBehavioralRows": [
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE"
+  ],
+  "defaults": {
+    "k6-runnable": "behavioral-live",
+    "static-preflight-only": "static-only",
+    "construct-only": "construct-only"
+  },
+  "rows": {
+    "R-CD-COLLECTION-ON-COLLAPSE": {
+      "classification": "behavioral-live",
+      "scenario": "r-cd-collection-on-collapse-producer.js"
+    },
+    "R-CW-5": {
+      "classification": "process-local",
+      "argv": [
+        "node",
+        "tools/k6-proofs/scripts/run-cost-cap-fixture.mjs",
+        "--source-dir",
+        "${FINAL_PRODUCT_CHECKOUT}",
+        "--candidate-sha",
+        "${FINAL_SUCCESSOR_SHA}",
+        "--artifact-dir",
+        "${ROW_ARTIFACT_DIR}",
+        "--cap",
+        "100",
+        "--json"
+      ]
+    },
+    "R-CW-5A": {
+      "classification": "static-only"
+    },
+    "R-CW-6": {
+      "classification": "process-local",
+      "argv": [
+        "node",
+        "tools/k6-proofs/scripts/run-max-chain-fixture.mjs",
+        "--source-dir",
+        "${FINAL_PRODUCT_CHECKOUT}",
+        "--candidate-sha",
+        "${FINAL_SUCCESSOR_SHA}",
+        "--artifact-dir",
+        "${ROW_ARTIFACT_DIR}",
+        "--json"
+      ]
+    },
+    "R-CW-6A": {
+      "classification": "static-only"
+    },
+    "R-CW-7": {
+      "classification": "behavioral-live",
+      "scenario": "r-cw-7-producer.js",
+      "prerequisite": {
+        "classification": "process-local",
+        "argv": [
+          "node",
+          "${FINAL_PRODUCT_CHECKOUT}/scripts/run-vitest.mjs",
+          "src/auto-reply/continuation/trace-context-propagation.integration.test.ts",
+          "src/agents/tools/continuation-tools.current-span-traceparent.test.ts",
+          "src/infra/continuation-tracer.test.ts"
+        ]
+      },
+      "requiresLiveTrace": true
+    },
+    "R-CW-DELEGATE-CHILD-LIVE": {
+      "classification": "behavioral-live",
+      "scenario": "r-cw-delegate-child-live-producer.js"
+    },
+    "R-CW-DELEGATE-TOKEN": {
+      "classification": "behavioral-live",
+      "scenario": "r-cw-delegate-token-producer.js"
+    },
+    "R-CW-MULTI": {
+      "classification": "behavioral-live",
+      "scenario": "r-cw-multi-producer.js"
+    },
+    "R-CW-MULTI-COLLAPSE": {
+      "classification": "process-local",
+      "argv": [
+        "node",
+        "tools/k6-proofs/scripts/run-multi-collapse-fixture.mjs",
+        "--source-dir",
+        "${FINAL_PRODUCT_CHECKOUT}",
+        "--candidate-sha",
+        "${FINAL_SUCCESSOR_SHA}",
+        "--artifact-dir",
+        "${ROW_ARTIFACT_DIR}",
+        "--json"
+      ]
+    },
+    "R-CD-RETURN-COVENANT-AUTHORITY": {
+      "classification": "dependency-gated",
+      "blockedBy": "Owned by #536; this lane supplies no authority producer."
+    },
+    "R-CD-RETURN-OVERLAP": {
+      "classification": "dependency-gated",
+      "dependsOn": [
+        "R-CD-RETURN-COVENANT-AUTHORITY"
+      ]
+    },
+    "R-OBS-2": {
+      "classification": "dependency-gated",
+      "dependsOn": [
+        "R-CD-RETURN-COVENANT-AUTHORITY",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI"
+      ]
+    }
+  }
+}

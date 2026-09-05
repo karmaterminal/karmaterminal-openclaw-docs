@@ -44,6 +44,8 @@ HARNESS_SNAPSHOT_SENTINEL=".openclaw-harness-snapshot"
 # verdict.
 HARNESS_INFRA_EXIT=78
 CATALOG_CHECKS=(check-manifest-scenarios.mjs check-scenario-alignment.mjs check-proof-row-manifests.mjs check-telemetry-contracts.mjs)
+PRODUCER_PLAN_RESOLVER="$RUNNER_SCRIPT_DIR/resolve-producer-plan.mjs"
+CATALOG_PRODUCER_RUNNER="$RUNNER_SCRIPT_DIR/run-catalog-producer.mjs"
 
 # Point every executed harness component at the current execution root.
 bind_execution_roots() {
@@ -61,6 +63,8 @@ bind_execution_roots
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
 PRIVATE_GATEWAY_LOG=""
+PRIVATE_PREREQ_STDOUT=""
+PRIVATE_PREREQ_STDERR=""
 SOURCE_CONTRACT_FILE=""
 ACTIVE_TOKEN_RUN_DIR=""
 ACTIVE_TOKEN_PHASE=""
@@ -73,6 +77,8 @@ cleanup_private_artifacts() {
     "${PRIVATE_K6_LOG:-}" \
     "${PRIVATE_EVIDENCE_FILE:-}" \
     "${PRIVATE_GATEWAY_LOG:-}" \
+    "${PRIVATE_PREREQ_STDOUT:-}" \
+    "${PRIVATE_PREREQ_STDERR:-}" \
     "${CATALOG_PREFLIGHT_RAW_FILE:-}" \
     "${SOURCE_CONTRACT_FILE:-}"
   if [[ -n "${HARNESS_SNAPSHOT_ROOT:-}" ]]; then rm -rf "$HARNESS_SNAPSHOT_ROOT"; fi
@@ -215,10 +221,8 @@ scrub_public_text() {
   ' "$REPO_ROOT" "$OUT_ROOT" "${HOME:-}" "${EXEC_ROOT:-}"
 }
 
-# One harness infrastructure receipt, written instead of any per-row product
-# verdict. A catalog/identity failure is a setup fault: no row may execute, and
-# nothing here may be read as candidate behavior. Only validated values reach
-# this receipt: rejected operator input is recorded as "malformed", never echoed.
+# One harness infrastructure receipt. Only validated values reach this receipt:
+# rejected operator input is recorded as "malformed", never echoed.
 write_harness_control_receipt() {
   local stage="$1"
   local reason="$2"
@@ -254,7 +258,7 @@ write_harness_control_receipt() {
       rowSelection: $rowSelection,
       rowsExecuted: $rowsExecuted,
       rowsTerminatedPreDispatch: $rowsTerminatedPreDispatch,
-      rowVerdictsSynthesized: false,
+      rowVerdictsSynthesized: ($rowsExecuted > 0 or $rowsTerminatedPreDispatch > 0),
       productVerdict: null,
       exitCode: $exitCode,
       detail: $detail,
@@ -262,7 +266,7 @@ write_harness_control_receipt() {
     }' > "$OUT_ROOT/harness-control-receipt.json"
   echo "HARNESS INFRASTRUCTURE FAILURE [$stage]: $reason" >&2
   echo "CONTROL RECEIPT: $OUT_ROOT/harness-control-receipt.json" >&2
-  echo "k6 dispatches before this failure: ${ROWS_DISPATCHED:-0}; pre-dispatch terminal results: ${ROWS_TERMINAL_PRE_DISPATCH:-0}. No per-row candidate verdict was synthesized." >&2
+  echo "Row executions before this failure: ${ROWS_DISPATCHED:-0}; pre-dispatch terminal results: ${ROWS_TERMINAL_PRE_DISPATCH:-0}." >&2
 }
 
 safe_sha_or_marker() {
@@ -639,22 +643,55 @@ echo "CATALOG PREFLIGHT: $CATALOG_PREFLIGHT_LOG"
 # validators have approved that catalog and after the harness bytes have been
 # proven to match the approved docs ref. Every catalog read is classified as
 # infrastructure rather than allowed to abort the shell.
-if [[ "$ROWS" == "all" ]]; then
-  ROWS=""
-  for f in manifests/*.json; do
-    ROW_FROM_MANIFEST=""
-    if ! ROW_FROM_MANIFEST="$(jq -r 'select(.scenario.status == "runnable") | .rowId' "$f" 2>/dev/null)"; then
+PRODUCER_PLAN_FILE="$OUT_ROOT/producer-plan.json"
+PRODUCER_RECEIPT_ARGS=()
+PRODUCER_BINDING_ARGS=()
+if [[ -n "${OPENCLAW_PRODUCER_RECEIPTS:-}" ]]; then
+  PRODUCER_RECEIPT_ARGS=(--receipts "$OPENCLAW_PRODUCER_RECEIPTS")
+fi
+if [[ -n "$OPENCLAW_CANDIDATE_SHA" ]]; then
+  PRODUCER_BINDING_ARGS+=(--candidate-sha "$OPENCLAW_CANDIDATE_SHA")
+fi
+if [[ -n "$DOCS_REF" ]]; then
+  PRODUCER_BINDING_ARGS+=(--docs-sha "$DOCS_REF")
+fi
+if [[ "$DRY_RUN" == "false" && "$ROWS" != "all" && "$ROWS" != "live-suite" ]]; then
+  IFS=',' read -ra PREPLAN_ROWS <<< "$ROWS"
+  for PREPLAN_ROW in "${PREPLAN_ROWS[@]}"; do
+    PREPLAN_ROW="$(printf '%s' "$PREPLAN_ROW" | tr '[:lower:]' '[:upper:]')"
+    if [[ -z "$(find_manifest_relpath "$PREPLAN_ROW" || true)" ]]; then
       fail_harness \
-        "catalog-preflight" \
-        "manifest '$f' could not be read to resolve the 'all' row selection" \
-        "$(jq -n --arg manifest "$f" '{check:"row-selection-resolvable", manifest:$manifest}')"
+        "harness-identity" \
+        "row $PREPLAN_ROW has no manifest at the approved docs ref; unrecorded rows cannot be fired or counted" \
+        "$(jq -n --arg row "$PREPLAN_ROW" --arg approved "$DOCS_REF" '{check:"row-recorded-at-docs-ref", row:$row, approved:$approved}')"
     fi
-    [[ -n "$ROW_FROM_MANIFEST" ]] || continue
-    ROWS="${ROWS:+$ROWS,}$ROW_FROM_MANIFEST"
   done
+fi
+if ! node "$PRODUCER_PLAN_RESOLVER" \
+  --selection "$ROWS" \
+  "${PRODUCER_BINDING_ARGS[@]}" \
+  "${PRODUCER_RECEIPT_ARGS[@]}" > "$PRODUCER_PLAN_FILE"; then
+  fail_harness \
+    "producer-catalog" \
+    "producer catalog or dependency DAG is invalid" \
+    "$(jq -c '{failures,blocked,classifications}' "$PRODUCER_PLAN_FILE" 2>/dev/null || echo null)"
+fi
+DEPENDENCY_BLOCKED="$(jq -r '(.blocked | length) > 0' "$PRODUCER_PLAN_FILE")"
+ROWS="$(jq -r '[.rows[] | select(.blocked == false and .classification != "dependency-gated") | .rowId] | join(",")' "$PRODUCER_PLAN_FILE")"
+echo "PRODUCER PLAN: $PRODUCER_PLAN_FILE"
+jq -c '{schema,selection,ok,classifications,blocked}' "$PRODUCER_PLAN_FILE"
+if [[ "$DEPENDENCY_BLOCKED" == "true" ]]; then
+  echo "Dependency-gated rows are blocked; fresh exact candidate/docs receipts are required." >&2
+  jq -r '.blocked[] | "[\(.rowId)] dependencies: \(.missingDependencies | join(",")); blocker: \(.blockedBy // "fresh dependency receipt required")"' "$PRODUCER_PLAN_FILE" >&2
 fi
 
 if [[ -z "$ROWS" ]]; then
+  if [[ "$DEPENDENCY_BLOCKED" == "true" ]]; then
+    fail_harness \
+      "dependency-gated" \
+      "selected rows are blocked pending fresh dependency receipts" \
+      "$(jq -c '{check:"producer-dependencies",blocked}' "$PRODUCER_PLAN_FILE")"
+  fi
   echo "No runnable rows found."
   exit 1
 fi
@@ -762,7 +799,6 @@ fi
 echo "Deployed Runtime SHA: $OPENCLAW_RUNTIME_BUILD_SHA"
 echo "Session configured: true"
 
-# Check for Live Bridge alignment (candidate vs deployed runtime)
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
   echo "WARNING: Candidate SHA ($OPENCLAW_CANDIDATE_SHA) does not match Deployed Runtime SHA ($OPENCLAW_RUNTIME_BUILD_SHA)."
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
@@ -900,6 +936,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
   SCENARIO_FILE=$(jq -r '.scenario.file // .scenario.name // empty' "$MANIFEST_FILE")
   SCENARIO_STATUS=$(jq -r '.scenario.status' "$MANIFEST_FILE")
   LIVE_SAFETY=$(jq -r '.liveRunSafety.classification // "unknown"' "$MANIFEST_FILE")
+  PRODUCER_CLASSIFICATION="$(jq -r --arg row "$ROW_ID" '.rows[] | select(.rowId == $row) | .classification' "$PRODUCER_PLAN_FILE")"
 
   echo ""
   echo "----------------------------------------"
@@ -908,6 +945,68 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
   echo "Scenario: ${SCENARIO_FILE:+scenarios/$SCENARIO_FILE}"
   echo "Status: $SCENARIO_STATUS"
   echo "Live Safety: $LIVE_SAFETY"
+  echo "Producer Classification: $PRODUCER_CLASSIFICATION"
+
+  if [[ "$PRODUCER_CLASSIFICATION" == "process-local" ]]; then
+    if [[ "$DRY_RUN" == "true" ]]; then
+      echo "[$ROW_ID] DRY RUN: Would execute process-local producer from producer catalog."
+      continue
+    fi
+    PROCESS_RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]')-${MATRIX_NONCE}"
+    PROCESS_RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$PROCESS_RUN_ID"
+    (umask 077; mkdir -p "$PROCESS_RUN_DIR")
+    if [[ -z "${FINAL_PRODUCT_CHECKOUT:-}" ]] ||
+       ! git -C "$FINAL_PRODUCT_CHECKOUT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      echo "[$ROW_ID] FINAL_PRODUCT_CHECKOUT must identify an exact local candidate checkout." >&2
+      jq -n \
+        --arg row "$ROW_ID" \
+        --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        '{k6ExitCode:0,postprocessExitCode:1,effectiveExitCode:1,endedAt:$endedAt,verdict:"FAIL-fixture",verdictSource:"process-local-product-checkout-unavailable",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:["exact-product-checkout","process-local-behavioral-receipt"]}}' \
+        > "$PROCESS_RUN_DIR/run-result.json"
+      ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
+      MATRIX_EXIT_CODE=1
+      MATRIX_ROW_FAILURES+=("$ROW_ID")
+      continue
+    fi
+    ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
+    set +e
+    node "$CATALOG_PRODUCER_RUNNER" \
+      --row "$ROW_ID" \
+      --product-dir "${FINAL_PRODUCT_CHECKOUT:-}" \
+      --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+      --artifact-dir "$PROCESS_RUN_DIR"
+    process_rc=$?
+    set -e
+    process_result_file=""
+    if [[ -f "$PROCESS_RUN_DIR/row-result.json" ]]; then
+      process_result_file="row-result.json"
+    elif [[ -f "$PROCESS_RUN_DIR/fixture-result.json" ]]; then
+      process_result_file="fixture-result.json"
+    fi
+    process_verdict=""
+    if [[ -n "$process_result_file" ]]; then
+      process_verdict="$(jq -r '.verdict // empty' "$PROCESS_RUN_DIR/$process_result_file" 2>/dev/null || true)"
+    fi
+    if [[ "$process_rc" -ne 0 ]]; then
+      process_verdict="FAIL-fixture"
+    elif [[ -z "$process_result_file" || -z "$process_verdict" ]]; then
+      process_rc=1
+      process_verdict="FAIL-fixture"
+    fi
+    jq -n \
+      --arg row "$ROW_ID" \
+      --arg verdict "$process_verdict" \
+      --arg fixtureResult "$process_result_file" \
+      --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      --argjson effectiveExitCode "$process_rc" \
+      '{k6ExitCode:0,postprocessExitCode:$effectiveExitCode,effectiveExitCode:$effectiveExitCode,endedAt:$endedAt,verdict:$verdict,verdictSource:"process-local-producer",summaryFileVerdict:$verdict,vuLogVerdict:null,summaryFiles:(if $fixtureResult == "" then [] else [$fixtureResult] end),evidence:{row:$row,dispatched:true,fixtureResult:(if $fixtureResult == "" then null else $fixtureResult end)},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:[]}}' \
+      > "$PROCESS_RUN_DIR/run-result.json"
+    if [[ "$process_rc" -ne 0 ]]; then
+      MATRIX_EXIT_CODE=1
+      MATRIX_ROW_FAILURES+=("$ROW_ID")
+    fi
+    continue
+  fi
 
   if [[ "$SCENARIO_STATUS" != "runnable" ]]; then
     echo "[$ROW_ID] SKIPPED: Scenario status is $SCENARIO_STATUS (not runnable)."
@@ -979,6 +1078,31 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
       '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
       > "$RUN_DIR/runner-metadata.json"
+    case "$ROW_ID" in
+      R-CD-COLLECTION-ON-COLLAPSE|R-CW-7|R-CW-DELEGATE-CHILD-LIVE|R-CW-DELEGATE-TOKEN|R-CW-MULTI)
+        if [[ ! "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ||
+              "$OPENCLAW_RUNTIME_BUILD_SHA" != "$OPENCLAW_CANDIDATE_SHA" ]]; then
+          RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          jq -n \
+            --arg row "$ROW_ID" \
+            --arg candidateSha "$(safe_sha_or_marker "$OPENCLAW_CANDIDATE_SHA")" \
+            --arg runtimeBuildSha "$(safe_sha_or_marker "$OPENCLAW_RUNTIME_BUILD_SHA")" \
+            --arg endedAt "$RUN_ENDED_AT" \
+            '{schema:"openclaw.k6.restored-producer-build-identity-gate.v1",row:$row,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,equalExactSha:false,dispatched:false,verdict:"PARTIAL-candidate",endedAt:$endedAt}' \
+            > "$RUN_DIR/build-identity-gate.json"
+          jq -n \
+            --arg row "$ROW_ID" \
+            --arg endedAt "$RUN_ENDED_AT" \
+            '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-started",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","live-behavioral-receipt"]}}' \
+            > "$RUN_DIR/run-result.json"
+          rm -f "$RUN_DIR/.started"
+          PROVISIONAL_RUN_DIR=""
+          ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
+          echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
+          continue
+        fi
+        ;;
+    esac
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       if [[ ! "$OPENCLAW_CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ||
             ! "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ||
@@ -1018,6 +1142,54 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     fi
     if [[ -f "$SEAT_READINESS_JSON" ]]; then
       cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
+    fi
+    if [[ "$(jq -r --arg row "$ROW_ID" '.rows[] | select(.rowId == $row) | .prerequisite != null' "$PRODUCER_PLAN_FILE")" == "true" ]]; then
+      if [[ -z "${FINAL_PRODUCT_CHECKOUT:-}" ]] ||
+         ! git -C "$FINAL_PRODUCT_CHECKOUT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "[$ROW_ID] exact product checkout is unavailable; prerequisite and live fire are blocked." >&2
+        jq -n \
+          --arg row "$ROW_ID" \
+          --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          '{k6ExitCode:0,postprocessExitCode:1,effectiveExitCode:1,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"process-local-prerequisite-unavailable",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:["exact-product-checkout","process-local-prerequisite","live-behavioral-receipt"]}}' \
+          > "$RUN_DIR/run-result.json"
+        ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
+        MATRIX_EXIT_CODE=1
+        MATRIX_ROW_FAILURES+=("$ROW_ID")
+        rm -f "$RUN_DIR/.started"
+        PROVISIONAL_RUN_DIR=""
+        continue
+      fi
+      (umask 077; mkdir -p "$RUN_DIR/process-local-prerequisite")
+      PRIVATE_PREREQ_STDOUT="$(mktemp "${TMPDIR:-/tmp}/openclaw-prerequisite-stdout.XXXXXX")"
+      PRIVATE_PREREQ_STDERR="$(mktemp "${TMPDIR:-/tmp}/openclaw-prerequisite-stderr.XXXXXX")"
+      if ! node "$CATALOG_PRODUCER_RUNNER" \
+        --prerequisite \
+        --row "$ROW_ID" \
+        --product-dir "${FINAL_PRODUCT_CHECKOUT:-}" \
+        --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+        --artifact-dir "$RUN_DIR/process-local-prerequisite" \
+        > "$PRIVATE_PREREQ_STDOUT" \
+        2> "$PRIVATE_PREREQ_STDERR"; then
+        echo "[$ROW_ID] process-local prerequisite failed; live producer was not fired." >&2
+        jq -n \
+          --arg row "$ROW_ID" \
+          --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          '{k6ExitCode:0,postprocessExitCode:1,effectiveExitCode:1,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"process-local-prerequisite-failed",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:["process-local-prerequisite","live-behavioral-receipt"]}}' \
+          > "$RUN_DIR/run-result.json"
+        rm -f "$PRIVATE_PREREQ_STDOUT" "$PRIVATE_PREREQ_STDERR"
+        PRIVATE_PREREQ_STDOUT=""
+        PRIVATE_PREREQ_STDERR=""
+        ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
+        MATRIX_EXIT_CODE=1
+        MATRIX_ROW_FAILURES+=("$ROW_ID")
+        rm -f "$RUN_DIR/.started"
+        PROVISIONAL_RUN_DIR=""
+        continue
+      fi
+      rm -f "$PRIVATE_PREREQ_STDOUT" "$PRIVATE_PREREQ_STDERR"
+      PRIVATE_PREREQ_STDOUT=""
+      PRIVATE_PREREQ_STDERR=""
+
     fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       export OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"
@@ -1157,6 +1329,26 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     else
       rm -f "$RUN_DIR/evidence-extraction.error.log"
     fi
+    if [[ "$ROW_ID" == "R-CD-COLLECTION-ON-COLLAPSE" ||
+          "$ROW_ID" == "R-CW-DELEGATE-CHILD-LIVE" ||
+          "$ROW_ID" == "R-CW-DELEGATE-TOKEN" ||
+          "$ROW_ID" == "R-CW-MULTI" ]]; then
+      LINEAGE_ARGS=(
+        --row "$ROW_ID"
+        --evidence "$PRIVATE_EVIDENCE_FILE"
+        --manifest "$MANIFEST_FILE"
+        --out "$RUN_DIR/live-producer-lineage.json"
+      )
+      if [[ "$ROW_ID" == "R-CW-DELEGATE-TOKEN" ]]; then
+        LINEAGE_ARGS+=(--gateway-log "$PRIVATE_GATEWAY_LOG")
+      fi
+      if ! node "$RUNNER_SCRIPT_DIR/collect-live-producer-lineage.mjs" "${LINEAGE_ARGS[@]}" \
+        > "$RUN_DIR/live-producer-lineage.stdout.json" \
+        2> "$RUN_DIR/live-producer-lineage.error.log"; then
+        echo "[$ROW_ID] TASKFLOW/PARSER LINEAGE FAILED; see $RUN_DIR/live-producer-lineage.error.log" >&2
+        POSTPROCESS_RC=1
+      fi
+    fi
     SUMMARY_VERDICT="unknown"
     SUMMARY_VERDICT_SOURCE="none"
     SUMMARY_FILE_VERDICT="unknown"
@@ -1270,7 +1462,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       REVIEW_PENDING_RECEIPTS='["gateway-journal"]'
     fi
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
-    MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
+    MANIFEST_TOOL="$(jq -r '.invocation.traceTool // .invocation.tool // empty' "$MANIFEST_FILE")"
     if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
       if jq -e 'select(has("trace_id"))' "$PRIVATE_EVIDENCE_FILE" >/dev/null; then
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
@@ -1566,4 +1758,8 @@ echo "Runner execution finished."
 if [[ "${#MATRIX_ROW_FAILURES[@]}" -gt 0 ]]; then
   echo "Rows with non-zero effective exits: ${MATRIX_ROW_FAILURES[*]}" >&2
   exit "$MATRIX_EXIT_CODE"
+fi
+if [[ "$DEPENDENCY_BLOCKED" == "true" ]]; then
+  echo "Whole-set execution completed with dependency-gated rows blocked; see producer-plan.json." >&2
+  exit "$HARNESS_INFRA_EXIT"
 fi

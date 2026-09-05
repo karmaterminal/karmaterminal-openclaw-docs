@@ -1,7 +1,10 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
+import {
+  buildProducerRegistry,
+  loadProducerCatalog,
+  resolveProducerPlan,
+} from '../lib/producer-catalog.mjs';
 
 const { root, rest } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
 const args = new Set(rest);
@@ -11,16 +14,27 @@ if (fromIndex >= 0 && !fromRow) {
   console.error('--from requires a row ID');
   process.exit(2);
 }
-const manifestsDir = proofsToolPath(root, 'manifests');
-const rows = [];
-for (const file of readdirSync(manifestsDir).filter((name) => name.endsWith('.json')).sort()) {
-  const manifest = JSON.parse(readFileSync(join(manifestsDir, file), 'utf8'));
-  const status = manifest.scenario?.status ?? 'missing';
-  const classification = manifest.liveRunSafety?.classification ?? 'unknown';
-  if (status !== 'runnable') continue;
-  if (args.has('--live-suite') && classification !== 'k6-runnable') continue;
-  rows.push({ rowId: manifest.rowId, file, status, classification, scenario: manifest.scenario?.name ?? manifest.scenario?.file ?? '' });
+const proofsDir = proofsToolPath(root);
+const registry = buildProducerRegistry({
+  proofsDir,
+  catalog: loadProducerCatalog(proofsDir),
+});
+const selection = args.has('--live-suite') ? 'live-suite' : 'all';
+const plan = resolveProducerPlan({ selection, registry });
+if (plan.failures.length > 0) {
+  for (const failure of plan.failures) console.error(`${failure.code}: ${failure.message}`);
+  process.exit(2);
 }
+const rows = plan.rows
+  .filter((row) => row.manifest && !row.blocked)
+  .map((row) => ({
+    rowId: row.rowId,
+    file: row.manifest,
+    classification: row.classification,
+    scenario: row.scenario,
+    dependsOn: row.dependsOn,
+    blocked: row.blocked,
+  }));
 
 if (fromRow) {
   const start = rows.findIndex((row) => row.rowId.toUpperCase() === fromRow);

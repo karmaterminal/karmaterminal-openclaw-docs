@@ -1,34 +1,57 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CW-DELEGATE-TOKEN",
-  "issue": 221,
+  "issue": 480,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "token",
   "mutates": false,
-  "timeoutSeconds": 15,
+  "timeoutSeconds": 190,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static validator for committed delegate child bare-token continuation receipts.",
+    "name": "r-cw-delegate-token-producer",
+    "description": "Genuine light-context sessions_spawn child with continue_work denied emits exact bracket-token grammar and completes a distinct hop-two run.",
     "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "sessions_spawn",
+      "tools.effective"
     ],
     "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "file": "r-cw-delegate-token-producer.js"
+  },
+  "invocation": {
+    "tool": "sessions_spawn",
+    "runtime": "subagent",
+    "mode": "run",
+    "context": "isolated",
+    "lightContext": true,
+    "tokenDelaySeconds": 5,
+    "originSurface": "raw-final-text",
+    "promptTemplate": "Light-context child nonce {{nonce}}. Your typed continue_work tool must be absent. First reply exactly TOKEN-HOP1 {{nonce}} followed by {{token}} as the final line and final content. Never put the token in a message-tool body. On the successor wake reply exactly TOKEN-HOP2-COMPLETE {{nonce}}. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CW-DELEGATE-TOKEN"
   },
   "expectedReceipts": [
     {
-      "name": "delegate-token-artifacts",
+      "name": "light-context-child-tool-inventory",
       "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
+      "description": "Accepted sessions_spawn reports mode=run/context=isolated and tools.effective proves continue_work is absent."
     },
     {
       "name": "bare-token-hop2-executed",
       "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
+      "description": "A distinct run under the same child session starts, emits the hop-two marker, and settles."
+    },
+    {
+      "name": "parser-origin-bracket",
+      "required": true,
+      "description": "Gateway log contains nonce/session-window-bound bracket-parse and effective-signal origin=bracket receipts; message-tool body text is explicitly excluded."
     }
   ],
   "artifactDestination": {
@@ -41,22 +64,48 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CW-DELEGATE-TOKEN. Validates committed corpus receipts; does not fire live behavior."
+    "notes": "Supported sessions_spawn lightContext seam plus controlled subagent deny policy. Exact token is [[CONTINUE_WORK:5]]."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {"issue": "karmaterminal/openclaw#1254", "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643", "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955", "limits": "Bracket origin is available in product logs, not spans; parser log and TaskFlow evidence therefore supplement raw continuation spans."},
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": ["R-OBS-CONT-PROVENANCE", "R-OBS-PROOF-MARKER", "R-OBS-BACKEND-DISPOSITION"],
+    "expectedTelemetry": {
+      "spans": [{"name": "continuation.work", "emittedByProduct": true}, {"name": "continuation.work.fire", "emittedByProduct": true}],
+      "attributes": [
+        {"key": "chain.id", "purpose": "chain", "emittedByProduct": true},
+        {"key": "continuation.signal.origin", "purpose": "origin", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.session.fingerprint", "purpose": "session", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.turn.fingerprint", "purpose": "turn", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.run.fingerprint", "purpose": "run", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "proof.run.id", "purpose": "proof-run", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"}
+      ]
+    },
+    "redaction": {"rule": "Persist parser classifications and fingerprints; never raw prompts, tokens beyond grammar, or transcripts.", "forbiddenInArtifacts": ["gateway-token", "raw-prompt", "raw-transcript"]},
+    "controls": {"positive": "Bracket parser logs and child work flow agree.", "negative": "Message-tool body text and typed tool calls are rejected."},
+    "backendUnavailable": {"disposition": "PARTIAL-candidate", "treatZeroAsAbsence": false, "requiredCompletenessKeys": ["tempo-query-status", "gateway-journal-status"], "rebindKeys": ["trace-id"]},
+    "artifact": {"schema": "openclaw.k6.live-producer-lineage.v1", "requiredFiles": ["live-producer-lineage.json", "gateway-journal.log"]},
+    "verdictAuthority": {"passScope": "behavioral-only", "pass": "Parser-origin, child flow, and hop-two receipts are present.", "partial": "Telemetry or parser logs are unavailable.", "fail": "Typed/message-tool substitution or lineage assertions fail."},
+    "execution": {"deterministicK6": "Live light-context token producer.", "manual": "Independent reviewer inspects parser log and TaskFlow receipt.", "relationship": "Parser-origin receipt distinguishes token behavior from typed tool behavior."}
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
+    "requiresExternalAgentOrToolInvocation": true,
     "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
+    "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "delegate-token-artifacts",
-      "bare-token-hop2-executed"
+      "light-context-child-tool-inventory",
+      "bare-token-hop2-executed",
+      "parser-origin-bracket"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "The target seat must deny continue_work to subagents. Parser-origin log evidence is mandatory because Agent events and spans do not expose fromBracket."
   }
 }

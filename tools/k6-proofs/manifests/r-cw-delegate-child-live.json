@@ -1,34 +1,55 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CW-DELEGATE-CHILD-LIVE",
-  "issue": 213,
+  "issue": 478,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 15,
+  "timeoutSeconds": 190,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+    "name": "r-cw-delegate-child-live-producer",
+    "description": "Live child identity, child-bound continue_work schedule, and distinct child hop-two completion.",
     "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
     ],
     "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "file": "r-cw-delegate-child-live-producer.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "traceTool": "continue_work",
+    "mode": "normal",
+    "delaySeconds": 0,
+    "cwDelaySeconds": 5,
+    "reason": "R-CW-DELEGATE-CHILD-LIVE wake {{nonce}}",
+    "promptTemplate": "Child nonce {{nonce}}. Call continue_work exactly once with reason={{reason}} and delaySeconds={{delaySeconds}}. After its tool result reports scheduled, reply exactly CHILD-HOP1-SCHEDULED {{nonce}}. On the successor wake reply exactly CHILD-HOP2-COMPLETE {{nonce}}. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CW-DELEGATE-CHILD-LIVE"
   },
   "expectedReceipts": [
     {
-      "name": "delegate-child-hop-artifacts",
+      "name": "child-session-run-flow-identity",
       "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
+      "description": "TaskFlow-backed child session, initial run, task, and flow identities."
     },
     {
-      "name": "delegate-child-hop2-executed",
+      "name": "child-bound-schedule-and-hop-two",
       "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
+      "description": "continue_work tool start/result is bound to the initial child run; a distinct run in that child session starts, emits the nonce output, and settles."
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Fresh trace ID for the child continue_work schedule and fire."
     }
   ],
   "artifactDestination": {
@@ -41,22 +62,48 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CW-DELEGATE-CHILD-LIVE. Validates committed corpus receipts; does not fire live behavior."
+    "notes": "Never infer child creation or completion from sentinel text. Structured task, session, run, flow, tool-call, and lifecycle identities are mandatory."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {"issue": "karmaterminal/openclaw#1254", "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643", "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955", "limits": "TaskFlow and Agent events bind child identity; spans remain behavioral-only until product identity attributes exist."},
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": ["R-OBS-CONT-PROVENANCE", "R-OBS-PROOF-MARKER", "R-OBS-BACKEND-DISPOSITION"],
+    "expectedTelemetry": {
+      "spans": [{"name": "continuation.work", "emittedByProduct": true}, {"name": "continuation.work.fire", "emittedByProduct": true}],
+      "attributes": [
+        {"key": "chain.id", "purpose": "chain", "emittedByProduct": true},
+        {"key": "continuation.origin.run.fingerprint", "purpose": "origin", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.session.fingerprint", "purpose": "session", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.turn.fingerprint", "purpose": "turn", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.run.fingerprint", "purpose": "run", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "proof.run.id", "purpose": "proof-run", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"}
+      ]
+    },
+    "redaction": {"rule": "Persist structured IDs as fingerprints; never raw prompts, tokens, or transcripts.", "forbiddenInArtifacts": ["gateway-token", "raw-prompt", "raw-transcript"]},
+    "controls": {"positive": "Child flow and nonce-rendered reason agree.", "negative": "A parent or unrelated child flow must not join."},
+    "backendUnavailable": {"disposition": "PARTIAL-candidate", "treatZeroAsAbsence": false, "requiredCompletenessKeys": ["tempo-query-status"], "rebindKeys": ["trace-id"]},
+    "artifact": {"schema": "openclaw.k6.continuation-trace-correlation.v1", "requiredFiles": ["continuation-trace-correlation.json", "tempo-trace.json"]},
+    "verdictAuthority": {"passScope": "behavioral-only", "pass": "Child-bound behavior and raw topology are present.", "partial": "Telemetry or rebind prerequisites are unavailable.", "fail": "Child identity or hop-two behavior fails."},
+    "execution": {"deterministicK6": "Live child producer captures structured identities.", "manual": "Independent reviewer inspects TaskFlow and trace receipts.", "relationship": "Structured child lineage controls sentinel interpretation."}
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
+    "requiresExternalAgentOrToolInvocation": true,
     "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
+    "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "delegate-child-hop-artifacts",
-      "delegate-child-hop2-executed"
+      "child-session-run-flow-identity",
+      "child-bound-schedule-and-hop-two",
+      "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "Fresh live child hop-two producer. Historical/static packets cannot satisfy this row."
   }
 }

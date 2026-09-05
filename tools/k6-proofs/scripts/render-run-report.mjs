@@ -13,7 +13,10 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
-import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  consumeRcd2Authority,
+  isRcd2AuthorityRequired,
+} from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 function usage() {
@@ -82,13 +85,6 @@ function numberFromDuration(raw) {
 }
 
 function authoritativeReceiptContract(rowId) {
-  if (rowId === 'R-CD-2') {
-    return {
-      file: 'r-cd-2-authoritative-receipt.json',
-      verdictSource: 'r-cd-2-authoritative-receipt',
-      validate: validateRcd2AuthoritativeReceipt,
-    };
-  }
   if (rowId === 'R-CD-TOKEN') {
     return {
       file: 'r-cd-token-authoritative-receipt.json',
@@ -146,7 +142,31 @@ async function rowFromRunResult(root, runResultPath) {
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
   let outcome = safeText(runResult.verdict || summary?.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
-  const authoritative = authoritativeReceiptContract(metadata?.row || manifest?.rowId);
+  const rCd2Required = isRcd2AuthorityRequired({
+    root,
+    runDir,
+    manifest,
+    metadata,
+    runResult,
+    summary,
+    evidence: evidenceRows[0],
+  });
+  let rCd2Authority = null;
+  if (rCd2Required) {
+    rCd2Authority = consumeRcd2Authority({
+      root,
+      runDir,
+      manifest,
+      metadata,
+      runResult,
+      summary,
+      evidence: evidenceRows[0],
+    });
+    outcome = safeText(rCd2Authority.outcome);
+  }
+  const authoritative = rCd2Required
+    ? null
+    : authoritativeReceiptContract(metadata?.row || manifest?.rowId);
   if (authoritative) {
     const declared = runResult.authoritativeReceipt;
     try {
@@ -154,7 +174,10 @@ async function rowFromRunResult(root, runResultPath) {
       const raw = await readFile(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error('authoritative receipt digest mismatch');
       const receipt = JSON.parse(raw.toString('utf8'));
-      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      const integrity = authoritative.validate(
+        receipt,
+        process.env.OPENCLAW_GATEWAY_TOKEN,
+      );
       if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error('authoritative receipt invalid');
       if ((metadata?.row || manifest?.rowId) === 'R-CD-TOKEN' && (
         receipt.binding?.candidateSha !== metadata?.candidateSha ||
@@ -167,12 +190,18 @@ async function rowFromRunResult(root, runResultPath) {
     }
   }
   return {
-    rowId: safeText(metadata?.row || manifest?.rowId),
-    candidateSha: safeText(metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
-    seat: safeText(metadata?.seat || manifest?.seat || summary?.seat),
-    scenario: safeText(metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),
+    rowId: safeText(rCd2Authority?.identity.row || (rCd2Required ? 'R-CD-2' : metadata?.row || manifest?.rowId)),
+    candidateSha: safeText(rCd2Authority?.identity.candidateSha || metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
+    seat: safeText(rCd2Authority?.identity.seat || metadata?.seat || manifest?.seat || summary?.seat),
+    scenario: safeText(rCd2Authority?.identity.scenario || metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),
     outcome,
-    reviewStatus: safeText(runResult?.review?.status || (runResult?.review?.pendingReceipts?.length ? 'review-pending' : 'ready-for-human-review')),
+    reviewStatus: safeText(
+      rCd2Authority?.review?.status ||
+      runResult?.review?.status ||
+      (runResult?.review?.pendingReceipts?.length
+        ? 'review-pending'
+        : 'ready-for-human-review'),
+    ),
     proofFailures,
     durationMs: numberFromDuration(summary?.metrics?.duration_ms),
     checksRate: summary?.metrics?.checks?.rate ?? summary?.metrics?.checksRate ?? null,
@@ -190,8 +219,10 @@ async function rowFromCandidateEnvelope(root, envelopePath) {
     readJson(path.join(runDir, 'runner-metadata.json')),
     readJson(path.join(runDir, 'run-result.json')),
   ]);
-  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) return null;
   const rel = path.relative(root, path.dirname(envelopePath)).split(path.sep).join('/');
+  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) {
+    return null;
+  }
   return {
     rowId: safeText(envelope.run?.rowId),
     candidateSha: safeText(envelope.candidate?.sha),

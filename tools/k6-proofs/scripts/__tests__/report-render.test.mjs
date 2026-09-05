@@ -46,7 +46,7 @@ function envelopeArtifacts({ files = [], tempoTraceJson = null, correlationRecei
   };
 }
 
-test('renders public-safe HTML report from row-list runner artifacts', async () => {
+test('rejects unsigned R-CD-2 instead of rendering a downgraded report', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'k6-proof-report-'));
   try {
     const runDir = path.join(root, 'b40e59', 'R-CD-2', 'ronan', 'k6-run-1');
@@ -81,15 +81,9 @@ test('renders public-safe HTML report from row-list runner artifacts', async () 
 
     const out = path.join(root, 'report.html');
     const run = spawnSync(process.execPath, [script, '--root', root, '--out', out], { encoding: 'utf8' });
-    assert.equal(run.status, 0, run.stderr);
-    const html = await readFile(out, 'utf8');
-    assert.match(html, /Project 81 k6 PROOFS report/);
-    assert.match(html, /R-CD-2/);
-    // A k6 summary cannot promote R-CD-2 without the signed row authority.
-    assert.match(html, /PARTIAL-candidate/);
-    assert.doesNotMatch(html, /<td>PASS-candidate<\/td>/);
-    assert.match(html, /trace-id: missing|tempo-trace-json: missing/);
-    assert.doesNotMatch(html, /agent:main|secret/);
+    assert.notEqual(run.status, 0);
+    await assert.rejects(readFile(out, 'utf8'), { code: 'ENOENT' });
+    assert.doesNotMatch(run.stdout, /UNVERIFIED-infrastructure|review-pending/u);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

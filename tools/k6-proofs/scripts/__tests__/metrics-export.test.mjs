@@ -29,10 +29,10 @@ test('exports row-result.json to the public-safe Prometheus/OTLP contract', asyn
     await writeFile(rowResult, `${JSON.stringify({
       schema: 'openclaw.k6.proof-row-result.v1',
       runId: 'k6-run-unit',
-      rowId: 'R-CD-2',
+      rowId: 'R-CD-1',
       candidateSha: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
       seat: 'cael-dgx',
-      scenario: 'r-cd-2-silent-wake',
+      scenario: 'r-cd-1',
       toolSurface: 'typed-tool',
       transport: 'websocket',
       outcome: 'PASS-candidate',
@@ -58,7 +58,7 @@ test('exports row-result.json to the public-safe Prometheus/OTLP contract', asyn
 
     const promText = await readFile(prom, 'utf8');
     assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="k6-run-unit"/);
-    assert.match(promText, /row_id="R-CD-2"/);
+    assert.match(promText, /row_id="R-CD-1"/);
     assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="k6-run-unit"[^\n]*fold_requires_review="true"[^\n]*\} 1/);
     assert.match(promText, /receipt_name="tempo-trace-json"/);
     assert.match(promText, /receipt_status="missing"\} 0/);
@@ -73,25 +73,25 @@ test('exports row-result.json to the public-safe Prometheus/OTLP contract', asyn
 
 test('exports row-list runner directory and marks trace-missing as pending receipt', async () => {
   await withTmp(async (dir) => {
-    const runDir = join(dir, '20260707T133429Z-r-cd-2');
+    const runDir = join(dir, '20260707T133429Z-r-cd-1');
     await mkdir(runDir, { recursive: true });
     await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
-      rowId: 'R-CD-2',
+      rowId: 'R-CD-1',
       candidateSha: '${OPENCLAW_CANDIDATE_SHA}',
       seat: '${OPENCLAW_SEAT_NAME:-cael-dgx}',
       transport: 'websocket',
       toolSurface: 'typed-tool',
-      scenario: { name: 'r-cd-2-silent-wake', file: 'r-cd-2-silent-wake.js' },
+      scenario: { name: 'r-cd-1', file: 'r-cd-1.js' },
       liveRunSafety: { requiredReceipts: ['dispatch-accepted', 'parent-wake-event', 'no-channel-delivery'] },
     }, null, 2)}\n`);
     await writeFile(join(runDir, 'runner-metadata.json'), `${JSON.stringify({
-      row: 'R-CD-2',
-      scenario: 'r-cd-2-silent-wake.js',
+      row: 'R-CD-1',
+      scenario: 'r-cd-1.js',
       candidateSha: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
       seat: 'cael-dgx',
     }, null, 2)}\n`);
-    await writeFile(join(runDir, 'r-cd-2-summary.json'), `${JSON.stringify({
-      row: 'R-CD-2',
+    await writeFile(join(runDir, 'r-cd-1-summary.json'), `${JSON.stringify({
+      row: 'R-CD-1',
       sha: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
       seat: 'cael-dgx',
       verdict: 'PASS-candidate',
@@ -118,8 +118,8 @@ test('exports row-list runner directory and marks trace-missing as pending recei
     const receipt = JSON.parse(run.stdout);
     assert.equal(receipt.outcome, 'PASS-candidate');
     const promText = await readFile(prom, 'utf8');
-    assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="20260707T133429Z-r-cd-2"/);
-    assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="20260707T133429Z-r-cd-2"[^\n]*fold_requires_review="true"[^\n]*\} 1/);
+    assert.match(promText, /openclaw_proofs_k6_run_total\{[^\n]*run_id="20260707T133429Z-r-cd-1"/);
+    assert.match(promText, /openclaw_proofs_k6_candidate_pending_review\{[^\n]*run_id="20260707T133429Z-r-cd-1"[^\n]*fold_requires_review="true"[^\n]*\} 1/);
     assert.match(promText, /receipt_name="tempo-trace-json"/);
     assert.match(promText, /receipt_status="missing"\} 0/);
     assert.match(promText, /receipt_name="dispatch-accepted"[^\n]*receipt_status="present"[^\n]*\} 1/);

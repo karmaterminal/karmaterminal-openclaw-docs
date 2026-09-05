@@ -25,6 +25,7 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { consumeRcd2Authority } from '../lib/r-cd-2-authority-context.mjs';
 
 const STALE_TOKENS = [
   'pending_push',
@@ -261,19 +262,69 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
       : `orphans: ${orphanDirs.join(', ')}`,
   );
 
+  const rCd2AuthorityFailures = [];
+  const unauthorizedRcd2Passes = new Set();
+  for (const [index, row] of manifest.rows.entries()) {
+    if (String(row?.row || '').trim().toUpperCase() !== 'R-CD-2' || row?.state !== 'pass') continue;
+    if (row.row !== 'R-CD-2') {
+      rCd2AuthorityFailures.push('R-CD-2 pass row identifier must use canonical uppercase spelling');
+      unauthorizedRcd2Passes.add(index);
+      continue;
+    }
+    const reviewedRun = row.reviewed_run;
+    const expectedPrefix = `PROOFS/${sha}/R-CD-2/`;
+    const parts = typeof reviewedRun === 'string' ? reviewedRun.split('/') : [];
+    if (
+      typeof reviewedRun !== 'string' ||
+      !reviewedRun.startsWith(expectedPrefix) ||
+      parts.length !== 5 ||
+      parts.some((part) => !part || part === '.' || part === '..')
+    ) {
+      rCd2AuthorityFailures.push(
+        'R-CD-2 pass requires an explicitly selected reviewed_run under its canonical row',
+      );
+      unauthorizedRcd2Passes.add(index);
+      continue;
+    }
+    try {
+      const authority = consumeRcd2Authority({
+        root,
+        runDir: join(root, reviewedRun),
+      });
+      if (authority.outcome !== 'PASS-candidate') {
+        throw new Error(`selected authority verdict is ${authority.outcome}`);
+      }
+    } catch (error) {
+      rCd2AuthorityFailures.push(`R-CD-2 reviewed authority invalid: ${error.message}`);
+      unauthorizedRcd2Passes.add(index);
+    }
+  }
+  pushCheck(
+    report,
+    'r-cd-2-reviewed-authority',
+    rCd2AuthorityFailures.length === 0,
+    rCd2AuthorityFailures.length
+      ? rCd2AuthorityFailures.join('; ')
+      : 'every R-CD-2 pass is bound to an explicitly selected reviewed run with complete authority',
+  );
+  report.rCd2AuthorityValid = rCd2AuthorityFailures.length === 0;
+
   const tallied = { pass: 0, partial: 0, thin: 0, fail: 0, honest_limit: 0, missing: 0 };
   const unknownStates = [];
-  for (const row of manifest.rows) {
+  let authorizedRowCount = 0;
+  for (const [index, row] of manifest.rows.entries()) {
+    if (unauthorizedRcd2Passes.has(index)) continue;
+    authorizedRowCount += 1;
     if (Object.prototype.hasOwnProperty.call(tallied, row.state)) tallied[row.state] += 1;
     else unknownStates.push({ row: row.row, state: row.state });
   }
-  tallied.total_rows = manifest.rows.length;
+  tallied.total_rows = authorizedRowCount;
   pushCheck(
     report,
     'state-values-known',
     unknownStates.length === 0,
     unknownStates.length === 0
-      ? 'all states ∈ {pass,partial,thin,fail,honest_limit,missing}'
+      ? 'all authorized states ∈ {pass,partial,thin,fail,honest_limit,missing}'
       : unknownStates.map((u) => `${u.row}→${JSON.stringify(u.state)}`).join('; '),
   );
   report.talliedRollup = tallied;
@@ -329,13 +380,17 @@ function validateIndex(root) {
       const expect = tallied[k];
       if (got !== expect) diffs.push(`${k}: index=${got} tallied=${expect}`);
     }
+    const authorityValid = report.shaReport.rCd2AuthorityValid !== false;
     pushCheck(
       report,
       'rollup-matches-manifest',
-      diffs.length === 0,
-      diffs.length === 0
+      authorityValid && diffs.length === 0,
+      authorityValid && diffs.length === 0
         ? `INDEX rollup matches manifest tally (${ROLLUP_KEYS.map((k) => `${k}=${tallied[k]}`).join(', ')})`
-        : diffs.join('; '),
+        : [
+            ...(!authorityValid ? ['R-CD-2 reviewed authority failed'] : []),
+            ...diffs,
+          ].join('; '),
     );
   } else if (!index.rollup) {
     pushCheck(report, 'rollup-matches-manifest', false, 'INDEX.rollup missing');

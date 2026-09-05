@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
-import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import { isRcd2AuthorityRequired } from '../lib/r-cd-2-authority-context.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -249,6 +248,15 @@ async function main() {
   if (manifest.liveRunSafety && manifest.liveRunSafety.foldRequiresReview !== true) {
     throw new Error('manifest liveRunSafety must declare foldRequiresReview=true');
   }
+  if (isRcd2AuthorityRequired({
+    manifest,
+    summary,
+    metadata: { manifestPath: args.manifest },
+  })) {
+    throw new Error(
+      'R-CD-2 requires complete runner identity; postprocess-k6-summary cannot validate or emit this row',
+    );
+  }
 
   const dest = manifest.artifactDestination || {};
   const outRoot = args['out-root'] || dest.root || 'PROOFS';
@@ -261,20 +269,6 @@ async function main() {
   const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
   let outcome = outcomeFromSummary(summary, expectedArtifactClass, manifest.rowId);
   let verdictSource = 'k6-summary';
-  let authoritativeReceiptDigest = null;
-  let authoritativeReceiptRaw = null;
-  let authoritativeReceipt = null;
-  if (manifest.rowId === 'R-CD-2') {
-    if (!args['authoritative-receipt']) throw new Error('R-CD-2 requires --authoritative-receipt');
-    authoritativeReceiptRaw = readFileSync(args['authoritative-receipt']);
-    const receipt = JSON.parse(authoritativeReceiptRaw.toString('utf8'));
-    const validation = validateRcd2AuthoritativeReceipt(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
-    if (!validation.valid) throw new Error(`R-CD-2 authoritative receipt rejected: ${validation.reason}`);
-    outcome = receipt.verdict;
-    verdictSource = 'r-cd-2-authoritative-receipt';
-    authoritativeReceiptDigest = createHash('sha256').update(authoritativeReceiptRaw).digest('hex');
-    authoritativeReceipt = { schema: receipt.schema, validated: true, source: 'r-cd-2-row-scoped-resolver' };
-  }
   const failures = requiredMetric(summary, 'proof_failures');
   const failureCount = failures ? Number(failures.count || 0) : 0;
   const checks = requiredMetric(summary, 'checks');
@@ -333,7 +327,6 @@ async function main() {
     transport: manifest.transport,
     outcome,
     verdictSource,
-    ...(authoritativeReceiptDigest ? { authoritativeReceipt: { ...authoritativeReceipt, file: 'r-cd-2-authoritative-receipt.json', sha256: authoritativeReceiptDigest } } : {}),
     metrics: {
       proofFailures: failureCount,
       checksRate: checkRate,
@@ -370,7 +363,6 @@ async function main() {
   await writeFile(path.join(runDir, 'row-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   await writeFile(path.join(runDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
   await writeFile(path.join(runDir, 'row-result.json'), JSON.stringify(result, null, 2) + '\n');
-  if (authoritativeReceiptRaw) await writeFile(path.join(runDir, 'r-cd-2-authoritative-receipt.json'), authoritativeReceiptRaw);
   await writeFile(path.join(runDir, 'EVIDENCE.md'), evidenceDraft({ manifest, summary, result }));
 
   console.log(JSON.stringify({ runDir, outcome, rowId: manifest.rowId, candidateOnly: true }, null, 2));

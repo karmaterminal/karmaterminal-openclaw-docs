@@ -8,6 +8,11 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
+import {
+  BASE as RCD2_BASE,
+  SIGNING_KEY as RCD2_SIGNING_KEY,
+  writeRcd2Bundle,
+} from './helpers/r-cd-2-authority-fixture.mjs';
 
 const runNode = promisify(execFile);
 const script = path.resolve('tools/k6-proofs/scripts/validate-candidate-run-result.mjs');
@@ -121,10 +126,16 @@ async function writeCanonicalCorpusFixture(root) {
   );
 }
 
-async function invoke({ manifestPath, candidateDir, out = null }) {
-  const args = [script, '--manifest', manifestPath, '--candidate-dir', candidateDir, '--docs-ref', docsRef];
+async function invoke({
+  manifestPath,
+  candidateDir,
+  out = null,
+  selectedDocsRef = docsRef,
+  signingKey = gatewayKey,
+}) {
+  const args = [script, '--manifest', manifestPath, '--candidate-dir', candidateDir, '--docs-ref', selectedDocsRef];
   if (out) args.push('--out', out);
-  return runNode(process.execPath, args, { encoding: 'utf8', env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: gatewayKey } });
+  return runNode(process.execPath, args, { encoding: 'utf8', env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey } });
 }
 
 test('emits a public-safe, candidate-only routing envelope for a complete candidate run', async () => {
@@ -538,6 +549,33 @@ test('refuses output outside the candidate directory', async () => {
     );
   } finally {
     await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 candidate envelope rejects a signed receipt copied from another seat', async () => {
+  const fixture = await writeRcd2Bundle(path.resolve('.'));
+  try {
+    await invoke({
+      manifestPath: fixture.manifestPath,
+      candidateDir: fixture.runDir,
+      selectedDocsRef: RCD2_BASE.docsRef,
+      signingKey: RCD2_SIGNING_KEY,
+    });
+    await writeFile(
+      path.join(fixture.runDir, 'runner-metadata.json'),
+      `${JSON.stringify({ ...fixture.metadata, seat: 'other-seat' })}\n`,
+    );
+    await assert.rejects(
+      invoke({
+        manifestPath: fixture.manifestPath,
+        candidateDir: fixture.runDir,
+        selectedDocsRef: RCD2_BASE.docsRef,
+        signingKey: RCD2_SIGNING_KEY,
+      }),
+      /R-CD-2 authority identity mismatch/,
+    );
+  } finally {
+    await fixture.cleanup();
   }
 });
 

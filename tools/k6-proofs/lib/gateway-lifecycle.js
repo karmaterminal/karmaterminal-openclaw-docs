@@ -21,11 +21,25 @@ export function gatewayLifecyclePhase(value) {
 
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
-  const status = String(value.data?.status || value.status || '').toLowerCase();
-  return !['error', 'failed', 'failure', 'aborted'].includes(status) && value.data?.replayInvalid !== true;
+  const status = value.data?.status;
+  return typeof status === 'string' && status.toLowerCase() === 'ok';
 }
 
-export function gatewayWakeRunId(value, acceptedRunId) {
+export function gatewayLifecycleSessionKey(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidates = [value.sessionKey, value.session]
+    .filter((candidate) => typeof candidate === 'string' && candidate.length > 0);
+  const unique = [...new Set(candidates)];
+  return unique.length === 1 ? unique[0] : null;
+}
+
+export function gatewayWakeRunId(value, acceptedRunId, expectedSessionKey) {
   const runId = gatewayLifecycleRunId(value);
-  return runId && runId !== acceptedRunId && gatewayLifecyclePhase(value) === 'start' ? runId : null;
+  const sessionKey = gatewayLifecycleSessionKey(value);
+  return runId &&
+    runId !== acceptedRunId &&
+    gatewayLifecyclePhase(value) === 'start' &&
+    sessionKey === expectedSessionKey
+    ? runId
+    : null;
 }

@@ -70,20 +70,26 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
 
   const manifest = JSON.parse(await readFile(path.join(manifestsDir, 'r-cd-2.json'), 'utf8'));
   const nonce = 'RCD2-RUNNER-CONTRACT-NONCE';
+  const nonceFingerprint = createHash('sha256').update(nonce).digest('hex').slice(0, 16);
   const reason = manifest.invocation.promptTemplate.replaceAll('{{nonce}}', nonce);
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const now = new Date().toISOString();
+  const dispatchAt = Date.now();
   const evidence = {
-    row: 'R-CD-2', nonce, started: now, ended: now, dispatch_accepted_at_ms: Date.now(),
+    row: 'R-CD-2', nonce, started: now, ended: now, dispatch_accepted_at_ms: dispatchAt,
+    dispatch_terminal_sentinel_at_ms: dispatchAt + 1,
+    dispatch_lifecycle_end_at_ms: dispatchAt + 2,
+    wake_lifecycle_at_ms: dispatchAt + 3,
+    post_wake_quiet_at_ms: dispatchAt + 4,
     delegate_mode: 'silent-wake', reason_hash: reasonHash, reason_length: reason.length,
     session_created: true, session_unbound_confirmed: true, send_accepted: true,
     send_run_captured: true, terminal_success_same_run: true, typed_delegate_success_same_run: true,
     dispatch_terminal_sentinel_observed: true,
     dispatch_terminal_sentinel_same_run_window: true,
-    wake_lifecycle_observed: true, post_wake_quiet: true, channel_message_observed: false,
+    wake_lifecycle_observed: true, wake_session_bound: true, post_wake_quiet: true, channel_message_observed: false,
     dispatch_failure_observed: false, send_run_fingerprint: 'a'.repeat(16),
-    terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'a'.repeat(16),
-    row_nonce_fingerprint: 'b'.repeat(16), accepted_send_trace_id: traceId,
+    terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'f'.repeat(16),
+    row_nonce_fingerprint: nonceFingerprint, accepted_send_trace_id: traceId,
   };
   const trace = rcd2Trace({ reasonHash, reasonLength: reason.length });
   const tempo = await listen((req, res) => {
@@ -202,6 +208,13 @@ test('R-CD-2 dispatch turn requires an exact post-tool terminal sentinel', async
   assert.match(scenario, /observesRcd2DispatchTerminalSentinel\(/);
   assert.match(scenario, /dispatchLifecycleActive/);
   assert.match(scenario, /wakeLifecycleObserved:\s*evidence\.wake_lifecycle_observed/);
+  assert.match(scenario, /typed_delegate_attempted_same_run:\s*false/);
+  assert.match(scenario, /typed_delegate_failed_same_run:\s*false/);
+  assert.match(scenario, /typed_delegate_failure_category:\s*null/);
+  assert.doesNotMatch(
+    scenario,
+    /send_run_success_end_observed[\s\S]{0,240}dispatch_failure_observed\s*=\s*true/,
+  );
   assert.doesNotMatch(scenario, /execute the tool call immediately, no other action needed/);
 });
 

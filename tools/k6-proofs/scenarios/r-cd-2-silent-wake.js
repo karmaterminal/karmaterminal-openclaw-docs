@@ -134,11 +134,15 @@ export default function () {
     dispatch_terminal_sentinel_observed: false,
     dispatch_terminal_sentinel_same_run_window: false,
     terminal_success_same_run: false,
+    typed_delegate_attempted_same_run: false,
     typed_delegate_success_same_run: false,
+    typed_delegate_failed_same_run: false,
+    typed_delegate_failure_category: null,
     // The silent wake is a fresh parent turn.  Its identity is therefore a
     // distinct top-level gateway lifecycle run, not a field guessed from a
     // session.message transcript payload.
     wake_lifecycle_observed: false,
+    wake_session_bound: false,
     post_wake_quiet: false,
     post_wake_quiet_timer_started: false,
     dispatch_failure_observed: false,
@@ -152,6 +156,10 @@ export default function () {
     channel_message_observed: false, // MUST stay false for PASS
     silent_status_record_observed: false,
     dispatch_accepted_at_ms: null,
+    dispatch_terminal_sentinel_at_ms: null,
+    dispatch_lifecycle_end_at_ms: null,
+    wake_lifecycle_at_ms: null,
+    post_wake_quiet_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
     post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     child_session: null,
@@ -294,6 +302,8 @@ export default function () {
             }
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
+            evidence.dispatch_failure_observed = true;
+            evidence.failureCategory = 'provider-or-turn-failure';
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
           }
@@ -334,29 +344,40 @@ export default function () {
             }
             if (phase === 'end' && eventRunId === acceptedRunId) {
               dispatchLifecycleActive = false;
+              evidence.dispatch_lifecycle_end_at_ms = Date.now();
               if (!sameRun) evidence.send_run_mismatch = true;
               else if (!gatewayLifecycleSucceeded(eventData)) {
                 evidence.dispatch_failure_observed = true;
-                evidence.failureCategory = eventData.data?.replayInvalid === true
-                  ? 'delegate-replay-unsafe' : 'provider-or-turn-failure';
+                evidence.failureCategory = 'provider-or-turn-failure';
               } else {
                 evidence.send_run_success_end_observed = true;
+                if (eventData.data?.replayInvalid === true) {
+                  evidence.replay_invalid_observed = true;
+                  evidence.failureCategory = 'delegate-replay-unsafe';
+                }
                 maybeRecordDispatchTerminalSuccess();
               }
             }
             // The deployed gateway gives agent lifecycle events a top-level
             // runId.  A later, distinct lifecycle start in this subscribed
             // parent session is the only authoritative silent-wake receipt.
-            const wakeRunId = gatewayWakeRunId(eventData, acceptedRunId);
+            const wakeRunId = evidence.silent_status_record_observed
+              ? gatewayWakeRunId(eventData, acceptedRunId, sessionKey)
+              : null;
             const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
             if (wakeRunId && elapsed >= evidence.wake_gate_ms) {
               evidence.parent_wake_observed = true;
               evidence.wake_lifecycle_observed = true;
+              evidence.wake_session_bound = true;
+              evidence.wake_lifecycle_at_ms = Date.now();
               evidence.wake_run_fingerprint = crypto.sha256(String(wakeRunId), 'hex').slice(0, 16);
               if (!evidence.post_wake_quiet_timer_started) {
                 evidence.post_wake_quiet_timer_started = true;
                 socket.setTimeout(() => {
-                  if (!evidence.channel_message_observed) evidence.post_wake_quiet = true;
+                  if (!evidence.channel_message_observed) {
+                    evidence.post_wake_quiet = true;
+                    evidence.post_wake_quiet_at_ms = Date.now();
+                  }
                   socket.close();
                 }, evidence.post_wake_quiet_ms);
               }
@@ -382,6 +403,7 @@ export default function () {
             )) {
               evidence.dispatch_terminal_sentinel_observed = true;
               evidence.dispatch_terminal_sentinel_same_run_window = true;
+              evidence.dispatch_terminal_sentinel_at_ms = Date.now();
               maybeRecordDispatchTerminalSuccess();
               console.log('✓ exact post-tool dispatch terminal sentinel observed within dispatch lifecycle');
             }
@@ -396,9 +418,29 @@ export default function () {
               eventStr.includes('"outcome":"done"')) {
             evidence.silent_status_record_observed = true;
             if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
+              evidence.typed_delegate_attempted_same_run = true;
               evidence.typed_delegate_success_same_run = true;
             }
             console.log('ℹ internal continue_status notify:false receipt observed');
+          }
+
+          if (eventStr.includes(rowNonce) && eventStr.includes('continue_delegate') &&
+              acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
+            evidence.typed_delegate_attempted_same_run = true;
+            const failed = eventStr.includes('codex_dynamic_tool_error') ||
+              eventStr.includes('"outcome":"blocked"') ||
+              eventStr.includes('"status":"error"') ||
+              eventStr.includes('"status":"rejected"');
+            if (failed) {
+              evidence.typed_delegate_failed_same_run = true;
+              evidence.typed_delegate_failure_category = eventStr.includes('codex_dynamic_tool_error')
+                ? 'codex_dynamic_tool_error'
+                : eventStr.includes('"outcome":"blocked"')
+                  ? 'blocked'
+                  : 'provider-or-turn-failure';
+              evidence.dispatch_failure_observed = true;
+              evidence.failureCategory = 'provider-or-turn-failure';
+            }
           }
 
           // Negative check: only an explicit outbound-delivery-shaped event counts.
@@ -441,7 +483,6 @@ export default function () {
       (!evidence.dispatch_terminal_sentinel_observed ||
        !evidence.dispatch_terminal_sentinel_same_run_window) &&
       evidence.dispatch_failure_observed !== true) {
-    evidence.dispatch_failure_observed = true;
     evidence.failureCategory = 'missing-terminal-sentinel';
   }
   finalEvidence = evidence;

@@ -10,6 +10,7 @@ import {
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 import {
   R_CD_2_SELECTION_RECEIPT_FILE,
+  consumeRcd2Authority,
   validateRcd2SelectedContextReceipt,
 } from '../../lib/r-cd-2-authority-context.mjs';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
@@ -91,6 +92,189 @@ async function exportRun(fixture, extra = []) {
   ]);
   return { ...result, prom, otlp };
 }
+
+async function installCanonicalPassClaim(fixture) {
+  const canonicalRow = path.join(
+    fixture.root,
+    'PROOFS',
+    BASE.candidateSha,
+    'R-CD-2',
+  );
+  const reviewedRun = path.join(
+    canonicalRow,
+    BASE.seat,
+    BASE.runId,
+  );
+  await mkdir(canonicalRow, { recursive: true });
+  await cp(fixture.runDir, reviewedRun, { recursive: true });
+  await writeFile(path.join(canonicalRow, 'EVIDENCE.md'), '# Selected candidate\n');
+  const rollup = {
+    total_rows: 1,
+    pass: 1,
+    partial: 0,
+    thin: 0,
+    fail: 0,
+    honest_limit: 0,
+    missing: 0,
+  };
+  await writeFile(
+    path.join(fixture.root, 'PROOFS', BASE.candidateSha, 'proofs-manifest.json'),
+    `${JSON.stringify({
+      schema: 'openclaw.proofs.manifest.v1',
+      capture_sha: BASE.candidateSha,
+      rows: [{
+        row: 'R-CD-2',
+        state: 'pass',
+        dir: `PROOFS/${BASE.candidateSha}/R-CD-2`,
+        evidence_doc: `PROOFS/${BASE.candidateSha}/R-CD-2/EVIDENCE.md`,
+        reviewed_run: path.relative(fixture.root, reviewedRun).replaceAll(path.sep, '/'),
+      }],
+      rollup,
+    }, null, 2)}\n`,
+  );
+  await writeFile(
+    path.join(fixture.root, 'PROOFS', 'INDEX.json'),
+    `${JSON.stringify({
+      schema: 'openclaw.proofs.index.v1',
+      current_sha: BASE.candidateSha,
+      corpus_path: `PROOFS/${BASE.candidateSha}`,
+      manifest_path: `PROOFS/${BASE.candidateSha}/proofs-manifest.json`,
+      rollup,
+    }, null, 2)}\n`,
+  );
+  return reviewedRun;
+}
+
+async function rejectedAuthorityConsumers(fixture) {
+  const failures = [];
+  try {
+    consumeRcd2Authority({
+      root: fixture.root,
+      runDir: fixture.runDir,
+      manifest: fixture.manifest,
+      metadata: fixture.metadata,
+      runResult: fixture.runResult,
+      summary: fixture.summary,
+      envelope: fixture.envelope,
+      signingKey: SIGNING_KEY,
+    });
+    failures.push('shared consumer');
+  } catch {
+    // Expected.
+  }
+
+  const emitted = await run(process.execPath, [
+    candidateEmitter,
+    '--manifest', fixture.manifestPath,
+    '--candidate-dir', fixture.runDir,
+    '--docs-ref', BASE.docsRef,
+  ]);
+  if (emitted.status === 0) failures.push('candidate sidecar');
+  if (siblingMatch(fixture)) failures.push('candidate sibling contract');
+
+  const single = await exportRun(fixture);
+  if (single.status === 0 || await exists(single.prom) || await exists(single.otlp)) {
+    failures.push('single-row metrics');
+  }
+
+  const bulkOut = path.join(fixture.root, 'bulk.prom');
+  const bulk = await run(process.execPath, [
+    bulkExporter,
+    '--root', fixture.root,
+    '--out', bulkOut,
+  ]);
+  if (
+    bulk.status === 0 ||
+    await exists(bulkOut) ||
+    /openclaw_proofs_k6_run_total/u.test(bulk.stdout)
+  ) {
+    failures.push('bulk metrics');
+  }
+
+  const report = await render(fixture);
+  if (
+    report.status !== 0 ||
+    !/UNVERIFIED-infrastructure/u.test(report.html) ||
+    /<td>PASS-candidate<\/td>/u.test(report.html)
+  ) {
+    failures.push('report');
+  }
+
+  const debt = await run(process.execPath, [
+    debtSummarizer,
+    '--run-root', fixture.root,
+    '--json',
+  ]);
+  if (debt.status !== 0 || JSON.parse(debt.stdout).pendingRows !== 1) {
+    failures.push('review debt');
+  }
+
+  await installCanonicalPassClaim(fixture);
+  const corpus = await run(process.execPath, [
+    path.join(scripts, 'validate-corpus.mjs'),
+    '--root', fixture.root,
+    '--index',
+    '--json',
+  ]);
+  if (corpus.status === 0) failures.push('corpus');
+
+  return failures;
+}
+
+test('disk-loaded correlation requires the selected complete authority identity everywhere', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  try {
+    const hostileCorrelation = structuredClone(fixture.correlation);
+    hostileCorrelation.authorityIdentity = rCd2AuthorityIdentity({
+      ...fixture.metadata,
+      candidateSha: FOREIGN.candidateSha,
+      runtimeBuildSha: FOREIGN.candidateSha,
+      docsRef: FOREIGN.docsRef,
+      repository: FOREIGN.repository,
+      seat: FOREIGN.seat,
+      matrixId: FOREIGN.matrixId,
+      runId: FOREIGN.runId,
+      manifestPath: FOREIGN.manifestPath,
+      manifestSha256: '6'.repeat(64),
+      scenarioPath: FOREIGN.scenarioPath,
+      scenarioSha256: '7'.repeat(64),
+    }, FOREIGN.runId);
+    await writeFile(
+      path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+      `${JSON.stringify(hostileCorrelation, null, 2)}\n`,
+    );
+
+    assert.deepEqual(
+      await rejectedAuthorityConsumers(fixture),
+      [],
+      'a foreign disk-loaded correlation identity reached an authority consumer',
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('explicit selected summary never hides contradictory on-disk summary claims', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  try {
+    await writeFile(
+      path.join(fixture.runDir, 'z-summary.json'),
+      `${JSON.stringify({
+        ...fixture.summary,
+        row: 'R-CW-1',
+        scenario: 'r-cw-1.js',
+      }, null, 2)}\n`,
+    );
+
+    assert.deepEqual(
+      await rejectedAuthorityConsumers(fixture),
+      [],
+      'a contradictory on-disk summary reached an authority consumer',
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
 
 test('signed R-CD-2 PASS, PARTIAL, and FAIL remain valid positive authorities', async (t) => {
   for (const verdict of ['PASS-candidate', 'PARTIAL-candidate', 'FAIL-candidate']) {

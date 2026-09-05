@@ -435,6 +435,36 @@ test('R-CD-2 typed-tool failure outranks a missing sentinel', () => {
   assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
 });
 
+test('R-CD-2 distinguishes a proven non-attempt from an earlier lifecycle miss', () => {
+  const noAttempt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      typed_delegate_attempted_same_run: false,
+      typed_delegate_success_same_run: false,
+      dispatch_terminal_sentinel_observed: false,
+      dispatch_terminal_sentinel_same_run_window: false,
+    }),
+    correlation: null,
+    signingKey,
+  });
+  assert.equal(noAttempt.failureCategory, 'missing-terminal-sentinel');
+
+  const preDispatch = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      session_created: false,
+      send_accepted: false,
+      send_run_captured: false,
+      terminal_success_same_run: false,
+      typed_delegate_attempted_same_run: false,
+      typed_delegate_success_same_run: false,
+      dispatch_terminal_sentinel_observed: false,
+      dispatch_terminal_sentinel_same_run_window: false,
+    }),
+    correlation: null,
+    signingKey,
+  });
+  assert.equal(preDispatch.failureCategory, 'missing-send-run-lifecycle');
+});
+
 test('R-CD-2 diagnostics are boolean-only and publish no private identities', () => {
   const receipt = resolveRcd2AuthoritativeReceipt({
     evidence: evidence(), correlation: correlation(), signingKey,

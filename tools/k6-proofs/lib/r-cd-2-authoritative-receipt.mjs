@@ -243,8 +243,9 @@ function categoryFor(evidence, correlation, diagnostics) {
   if ((!diagnostics.lifecycle.dispatchTerminalSentinel ||
        !diagnostics.lifecycle.dispatchTerminalSentinelSameRun) &&
       (evidence?.typed_delegate_success_same_run === true ||
-       evidence?.typed_delegate_attempted_same_run === false ||
-       evidence?.failureCategory === 'missing-terminal-sentinel')) {
+        (evidence?.typed_delegate_attempted_same_run === false &&
+         evidence?.terminal_success_same_run === true) ||
+        evidence?.failureCategory === 'missing-terminal-sentinel')) {
     return 'missing-terminal-sentinel';
   }
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';

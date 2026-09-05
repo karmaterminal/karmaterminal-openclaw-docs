@@ -96,7 +96,7 @@ async function readEvidence(evidencePath) {
 }
 
 function traceContract(manifest, evidence) {
-  const tool = manifest?.invocation?.tool;
+  const tool = manifest?.invocation?.traceTool || manifest?.invocation?.tool;
   const nonce = evidence?.nonce;
 
   let reason;
@@ -176,6 +176,8 @@ function traceContract(manifest, evidence) {
     fireSpanName,
     attribution,
     originSurface: manifest?.invocation?.originSurface,
+    requireSuccessorSpan: manifest?.invocation?.requireSuccessorSpan === true,
+    toolCallCount: manifest?.invocation?.traceToolCallCount || 1,
   };
 }
 
@@ -291,6 +293,7 @@ function projectScopedContinuationTrace(trace, traceId, topology) {
     ...topology.toolSpanIds,
     ...topology.fireSpanIds,
     ...topology.childSpans.map((span) => span.spanId),
+    ...(topology.successorSpans || []).map((span) => span.spanId),
   ].filter(Boolean));
   return {
     ...projected,
@@ -349,11 +352,11 @@ function validateTrace(trace, expected) {
     if (tools.length !== 0) {
       throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
     }
-  } else if (tools.length !== 1) {
+  } else if (tools.length !== expected.toolCallCount) {
     throw new Error(
       tools.length === 0
         ? `matched trace lacks the originating ${expected.tool} tool span`
-        : `matched trace contains ${tools.length} ${expected.tool} tool spans`,
+        : `matched trace contains ${tools.length} ${expected.tool} tool spans; expected ${expected.toolCallCount}`,
     );
   }
   if (tools.some((span) => {
@@ -387,6 +390,38 @@ function validateTrace(trace, expected) {
       span.parentSpanId && idHex(span.parentSpanId, 8, 'parent span id') === acceptSpanId)
     .map((span) => ({ name: publicSpanName(span.name), spanId: idHex(span.spanId, 8, 'child span id') }))
     .filter((span) => span.name !== null);
+  const lifecycleNames = new Set([
+    expected.acceptSpanName,
+    expected.fireSpanName,
+    'openclaw.tool.execution',
+  ]);
+  const successorRunNames = new Set(['openclaw.run', 'openclaw.harness.run']);
+  const earliestFireNs = fires
+    .map((span) => spanTimeNs(span, 'startTimeUnixNano'))
+    .filter((value) => value !== null)
+    .sort((left, right) => left < right ? -1 : left > right ? 1 : 0)[0] ?? null;
+  const successorSpans = spans
+    .filter((span) => {
+      if (lifecycleNames.has(span.name) ||
+          !successorRunNames.has(span.name) ||
+          !span.parentSpanId) {
+        return false;
+      }
+      const startNs = spanTimeNs(span, 'startTimeUnixNano');
+      if (earliestFireNs === null || startNs === null || startNs < earliestFireNs) return false;
+      const parentId = idHex(span.parentSpanId, 8, 'successor parent span id');
+      if (parentId === acceptSpanId) return true;
+      return parentId === acceptParentSpanId;
+    })
+    .map((span) => ({
+      name: publicSpanName(span.name),
+      spanId: idHex(span.spanId, 8, 'successor span id'),
+      parentSpanId: idHex(span.parentSpanId, 8, 'successor parent span id'),
+    }))
+    .filter((span) => span.name !== null);
+  if (expected.requireSuccessorSpan && successorSpans.length === 0) {
+    throw new Error('matched trace lacks a successor/provider span joined through the persisted parent context');
+  }
 
   const topology = {
     traceId,
@@ -399,6 +434,7 @@ function validateTrace(trace, expected) {
     fireParentSpanIds,
     fireAttemptCount: fireSpanIds.length,
     childSpans,
+    ...(expected.requireSuccessorSpan ? { successorSpans } : {}),
   };
   if (expected.tool === 'continue_delegate') {
     return {
@@ -548,6 +584,8 @@ async function main() {
               acceptSpanName: contract.acceptSpanName,
               fireSpanName: contract.fireSpanName,
               originSurface: contract.originSurface,
+              requireSuccessorSpan: contract.requireSuccessorSpan,
+              toolCallCount: contract.toolCallCount,
             })
           : validateToolTrace(trace, { tool: contract.tool });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
@@ -620,6 +658,8 @@ async function main() {
         acceptSpanName: contract.acceptSpanName,
         fireSpanName: contract.fireSpanName,
         originSurface: contract.originSurface,
+        requireSuccessorSpan: contract.requireSuccessorSpan,
+        toolCallCount: contract.toolCallCount,
       })
     : validateToolTrace(trace, { tool: contract.tool });
   if (topology.traceId !== traceId) {

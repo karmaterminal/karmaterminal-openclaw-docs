@@ -1,48 +1,57 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
-  "issue": 119,
+  "issue": 459,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 15,
+  "timeoutSeconds": 210,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
+    "name": "r-cd-collection-on-collapse-producer",
+    "description": "A sessions_spawn(mode=run) creates detached B; B uses continue_delegate(mode=normal, fanoutMode=tree) for delayed C and terminalizes before C runs; root A then collects C.",
     "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "tasks.list"
     ],
     "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "file": "r-cd-collection-on-collapse-producer.js"
   },
   "invocation": {
     "tool": "continue_delegate",
     "forms": [
       "typed-tool"
     ],
-    "mode": "silent-wake",
-    "delaySeconds": 1,
-    "promptTemplate": "Proof nonce {{nonce}}: construct A→B→C collection-on-collapse chain with detached intermediate only when explicitly live-fired. Do not mutate files. Do not post to any channel.",
+    "mode": "normal",
+    "fanoutMode": "tree",
+    "childDelaySeconds": 5,
+    "promptTemplate": "C leaf nonce {{nonce}}. Return exactly C-DONE {{nonce}}. Do not call tools or mutate files.",
+    "spawnPromptTemplate": "B intermediate nonce {{nonce}}. Call continue_delegate exactly once with mode=\"normal\", delaySeconds={{childDelaySeconds}}, fanoutMode=\"tree\", and task={{cTaskJson}}. After the tool result reports scheduled, reply exactly B-TERMINAL {{nonce}} and end. Do not call sessions_spawn and do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-COLLECT-COLLAPSE"
   },
   "expectedReceipts": [
     {
-      "name": "collection-collapse-artifacts",
+      "name": "a-b-c-lineage",
       "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
+      "description": "Distinct A/B/C session and run IDs, B task ID, and C task/flow IDs are captured. Ordinary sessions_spawn B has no continuation flow."
     },
     {
       "name": "root-collection-after-intermediate-finalized",
       "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
+      "description": "B has a settled terminal lifecycle before C lifecycle start, and C settles before root A's collection run."
+    },
+    {
+      "name": "tree-fanout-semantics",
+      "required": true,
+      "description": "The live fire uses supported mode=normal and fanoutMode=tree. Untargeted default delivery remains immediate-requester only."
     }
   ],
   "artifactDestination": {
@@ -55,22 +64,23 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CD-COLLECTION-ON-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
+    "notes": "Live behavioral producer. A uses sessions_spawn mode=run; continue_delegate never receives unsupported session/run modes."
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
+    "requiresExternalAgentOrToolInvocation": true,
     "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
+    "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "collection-collapse-artifacts",
-      "root-collection-after-intermediate-finalized"
+      "a-b-c-lineage",
+      "root-collection-after-intermediate-finalized",
+      "tree-fanout-semantics"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "Default continue_delegate return targets its requester. This collapse proof deliberately uses fanoutMode=tree so C reaches root A after B terminalizes."
   }
 }

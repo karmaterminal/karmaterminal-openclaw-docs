@@ -119,10 +119,11 @@ jobs:
           node tools/k6-proofs/scripts/check-manifest-scenarios.mjs --repo-root "$GITHUB_WORKSPACE"
           node tools/k6-proofs/scripts/check-scenario-alignment.mjs --repo-root "$GITHUB_WORKSPACE"
           node tools/k6-proofs/scripts/check-proof-row-manifests.mjs --repo-root "$GITHUB_WORKSPACE"
-          if [[ "$ROWS_INPUT" == "live-suite" ]]; then
-            rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
-          elif [[ "$ROWS_INPUT" == "all" ]]; then
-            rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs)"
+          if [[ "$ROWS_INPUT" == "live-suite" || "$ROWS_INPUT" == "all" ]]; then
+            # Preserve the set selector so run-proofs resolves it through the
+            # producer catalog and dependency DAG rather than flattening it to
+            # manifest-only rows here.
+            rows="$ROWS_INPUT"
           elif [[ "$ROWS_INPUT" == from:* ]]; then
             rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --from "${ROWS_INPUT#from:}")"
           else
@@ -187,6 +188,13 @@ jobs:
           fi
           if [[ "${{ inputs.metrics_push }}" != "true" ]]; then
             unset OPENCLAW_PROOFS_K6_OTLP_ENDPOINT
+          fi
+          if [[ "${{ inputs.dry_run }}" == "false" ]]; then
+            export FINAL_PRODUCT_CHECKOUT="${FINAL_PRODUCT_CHECKOUT:-$HOME/source/openclaw}"
+            git -C "$FINAL_PRODUCT_CHECKOUT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+              echo "::error::FINAL_PRODUCT_CHECKOUT must name the exact candidate product checkout for process-local producers"
+              exit 1
+            }
           fi
           # Bind the matrix to the exact immutable docs/harness commit this job
           # checked out (#496). The runner freezes it before any row fires and

@@ -1,34 +1,55 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CW-MULTI-COLLAPSE",
-  "issue": 216,
+  "issue": 481,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "process-local",
+  "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 15,
+  "timeoutSeconds": 120,
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+    "name": "r-cw-multi-collapse-process-local",
+    "description": "Exact-product process-local fixture for newest, within-grace, stale queued, and running collapse boundaries.",
     "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
+      "partitionSupersededWork",
+      "exact-candidate-vitest"
     ],
-    "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "status": "scaffold",
+    "expectedFile": "run-multi-collapse-fixture.mjs",
+    "registryNotes": "Executed explicitly by the producer catalog; never by k6."
+  },
+  "invocation": {
+    "fixture": "tools/k6-proofs/scripts/run-multi-collapse-fixture.mjs",
+    "graceMultiplierSymbol": "SUPERSEDED_GRACE_MULTIPLIER",
+    "graceMs": "maxDelayMs * SUPERSEDED_GRACE_MULTIPLIER"
   },
   "expectedReceipts": [
     {
-      "name": "multi-collapse-artifacts",
+      "name": "newest-drives",
       "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
+      "description": "Newest election always drives."
     },
     {
-      "name": "stale-superseded-newest-granted-config-restored",
+      "name": "within-grace-older-drives",
       "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
+      "description": "Older election at the equality/within-grace boundary still drives."
+    },
+    {
+      "name": "stale-queued-older-folds",
+      "required": true,
+      "description": "Only an older queued election strictly beyond grace folds."
+    },
+    {
+      "name": "running-never-folds",
+      "required": true,
+      "description": "Running work never folds, even when stale and older."
+    },
+    {
+      "name": "baseline-restored",
+      "required": true,
+      "description": "Exact product SHA/tree/status is unchanged after the fixture."
     }
   ],
   "artifactDestination": {
@@ -41,10 +62,10 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CW-MULTI-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
+    "notes": "Process-local exact-candidate producer. The fixture derives grace from maxDelayMs * SUPERSEDED_GRACE_MULTIPLIER and runs the real product tests."
   },
   "liveRunSafety": {
-    "classification": "k6-runnable",
+    "classification": "orchestration-required",
     "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
@@ -53,10 +74,13 @@
     "sameSessionConcurrencySafe": true,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "multi-collapse-artifacts",
-      "stale-superseded-newest-granted-config-restored"
+      "newest-drives",
+      "within-grace-older-drives",
+      "stale-queued-older-folds",
+      "running-never-folds",
+      "baseline-restored"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "The whole-set producer runner executes this fixture explicitly. Static corpus validation cannot satisfy it."
   }
 }

@@ -1,34 +1,77 @@
 {
   "schema": "openclaw.k6.proof-row-manifest.v1",
   "rowId": "R-CW-MULTI",
-  "issue": 117,
+  "issue": 482,
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
-  "toolSurface": "read-only",
+  "transport": "websocket",
+  "toolSurface": "typed-tool+response-token",
   "mutates": false,
-  "timeoutSeconds": 15,
+  "timeoutSeconds": 250,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
   "scenario": {
-    "name": "static-corpus-row-validator",
-    "description": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+    "name": "r-cw-multi-producer",
+    "description": "One turn schedules three typed elections with exact reasons and delays; three distinct successor runs each complete exactly once, followed by an isolated response-token parity wake.",
     "methods": [
-      "manual-corpus-review",
-      "static-artifact-parse"
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
     ],
     "status": "runnable",
-    "file": "static-corpus-row-validator.js"
+    "file": "r-cw-multi-producer.js"
+  },
+  "invocation": {
+    "tool": "continue_work",
+    "traceToolCallCount": 3,
+    "forms": [
+      "typed-tool",
+      "response-token"
+    ],
+    "reason": "R-CW-MULTI {{nonce}} immediate",
+    "elections": [
+      {
+        "label": "immediate",
+        "delaySeconds": 0,
+        "reason": "R-CW-MULTI {{nonce}} immediate"
+      },
+      {
+        "label": "delay-60",
+        "delaySeconds": 60,
+        "reason": "R-CW-MULTI {{nonce}} delay-60"
+      },
+      {
+        "label": "delay-120",
+        "delaySeconds": 120,
+        "reason": "R-CW-MULTI {{nonce}} delay-120"
+      }
+    ],
+    "observeSeconds": 130,
+    "idempotencyKeyPrefix": "R-CW-MULTI"
   },
   "expectedReceipts": [
     {
-      "name": "multi-work-artifacts",
+      "name": "three-distinct-elections",
       "required": true,
-      "description": "Current PROOFS corpus receipts parse for this row."
+      "description": "Three unique continue_work toolCallIds and three unique TaskFlow flowIds share the originating run."
     },
     {
-      "name": "fanout-collapse-semantics",
+      "name": "exactly-one-wake-per-election",
       "required": true,
-      "description": "Committed evidence satisfies the row-specific PASS predicate."
+      "description": "Three distinct successor run IDs settle, each mapped once to one expected delay/reason; repeated observations are deduplicated."
+    },
+    {
+      "name": "response-token-parity",
+      "required": true,
+      "description": "After the typed multi-election phase settles, a terminal CONTINUE_WORK:0 response creates one separately bound successful wake."
+    },
+    {
+      "name": "trace-id",
+      "required": true,
+      "description": "Fresh trace ID for the nonce-rendered immediate election."
     }
   ],
   "artifactDestination": {
@@ -41,22 +84,48 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Static artifact validator for R-CW-MULTI. Validates committed corpus receipts; does not fire live behavior."
+    "notes": "The three-election behavior is proven through typed calls because the exact product accepts only one trailing response token. A separate terminal-token phase in the same producer proves response-token parity without pretending that token syntax supports multi-election fanout."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {"issue": "karmaterminal/openclaw#1254", "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643", "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955", "limits": "Three TaskFlows and lifecycle runs prove multiplicity; spans remain behavioral-only without product identity attributes."},
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": ["R-OBS-CONT-PROVENANCE", "R-OBS-PROOF-MARKER", "R-OBS-BACKEND-DISPOSITION"],
+    "expectedTelemetry": {
+      "spans": [{"name": "continuation.work", "emittedByProduct": true}, {"name": "continuation.work.fire", "emittedByProduct": true}],
+      "attributes": [
+        {"key": "chain.id", "purpose": "chain", "emittedByProduct": true},
+        {"key": "continuation.origin.run.fingerprint", "purpose": "origin", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.session.fingerprint", "purpose": "session", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.turn.fingerprint", "purpose": "turn", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "continuation.run.fingerprint", "purpose": "run", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"},
+        {"key": "proof.run.id", "purpose": "proof-run", "emittedByProduct": false, "productIssue": "karmaterminal/openclaw#1254"}
+      ]
+    },
+    "redaction": {"rule": "Persist reason hashes and structured flow/run fingerprints; never raw prompts, tokens, or transcripts.", "forbiddenInArtifacts": ["gateway-token", "raw-prompt", "raw-transcript"]},
+    "controls": {"positive": "Three exact reasons map to three flows and wakes.", "negative": "Duplicate flow IDs or repeated wake observations fail."},
+    "backendUnavailable": {"disposition": "PARTIAL-candidate", "treatZeroAsAbsence": false, "requiredCompletenessKeys": ["tempo-query-status"], "rebindKeys": ["trace-id"]},
+    "artifact": {"schema": "openclaw.k6.continuation-trace-correlation.v1", "requiredFiles": ["continuation-trace-correlation.json", "tempo-trace.json", "live-producer-lineage.json"]},
+    "verdictAuthority": {"passScope": "behavioral-only", "pass": "All three flow/run elections are complete.", "partial": "Telemetry or rebind prerequisites are unavailable.", "fail": "Multiplicity, uniqueness, or wake completion fails."},
+    "execution": {"deterministicK6": "Live three-election producer.", "manual": "Independent reviewer inspects flow/run and raw trace receipts.", "relationship": "TaskFlow identity establishes multiplicity; trace receipt covers the nonce-rendered immediate election."}
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
-    "requiresLiveGatewayToken": false,
+    "requiresLiveGatewayToken": true,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": false,
+    "requiresExternalAgentOrToolInvocation": true,
     "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
+    "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
-      "multi-work-artifacts",
-      "fanout-collapse-semantics"
+      "three-distinct-elections",
+      "exactly-one-wake-per-election",
+      "trace-id"
     ],
     "foldRequiresReview": true,
-    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+    "notes": "Observe for at least 130 seconds. One surviving election, duplicate wake observations, fold/collapse evidence, or a missing response-token parity wake fails."
   }
 }

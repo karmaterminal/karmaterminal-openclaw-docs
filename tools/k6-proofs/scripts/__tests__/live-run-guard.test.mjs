@@ -166,14 +166,21 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   const liveRows = liveSuite.stdout.trim().split(',');
   assert.equal(liveRows.length, 34);
   assert.equal(liveRows[0], 'PREFLIGHT');
-  assert.doesNotMatch(liveSuite.stdout, /R-CW-5(?:,|$)/);
-  assert.doesNotMatch(liveSuite.stdout, /R-CW-6(?:,|$)/);
+  assert.match(liveSuite.stdout, /R-CW-5(?:,|$)/);
+  assert.match(liveSuite.stdout, /R-CW-6(?:,|$)/);
   assert.doesNotMatch(liveSuite.stdout, /R-CW-[56]A/);
+  assert.doesNotMatch(
+    liveSuite.stdout,
+    /R-CD-RETURN-COVENANT-AUTHORITY|R-CD-RETURN-OVERLAP|R-OBS-2/,
+  );
 
   const allRows = spawnSync(process.execPath, [rowListScript, '--all'], { cwd: repoRoot, encoding: 'utf8' });
   assert.equal(allRows.status, 0, allRows.stderr || allRows.stdout);
-  assert.match(allRows.stdout, /R-CW-5A/);
-  assert.match(allRows.stdout, /R-CW-6A/);
+  assert.doesNotMatch(allRows.stdout, /R-CW-[56]A/);
+  assert.doesNotMatch(
+    allRows.stdout,
+    /R-CD-RETURN-COVENANT-AUTHORITY|R-CD-RETURN-OVERLAP|R-OBS-2/,
+  );
 
   const resumedRows = spawnSync(
     process.execPath,

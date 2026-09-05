@@ -18,17 +18,29 @@ function k6Line(message) {
 test('removes identity fields and scrubs their values recursively', () => {
   const nonce = 'R-CD-1-1783882863334-sensitive';
   const sessionKey = `agent:main:r-cd-1-${nonce}`;
+  const runId = `run-${nonce}`;
+  const flowId = `flow-${nonce}`;
+  const taskId = `task-${nonce}`;
+  const toolCallId = `tool-call-${nonce}`;
   const record = {
     row: 'R-CD-1',
     nonce,
     sessionKey,
     requestedSessionKey: 'main',
-    run_id: `run-${nonce}`,
+    run_id: runId,
+    flow_id: flowId,
+    task_id: taskId,
+    tool_call_id: toolCallId,
     expected_task: `Proof nonce ${nonce}: reply exactly`,
     expected_return_sentinel: `CD1-DONE ${nonce}`,
     child_session: sessionKey,
     reason_hash: 'adfa6bb5a86112ed',
     reason_length: 139,
+    wake_runs: {
+      [runId]: {
+        diagnostic: `${flowId} ${taskId} ${toolCallId}`,
+      },
+    },
     redacted_events: [{ data: { sessionKey, message: `Proof nonce ${nonce}` } }],
   };
 
@@ -42,6 +54,11 @@ test('removes identity fields and scrubs their values recursively', () => {
   assert.equal('redacted_events' in sanitized[0], false);
   assert.doesNotMatch(serialized, new RegExp(nonce));
   assert.doesNotMatch(serialized, new RegExp(sessionKey));
+  assert.doesNotMatch(serialized, new RegExp(runId));
+  assert.doesNotMatch(serialized, new RegExp(flowId));
+  assert.doesNotMatch(serialized, new RegExp(taskId));
+  assert.doesNotMatch(serialized, new RegExp(toolCallId));
+  assert.equal(Object.keys(sanitized[0].wake_runs).some((key) => key.includes(runId)), false);
   assert.match(sanitized[0].expected_return_sentinel, /<redacted-nonce>/);
 });
 

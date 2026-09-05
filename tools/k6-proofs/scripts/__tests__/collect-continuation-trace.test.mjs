@@ -171,6 +171,7 @@ async function fixtureDir({
   rowId,
   delegateMode,
   nonceOverride,
+  requireSuccessorSpan = false,
   extraEvidence = {},
 } = {}) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-test-'));
@@ -221,7 +222,7 @@ async function fixtureDir({
     } : {}),
     rowId: resolvedRowId,
     invocation: isWork
-      ? { tool, reason: template }
+      ? { tool, reason: template, requireSuccessorSpan }
       : { tool, mode: delegateMode || 'normal', promptTemplate: template },
   };
   const evidence = {
@@ -498,6 +499,94 @@ test('fails closed when no Tempo trace appears before the bounded timeout', asyn
     assert.ok(searchCount >= 1);
   } finally {
     await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('successor topology requires a post-fire run-scoped span', async () => {
+  const fixture = await fixtureDir({
+    tool: 'continue_work',
+    rowId: 'R-CW-7',
+    requireSuccessorSpan: true,
+  });
+  const traceId = 'abababababababababababababababab';
+  const base = traceFixture({
+    traceId,
+    reasonHash: fixture.reasonHash,
+    reasonLength: fixture.reasonLength,
+    tool: 'continue_work',
+  });
+  const spans = base.batches[0].scopeSpans[0].spans;
+  const fire = spans.find((entry) => entry.name === 'continuation.work.fire');
+  const successor = spans.find((entry) => entry.name === 'openclaw.harness.run');
+  const fireNs = BigInt(fire.startTimeUnixNano);
+  const cases = [
+    {
+      label: 'generic post-fire bookkeeping span',
+      span: {
+        ...successor,
+        name: 'continuation.queue.drain',
+        startTimeUnixNano: String(fireNs + 1n),
+        endTimeUnixNano: String(fireNs + 2n),
+      },
+      accepted: false,
+    },
+    {
+      label: 'pre-fire run span',
+      span: {
+        ...successor,
+        startTimeUnixNano: String(fireNs - 2n),
+        endTimeUnixNano: String(fireNs - 1n),
+      },
+      accepted: false,
+    },
+    {
+      label: 'post-fire run span',
+      span: {
+        ...successor,
+        startTimeUnixNano: String(fireNs + 1n),
+        endTimeUnixNano: String(fireNs + 2n),
+      },
+      accepted: true,
+    },
+  ];
+
+  try {
+    for (const entry of cases) {
+      const trace = {
+        batches: [{
+          scopeSpans: [{
+            spans: spans.map((candidate) =>
+              candidate === successor ? entry.span : candidate),
+          }],
+        }],
+      };
+      const server = await listen((request, response) => {
+        response.setHeader('content-type', 'application/json');
+        response.end(JSON.stringify(new URL(request.url, 'http://localhost').pathname === '/api/search'
+          ? { traces: [{ traceID: traceId }] }
+          : trace));
+      });
+      try {
+        const invocation = execFileAsync(process.execPath, [
+          script,
+          '--run-dir', fixture.dir,
+          '--manifest', fixture.manifestPath,
+          '--seat', 'silas-prince',
+          '--tempo-url', server.url,
+          '--timeout-ms', '100',
+          '--poll-ms', '10',
+        ]);
+        if (entry.accepted) {
+          await invocation;
+        } else {
+          await assert.rejects(invocation, /lacks a successor\/provider span/u, entry.label);
+        }
+      } finally {
+        await server.close();
+      }
+    }
+  } finally {
     await rm(fixture.dir, { recursive: true, force: true });
   }
 });

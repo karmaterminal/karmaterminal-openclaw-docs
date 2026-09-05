@@ -160,6 +160,11 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       assert.match(scenario, /delegate_mode:\s*'normal'/);
       assert.match(scenario, /replace\(\/\\\{\\\{marker\\\}\\\}\/g,/);
       assert.match(scenario, /replace\(\/\\\{\\\{tag\\\}\\\}\/g,/);
+    } else if (manifest.rowId === 'R-CW-DELEGATE-CHILD-LIVE') {
+      assert.match(scenario, /reason_hash:\s*crypto\.sha256\(reason,\s*'hex'\)\.slice\(0,\s*16\)/);
+      assert.match(scenario, /reason_length:\s*reason\.length/);
+      assert.match(manifest.invocation.promptTemplate, /\{\{nonce\}\}/);
+      assert.match(manifest.invocation.reason, /\{\{nonce\}\}/);
     } else {
       assert.match(scenario, /reason_hash:\s*null/);
       assert.match(scenario, /reason_length:\s*null/);
@@ -182,6 +187,7 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-4',
     'R-CD-CHAINED-DEPTH-2',
     'R-CD-TOKEN',
+    'R-CW-DELEGATE-CHILD-LIVE',
     'R-RC-2',
   ]);
 });
@@ -233,8 +239,11 @@ test('every trace-required continue_work row persists the safe fingerprint contr
     rows.push(manifest.rowId);
     const scenario = await readFile(path.join(scenariosDir, manifest.scenario.file), 'utf8');
     assert.match(scenario, /reason_hash:\s*crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
-    assert.match(scenario, /reason_length:\s*(?:wakeReason|rawReason)\.length/);
-    assert.match(scenario, /inv\.reason\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
+    assert.match(scenario, /reason_length:\s*(?:wakeReason|rawReason|reason)\.length/);
+    assert.match(
+      scenario,
+      /(?:inv\.reason\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,|renderTemplate\(invocation\.reason,\s*rowNonce\))/,
+    );
     assert.match(manifest.invocation.reason, /\{\{nonce\}\}/);
     if (manifest.rowId === 'R-CW-3') {
       assert.match(scenario, /rawReasonSentinel = `RAW-RCW3-\$\{rowNonce\}`/);
@@ -242,7 +251,7 @@ test('every trace-required continue_work row persists the safe fingerprint contr
     }
   }
 
-  assert.deepEqual(rows.sort(), ['R-CW-1', 'R-CW-3']);
+  assert.deepEqual(rows.sort(), ['R-CW-1', 'R-CW-3', 'R-CW-7', 'R-CW-MULTI']);
 });
 
 test('depth-2 chain dispatch uses the exact committed manifest task', async () => {

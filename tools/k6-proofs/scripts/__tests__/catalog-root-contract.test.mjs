@@ -50,6 +50,7 @@ async function fixtureRepo({ scenarios = ['r-ok.js'], manifests = [manifest()] }
   await mkdir(path.join(proofs, 'manifests'), { recursive: true });
   await mkdir(path.join(proofs, 'scenarios'), { recursive: true });
   await mkdir(path.join(proofs, 'scripts'), { recursive: true });
+  await mkdir(path.join(proofs, 'qualification'), { recursive: true });
   await mkdir(path.join(root, '.github/workflows'), { recursive: true });
   await mkdir(path.join(root, 'PROOFS', CORPUS_SHA, 'R-OK'), { recursive: true });
   await writeFile(path.join(root, '.github/workflows/k6-proof.yml'), WORKFLOW);
@@ -60,6 +61,15 @@ async function fixtureRepo({ scenarios = ['r-ok.js'], manifests = [manifest()] }
   for (const entry of manifests) {
     await writeFile(path.join(proofs, 'manifests', `${entry.rowId.toLowerCase()}.json`), `${JSON.stringify(entry, null, 2)}\n`);
   }
+  await writeFile(
+    path.join(proofs, 'qualification/producer-catalog.json'),
+    `${JSON.stringify({
+      schema: 'openclaw.k6.proof-producer-catalog.v2',
+      requiredBehavioralRows: [],
+      defaults: { 'k6-runnable': 'behavioral-live' },
+      rows: { 'R-OK': { classification: 'behavioral-live', scenario: 'r-ok.js' } },
+    }, null, 2)}\n`,
+  );
   return { root, proofs };
 }
 

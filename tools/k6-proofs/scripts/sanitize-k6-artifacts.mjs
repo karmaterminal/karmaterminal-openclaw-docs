@@ -59,6 +59,9 @@ function sensitiveCategory(key) {
   if (normalized.includes('nonce')) return 'nonce';
   if (normalized.includes('sessionkey') || normalized.endsWith('session')) return 'session-key';
   if (normalized.includes('runid')) return 'run-id';
+  if (normalized.includes('flowid')) return 'flow-id';
+  if (normalized.includes('taskid')) return 'task-id';
+  if (normalized.includes('toolcallid')) return 'tool-call-id';
   if (normalized.includes('idempotencykey')) return 'idempotency-key';
   if (RAW_PAYLOAD_KEYS.has(normalized)) return 'payload';
   return null;
@@ -105,9 +108,13 @@ function sanitizeValue(value, orderedTokens) {
   }
 
   const out = {};
-  for (const [key, child] of Object.entries(value)) {
+  for (const [index, [key, child]] of Object.entries(value).entries()) {
     if (sensitiveCategory(key)) continue;
-    out[key] = sanitizeValue(child, orderedTokens);
+    const scrubbedKey = scrubString(key, orderedTokens);
+    const publicKey = scrubbedKey === key
+      ? scrubbedKey
+      : `<redacted-identifier-key-${index}>`;
+    out[publicKey] = sanitizeValue(child, orderedTokens);
   }
   return out;
 }
@@ -126,6 +133,9 @@ function assertPublicSafe(value, orderedTokens) {
     if (!child || typeof child !== 'object') return;
     for (const [key, nested] of Object.entries(child)) {
       if (sensitiveCategory(key)) throw new Error(`sanitized evidence still contains sensitive key: ${key}`);
+      for (const [token] of orderedTokens) {
+        if (key.includes(token)) throw new Error('sanitized evidence key still contains a sensitive value');
+      }
       visit(nested);
     }
   }

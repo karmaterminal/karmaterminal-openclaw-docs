@@ -1,0 +1,56 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CW-DELEGATE-CHILD-LIVE",
+  "scenario": "r-cw-delegate-child-live-producer.js",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "ad07501c5b2bc04178fc50628a5ca446ee0db5d7",
+  "privateArtifactManifestSha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470",
+  "privateRowArtifactSha256": "951c0fbaee8aba8977dfe9b0caca27d43e0613d1cc6bce427e6184e478f5350a",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": [
+      "29c847c7483c57f9"
+    ],
+    "flow": [
+      "20951a465c0e4073",
+      "72121bb43bac9923"
+    ],
+    "session": [
+      "58146b5c0d66fa2a",
+      "bf3cc64c2ddd7ebf"
+    ],
+    "run": [
+      "7c71520f3ce9c922",
+      "efdb04412962587c",
+      "f3ac2a28904d226e"
+    ],
+    "trace": [
+      "c333de72814de946"
+    ]
+  },
+  "observedPredicates": {
+    "parentDelegateFlowSucceeded": true,
+    "delegateTaskSucceededAndDelivered": true,
+    "childSessionCreated": true,
+    "typedDelayFiveAcceptedInChild": true,
+    "childWorkFlowSucceeded": true,
+    "childSuccessorRunDistinct": true,
+    "childSuccessorCompleted": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
+    "reviewedAt": "2026-09-05T23:33:14Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "The synthetic aggregate and hop-two output label were absent.",
+    "The reviewer found the structured child task, flow, session, run, trace, and terminal evidence sufficient despite that observation miss."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

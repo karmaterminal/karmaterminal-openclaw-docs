@@ -1,0 +1,41 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CW-MULTI-COLLAPSE",
+  "scenario": "run-multi-collapse-fixture.mjs",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "ad07501c5b2bc04178fc50628a5ca446ee0db5d7",
+  "privateArtifactManifestSha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470",
+  "privateRowArtifactSha256": "2e61880db2c52d73ffd59e09970dff8b7b574f67a5bad9bf0b77289f70824782",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": [],
+    "flow": [],
+    "session": [],
+    "run": [],
+    "trace": [],
+    "notApplicableReason": "The reviewed evidence is an authenticated exact-product process-local fixture and creates no task, flow, session, run, or trace identity."
+  },
+  "observedPredicates": {
+    "newestDrives": true,
+    "withinGraceOlderDrives": true,
+    "staleQueuedOlderFolds": true,
+    "runningNeverFolds": true,
+    "baselineRestored": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
+    "reviewedAt": "2026-09-05T23:33:14Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "This is process-local behavioral evidence, not a live gateway run.",
+    "The first pre-behavior attempt was rejected because its ignored Vitest executable was not authenticated; only the clean-source bounded retry supports this PASS."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

@@ -317,7 +317,8 @@ if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
 fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
-export OPENCLAW_SEAT_NAME="$(hostname)"
+OPENCLAW_SEAT_NAME="$(hostname)"
+export OPENCLAW_SEAT_NAME
 
 # Portable observability endpoints. Defaults preserve the dandelion fleet, but
 # reviewers can override without editing scripts or docs-local config.
@@ -1054,7 +1055,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
     fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
-      export OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"
+      OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"
+      export OPENCLAW_SEAT_CLASS
       if [[ "$OPENCLAW_SEAT_CLASS" != "raw-final-text" ]]; then
         RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         jq \
@@ -1304,6 +1306,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       REVIEW_PENDING_RECEIPTS='["gateway-journal"]'
     fi
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
+    if [[ "$ROW_ID" == "R-RC-2" && "$SUMMARY_VERDICT" == "HONEST-LIMIT-candidate" ]]; then
+      TRACE_REQUIRED=false
+    fi
     MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
     if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
       if jq -e 'select(has("trace_id"))' "$PRIVATE_EVIDENCE_FILE" >/dev/null; then

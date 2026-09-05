@@ -18,6 +18,11 @@ on:
         required: false
         default: ""
         type: string
+      runtime_sha:
+        description: "Exact 40-char deployed runtime SHA; required when dry_run=false"
+        required: false
+        default: ""
+        type: string
       dry_run:
         description: "Dry run only; set false only when gateway env/secrets are configured"
         required: true
@@ -78,6 +83,7 @@ jobs:
     timeout-minutes: 90
     env:
       OPENCLAW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      OPENCLAW_RUNTIME_BUILD_SHA: ${{ inputs.runtime_sha }}
       OPENCLAW_GATEWAY_WS: ${{ inputs.gateway_ws }}
       OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
       OPENCLAW_SESSION_KEY: ${{ inputs.session_selector }}
@@ -101,6 +107,7 @@ jobs:
         env:
           ROWS_INPUT: ${{ inputs.rows }}
           CANDIDATE_SHA_INPUT: ${{ inputs.candidate_sha }}
+          RUNTIME_SHA_INPUT: ${{ inputs.runtime_sha }}
           RUNNER_LABELS_JSON: ${{ inputs.runner_labels_json }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
@@ -109,6 +116,10 @@ jobs:
           if [[ "$DRY_RUN" != "true" ]]; then
             if [[ -z "$CANDIDATE_SHA_INPUT" ]] || ! printf '%s' "$CANDIDATE_SHA_INPUT" | grep -Eq '^[0-9a-f]{40}$'; then
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
+              exit 1
+            fi
+            if [[ -z "$RUNTIME_SHA_INPUT" ]] || ! printf '%s' "$RUNTIME_SHA_INPUT" | grep -Eq '^[0-9a-f]{40}$'; then
+              echo "::error::runtime_sha must be a 40-char hex string when dry_run=false"
               exit 1
             fi
           fi

@@ -67,6 +67,11 @@ on:
         required: false
         type: string
         default: ""
+      runtime_sha:
+        description: "Exact 40-char deployed runtime SHA. Required when dry_run=false."
+        required: false
+        type: string
+        default: ""
       gateway_ws:
         description: "Target gateway WebSocket URL (e.g. ws://10.0.0.246:18789). Defaults to local."
         required: false
@@ -108,6 +113,7 @@ jobs:
           SCENARIO: ${{ github.event.inputs.scenario }}
           ROW: ${{ github.event.inputs.row }}
           CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          RUNTIME_SHA: ${{ github.event.inputs.runtime_sha }}
           MANIFEST_PATH: ${{ github.event.inputs.manifest_path }}
         run: |
           set -euo pipefail
@@ -133,6 +139,10 @@ jobs:
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
               exit 1
             fi
+            if ! printf '%s' "$RUNTIME_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+              echo "::error::runtime_sha must be a 40-char hex string when dry_run=false"
+              exit 1
+            fi
           fi
           echo "inputs validated (dry_run=$DRY_RUN, scenario=$SCENARIO)"
 
@@ -153,6 +163,7 @@ jobs:
           OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
           OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
           OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          OPENCLAW_RUNTIME_BUILD_SHA: ${{ github.event.inputs.runtime_sha }}
           OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
           OPENCLAW_EXPECTED_K6_VERSION: v2.0.0
           DRY_RUN: ${{ github.event.inputs.dry_run }}
@@ -177,6 +188,7 @@ jobs:
           OPENCLAW_GATEWAY_WS: ${{ github.event.inputs.gateway_ws }}
           OPENCLAW_SESSION_KEY: ${{ github.event.inputs.session_key }}
           OPENCLAW_CANDIDATE_SHA: ${{ github.event.inputs.candidate_sha }}
+          OPENCLAW_RUNTIME_BUILD_SHA: ${{ github.event.inputs.runtime_sha }}
           OPENCLAW_SEAT_NAME: ${{ github.event.inputs.seat }}
           OPENCLAW_ROW_MANIFEST: ${{ github.event.inputs.manifest_path }}
           SCENARIO: ${{ github.event.inputs.scenario }}

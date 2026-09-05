@@ -34,6 +34,53 @@ tools/k6-proofs/
   - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
   - `OPENCLAW_EXPECTED_K6_VERSION` — expected k6 version for seat-readiness preflight (default: `v2.0.0`)
 
+## Harness qualification
+
+Before allocating final proof rows, run the qualifier from a clean checkout at
+the exact reviewed docs SHA. It does not fire proof rows. It binds product,
+runtime, docs, corpus, gateway, seat, disposable session, and run identities;
+checks the pnpm workspace/install graph; probes gateway, diagnostics-otel, Tempo
+query/intake, and disposable-session cleanup; validates the producer DAG; and
+inventories stale managed proof flows without deleting them.
+
+```bash
+node tools/k6-proofs/scripts/qualify-proof-harness.mjs \
+  --product-dir "$FINAL_PRODUCT_CHECKOUT" \
+  --product-sha "$FINAL_SUCCESSOR_SHA" \
+  --runtime-sha "$FINAL_RUNTIME_SHA" \
+  --docs-sha "$APPROVED_DOCS_SHA" \
+  --corpus-sha "$FINAL_SUCCESSOR_SHA" \
+  --gateway-url ws://127.0.0.1:18789 \
+  --gateway-id "$GATEWAY_INSTANCE_ID" \
+  --seat "$SELECTED_SEAT" \
+  --agent-id main \
+  --session-id "agent:main:proof-qualification-$QUALIFICATION_RUN_ID" \
+  --run-id "$QUALIFICATION_RUN_ID" \
+  --tempo-query-url http://tempo.dandelion.cult \
+  --tempo-intake-url http://otel-collector.observability.svc.cluster.local:4318/v1/traces \
+  --out-dir "$HOME/.openclaw-proof-qualification/$QUALIFICATION_RUN_ID"
+```
+
+The gateway build receipt must expose the full bound runtime SHA; a shortened
+build prefix is not accepted as exact identity. The command exits nonzero for every acceptance blocker, prints every non-PASS
+condition, and writes `qualification-receipt.json` plus
+`qualification-report.txt`. The receipt includes only fingerprints for managed
+flow and owner identities. Existing queued proof flows are never drained or
+deleted. A final rerun may add `--producer-receipts <json>` and
+`--producer-signing-key-file <private-file>` plus
+`--terminal-rollup <json>`; consumers are rejected unless their exact producer
+receipt matches the same row/run/session/product/runtime/docs/corpus/seat
+binding, carries a valid HMAC and active issuance/expiry window, is unconsumed,
+and is PASS. The signing key remains private and is never copied into the
+qualification receipt.
+
+Legacy seat-allocation labels are not execution gates. The current
+`required_rows` list and the reviewed producer catalog are authoritative.
+`R-RC-2` is the only allowed terminal `HONEST-LIMIT`, and only with its
+nonce-bound structured numeric threshold-rejection receipt and matching child
+report. All `PARTIAL`, `MISSING`, `THIN`, and `FAIL` outcomes remain terminal
+qualification failures.
+
 ## Usage
 
 ### Return-covenant authority harness (construction only)

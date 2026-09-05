@@ -221,14 +221,14 @@ function hasTimingMetadata(span) {
     Object.hasOwn(span || {}, 'endTimeUnixNano');
 }
 
-function positiveIntegerAttribute(spansAndKeys) {
+function nonnegativeIntegerAttribute(spansAndKeys) {
   for (const [span, key] of spansAndKeys) {
     const attribute = (span?.attributes || []).find((entry) => entry?.key === key);
     if (!attribute) continue;
     const value = attribute.value;
     if (!value || Object.keys(value).length !== 1 ||
         typeof value.intValue !== 'string' ||
-        !/^[1-9]\d*$/u.test(value.intValue)) {
+        !/^\d+$/u.test(value.intValue)) {
       return null;
     }
     return BigInt(value.intValue);
@@ -236,12 +236,12 @@ function positiveIntegerAttribute(spansAndKeys) {
   return null;
 }
 
-function scopeDelegateToolSpans(trace, tools, accept, fires) {
+function scopeOriginToolSpans(trace, tools, accept, fires, { allowZeroDelay = false } = {}) {
   const fire = fires[0];
   const lifecycleSpans = [accept, ...fires, ...tools];
   const hasAnyTimingMetadata = lifecycleSpans.some(hasTimingMetadata);
   const anchorNs = spanTimeNs(fire, 'startTimeUnixNano');
-  const deferredMs = positiveIntegerAttribute([
+  const deferredMs = nonnegativeIntegerAttribute([
     [fire, 'fire.deferred_ms'],
     [fire, 'delay.ms'],
     [accept, 'delay.ms'],
@@ -251,6 +251,7 @@ function scopeDelegateToolSpans(trace, tools, accept, fires) {
   }
   if (anchorNs === null ||
       deferredMs === null ||
+      (!allowZeroDelay && deferredMs === 0n) ||
       tools.some((span) => spanTimeNs(span, 'startTimeUnixNano') === null)) {
     return { kind: 'invalid-timing', tools: [] };
   }
@@ -327,11 +328,11 @@ function validateTrace(trace, expected) {
     return span.name === 'openclaw.tool.execution' &&
       attrs.get('gen_ai.tool.name') === expected.tool;
   });
-  const toolScope = expected.tool === 'continue_delegate'
-    ? scopeDelegateToolSpans(trace, matchingTools, accept, fires)
-    : null;
+  const toolScope = scopeOriginToolSpans(trace, matchingTools, accept, fires, {
+    allowZeroDelay: expected.tool === 'continue_work',
+  });
   if (toolScope?.kind === 'invalid-timing') {
-    throw new Error('matched raw trace lacks complete causal timing for continue_delegate generation scope');
+    throw new Error(`matched raw trace lacks complete causal timing for ${expected.tool} generation scope`);
   }
   const tools = toolScope?.tools ?? matchingTools;
   if (expected.originSurface === 'raw-final-text') {

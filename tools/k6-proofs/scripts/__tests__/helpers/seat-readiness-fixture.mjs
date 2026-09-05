@@ -1,3 +1,5 @@
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import {
   gatewayUrlFingerprint,
   READINESS_CLIENT,
@@ -88,4 +90,43 @@ export function signedSeatReadinessFixture({
     concurrency: { safeToRunConcurrently: true, reason: 'fixture' },
     notes: [],
   }, signingKey);
+}
+
+export async function writeSignedSeatReadinessFixture({
+  runDir,
+  signingKey,
+  metadata,
+  rows = [metadata.row],
+  unit = 'openclaw-proof-fixture.service',
+}) {
+  const receipt = signedSeatReadinessFixture({
+    signingKey,
+    candidateSha: metadata.candidateSha,
+    runtimeSha: metadata.runtimeBuildSha,
+    docsSha: metadata.docsRef,
+    seat: metadata.seat,
+    unit,
+    rows,
+  });
+  const body = `${JSON.stringify(receipt, null, 2)}\n`;
+  const runnerMetadata = {
+    ...metadata,
+    readiness: {
+      receipt: 'seat-readiness.json',
+      sha256: sha256(body),
+      gatewayUrlFingerprint: receipt.bindings.gatewayUrlFingerprint,
+      unit,
+      selectedRows: receipt.bindings.selectedRows,
+      requiredMaxSpawnDepth: receipt.bindings.requiredMaxSpawnDepth,
+      expectedMaxSpawnDepth: receipt.bindings.expectedMaxSpawnDepth,
+    },
+  };
+  await Promise.all([
+    writeFile(
+      path.join(runDir, 'runner-metadata.json'),
+      `${JSON.stringify(runnerMetadata, null, 2)}\n`,
+    ),
+    writeFile(path.join(runDir, 'seat-readiness.json'), body),
+  ]);
+  return { metadata: runnerMetadata, receipt };
 }

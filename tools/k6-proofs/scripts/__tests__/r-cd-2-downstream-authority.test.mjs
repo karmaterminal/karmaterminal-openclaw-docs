@@ -12,8 +12,10 @@ import {
 } from '../../lib/request-compaction-receipt.js';
 import {
   BASE,
+  SIGNING_KEY,
   testWorkspace,
 } from './helpers/r-cd-2-authority-fixture.mjs';
+import { writeSignedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../../../..');
 const scripts = path.join(repoRoot, 'tools/k6-proofs/scripts');
@@ -270,7 +272,21 @@ test('unaffected generic, construct-only, R-RC-2, and R-CD-TOKEN controls remain
         candidateOnly: true,
         foldRequiresReview: true,
       })}\n`);
-      const result = await run(process.execPath, [metricsExporter, '--row-result', rowResult]);
+      await writeSignedSeatReadinessFixture({
+        runDir: workspace.root,
+        signingKey: SIGNING_KEY,
+        metadata: {
+          row: 'R-CW-1',
+          candidateSha: BASE.candidateSha,
+          runtimeBuildSha: BASE.runtimeBuildSha,
+          docsRef: BASE.docsRef,
+          seat: BASE.seat,
+          scenario: 'r-cw-1',
+        },
+      });
+      const result = await run(process.execPath, [metricsExporter, '--row-result', rowResult], {
+        env: { OPENCLAW_GATEWAY_TOKEN: SIGNING_KEY },
+      });
       assert.equal(result.status, 0, result.stderr);
       assert.equal(JSON.parse(result.stdout).outcome, 'PASS-candidate');
     } finally {

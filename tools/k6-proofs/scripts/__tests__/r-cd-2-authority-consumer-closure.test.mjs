@@ -21,6 +21,7 @@ import {
   testWorkspace,
   writeRcd2Bundle,
 } from './helpers/r-cd-2-authority-fixture.mjs';
+import { writeSignedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../../../..');
 const scripts = path.join(repoRoot, 'tools/k6-proofs/scripts');
@@ -821,6 +822,18 @@ test('generic metrics preserve raw fallback when an unrelated sidecar is malform
       candidateOnly: true,
       foldRequiresReview: true,
     })}\n`);
+    await writeSignedSeatReadinessFixture({
+      runDir: workspace.root,
+      signingKey: SIGNING_KEY,
+      metadata: {
+        row: 'R-CW-1',
+        candidateSha: BASE.candidateSha,
+        runtimeBuildSha: BASE.runtimeBuildSha,
+        docsRef: BASE.docsRef,
+        seat: BASE.seat,
+        scenario: 'r-cw-1',
+      },
+    });
     await writeFile(path.join(workspace.root, 'candidate-run-result.json'), '{invalid\n');
     const result = await run(process.execPath, [exporter, '--row-result', rowResult]);
     assert.equal(result.status, 0, result.stderr);

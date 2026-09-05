@@ -96,7 +96,6 @@ export default function () {
     root_collected_at_ms: null,
     delegate_mode: invocation.mode || 'normal',
     fanout_mode: invocation.fanoutMode || 'tree',
-    prompt_executed_exactly: true,
     redacted_events: [],
   };
   const seenEvents = {};

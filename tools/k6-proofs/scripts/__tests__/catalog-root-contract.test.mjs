@@ -41,6 +41,14 @@ function manifest({ rowId = 'R-OK', file = 'r-ok.js' } = {}) {
     schema: 'openclaw.k6.proof-row-manifest.v1',
     rowId,
     scenario: { status: 'runnable', name: 'r-ok', file },
+    liveRunSafety: {
+      classification: 'k6-runnable',
+      expectedArtifactClass: 'PASS-candidate',
+      foldRequiresReview: true,
+      requiresCandidateSha: true,
+      requiredReceipts: ['test-receipt'],
+    },
+    expectedReceipts: [{ name: 'test-receipt', required: true, description: 'Fixture receipt.' }],
   };
 }
 

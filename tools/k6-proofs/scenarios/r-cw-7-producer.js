@@ -74,7 +74,6 @@ export default function () {
     hop_two_output_bound: false,
     reason_hash: crypto.sha256(reason, 'hex').slice(0, 16),
     reason_length: reason.length,
-    prompt_executed_exactly: true,
     redacted_events: [],
   };
   const seen = {};

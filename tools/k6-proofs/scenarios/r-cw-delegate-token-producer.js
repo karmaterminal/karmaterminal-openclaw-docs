@@ -86,7 +86,6 @@ export default function () {
     hop_two_completed: false,
     hop_two_terminal_phase: null,
     hop_two_sentinel_bound: false,
-    prompt_executed_exactly: true,
     redacted_events: [],
   };
   const seen = {};

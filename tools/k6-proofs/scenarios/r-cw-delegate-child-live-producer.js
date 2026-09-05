@@ -86,7 +86,6 @@ export default function () {
     reason_hash: crypto.sha256(reason, 'hex').slice(0, 16),
     reason_length: reason.length,
     delegate_mode: invocation.mode || 'normal',
-    prompt_executed_exactly: true,
     redacted_events: [],
   };
   const seen = {};

@@ -93,8 +93,6 @@ export default function () {
     duplicate_observations: 0,
     reason_hash: crypto.sha256(reason, 'hex').slice(0, 16),
     reason_length: reason.length,
-    prompt_executed_exactly: true,
-    not_multi_collapse: true,
     redacted_events: [],
   };
   const seen = {};

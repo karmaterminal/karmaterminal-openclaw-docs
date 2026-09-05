@@ -1002,6 +1002,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       export_run_metrics "$ROW_ID" "$PROCESS_RUN_DIR"
       continue
     fi
+    assert_row_bytes_frozen "$ROW_ID" "pre-process-local-execution"
     ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
     set +e
     node "$CATALOG_PRODUCER_RUNNER" \

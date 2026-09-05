@@ -1800,13 +1800,16 @@ fi
 echo ""
 echo "=========================================================="
 echo "Runner execution finished."
-if [[ "${#MATRIX_ROW_FAILURES[@]}" -gt 0 ]]; then
-  echo "Rows with non-zero effective exits: ${MATRIX_ROW_FAILURES[*]}" >&2
-  exit "$MATRIX_EXIT_CODE"
-fi
 if [[ "$DEPENDENCY_BLOCKED" == "true" ]]; then
   fail_harness \
     "dependency-gated" \
     "whole-set execution completed with dependency-gated rows blocked" \
-    "$(jq -c '{check:"producer-dependencies",blocked,plan:"producer-plan.json"}' "$PRODUCER_PLAN_FILE")"
+    "$(jq -c \
+      --arg rowFailures "${MATRIX_ROW_FAILURES[*]}" \
+      '{check:"producer-dependencies",blocked,plan:"producer-plan.json",rowFailures:($rowFailures | if length == 0 then [] else split(" ") end)}' \
+      "$PRODUCER_PLAN_FILE")"
+fi
+if [[ "${#MATRIX_ROW_FAILURES[@]}" -gt 0 ]]; then
+  echo "Rows with non-zero effective exits: ${MATRIX_ROW_FAILURES[*]}" >&2
+  exit "$MATRIX_EXIT_CODE"
 fi

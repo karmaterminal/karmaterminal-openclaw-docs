@@ -4,6 +4,7 @@ import { mkdtemp, rm, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { signedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/export-row-metrics.mjs');
@@ -131,6 +132,7 @@ test('exports row-list runner directory and marks trace-missing as pending recei
 
 test('marks direct operator config-get receipts present from public-safe evidence', async () => {
   await withTmp(async (dir) => {
+    const candidateSha = 'cea9e4296b7e5cd37f0a491d637ef8459ea2e737';
     const runDir = join(dir, '20260713T033832Z-r-config-defaults');
     await mkdir(runDir, { recursive: true });
     await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
@@ -150,7 +152,15 @@ test('marks direct operator config-get receipts present from public-safe evidenc
       k6ExitCode: 0, candidateOnly: true, foldRequiresReview: true,
       review: { status: 'ready-for-human-review', pendingReceipts: [] },
     }, null, 2)}\n`);
-    await writeFile(join(runDir, 'seat-readiness.json'), `${JSON.stringify({ outcome: 'PASS-candidate' })}\n`);
+    await writeFile(join(runDir, 'seat-readiness.json'), `${JSON.stringify(
+      signedSeatReadinessFixture({
+        signingKey: 'metrics-fixture-token',
+        candidateSha,
+        docsSha: 'd9fd19c6d3b587d36764d0184143b43885762ee1',
+        seat: 'elliott',
+        rows: ['R-CONFIG-DEFAULTS'],
+      }),
+    )}\n`);
     await writeFile(join(runDir, 'evidence.jsonl'), `${JSON.stringify({
       config_read: true, enabled: true, max_chain_length: 200,
       max_delegates_per_turn: 500, cost_cap_tokens: 50000000,

@@ -11,6 +11,7 @@ import {
   R_CD_2_SELECTION_RECEIPT_FILE,
   signRcd2SelectedContextReceipt,
 } from '../../../lib/r-cd-2-authority-context.mjs';
+import { signedSeatReadinessFixture } from './seat-readiness-fixture.mjs';
 
 export const SIGNING_KEY = 'r-cd-2-authority-consumer-test-key';
 export const BASE = Object.freeze({
@@ -376,12 +377,14 @@ export async function writeRcd2Bundle(repoRoot, {
     },
   };
   const envelope = envelopeFor(claimed, harness, receiptSha256, verdict);
-  const seatReadinessBody = `${JSON.stringify({
-    schema: 'openclaw.k6.seat-readiness.v1',
-    outcome: 'PASS-candidate',
-    candidate: { sha: selected.candidateSha, valid40Hex: true },
-    seat: { name: selected.seat, class: 'message-body' },
-  }, null, 2)}\n`;
+  const seatReadinessBody = `${JSON.stringify(signedSeatReadinessFixture({
+    signingKey: SIGNING_KEY,
+    candidateSha: selected.candidateSha,
+    runtimeSha: selected.runtimeBuildSha,
+    docsSha: selected.docsRef,
+    seat: selected.seat,
+    rows: [selected.row],
+  }), null, 2)}\n`;
   const selectedHarness = {
     manifestPath: selected.manifestPath,
     manifestSha256: digest(`${JSON.stringify(manifestFor(selected), null, 2)}\n`),

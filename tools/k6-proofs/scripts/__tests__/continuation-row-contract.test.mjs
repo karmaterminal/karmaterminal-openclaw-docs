@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { buildHarnessCheckout } from './helpers/harness-checkout.mjs';
+import { attachReadinessGateway } from './helpers/readiness-gateway.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const manifestsDir = path.join(repoRoot, 'tools/k6-proofs/manifests');
@@ -103,6 +104,10 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
       res.writeHead(404).end();
     }
   });
+  attachReadinessGateway(tempo.server, {
+    token: 'runner-contract-token',
+    runtimeSha: candidateSha,
+  });
 
   try {
     await writeExecutable(path.join(bin, 'openclaw'), '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
@@ -122,7 +127,11 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
       OPENCLAW_PROOFS_TEMPO_BASE_URL: tempo.baseUrl,
       OPENCLAW_CANDIDATE_SHA: candidateSha,
       OPENCLAW_RUNTIME_BUILD_SHA: candidateSha,
-      OPENCLAW_SESSION_KEY: 'main',
+      OPENCLAW_RUNTIME_SHA: candidateSha,
+      OPENCLAW_GATEWAY_UNIT: 'openclaw-runner-contract.service',
+      OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH: '2',
+      OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH: '5',
+      OPENCLAW_SESSION_KEY: 'agent:main:runner-contract',
       OPENCLAW_SEAT_NAME: 'cael-dgx',
     };
     const result = await run('bash', ['scripts/run-proofs.sh', '--live', '--docs-ref', harness.docsRef, '--out-dir', out, 'R-CD-2', candidateSha], {

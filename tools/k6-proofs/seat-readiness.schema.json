@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/seat-readiness.schema.json",
-  "title": "OpenClaw k6 PROOFS seat readiness report",
+  "title": "OpenClaw k6 PROOFS target readiness receipt",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,307 +12,122 @@
     "expectedK6Version",
     "k6",
     "gateway",
-    "continuation",
+    "target",
+    "bindings",
     "candidate",
     "seat",
     "session",
     "env",
     "concurrency",
-    "notes"
+    "notes",
+    "bindingDigest",
+    "integrity"
   ],
   "properties": {
-    "schema": {
-      "const": "openclaw.k6.seat-readiness.v1"
-    },
-    "generatedAt": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "outcome": {
-      "enum": [
-        "PASS-candidate",
-        "PARTIAL-candidate",
-        "FAIL-candidate"
-      ]
-    },
-    "expectedK6Version": {
-      "type": "string",
-      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
-    },
-    "k6": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "ok",
-        "path",
-        "version",
-        "matchesExpected",
-        "rawVersion",
-        "checked"
-      ],
-      "properties": {
-        "ok": {
-          "type": "boolean"
-        },
-        "path": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "version": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "matchesExpected": {
-          "type": "boolean"
-        },
-        "rawVersion": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "checked": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "path",
-              "exists",
-              "version",
-              "rawVersion"
-            ],
-            "properties": {
-              "path": {
-                "type": "string"
-              },
-              "exists": {
-                "type": "boolean"
-              },
-              "version": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "rawVersion": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "gateway": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "url",
-        "healthReachable",
-        "statusReachable",
-        "mode"
-      ],
-      "properties": {
-        "url": {
-          "type": "string"
-        },
-        "healthReachable": {
-          "type": "boolean"
-        },
-        "statusReachable": {
-          "type": "boolean"
-        },
-        "mode": {
-          "enum": [
-            "checked",
-            "skipped-no-token",
-            "skipped-by-flag"
-          ]
-        }
-      }
-    },
-    "candidate": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "sha",
-        "valid40Hex"
-      ],
-      "properties": {
-        "sha": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "valid40Hex": {
-          "type": "boolean"
-        }
-      }
-    },
-    "seat": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "name",
-        "class"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "class": {
-          "type": "string"
-        }
-      }
-    },
-    "session": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "scope"
-      ],
-      "properties": {
-        "scope": {
-          "type": "string"
-        }
-      }
-    },
-    "env": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "name",
-          "present",
-          "secret",
-          "required",
-          "purpose"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "present": {
-            "type": "boolean"
-          },
-          "secret": {
-            "type": "boolean"
-          },
-          "required": {
-            "type": "boolean"
-          },
-          "purpose": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        }
-      }
-    },
-    "concurrency": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "safeToRunConcurrently",
-        "reason"
-      ],
-      "properties": {
-        "safeToRunConcurrently": {
-          "type": "boolean"
-        },
-        "reason": {
-          "type": "string"
-        }
-      }
-    },
-    "notes": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
+    "schema": { "const": "openclaw.k6.seat-readiness.v2" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "outcome": { "enum": ["PASS-candidate", "PARTIAL-candidate"] },
     "policy": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "version",
-        "source"
-      ],
+      "required": ["name", "version", "source"],
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "version": {
-          "type": "string"
-        },
-        "source": {
-          "type": "string"
-        }
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "source": { "type": "string" }
       }
     },
-    "continuation": {
+    "expectedK6Version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "k6": { "type": "object" },
+    "gateway": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "healthReachable"],
+      "properties": {
+        "mode": { "enum": ["authenticated-rpc", "skipped-by-flag"] },
+        "healthReachable": { "type": "boolean" }
+      }
+    },
+    "target": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "mode",
-        "enabled",
-        "defaultsPresent",
-        "maxChainLengthPresent",
-        "maxDelegatesPerTurnPresent",
-        "costCapTokensPresent",
-        "error"
+        "gatewayUrlFingerprint",
+        "configuredMaxSpawnDepth",
+        "effectiveMaxSpawnDepth",
+        "requiredMaxSpawnDepth",
+        "expectedMaxSpawnDepth",
+        "continuation",
+        "authentication"
       ],
       "properties": {
-        "mode": {
-          "enum": [
-            "checked",
-            "unavailable"
-          ]
+        "gatewayUrlFingerprint": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "configuredMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1 },
+        "effectiveMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1 },
+        "requiredMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1 },
+        "expectedMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1 },
+        "continuation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["configured", "effective"],
+          "properties": {
+            "configured": { "type": "object" },
+            "effective": { "type": "object" }
+          }
         },
-        "enabled": {
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "defaultsPresent": {
-          "type": "boolean"
-        },
-        "maxChainLengthPresent": {
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "maxDelegatesPerTurnPresent": {
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "costCapTokensPresent": {
-          "type": [
-            "boolean",
-            "null"
-          ]
-        },
-        "error": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "authentication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scheme", "authenticated", "request", "response"],
+          "properties": {
+            "scheme": { "const": "gateway-token" },
+            "authenticated": { "type": "boolean" },
+            "request": { "type": ["object", "null"] },
+            "response": { "type": ["object", "null"] }
+          }
         }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateSha",
+        "runtimeSha",
+        "docsSha",
+        "gatewayUrlFingerprint",
+        "seat",
+        "unit",
+        "selectedRows",
+        "requiredMaxSpawnDepth",
+        "expectedMaxSpawnDepth"
+      ],
+      "properties": {
+        "candidateSha": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40}$" },
+        "runtimeSha": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40}$" },
+        "docsSha": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40}$" },
+        "gatewayUrlFingerprint": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "seat": { "type": ["string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "selectedRows": { "type": ["array", "null"], "items": { "type": "string" } },
+        "requiredMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1 },
+        "expectedMaxSpawnDepth": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "candidate": { "type": "object" },
+    "seat": { "type": "object" },
+    "session": { "type": "object" },
+    "env": { "type": "array" },
+    "concurrency": { "type": "object" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "bindingDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "signature"],
+      "properties": {
+        "algorithm": { "const": "hmac-sha256-gateway-token-v1" },
+        "signature": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
       }
     }
   }

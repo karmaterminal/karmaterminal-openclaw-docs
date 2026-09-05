@@ -155,7 +155,10 @@ function receiptStatusFromEvidence(name, evidenceRows, readiness = null) {
   const evidence = evidenceRows[0] || {};
   switch (safe) {
     case 'seat-readiness':
-      return readiness?.outcome === 'PASS-candidate' ? 'present' : 'unknown';
+      return readiness?.schema === 'openclaw.k6.seat-readiness.v2' &&
+        readiness?.outcome === 'PASS-candidate'
+        ? 'present'
+        : 'unknown';
     case 'config-read':
       return evidence.config_read === true ? 'present' : 'unknown';
     case 'continuation-values':

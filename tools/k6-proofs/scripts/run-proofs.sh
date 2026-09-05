@@ -317,7 +317,7 @@ if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
 fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
-export OPENCLAW_SEAT_NAME="$(hostname)"
+export OPENCLAW_SEAT_NAME="${OPENCLAW_SEAT_NAME:-$(hostname)}"
 
 # Portable observability endpoints. Defaults preserve the dandelion fleet, but
 # reviewers can override without editing scripts or docs-local config.
@@ -732,18 +732,9 @@ fi
 # Runtime and session resolution run only in the verified snapshot runner: the
 # bootstrap must not invoke external tooling or resolve session state while it is
 # still executing unproven bytes.
-# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
-# Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
-# receipt for the exact SHA. Otherwise prefer a structured CLI receipt when available
-# and fall back to the human version string (for example, "OpenClaw ... (1cc8f4e)").
+# The deployed runtime identity is explicit input. Never infer target identity
+# from the runner's installed binary or home directory.
 DEPLOYED_BUILD_STAMP="${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}"
-if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; then
-  if openclaw version --json >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
-  elif openclaw --version >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw --version | head -n 1)"
-  fi
-fi
 export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
 
 # Resolve Session Key
@@ -768,28 +759,34 @@ if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_B
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
 fi
 
-# Local Gateway Auth extraction (never logged/committed).
-# Deliberately last: neither the harness identity gate nor the catalog
-# validators run with this credential in their environment.
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
-  OPENCLAW_GATEWAY_TOKEN="$(jq -r '.gateway.auth.token // .auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
-  export OPENCLAW_GATEWAY_TOKEN
-fi
 if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
-  echo "Warning: OPENCLAW_GATEWAY_TOKEN not found in local config."
   if [[ "$DRY_RUN" == "false" ]]; then
-    exit 1
+    fail_harness "seat-readiness" "OPENCLAW_GATEWAY_TOKEN must be supplied explicitly" \
+      '{"check":"explicit-gateway-token"}'
   fi
 fi
 
 SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
 SEAT_READINESS_SHA256=""
 if [[ "$DRY_RUN" == "false" ]]; then
+  for READINESS_VAR in OPENCLAW_GATEWAY_WS OPENCLAW_GATEWAY_UNIT OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH; do
+    if [[ -z "${!READINESS_VAR:-}" ]]; then
+      fail_harness "seat-readiness" "$READINESS_VAR must be supplied explicitly" \
+        "$(jq -n --arg variable "$READINESS_VAR" '{check:"explicit-target-binding",variable:$variable}')"
+    fi
+  done
+  export OPENCLAW_RUNTIME_SHA="$OPENCLAW_RUNTIME_BUILD_SHA"
+  export OPENCLAW_DOCS_SHA="$DOCS_REF"
+  export OPENCLAW_SELECTED_ROWS="$ROW_SELECTION_JSON"
   echo "Running seat-readiness preflight (k6/tooling/gateway/continuation config)..."
   if ! node scripts/seat-readiness-preflight.mjs --json > "$SEAT_READINESS_JSON"; then
     echo "SEAT READINESS FAILED: $SEAT_READINESS_JSON" >&2
-    jq -r '.outcome as $out | "outcome=\($out) continuation=\(.continuation.enabled) defaults=\(.continuation.defaultsPresent) notes=\(.notes|join("; "))"' "$SEAT_READINESS_JSON" >&2 || true
-    exit 1
+    fail_harness "seat-readiness" "authenticated supplied-target readiness failed" \
+      "$(jq -c '{check:"authenticated-target-readiness",outcome,notes}' "$SEAT_READINESS_JSON")"
+  fi
+  if ! node scripts/verify-seat-readiness.mjs "$SEAT_READINESS_JSON"; then
+    fail_harness "seat-readiness" "signed target readiness receipt failed verification" \
+      '{"check":"signed-readiness-receipt"}'
   fi
   SEAT_READINESS_SHA256="$(sha256sum "$SEAT_READINESS_JSON" | cut -d' ' -f1)"
   echo "SEAT READINESS: $SEAT_READINESS_JSON"

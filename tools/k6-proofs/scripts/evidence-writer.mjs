@@ -20,13 +20,14 @@
  *     ├── k6-summary.json
  *     ├── gateway-events.ndjson  (redacted only)
  *     ├── row-result.json
- *     └── seat-readiness.json  (when --seat-readiness is supplied)
+ *     └── seat-readiness.json
  */
 
 import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { isRcd2AuthorityRequired } from '../lib/r-cd-2-authority-context.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { validateReadinessReceipt } from './target-readiness.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -47,7 +48,7 @@ function stamp() {
 }
 
 function usage() {
-  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> [--manifest <row-manifest.json>]`);
+  console.error(`Usage: node evidence-writer.mjs --input <k6-output> --row <ROW> --seat <SEAT> --sha <SHA> --seat-readiness <receipt.json> [--manifest <row-manifest.json>]`);
   process.exit(2);
 }
 
@@ -117,6 +118,34 @@ if (isRcd2AuthorityRequired({
   );
 }
 
+let readiness;
+if (!args['seat-readiness']) {
+  throw new Error('seat readiness receipt is required');
+}
+try {
+  readiness = JSON.parse(readFileSync(args['seat-readiness'], 'utf8'));
+} catch {
+  throw new Error('seat readiness receipt is missing or malformed');
+}
+const readinessResult = validateReadinessReceipt(readiness, {
+  signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+  candidateSha: args.sha,
+  runtimeSha: process.env.OPENCLAW_RUNTIME_SHA || process.env.OPENCLAW_RUNTIME_BUILD_SHA,
+  docsSha: process.env.OPENCLAW_DOCS_SHA || process.env.OPENCLAW_PROOFS_DOCS_REF,
+  gatewayWs: process.env.OPENCLAW_GATEWAY_WS,
+  seat: args.seat,
+  unit: process.env.OPENCLAW_GATEWAY_UNIT,
+  rows: process.env.OPENCLAW_SELECTED_ROWS,
+  requiredDepth: process.env.OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH,
+  expectedDepth: process.env.OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH,
+});
+if (!readinessResult.valid) {
+  throw new Error(`seat readiness receipt rejected: ${readinessResult.reason}`);
+}
+if (!readiness.bindings.selectedRows.includes(args.row.toUpperCase())) {
+  throw new Error(`seat readiness receipt rejected: row ${args.row} is not selected`);
+}
+
 // --- REDACTION BOUNDARY ---
 // Refuse to write if evidence has raw 'events' but no 'redacted_events'
 if (evidence.events && !evidence.redacted_events) {
@@ -135,9 +164,7 @@ const runId = `k6-run-${stamp()}`;
 const outDir = join('PROOFS', args.sha, args.row, args.seat, runId);
 mkdirSync(join(outDir, 'artifacts'), { recursive: true });
 
-if (args['seat-readiness']) {
-  copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
-}
+copyFileSync(args['seat-readiness'], join(outDir, 'seat-readiness.json'));
 
 // Write k6-summary.json through the same public-safe boundary as run-proofs.sh.
 writeFileSync(join(outDir, 'k6-summary.json'), JSON.stringify(summary, null, 2) + '\n');
@@ -220,7 +247,7 @@ const md = `# ${args.row} — ${args.seat} — ${verdict}
 - \`gateway-events.ndjson\` — redacted WS frames (${safeEvents.length} captured)
 - \`evidence-redaction.json\` — public-safe redaction receipt
 - \`row-result.json\` — normalized outcome
-- \`seat-readiness.json\` — public-safe seat/tooling preflight (${args['seat-readiness'] ? 'captured' : 'not supplied to writer'})
+- \`seat-readiness.json\` — verified and captured public-safe seat/tooling preflight
 - \`artifacts/\` — optional copied receipts (Tempo trace, logs)
 
 ## Live-run safety

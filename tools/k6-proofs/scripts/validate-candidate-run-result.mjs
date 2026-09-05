@@ -16,6 +16,7 @@ import {
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
+import { consumeRunReadiness } from './run-readiness-consumer.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
@@ -236,6 +237,7 @@ async function main() {
   same(scenario, scenarioName(manifest), 'scenario');
   const declaredSha = manifestCandidateSha(manifest);
   if (declaredSha) same(candidateSha, declaredSha, 'candidate SHA');
+  await consumeRunReadiness(candidateDir, metadata, process.env.OPENCLAW_GATEWAY_TOKEN);
 
   const verdict = runResult.verdict;
   if (!OUTCOME.has(verdict)) throw new Error('run result verdict must be an explicit candidate outcome');

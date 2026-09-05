@@ -61,6 +61,7 @@ bind_execution_roots
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
 PRIVATE_GATEWAY_LOG=""
+PRIVATE_SEAT_READINESS=""
 SOURCE_CONTRACT_FILE=""
 ACTIVE_TOKEN_RUN_DIR=""
 ACTIVE_TOKEN_PHASE=""
@@ -73,6 +74,7 @@ cleanup_private_artifacts() {
     "${PRIVATE_K6_LOG:-}" \
     "${PRIVATE_EVIDENCE_FILE:-}" \
     "${PRIVATE_GATEWAY_LOG:-}" \
+    "${PRIVATE_SEAT_READINESS:-}" \
     "${CATALOG_PREFLIGHT_RAW_FILE:-}" \
     "${SOURCE_CONTRACT_FILE:-}"
   if [[ -n "${HARNESS_SNAPSHOT_ROOT:-}" ]]; then rm -rf "$HARNESS_SNAPSHOT_ROOT"; fi
@@ -317,7 +319,7 @@ if [[ -z "$CANDIDATE_SHA" && -z "${OPENCLAW_CANDIDATE_SHA:-}" ]]; then
 fi
 
 if [[ -n "$CANDIDATE_SHA" ]]; then export OPENCLAW_CANDIDATE_SHA="${CANDIDATE_SHA}"; fi
-export OPENCLAW_SEAT_NAME="$(hostname)"
+export OPENCLAW_SEAT_NAME="${OPENCLAW_SEAT_NAME:-$(hostname)}"
 
 # Portable observability endpoints. Defaults preserve the dandelion fleet, but
 # reviewers can override without editing scripts or docs-local config.
@@ -732,18 +734,9 @@ fi
 # Runtime and session resolution run only in the verified snapshot runner: the
 # bootstrap must not invoke external tooling or resolve session state while it is
 # still executing unproven bytes.
-# Fetch deployed runtime build stamp explicitly (do not collapse into CANDIDATE_SHA).
-# Operators may provide OPENCLAW_RUNTIME_BUILD_SHA when they have an external deploy
-# receipt for the exact SHA. Otherwise prefer a structured CLI receipt when available
-# and fall back to the human version string (for example, "OpenClaw ... (1cc8f4e)").
+# The deployed runtime identity is explicit input. Never infer target identity
+# from the runner's installed binary or home directory.
 DEPLOYED_BUILD_STAMP="${OPENCLAW_RUNTIME_BUILD_SHA:-unknown}"
-if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; then
-  if openclaw version --json >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw version --json | jq -r '.build.sha // empty')"
-  elif openclaw --version >/dev/null 2>&1; then
-    DEPLOYED_BUILD_STAMP="$(openclaw --version | head -n 1)"
-  fi
-fi
 export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
 
 # Resolve Session Key
@@ -768,30 +761,48 @@ if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_B
   echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
 fi
 
-# Local Gateway Auth extraction (never logged/committed).
-# Deliberately last: neither the harness identity gate nor the catalog
-# validators run with this credential in their environment.
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
-  OPENCLAW_GATEWAY_TOKEN="$(jq -r '.gateway.auth.token // .auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
-  export OPENCLAW_GATEWAY_TOKEN
-fi
 if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
-  echo "Warning: OPENCLAW_GATEWAY_TOKEN not found in local config."
   if [[ "$DRY_RUN" == "false" ]]; then
-    exit 1
+    fail_harness "seat-readiness" "OPENCLAW_GATEWAY_TOKEN must be supplied explicitly" \
+      '{"check":"explicit-gateway-token"}'
   fi
 fi
 
 SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
 SEAT_READINESS_SHA256=""
 if [[ "$DRY_RUN" == "false" ]]; then
+  for READINESS_VAR in OPENCLAW_GATEWAY_WS OPENCLAW_GATEWAY_UNIT OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH; do
+    if [[ -z "${!READINESS_VAR:-}" ]]; then
+      fail_harness "seat-readiness" "$READINESS_VAR must be supplied explicitly" \
+        "$(jq -n --arg variable "$READINESS_VAR" '{check:"explicit-target-binding",variable:$variable}')"
+    fi
+  done
+  export OPENCLAW_RUNTIME_SHA="$OPENCLAW_RUNTIME_BUILD_SHA"
+  export OPENCLAW_DOCS_SHA="$DOCS_REF"
+  export OPENCLAW_SELECTED_ROWS="$ROW_SELECTION_JSON"
   echo "Running seat-readiness preflight (k6/tooling/gateway/continuation config)..."
   if ! node scripts/seat-readiness-preflight.mjs --json > "$SEAT_READINESS_JSON"; then
     echo "SEAT READINESS FAILED: $SEAT_READINESS_JSON" >&2
-    jq -r '.outcome as $out | "outcome=\($out) continuation=\(.continuation.enabled) defaults=\(.continuation.defaultsPresent) notes=\(.notes|join("; "))"' "$SEAT_READINESS_JSON" >&2 || true
-    exit 1
+    fail_harness "seat-readiness" "authenticated supplied-target readiness failed" \
+      "$(jq -c '{check:"authenticated-target-readiness",outcome,notes}' "$SEAT_READINESS_JSON")"
   fi
+  PRIVATE_SEAT_READINESS="$(mktemp "${TMPDIR:-/tmp}/openclaw-seat-readiness.XXXXXX")"
+  cp "$SEAT_READINESS_JSON" "$PRIVATE_SEAT_READINESS"
+  if ! node scripts/verify-seat-readiness.mjs "$PRIVATE_SEAT_READINESS"; then
+    fail_harness "seat-readiness" "signed target readiness receipt failed verification" \
+      '{"check":"signed-readiness-receipt"}'
+  fi
+  SEAT_READINESS_JSON="$PRIVATE_SEAT_READINESS"
   SEAT_READINESS_SHA256="$(sha256sum "$SEAT_READINESS_JSON" | cut -d' ' -f1)"
+  SIGNED_GATEWAY_UNIT="$(jq -er '.bindings.unit' "$SEAT_READINESS_JSON")"
+  SIGNED_GATEWAY_FINGERPRINT="$(jq -er '.bindings.gatewayUrlFingerprint' "$SEAT_READINESS_JSON")"
+  SIGNED_REQUIRED_DEPTH="$(jq -er '.bindings.requiredMaxSpawnDepth' "$SEAT_READINESS_JSON")"
+  SIGNED_EXPECTED_DEPTH="$(jq -er '.bindings.expectedMaxSpawnDepth' "$SEAT_READINESS_JSON")"
+  if [[ -n "${OPENCLAW_PROOFS_GATEWAY_UNIT:-}" &&
+        "$OPENCLAW_PROOFS_GATEWAY_UNIT" != "$SIGNED_GATEWAY_UNIT" ]]; then
+    fail_harness "seat-readiness" "journal unit differs from the signed target unit" \
+      '{"check":"signed-gateway-unit"}'
+  fi
   echo "SEAT READINESS: $SEAT_READINESS_JSON"
 fi
 
@@ -955,6 +966,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # The exact scenario source travels with the receipt so a reviewer can prove
     # which contract bytes produced it without trusting the run directory name.
     cp "scenarios/$SCENARIO_FILE" "$RUN_DIR/row-scenario.js"
+    cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
+    if ! node scripts/verify-seat-readiness.mjs "$RUN_DIR/seat-readiness.json"; then
+      fail_harness "seat-readiness" "run-local signed target readiness receipt failed verification" \
+        "$(jq -n --arg row "$ROW_ID" '{check:"run-local-signed-readiness-receipt",row:$row}')"
+    fi
     assert_copied_artifact_frozen "$ROW_ID" "$RUN_DIR/row-manifest.json" "$ROW_MANIFEST_DIGEST"
     assert_copied_artifact_frozen "$ROW_ID" "$RUN_DIR/row-scenario.js" "$ROW_SCENARIO_DIGEST"
     # Everything downstream reads the verified copy, never the mutable worktree
@@ -978,7 +994,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
       --arg scenarioPath "$ROW_SCENARIO_REL" \
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, runId:$runId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
+      --arg readinessSha256 "$SEAT_READINESS_SHA256" \
+      --arg gatewayUrlFingerprint "$SIGNED_GATEWAY_FINGERPRINT" \
+      --arg gatewayUnit "$SIGNED_GATEWAY_UNIT" \
+      --argjson selectedRows "$ROW_SELECTION_JSON" \
+      --argjson requiredMaxSpawnDepth "$SIGNED_REQUIRED_DEPTH" \
+      --argjson expectedMaxSpawnDepth "$SIGNED_EXPECTED_DEPTH" \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, runId:$runId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256,readiness:{receipt:"seat-readiness.json",sha256:$readinessSha256,gatewayUrlFingerprint:$gatewayUrlFingerprint,unit:$gatewayUnit,selectedRows:$selectedRows,requiredMaxSpawnDepth:$requiredMaxSpawnDepth,expectedMaxSpawnDepth:$expectedMaxSpawnDepth}}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-2" ]]; then
       if ! node "$R_CD_2_RECEIPT_RESOLVER" \
@@ -1042,9 +1064,6 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
         > "$RUN_DIR/attempt-state.json"
     fi
-    if [[ -f "$SEAT_READINESS_JSON" ]]; then
-      cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
-    fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       export OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"
       if [[ "$OPENCLAW_SEAT_CLASS" != "raw-final-text" ]]; then
@@ -1076,7 +1095,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     PRIVATE_K6_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-log.XXXXXX")"
     PRIVATE_EVIDENCE_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-evidence.XXXXXX")"
     PRIVATE_GATEWAY_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-gateway-journal.XXXXXX")"
-    GATEWAY_UNIT="${OPENCLAW_PROOFS_GATEWAY_UNIT:-openclaw-gateway}"
+    GATEWAY_UNIT="$(jq -er '.bindings.unit' "$RUN_DIR/seat-readiness.json")"
     GATEWAY_JOURNAL_CURSOR=""
     GATEWAY_JOURNAL_METHOD="unavailable"
     GATEWAY_JOURNAL_RC=1

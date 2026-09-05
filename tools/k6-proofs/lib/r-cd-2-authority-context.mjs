@@ -18,6 +18,7 @@ import {
   sealSignedObserverReceipt,
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
+import { validateReadinessReceipt } from '../scripts/target-readiness.mjs';
 
 export const R_CD_2_ROW = 'R-CD-2';
 export const R_CD_2_RECEIPT_FILE = 'r-cd-2-authoritative-receipt.json';
@@ -293,12 +294,12 @@ function selectArchivedProvenance(root, selectedMatrixId) {
   return { ...readJson(file, 'archived matrix provenance'), file };
 }
 
-function validateReadiness(readiness, selected, label) {
+function validateReadiness(readiness, selected, label, signingKey) {
   if (
     !readiness ||
     typeof readiness !== 'object' ||
     Array.isArray(readiness) ||
-    readiness.schema !== 'openclaw.k6.seat-readiness.v1' ||
+    readiness.schema !== 'openclaw.k6.seat-readiness.v2' ||
     readiness.outcome !== 'PASS-candidate' ||
     !readiness.candidate ||
     typeof readiness.candidate !== 'object' ||
@@ -306,12 +307,37 @@ function validateReadiness(readiness, selected, label) {
     readiness.candidate.valid40Hex !== true ||
     !readiness.seat ||
     typeof readiness.seat !== 'object' ||
-    Array.isArray(readiness.seat)
+    Array.isArray(readiness.seat) ||
+    readiness.target?.authentication?.authenticated !== true ||
+    readiness.target?.authentication?.request?.client?.id !== 'cli' ||
+    readiness.target?.authentication?.request?.method !== 'config.get' ||
+    !DIGEST.test(readiness.bindingDigest || '') ||
+    !DIGEST.test(readiness.integrity?.signature || '') ||
+    readiness.bindings?.runtimeSha !== selected.runtimeBuildSha ||
+    readiness.bindings?.docsSha !== selected.docsRef ||
+    readiness.bindings?.seat !== selected.seat ||
+    !Array.isArray(readiness.bindings?.selectedRows) ||
+    !readiness.bindings.selectedRows.includes(selected.row)
   ) {
     throw new Error(`R-CD-2 ${label} has invalid schema or outcome`);
   }
   same(readiness.candidate.sha, selected.candidateSha, `${label} candidate`);
   same(readiness.seat.name, selected.seat, `${label} seat`);
+  const integrity = validateReadinessReceipt(readiness, {
+    signingKey,
+    candidateSha: selected.candidateSha,
+    runtimeSha: selected.runtimeBuildSha,
+    docsSha: selected.docsRef,
+    gatewayFingerprint: readiness.bindings.gatewayUrlFingerprint,
+    seat: selected.seat,
+    unit: readiness.bindings.unit,
+    rows: readiness.bindings.selectedRows,
+    requiredDepth: readiness.bindings.requiredMaxSpawnDepth,
+    expectedDepth: readiness.bindings.expectedMaxSpawnDepth,
+  });
+  if (!integrity.valid) {
+    throw new Error(`R-CD-2 ${label} failed integrity validation: ${integrity.reason}`);
+  }
 }
 
 function reconcileArchivedProvenance({
@@ -322,6 +348,7 @@ function reconcileArchivedProvenance({
   pathIdentity,
   manifestRaw,
   scenarioRaw,
+  signingKey,
 }) {
   if (
     provenance?.schema !== 'openclaw.k6.harness-provenance.v1' ||
@@ -364,7 +391,7 @@ function reconcileArchivedProvenance({
   );
   const copiedReadiness = readJson(path.join(runDir, 'seat-readiness.json'), 'copied seat readiness');
   same(sha256(copiedReadiness.raw), seatReadinessSha256, 'copied runtime policy receipt digest');
-  validateReadiness(copiedReadiness.value, selected, 'copied seat readiness');
+  validateReadiness(copiedReadiness.value, selected, 'copied seat readiness', signingKey);
   const matrixId = required(provenance.matrixId, PUBLIC_ID, 'archived matrix ID');
   same(matrixId, selected.matrixId, 'archived matrix');
   same(selected.candidateSha, pathIdentity.candidateSha, 'candidate path');
@@ -798,6 +825,7 @@ export function establishRcd2AuthorityContext({
     pathIdentity,
     manifestRaw: capturedManifest.raw,
     scenarioRaw,
+    signingKey,
   });
   const resolvedManifest = reconcileManifest(capturedManifest.value, selected);
   if (manifest) reconcileManifest(manifest, selected);

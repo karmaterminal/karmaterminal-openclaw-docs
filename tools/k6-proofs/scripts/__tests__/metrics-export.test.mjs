@@ -4,9 +4,12 @@ import { mkdtemp, rm, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { signedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const script = join(repoRoot, 'tools/k6-proofs/scripts/export-row-metrics.mjs');
+const signingKey = 'metrics-fixture-token';
 
 async function withTmp(fn) {
   const dir = await mkdtemp(join(tmpdir(), 'p81-k6-metrics-'));
@@ -18,7 +21,41 @@ async function withTmp(fn) {
 }
 
 function runExporter(args, cwd = repoRoot) {
-  return spawnSync(process.execPath, [script, ...args], { cwd, encoding: 'utf8' });
+  return spawnSync(process.execPath, [script, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey },
+  });
+}
+
+async function writeReadiness(runDir, metadata, rows = [metadata.row]) {
+  const docsSha = metadata.docsRef || 'd9fd19c6d3b587d36764d0184143b43885762ee1';
+  const runtimeSha = metadata.runtimeBuildSha || metadata.candidateSha;
+  const unit = 'openclaw-metrics-fixture.service';
+  const receipt = signedSeatReadinessFixture({
+    signingKey,
+    candidateSha: metadata.candidateSha,
+    runtimeSha,
+    docsSha,
+    seat: metadata.seat,
+    unit,
+    rows,
+  });
+  const body = `${JSON.stringify(receipt, null, 2)}\n`;
+  metadata.runtimeBuildSha = runtimeSha;
+  metadata.docsRef = docsSha;
+  metadata.readiness = {
+    receipt: 'seat-readiness.json',
+    sha256: createHash('sha256').update(body).digest('hex'),
+    gatewayUrlFingerprint: receipt.bindings.gatewayUrlFingerprint,
+    unit,
+    selectedRows: rows,
+    requiredMaxSpawnDepth: 2,
+    expectedMaxSpawnDepth: 5,
+  };
+  await writeFile(join(runDir, 'runner-metadata.json'), `${JSON.stringify(metadata, null, 2)}\n`);
+  await writeFile(join(runDir, 'seat-readiness.json'), body);
+  return { metadata, receipt, body };
 }
 
 test('exports row-result.json to the public-safe Prometheus/OTLP contract', async () => {
@@ -42,6 +79,12 @@ test('exports row-result.json to the public-safe Prometheus/OTLP contract', asyn
       candidateOnly: true,
       foldRequiresReview: true,
     }, null, 2)}\n`);
+    await writeReadiness(dir, {
+      row: 'R-CD-1',
+      scenario: 'r-cd-1',
+      candidateSha: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
+      seat: 'cael-dgx',
+    });
 
     const run = runExporter(['--row-result', rowResult, '--prometheus-out', prom, '--otlp-out', otlp]);
     assert.equal(run.status, 0, run.stderr || run.stdout);
@@ -84,12 +127,12 @@ test('exports row-list runner directory and marks trace-missing as pending recei
       scenario: { name: 'r-cd-1', file: 'r-cd-1.js' },
       liveRunSafety: { requiredReceipts: ['dispatch-accepted', 'parent-wake-event', 'no-channel-delivery'] },
     }, null, 2)}\n`);
-    await writeFile(join(runDir, 'runner-metadata.json'), `${JSON.stringify({
+    await writeReadiness(runDir, {
       row: 'R-CD-1',
       scenario: 'r-cd-1.js',
       candidateSha: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
       seat: 'cael-dgx',
-    }, null, 2)}\n`);
+    });
     await writeFile(join(runDir, 'r-cd-1-summary.json'), `${JSON.stringify({
       row: 'R-CD-1',
       sha: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
@@ -131,6 +174,7 @@ test('exports row-list runner directory and marks trace-missing as pending recei
 
 test('marks direct operator config-get receipts present from public-safe evidence', async () => {
   await withTmp(async (dir) => {
+    const candidateSha = 'cea9e4296b7e5cd37f0a491d637ef8459ea2e737';
     const runDir = join(dir, '20260713T033832Z-r-config-defaults');
     await mkdir(runDir, { recursive: true });
     await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
@@ -142,15 +186,15 @@ test('marks direct operator config-get receipts present from public-safe evidenc
       scenario: { name: 'r-config-defaults', file: 'r-config-defaults.js' },
       liveRunSafety: { requiredReceipts: ['seat-readiness', 'config-read', 'continuation-values'] },
     }, null, 2)}\n`);
-    await writeFile(join(runDir, 'runner-metadata.json'), `${JSON.stringify({
+    const metadata = {
       row: 'R-CONFIG-DEFAULTS', scenario: 'r-config-defaults.js',
       candidateSha: 'cea9e4296b7e5cd37f0a491d637ef8459ea2e737', seat: 'elliott',
-    }, null, 2)}\n`);
+    };
+    await writeReadiness(runDir, metadata);
     await writeFile(join(runDir, 'run-result.json'), `${JSON.stringify({
       k6ExitCode: 0, candidateOnly: true, foldRequiresReview: true,
       review: { status: 'ready-for-human-review', pendingReceipts: [] },
     }, null, 2)}\n`);
-    await writeFile(join(runDir, 'seat-readiness.json'), `${JSON.stringify({ outcome: 'PASS-candidate' })}\n`);
     await writeFile(join(runDir, 'evidence.jsonl'), `${JSON.stringify({
       config_read: true, enabled: true, max_chain_length: 200,
       max_delegates_per_turn: 500, cost_cap_tokens: 50000000,
@@ -178,10 +222,10 @@ test('requires enabled, not merely non-empty, cross-session targeting in public-
       scenario: { name: 'r-config-intersession', file: 'r-config-intersession.js' },
       liveRunSafety: { requiredReceipts: ['cross-session-targeting'] },
     }, null, 2)}\n`);
-    await writeFile(join(runDir, 'runner-metadata.json'), `${JSON.stringify({
+    await writeReadiness(runDir, {
       row: 'R-CONFIG-INTERSESSION', scenario: 'r-config-intersession.js',
       candidateSha: 'cea9e4296b7e5cd37f0a491d637ef8459ea2e737', seat: 'elliott',
-    }, null, 2)}\n`);
+    });
     await writeFile(join(runDir, 'evidence.jsonl'), `${JSON.stringify({
       config_read: true, cross_session_targeting: 'disabled',
     })}\n`);
@@ -200,4 +244,99 @@ test('requires enabled, not merely non-empty, cross-session targeting in public-
     const enabledProm = await readFile(prom, 'utf8');
     assert.match(enabledProm, /receipt_name="cross-session-targeting"[^\n]*receipt_status="present"[^\n]*\} 1/);
   });
+});
+
+test('metrics consumer rejects missing, stale, invalid, and mismatched readiness before output', async (t) => {
+  for (const variant of ['missing', 'stale-v1', 'invalid-signature', 'mismatched-unit']) {
+    await t.test(variant, async () => {
+      await withTmp(async (dir) => {
+        const runDir = join(dir, variant);
+        await mkdir(runDir);
+        await writeFile(join(runDir, 'row-manifest.json'), `${JSON.stringify({
+          rowId: 'R-CW-TEST',
+          scenario: { name: 'r-cw-test', file: 'r-cw-test.js' },
+          liveRunSafety: { requiredReceipts: ['seat-readiness'] },
+        })}\n`);
+        await writeFile(join(runDir, 'run-result.json'), `${JSON.stringify({
+          k6ExitCode: 0,
+          candidateOnly: true,
+          foldRequiresReview: true,
+          review: { status: 'ready-for-human-review', pendingReceipts: [] },
+        })}\n`);
+        const state = await writeReadiness(runDir, {
+          row: 'R-CW-TEST',
+          scenario: 'r-cw-test.js',
+          candidateSha: 'a'.repeat(40),
+          seat: 'cael',
+        });
+        const receiptPath = join(runDir, 'seat-readiness.json');
+        const metadataPath = join(runDir, 'runner-metadata.json');
+        if (variant === 'missing') {
+          await rm(receiptPath);
+        } else if (variant === 'mismatched-unit') {
+          state.metadata.readiness.unit = 'wrong-gateway.service';
+          await writeFile(metadataPath, `${JSON.stringify(state.metadata, null, 2)}\n`);
+        } else {
+          if (variant === 'stale-v1') state.receipt.schema = 'openclaw.k6.seat-readiness.v1';
+          else state.receipt.integrity.signature = '0'.repeat(64);
+          const body = `${JSON.stringify(state.receipt, null, 2)}\n`;
+          state.metadata.readiness.sha256 = createHash('sha256').update(body).digest('hex');
+          await writeFile(receiptPath, body);
+          await writeFile(metadataPath, `${JSON.stringify(state.metadata, null, 2)}\n`);
+        }
+        const prom = join(dir, 'metrics.prom');
+        const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
+        assert.notEqual(run.status, 0);
+        await assert.rejects(readFile(prom, 'utf8'), /ENOENT/);
+      });
+    });
+  }
+});
+
+test('row-result metrics path also requires verified readiness before output', async (t) => {
+  for (const variant of ['missing', 'stale-v1', 'invalid-signature', 'mismatched-unit']) {
+    await t.test(variant, async () => {
+      await withTmp(async (dir) => {
+        const rowResult = join(dir, 'row-result.json');
+        await writeFile(rowResult, `${JSON.stringify({
+          schema: 'openclaw.k6.proof-row-result.v1',
+          runId: 'hostile-row-result',
+          rowId: 'R-CW-TEST',
+          candidateSha: 'a'.repeat(40),
+          seat: 'cael',
+          scenario: 'r-cw-test',
+          outcome: 'PASS-candidate',
+          metrics: { proofFailures: 0 },
+          receipts: [{ name: 'seat-readiness', required: true, status: 'present' }],
+          candidateOnly: true,
+          foldRequiresReview: true,
+        })}\n`);
+        const state = await writeReadiness(dir, {
+          row: 'R-CW-TEST',
+          scenario: 'r-cw-test',
+          candidateSha: 'a'.repeat(40),
+          seat: 'cael',
+        });
+        const receiptPath = join(dir, 'seat-readiness.json');
+        const metadataPath = join(dir, 'runner-metadata.json');
+        if (variant === 'missing') {
+          await rm(receiptPath);
+        } else if (variant === 'mismatched-unit') {
+          state.metadata.readiness.unit = 'wrong-gateway.service';
+          await writeFile(metadataPath, `${JSON.stringify(state.metadata, null, 2)}\n`);
+        } else {
+          if (variant === 'stale-v1') state.receipt.schema = 'openclaw.k6.seat-readiness.v1';
+          else state.receipt.integrity.signature = '0'.repeat(64);
+          const body = `${JSON.stringify(state.receipt, null, 2)}\n`;
+          state.metadata.readiness.sha256 = createHash('sha256').update(body).digest('hex');
+          await writeFile(receiptPath, body);
+          await writeFile(metadataPath, `${JSON.stringify(state.metadata, null, 2)}\n`);
+        }
+        const prom = join(dir, 'metrics.prom');
+        const run = runExporter(['--row-result', rowResult, '--prometheus-out', prom]);
+        assert.notEqual(run.status, 0);
+        await assert.rejects(readFile(prom, 'utf8'), /ENOENT/);
+      });
+    });
+  }
 });

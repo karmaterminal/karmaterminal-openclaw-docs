@@ -77,13 +77,23 @@ For live rows, run a seat readiness preflight before interpreting proof output:
 
 ```bash
 OPENCLAW_CANDIDATE_SHA=<40-char-sha> \
+OPENCLAW_RUNTIME_SHA=<40-char-runtime-sha> \
+OPENCLAW_DOCS_SHA=<40-char-docs-sha> \
+OPENCLAW_GATEWAY_WS=ws://127.0.0.1:<isolated-port> \
+OPENCLAW_GATEWAY_UNIT=<isolated-unit> \
+OPENCLAW_SELECTED_ROWS=<ROW-ID[,ROW-ID...]> \
+OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH=2 \
+OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH=<expected-depth> \
 OPENCLAW_SEAT_NAME=<seat> \
 OPENCLAW_SESSION_KEY=<scratch-or-disposable-session> \
 OPENCLAW_GATEWAY_TOKEN=*** \
 node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
 ```
 
-A missing k6 binary/version mismatch, disabled continuation config, missing required env, or unreachable gateway is `PARTIAL-candidate` / setup failure until fixed.
+The signed v2 receipt must validate the authenticated target `config.get`
+identity and every candidate/runtime/docs/URL/seat/unit/row/depth binding.
+Configured and effective depth come only from that target; expected depth is an
+assertion. Any mismatch is a pre-dispatch infrastructure stop.
 
 ### 4. Dry-run the selected set
 
@@ -109,6 +119,9 @@ cd tools/k6-proofs
 K6_PROOF_OUT_DIR=/tmp/p81-proof-live \
 OPENCLAW_GATEWAY_WS=ws://127.0.0.1:18789 \
 OPENCLAW_GATEWAY_TOKEN=*** \
+OPENCLAW_GATEWAY_UNIT=<isolated-unit> \
+OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH=2 \
+OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH=<expected-depth> \
 OPENCLAW_CANDIDATE_SHA=<40-char-sha> \
 OPENCLAW_SEAT_NAME=<seat> \
 OPENCLAW_CREATE_DISPOSABLE_SESSION=true \

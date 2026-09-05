@@ -17,16 +17,24 @@ into `PROOFS/<sha>/` without back-and-forth.
    save the JSON beside your candidate artifacts:
    ```bash
    OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+   OPENCLAW_RUNTIME_SHA="<40-char-runtime-sha>" \
+   OPENCLAW_DOCS_SHA="<40-char-docs-sha>" \
+   OPENCLAW_GATEWAY_WS="ws://127.0.0.1:<isolated-port>" \
+   OPENCLAW_GATEWAY_UNIT="<isolated-unit>" \
+   OPENCLAW_SELECTED_ROWS="<ROW-ID[,ROW-ID...]>" \
+   OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH="2" \
+   OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH="<expected-depth>" \
    OPENCLAW_SEAT_NAME="<seat>" \
    OPENCLAW_SESSION_KEY="<target-session>" \
    OPENCLAW_GATEWAY_TOKEN="***" \
      node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json \
        > /tmp/seat-readiness.json
    ```
-   A missing/mismatched k6 binary, missing required env, invalid candidate SHA, or
-   unreachable checked gateway is `PARTIAL-candidate` / setup failure — not
-   product behavior evidence. The report prints env presence booleans only; no
-   token/secret values, prompt bodies, or raw gateway payloads are allowed.
+   A missing/mismatched k6 binary, missing binding, invalid SHA, failed
+   authenticated target `config.get`, or unknown/insufficient/mismatched target
+   depth is `PARTIAL-candidate` / setup failure — not product behavior evidence.
+   The v2 receipt is HMAC-signed with the gateway token, which is never printed.
+   Stale v1 receipts are rejected before model/k6/row traffic.
 3. **Verify the gateway you fire against is actually deployed to the corpus-pin SHA.**
    This is a PRE-FIRE gate the validator CANNOT do for you: `validate-corpus.mjs`
    checks that your *artifacts* are consistent with a SHA, but it cannot verify your

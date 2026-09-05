@@ -56,7 +56,7 @@ async function invokeRunner(harness, { rows = 'R-CD-2', args = [], env = {}, can
           ...process.env,
           OPENCLAW_PROOFS_DOCS_REF: '',
           OPENCLAW_GATEWAY_TOKEN: 'harness-provenance-test-token',
-          OPENCLAW_SESSION_KEY: 'main',
+          OPENCLAW_SESSION_KEY: 'agent:main:proof-fixture',
           OPENCLAW_SEAT_NAME: 'contract-seat',
           OPENCLAW_CANDIDATE_SHA: candidateSha,
           OPENCLAW_RUNTIME_BUILD_SHA: candidateSha,
@@ -411,12 +411,134 @@ test('the runner resolves its own harness root regardless of the caller working 
 
 const APPROVED_TOKEN = 'harness-provenance-test-token-do-not-log';
 
+function attachReadinessGateway(server, {
+  configRevisionHash = 'harness-fixture-applied',
+  appliedConfigHash = configRevisionHash,
+} = {}) {
+  const send = (socket, value) => {
+    const payload = Buffer.from(JSON.stringify(value));
+    const header = payload.length < 126
+      ? Buffer.from([0x81, payload.length])
+      : Buffer.from([0x81, 126, payload.length >> 8, payload.length & 0xff]);
+    socket.write(Buffer.concat([header, payload]));
+  };
+  server.on('upgrade', (request, socket) => {
+    const accept = createHash('sha1')
+      .update(`${request.headers['sec-websocket-key']}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
+      .digest('base64');
+    socket.write([
+      'HTTP/1.1 101 Switching Protocols',
+      'Upgrade: websocket',
+      'Connection: Upgrade',
+      `Sec-WebSocket-Accept: ${accept}`,
+      '\r\n',
+    ].join('\r\n'));
+    send(socket, {
+      type: 'event',
+      event: 'connect.challenge',
+      payload: { nonce: 'harness-readiness-challenge', ts: Date.now() },
+    });
+    let buffered = Buffer.alloc(0);
+    socket.on('data', (chunk) => {
+      buffered = Buffer.concat([buffered, chunk]);
+      while (buffered.length >= 2) {
+        const opcode = buffered[0] & 0x0f;
+        const masked = (buffered[1] & 0x80) !== 0;
+        let length = buffered[1] & 0x7f;
+        let offset = 2;
+        if (length === 126) {
+          if (buffered.length < 4) return;
+          length = buffered.readUInt16BE(2);
+          offset = 4;
+        }
+        const maskLength = masked ? 4 : 0;
+        if (buffered.length < offset + maskLength + length) return;
+        const mask = masked ? buffered.subarray(offset, offset + 4) : null;
+        offset += maskLength;
+        const payload = Buffer.from(buffered.subarray(offset, offset + length));
+        buffered = buffered.subarray(offset + length);
+        if (opcode === 0x8) {
+          socket.end();
+          return;
+        }
+        if (mask) {
+          for (let index = 0; index < payload.length; index += 1) {
+            payload[index] ^= mask[index % 4];
+          }
+        }
+        const frame = JSON.parse(payload.toString('utf8'));
+        if (frame.method === 'connect') {
+          assert.equal(frame.params.client.id, 'cli');
+          assert.equal(frame.params.client.mode, 'cli');
+          assert.equal(frame.params.auth.token, APPROVED_TOKEN);
+          send(socket, {
+            type: 'res',
+            id: frame.id,
+            ok: true,
+            payload: {
+              type: 'hello-ok',
+              protocol: 4,
+              server: {
+                version: '2026.8.1',
+                buildId: `2026.8.1-${candidateSha.slice(0, 12)}-fixture`,
+                bootId: 'harness-fixture-boot',
+                connId: 'harness-fixture-connection',
+              },
+              features: { methods: ['config.get'], events: ['connect.challenge'] },
+              snapshot: {},
+              auth: { role: 'operator', scopes: ['operator.read'] },
+              policy: { maxPayload: 1024, maxBufferedBytes: 2048, tickIntervalMs: 1000 },
+            },
+          });
+        } else if (frame.method === 'config.get') {
+          send(socket, {
+            type: 'res',
+            id: frame.id,
+            ok: true,
+            payload: {
+              valid: true,
+              sourceConfig: {
+                agents: {
+                  defaults: {
+                    subagents: { maxSpawnDepth: 5 },
+                    continuation: {
+                      enabled: true,
+                      maxChainLength: 3,
+                      maxDelegatesPerTurn: 3,
+                      costCapTokens: 1000,
+                    },
+                  },
+                },
+              },
+              config: {
+                agents: {
+                  defaults: {
+                    subagents: { maxSpawnDepth: 5 },
+                    continuation: {
+                      enabled: true,
+                      maxChainLength: 3,
+                      maxDelegatesPerTurn: 3,
+                      costCapTokens: 1000,
+                    },
+                  },
+                },
+              },
+              configRevisionHash,
+              appliedConfigHash,
+            },
+          });
+        }
+      }
+    });
+  });
+}
+
 /**
  * Drive the runner all the way through the identity gate, seat readiness, and
  * provenance emission with stubbed tooling. R-CW-5A is runnable but
  * static-preflight-only, so no live k6 row is dispatched.
  */
-async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null } = {}) {
+async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null, gatewayConfig = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
@@ -426,6 +548,7 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
   if (afterCommit) await afterCommit(harness);
 
   const gateway = createServer((req, res) => res.writeHead(req.url.startsWith('/health') || req.url.startsWith('/status') ? 200 : 404).end('{}'));
+  attachReadinessGateway(gateway, gatewayConfig || {});
   await new Promise((resolve) => gateway.listen(0, '127.0.0.1', resolve));
   const gatewayPort = gateway.address().port;
 
@@ -458,10 +581,13 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
               K6_BIN: path.join(bin, 'k6'),
               OPENCLAW_GATEWAY_TOKEN: APPROVED_TOKEN,
               OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${gatewayPort}`,
-              OPENCLAW_SESSION_KEY: 'main',
+              OPENCLAW_SESSION_KEY: 'agent:main:proof-fixture',
               OPENCLAW_SEAT_NAME: 'contract-seat',
               OPENCLAW_CANDIDATE_SHA: candidateSha,
               OPENCLAW_RUNTIME_BUILD_SHA: candidateSha,
+              OPENCLAW_GATEWAY_UNIT: 'openclaw-harness-fixture.service',
+              OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH: '2',
+              OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH: '5',
               ...(envFor ? envFor(harness) : {}),
             },
           },
@@ -478,6 +604,63 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
     await rm(root, { recursive: true, force: true });
   }
 }
+
+test('unapplied target config stops the live matrix with zero dispatch', async () => {
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      await assertInfrastructureFailure(harness, result, {
+        stage: 'seat-readiness',
+        check: 'authenticated-target-readiness',
+      });
+      await assert.rejects(
+        readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
+        /ENOENT/,
+      );
+    },
+    {
+      rows: 'R-CD-2',
+      gatewayConfig: {
+        configRevisionHash: 'pending-revision',
+        appliedConfigHash: 'running-revision',
+      },
+      k6ShimFor: (harness) => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+        `printf dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
+        'exit 0',
+        '',
+      ].join('\n'),
+    },
+  );
+});
+
+test('a different journal unit rejects before k6 dispatch', async () => {
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      await assertInfrastructureFailure(harness, result, {
+        stage: 'seat-readiness',
+        check: 'signed-gateway-unit',
+      });
+      await assert.rejects(
+        readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
+        /ENOENT/,
+      );
+    },
+    {
+      rows: 'R-CD-2',
+      envFor: () => ({ OPENCLAW_PROOFS_GATEWAY_UNIT: 'wrong-gateway.service' }),
+      k6ShimFor: (harness) => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+        `printf dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
+        'exit 0',
+        '',
+      ].join('\n'),
+    },
+  );
+});
 
 test('the catalog preflight log is public-safe: no credentials, no local paths', async () => {
   await withApprovedMatrix(async (harness) => {

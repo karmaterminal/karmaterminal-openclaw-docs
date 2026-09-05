@@ -31,12 +31,32 @@ on:
       gateway_ws:
         description: "OpenClaw gateway WebSocket URL reachable from the runner"
         required: false
-        default: "ws://127.0.0.1:18789"
+        default: ""
+        type: string
+      runtime_sha:
+        description: "Exact 40-char OpenClaw runtime build SHA"
+        required: false
+        default: ""
+        type: string
+      gateway_unit:
+        description: "Unique isolated gateway service/unit identity"
+        required: false
+        default: ""
+        type: string
+      required_max_spawn_depth:
+        description: "Minimum effective target spawn depth"
+        required: false
+        default: "2"
+        type: string
+      expected_max_spawn_depth:
+        description: "Assertion-only expected effective target spawn depth"
+        required: false
+        default: ""
         type: string
       session_selector:
         description: "Scratch selector; use agent:<id>:main when the gateway has multiple agents"
         required: false
-        default: "main"
+        default: "agent:main:proof-disposable"
         type: string
       seat_name:
         description: "Seat/reviewer label recorded in artifacts"
@@ -80,6 +100,13 @@ jobs:
       OPENCLAW_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
       OPENCLAW_GATEWAY_WS: ${{ inputs.gateway_ws }}
       OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
+      OPENCLAW_RUNTIME_SHA: ${{ inputs.runtime_sha }}
+      OPENCLAW_RUNTIME_BUILD_SHA: ${{ inputs.runtime_sha }}
+      OPENCLAW_DOCS_SHA: ${{ github.sha }}
+      OPENCLAW_PROOFS_DOCS_REF: ${{ github.sha }}
+      OPENCLAW_GATEWAY_UNIT: ${{ inputs.gateway_unit }}
+      OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH: ${{ inputs.required_max_spawn_depth }}
+      OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH: ${{ inputs.expected_max_spawn_depth }}
       OPENCLAW_SESSION_KEY: ${{ inputs.session_selector }}
       OPENCLAW_SEAT_NAME: ${{ inputs.seat_name }}
       OPENCLAW_CREATE_DISPOSABLE_SESSION: ${{ inputs.create_disposable_sessions }}
@@ -101,6 +128,9 @@ jobs:
         env:
           ROWS_INPUT: ${{ inputs.rows }}
           CANDIDATE_SHA_INPUT: ${{ inputs.candidate_sha }}
+          RUNTIME_SHA_INPUT: ${{ inputs.runtime_sha }}
+          GATEWAY_WS_INPUT: ${{ inputs.gateway_ws }}
+          GATEWAY_UNIT_INPUT: ${{ inputs.gateway_unit }}
           RUNNER_LABELS_JSON: ${{ inputs.runner_labels_json }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
@@ -111,6 +141,12 @@ jobs:
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
               exit 1
             fi
+            if [[ "$RUNTIME_SHA_INPUT" != "$CANDIDATE_SHA_INPUT" ]]; then
+              echo "::error::runtime_sha must exactly equal candidate_sha when dry_run=false"
+              exit 1
+            fi
+            test -n "$GATEWAY_WS_INPUT" || { echo "::error::gateway_ws is required"; exit 1; }
+            test -n "$GATEWAY_UNIT_INPUT" || { echo "::error::gateway_unit is required"; exit 1; }
           fi
           node --check tools/k6-proofs/scripts/list-runnable-rows.mjs
           node --check tools/k6-proofs/scripts/summarize-review-debt.mjs
@@ -141,43 +177,34 @@ jobs:
             echo "$HOME/bin" >> "$GITHUB_PATH"
           fi
 
-      - name: Resolve gateway token for this seat
-        if: ${{ !inputs.dry_run }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          # The runner executes ON the prince's own host, so the authoritative
-          # token for THIS seat's gateway is the one in that seat's own config.
-          # A single shared secret cannot authenticate against six gateways that
-          # each hold a different token -- it only ever matched one seat, and
-          # every other seat failed at `connect`, surfacing later and confusingly
-          # as "invalid handshake: first request must be connect" on sessions.create.
-          # Prefer local; fall back to the secret for non-seat runners.
-          cfg="$HOME/.openclaw/openclaw.json"
-          local_token=""
-          if [[ -r "$cfg" ]]; then
-            local_token="$(python3 -c 'import json,os,sys; d=json.load(open(os.path.expanduser("~/.openclaw/openclaw.json"))); t=(((d.get("gateway") or {}).get("auth") or {}).get("token")) or ""; sys.stdout.write(t if isinstance(t,str) else "")' 2>/dev/null || true)"
-          fi
-          if [[ -n "$local_token" ]]; then
-            echo "::add-mask::$local_token"
-            echo "OPENCLAW_GATEWAY_TOKEN=$local_token" >> "$GITHUB_ENV"
-            echo "gateway token: using this seat's own config (${cfg})"
-          elif [[ -n "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
-            echo "gateway token: no local config token; falling back to the repository secret"
-          else
-            echo "gateway token: neither a local seat token nor a secret is available"
-          fi
-
       - name: Check live prerequisites
         if: ${{ !inputs.dry_run }}
         shell: bash
         run: |
           set -euo pipefail
           command -v k6 >/dev/null || { echo "k6 is required for live runs: https://grafana.com/docs/k6/latest/set-up/install-k6/"; exit 1; }
-          test -n "${OPENCLAW_GATEWAY_TOKEN:-}" || { echo "no gateway token: this seat's ~/.openclaw/openclaw.json has no gateway.auth.token and no OPENCLAW_GATEWAY_TOKEN secret is set"; exit 1; }
+          test -n "${OPENCLAW_GATEWAY_TOKEN:-}" || { echo "OPENCLAW_GATEWAY_TOKEN secret is required"; exit 1; }
+
+      - name: Authenticated target readiness
+        id: target_readiness
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        env:
+          OPENCLAW_SELECTED_ROWS: ${{ steps.rows.outputs.rows }}
+          OPENCLAW_SEAT_READINESS_FILE: ${{ runner.temp }}/seat-readiness.json
+        run: |
+          set -euo pipefail
+          node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json \
+            > "$OPENCLAW_SEAT_READINESS_FILE"
+          node tools/k6-proofs/scripts/verify-seat-readiness.mjs \
+            "$OPENCLAW_SEAT_READINESS_FILE"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Run Project 81 proof suite
+        if: ${{ inputs.dry_run || steps.target_readiness.outputs.ready == 'true' }}
         shell: bash
+        env:
+          OPENCLAW_SELECTED_ROWS: ${{ steps.rows.outputs.rows }}
         run: |
           set -euo pipefail
           cd tools/k6-proofs
@@ -194,7 +221,7 @@ jobs:
           ./scripts/run-proofs.sh "$mode" --docs-ref "$DOCS_REF" "${{ steps.rows.outputs.rows }}" "${OPENCLAW_CANDIDATE_SHA:-}"
 
       - name: Summarize review debt
-        if: ${{ always() && !inputs.dry_run }}
+        if: ${{ always() && !inputs.dry_run && steps.target_readiness.outputs.ready == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -203,7 +230,7 @@ jobs:
           node scripts/summarize-review-debt.mjs --run-root "$K6_PROOF_OUT_DIR" | tee "$K6_PROOF_OUT_DIR/review-debt.txt"
 
       - name: Upload proof artifacts
-        if: ${{ always() }}
+        if: ${{ always() && (inputs.dry_run || steps.target_readiness.outputs.ready == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: project81-k6-proof-${{ github.run_id }}

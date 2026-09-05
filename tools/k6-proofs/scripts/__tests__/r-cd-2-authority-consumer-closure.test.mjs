@@ -21,6 +21,7 @@ import {
   testWorkspace,
   writeRcd2Bundle,
 } from './helpers/r-cd-2-authority-fixture.mjs';
+import { writeSignedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../../../..');
 const scripts = path.join(repoRoot, 'tools/k6-proofs/scripts');
@@ -616,7 +617,7 @@ test('historical R-CD-2 authority uses its digest-bound run-local readiness rece
   const fixture = await writeRcd2Bundle(repoRoot);
   try {
     await writeFile(path.join(fixture.root, 'seat-readiness.json'), `${JSON.stringify({
-      schema: 'openclaw.k6.seat-readiness.v1',
+      schema: 'openclaw.k6.seat-readiness.v2',
       outcome: 'FAIL-candidate',
       candidate: { sha: 'f'.repeat(40), valid40Hex: true },
       seat: { name: FOREIGN.seat, class: 'message-body' },
@@ -821,6 +822,18 @@ test('generic metrics preserve raw fallback when an unrelated sidecar is malform
       candidateOnly: true,
       foldRequiresReview: true,
     })}\n`);
+    await writeSignedSeatReadinessFixture({
+      runDir: workspace.root,
+      signingKey: SIGNING_KEY,
+      metadata: {
+        row: 'R-CW-1',
+        candidateSha: BASE.candidateSha,
+        runtimeBuildSha: BASE.runtimeBuildSha,
+        docsRef: BASE.docsRef,
+        seat: BASE.seat,
+        scenario: 'r-cw-1',
+      },
+    });
     await writeFile(path.join(workspace.root, 'candidate-run-result.json'), '{invalid\n');
     const result = await run(process.execPath, [exporter, '--row-result', rowResult]);
     assert.equal(result.status, 0, result.stderr);

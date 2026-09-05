@@ -19,6 +19,7 @@ import {
   signRcd2SelectedContextReceipt,
 } from '../../lib/r-cd-2-authority-context.mjs';
 import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
+import { signedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const execFileAsync = promisify(execFile);
 const rCd2SigningKey = 'collect-continuation-trace-r-cd-2-test-key';
@@ -258,12 +259,13 @@ async function fixtureDir({
       scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
       scenarioSha256,
     })}\n`);
-    const seatReadinessBody = `${JSON.stringify({
-      schema: 'openclaw.k6.seat-readiness.v1',
-      outcome: 'PASS-candidate',
-      candidate: { sha: candidateSha, valid40Hex: true },
-      seat: { name: seat, class: 'message-body' },
-    })}\n`;
+    const seatReadinessBody = `${JSON.stringify(signedSeatReadinessFixture({
+      signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+      candidateSha,
+      docsSha: docsRef,
+      seat,
+      rows: [resolvedRowId],
+    }))}\n`;
     const authorityIdentity = rCd2AuthorityIdentity({
       candidateSha,
       runtimeBuildSha: candidateSha,

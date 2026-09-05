@@ -22,13 +22,18 @@ tools/k6-proofs/
 ## Prerequisites
 
 - [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is centralized in [`seat-readiness.policy.json`](seat-readiness.policy.json) (`v2.0.0` unless the policy or row issue explicitly says otherwise).
-- A running OpenClaw gateway on the local seat.
+- An explicitly supplied, network-reachable OpenClaw gateway target. Runner-local
+  configuration is never target authority.
 - Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `PARTIAL-candidate`, not product failure.
 - Environment variables:
-  - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
+  - `OPENCLAW_GATEWAY_WS` — explicit target WebSocket URL (no ambient default)
   - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required for live rows, never in source**)
   - `OPENCLAW_SESSION_KEY` — target session key (**required explicitly for live rows that set `liveRunSafety.requiresTargetSessionKey=true`**); use an agent-prefixed key such as `agent:main:main` on multi-agent gateways so disposable sessions inherit an explicit owner
   - `OPENCLAW_CANDIDATE_SHA` — 40-char deploy SHA for this proof run
+  - `OPENCLAW_RUNTIME_SHA`, `OPENCLAW_DOCS_SHA` — exact runtime and docs SHAs
+  - `OPENCLAW_GATEWAY_UNIT`, `OPENCLAW_SELECTED_ROWS` — isolated unit and canonical row set
+  - `OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH` — minimum effective target depth
+  - `OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH` — assertion-only expected target depth
   - `OPENCLAW_SEAT_NAME` — seat identifier (default: `ronan-dgx`)
   - `OPENCLAW_ROW_MANIFEST` — path to row manifest JSON (optional; enables manifest-driven mode)
   - `OPENCLAW_SEAT_CLASS` — `raw-final-text` or `message-body` (default: `message-body`; affects R-CD-TOKEN)
@@ -114,23 +119,38 @@ Run this before a proof row when the output may be folded or compared across sea
 
 ```bash
 OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+OPENCLAW_RUNTIME_SHA="<40-char-runtime-sha>" \
+OPENCLAW_DOCS_SHA="<40-char-docs-sha>" \
+OPENCLAW_GATEWAY_WS="ws://127.0.0.1:<isolated-port>" \
+OPENCLAW_GATEWAY_UNIT="<isolated-unit>" \
+OPENCLAW_SELECTED_ROWS="<ROW-ID[,ROW-ID...]>" \
+OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH="2" \
+OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH="<expected-depth>" \
 OPENCLAW_SEAT_NAME="<seat>" \
 OPENCLAW_SESSION_KEY="<target-session>" \
 OPENCLAW_GATEWAY_TOKEN="***" \
   node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
 ```
 
-The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret values. It records:
+The helper emits a signed `openclaw.k6.seat-readiness.v2` JSON receipt and never
+prints secret values. Stale v1 receipts are rejected. It records:
 
 - k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
 - every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
-- gateway health/status reachability shape
-- continuation config readiness from `openclaw config get agents.defaults.continuation --json`, including `enabled=true` and presence of `maxChainLength`, `maxDelegatesPerTurn`, and `costCapTokens`
+- the canonical gateway URL fingerprint and authenticated `config.get` request/response identity
+- configured depth from target `sourceConfig` and effective depth from target
+  runtime `config`; host configuration is never read
+- candidate/runtime/docs SHA, seat, unit, selected rows, and required/expected
+  depth under one HMAC binding digest
 - candidate SHA validity, seat name/class, and coarse session scope
 - required env-var presence as booleans only, plus public-safe purpose strings from the policy
 - whether the check is safe to run concurrently
 
-If k6 is missing, the version differs, continuation is disabled/missing, required env is absent, or gateway health/status is unreachable, treat row output as `PARTIAL-candidate` / setup failure until the seat is fixed. Do not fold it as product behavior evidence. Use `--no-gateway` only for offline docs/schema checks; live proof rows need a checked gateway and live continuation rows need continuation enabled.
+If k6 is missing, the version differs, authenticated target configuration is
+unknown/insufficient/mismatched, a binding is absent, or receipt verification
+fails, stop before model/k6/row traffic. `expected` depth is only an assertion;
+it never supplies configured or effective depth. `--no-gateway` is limited to
+offline failure-shape checks and can never emit `PASS-candidate`.
 
 ### 2. Preflight check
 

@@ -11,7 +11,7 @@
     ]
   },
   "gateway": {
-    "defaultWsUrl": "ws://127.0.0.1:18789"
+    "explicitTargetRequired": true
   },
   "seat": {
     "defaultName": "unknown-seat",
@@ -26,9 +26,9 @@
     },
     {
       "name": "OPENCLAW_GATEWAY_WS",
-      "required": false,
+      "required": true,
       "secret": false,
-      "purpose": "target gateway websocket URL; defaults to local gateway"
+      "purpose": "explicit target gateway websocket URL"
     },
     {
       "name": "OPENCLAW_SESSION_KEY",
@@ -41,6 +41,42 @@
       "required": true,
       "secret": false,
       "purpose": "40-character OpenClaw deploy SHA under test"
+    },
+    {
+      "name": "OPENCLAW_RUNTIME_SHA",
+      "required": true,
+      "secret": false,
+      "purpose": "40-character deployed runtime SHA bound to the receipt"
+    },
+    {
+      "name": "OPENCLAW_DOCS_SHA",
+      "required": true,
+      "secret": false,
+      "purpose": "40-character docs harness SHA bound to the receipt"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_UNIT",
+      "required": true,
+      "secret": false,
+      "purpose": "isolated target gateway unit identity"
+    },
+    {
+      "name": "OPENCLAW_SELECTED_ROWS",
+      "required": true,
+      "secret": false,
+      "purpose": "canonical selected row set bound to the receipt"
+    },
+    {
+      "name": "OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH",
+      "required": true,
+      "secret": false,
+      "purpose": "minimum effective depth required by the selected rows"
+    },
+    {
+      "name": "OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH",
+      "required": true,
+      "secret": false,
+      "purpose": "assertion-only expected effective target depth"
     },
     {
       "name": "OPENCLAW_SEAT_NAME",

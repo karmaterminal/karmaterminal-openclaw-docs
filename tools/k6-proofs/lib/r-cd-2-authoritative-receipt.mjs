@@ -4,12 +4,17 @@ import {
   sealSignedObserverReceipt,
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
+import { canonicalJson } from './canonical-json.mjs';
 
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
 // emits the only public-safe receipt allowed to promote a candidate verdict.
 export const R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA = 'openclaw.k6.r-cd-2-authoritative-receipt.v1';
 export const R_CD_2_AUTHORITY_IDENTITY_SCHEMA = 'openclaw.k6.r-cd-2-authority-identity.v1';
+export const R_CD_2_ACQUISITION_RECEIPT_SCHEMA =
+  'openclaw.k6.r-cd-2-immutable-acquisition.v1';
+export const R_CD_2_COLLECTOR_SCHEMA =
+  'openclaw.k6.continuation-trace-collector.v1';
 
 const FAILURE_CATEGORIES = new Set([
   'missing-send-run-lifecycle',
@@ -44,6 +49,7 @@ const TOPOLOGY_DIAGNOSTIC_KEYS = [
   'typedTool', 'silentWake', 'exactlyOneToolSpan', 'traceId', 'chainId',
   'dispatchSpan', 'fireSpan', 'distinctDispatchAndFire', 'sendRunBinding',
   'nonceBinding', 'acceptedTraceBinding', 'acceptedTraceSource', 'collectorUnique',
+  'authenticatedAcquisition',
 ];
 const JOIN_DIAGNOSTIC_KEYS = ['acceptedTrace', 'acceptedRun', 'rowNonce'];
 const RECEIPT_BASE_KEYS = [
@@ -62,6 +68,16 @@ const PASS_LIFECYCLE_KEYS = [
 ];
 const BINDING_KEYS = ['localEvidenceFingerprint', 'topologyFingerprint'];
 const INTEGRITY_KEYS = ['algorithm', 'signature'];
+const ACQUISITION_KEYS = [
+  'attribution', 'authorityIdentity', 'chainId', 'childSpans', 'collector',
+  'continuation', 'delegate', 'dispatchParentSpanId', 'dispatchSpanId',
+  'distinctSpans', 'finality', 'fireAttemptCount', 'fireParentSpanId',
+  'fireParentSpanIds', 'fireSpanId', 'fireSpanIds', 'integrity', 'nonce',
+  'query', 'querySha256', 'reason', 'resultClass', 'row', 'rowBinding',
+  'sameChain', 'sameTrace', 'schema', 'searchWindow', 'seat', 'stabilization',
+  'tempoSnapshot', 'toolParentSpanIds', 'toolSpanIds', 'traceId', 'traceJson',
+  'uniqueness',
+];
 const IDENTITY_KEYS = [
   'candidateSha', 'docsRef', 'harness', 'matrixId', 'repository', 'row',
   'runId', 'runtimeBuildSha', 'scenario', 'schema', 'seat',
@@ -76,6 +92,7 @@ const PUBLIC_ID = /^[A-Za-z0-9._:-]+$/;
 const SCENARIO_NAME = /^[A-Za-z0-9._-]+\.js$/;
 const MANIFEST_PATH = /^tools\/k6-proofs\/manifests\/[A-Za-z0-9._-]+\.json$/;
 const SCENARIO_PATH = /^tools\/k6-proofs\/scenarios\/[A-Za-z0-9._-]+\.js$/;
+const TRACE_FILE = /^tempo-trace-[0-9a-f]{12}\.json$/;
 
 const hex = (value, length) => typeof value === 'string' && new RegExp(`^[a-f0-9]{${length}}$`, 'i').test(value);
 const fingerprint = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
@@ -127,6 +144,11 @@ function canonical(receipt) {
   });
 }
 
+function acquisitionCanonical(receipt) {
+  const { integrity: _integrity, ...body } = receipt || {};
+  return canonicalJson(body);
+}
+
 function validAuthorityIdentity(identity) {
   return exactKeys(identity, IDENTITY_KEYS) &&
     identity.schema === R_CD_2_AUTHORITY_IDENTITY_SCHEMA &&
@@ -144,6 +166,204 @@ function validAuthorityIdentity(identity) {
     DIGEST.test(identity.harness.manifestSha256 || '') &&
     SCENARIO_PATH.test(identity.harness.scenarioPath || '') &&
     DIGEST.test(identity.harness.scenarioSha256 || '');
+}
+
+function sameIdentity(left, right) {
+  return validAuthorityIdentity(left) &&
+    validAuthorityIdentity(right) &&
+    canonicalJson(canonicalIdentity(left)) === canonicalJson(canonicalIdentity(right));
+}
+
+function positiveInteger(value) {
+  return Number.isInteger(value) && value > 0;
+}
+
+function nonNegativeInteger(value) {
+  return Number.isInteger(value) && value >= 0;
+}
+
+export function sealRcd2AcquisitionReceipt({ receipt, signingKey }) {
+  return sealSignedObserverReceipt({
+    receipt: {
+      ...receipt,
+      schema: R_CD_2_ACQUISITION_RECEIPT_SCHEMA,
+      row: 'R-CD-2',
+    },
+    signingKey,
+    canonicalize: acquisitionCanonical,
+  });
+}
+
+export function validateRcd2AcquisitionReceipt(
+  receipt,
+  signingKey,
+  expectedIdentity,
+  evidence,
+) {
+  const query = receipt?.query;
+  const nonce = receipt?.nonce;
+  const reason = receipt?.reason;
+  const window = receipt?.searchWindow;
+  const stabilization = receipt?.stabilization;
+  const finality = receipt?.finality;
+  const snapshot = receipt?.tempoSnapshot;
+  const uniqueness = receipt?.uniqueness;
+  const continuation = receipt?.continuation;
+  const delegate = receipt?.delegate;
+  const rowBinding = receipt?.rowBinding;
+  const expectedQuery = reason && expectedIdentity
+    ? `{ resource.service.name="${expectedIdentity.seat.split('-')[0]}-prince" && ` +
+      `name="continuation.delegate.dispatch" && .reason.hash="${reason.hash}" && ` +
+      `.reason.length=${reason.length} && .delegate.mode="silent-wake" }`
+    : null;
+  const expectedNonceSha256 = typeof evidence?.nonce === 'string' && evidence.nonce.length > 0
+    ? createHash('sha256').update(evidence.nonce).digest('hex')
+    : null;
+  const identityValid =
+    exactKeys(receipt, ACQUISITION_KEYS) &&
+    receipt?.schema === R_CD_2_ACQUISITION_RECEIPT_SCHEMA &&
+    receipt?.row === 'R-CD-2' &&
+    receipt?.seat === receipt?.authorityIdentity?.seat &&
+    receipt?.attribution === 'reason-hash-length-mode' &&
+    exactKeys(receipt?.collector, ['schema', 'version']) &&
+    receipt.collector.schema === R_CD_2_COLLECTOR_SCHEMA &&
+    receipt.collector.version === 1 &&
+    sameIdentity(receipt?.authorityIdentity, expectedIdentity);
+  const nonceReasonValid =
+    exactKeys(nonce, ['length', 'sha256']) &&
+    DIGEST.test(nonce.sha256 || '') &&
+    positiveInteger(nonce.length) &&
+    exactKeys(reason, ['hash', 'length', 'rawPersisted', 'source']) &&
+    hex(reason.hash, 16) &&
+    positiveInteger(reason.length) &&
+    reason.source === 'manifest-nonce' &&
+    reason.rawPersisted === false;
+  const invocationValid =
+    exactKeys(continuation, ['acceptSpan', 'fireSpan', 'originSurface', 'tool']) &&
+    continuation.tool === 'continue_delegate' &&
+    continuation.originSurface === 'typed-tool' &&
+    continuation.acceptSpan === 'continuation.delegate.dispatch' &&
+    continuation.fireSpan === 'continuation.delegate.fire' &&
+    exactKeys(delegate, ['mode']) &&
+    delegate.mode === 'silent-wake';
+  const queryWindowValid =
+    typeof query === 'string' && query === expectedQuery &&
+    DIGEST.test(receipt?.querySha256 || '') &&
+    receipt.querySha256 === createHash('sha256').update(query).digest('hex') &&
+    exactKeys(window, ['endUnixSeconds', 'paddingSeconds', 'source', 'startUnixSeconds']) &&
+    Number.isInteger(window.startUnixSeconds) &&
+    Number.isInteger(window.endUnixSeconds) &&
+    window.endUnixSeconds >= window.startUnixSeconds &&
+    nonNegativeInteger(window.paddingSeconds) &&
+    new Set(['dispatch-and-evidence-ended', 'dispatch-only']).has(window.source);
+  const finalityValid =
+    exactKeys(stabilization, [
+      'finalQueryCount', 'ingestionSettleMs', 'pollIntervalMs',
+      'searchQueryCount', 'stabilizationQueryCount',
+    ]) &&
+    nonNegativeInteger(stabilization.ingestionSettleMs) &&
+    positiveInteger(stabilization.pollIntervalMs) &&
+    positiveInteger(stabilization.searchQueryCount) &&
+    nonNegativeInteger(stabilization.stabilizationQueryCount) &&
+    stabilization.finalQueryCount === 1 &&
+    stabilization.searchQueryCount >=
+      stabilization.stabilizationQueryCount + stabilization.finalQueryCount + 1 &&
+    exactKeys(finality, ['candidateCount', 'snapshotFetched', 'stable', 'traceId']) &&
+    finality.candidateCount === 1 &&
+    finality.snapshotFetched === true &&
+    finality.stable === true &&
+    hex(finality.traceId, 32) &&
+    exactKeys(snapshot, ['file', 'sha256', 'traceId']) &&
+    TRACE_FILE.test(snapshot.file || '') &&
+    DIGEST.test(snapshot.sha256 || '') &&
+    hex(snapshot.traceId, 32) &&
+    exactKeys(uniqueness, ['acceptedTraceCount', 'resultClass']) &&
+    uniqueness.acceptedTraceCount === 1 &&
+    uniqueness.resultClass === 'unique';
+  const topologyValid =
+    hex(receipt?.traceId, 32) &&
+    finality.traceId === receipt.traceId &&
+    snapshot.traceId === receipt.traceId &&
+    typeof receipt?.chainId === 'string' && receipt.chainId.length > 0 &&
+    hex(receipt?.dispatchSpanId, 16) &&
+    hex(receipt?.fireSpanId, 16) &&
+    receipt.dispatchSpanId !== receipt.fireSpanId &&
+    Array.isArray(receipt?.toolSpanIds) &&
+    receipt.toolSpanIds.length === 1 &&
+    hex(receipt.toolSpanIds[0], 16) &&
+    Array.isArray(receipt?.toolParentSpanIds) &&
+    receipt.toolParentSpanIds.length === 1 &&
+    hex(receipt.toolParentSpanIds[0], 16) &&
+    hex(receipt?.dispatchParentSpanId, 16) &&
+    hex(receipt?.fireParentSpanId, 16) &&
+    Array.isArray(receipt?.fireSpanIds) &&
+    receipt.fireSpanIds.length === 1 &&
+    receipt.fireSpanIds[0] === receipt.fireSpanId &&
+    Array.isArray(receipt?.fireParentSpanIds) &&
+    receipt.fireParentSpanIds.length === 1 &&
+    receipt.fireParentSpanIds[0] === receipt.fireParentSpanId &&
+    receipt.fireAttemptCount === 1 &&
+    Array.isArray(receipt?.childSpans) &&
+    receipt.sameTrace === true &&
+    receipt.sameChain === true &&
+    receipt.distinctSpans === true &&
+    receipt.resultClass === uniqueness.resultClass &&
+    receipt.traceJson === snapshot.file &&
+    exactKeys(rowBinding, [
+      'acceptedSendRunFingerprint', 'acceptedSendTraceId',
+      'acceptedSendTraceSource', 'nonceFingerprint',
+    ]) &&
+    hex(rowBinding.acceptedSendRunFingerprint, 16) &&
+    hex(rowBinding.nonceFingerprint, 16) &&
+    hex(rowBinding.acceptedSendTraceId, 32) &&
+    new Set(['sessions-send-response', 'unique-reason-bound-trace'])
+      .has(rowBinding.acceptedSendTraceSource);
+  const integrityShapeValid =
+    exactKeys(receipt?.integrity, INTEGRITY_KEYS) &&
+    receipt.integrity.algorithm === GATEWAY_HMAC_RECEIPT_ALGORITHM &&
+    DIGEST.test(receipt.integrity.signature || '');
+  const invalidShape = [
+    ['identity', identityValid],
+    ['nonce-reason', nonceReasonValid],
+    ['invocation', invocationValid],
+    ['query-window', queryWindowValid],
+    ['finality', finalityValid],
+    ['topology', topologyValid],
+    ['integrity', integrityShapeValid],
+  ].find(([, valid]) => !valid)?.[0];
+  if (invalidShape) return { valid: false, reason: `invalid-shape:${invalidShape}` };
+  if (evidence !== undefined && (
+      expectedNonceSha256 === null ||
+      nonce.sha256 !== expectedNonceSha256 ||
+      nonce.length !== evidence.nonce.length ||
+      reason.hash !== evidence?.reason_hash ||
+      reason.length !== evidence?.reason_length ||
+      rowBinding.nonceFingerprint !== derivedNonceFingerprint(evidence) ||
+      rowBinding.acceptedSendRunFingerprint !== evidence?.send_run_fingerprint ||
+      (hex(evidence?.accepted_send_trace_id, 32) &&
+        (rowBinding.acceptedSendTraceSource !== 'sessions-send-response' ||
+          rowBinding.acceptedSendTraceId !== evidence.accepted_send_trace_id)) ||
+      (evidence?.accepted_send_trace_id == null &&
+        rowBinding.acceptedSendTraceSource !== 'unique-reason-bound-trace') ||
+      window.startUnixSeconds !==
+        Math.floor(Number(evidence.dispatch_accepted_at_ms) / 1000) - 60 ||
+      window.endUnixSeconds !==
+        Math.max(
+          Math.floor(Number(evidence.dispatch_accepted_at_ms) / 1000),
+          Number.isFinite(Date.parse(evidence.ended))
+            ? Math.floor(Date.parse(evidence.ended) / 1000)
+            : Math.floor(Number(evidence.dispatch_accepted_at_ms) / 1000),
+        ) + 60)) {
+    return { valid: false, reason: 'evidence-mismatch' };
+  }
+  if (!validateSignedObserverReceiptIntegrity({
+    receipt,
+    signingKey,
+    canonicalize: acquisitionCanonical,
+  })) {
+    return { valid: false, reason: 'invalid-integrity' };
+  }
+  return { valid: true };
 }
 
 export function rCd2AuthorityIdentity(metadata, runId) {
@@ -241,11 +461,11 @@ function evidencePasses(evidence) {
   return Object.values(lifecycleChecks(evidence)).every(Boolean);
 }
 
-function topologyPasses(correlation) {
+function topologyPasses(correlation, evidence, identity, signingKey) {
   // Consume the collector's public continuation schema directly.  Do not
   // accept the old, synthetic top-level `tool`/`mode`/boolean projection: a
   // receipt that the real collector cannot emit must never certify this row.
-  return Object.values(topologyChecks(correlation)).every(Boolean);
+  return Object.values(topologyChecks(correlation, evidence, identity, signingKey)).every(Boolean);
 }
 
 // Prefer an accepted sessions.send trace when the response provides one.
@@ -275,7 +495,7 @@ function sameRowBinding(evidence, correlation) {
     sameAcceptedTrace(evidence, correlation);
 }
 
-function topologyChecks(correlation) {
+function topologyChecks(correlation, evidence, identity, signingKey) {
   return {
     typedTool: correlation?.continuation?.tool === 'continue_delegate',
     silentWake: correlation?.delegate?.mode === 'silent-wake',
@@ -292,13 +512,16 @@ function topologyChecks(correlation) {
     acceptedTraceBinding: hex(correlation?.rowBinding?.acceptedSendTraceId, 32),
     acceptedTraceSource: new Set(['sessions-send-response', 'unique-reason-bound-trace'])
       .has(correlation?.rowBinding?.acceptedSendTraceSource),
-    collectorUnique: correlation?.resultClass === 'unique',
+    collectorUnique: correlation?.uniqueness?.resultClass === 'unique' &&
+      correlation?.uniqueness?.acceptedTraceCount === 1,
+    authenticatedAcquisition:
+      validateRcd2AcquisitionReceipt(correlation, signingKey, identity, evidence).valid,
   };
 }
 
-export function rCd2AuthorityChecks(evidence, correlation) {
+export function rCd2AuthorityChecks(evidence, correlation, identity, signingKey) {
   const lifecycle = lifecycleChecks(evidence);
-  const topology = topologyChecks(correlation);
+  const topology = topologyChecks(correlation, evidence, identity, signingKey);
   const joins = {
     acceptedTrace: sameAcceptedTrace(evidence, correlation),
     acceptedRun: evidence?.send_run_fingerprint ===
@@ -353,7 +576,18 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
   if (!validAuthorityIdentity(identity)) {
     throw new Error('R-CD-2 authority identity is missing or malformed');
   }
-  const diagnostics = rCd2AuthorityChecks(evidence, correlation);
+  if (correlation) {
+    const acquisition = validateRcd2AcquisitionReceipt(
+      correlation,
+      signingKey,
+      identity,
+      evidence,
+    );
+    if (!acquisition.valid) {
+      throw new Error(`R-CD-2 immutable acquisition receipt invalid: ${acquisition.reason}`);
+    }
+  }
+  const diagnostics = rCd2AuthorityChecks(evidence, correlation, identity, signingKey);
   const base = {
     schema: R_CD_2_AUTHORITATIVE_RECEIPT_SCHEMA,
     row: 'R-CD-2',
@@ -394,7 +628,10 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
     },
   };
 
-  if (!evidencePasses(evidence) || !topologyPasses(correlation) || !sameAcceptedTrace(evidence, correlation) || !sameRowBinding(evidence, correlation)) {
+  if (!evidencePasses(evidence) ||
+      !topologyPasses(correlation, evidence, identity, signingKey) ||
+      !sameAcceptedTrace(evidence, correlation) ||
+      !sameRowBinding(evidence, correlation)) {
     const failureCategory = categoryFor(evidence, correlation, diagnostics);
     return seal({
       ...base,

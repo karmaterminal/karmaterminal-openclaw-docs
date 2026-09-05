@@ -152,23 +152,17 @@ async function rowFromRunResult(root, runResultPath) {
     evidence: evidenceRows[0],
   });
   let rCd2Authority = null;
-  let rCd2Rejected = false;
   if (rCd2Required) {
-    try {
-      rCd2Authority = consumeRcd2Authority({
-        root,
-        runDir,
-        manifest,
-        metadata,
-        runResult,
-        summary,
-        evidence: evidenceRows[0],
-      });
-      outcome = safeText(rCd2Authority.outcome);
-    } catch {
-      rCd2Rejected = true;
-      outcome = 'UNVERIFIED-infrastructure';
-    }
+    rCd2Authority = consumeRcd2Authority({
+      root,
+      runDir,
+      manifest,
+      metadata,
+      runResult,
+      summary,
+      evidence: evidenceRows[0],
+    });
+    outcome = safeText(rCd2Authority.outcome);
   }
   const authoritative = rCd2Required
     ? null
@@ -201,25 +195,18 @@ async function rowFromRunResult(root, runResultPath) {
     seat: safeText(rCd2Authority?.identity.seat || metadata?.seat || manifest?.seat || summary?.seat),
     scenario: safeText(rCd2Authority?.identity.scenario || metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),
     outcome,
-    reviewStatus: rCd2Rejected
-      ? 'review-pending'
-      : safeText(
-          rCd2Authority?.review?.status ||
-          runResult?.review?.status ||
-          (runResult?.review?.pendingReceipts?.length
-            ? 'review-pending'
-            : 'ready-for-human-review'),
-        ),
+    reviewStatus: safeText(
+      rCd2Authority?.review?.status ||
+      runResult?.review?.status ||
+      (runResult?.review?.pendingReceipts?.length
+        ? 'review-pending'
+        : 'ready-for-human-review'),
+    ),
     proofFailures,
     durationMs: numberFromDuration(summary?.metrics?.duration_ms),
     checksRate: summary?.metrics?.checks?.rate ?? summary?.metrics?.checksRate ?? null,
     traceStatus: safeText(runResult?.observability?.traceStatus || 'unknown'),
-    receipts: rCd2Rejected
-      ? [
-          ...receiptSummary({ manifest, runResult, evidenceRows }),
-          { name: 'r-cd-2-authority-context', required: true, status: 'missing' },
-        ]
-      : receiptSummary({ manifest, runResult, evidenceRows }),
+    receipts: receiptSummary({ manifest, runResult, evidenceRows }),
     rel,
   };
 }

@@ -14,6 +14,10 @@ import {
   establishRcd2AuthorityContext,
   isRcd2AuthorityRequired,
 } from '../lib/r-cd-2-authority-context.mjs';
+import {
+  R_CD_2_COLLECTOR_SCHEMA,
+  sealRcd2AcquisitionReceipt,
+} from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
@@ -634,8 +638,8 @@ async function main() {
       ? 'continuation-trace-correlation.json'
       : 'tool-trace-correlation.json',
   );
-  await writeFile(traceOut, JSON.stringify(publicTrace, null, 2) + '\n');
-  const receipt = {
+  const publicTraceBody = `${JSON.stringify(publicTrace, null, 2)}\n`;
+  let receipt = {
     schema: contract.kind === 'continuation'
       ? 'openclaw.k6.continuation-trace-correlation.v1'
       : 'openclaw.k6.tool-trace-correlation.v1',
@@ -643,6 +647,34 @@ async function main() {
     seat: args.seat,
     attribution: contract.attribution,
     query,
+    ...(evidence.row === 'R-CD-2'
+      ? {
+          collector: {
+            schema: R_CD_2_COLLECTOR_SCHEMA,
+            version: 1,
+          },
+          nonce: {
+            sha256: createHash('sha256').update(evidence.nonce).digest('hex'),
+            length: evidence.nonce.length,
+          },
+          querySha256: createHash('sha256').update(query).digest('hex'),
+          finality: {
+            candidateCount: candidates.length,
+            snapshotFetched: true,
+            stable: traceId === provisionalTraceId,
+            traceId,
+          },
+          tempoSnapshot: {
+            file: path.basename(traceOut),
+            sha256: createHash('sha256').update(publicTraceBody).digest('hex'),
+            traceId,
+          },
+          uniqueness: {
+            acceptedTraceCount: candidates.length,
+            resultClass: 'unique',
+          },
+        }
+      : {}),
     searchWindow: {
       startUnixSeconds: start,
       endUnixSeconds: end,
@@ -695,6 +727,7 @@ async function main() {
             : {}),
           ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
           sameTrace: true,
+          sameChain: true,
           distinctSpans: true,
           resultClass: 'unique',
         }
@@ -708,6 +741,13 @@ async function main() {
           uniqueTrace: true,
         }),
   };
+  if (evidence.row === 'R-CD-2') {
+    receipt = sealRcd2AcquisitionReceipt({
+      receipt,
+      signingKey: process.env.OPENCLAW_GATEWAY_TOKEN,
+    });
+  }
+  await writeFile(traceOut, publicTraceBody);
   await writeFile(receiptOut, JSON.stringify(receipt, null, 2) + '\n');
   console.log(JSON.stringify({
     traceId,

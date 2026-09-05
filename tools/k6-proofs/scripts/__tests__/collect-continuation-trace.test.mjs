@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import {
   rCd2AuthorityIdentity,
   resolveRcd2AuthoritativeReceipt,
+  validateRcd2AcquisitionReceipt,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 import {
   R_CD_2_SELECTION_RECEIPT_FILE,
@@ -965,30 +966,22 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
     const result = JSON.parse(stdout);
     const correlation = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
     const evidence = JSON.parse(await readFile(path.join(fixture.dir, 'evidence.jsonl'), 'utf8'));
+    const identity = correlation.authorityIdentity;
+    assert.deepEqual(
+      validateRcd2AcquisitionReceipt(correlation, rCd2SigningKey, identity, evidence),
+      { valid: true },
+    );
     const resolved = resolveRcd2AuthoritativeReceipt({
       evidence,
       correlation,
-      identity: {
-        schema: 'openclaw.k6.r-cd-2-authority-identity.v1',
-        candidateSha: '1'.repeat(40),
-        runtimeBuildSha: '1'.repeat(40),
-        docsRef: '3'.repeat(40),
-        repository: 'karmaterminal/karmaterminal-openclaw-docs',
-        seat: 'cael-prince',
-        matrixId: '20260905T032057Z-333333333333-deadbeef',
-        runId: path.basename(fixture.dir),
-        row: 'R-CD-2',
-        scenario: 'r-cd-2-silent-wake.js',
-        harness: {
-          manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
-          manifestSha256: '4'.repeat(64),
-          scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
-          scenarioSha256: '5'.repeat(64),
-        },
-      },
-      signingKey: 'collector-shaped-r-cd-2-test-key',
+      identity,
+      signingKey: rCd2SigningKey,
     });
-    assert.equal(resolved.verdict, 'PASS-candidate');
+    assert.equal(
+      resolved.verdict,
+      'PASS-candidate',
+      JSON.stringify(resolved.diagnostics),
+    );
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

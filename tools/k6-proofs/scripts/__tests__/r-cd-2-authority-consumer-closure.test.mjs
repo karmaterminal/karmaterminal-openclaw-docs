@@ -192,11 +192,7 @@ async function rejectedAuthorityConsumers(fixture) {
   }
 
   const report = await render(fixture);
-  if (
-    report.status !== 0 ||
-    !/UNVERIFIED-infrastructure/u.test(report.html) ||
-    /<td>PASS-candidate<\/td>/u.test(report.html)
-  ) {
+  if (report.status === 0 || report.html !== '') {
     failures.push('report');
   }
 
@@ -205,7 +201,7 @@ async function rejectedAuthorityConsumers(fixture) {
     '--run-root', fixture.root,
     '--json',
   ]);
-  if (debt.status !== 0 || JSON.parse(debt.stdout).pendingRows !== 1) {
+  if (debt.status === 0 || debt.stdout !== '') {
     failures.push('review debt');
   }
 
@@ -325,7 +321,7 @@ test('selected disk evidence and topology must reproduce the signed authority re
             runDir: fixture.runDir,
             signingKey: SIGNING_KEY,
           }),
-          /does not match selected disk evidence/,
+          /does not match selected disk evidence|immutable acquisition receipt invalid/,
         );
       } finally {
         await fixture.cleanup();
@@ -394,6 +390,161 @@ test('selected-context receipt rejects unknown keys, wrong types, and tampering'
     assert.notEqual(metrics.status, 0);
   } finally {
     await fixture.cleanup();
+  }
+});
+
+test('resolver rejects every required acquisition omission before receipt issuance', async (t) => {
+  const requiredPaths = [
+    ['collector'],
+    ['authorityIdentity'],
+    ['nonce'],
+    ['reason'],
+    ['continuation'],
+    ['delegate'],
+    ['query'],
+    ['querySha256'],
+    ['searchWindow'],
+    ['stabilization'],
+    ['finality'],
+    ['tempoSnapshot'],
+    ['uniqueness'],
+    ['traceId'],
+    ['chainId'],
+    ['dispatchSpanId'],
+    ['fireSpanId'],
+    ['toolSpanIds'],
+    ['sameTrace'],
+    ['distinctSpans'],
+    ['rowBinding'],
+    ['integrity'],
+  ];
+  for (const [field] of requiredPaths) {
+    await t.test(field, async () => {
+      const fixture = await writeRcd2Bundle(repoRoot);
+      try {
+        const hostile = structuredClone(fixture.correlation);
+        delete hostile[field];
+        await writeFile(
+          path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+          `${JSON.stringify(hostile, null, 2)}\n`,
+        );
+        await rm(path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json'));
+        const result = await run(process.execPath, [
+          resolver,
+          '--run-dir', fixture.runDir,
+          '--evidence', path.join(fixture.runDir, 'private-evidence.json'),
+          '--correlation', path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+        ]);
+        assert.notEqual(result.status, 0, `${field} omission must reject`);
+        assert.equal(
+          await exists(path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json')),
+          false,
+          `${field} omission must not issue a resolver receipt`,
+        );
+      } finally {
+        await fixture.cleanup();
+      }
+    });
+  }
+});
+
+test('copied acquisition cannot be rebound by rewriting execution context', async () => {
+  const fixture = await writeRcd2Bundle(repoRoot);
+  try {
+    const hostile = structuredClone(fixture.correlation);
+    hostile.authorityIdentity = {
+      ...hostile.authorityIdentity,
+      runId: FOREIGN.runId,
+      matrixId: FOREIGN.matrixId,
+    };
+    await writeFile(
+      path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+      `${JSON.stringify(hostile, null, 2)}\n`,
+    );
+    await rm(path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json'));
+    const result = await run(process.execPath, [
+      resolver,
+      '--run-dir', fixture.runDir,
+      '--evidence', path.join(fixture.runDir, 'private-evidence.json'),
+      '--correlation', path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+    ]);
+    assert.notEqual(result.status, 0);
+    assert.equal(
+      await exists(path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json')),
+      false,
+    );
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('report and review debt reject invalid R-CD-2 authority without output artifacts', async (t) => {
+  const mutations = [
+    ['signature', async (fixture) => {
+      const receipt = structuredClone(fixture.receipt);
+      receipt.integrity.signature = '0'.repeat(64);
+      await writeFile(
+        path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json'),
+        `${JSON.stringify(receipt, null, 2)}\n`,
+      );
+    }],
+    ['selected context', async (fixture) => {
+      const receipt = structuredClone(fixture.selectionReceipt);
+      receipt.integrity.signature = '0'.repeat(64);
+      await writeFile(
+        path.join(fixture.runDir, R_CD_2_SELECTION_RECEIPT_FILE),
+        `${JSON.stringify(receipt, null, 2)}\n`,
+      );
+    }],
+    ['receipt digest', async (fixture) => {
+      fixture.runResult.authoritativeReceipt.sha256 = '0'.repeat(64);
+      await writeFile(
+        path.join(fixture.runDir, 'run-result.json'),
+        `${JSON.stringify(fixture.runResult, null, 2)}\n`,
+      );
+    }],
+    ['receipt shape', async (fixture) => {
+      await writeFile(path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json'), '{}\n');
+    }],
+    ['correlation', async (fixture) => {
+      const correlation = structuredClone(fixture.correlation);
+      correlation.integrity.signature = '0'.repeat(64);
+      await writeFile(
+        path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+        `${JSON.stringify(correlation, null, 2)}\n`,
+      );
+    }],
+    ['identity', async (fixture) => {
+      const summary = { ...fixture.summary, identity: { seat: FOREIGN.seat } };
+      await writeFile(
+        path.join(fixture.runDir, 'r-cd-2-summary.json'),
+        `${JSON.stringify(summary, null, 2)}\n`,
+      );
+    }],
+  ];
+  for (const [name, mutate] of mutations) {
+    await t.test(name, async () => {
+      const fixture = await writeRcd2Bundle(repoRoot);
+      const reportPath = path.join(fixture.root, 'rejected-report.html');
+      try {
+        await mutate(fixture);
+        const report = await run(process.execPath, [
+          reportRenderer, '--root', fixture.root, '--out', reportPath,
+        ]);
+        assert.notEqual(report.status, 0);
+        assert.equal(await exists(reportPath), false);
+        assert.doesNotMatch(report.stdout, /UNVERIFIED-infrastructure/u);
+
+        const debt = await run(process.execPath, [
+          debtSummarizer, '--run-root', fixture.root, '--json',
+        ]);
+        assert.notEqual(debt.status, 0);
+        assert.equal(debt.stdout, '');
+        assert.doesNotMatch(debt.stdout, /review-pending/u);
+      } finally {
+        await fixture.cleanup();
+      }
+    });
   }
 });
 
@@ -562,8 +713,8 @@ test('forged R-CD-2 review flags cannot clear review debt or publish metrics', a
       const debt = await run(process.execPath, [
         debtSummarizer, '--run-root', fixture.root, '--json',
       ]);
-      assert.equal(debt.status, 0, debt.stderr);
-      assert.equal(JSON.parse(debt.stdout).pendingRows, 1, `${label} must remain review debt`);
+      assert.notEqual(debt.status, 0, `${label} must reject review-debt publication`);
+      assert.equal(debt.stdout, '');
     } finally {
       await fixture.cleanup();
     }
@@ -619,14 +770,8 @@ test('invalid R-CD-2 candidate sidecar cannot raw-fallback to PASS in debt or me
     const debt = await run(process.execPath, [
       debtSummarizer, '--run-root', fixture.root, '--json',
     ]);
-    assert.equal(debt.status, 0, debt.stderr);
-    const summary = JSON.parse(debt.stdout);
-    assert.equal(summary.pendingRows, 1);
-    assert.equal(summary.pending[0].reviewStatus, 'review-pending');
-    assert.deepEqual(
-      new Set(summary.pending[0].pendingReceipts),
-      new Set(['candidate-run-result-invalid', 'r-cd-2-authority-context']),
-    );
+    assert.notEqual(debt.status, 0);
+    assert.equal(debt.stdout, '');
 
     const prom = path.join(fixture.root, 'single.prom');
     const otlp = path.join(fixture.root, 'single.otlp.json');
@@ -1064,7 +1209,102 @@ test('summary, evidence, correlation, result, envelope, and receipt disagreeing 
   assert.deepEqual(bypasses, [], `contradictory sibling accepted at ${bypasses.join(', ')}`);
 });
 
-test('missing or invalid authority always remains explicit review debt', async () => {
+test('every disk artifact rejects foreign claims in recognized nested identity carriers', async (t) => {
+  const foreignCarrier = (fixture, carrier = 'authorityIdentity') => ({
+    [carrier]: {
+      ...fixture.receipt.identity,
+      seat: FOREIGN.seat,
+    },
+  });
+  const mutations = [
+    ['summary', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'r-cd-2-summary.json'),
+        `${JSON.stringify({ ...fixture.summary, nested: foreignCarrier(fixture) })}\n`,
+      );
+    }],
+    ['runner metadata', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'runner-metadata.json'),
+        `${JSON.stringify({
+          ...fixture.metadata,
+          nested: foreignCarrier(fixture, 'harness'),
+        })}\n`,
+      );
+    }],
+    ['run result', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'run-result.json'),
+        `${JSON.stringify({ ...fixture.runResult, nested: foreignCarrier(fixture, 'identity') })}\n`,
+      );
+    }],
+    ['normalized row result', async (fixture) => {
+      fixture.rowResult = {
+        row: 'R-CD-2',
+        candidateSha: BASE.candidateSha,
+        seat: BASE.seat,
+        scenario: BASE.scenario,
+        candidateOnly: true,
+        foldRequiresReview: true,
+        nested: foreignCarrier(fixture),
+      };
+    }],
+    ['private evidence', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'private-evidence.json'),
+        `${JSON.stringify({ ...fixture.evidence, nested: foreignCarrier(fixture, 'identity') })}\n`,
+      );
+    }],
+    ['public evidence', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'evidence.jsonl'),
+        `${JSON.stringify({
+          row: 'R-CD-2',
+          verdict: 'PASS-candidate',
+          nested: foreignCarrier(fixture),
+        })}\n`,
+      );
+    }],
+    ['correlation', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'continuation-trace-correlation.json'),
+        `${JSON.stringify({ ...fixture.correlation, nested: foreignCarrier(fixture, 'identity') })}\n`,
+      );
+    }],
+    ['envelope', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'candidate-run-result.json'),
+        `${JSON.stringify({ ...fixture.envelope, nested: foreignCarrier(fixture) })}\n`,
+      );
+    }],
+    ['authoritative receipt', async (fixture) => {
+      await writeFile(
+        path.join(fixture.runDir, 'r-cd-2-authoritative-receipt.json'),
+        `${JSON.stringify({ ...fixture.receipt, nested: foreignCarrier(fixture, 'identity') })}\n`,
+      );
+    }],
+  ];
+  for (const [name, mutate] of mutations) {
+    await t.test(name, async () => {
+      const fixture = await writeRcd2Bundle(repoRoot);
+      try {
+        await mutate(fixture);
+        assert.throws(
+          () => consumeRcd2Authority({
+            runDir: fixture.runDir,
+            rowResult: fixture.rowResult,
+            signingKey: SIGNING_KEY,
+          }),
+          /authority identity mismatch/u,
+        );
+      } finally {
+        await fixture.cleanup();
+      }
+    });
+  }
+});
+
+test('missing or invalid authority rejects review-debt publication', async () => {
   const bypasses = [];
   for (const kind of ['missing', 'invalid']) {
     const fixture = await writeRcd2Bundle(repoRoot, {
@@ -1078,14 +1318,7 @@ test('missing or invalid authority always remains explicit review debt', async (
       const debt = await run(process.execPath, [
         debtSummarizer, '--run-root', fixture.root, '--json',
       ]);
-      assert.equal(debt.status, 0, debt.stderr);
-      const summary = JSON.parse(debt.stdout);
-      if (
-        summary.pendingRows !== 1 ||
-        !summary.pending[0]?.pendingReceipts?.some((name) => /authority|receipt/i.test(name))
-      ) {
-        bypasses.push(kind);
-      }
+      if (debt.status === 0 || debt.stdout !== '') bypasses.push(kind);
     } finally {
       await fixture.cleanup();
     }

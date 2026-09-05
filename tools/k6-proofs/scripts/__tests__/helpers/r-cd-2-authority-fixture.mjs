@@ -4,6 +4,8 @@ import path from 'node:path';
 import {
   rCd2AuthorityIdentity,
   resolveRcd2AuthoritativeReceipt,
+  R_CD_2_COLLECTOR_SCHEMA,
+  sealRcd2AcquisitionReceipt,
 } from '../../../lib/r-cd-2-authoritative-receipt.mjs';
 import {
   R_CD_2_SELECTION_RECEIPT_FILE,
@@ -80,8 +82,9 @@ function scenarioFor(marker = 'selected') {
   return `export const authorityFixtureMarker = ${JSON.stringify(marker)};\nexport default function () {}\n`;
 }
 
-function privateEvidence(overrides = {}) {
+export function privateEvidence(overrides = {}) {
   const nonce = 'R-CD-2-authority-consumer-fixture';
+  const reason = `R-CD-2 fixture ${nonce}`;
   const runFingerprint = 'a'.repeat(16);
   return {
     row: 'R-CD-2',
@@ -106,6 +109,8 @@ function privateEvidence(overrides = {}) {
     terminal_run_fingerprint: runFingerprint,
     wake_run_fingerprint: 'b'.repeat(16),
     row_nonce_fingerprint: digest(nonce).slice(0, 16),
+    reason_hash: digest(reason).slice(0, 16),
+    reason_length: reason.length,
     accepted_send_trace_id: null,
     dispatch_accepted_at_ms: 100,
     dispatch_terminal_sentinel_at_ms: 200,
@@ -116,15 +121,77 @@ function privateEvidence(overrides = {}) {
   };
 }
 
-function correlation(evidence, overrides = {}) {
+export function correlation(evidence, identity, snapshotBody, overrides = {}) {
   const traceId = 'c'.repeat(32);
-  return {
+  const query = `{ resource.service.name="${identity.seat.split('-')[0]}-prince" && name="continuation.delegate.dispatch" && .reason.hash="${evidence.reason_hash}" && .reason.length=${evidence.reason_length} && .delegate.mode="silent-wake" }`;
+  return sealRcd2AcquisitionReceipt({ receipt: {
     row: 'R-CD-2',
-    continuation: { tool: 'continue_delegate' },
+    seat: identity.seat,
+    attribution: 'reason-hash-length-mode',
+    collector: {
+      schema: R_CD_2_COLLECTOR_SCHEMA,
+      version: 1,
+    },
+    authorityIdentity: identity,
+    nonce: {
+      sha256: digest(evidence.nonce),
+      length: evidence.nonce.length,
+    },
+    reason: {
+      hash: evidence.reason_hash,
+      length: evidence.reason_length,
+      source: 'manifest-nonce',
+      rawPersisted: false,
+    },
+    continuation: {
+      tool: 'continue_delegate',
+      originSurface: 'typed-tool',
+      acceptSpan: 'continuation.delegate.dispatch',
+      fireSpan: 'continuation.delegate.fire',
+    },
     delegate: { mode: 'silent-wake' },
+    query,
+    querySha256: digest(query),
+    searchWindow: {
+      startUnixSeconds: Math.floor(evidence.dispatch_accepted_at_ms / 1000) - 60,
+      endUnixSeconds: Math.floor(evidence.dispatch_accepted_at_ms / 1000) + 60,
+      paddingSeconds: 60,
+      source: 'dispatch-only',
+    },
+    stabilization: {
+      ingestionSettleMs: 1,
+      pollIntervalMs: 1,
+      searchQueryCount: 2,
+      stabilizationQueryCount: 0,
+      finalQueryCount: 1,
+    },
+    finality: {
+      candidateCount: 1,
+      snapshotFetched: true,
+      stable: true,
+      traceId,
+    },
+    tempoSnapshot: {
+      file: `tempo-trace-${traceId.slice(0, 12)}.json`,
+      sha256: digest(snapshotBody),
+      traceId,
+    },
+    traceJson: `tempo-trace-${traceId.slice(0, 12)}.json`,
+    uniqueness: {
+      acceptedTraceCount: 1,
+      resultClass: 'unique',
+    },
     sameTrace: true,
+    distinctSpans: true,
     sameChain: true,
     toolSpanIds: ['d'.repeat(16)],
+    toolParentSpanIds: ['1'.repeat(16)],
+    dispatchParentSpanId: '2'.repeat(16),
+    fireParentSpanId: '2'.repeat(16),
+    fireSpanIds: ['f'.repeat(16)],
+    fireParentSpanIds: ['2'.repeat(16)],
+    fireAttemptCount: 1,
+    childSpans: [],
     resultClass: 'unique',
     traceId,
     chainId: 'public-safe-chain',
@@ -137,7 +204,7 @@ function correlation(evidence, overrides = {}) {
       acceptedSendTraceSource: 'unique-reason-bound-trace',
     },
     ...overrides,
-  };
+  }, signingKey: SIGNING_KEY });
 }
 
 function envelopeFor(identity, harness, receiptSha256, verdict) {
@@ -249,9 +316,14 @@ export async function writeRcd2Bundle(repoRoot, {
       : {},
   );
   const authorityIdentity = rCd2AuthorityIdentity(metadata, claimed.runId);
+  const tempoSnapshotBody = `${JSON.stringify({
+    schema: 'openclaw.k6.public-tempo-trace.v1',
+    traceId: 'c'.repeat(32),
+    spans: [],
+  }, null, 2)}\n`;
   const traceCorrelation = verdict === 'PARTIAL-candidate'
     ? null
-    : { ...correlation(evidence), authorityIdentity };
+    : correlation(evidence, authorityIdentity, tempoSnapshotBody);
   const receipt = resolveRcd2AuthoritativeReceipt({
     evidence,
     correlation: traceCorrelation,
@@ -259,7 +331,10 @@ export async function writeRcd2Bundle(repoRoot, {
     signingKey: SIGNING_KEY,
   });
   if (receipt.verdict !== verdict) {
-    throw new Error(`fixture requested ${verdict}, resolver produced ${receipt.verdict}`);
+    throw new Error(
+      `fixture requested ${verdict}, resolver produced ${receipt.verdict}: ` +
+      JSON.stringify(receipt.diagnostics),
+    );
   }
   const receiptBody = `${JSON.stringify(receipt, null, 2)}\n`;
   const receiptSha256 = digest(receiptBody);
@@ -369,6 +444,7 @@ export async function writeRcd2Bundle(repoRoot, {
       null,
       2,
     )}\n`),
+    writeFile(path.join(runDir, `tempo-trace-${'c'.repeat(12)}.json`), tempoSnapshotBody),
     writeFile(path.join(workspace.root, 'harness-provenance.json'), `${JSON.stringify(provenance, null, 2)}\n`),
     writeFile(path.join(workspace.root, 'seat-readiness.json'), seatReadinessBody),
     writeFile(path.join(runDir, 'seat-readiness.json'), seatReadinessBody),

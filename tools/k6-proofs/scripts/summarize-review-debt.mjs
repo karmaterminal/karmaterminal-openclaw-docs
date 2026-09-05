@@ -119,23 +119,20 @@ async function loadRows(root) {
       metadata,
       runResult: raw,
     });
-    let authorityInvalid = false;
     if (rCd2Required) {
-      try {
-        consumeRcd2Authority({
-          root,
-          runDir: dir,
-          envelope: candidate,
-          manifest,
-          metadata,
-          runResult: raw,
-        });
-      } catch {
-        authorityInvalid = true;
-      }
+      consumeRcd2Authority({
+        root,
+        runDir: dir,
+        envelope: candidate,
+        manifest,
+        metadata,
+        runResult: raw,
+      });
     }
     const invalidCandidateSidecar = rCd2Required && candidateDirs.has(dir) && !candidateValid;
-    if (invalidCandidateSidecar) authorityInvalid = true;
+    if (invalidCandidateSidecar) {
+      throw new Error('R-CD-2 candidate result is invalid');
+    }
     const pendingReceipts = [...asArray(raw.review?.pendingReceipts)];
     if (
       invalidCandidateSidecar &&
@@ -143,17 +140,13 @@ async function loadRows(root) {
     ) {
       pendingReceipts.push('candidate-run-result-invalid');
     }
-    if (authorityInvalid && !pendingReceipts.includes('r-cd-2-authority-context')) {
-      pendingReceipts.push('r-cd-2-authority-context');
-    }
     const rowId = rCd2Required ? 'R-CD-2' : raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
     const traceId = raw.observability?.traceId || raw.traceId || null;
     rows.push({
       rowId,
       file: path.relative(root, file),
-      reviewStatus: authorityInvalid
-        ? 'review-pending'
-        : raw.review?.status || (pendingReceipts.length ? 'review-pending' : 'ready-for-human-review'),
+      reviewStatus: raw.review?.status ||
+        (pendingReceipts.length ? 'review-pending' : 'ready-for-human-review'),
       pendingReceipts,
       traceId,
       pending: pendingReceipts.map((receipt) => classifyPending({ traceId }, receipt)),

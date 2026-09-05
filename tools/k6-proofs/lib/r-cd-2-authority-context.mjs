@@ -10,6 +10,7 @@ import { canonicalJson } from './canonical-json.mjs';
 import {
   rCd2AuthorityIdentity,
   resolveRcd2AuthoritativeReceipt,
+  validateRcd2AcquisitionReceipt,
   validateRcd2AuthoritativeReceipt,
 } from './r-cd-2-authoritative-receipt.mjs';
 import {
@@ -519,6 +520,71 @@ function reconcileFlatClaim(value, selected, label) {
   claim(value.scenarioSha256, selected.scenarioSha256, `${label} scenarioSha256`);
 }
 
+function reconcileNestedClaims(value, selected, label, carrier = '', root = true) {
+  if (!value || typeof value !== 'object') return;
+  if (!Array.isArray(value)) {
+    const identityCarriers = new Set(['authorityIdentity', 'harness', 'identity']);
+    const strongKeys = [
+      'candidateSha', 'runtimeBuildSha', 'docsRef', 'repository', 'seat',
+      'matrixId', 'runId', 'rowId', 'manifestPath', 'manifestSha256',
+      'scenarioPath', 'scenarioSha256',
+    ];
+    const weakShape = ['row', 'scenario'].filter((key) =>
+      Object.prototype.hasOwnProperty.call(value, key)).length === 2;
+    if (
+      root ||
+      identityCarriers.has(carrier) ||
+      strongKeys.some((key) => Object.prototype.hasOwnProperty.call(value, key)) ||
+      weakShape
+    ) {
+      reconcileFlatClaim(value, selected, label);
+    }
+    if (carrier === 'candidate') {
+      claim(value.sha, selected.candidateSha, `${label} candidate sha`);
+    } else if (carrier === 'runtime' || carrier === 'runtimeIdentity') {
+      claim(value.sha, selected.runtimeBuildSha, `${label} runtime sha`);
+      claim(value.buildSha, selected.runtimeBuildSha, `${label} runtime buildSha`);
+    } else if (carrier === 'docs') {
+      claim(value.sha, selected.docsRef, `${label} docs sha`);
+      claim(value.ref, selected.docsRef, `${label} docs ref`);
+    } else if (carrier === 'matrix') {
+      claim(value.id, selected.matrixId, `${label} matrix id`);
+    } else if (carrier === 'run') {
+      claim(value.id, selected.runId, `${label} run id`);
+    }
+  }
+  for (const [key, entry] of Object.entries(value)) {
+    if (entry && typeof entry === 'object') {
+      reconcileNestedClaims(entry, selected, `${label}.${key}`, key, false);
+    }
+  }
+}
+
+function validateAcquisitionSnapshot({
+  correlation,
+  evidence,
+  identity,
+  signingKey,
+  runDir,
+}) {
+  const validation = validateRcd2AcquisitionReceipt(
+    correlation,
+    signingKey,
+    identity,
+    typeof evidence?.nonce === 'string' ? evidence : undefined,
+  );
+  if (!validation.valid) {
+    throw new Error(`R-CD-2 immutable acquisition receipt invalid: ${validation.reason}`);
+  }
+  const snapshot = readJson(
+    path.join(runDir, correlation.tempoSnapshot.file),
+    'immutable Tempo snapshot',
+  );
+  if (sha256(snapshot.raw) !== correlation.tempoSnapshot.sha256) {
+    throw new Error('R-CD-2 immutable Tempo snapshot digest mismatch');
+  }
+}
+
 function reconcileEnvelope(envelope, selected) {
   if (!envelope || typeof envelope !== 'object') return;
   claim(envelope.candidate?.sha, selected.candidateSha, 'candidate envelope candidate');
@@ -740,13 +806,21 @@ export function establishRcd2AuthorityContext({
     'runner metadata',
   ).value;
   reconcileMetadata(metadataValue, selected);
-  reconcileFlatClaim(summary, selected, 'summary');
-  reconcileFlatClaim(evidence, selected, 'evidence');
-  reconcileFlatClaim(correlation, selected, 'correlation');
-  reconcileFlatClaim(rowResult, selected, 'normalized row result');
+  reconcileNestedClaims(metadataValue, selected, 'runner metadata');
+  reconcileNestedClaims(summary, selected, 'summary');
+  reconcileNestedClaims(evidence, selected, 'evidence');
+  reconcileNestedClaims(correlation, selected, 'correlation');
+  reconcileNestedClaims(rowResult, selected, 'normalized row result');
   reconcileEnvelope(envelope, selected);
   if (correlation) {
     reconcileCompleteIdentity(correlation.authorityIdentity, identity, 'correlation receipt');
+    validateAcquisitionSnapshot({
+      correlation,
+      evidence: typeof evidence?.nonce === 'string' ? evidence : undefined,
+      identity,
+      signingKey,
+      runDir: resolvedRunDir,
+    });
   }
 
   return {
@@ -797,18 +871,21 @@ export function consumeRcd2Authority({
     { optional: !requireRunResult },
   )?.value;
   if (requireRunResult && !result) throw new Error('R-CD-2 run result is required');
-  reconcileFlatClaim(result, context.selected, 'run result');
-  reconcileFlatClaim(result?.evidence, context.selected, 'run result evidence');
+  reconcileNestedClaims(result, context.selected, 'run result');
   const summaries = [...summaryClaims(dir), ...(summary ? [summary] : [])];
-  for (const entry of summaries) reconcileFlatClaim(entry, context.selected, 'summary');
+  for (const entry of summaries) reconcileNestedClaims(entry, context.selected, 'summary');
   const privateEvidence = readJson(
     path.join(dir, 'private-evidence.json'),
     'private evidence',
     { optional: true },
   )?.value;
-  if (privateEvidence) reconcileFlatClaim(privateEvidence, context.selected, 'private evidence');
+  if (privateEvidence) reconcileNestedClaims(
+    privateEvidence,
+    context.selected,
+    'private evidence',
+  );
   for (const entry of parseEvidenceJsonl(path.join(dir, 'evidence.jsonl'))) {
-    reconcileFlatClaim(entry, context.selected, 'public evidence');
+    reconcileNestedClaims(entry, context.selected, 'public evidence');
   }
   const correlationValue = correlation || readJson(
     path.join(dir, 'continuation-trace-correlation.json'),
@@ -816,12 +893,21 @@ export function consumeRcd2Authority({
     { optional: true },
   )?.value;
   if (correlationValue) {
-    reconcileFlatClaim(correlationValue, context.selected, 'correlation receipt');
+    reconcileNestedClaims(correlationValue, context.selected, 'correlation receipt');
     reconcileCompleteIdentity(
       correlationValue.authorityIdentity,
       context.identity,
       'correlation receipt',
     );
+    validateAcquisitionSnapshot({
+      correlation: correlationValue,
+      evidence: typeof (privateEvidence || derivationEvidence)?.nonce === 'string'
+        ? privateEvidence || derivationEvidence
+        : undefined,
+      identity: context.identity,
+      signingKey,
+      runDir: dir,
+    });
   }
   const envelopeValue = envelope || readJson(
     path.join(dir, 'candidate-run-result.json'),
@@ -830,6 +916,7 @@ export function consumeRcd2Authority({
   )?.value;
   if (envelopeValue) {
     reconcileEnvelope(envelopeValue, context.selected);
+    reconcileNestedClaims(envelopeValue, context.selected, 'candidate envelope');
   }
 
   const receiptRead = readJson(
@@ -838,6 +925,7 @@ export function consumeRcd2Authority({
   );
   const receipt = receiptRead.value;
   reconcileReceiptIdentity(receipt, context.selected);
+  reconcileNestedClaims(receipt, context.selected, 'authoritative receipt');
   const receiptSha256 = sha256(receiptRead.raw);
   if (result?.authoritativeReceipt?.sha256 !== undefined &&
       result.authoritativeReceipt.sha256 !== receiptSha256) {

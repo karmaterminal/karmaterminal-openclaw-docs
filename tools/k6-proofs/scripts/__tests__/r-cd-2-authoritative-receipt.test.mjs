@@ -7,7 +7,10 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import {
+  R_CD_2_COLLECTOR_SCHEMA,
   resolveRcd2AuthoritativeReceipt as resolveRcd2AuthoritativeReceiptRaw,
+  sealRcd2AcquisitionReceipt,
+  validateRcd2AcquisitionReceipt,
   validateRcd2AuthoritativeReceipt as validateRcd2AuthoritativeReceiptRaw,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 
@@ -50,6 +53,7 @@ const resolveRcd2AuthoritativeReceipt = (input) => resolveRcd2AuthoritativeRecei
 });
 
 function evidence(overrides = {}) {
+  const reason = `R-CD-2 fixture ${rowNonce}`;
   return {
     nonce: rowNonce,
     session_created: true, session_unbound_confirmed: true,
@@ -61,6 +65,8 @@ function evidence(overrides = {}) {
     channel_message_observed: false, dispatch_failure_observed: false,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: wakeRun,
     row_nonce_fingerprint: rowNonceFingerprint,
+    reason_hash: createHash('sha256').update(reason).digest('hex').slice(0, 16),
+    reason_length: reason.length,
     accepted_send_trace_id: 'b'.repeat(32),
     dispatch_accepted_at_ms: 100,
     dispatch_terminal_sentinel_at_ms: 200,
@@ -71,12 +77,70 @@ function evidence(overrides = {}) {
   };
 }
 
-function correlation(overrides = {}) {
-  return {
-    continuation: { tool: 'continue_delegate' }, delegate: { mode: 'silent-wake' },
-    sameTrace: true, sameChain: true, toolSpanIds: ['a'.repeat(16)],
+function correlation(overrides = {}, identity = authorityIdentity) {
+  const rowEvidence = evidence();
+  const traceId = 'b'.repeat(32);
+  const query = `{ resource.service.name="ronan-prince" && name="continuation.delegate.dispatch" && .reason.hash="${rowEvidence.reason_hash}" && .reason.length=${rowEvidence.reason_length} && .delegate.mode="silent-wake" }`;
+  const base = {
+    seat: identity.seat,
+    attribution: 'reason-hash-length-mode',
+    collector: { schema: R_CD_2_COLLECTOR_SCHEMA, version: 1 },
+    authorityIdentity: identity,
+    nonce: {
+      sha256: createHash('sha256').update(rowNonce).digest('hex'),
+      length: rowNonce.length,
+    },
+    reason: {
+      hash: rowEvidence.reason_hash,
+      length: rowEvidence.reason_length,
+      source: 'manifest-nonce',
+      rawPersisted: false,
+    },
+    continuation: {
+      tool: 'continue_delegate',
+      originSurface: 'typed-tool',
+      acceptSpan: 'continuation.delegate.dispatch',
+      fireSpan: 'continuation.delegate.fire',
+    },
+    delegate: { mode: 'silent-wake' },
+    query,
+    querySha256: createHash('sha256').update(query).digest('hex'),
+    searchWindow: {
+      startUnixSeconds: Math.floor(rowEvidence.dispatch_accepted_at_ms / 1000) - 60,
+      endUnixSeconds: Math.floor(rowEvidence.dispatch_accepted_at_ms / 1000) + 60,
+      paddingSeconds: 60,
+      source: 'dispatch-only',
+    },
+    stabilization: {
+      ingestionSettleMs: 1,
+      pollIntervalMs: 1,
+      searchQueryCount: 2,
+      stabilizationQueryCount: 0,
+      finalQueryCount: 1,
+    },
+    finality: {
+      candidateCount: 1,
+      snapshotFetched: true,
+      stable: true,
+      traceId,
+    },
+    tempoSnapshot: {
+      file: `tempo-trace-${traceId.slice(0, 12)}.json`,
+      sha256: createHash('sha256').update('immutable-tempo-snapshot\n').digest('hex'),
+      traceId,
+    },
+    traceJson: `tempo-trace-${traceId.slice(0, 12)}.json`,
+    uniqueness: { acceptedTraceCount: 1, resultClass: 'unique' },
+    sameTrace: true, sameChain: true, distinctSpans: true, toolSpanIds: ['a'.repeat(16)],
+    toolParentSpanIds: ['e'.repeat(16)],
+    dispatchParentSpanId: 'e'.repeat(16),
+    fireParentSpanId: 'e'.repeat(16),
+    fireSpanIds: ['d'.repeat(16)],
+    fireParentSpanIds: ['e'.repeat(16)],
+    fireAttemptCount: 1,
+    childSpans: [],
     resultClass: 'unique',
-    traceId: 'b'.repeat(32), chainId: 'private-chain-id',
+    traceId, chainId: 'private-chain-id',
     dispatchSpanId: 'c'.repeat(16), fireSpanId: 'd'.repeat(16),
     rowBinding: {
       acceptedSendRunFingerprint: run,
@@ -84,8 +148,15 @@ function correlation(overrides = {}) {
       acceptedSendTraceId: 'b'.repeat(32),
       acceptedSendTraceSource: 'sessions-send-response',
     },
-    ...overrides,
   };
+  const receipt = {
+    ...base,
+    ...overrides,
+    continuation: { ...base.continuation, ...overrides.continuation },
+    delegate: { ...base.delegate, ...overrides.delegate },
+    rowBinding: { ...base.rowBinding, ...overrides.rowBinding },
+  };
+  return sealRcd2AcquisitionReceipt({ receipt, signingKey });
 }
 
 function canonical(receipt) {
@@ -120,6 +191,87 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   assert.equal(receipt.diagnostics.topologyComplete, true);
   assert.equal(receipt.diagnostics.joinComplete, true);
   assert.equal(receipt.lifecycle.rowNonceFingerprint, rowNonceFingerprint);
+});
+
+test('R-CD-2 immutable acquisition rejects omission and tampering of every required field', () => {
+  const requiredPaths = [
+    ['schema'], ['row'], ['seat'], ['attribution'],
+    ['collector', 'schema'], ['collector', 'version'],
+    ...[
+      'schema', 'candidateSha', 'runtimeBuildSha', 'docsRef', 'repository',
+      'seat', 'matrixId', 'runId', 'row', 'scenario',
+    ].map((key) => ['authorityIdentity', key]),
+    ...['manifestPath', 'manifestSha256', 'scenarioPath', 'scenarioSha256']
+      .map((key) => ['authorityIdentity', 'harness', key]),
+    ['nonce', 'sha256'], ['nonce', 'length'],
+    ['reason', 'hash'], ['reason', 'length'], ['reason', 'source'], ['reason', 'rawPersisted'],
+    ['continuation', 'tool'], ['continuation', 'originSurface'],
+    ['continuation', 'acceptSpan'], ['continuation', 'fireSpan'],
+    ['delegate', 'mode'], ['query'], ['querySha256'],
+    ['searchWindow', 'startUnixSeconds'], ['searchWindow', 'endUnixSeconds'],
+    ['searchWindow', 'paddingSeconds'], ['searchWindow', 'source'],
+    ['stabilization', 'ingestionSettleMs'], ['stabilization', 'pollIntervalMs'],
+    ['stabilization', 'searchQueryCount'], ['stabilization', 'stabilizationQueryCount'],
+    ['stabilization', 'finalQueryCount'],
+    ['finality', 'candidateCount'], ['finality', 'snapshotFetched'],
+    ['finality', 'stable'], ['finality', 'traceId'],
+    ['tempoSnapshot', 'file'], ['tempoSnapshot', 'sha256'], ['tempoSnapshot', 'traceId'],
+    ['uniqueness', 'acceptedTraceCount'], ['uniqueness', 'resultClass'],
+    ['traceId'], ['traceJson'], ['chainId'], ['dispatchSpanId'], ['dispatchParentSpanId'],
+    ['fireSpanId'], ['fireParentSpanId'], ['fireSpanIds'], ['fireParentSpanIds'],
+    ['fireAttemptCount'], ['toolSpanIds'], ['toolParentSpanIds'], ['childSpans'],
+    ['sameTrace'], ['sameChain'], ['distinctSpans'], ['resultClass'],
+    ['rowBinding', 'acceptedSendRunFingerprint'], ['rowBinding', 'nonceFingerprint'],
+    ['rowBinding', 'acceptedSendTraceId'], ['rowBinding', 'acceptedSendTraceSource'],
+    ['integrity', 'algorithm'], ['integrity', 'signature'],
+  ];
+  const setAt = (value, keys, replacement) => {
+    let target = value;
+    for (const key of keys.slice(0, -1)) target = target[key];
+    target[keys.at(-1)] = replacement;
+  };
+  const deleteAt = (value, keys) => {
+    let target = value;
+    for (const key of keys.slice(0, -1)) target = target[key];
+    delete target[keys.at(-1)];
+  };
+  for (const keys of requiredPaths) {
+    const label = keys.join('.');
+    const omitted = structuredClone(correlation());
+    deleteAt(omitted, keys);
+    assert.equal(
+      validateRcd2AcquisitionReceipt(
+        omitted,
+        signingKey,
+        authorityIdentity,
+        evidence(),
+      ).valid,
+      false,
+      `${label} omission`,
+    );
+
+    const tampered = structuredClone(correlation());
+    let current = tampered;
+    for (const key of keys) current = current[key];
+    const replacement = typeof current === 'string'
+      ? `${current}x`
+      : typeof current === 'number'
+        ? current + 1
+        : typeof current === 'boolean'
+          ? !current
+        : [...current, 'tampered'];
+    setAt(tampered, keys, replacement);
+    assert.equal(
+      validateRcd2AcquisitionReceipt(
+        tampered,
+        signingKey,
+        authorityIdentity,
+        evidence(),
+      ).valid,
+      false,
+      `${label} tampering`,
+    );
+  }
 });
 
 test('R-CD-2 validation rejects identity-less use and every foreign authority identity', () => {
@@ -176,13 +328,16 @@ test('R-CD-2 signed authority cannot be replayed across enclosing run identities
   ];
   for (const [key, value] of mutations) {
     const changedIdentity = { ...authorityIdentity, [key]: value };
-    const changed = resolveRcd2AuthoritativeReceipt({
-      evidence: evidence(),
-      correlation: correlation(),
-      identity: changedIdentity,
-      signingKey,
-    });
-    assert.notEqual(changed.integrity.signature, first.integrity.signature, key);
+    assert.throws(
+      () => resolveRcd2AuthoritativeReceipt({
+        evidence: evidence(),
+        correlation: correlation(),
+        identity: changedIdentity,
+        signingKey,
+      }),
+      /immutable acquisition receipt invalid/u,
+      key,
+    );
     assert.deepEqual(
       validateRcd2AuthoritativeReceipt(first, signingKey, changedIdentity),
       { valid: false, reason: 'identity-mismatch' },
@@ -207,13 +362,16 @@ test('R-CD-2 signed authority cannot be replayed across enclosing run identities
       ...authorityIdentity,
       harness: { ...authorityIdentity.harness, [key]: value },
     };
-    const changed = resolveRcd2AuthoritativeReceipt({
-      evidence: evidence(),
-      correlation: correlation(),
-      identity: changedIdentity,
-      signingKey,
-    });
-    assert.notEqual(changed.integrity.signature, first.integrity.signature, `harness.${key}`);
+    assert.throws(
+      () => resolveRcd2AuthoritativeReceipt({
+        evidence: evidence(),
+        correlation: correlation(),
+        identity: changedIdentity,
+        signingKey,
+      }),
+      /immutable acquisition receipt invalid/u,
+      `harness.${key}`,
+    );
     assert.deepEqual(
       validateRcd2AuthoritativeReceipt(first, signingKey, changedIdentity),
       { valid: false, reason: 'identity-mismatch' },
@@ -283,6 +441,15 @@ test('R-CD-2 signed diagnostics isolate lifecycle, topology, and join misses', (
     },
   ];
   for (const { expectedGroup, expectedGate, rowEvidence, rowCorrelation } of cases) {
+    if (expectedGroup !== 'lifecycle') {
+      assert.throws(
+        () => resolveRcd2AuthoritativeReceipt({
+          evidence: rowEvidence, correlation: rowCorrelation, signingKey,
+        }),
+        /immutable acquisition receipt invalid/u,
+      );
+      continue;
+    }
     const receipt = resolveRcd2AuthoritativeReceipt({
       evidence: rowEvidence, correlation: rowCorrelation, signingKey,
     });
@@ -419,21 +586,21 @@ test('R-CD-2 requires a valid wake fingerprint distinct from the accepted send r
 
 test('R-CD-2 rejects a consistently copied nonce fingerprint not derived from private evidence', () => {
   const wrongFingerprint = 'e'.repeat(16);
-  const receipt = resolveRcd2AuthoritativeReceipt({
-    evidence: evidence({ row_nonce_fingerprint: wrongFingerprint }),
-    correlation: correlation({
-      rowBinding: {
-        acceptedSendRunFingerprint: run,
-        nonceFingerprint: wrongFingerprint,
-        acceptedSendTraceId: 'b'.repeat(32),
-        acceptedSendTraceSource: 'sessions-send-response',
-      },
+  assert.throws(
+    () => resolveRcd2AuthoritativeReceipt({
+      evidence: evidence({ row_nonce_fingerprint: wrongFingerprint }),
+      correlation: correlation({
+        rowBinding: {
+          acceptedSendRunFingerprint: run,
+          nonceFingerprint: wrongFingerprint,
+          acceptedSendTraceId: 'b'.repeat(32),
+          acceptedSendTraceSource: 'sessions-send-response',
+        },
+      }),
+      signingKey,
     }),
-    signingKey,
-  });
-  assert.notEqual(receipt.verdict, 'PASS-candidate');
-  assert.equal(receipt.diagnostics.lifecycle.rowNonceFingerprint, false);
-  assert.equal(receipt.failureCategory, 'missing-send-run-lifecycle');
+    /immutable acquisition receipt invalid/u,
+  );
 });
 
 test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
@@ -474,6 +641,16 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
     }, 'provider-or-turn-failure'],
   ];
   for (const [gate, override, category] of lifecycleCases) {
+    if (gate === 'sendRunFingerprint') {
+      assert.throws(
+        () => resolveRcd2AuthoritativeReceipt({
+          evidence: evidence(override), correlation: correlation(), signingKey,
+        }),
+        /immutable acquisition receipt invalid/u,
+        gate,
+      );
+      continue;
+    }
     const receipt = resolveRcd2AuthoritativeReceipt({
       evidence: evidence(override), correlation: correlation(), signingKey,
     });
@@ -517,17 +694,18 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
       acceptedSendTraceId: 'b'.repeat(32),
       acceptedSendTraceSource: 'nearby-trace',
     } }],
-    ['collectorUnique', { resultClass: 'ambiguous' }],
+    ['collectorUnique', {
+      uniqueness: { acceptedTraceCount: 2, resultClass: 'ambiguous' },
+    }],
   ];
   for (const [gate, override] of topologyCases) {
-    const receipt = resolveRcd2AuthoritativeReceipt({
-      evidence: evidence(), correlation: correlation(override), signingKey,
-    });
-    assert.notEqual(receipt.verdict, 'PASS-candidate', gate);
-    assert.equal(receipt.diagnostics.topology[gate], false, gate);
-    assert.equal(receipt.diagnostics.topologyComplete, false, gate);
-    assert.equal(receipt.failureCategory, 'invalid-continuation-topology', gate);
-    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, gate);
+    assert.throws(
+      () => resolveRcd2AuthoritativeReceipt({
+        evidence: evidence(), correlation: correlation(override), signingKey,
+      }),
+      /immutable acquisition receipt invalid/u,
+      gate,
+    );
   }
 });
 
@@ -558,14 +736,13 @@ test('R-CD-2 classifies missing correlation and each valid-topology join mismatc
     } })],
   ];
   for (const [gate, rowEvidence, rowCorrelation] of cases) {
-    const receipt = resolveRcd2AuthoritativeReceipt({
-      evidence: rowEvidence, correlation: rowCorrelation, signingKey,
-    });
-    assert.equal(receipt.diagnostics.topologyComplete, true, gate);
-    assert.equal(receipt.diagnostics.joins[gate], false, gate);
-    assert.equal(receipt.diagnostics.joinComplete, false, gate);
-    assert.equal(receipt.failureCategory, 'send-topology-mismatch', gate);
-    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, gate);
+    assert.throws(
+      () => resolveRcd2AuthoritativeReceipt({
+        evidence: rowEvidence, correlation: rowCorrelation, signingKey,
+      }),
+      /immutable acquisition receipt invalid/u,
+      gate,
+    );
   }
 });
 
@@ -649,36 +826,39 @@ test('R-CD-2 rejects outer-send acceptance plus an unrelated delayed message', (
 });
 
 test('R-CD-2 rejects individually valid lifecycle and topology receipts from different traces', () => {
-  const receipt = resolveRcd2AuthoritativeReceipt({
-    evidence: evidence({ accepted_send_trace_id: 'e'.repeat(32) }),
-    correlation: correlation({ traceId: 'b'.repeat(32) }),
-    signingKey,
-  });
-  assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-topology-mismatch']);
-  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+  assert.throws(
+    () => resolveRcd2AuthoritativeReceipt({
+      evidence: evidence({ accepted_send_trace_id: 'e'.repeat(32) }),
+      correlation: correlation({ traceId: 'b'.repeat(32) }),
+      signingKey,
+    }),
+    /immutable acquisition receipt invalid/u,
+  );
 });
 
 test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce', () => {
   for (const rowBinding of [
-    {
+    [{
       acceptedSendRunFingerprint: 'f'.repeat(16),
       nonceFingerprint: rowNonceFingerprint,
       acceptedSendTraceId: 'b'.repeat(32),
       acceptedSendTraceSource: 'sessions-send-response',
-    },
-    {
+    }],
+    [{
       acceptedSendRunFingerprint: run,
       nonceFingerprint: 'f'.repeat(16),
       acceptedSendTraceId: 'b'.repeat(32),
       acceptedSendTraceSource: 'sessions-send-response',
-    },
+    }],
   ]) {
-    const receipt = resolveRcd2AuthoritativeReceipt({
-      evidence: evidence(),
-      correlation: correlation({ rowBinding }),
-      signingKey,
-    });
-    assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'send-topology-mismatch']);
+    assert.throws(
+      () => resolveRcd2AuthoritativeReceipt({
+        evidence: evidence(),
+        correlation: correlation({ rowBinding }),
+        signingKey,
+      }),
+      /immutable acquisition receipt invalid/u,
+    );
   }
 });
 
@@ -693,8 +873,10 @@ test('R-CD-2 rejects replay failure, wrong mode, and mismatched trace topology',
   );
   assert.equal(validateRcd2AuthoritativeReceipt(replay, signingKey).valid, true);
   for (const bad of [correlation({ delegate: { mode: 'normal' } }), correlation({ toolSpanIds: ['a'.repeat(16), 'b'.repeat(16)] })]) {
-    const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey });
-    assert.deepEqual([receipt.verdict, receipt.failureCategory], ['PARTIAL-candidate', 'invalid-continuation-topology']);
+    assert.throws(
+      () => resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: bad, signingKey }),
+      /immutable acquisition receipt invalid/u,
+    );
   }
 });
 

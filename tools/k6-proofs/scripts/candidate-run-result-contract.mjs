@@ -9,6 +9,7 @@ import {
   R_CD_2_VERDICT_SOURCE,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { processTerminalValid } from '../lib/process-terminal-authority.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -242,7 +243,13 @@ export function candidateEnvelopeMatchesSiblings({
 
   if (!manifest || manifest.schema !== PROOF_ROW_MANIFEST_SCHEMA || manifest.review?.candidateOnly !== true || manifest.review?.foldRequiresReview !== true) return false;
   if (!metadata || !runResult || runResult.candidateOnly !== true || runResult.foldRequiresReview !== true) return false;
-  if (runResult.effectiveExitCode !== 0 || runResult.review?.status !== 'ready-for-human-review' || !Array.isArray(runResult.review?.pendingReceipts) || runResult.review.pendingReceipts.length !== 0) return false;
+  if (!processTerminalValid({ runDir, manifest, metadata, runResult, envelope }) ||
+      runResult.effectiveExitCode !== 0 ||
+      (runResult.k6ExitCode !== undefined && runResult.k6ExitCode !== 0) ||
+      (runResult.postprocessExitCode !== undefined && runResult.postprocessExitCode !== 0) ||
+      runResult.review?.status !== 'ready-for-human-review' || !Array.isArray(runResult.review?.pendingReceipts) || runResult.review.pendingReceipts.length !== 0) {
+    return false;
+  }
 
   const rowId = nonEmptyString(metadata.row);
   const candidateSha = nonEmptyString(metadata.candidateSha);
@@ -265,7 +272,7 @@ export function candidateEnvelopeMatchesSiblings({
   )) return false;
   if (!artifactReferencesMatchRunResult(envelope, runResult)) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
-  if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
+  if (SHA.test(manifest.candidateSha || '') && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;
   if (!harnessIdentityMatches({ envelope, metadata, runDir })) return false;
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;

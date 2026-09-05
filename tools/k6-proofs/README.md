@@ -504,7 +504,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 ## Row coverage
 
-`live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.
+`live-suite` selects behavioral-live and process-local producers, retaining dependency-gated rows as blocked obligations. The producer catalog is authoritative for selection. Six restored producers comprise five live WebSocket rows and one process-local row, never static substitutes. They are pinned to product `7cb9d71f622250bedbf565e327bd7d7b9d90b567`. Missing runtime identity or required evidence is a nonzero failure; a blocked dependency keeps the whole set non-green.
 
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
@@ -514,12 +514,13 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PARTIAL-candidate until a real lifeboat return proves PASS |
 | R-CD-4 | `r-cd-4-target-session-key` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CD-COLLECTION-ON-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CD-COLLECTION-ON-COLLAPSE | `r-cd-collection-on-collapse-producer` | behavioral-live | Requires A/B/C lineage and exact successful root collection lifecycle |
 | R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
-| R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CD-RETURN-COVENANT-AUTHORITY | external authority | dependency-gated | No producer in this lane; signed authority receipt required |
+| R-CD-RETURN-OVERLAP | external consumer | dependency-gated | Signed own and authority dependency receipts required |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CONFIG-INTERSESSION | `r-config-intersession` | websocket/read-only | PASS-candidate; runnable candidate requiring row review |
@@ -530,15 +531,15 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate; exact-candidate fixture, review required before fold |
 | R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PASS-candidate component evidence; manual-only exact-candidate fixture, review required before fold |
-| R-CW-7 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
-| R-CW-DELEGATE-CHILD-LIVE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-7 | `r-cw-7-producer` | behavioral-live + process-local prerequisite | Exact propagation suite, TaskFlow, lifecycle run and trace joins required |
+| R-CW-DELEGATE-CHILD-LIVE | `r-cw-delegate-child-live-producer` | behavioral-live | Parent delegate and child continuation lineage required |
 | R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CW-DELEGATE-TOKEN | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
-| R-CW-MULTI | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
-| R-CW-MULTI-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CW-DELEGATE-TOKEN | `r-cw-delegate-token-producer` | behavioral-live | Raw `[[CONTINUE_WORK:5]]`, 5000ms parser origin and exact spawn/return joins required |
+| R-CW-MULTI | `r-cw-multi-producer` | behavioral-live | Three one-to-one typed flow/wake/trace joins plus raw `CONTINUE_WORK:0` parity |
+| R-CW-MULTI-COLLAPSE | `run-multi-collapse-fixture.mjs` | process-local | Exact-candidate executed hostile cases and signed terminal receipt required |
 | R-CW-TOKEN | `r-cw-token-bracket` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-OBS-1 | `r-obs-1` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-OBS-2 | `r-obs-2` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-OBS-2 | external consumer | dependency-gated | Signed own, authority and behavioral dependency receipts required |
 | R-OBS-STATUS | `r-obs-status` | github-source-contract/#1172 | PASS-candidate; runnable exact-SHA status-line contract requiring row review |
 | R-RC-1 | `r-rc-1-threshold-reject` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-RC-2 | `r-rc-2-delegate-request-compaction` | websocket/typed-tool | HONEST-LIMIT-candidate; reaches safe threshold/staging path, accepted compaction remains fixture-gated |
@@ -547,7 +548,13 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
 
-`R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
+`R-CW-5`, `R-CW-6` and `R-CW-MULTI-COLLAPSE` are included in `live-suite` as process-local producers requiring `FINAL_PRODUCT_CHECKOUT`, not WebSocket traffic. `R-CW-5A` and `R-CW-6A` remain static-only boundary checks, never runtime PASS substitutes.
+
+Reports and metrics are mandatory. Any execution, trace, lineage, parser, evidence, sanitization or publication failure overrides a stale PASS and fails the matrix. Local metric artifacts publish before an OTLP push; a failed push invalidates those artifacts. Report failure attempts every row's invalidation and records cleanup defects without skipping later rows. Gateway journal publication requires matching structured key=value or JSON nonce/run/task/flow/trace/tool-call fields, then sanitizes the retained lines; session-only, keyword-only and free-text mentions are insufficient. Both metrics input modes require consistent row identity and signed process authority for protected rows, with the signed and metadata run IDs matching the authoritative run directory (the parent of CW7's prerequisite directory).
+
+Dependency receipts use `openclaw.k6.signed-producer-dependency.v1` and the canonical signed-observer mechanism. Configure an operator-controlled `OPENCLAW_PRODUCER_TRUST_FILE` (issuer-to-key JSON, private, never a receipt-provided key), `OPENCLAW_PRODUCER_RUN_ID`, and `OPENCLAW_PRODUCER_RECEIPTS`. The signature binds row, exact product/runtime/docs SHAs, run, evidence identity, artifact digests and a maximum one-hour validity interval. The output root's `.consumed-producer-receipts` ledger burns each accepted signature once; retain that ledger between invocations. Unsigned objects, duplicate rows and replayed receipts cannot unblock dependencies.
+
+The process observer signs and independently validates a terminal receipt containing exact candidate tree, docs SHA, expanded argv/script digests, suite exit and required checks. `run-result.json` binds its validated file digest. Set a private `OPENCLAW_PROCESS_RECEIPT_KEY` for later independent report/metrics verification; otherwise the runner uses a process-scoped random key and later unverified receipts remain non-PASS. The suite child never receives that key. Missing exact private run/trace or parser/run attribution is non-PASS: a time-window or shared-trace match does not replace those joins.
 
 ### R-CW-5 isolated cost-cap fixture
 

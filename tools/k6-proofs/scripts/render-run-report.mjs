@@ -9,7 +9,10 @@
  * metrics exporter. It must not include tokens, session keys, prompts, nonces,
  * raw events, raw responses, or private absolute paths.
  */
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm } from 'node:fs/promises';
+import { publishArtifacts } from '../lib/atomic-artifacts.mjs';
+import { effectiveFailure } from '../lib/effective-result.mjs';
+import { processTerminalValid } from '../lib/process-terminal-authority.mjs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
@@ -135,15 +138,15 @@ async function rowFromRunResult(root, runResultPath) {
   const files = await readdir(runDir).catch(() => []);
   const manifest = files.includes('row-manifest.json') ? await readJson(path.join(runDir, 'row-manifest.json')) : {};
   const metadata = files.includes('runner-metadata.json') ? await readJson(path.join(runDir, 'runner-metadata.json')) : {};
-  const runResult = await readJson(runResultPath) || {};
+  const runResult = JSON.parse(await readFile(runResultPath, 'utf8'));
   const summaryName = pickSummary(files);
-  const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : {};
+  const summary = summaryName ? JSON.parse(await readFile(path.join(runDir, summaryName), 'utf8')) : {};
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const rel = path.relative(root, runDir).split(path.sep).join('/');
   const effectiveExitCode = Number(runResult.effectiveExitCode ?? runResult.k6ExitCode ?? 0);
-  const proofFailures = Number(
+  let proofFailures = Math.max(effectiveFailure(runResult) ? 1 : 0, Number(
     summary?.metrics?.failures ?? runResult.proofFailures ?? (effectiveExitCode === 0 ? 0 : 1),
-  );
+  ));
   let outcome = safeText(runResult.verdict || summary?.verdict || (effectiveExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate'));
   const rCd2Required = isRcd2AuthorityRequired({
     root,
@@ -192,6 +195,12 @@ async function rowFromRunResult(root, runResultPath) {
       outcome = 'PARTIAL-candidate';
     }
   }
+  if (effectiveFailure(runResult) || !processTerminalValid({
+    runDir, manifest, metadata, runResult, summary, evidence: evidenceRows[0],
+  })) {
+    outcome = 'FAIL-candidate';
+    proofFailures = Math.max(1, proofFailures);
+  }
   return {
     rowId: safeText(rCd2Authority?.identity.row || (rCd2Required ? 'R-CD-2' : metadata?.row || manifest?.rowId || runResult?.evidence?.row)),
     candidateSha: safeText(rCd2Authority?.identity.candidateSha || metadata?.candidateSha || manifest?.candidateSha || summary?.sha),
@@ -223,7 +232,8 @@ async function rowFromCandidateEnvelope(root, envelopePath) {
     readJson(path.join(runDir, 'run-result.json')),
   ]);
   const rel = path.relative(root, path.dirname(envelopePath)).split(path.sep).join('/');
-  if (!candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) {
+  if (effectiveFailure(runResult) || !processTerminalValid({ runDir, manifest, metadata, runResult, envelope }) ||
+      !candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata, runResult, runDir })) {
     return null;
   }
   return {
@@ -302,11 +312,15 @@ async function main() {
   }
   const html = render(rows);
   const out = args.out ? path.resolve(args.out) : path.join(root, 'report.html');
-  await writeFile(out, html);
+  await publishArtifacts([[out, html]]);
   console.log(JSON.stringify({ schema: 'openclaw.k6.proofs-report.v1', out, rows: rows.length }, null, 2));
 }
 
-main().catch((error) => {
+main().catch(async (error) => {
+  const args = parseArgs(process.argv);
+  if (args.out || args.root) {
+    await rm(args.out || path.join(args.root, 'report.html'), { force: true }).catch(() => {});
+  }
   usage();
   console.error(error && error.stack ? error.stack : String(error));
   process.exitCode = 1;

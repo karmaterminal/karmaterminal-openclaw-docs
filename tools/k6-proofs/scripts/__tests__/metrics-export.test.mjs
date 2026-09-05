@@ -145,9 +145,9 @@ test('exports process-local failures from final run verdict and effective exit c
 
     const prom = join(dir, 'metrics.prom');
     const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
-    assert.equal(run.status, 0, run.stderr || run.stdout);
+    assert.notEqual(run.status, 0, 'missing required process authority must make publication nonzero');
     const receipt = JSON.parse(run.stdout);
-    assert.equal(receipt.outcome, 'FAIL-fixture');
+    assert.equal(receipt.outcome, 'FAIL-candidate');
     const promText = await readFile(prom, 'utf8');
     assert.match(promText, /openclaw_proofs_k6_proof_failures_total\{[^\n]*\} 1/);
     assert.doesNotMatch(promText, /outcome="PASS-candidate"/);

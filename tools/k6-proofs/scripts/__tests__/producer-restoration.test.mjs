@@ -126,7 +126,7 @@ test('catalog rejects absent and non-runnable required behavioral producers', ()
     failure.code === 'producer.required-behavioral-missing' && failure.rowId === 'R-MISSING'));
 });
 
-test('dependency-gated consumers require fresh exact candidate and docs receipts', () => {
+test('legacy unsigned dependency objects cannot authorize even matching candidate and docs', () => {
   const registry = buildProducerRegistry({ proofsDir });
   const base = {
     rowId: 'R-CD-RETURN-COVENANT-AUTHORITY',
@@ -170,9 +170,8 @@ test('dependency-gated consumers require fresh exact candidate and docs receipts
     docsSha: 'b'.repeat(40),
     nowMs: Date.parse('2026-04-12T01:00:00.000Z'),
   });
-  assert.equal(authorityPlan.ok, true);
-  assert.equal(authorityPlan.rows[0].ownReceiptSatisfied, true);
-  assert.deepEqual(authorityPlan.blocked, []);
+  assert.equal(authorityPlan.ok, false);
+  assert.equal(authorityPlan.rows[0].ownReceiptSatisfied, false);
 
   const overlap = {
     ...base,
@@ -186,8 +185,7 @@ test('dependency-gated consumers require fresh exact candidate and docs receipts
     docsSha: 'b'.repeat(40),
     nowMs: Date.parse('2026-04-12T01:00:00.000Z'),
   });
-  assert.equal(overlapPlan.ok, true);
-  assert.deepEqual(overlapPlan.blocked, []);
+  assert.equal(overlapPlan.ok, false);
 });
 
 test('restored live producers emit evidence in the extractor contract', async () => {
@@ -261,7 +259,7 @@ test('delegate token uses exact grammar and rejects typed/message-tool substitut
   const accepted = validateLineage({
     row: 'R-CW-DELEGATE-TOKEN', evidence, manifest, flows: [flow], gatewayLog: log,
   });
-  assert.equal(accepted.ok, true);
+  assert.equal(accepted.ok, false, 'session-only parser logs and sparse token evidence must fail');
   assert.equal(accepted.flows[0].originRunId, undefined);
   assert.match(accepted.flows[0].originRunFingerprint, /^[0-9a-f]{16}$/u);
   assert.equal(validateLineage({
@@ -397,7 +395,7 @@ test('multi rejects duplicate flows and repeated/multiply-labelled wakes', async
   assert.ok(result.failures.some((failure) => failure.includes('uniquely labelled wake runs')));
 });
 
-test('multi accepts three typed elections plus one isolated response-token parity flow', async () => {
+test('multi rejects counts-only typed elections and unbound response-token parity flow', async () => {
   const manifest = await json('manifests/r-cw-multi.json');
   const nonce = 'NONCE';
   const evidence = {
@@ -450,7 +448,7 @@ test('multi accepts three typed elections plus one isolated response-token parit
     flows: [...typed, token],
     gatewayLog,
   });
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, false, 'counts without run/flow/trace identity do not prove wakes');
   assert.equal(result.flows.length, 4);
   assert.equal(result.flows.every((flow) => flow.flowId === undefined), true);
   assert.equal(result.flows.every((flow) => /^[0-9a-f]{16}$/u.test(flow.flowIdFingerprint)), true);

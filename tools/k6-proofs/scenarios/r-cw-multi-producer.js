@@ -84,6 +84,14 @@ export default function () {
     schedule_results: [],
     wake_runs: [],
     token_phase_requested: false,
+    token: 'CONTINUE_WORK:0',
+    token_grammar_valid: true,
+    raw_final_text_token_observed: false,
+    raw_final_text: null,
+    raw_final_text_run_id: null,
+    token_origin_terminal_phase: null,
+    token_typed_tool_observed: false,
+    schedule_calls: [],
     token_origin_run_id: null,
     token_wake_run_id: null,
     token_wake_started: false,
@@ -193,12 +201,18 @@ export default function () {
         }
         if (evidence.origin_run_id) {
           const work = toolEvent(classified, sessionKey, evidence.origin_run_id, 'continue_work');
-          if (work?.phase === 'start') uniquePush(evidence.schedule_tool_call_ids, work.toolCallId);
-          if (work?.phase === 'result' && !work.isError) {
+          if (work?.phase === 'start') {
+            uniquePush(evidence.schedule_tool_call_ids, work.toolCallId);
+            evidence.schedule_calls.push({ toolCallId: work.toolCallId, ...work.args });
+          }
+          if (work?.phase === 'result' && !work.isError &&
+              evidence.schedule_tool_call_ids.includes(work.toolCallId)) {
             uniquePush(evidence.schedule_results, work.toolCallId);
           }
         }
         const lifecycle = lifecycleEvent(classified, sessionKey);
+        if (lifecycle?.runId === evidence.token_origin_run_id &&
+            ['end', 'error'].includes(lifecycle.phase)) evidence.token_origin_terminal_phase = lifecycle.phase;
         if (lifecycle &&
             lifecycle.runId !== evidence.origin_run_id &&
             lifecycle.runId !== evidence.token_origin_run_id &&
@@ -226,6 +240,14 @@ export default function () {
           lifecycleWake.terminalPhase = lifecycle.phase;
         }
         const output = assistantTextEvent(classified, sessionKey);
+        if (output && output.runId === evidence.token_origin_run_id) {
+          evidence.raw_final_text = output.text;
+          evidence.raw_final_text_run_id = output.runId;
+          evidence.raw_final_text_token_observed = output.text.trim() === 'CONTINUE_WORK:0';
+        }
+        if (identity?.runId === evidence.token_origin_run_id &&
+            identity?.sessionKey === sessionKey && identity.stream === 'tool' &&
+            identity.data?.name === 'continue_work') evidence.token_typed_tool_observed = true;
         if (output && output.runId !== evidence.origin_run_id) {
           for (const election of expected) {
             if (output.text.includes(`MULTI-WOKE ${rowNonce} ${election.label}`)) {
@@ -297,6 +319,10 @@ export default function () {
       wake.startedAt && wake.endedAt && wake.terminalPhase === 'end' && wake.labels.length === 1) &&
     exactlyOnce &&
     evidence.token_phase_requested &&
+    evidence.raw_final_text_token_observed &&
+    evidence.raw_final_text_run_id === evidence.token_origin_run_id &&
+    evidence.token_origin_terminal_phase === 'end' &&
+    !evidence.token_typed_tool_observed &&
     evidence.token_origin_run_id &&
     evidence.token_wake_run_id &&
     evidence.token_wake_run_id !== evidence.token_origin_run_id &&

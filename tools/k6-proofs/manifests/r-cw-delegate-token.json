@@ -20,6 +20,7 @@
       "sessions.create",
       "sessions.send",
       "sessions.messages.subscribe",
+      "tasks.list",
       "sessions_spawn",
       "tools.effective"
     ],
@@ -51,7 +52,7 @@
     {
       "name": "parser-origin-bracket",
       "required": true,
-      "description": "Gateway log contains nonce/session-window-bound bracket-parse and effective-signal origin=bracket receipts; message-tool body text is explicitly excluded."
+      "description": "Raw [[CONTINUE_WORK:5]] and successful originating run join run/session-bound bracket-parse delayMs=5000 and effective-signal origin=bracket; generic window matches, wrong delays and message-tool text are excluded."
     }
   ],
   "artifactDestination": {
@@ -106,6 +107,6 @@
       "parser-origin-bracket"
     ],
     "foldRequiresReview": true,
-    "notes": "The target seat must deny continue_work to subagents. Parser-origin log evidence is mandatory because Agent events and spans do not expose fromBracket."
+    "notes": "The target seat must deny continue_work to subagents. Parser origin and exact spawn toolcall/task/flow/child run plus return-run/trace joins are mandatory; missing private attribution fails closed."
   }
 }

@@ -46,7 +46,7 @@
     {
       "name": "root-collection-after-intermediate-finalized",
       "required": true,
-      "description": "B has a settled terminal lifecycle before C lifecycle start, and C settles before root A's collection run."
+      "description": "B successfully terminalizes before C starts, C successfully terminalizes before root collection, and the exact root collection output run has a successful lifecycle end. A nonce fragment followed by error fails."
     },
     {
       "name": "tree-fanout-semantics",

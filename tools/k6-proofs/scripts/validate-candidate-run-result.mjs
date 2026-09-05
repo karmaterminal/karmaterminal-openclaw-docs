@@ -244,7 +244,11 @@ async function main() {
   }
   const expectedArtifactClass = manifest.liveRunSafety?.expectedArtifactClass;
   if (expectedArtifactClass === 'construct-only' && verdict !== 'construct-only') throw new Error('construct-only manifest cannot emit behavioral candidate evidence');
-  if (runResult.effectiveExitCode !== 0) throw new Error('candidate run is incomplete: effective exit code is non-zero');
+  if (runResult.effectiveExitCode !== 0 ||
+      (runResult.k6ExitCode !== undefined && runResult.k6ExitCode !== 0) ||
+      (runResult.postprocessExitCode !== undefined && runResult.postprocessExitCode !== 0)) {
+    throw new Error('candidate run is incomplete: effective exit code is non-zero');
+  }
   const review = runResult.review;
   if (review?.status !== 'ready-for-human-review' || !Array.isArray(review.pendingReceipts) || review.pendingReceipts.length !== 0) {
     throw new Error('candidate run is review-incomplete: resolve or explicitly classify pending receipts first');

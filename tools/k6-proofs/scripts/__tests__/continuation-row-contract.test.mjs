@@ -125,9 +125,15 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
       OPENCLAW_SESSION_KEY: 'main',
       OPENCLAW_SEAT_NAME: 'cael-dgx',
     };
-    const result = await run('bash', ['scripts/run-proofs.sh', '--live', '--docs-ref', harness.docsRef, '--out-dir', out, 'R-CD-2', candidateSha], {
-      cwd: path.join(harness.checkout, 'tools/k6-proofs'), env, timeout: 60_000,
-    });
+    let result;
+    try {
+      result = await run('bash', ['scripts/run-proofs.sh', '--live', '--docs-ref', harness.docsRef, '--out-dir', out, 'R-CD-2', candidateSha], {
+        cwd: path.join(harness.checkout, 'tools/k6-proofs'), env, timeout: 60_000,
+      });
+    } catch (error) {
+      if (!tamper) throw error;
+      result = { stdout: error.stdout || '', stderr: error.stderr || '', code: error.code };
+    }
     const runBase = path.join(out, candidateSha, 'R-CD-2', 'cael-dgx');
     const [runId] = await readdir(runBase);
     const runDir = path.join(runBase, runId);
@@ -337,6 +343,8 @@ test('R-CD-2 live runner emits an envelope only for an untampered authoritative 
   await t.test('tampered receipt is withheld by the live runner before it can emit an envelope', async () => {
     const fixture = await runRcd2RunnerFixture({ tamper: true });
     try {
+      assert.notEqual(fixture.result.code, undefined, 'tampered authority must fail publication');
+      assert.notEqual(fixture.result.code, 0);
       await assert.rejects(readFile(path.join(fixture.runDir, 'candidate-run-result.json'), 'utf8'), /ENOENT/);
       const validationError = await readFile(path.join(fixture.runDir, 'candidate-run-result-validation.error.log'), 'utf8');
       assert.match(validationError, /authoritative receipt digest mismatch/);

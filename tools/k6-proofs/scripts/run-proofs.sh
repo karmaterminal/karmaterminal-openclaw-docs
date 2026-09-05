@@ -123,6 +123,9 @@ ROWS_DISPATCHED=0
 ROWS_TERMINAL_PRE_DISPATCH=0
 MATRIX_EXIT_CODE=0
 declare -a MATRIX_ROW_FAILURES=()
+declare -a MATRIX_RUN_DIRS=()
+REQUIRED_PRODUCT_SHA="7cb9d71f622250bedbf565e327bd7d7b9d90b567"
+export OPENCLAW_PROCESS_RECEIPT_KEY="${OPENCLAW_PROCESS_RECEIPT_KEY:-$(node -e 'process.stdout.write(require("node:crypto").randomBytes(32).toString("hex"))')}"
 MATRIX_NONCE=""
 declare -A ROW_MANIFEST_RELPATH=()
 declare -A ROW_MANIFEST_SHA256=()
@@ -281,8 +284,13 @@ export_run_metrics() {
     echo "[$row_id] METRICS: $run_dir/openclaw-proofs-k6.prom"
   else
     echo "[$row_id] METRICS EXPORT FAILED; see $run_dir/metrics-export.json" >&2
-    if [[ "${OPENCLAW_PROOFS_K6_METRICS_REQUIRED:-false}" == "true" ]]; then
-      exit 1
+    MATRIX_EXIT_CODE=1
+    if [[ " ${MATRIX_ROW_FAILURES[*]} " != *" $row_id:"* ]]; then
+      MATRIX_ROW_FAILURES+=("$row_id:1")
+    fi
+    EFFECTIVE_RC=1
+    if ! node "$SCRIPT_DIR/fail-run-result.mjs" "$run_dir" "metrics-export-failed"; then
+      MATRIX_ROW_FAILURES+=("$row_id:cleanup:1")
     fi
   fi
 }
@@ -693,6 +701,8 @@ if [[ "$DRY_RUN" == "false" && "$ROWS" != "all" && "$ROWS" != "live-suite" ]]; t
 fi
 if ! node "$PRODUCER_PLAN_RESOLVER" \
   --selection "$ROWS" \
+  --run-id "${OPENCLAW_PRODUCER_RUN_ID:-$(cat /proc/sys/kernel/random/uuid)}" \
+  --consumption-dir "$OUT_ROOT/.consumed-producer-receipts" \
   "${PRODUCER_BINDING_ARGS[@]}" \
   "${PRODUCER_RECEIPT_ARGS[@]}" > "$PRODUCER_PLAN_FILE"; then
   fail_harness \
@@ -824,6 +834,18 @@ if [[ "$DEPLOYED_BUILD_STAMP" == "unknown" && -f ~/.openclaw/openclaw.json ]]; t
   fi
 fi
 export OPENCLAW_RUNTIME_BUILD_SHA="$DEPLOYED_BUILD_STAMP"
+NEEDS_GATEWAY=false
+for GATE_ROW in "${ROW_ARRAY[@]}"; do
+  GATE_CLASS="$(jq -r --arg row "$GATE_ROW" '.rows[] | select(.rowId == $row) | .classification' "$PRODUCER_PLAN_FILE")"
+  [[ "$GATE_CLASS" == "process-local" || "$GATE_CLASS" == "dependency-gated" ]] && continue
+  case "$GATE_ROW" in
+    R-CD-COLLECTION-ON-COLLAPSE|R-CW-7|R-CW-DELEGATE-CHILD-LIVE|R-CW-DELEGATE-TOKEN|R-CW-MULTI)
+      if [[ "$OPENCLAW_CANDIDATE_SHA" != "$REQUIRED_PRODUCT_SHA" ||
+            "$OPENCLAW_RUNTIME_BUILD_SHA" != "$REQUIRED_PRODUCT_SHA" ]]; then continue; fi
+      ;;
+  esac
+  NEEDS_GATEWAY=true
+done
 
 # Resolve Session Key
 if [[ -z "${OPENCLAW_SESSION_KEY:-}" ]]; then
@@ -843,17 +865,17 @@ echo "Session configured: true"
 
 if [[ "$DRY_RUN" == "false" && "$OPENCLAW_CANDIDATE_SHA" != "$OPENCLAW_RUNTIME_BUILD_SHA" && "$OPENCLAW_RUNTIME_BUILD_SHA" != *"(${OPENCLAW_CANDIDATE_SHA:0:7})"* ]]; then
   echo "WARNING: Candidate SHA ($OPENCLAW_CANDIDATE_SHA) does not match Deployed Runtime SHA ($OPENCLAW_RUNTIME_BUILD_SHA)."
-  echo "Unless this is a known stale-stamp or you have proven a rebuild bridge, live proofs will be marked PARTIAL."
+  echo "Restored producers require the pinned exact product/runtime identity and fail before dispatch on mismatch."
 fi
 
 # Local Gateway Auth extraction (never logged/committed).
 # Deliberately last: neither the harness identity gate nor the catalog
 # validators run with this credential in their environment.
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
+if [[ "$NEEDS_GATEWAY" == "true" && -z "${OPENCLAW_GATEWAY_TOKEN:-}" && -f ~/.openclaw/openclaw.json ]]; then
   OPENCLAW_GATEWAY_TOKEN="$(jq -r '.gateway.auth.token // .auth.operatorToken // empty' ~/.openclaw/openclaw.json)"
   export OPENCLAW_GATEWAY_TOKEN
 fi
-if [[ -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
+if [[ "$NEEDS_GATEWAY" == "true" && -z "${OPENCLAW_GATEWAY_TOKEN:-}" ]]; then
   echo "Warning: OPENCLAW_GATEWAY_TOKEN not found in local config."
   if [[ "$DRY_RUN" == "false" ]]; then
     exit 1
@@ -862,7 +884,7 @@ fi
 
 SEAT_READINESS_JSON="$OUT_ROOT/seat-readiness.json"
 SEAT_READINESS_SHA256=""
-if [[ "$DRY_RUN" == "false" ]]; then
+if [[ "$DRY_RUN" == "false" && "$NEEDS_GATEWAY" == "true" ]]; then
   echo "Running seat-readiness preflight (k6/tooling/gateway/continuation config)..."
   if ! node scripts/seat-readiness-preflight.mjs --json > "$SEAT_READINESS_JSON"; then
     echo "SEAT READINESS FAILED: $SEAT_READINESS_JSON" >&2
@@ -997,13 +1019,16 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     PROCESS_RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%s' "$ROW_ID" | tr '[:upper:]' '[:lower:]')-${MATRIX_NONCE}"
     PROCESS_RUN_DIR="$OUT_ROOT/$OPENCLAW_CANDIDATE_SHA/$ROW_ID/$OPENCLAW_SEAT_NAME/$PROCESS_RUN_ID"
     (umask 077; mkdir -p "$PROCESS_RUN_DIR")
+    MATRIX_RUN_DIRS+=("$PROCESS_RUN_DIR")
     cp "$MANIFEST_FILE" "$PROCESS_RUN_DIR/row-manifest.json"
     jq -n \
       --arg row "$ROW_ID" \
       --arg scenario "$SCENARIO_FILE" \
       --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
       --arg seat "$OPENCLAW_SEAT_NAME" \
-      '{row:$row,scenario:$scenario,candidateSha:$candidateSha,seat:$seat,producerClassification:"process-local"}' \
+      --arg docsRef "$DOCS_REF" \
+      --arg runId "$PROCESS_RUN_ID" \
+      '{row:$row,scenario:$scenario,candidateSha:$candidateSha,seat:$seat,docsRef:$docsRef,runId:$runId,producerClassification:"process-local"}' \
       > "$PROCESS_RUN_DIR/runner-metadata.json"
     if [[ -z "${FINAL_PRODUCT_CHECKOUT:-}" ]] ||
        ! git -C "$FINAL_PRODUCT_CHECKOUT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -1026,6 +1051,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --row "$ROW_ID" \
       --product-dir "${FINAL_PRODUCT_CHECKOUT:-}" \
       --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+      --docs-sha "$DOCS_REF" \
       --artifact-dir "$PROCESS_RUN_DIR"
     process_rc=$?
     set -e
@@ -1047,6 +1073,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     elif [[ "$process_verdict" != "PASS-candidate" ]]; then
       process_rc=1
     fi
+    process_receipt_digest=""
+    if [[ "$process_rc" -eq 0 ]]; then
+      if node "$CATALOG_PRODUCER_RUNNER" --verify-only \
+        --row "$ROW_ID" --product-dir "$FINAL_PRODUCT_CHECKOUT" \
+        --candidate-sha "$OPENCLAW_CANDIDATE_SHA" --docs-sha "$DOCS_REF" \
+        --artifact-dir "$PROCESS_RUN_DIR" > "$PROCESS_RUN_DIR/process-terminal-validation.json"; then
+        process_receipt_digest="$(jq -er 'select(.validated == true) | .sha256' "$PROCESS_RUN_DIR/process-terminal-validation.json")"
+      else
+        process_rc=1
+        process_verdict="FAIL-fixture"
+      fi
+    fi
     jq -n \
       --arg row "$ROW_ID" \
       --arg verdict "$process_verdict" \
@@ -1055,6 +1093,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson effectiveExitCode "$process_rc" \
       '{k6ExitCode:0,postprocessExitCode:$effectiveExitCode,effectiveExitCode:$effectiveExitCode,endedAt:$endedAt,verdict:$verdict,verdictSource:"process-local-producer",summaryFileVerdict:$verdict,vuLogVerdict:null,summaryFiles:(if $fixtureResult == "" then [] else [$fixtureResult] end),evidence:{row:$row,dispatched:true,fixtureResult:(if $fixtureResult == "" then null else $fixtureResult end)},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:(if $effectiveExitCode == 0 then [] else ["process-local-behavioral-receipt"] end)}}' \
       > "$PROCESS_RUN_DIR/run-result.json"
+    if [[ -n "$process_receipt_digest" ]]; then
+      jq --arg sha256 "$process_receipt_digest" \
+        '.processTerminalReceipt={file:"process-terminal-receipt.json",sha256:$sha256,validated:true}' \
+        "$PROCESS_RUN_DIR/run-result.json" > "$PROCESS_RUN_DIR/run-result.json.pending"
+      mv "$PROCESS_RUN_DIR/run-result.json.pending" "$PROCESS_RUN_DIR/run-result.json"
+    fi
     if [[ "$process_rc" -ne 0 ]]; then
       MATRIX_EXIT_CODE=1
       MATRIX_ROW_FAILURES+=("$ROW_ID:$process_rc")
@@ -1104,6 +1148,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         "$(jq -n --arg row "$ROW_ID" '{check:"run-directory-exclusive", row:$row}')"
     fi
     PROVISIONAL_RUN_DIR="$RUN_DIR"
+    MATRIX_RUN_DIRS+=("$RUN_DIR")
     touch "$RUN_DIR/.started"
     cp "$MANIFEST_FILE" "$RUN_DIR/row-manifest.json"
     # The exact scenario source travels with the receipt so a reviewer can prove
@@ -1162,7 +1207,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     case "$ROW_ID" in
       R-CD-COLLECTION-ON-COLLAPSE|R-CW-7|R-CW-DELEGATE-CHILD-LIVE|R-CW-DELEGATE-TOKEN|R-CW-MULTI)
         if [[ ! "$OPENCLAW_RUNTIME_BUILD_SHA" =~ ^[0-9a-f]{40}$ ||
-              "$OPENCLAW_RUNTIME_BUILD_SHA" != "$OPENCLAW_CANDIDATE_SHA" ]]; then
+              "$OPENCLAW_RUNTIME_BUILD_SHA" != "$OPENCLAW_CANDIDATE_SHA" ||
+              "$OPENCLAW_CANDIDATE_SHA" != "$REQUIRED_PRODUCT_SHA" ]]; then
           RUN_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           jq -n \
             --arg row "$ROW_ID" \
@@ -1174,12 +1220,15 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           jq -n \
             --arg row "$ROW_ID" \
             --arg endedAt "$RUN_ENDED_AT" \
-            '{k6ExitCode:0,postprocessExitCode:0,effectiveExitCode:0,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-started",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","live-behavioral-receipt"]}}' \
+            '{k6ExitCode:0,postprocessExitCode:78,effectiveExitCode:78,endedAt:$endedAt,verdict:"FAIL-candidate",classification:"harness-infrastructure",verdictSource:"pre-dispatch-build-identity-gate",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,observability:{traceStatus:"not-started",traceId:null,tempoTraceJson:null,correlationReceipt:null,serviceLogStatus:"not-started",serviceLog:null,serviceLogCapture:null,serviceLogRedaction:null},review:{status:"review-pending",pendingReceipts:["exact-candidate-runtime-identity","live-behavioral-receipt"]}}' \
             > "$RUN_DIR/run-result.json"
           rm -f "$RUN_DIR/.started"
           PROVISIONAL_RUN_DIR=""
           ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
-          echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
+          MATRIX_EXIT_CODE=78
+          MATRIX_ROW_FAILURES+=("$ROW_ID:78")
+          export_run_metrics "$ROW_ID" "$RUN_DIR"
+          echo "[$ROW_ID] FAIL-candidate: required product/runtime identity mismatch; no dispatch occurred."
           continue
         fi
         ;;
@@ -1251,6 +1300,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --row "$ROW_ID" \
         --product-dir "${FINAL_PRODUCT_CHECKOUT:-}" \
         --candidate-sha "$OPENCLAW_CANDIDATE_SHA" \
+        --docs-sha "$DOCS_REF" \
         --artifact-dir "$RUN_DIR/process-local-prerequisite" \
         > "$PRIVATE_PREREQ_STDOUT" \
         2> "$PRIVATE_PREREQ_STDERR"; then
@@ -1288,7 +1338,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       PRIVATE_PREREQ_STDERR=""
 
     fi
-    if [[ "$PREREQUISITE_REQUIRED" == "true" && ! -f "$PREREQUISITE_RECEIPT" ]]; then
+    if [[ "$PREREQUISITE_REQUIRED" == "true" ]] && ! node "$CATALOG_PRODUCER_RUNNER" \
+      --verify-only --prerequisite --row "$ROW_ID" --product-dir "$FINAL_PRODUCT_CHECKOUT" \
+      --candidate-sha "$OPENCLAW_CANDIDATE_SHA" --docs-sha "$DOCS_REF" \
+      --artifact-dir "$RUN_DIR/process-local-prerequisite" \
+      > "$RUN_DIR/process-local-prerequisite/terminal-validation.json"; then
       echo "[$ROW_ID] required process-local prerequisite receipt is missing; live producer was not fired." >&2
       jq -n \
         --arg row "$ROW_ID" \
@@ -1442,6 +1496,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       rm -f "$RUN_DIR/evidence-extraction.error.log"
     fi
     if [[ "$ROW_ID" == "R-CD-COLLECTION-ON-COLLAPSE" ||
+          "$ROW_ID" == "R-CW-7" ||
           "$ROW_ID" == "R-CW-DELEGATE-CHILD-LIVE" ||
           "$ROW_ID" == "R-CW-DELEGATE-TOKEN" ||
           "$ROW_ID" == "R-CW-MULTI" ]]; then
@@ -1450,13 +1505,16 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --evidence "$PRIVATE_EVIDENCE_FILE"
         --manifest "$MANIFEST_FILE"
         --out "$RUN_DIR/live-producer-lineage.json"
+        --gateway-log "$PRIVATE_GATEWAY_LOG"
+        --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL"
       )
       if [[ "$ROW_ID" == "R-CW-DELEGATE-TOKEN" || "$ROW_ID" == "R-CW-MULTI" ]]; then
         LINEAGE_ARGS+=(--gateway-log "$PRIVATE_GATEWAY_LOG")
       fi
-      if ! node "$RUNNER_SCRIPT_DIR/collect-live-producer-lineage.mjs" "${LINEAGE_ARGS[@]}" \
+      if ! { node "$RUNNER_SCRIPT_DIR/collect-live-producer-lineage.mjs" "${LINEAGE_ARGS[@]}" \
         > "$RUN_DIR/live-producer-lineage.stdout.json" \
-        2> "$RUN_DIR/live-producer-lineage.error.log"; then
+        2> "$RUN_DIR/live-producer-lineage.error.log" &&
+        jq -e '.ok == true' "$RUN_DIR/live-producer-lineage.json" >/dev/null; }; then
         echo "[$ROW_ID] TASKFLOW/PARSER LINEAGE FAILED; see $RUN_DIR/live-producer-lineage.error.log" >&2
         POSTPROCESS_RC=1
         LINEAGE_FAILED=true
@@ -1784,6 +1842,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$EFFECTIVE_RC" -eq 0 && "$POSTPROCESS_RC" -ne 0 ]]; then
       EFFECTIVE_RC="$POSTPROCESS_RC"
     fi
+    if [[ "$EFFECTIVE_RC" -ne 0 ]]; then
+      SUMMARY_VERDICT="FAIL-candidate"
+      SUMMARY_VERDICT_SOURCE="effective-execution-failure"
+      SUMMARY_FILE_VERDICT="FAIL-candidate"
+      VU_LOG_VERDICT=""
+    fi
     AUTHORITATIVE_RECEIPT=""
     AUTHORITATIVE_RECEIPT_SHA256=""
     AUTHORITATIVE_RECEIPT_SOURCE=""
@@ -1819,6 +1883,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
       '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
       > "$RUN_DIR/run-result.json"
+    if [[ "$EFFECTIVE_RC" -ne 0 ]]; then
+      if ! node "$SCRIPT_DIR/fail-run-result.mjs" "$RUN_DIR" "effective-execution-failure"; then
+        MATRIX_EXIT_CODE=1
+        MATRIX_ROW_FAILURES+=("$ROW_ID:cleanup:1")
+      fi
+    fi
+    if [[ "$PREREQUISITE_REQUIRED" == "true" ]]; then
+      jq --arg sha256 "$(jq -r '.sha256' "$RUN_DIR/process-local-prerequisite/terminal-validation.json")" \
+        '.processTerminalReceipt={file:"process-local-prerequisite/process-terminal-receipt.json",sha256:$sha256,validated:true}' \
+        "$RUN_DIR/run-result.json" > "$RUN_DIR/run-result.json.pending"
+      mv "$RUN_DIR/run-result.json.pending" "$RUN_DIR/run-result.json"
+    fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       jq \
         --arg endedAt "$RUN_ENDED_AT" \
@@ -1877,14 +1953,37 @@ if node scripts/render-run-report.mjs --root "$OUT_ROOT" --out "$REPORT_PATH" > 
   echo "REPORT: $REPORT_PATH"
 else
   echo "REPORT GENERATION FAILED; see $OUT_ROOT/report-error.log" >&2
-  if [[ "${OPENCLAW_PROOFS_K6_REPORT_REQUIRED:-false}" == "true" ]]; then
-    exit 1
-  fi
+  MATRIX_EXIT_CODE=1
+  MATRIX_ROW_FAILURES+=("REPORT:1")
+  if ! rm -f "$REPORT_PATH"; then MATRIX_ROW_FAILURES+=("REPORT:cleanup:1"); fi
+  for FAILED_REPORT_RUN in "${MATRIX_RUN_DIRS[@]}"; do
+    if ! node "$SCRIPT_DIR/fail-run-result.mjs" "$FAILED_REPORT_RUN" "report-generation-failed"; then
+      MATRIX_ROW_FAILURES+=("REPORT:row-cleanup:1")
+      if ! jq -e '.verdict == "FAIL-candidate" and (.effectiveExitCode | numbers) != 0' \
+          "$FAILED_REPORT_RUN/run-result.json" >/dev/null 2>&1; then
+        if ! rm -f "$FAILED_REPORT_RUN/openclaw-proofs-k6.prom" \
+            "$FAILED_REPORT_RUN/openclaw-proofs-k6.otlp.json" \
+            "$FAILED_REPORT_RUN/metrics-export.json" "$FAILED_REPORT_RUN/candidate-run-result.json"; then
+          MATRIX_ROW_FAILURES+=("REPORT:artifact-cleanup:1")
+        fi
+        continue
+      fi
+    fi
+    FAILED_REPORT_ROW="$(jq -er '.row // .rowId' "$FAILED_REPORT_RUN/runner-metadata.json" 2>/dev/null)" ||
+      FAILED_REPORT_ROW="unknown"
+    if ! export_run_metrics "$FAILED_REPORT_ROW" "$FAILED_REPORT_RUN"; then
+      MATRIX_ROW_FAILURES+=("REPORT:metrics-cleanup:1")
+    fi
+  done
 fi
 
 echo ""
 echo "=========================================================="
 echo "Runner execution finished."
+jq -n --argjson exitCode "$MATRIX_EXIT_CODE" \
+  --argjson blocked "$DEPENDENCY_BLOCKED" --arg failures "${MATRIX_ROW_FAILURES[*]}" \
+  '{schema:"openclaw.k6.matrix-result.v1",ok:($exitCode == 0 and $blocked == false),effectiveExitCode:(if $blocked then 78 else $exitCode end),rowFailures:($failures|split(" ")|map(select(length>0)))}' \
+  > "$OUT_ROOT/matrix-result.json"
 if [[ "$DEPENDENCY_BLOCKED" == "true" ]]; then
   fail_harness \
     "dependency-gated" \
@@ -1895,6 +1994,8 @@ if [[ "$DEPENDENCY_BLOCKED" == "true" ]]; then
       "$PRODUCER_PLAN_FILE")"
 fi
 if [[ "${#MATRIX_ROW_FAILURES[@]}" -gt 0 ]]; then
+  write_harness_control_receipt "matrix-execution" "required execution or publication failed" \
+    "$(cat "$OUT_ROOT/matrix-result.json")"
   echo "Rows with non-zero effective exits: ${MATRIX_ROW_FAILURES[*]}" >&2
   exit "$MATRIX_EXIT_CODE"
 fi

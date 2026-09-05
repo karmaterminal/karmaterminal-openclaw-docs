@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { sanitizeEvidenceRecords } from '../sanitize-k6-artifacts.mjs';
+import { sanitizeEvidenceRecords, sanitizeServiceLog } from '../sanitize-k6-artifacts.mjs';
 
 const execFileAsync = promisify(execFile);
 const script = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../sanitize-k6-artifacts.mjs');
@@ -95,7 +95,7 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     `Jul 12 19:42:00 host openclaw[123]: continuation dispatch session=${sessionKey}`,
     `Jul 12 19:42:01 host openclaw[123]: Model override "github-copilot/claude-sonnet-4.6" is not allowed for agent "main" nonce=${nonce}`,
     'Jul 12 19:42:02 host openclaw[123]: OPENCLAW_GATEWAY_TOKEN=super-secret-gateway-token failure',
-    `Jul 12 19:42:02 host openclaw[123]: continuation:delegate-spawned task=Proof nonce ${nonce}: read your runtime context/current model identity`,
+    `Jul 12 19:42:02 host openclaw[123]: continuation:delegate-spawned nonce=${nonce} task=Proof nonce ${nonce}: read your runtime context/current model identity`,
     'Jul 12 19:42:03 host openclaw[123]: unrelated routine heartbeat',
   ].join('\n'));
 
@@ -129,12 +129,38 @@ test('CLI writes only public-safe evidence and log artifacts', async () => {
     assert.match(await readFile(linesOutput, 'utf8'), /PUBLIC_EVIDENCE/);
     const serviceLog = await readFile(serviceLogOutput, 'utf8');
     assert.match(serviceLog, /Model override "github-copilot\/claude-sonnet-4\.6" is not allowed/);
-    assert.match(serviceLog, /OPENCLAW_GATEWAY_TOKEN=<redacted-secret>/);
-    assert.match(serviceLog, /delegate-spawned task=<redacted-payload>/);
+    assert.doesNotMatch(serviceLog, /OPENCLAW_GATEWAY_TOKEN/);
+    assert.match(serviceLog, /delegate-spawned nonce=<redacted-nonce> task=<redacted-payload>/);
     assert.doesNotMatch(serviceLog, /super-secret-gateway-token/);
     assert.doesNotMatch(serviceLog, /read your runtime context/);
     assert.doesNotMatch(serviceLog, /unrelated routine heartbeat/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('service log identity must be a supported structured field, not a note or body mention', () => {
+  const { orderedTokens } = sanitizeEvidenceRecords([{ run_id: 'row-run-123', nonce: 'row-nonce-123' }]);
+  const unrelated = [
+    'continuation runId=other-run note=row-run-123 unrelated-private-line',
+    'continuation runId=other-run body=row-run-123 unrelated-private-line',
+    'continuation runId=other-run note="runId=row-run-123" unrelated-private-line',
+    'continuation runId=other-run note=unrelated runId=row-run-123 unrelated-private-line',
+    'continuation runId=other-run runId=row-run-123 unrelated-private-line',
+    '{"runId":"other-run","note":"row-run-123","body":"unrelated-private-line"}',
+    '{"runId":"other-run","body":{"runId":"row-run-123","note":"unrelated-private-line"}}',
+    'continuation task=Proof nonce row-nonce-123 unrelated-private-line',
+    '{"runId":"row-run-123", invalid unrelated-private-line}',
+    'continuation taskId=row-run-123 unrelated-private-line',
+  ];
+  const positive = [
+    'continuation runId=row-run-123 status=ok',
+    'continuation run_id="row-run-123" status=ok',
+    '{"runId":"row-run-123","status":"ok"}',
+    'Sep 05 host gateway[123]: {"fields":{"runId":"row-run-123"},"status":"ok"}',
+    'continuation nonce=row-nonce-123 status=ok',
+  ];
+  const result = sanitizeServiceLog([...unrelated, ...positive].join('\n'), orderedTokens);
+  assert.equal(result.retainedLines, positive.length);
+  assert.doesNotMatch(result.text, /unrelated-private-line|row-run-123|row-nonce-123/);
 });

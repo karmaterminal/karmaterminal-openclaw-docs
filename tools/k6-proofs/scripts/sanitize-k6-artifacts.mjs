@@ -12,6 +12,9 @@ const RAW_PAYLOAD_KEYS = new Set([
   'prompttemplate',
   'raw',
   'rawevents',
+  'rawfinaltext',
+  'spawntask',
+  'schedulecalls',
   'redactedevents',
   'task',
 ]);
@@ -197,15 +200,47 @@ function sanitizeLog(logText, sanitizedRecords, orderedTokens) {
   return out.join('\n').replace(/\n+$/, '') + '\n';
 }
 
-const SERVICE_LOG_RELEVANT = /\b(?:continuation|continue_(?:work|delegate)|request_compaction|compaction|delegate|spawn|subagent|child session|dynamic tool|codex_dynamic_tool_error|model override|not allowed|not permitted|denied|rejected|foreign key|command queue|command-queue|gateway is draining|error|failed|failure|timeout)\b/i;
+function serviceIdentityFields(line) {
+  const fields = [];
+  const json = line.trim().startsWith('{') ? line.trim() : /:\s*(\{.*\})\s*$/u.exec(line)?.[1];
+  if (json) {
+    try {
+      const record = JSON.parse(json);
+      for (const source of [record, record.fields, record.attributes]) {
+        if (source && typeof source === 'object' && !Array.isArray(source)) {
+          fields.push(...Object.entries(source));
+        }
+      }
+    } catch { /* Malformed structured logs cannot authorize publication. */ }
+    return fields;
+  }
+  for (const match of line.matchAll(/(?:^|\s)([A-Za-z][A-Za-z0-9_.-]*)=("(?:\\.|[^"\\])*"|'[^']*'|[^\s"']+)/gu)) {
+    const [, key, raw] = match;
+    // Free-text payload tails are not structured identity fields.
+    if (['note', 'body', 'message', 'msg', 'prompt', 'task'].includes(normalizedKey(key))) break;
+    let value = raw;
+    if (raw.startsWith('"')) {
+      try { value = JSON.parse(raw); } catch { continue; }
+    } else if (raw.startsWith("'")) value = raw.slice(1, -1);
+    fields.push([key, value]);
+  }
+  return fields;
+}
 
-function sanitizeServiceLog(logText, orderedTokens) {
+export function sanitizeServiceLog(logText, orderedTokens) {
   const lines = String(logText || '').split(/\r?\n/).filter(Boolean);
   const retained = [];
+  const categories = { nonce: 'nonce', runid: 'run-id', taskid: 'task-id',
+    flowid: 'flow-id', traceid: 'trace-id', toolcallid: 'tool-call-id' };
 
   for (const line of lines) {
-    const correlated = orderedTokens.some(([token]) => line.includes(token));
-    if (!correlated && !SERVICE_LOG_RELEVANT.test(line)) continue;
+    const fields = serviceIdentityFields(line).map(([key, value]) => [normalizedKey(key), value]);
+    const correlated = fields.some(([key, value]) => {
+      if (!Object.hasOwn(categories, key) || fields.filter(([name]) => name === key).length !== 1) return false;
+      return orderedTokens.some(([token, category]) =>
+        token === value && category === `<redacted-${categories[key]}>`);
+    });
+    if (!correlated) continue;
     retained.push(scrubString(line, orderedTokens));
   }
 
@@ -214,7 +249,7 @@ function sanitizeServiceLog(logText, orderedTokens) {
     retainedLines: retained.length,
     text: retained.length > 0
       ? `${retained.join('\n')}\n`
-      : '[gateway-journal] no correlated or proof-relevant lines in the bounded capture window\n',
+      : '[gateway-journal] no positively correlated lines in the bounded capture window\n',
   };
 }
 

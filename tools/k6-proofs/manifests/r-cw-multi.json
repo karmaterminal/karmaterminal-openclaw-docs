@@ -61,12 +61,12 @@
     {
       "name": "exactly-one-wake-per-election",
       "required": true,
-      "description": "Three distinct successor run IDs settle, each mapped once to one expected delay/reason; repeated observations are deduplicated."
+      "description": "Each accepted flow maps one-to-one to an exact successful wake run and trace span through persisted context; distinct counts or label permutations are insufficient."
     },
     {
       "name": "response-token-parity",
       "required": true,
-      "description": "After the typed multi-election phase settles, a terminal CONTINUE_WORK:0 response creates one separately bound successful wake."
+      "description": "After the typed phase settles, raw terminal CONTINUE_WORK:0 binds the exact originating parser run, zero-delay flow and successful successor run/trace. 30-second or generic bracket tokens fail."
     },
     {
       "name": "trace-id",
@@ -123,6 +123,7 @@
     "requiredReceipts": [
       "three-distinct-elections",
       "exactly-one-wake-per-election",
+      "response-token-parity",
       "trace-id"
     ],
     "foldRequiresReview": true,

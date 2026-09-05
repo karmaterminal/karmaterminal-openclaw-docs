@@ -13,6 +13,8 @@ import {
   lifecycleEvent,
   renderTemplate,
   requireGatewayToken,
+  requestedTokenObserved,
+  taskRecordsForIdentity,
   uniquePush,
 } from '../lib/producer-live-harness.js';
 
@@ -72,6 +74,9 @@ export default function () {
     spawn_tool_call_id: null,
     spawn_mode: null,
     spawn_context: null,
+    spawn_task_id: null,
+    spawn_flow_id: null,
+    spawn_task: childTask,
     light_context_requested: true,
     child_tool_inventory: [],
     child_continue_work_tool_present: null,
@@ -79,6 +84,9 @@ export default function () {
     token: exactToken,
     token_grammar_valid: /^\[\[CONTINUE_WORK(?::\d+)?\]\]$/u.test(exactToken),
     raw_final_text_token_observed: false,
+    raw_final_text: null,
+    raw_final_text_run_id: null,
+    child_initial_terminal_phase: null,
     message_tool_body_token_observed: false,
     parser_origin_required: 'bracket',
     hop_two_run_id: null,
@@ -114,6 +122,9 @@ export default function () {
         idempotencyKey: `${invocation.idempotencyKeyPrefix || ROW}-${rowNonce}`,
       });
       socket.setTimeout(() => socket.close(), 180_000);
+      for (const delay of [3000, 8000, 15000, 30000, 60000, 120000]) {
+        socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 100 }), delay);
+      }
     }
 
     socket.on('open', () => {
@@ -165,8 +176,19 @@ export default function () {
           evidence.spawn_tool_call_id = spawn.toolCallId;
           evidence.spawn_mode = spawn.mode;
           evidence.spawn_context = spawn.context;
+          evidence.spawn_task_id = spawn.taskId;
+          evidence.spawn_flow_id = spawn.flowId;
           subscribe(spawn.childSessionKey);
           tracker.send(socket, 'tools.effective', { sessionKey: spawn.childSessionKey });
+        }
+        if (classified.kind === 'response' && classified.method === 'tasks.list' && classified.ok) {
+          for (const task of taskRecordsForIdentity(classified.payload, [`RCW-DELEGATE-TOKEN-${rowNonce}`])) {
+            if (task.childSessionKey === evidence.child_session_key &&
+                task.runId === evidence.child_initial_run_id) {
+              evidence.spawn_task_id = task.taskId;
+              evidence.spawn_flow_id = task.flowId;
+            }
+          }
         }
         if (classified.kind === 'response' && classified.method === 'tools.effective') {
           if (!classified.ok || !Array.isArray(classified.payload?.groups)) {
@@ -198,13 +220,22 @@ export default function () {
           evidence.child_session_key,
           evidence.child_initial_run_id,
         );
-        if (initialOutput?.text.trimEnd().endsWith(exactToken)) {
-          evidence.raw_final_text_token_observed = true;
+        if (initialOutput) {
+          evidence.raw_final_text = initialOutput.text;
+          evidence.raw_final_text_run_id = initialOutput.runId;
+          evidence.raw_final_text_token_observed =
+            initialOutput.text.trimEnd().split(/\r?\n/u).at(-1) === exactToken;
         }
         if (evidence.child_session_key) {
           const lifecycle = lifecycleEvent(classified, evidence.child_session_key);
-          if (lifecycle && lifecycle.runId !== evidence.child_initial_run_id) {
-            evidence.hop_two_run_id = lifecycle.runId;
+          if (lifecycle?.runId === evidence.child_initial_run_id &&
+              ['end', 'error'].includes(lifecycle.phase)) {
+            evidence.child_initial_terminal_phase = lifecycle.phase;
+          }
+          if (lifecycle && lifecycle.runId !== evidence.child_initial_run_id &&
+              (!evidence.hop_two_run_id || lifecycle.runId === evidence.hop_two_run_id)) {
+            if (lifecycle.phase === 'start') evidence.hop_two_run_id = lifecycle.runId;
+            if (lifecycle.runId !== evidence.hop_two_run_id) return;
             if (lifecycle.phase === 'start') evidence.hop_two_started = true;
             if (['end', 'error'].includes(lifecycle.phase)) {
               evidence.hop_two_completed = true;
@@ -250,6 +281,10 @@ export default function () {
     childBound &&
     evidence.spawn_mode === 'run' &&
     evidence.spawn_context === 'isolated' &&
+    Boolean(evidence.spawn_tool_call_id && evidence.spawn_task_id && evidence.spawn_flow_id) &&
+    requestedTokenObserved(evidence, '[[CONTINUE_WORK:5]]') &&
+    evidence.child_initial_terminal_phase === 'end' &&
+    evidence.raw_final_text_run_id === evidence.child_initial_run_id &&
     evidence.child_continue_work_tool_present === false &&
     !evidence.typed_continue_work_observed &&
     !evidence.message_tool_body_token_observed &&

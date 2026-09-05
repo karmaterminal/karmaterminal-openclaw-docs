@@ -151,8 +151,10 @@ export default function () {
           }
         }
         const lifecycle = lifecycleEvent(classified, sessionKey);
-        if (lifecycle && lifecycle.runId !== evidence.origin_run_id) {
-          evidence.hop_two_run_id = lifecycle.runId;
+        if (lifecycle && lifecycle.runId !== evidence.origin_run_id &&
+            (!evidence.hop_two_run_id || lifecycle.runId === evidence.hop_two_run_id)) {
+          if (lifecycle.phase === 'start') evidence.hop_two_run_id = lifecycle.runId;
+          if (lifecycle.runId !== evidence.hop_two_run_id) return;
           if (lifecycle.phase === 'start') evidence.hop_two_started = true;
           if (['end', 'error'].includes(lifecycle.phase)) {
             evidence.hop_two_completed = true;

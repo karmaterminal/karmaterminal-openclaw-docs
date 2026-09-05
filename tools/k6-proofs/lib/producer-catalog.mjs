@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { DEPENDENCY_RECEIPT_SCHEMA, REQUIRED_PRODUCT_SHA, validateProducerReceipt } from './producer-receipt.mjs';
 
 export const PRODUCER_CLASSIFICATIONS = new Set([
   'behavioral-live',
@@ -33,6 +34,9 @@ function inferredClassification(manifest, catalog) {
 
 export function buildProducerRegistry({ proofsDir, catalog = loadProducerCatalog(proofsDir) }) {
   const failures = [];
+  if (catalog.requiredProductSha !== REQUIRED_PRODUCT_SHA) {
+    failures.push({ code: 'producer.product-sha', message: 'catalog must bind the required product SHA' });
+  }
   const manifestEntries = loadRowManifests(proofsDir);
   const manifestByRow = new Map(
     manifestEntries.map(({ file, manifest }) => [manifest.rowId, { file, manifest }]),
@@ -162,28 +166,14 @@ function topologicalRows(rowIds, registry) {
   return { ordered, failures };
 }
 
-function receiptIsFresh(receipt, bindings, nowMs) {
-  const issuedAt = Date.parse(receipt?.issuedAt || '');
-  const expiresAt = Date.parse(receipt?.expiresAt || '');
-  return Boolean(bindings.candidateSha) &&
-    Boolean(bindings.docsSha) &&
-    receipt?.verdict === 'PASS' &&
-    receipt?.fresh === true &&
-    receipt?.consumed !== true &&
-    Number.isFinite(issuedAt) &&
-    Number.isFinite(expiresAt) &&
-    issuedAt <= nowMs &&
-    expiresAt > nowMs &&
-    receipt.candidateSha === bindings.candidateSha &&
-    receipt.docsSha === bindings.docsSha;
-}
-
 export function resolveProducerPlan({
   selection,
   registry,
   receipts = [],
   candidateSha = '',
   docsSha = '',
+  runId = '',
+  trustedIssuers = {},
   nowMs = Date.now(),
 }) {
   let rowIds;
@@ -198,6 +188,28 @@ export function resolveProducerPlan({
   }
 
   const failures = [...registry.failures];
+  const validReceipts = new Map();
+  const seenRows = new Set();
+  const seenIds = new Set();
+  const seenEvidence = new Set();
+  for (const receipt of receipts) {
+    const rowId = receipt?.rowId;
+    if (seenRows.has(rowId) || seenIds.has(receipt?.receiptId) ||
+        seenEvidence.has(receipt?.producerEvidenceId) ||
+        !registry.rows[rowId] || !validateProducerReceipt(receipt, {
+          schema: DEPENDENCY_RECEIPT_SCHEMA, rowId, candidateSha, docsSha,
+          runId, trustedIssuers, nowMs,
+        })) {
+      failures.push({ code: 'producer.receipt-invalid', message: 'untrusted, stale, replayed or duplicate dependency receipt' });
+    } else {
+      validReceipts.set(rowId, receipt);
+    }
+    seenRows.add(rowId);
+    seenIds.add(receipt?.receiptId);
+    seenEvidence.add(receipt?.producerEvidenceId);
+  }
+  // A hostile member invalidates the entire bundle, not only its row.
+  if (failures.some((failure) => failure.code === 'producer.receipt-invalid')) validReceipts.clear();
   for (const rowId of rowIds) {
     if (!registry.rows[rowId]) {
       failures.push({
@@ -212,11 +224,9 @@ export function resolveProducerPlan({
   failures.push(...topology.failures);
   const rows = topology.ordered.map((rowId) => {
     const row = registry.rows[rowId];
-    const ownReceiptSatisfied = receipts.some((receipt) => receipt?.rowId === rowId &&
-      receiptIsFresh(receipt, { candidateSha, docsSha }, nowMs));
+    const ownReceiptSatisfied = validReceipts.has(rowId);
     const missingDependencies = row.dependsOn.filter((dependency) => (
-      !receipts.some((receipt) => receipt?.rowId === dependency &&
-        receiptIsFresh(receipt, { candidateSha, docsSha }, nowMs))
+      !validReceipts.has(dependency)
     ));
     const blocked = row.classification === 'dependency-gated' &&
       (!ownReceiptSatisfied || missingDependencies.length > 0);

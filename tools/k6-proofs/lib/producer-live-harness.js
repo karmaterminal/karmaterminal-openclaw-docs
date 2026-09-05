@@ -75,6 +75,8 @@ export function acceptedSpawn(classified, expectedParentSession, expectedParentR
     childRunId: details.runId,
     mode: details.mode || null,
     context: details.context || null,
+    taskId: details.taskId || null,
+    flowId: details.flowId || null,
   };
 }
 
@@ -118,7 +120,27 @@ export function toolEvent(classified, expectedSession, expectedRun, toolName) {
     phase: identity.data.phase,
     toolCallId: identity.data.toolCallId || null,
     isError: identity.data.isError === true,
+    args: identity.data.args || null,
+    details: identity.data.result?.details || null,
   };
+}
+
+export function collectionTerminalComplete(evidence) {
+  return Boolean(evidence.root_collection_run_id &&
+    evidence.root_collection_run_id !== evidence.root_run_id &&
+    evidence.root_collection_started === true &&
+    evidence.root_collection_terminal_phase === 'end' &&
+    evidence.root_collection_output_run_id === evidence.root_collection_run_id &&
+    evidence.root_collection_terminal_run_id === evidence.root_collection_run_id &&
+    evidence.root_collected_at_ms >= evidence.c_terminal_at_ms &&
+    evidence.root_collection_terminal_at_ms >= evidence.root_collected_at_ms);
+}
+
+export function requestedTokenObserved(evidence, token) {
+  return evidence.token === token && evidence.token_grammar_valid === true &&
+    evidence.raw_final_text_token_observed === true &&
+    typeof evidence.raw_final_text === 'string' &&
+    evidence.raw_final_text.trimEnd().split(/\r?\n/u).at(-1) === token;
 }
 
 export function assistantTextEvent(classified, expectedSession, expectedRun = null) {

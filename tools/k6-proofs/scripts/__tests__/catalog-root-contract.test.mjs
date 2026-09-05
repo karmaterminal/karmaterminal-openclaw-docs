@@ -73,6 +73,7 @@ async function fixtureRepo({ scenarios = ['r-ok.js'], manifests = [manifest()] }
     path.join(proofs, 'qualification/producer-catalog.json'),
     `${JSON.stringify({
       schema: 'openclaw.k6.proof-producer-catalog.v2',
+      requiredProductSha: '7cb9d71f622250bedbf565e327bd7d7b9d90b567',
       requiredBehavioralRows: [],
       defaults: { 'k6-runnable': 'behavioral-live' },
       rows: { 'R-OK': { classification: 'behavioral-live', scenario: 'r-ok.js' } },

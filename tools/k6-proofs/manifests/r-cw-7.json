@@ -40,7 +40,7 @@
     {
       "name": "final-sha-live-trace",
       "required": true,
-      "description": "Origin tool run, continuation.work, continuation.work.fire, and distinct completed successor run join in raw Tempo JSON."
+      "description": "Exact TaskFlow flowId and persisted origin/trace context join continuation.work, continuation.work.fire and the exact successful lifecycle successor run; unrelated spans in a time window do not qualify."
     },
     {
       "name": "trace-id",

@@ -16,7 +16,10 @@
  * Stdout prints a compact JSON receipt. No secrets, session keys, prompts, nonces,
  * raw events, or local private paths are emitted into metric labels.
  */
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, rm } from 'node:fs/promises';
+import { publishArtifacts } from '../lib/atomic-artifacts.mjs';
+import { effectiveFailure, effectiveOutcome } from '../lib/effective-result.mjs';
+import { processTerminalValid, resolveProcessRowIdentity } from '../lib/process-terminal-authority.mjs';
 import path from 'node:path';
 import {
   consumeRcd2Authority,
@@ -198,6 +201,9 @@ async function normalizeFromRunDir(runDir) {
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const summaryName = pickSummaryFile(files);
   const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : {};
+  const rowResult = files.includes('row-result.json') ? await readJson(path.join(runDir, 'row-result.json')) : null;
+  const identityInputs = { runDir, manifest, metadata, runResult, rowResult, summary,
+    evidence: evidenceRows[0], envelope: candidate };
   const rCd2Required = isRcd2AuthorityRequired({
     runDir,
     envelope: candidate,
@@ -232,16 +238,17 @@ async function normalizeFromRunDir(runDir) {
       })
     : null;
 
-  const rowId = authority?.identity.row || metadata.row || manifest.rowId || summary.row || 'unknown';
+  const rowId = resolveProcessRowIdentity(identityInputs) || 'unknown';
   const candidateSha = authority?.identity.candidateSha || metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
   const seat = authority?.identity.seat || metadata.seat || manifest.seat || summary.seat || 'unknown';
   const scenario = authority?.identity.scenario || metadata.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
   const effectiveExitCode = Number(runResult.effectiveExitCode ?? runResult.k6ExitCode ?? 0);
-  const outcome = authority?.outcome || runResult.verdict || summary.verdict ||
-    (effectiveExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
-  const proofFailures = Number(
+  const processValid = processTerminalValid(identityInputs);
+  const outcome = effectiveFailure(runResult) || !processValid ? 'FAIL-candidate' :
+    (authority?.outcome || effectiveOutcome(runResult, summary.verdict));
+  const proofFailures = Math.max(effectiveFailure(runResult) || !processValid ? 1 : 0, Number(
     summary?.metrics?.failures ?? runResult.proofFailures ?? (effectiveExitCode === 0 ? 0 : 1),
-  );
+  ));
   const candidateOnly = authority?.candidateOnly ??
     (runResult.candidateOnly !== undefined ? Boolean(runResult.candidateOnly) : true);
   const foldRequiresReview = authority?.foldRequiresReview ??
@@ -258,6 +265,7 @@ async function normalizeFromRunDir(runDir) {
     toolSurface: manifest.toolSurface || 'unknown',
     transport: manifest.transport || 'unknown',
     outcome,
+    terminalAuthorityFailed: !processValid,
     metrics: {
       proofFailures,
       checksRate: checksRateFromSummary(summary),
@@ -290,6 +298,21 @@ async function normalizeInput(args) {
         ? readOptionalJson(path.join(runDir, 'candidate-run-result.json'))
         : null,
     ]);
+    const summaryName = pickSummaryFile(files);
+    const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : null;
+    const evidenceRows = files.includes('evidence.jsonl')
+      ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
+    const identityInputs = { runDir, manifest, metadata, runResult, rowResult: result,
+      summary, evidence: evidenceRows[0], envelope: candidate };
+    const processValid = processTerminalValid(identityInputs);
+    const rowId = resolveProcessRowIdentity(identityInputs) || 'unknown';
+    const resolvedResult = {
+      ...result, rowId,
+      runId: result.runId ?? metadata.runId ?? path.basename(runDir),
+      candidateSha: result.candidateSha ?? metadata.candidateSha,
+      seat: result.seat ?? metadata.seat,
+      scenario: result.scenario ?? metadata.scenario,
+    };
     const rCd2Required = isRcd2AuthorityRequired({
       runDir,
       envelope: candidate,
@@ -321,19 +344,23 @@ async function normalizeInput(args) {
         rowResult: result,
       });
       return {
-        ...result,
+        ...resolvedResult,
         rowId: authority.identity.row,
         runId: authority.identity.runId,
         candidateSha: authority.identity.candidateSha,
         seat: authority.identity.seat,
         scenario: authority.identity.scenario,
-        outcome: authority.outcome,
+        outcome: effectiveFailure(runResult) || !processValid ? 'FAIL-candidate' : authority.outcome,
+        terminalAuthorityFailed: !processValid,
         candidateOnly: authority.candidateOnly,
         foldRequiresReview: authority.foldRequiresReview,
         review: authority.review,
       };
     }
-    return result;
+    return effectiveFailure(runResult) || effectiveFailure(result) || !processValid
+      ? { ...resolvedResult, outcome: 'FAIL-candidate', terminalAuthorityFailed: !processValid,
+          metrics: { ...result.metrics, proofFailures: Math.max(1, result.metrics?.proofFailures || 0) } }
+      : resolvedResult;
   }
   if (args['run-dir']) return normalizeFromRunDir(args['run-dir']);
   throw new Error('missing --row-result or --run-dir');
@@ -472,10 +499,11 @@ async function main() {
   const otlp = otlpJson(samples);
   const prom = prometheusText(samples);
 
-  if (args['prometheus-out']) await writeFile(args['prometheus-out'], prom);
-  if (args['otlp-out']) await writeFile(args['otlp-out'], `${JSON.stringify(otlp, null, 2)}\n`);
-
   let push = null;
+  await publishArtifacts([
+    ...(args['prometheus-out'] ? [[args['prometheus-out'], prom]] : []),
+    ...(args['otlp-out'] ? [[args['otlp-out'], `${JSON.stringify(otlp, null, 2)}\n`]] : []),
+  ]);
   if (args['push-otlp']) push = await pushOtlp(args['push-otlp'], otlp);
 
   console.log(JSON.stringify({
@@ -490,9 +518,14 @@ async function main() {
     otlpOut: args['otlp-out'] ? path.basename(args['otlp-out']) : null,
     push,
   }, null, 2));
+  if (result.terminalAuthorityFailed) process.exitCode = 1;
 }
 
-main().catch((error) => {
+main().catch(async (error) => {
+  let args = {};
+  try { args = parseArgs(process.argv); } catch { /* No validated output paths. */ }
+  await Promise.all(['prometheus-out', 'otlp-out'].filter((key) => args[key])
+    .map((key) => rm(args[key], { force: true }).catch(() => {})));
   console.error(error && error.stack ? error.stack : String(error));
   process.exitCode = 1;
 });

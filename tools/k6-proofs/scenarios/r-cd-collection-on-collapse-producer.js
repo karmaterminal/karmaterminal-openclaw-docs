@@ -7,6 +7,7 @@ import {
   acceptedSpawn,
   assistantTextEvent,
   boolEnv,
+  collectionTerminalComplete,
   disposableSessionKey,
   eventDedupKey,
   eventIdentity,
@@ -93,6 +94,11 @@ export default function () {
     c_terminal_at_ms: null,
     c_terminal_phase: null,
     root_collection_run_id: null,
+    root_collection_started: false,
+    root_collection_output_run_id: null,
+    root_collection_terminal_run_id: null,
+    root_collection_terminal_phase: null,
+    root_collection_terminal_at_ms: null,
     root_collected_at_ms: null,
     delegate_mode: invocation.mode || 'normal',
     fanout_mode: invocation.fanoutMode || 'tree',
@@ -238,7 +244,8 @@ export default function () {
           }
         }
         if (evidence.c_session_key) {
-          const cLifecycle = lifecycleEvent(classified, evidence.c_session_key);
+          const cLifecycle = evidence.c_run_id
+            ? lifecycleEvent(classified, evidence.c_session_key, evidence.c_run_id) : null;
           if (cLifecycle?.phase === 'start') {
             evidence.c_run_id = cLifecycle.runId;
             evidence.c_started_at_ms = cLifecycle.startedAt || Date.now();
@@ -249,16 +256,29 @@ export default function () {
             evidence.c_terminal_phase = cLifecycle.phase;
           }
         }
-        const rootText = assistantTextEvent(classified, rootSessionKey);
+        const rootLifecycle = lifecycleEvent(classified, rootSessionKey);
+        if (rootLifecycle?.phase === 'start' && evidence.c_terminal_phase === 'end' &&
+            rootLifecycle.runId !== evidence.root_run_id && !evidence.root_collection_run_id) {
+          evidence.root_collection_run_id = rootLifecycle.runId;
+          evidence.root_collection_started = true;
+        }
+        if (rootLifecycle && rootLifecycle.runId === evidence.root_collection_run_id &&
+            ['end', 'error'].includes(rootLifecycle.phase)) {
+          evidence.root_collection_terminal_run_id = rootLifecycle.runId;
+          evidence.root_collection_terminal_phase = rootLifecycle.phase;
+          evidence.root_collection_terminal_at_ms = rootLifecycle.endedAt || Date.now();
+        }
+        const rootText = evidence.root_collection_run_id
+          ? assistantTextEvent(classified, rootSessionKey, evidence.root_collection_run_id) : null;
         if (rootText?.text.includes(`ROOT-COLLECTED ${rowNonce}`)) {
-          evidence.root_collection_run_id = rootText.runId;
+          evidence.root_collection_output_run_id = rootText.runId;
           evidence.root_collected_at_ms = rootText.ts || Date.now();
         }
 
         if (evidence.b_terminal_at_ms &&
             evidence.c_started_at_ms &&
             evidence.c_terminal_at_ms &&
-            evidence.root_collected_at_ms) {
+            collectionTerminalComplete(evidence)) {
           socket.close();
         }
       } catch {
@@ -293,6 +313,7 @@ export default function () {
     evidence.fanout_mode === 'tree' &&
     distinctSessions &&
     lineageBound &&
+    collectionTerminalComplete(evidence) &&
     evidence.b_delegate_tool_started &&
     evidence.b_delegate_tool_scheduled &&
     evidence.b_delegate_mode_observed &&

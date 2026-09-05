@@ -712,3 +712,30 @@ test('an approved live run freezes the docs ref and records the exact harness di
       assert.doesNotMatch(receipt, new RegExp(harness.root.replaceAll('/', '\\/')));
   });
 });
+
+test('blocked dependencies retain exit 78 and record concurrent row failures', async () => {
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      assert.equal(result.code, HARNESS_INFRA_EXIT, result.stderr);
+      const receipt = await controlReceipt(harness);
+      assert.equal(receipt.stage, 'dependency-gated', JSON.stringify(receipt));
+      assert.equal(receipt.exitCode, HARNESS_INFRA_EXIT);
+      assert.equal(receipt.detail.check, 'producer-dependencies');
+      assert.ok(receipt.detail.rowFailures.length > 0);
+      assert.ok(receipt.detail.rowFailures.every((failure) => /^[A-Z0-9-]+:\d+$/u.test(failure)));
+    },
+    {
+      rows: 'all',
+      k6ShimFor: () => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then',
+        "  printf '%s\\n' 'k6 v2.0.0'",
+        '  exit 0',
+        'fi',
+        'exit 2',
+        '',
+      ].join('\n'),
+    },
+  );
+});

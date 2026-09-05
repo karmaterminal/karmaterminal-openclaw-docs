@@ -972,7 +972,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         > "$PROCESS_RUN_DIR/run-result.json"
       ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
       MATRIX_EXIT_CODE=1
-      MATRIX_ROW_FAILURES+=("$ROW_ID")
+      MATRIX_ROW_FAILURES+=("$ROW_ID:1")
       continue
     fi
     ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
@@ -1012,7 +1012,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       > "$PROCESS_RUN_DIR/run-result.json"
     if [[ "$process_rc" -ne 0 ]]; then
       MATRIX_EXIT_CODE=1
-      MATRIX_ROW_FAILURES+=("$ROW_ID")
+      MATRIX_ROW_FAILURES+=("$ROW_ID:$process_rc")
     fi
     continue
   fi
@@ -1189,7 +1189,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           > "$RUN_DIR/run-result.json"
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         MATRIX_EXIT_CODE=1
-        MATRIX_ROW_FAILURES+=("$ROW_ID")
+        MATRIX_ROW_FAILURES+=("$ROW_ID:1")
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
         continue
@@ -1216,7 +1216,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         PRIVATE_PREREQ_STDERR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
         MATRIX_EXIT_CODE=1
-        MATRIX_ROW_FAILURES+=("$ROW_ID")
+        MATRIX_ROW_FAILURES+=("$ROW_ID:1")
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
         continue

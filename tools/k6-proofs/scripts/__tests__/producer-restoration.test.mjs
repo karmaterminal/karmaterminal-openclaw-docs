@@ -323,6 +323,7 @@ test('blocked whole-set dependency classification takes precedence over row exit
   assert.ok(rowFailures >= 0);
   assert.ok(blocked < rowFailures);
   assert.match(runner, /rowFailures:\(\$rowFailures \| if length == 0 then \[\] else split\(" "\) end\)/u);
+  assert.doesNotMatch(runner, /MATRIX_ROW_FAILURES\+=\("\$ROW_ID"\)/u);
 });
 
 test('multi rejects duplicate flows and repeated/multiply-labelled wakes', async () => {

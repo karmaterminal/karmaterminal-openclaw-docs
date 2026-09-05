@@ -13,6 +13,8 @@
     "k6",
     "gateway",
     "continuation",
+    "target",
+    "bindings",
     "candidate",
     "seat",
     "session",
@@ -22,7 +24,7 @@
   ],
   "properties": {
     "schema": {
-      "const": "openclaw.k6.seat-readiness.v1"
+      "const": "openclaw.k6.seat-readiness.v2"
     },
     "generatedAt": {
       "type": "string",
@@ -120,9 +122,7 @@
         "mode"
       ],
       "properties": {
-        "url": {
-          "type": "string"
-        },
+        "url": { "type": ["string", "null"] },
         "healthReachable": {
           "type": "boolean"
         },
@@ -314,6 +314,21 @@
           ]
         }
       }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gatewayUrlFingerprint", "expectedGatewayUrlFingerprint", "configuredMaxSpawnDepth", "effectiveMaxSpawnDepth", "requiredMaxSpawnDepth", "expectedMaxSpawnDepth", "rpcReachable"],
+      "properties": {
+        "gatewayUrlFingerprint": { "type": ["string", "null"] }, "expectedGatewayUrlFingerprint": { "type": ["string", "null"] },
+        "configuredMaxSpawnDepth": { "type": ["integer", "null"] }, "effectiveMaxSpawnDepth": { "type": ["integer", "null"] },
+        "requiredMaxSpawnDepth": { "type": ["integer", "null"] }, "expectedMaxSpawnDepth": { "type": ["integer", "null"] }, "rpcReachable": { "type": "boolean" }
+      }
+    },
+    "bindings": {
+      "type": "object", "additionalProperties": false,
+      "required": ["runtimeSha", "docsSha", "gatewayUnit", "selectedRows"],
+      "properties": { "runtimeSha": { "type": ["string", "null"] }, "docsSha": { "type": ["string", "null"] }, "gatewayUnit": { "type": ["string", "null"] }, "selectedRows": { "type": ["string", "null"] } }
     }
   }
 }

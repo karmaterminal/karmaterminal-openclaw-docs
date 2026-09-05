@@ -10,6 +10,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { configuredDepth, evaluateTarget, inspectTarget } from './target-readiness.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '../../..');
@@ -138,25 +139,12 @@ function redactRawVersion(rawVersion) {
   return rawVersion.replace(/(token|secret|password|authorization|bearer)=[^\s]+/gi, '$1=<redacted>');
 }
 
-function readContinuationConfig() {
-  const out = jsonCommandOrNull('openclaw', ['config', 'get', 'agents.defaults.continuation', '--json']);
-  const config = out.data && typeof out.data === 'object' ? out.data : null;
-  return {
-    mode: out.ok ? 'checked' : 'unavailable',
-    enabled: typeof config?.enabled === 'boolean' ? config.enabled : null,
-    maxChainLengthPresent: config && Object.prototype.hasOwnProperty.call(config, 'maxChainLength'),
-    maxDelegatesPerTurnPresent: config && Object.prototype.hasOwnProperty.call(config, 'maxDelegatesPerTurn'),
-    costCapTokensPresent: config && Object.prototype.hasOwnProperty.call(config, 'costCapTokens'),
-    error: out.error,
-  };
-}
-
 function printText(report) {
   console.log(`seat readiness: ${report.outcome}`);
   console.log(`policy: ${report.policy.name} ${report.policy.version}`);
   console.log(`k6: ${report.k6.version || 'missing'} at ${report.k6.path || '(not found)'} (expected ${report.expectedK6Version})`);
-  console.log(`gateway: ${report.gateway.mode}; health=${report.gateway.healthReachable}; status=${report.gateway.statusReachable}; url=${report.gateway.url}`);
-  console.log(`continuation: ${report.continuation.mode}; enabled=${report.continuation.enabled}; defaults=${report.continuation.defaultsPresent}`);
+  console.log(`gateway: ${report.gateway.mode}; health=${report.gateway.healthReachable}; status=${report.gateway.statusReachable}; fingerprint=${report.target.gatewayUrlFingerprint || 'unknown'}`);
+  console.log(`continuation: target-rpc=${report.target.rpcReachable}; configured-depth=${report.target.configuredMaxSpawnDepth ?? 'unknown'}; required=${report.target.requiredMaxSpawnDepth ?? 'unknown'}`);
   console.log(`candidate sha: ${report.candidate.valid40Hex ? 'valid' : 'missing/invalid'}`);
   console.log(`seat: ${report.seat.name}; session scope: ${report.session.scope}`);
   console.log(`concurrency: ${report.concurrency.safeToRunConcurrently ? 'safe' : 'serialized'} — ${report.concurrency.reason}`);
@@ -179,23 +167,31 @@ async function main() {
   k6.rawVersion = redactRawVersion(k6.rawVersion);
   k6.checked = k6.checked.map((item) => ({ ...item, rawVersion: redactRawVersion(item.rawVersion) }));
 
-  const gatewayWs = process.env.OPENCLAW_GATEWAY_WS || policy.gateway.defaultWsUrl || 'ws://127.0.0.1:18789';
-  const gatewayBase = httpBaseFromWs(gatewayWs);
+  const gatewayWs = process.env.OPENCLAW_GATEWAY_WS || '';
+  const gatewayBase = gatewayWs ? httpBaseFromWs(gatewayWs) : null;
   const token = process.env.OPENCLAW_GATEWAY_TOKEN;
-  let gateway = { url: gatewayWs, healthReachable: false, statusReachable: false, mode: 'skipped-by-flag' };
+  let gateway = { url: null, healthReachable: false, statusReachable: false, mode: 'skipped-by-flag' };
   if (args.gateway && !token) {
     gateway = { ...gateway, mode: 'skipped-no-token' };
-  } else if (args.gateway) {
+  } else if (args.gateway && gatewayBase) {
     gateway = {
-      url: gatewayWs,
+      url: null,
       healthReachable: await fetchOk(`${gatewayBase}/health`, token),
       statusReachable: await fetchOk(`${gatewayBase}/status`, token),
       mode: 'checked',
     };
   }
 
-  const continuation = readContinuationConfig();
-  continuation.defaultsPresent = Boolean(continuation.maxChainLengthPresent && continuation.maxDelegatesPerTurnPresent && continuation.costCapTokensPresent);
+  const targetRpc = args.gateway && token && gatewayWs ? await inspectTarget(gatewayWs, token) : { reachable: false, config: null };
+  const targetCheck = evaluateTarget({
+    wsUrl: gatewayWs,
+    expectedFingerprint: process.env.OPENCLAW_GATEWAY_URL_FINGERPRINT,
+    observedDepth: configuredDepth(targetRpc.config),
+    requiredDepth: Number(process.env.OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH),
+    expectedDepth: Number(process.env.OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH),
+    rpcReachable: targetRpc.reachable,
+  });
+  const continuation = { mode: targetRpc.reachable ? 'checked' : 'unavailable', enabled: null, defaultsPresent: targetCheck.pass, maxChainLengthPresent: null, maxDelegatesPerTurnPresent: null, costCapTokensPresent: null, error: targetRpc.reachable ? null : 'target-rpc-unavailable' };
 
   const candidateSha = process.env.OPENCLAW_CANDIDATE_SHA || null;
   const env = envReport(policy);
@@ -205,19 +201,20 @@ async function main() {
   else if (!k6.matchesExpected) notes.push(`k6 version mismatch: expected ${expectedK6Version}, got ${k6.version}.`);
   if (gateway.mode === 'checked' && (!gateway.healthReachable || !gateway.statusReachable)) notes.push('gateway health/status not reachable from this seat.');
   if (gateway.mode === 'skipped-no-token') notes.push('gateway reachability skipped because OPENCLAW_GATEWAY_TOKEN is absent; token value was not printed.');
-  if (continuation.mode !== 'checked') notes.push('continuation config could not be read with openclaw config get agents.defaults.continuation --json.');
-  else if (continuation.enabled !== true) notes.push('agents.defaults.continuation.enabled is not true; live continuation proof rows must not run.');
-  else if (!continuation.defaultsPresent) notes.push('continuation config is missing one or more required default fields.');
+  notes.push(...targetCheck.notes);
   if (requiredMissing.length) notes.push(`missing required env: ${requiredMissing.join(', ')}.`);
 
   const valid40Hex = typeof candidateSha === 'string' && /^[0-9a-f]{40}$/.test(candidateSha);
   if (!valid40Hex) notes.push('OPENCLAW_CANDIDATE_SHA is missing or not a 40-char lowercase hex SHA.');
+  if (!/^[0-9a-f]{40}$/.test(process.env.OPENCLAW_RUNTIME_SHA || '')) notes.push('runtime-sha-invalid');
+  if (!/^[0-9a-f]{40}$/.test(process.env.OPENCLAW_DOCS_SHA || '')) notes.push('docs-sha-invalid');
+  if (!process.env.OPENCLAW_GATEWAY_UNIT) notes.push('gateway-unit-unknown');
+  if (process.env.OPENCLAW_SESSION_KEY === 'main') notes.push('session-not-disposable');
 
-  const continuationReady = continuation.mode === 'checked' && continuation.enabled === true && continuation.defaultsPresent;
-  const pass = k6.ok && k6.matchesExpected && continuationReady && valid40Hex && requiredMissing.length === 0 && (gateway.mode !== 'checked' || (gateway.healthReachable && gateway.statusReachable));
+  const pass = k6.ok && k6.matchesExpected && targetCheck.pass && valid40Hex && /^[0-9a-f]{40}$/.test(process.env.OPENCLAW_RUNTIME_SHA || '') && /^[0-9a-f]{40}$/.test(process.env.OPENCLAW_DOCS_SHA || '') && Boolean(process.env.OPENCLAW_GATEWAY_UNIT) && process.env.OPENCLAW_SESSION_KEY !== 'main' && requiredMissing.length === 0 && gateway.healthReachable && gateway.statusReachable;
 
   const report = {
-    schema: 'openclaw.k6.seat-readiness.v1',
+    schema: 'openclaw.k6.seat-readiness.v2',
     generatedAt: new Date().toISOString(),
     outcome: pass ? 'PASS-candidate' : 'PARTIAL-candidate',
     policy: {
@@ -228,6 +225,16 @@ async function main() {
     expectedK6Version,
     k6,
     gateway,
+    target: {
+      gatewayUrlFingerprint: targetCheck.actualFingerprint,
+      expectedGatewayUrlFingerprint: process.env.OPENCLAW_GATEWAY_URL_FINGERPRINT || null,
+      configuredMaxSpawnDepth: targetCheck.observedDepth,
+      effectiveMaxSpawnDepth: targetCheck.observedDepth,
+      requiredMaxSpawnDepth: Number.isInteger(Number(process.env.OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH)) ? Number(process.env.OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH) : null,
+      expectedMaxSpawnDepth: Number.isInteger(Number(process.env.OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH)) ? Number(process.env.OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH) : null,
+      rpcReachable: targetRpc.reachable,
+    },
+    bindings: { runtimeSha: process.env.OPENCLAW_RUNTIME_SHA || null, docsSha: process.env.OPENCLAW_DOCS_SHA || null, gatewayUnit: process.env.OPENCLAW_GATEWAY_UNIT || null, selectedRows: process.env.OPENCLAW_SELECTED_ROWS || null },
     continuation,
     candidate: { sha: candidateSha, valid40Hex },
     seat: {

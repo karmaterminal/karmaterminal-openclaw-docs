@@ -22,10 +22,10 @@ tools/k6-proofs/
 ## Prerequisites
 
 - [Grafana k6](https://grafana.com/docs/k6/latest/get-started/installation/) installed on the run seat. The proof-standard expectation is centralized in [`seat-readiness.policy.json`](seat-readiness.policy.json) (`v2.0.0` unless the policy or row issue explicitly says otherwise).
-- A running OpenClaw gateway on the local seat.
+- An explicit, network-reachable OpenClaw gateway target; runner-local configuration is never target authority.
 - Run `node tools/k6-proofs/scripts/seat-readiness-preflight.mjs` before treating row output as proof-standard. A version/env/gateway mismatch is `PARTIAL-candidate`, not product failure.
 - Environment variables:
-  - `OPENCLAW_GATEWAY_WS` — WebSocket URL (default: `ws://127.0.0.1:18789`)
+  - `OPENCLAW_GATEWAY_WS` + `OPENCLAW_GATEWAY_URL_FINGERPRINT` — explicit target and canonical URL fingerprint
   - `OPENCLAW_GATEWAY_TOKEN` — operator auth token (**required for live rows, never in source**)
   - `OPENCLAW_SESSION_KEY` — target session key (**required explicitly for live rows that set `liveRunSafety.requiresTargetSessionKey=true`**); use an agent-prefixed key such as `agent:main:main` on multi-agent gateways so disposable sessions inherit an explicit owner
   - `OPENCLAW_CANDIDATE_SHA` — 40-char deploy SHA for this proof run
@@ -125,7 +125,7 @@ The helper emits `openclaw.k6.seat-readiness.v1` JSON and never prints secret va
 - k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
 - every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
 - gateway health/status reachability shape
-- continuation config readiness from `openclaw config get agents.defaults.continuation --json`, including `enabled=true` and presence of `maxChainLength`, `maxDelegatesPerTurn`, and `costCapTokens`
+- authenticated target `config.get` readiness, including explicit target `agents.defaults.subagents.maxSpawnDepth`; unknown or insufficient target depth stops before row traffic
 - candidate SHA validity, seat name/class, and coarse session scope
 - required env-var presence as booleans only, plus public-safe purpose strings from the policy
 - whether the check is safe to run concurrently

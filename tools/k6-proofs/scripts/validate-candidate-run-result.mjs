@@ -9,6 +9,10 @@ import { readFile, writeFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import {
+  artifactSigningKey,
+  buildArtifactAuthority,
+} from '../lib/artifact-authority.mjs';
+import {
   consumeRcd2Authority,
   isRcd2AuthorityRequired,
   R_CD_2_RECEIPT_FILE,
@@ -198,7 +202,9 @@ function authoritativeReceiptContract(rowId) {
 async function listSafeArtifacts(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   return entries
-    .filter((entry) => entry.isFile() && isSafeCandidateArtifact(entry.name))
+    .filter((entry) => entry.isFile() &&
+      entry.name !== 'candidate-run-result.json' &&
+      isSafeCandidateArtifact(entry.name))
     .map((entry) => entry.name)
     .sort();
 }
@@ -293,6 +299,26 @@ async function main() {
     tempoTraceJson: safeRelative(observability.tempoTraceJson, 'tempo trace artifact'),
     correlationReceipt: safeRelative(observability.correlationReceipt, 'correlation receipt artifact'),
   };
+  for (const reference of [artifacts.tempoTraceJson, artifacts.correlationReceipt]) {
+    if (reference && !artifacts.files.includes(reference)) {
+      throw new Error(`observability artifact is absent from the public artifact allowlist: ${reference}`);
+    }
+  }
+  const artifactReferences = [
+    ...artifacts.files,
+    artifacts.manifest,
+    artifacts.scenario,
+    artifacts.runnerMetadata,
+    artifacts.runResult,
+    artifacts.tempoTraceJson,
+    artifacts.correlationReceipt,
+    authoritativeReceipt ? authoritative.file : null,
+  ].filter(Boolean);
+  const artifactAuthority = buildArtifactAuthority({
+    directory: candidateDir,
+    names: [...new Set(artifactReferences)],
+    signingKey: artifactSigningKey(),
+  });
   const envelope = {
     schema: 'openclaw.k6.candidate-run-result.v1',
     candidateOnly: true,
@@ -321,6 +347,7 @@ async function main() {
     ...(authoritativeReceipt ? { authoritativeReceipt: { file: authoritative.file, sha256: runResult.authoritativeReceipt.sha256 } } : {}),
     review: { status: review.status, pendingReceipts: [], complete: true },
     artifacts,
+    artifactAuthority,
   };
 
   if (args.out) {

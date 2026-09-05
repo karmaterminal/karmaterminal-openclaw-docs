@@ -5,12 +5,14 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { buildArtifactAuthority } from '../../lib/artifact-authority.mjs';
 
 const script = path.resolve('tools/k6-proofs/scripts/render-run-report.mjs');
 const docsRef = 'a'.repeat(40);
 const repository = 'karmaterminal/karmaterminal-openclaw-docs';
 const scenarioSource = 'export default function scenario() { return true; }\n';
 const digest = (value) => createHash('sha256').update(value).digest('hex');
+const artifactKey = 'report-artifact-key';
 
 /**
  * Write the copied manifest/scenario sources the runner captures alongside a
@@ -109,7 +111,12 @@ test('uses candidate-run-result.v1 as the unambiguous review input when present'
     await writeFile(path.join(runDir, 'r-cw-1-summary.json'), `${JSON.stringify({
       metrics: { duration_ms: { avg: 4321 } },
     })}\n`);
-    await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify({
+    await writeFile(path.join(runDir, 'continuation-correlation.json'), `${JSON.stringify({
+      schema: 'openclaw.k6.continuation-trace-correlation.v1',
+    })}\n`);
+    const files = ['row-manifest.json', 'row-scenario.js', 'runner-metadata.json',
+      'run-result.json', 'r-cw-1-summary.json', 'continuation-correlation.json'];
+    const envelope = {
       schema: 'openclaw.k6.candidate-run-result.v1',
       candidateOnly: true, foldRequiresReview: true, canonicalFoldForbidden: true,
       candidate: { sha, docsRef },
@@ -119,12 +126,21 @@ test('uses candidate-run-result.v1 as the unambiguous review input when present'
       observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
       review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
       artifacts: envelopeArtifacts({
-        files: ['row-manifest.json', 'row-scenario.js', 'runner-metadata.json', 'run-result.json', 'candidate-run-result.json', 'r-cw-1-summary.json'],
+        files,
         correlationReceipt: 'continuation-correlation.json',
       }),
-    }, null, 2)}\n`);
+      artifactAuthority: buildArtifactAuthority({
+        directory: runDir,
+        names: files,
+        signingKey: artifactKey,
+      }),
+    };
+    await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify(envelope, null, 2)}\n`);
     const out = path.join(root, 'report.html');
-    const run = spawnSync(process.execPath, [script, '--root', root, '--out', out], { encoding: 'utf8' });
+    const run = spawnSync(process.execPath, [script, '--root', root, '--out', out], {
+      encoding: 'utf8',
+      env: { ...process.env, OPENCLAW_ARTIFACT_MANIFEST_KEY: artifactKey },
+    });
     assert.equal(run.status, 0, run.stderr);
     const html = await readFile(out, 'utf8');
     assert.match(html, /R-CW-1/);

@@ -100,6 +100,37 @@ function parserBound(log, session, run, delayMs) {
     lines.filter((line) => /\beffective-signal: origin=bracket kind=work(?:\s|$)/u.test(line)).length === 1;
 }
 
+export function delegateSpawnBound(flow, evidence, expectedTask, log) {
+  if (!flow ||
+      flow.controllerId !== 'core/continuation-delegate' ||
+      flow.status !== 'succeeded' ||
+      flow.stateJson?.disposition !== 'granted' ||
+      flow.stateJson.task !== expectedTask ||
+      flow.ownerKey !== evidence.parent_session_key ||
+      flow.stateJson.originRunId !== evidence.parent_run_id ||
+      flow.stateJson.childSessionKey !== evidence.child_session_key ||
+      flow.stateJson.childRunId !== evidence.child_initial_run_id) {
+    return false;
+  }
+  const trace = /^00-([a-f0-9]{32})-([a-f0-9]{16})-0[01]$/u.exec(
+    flow.stateJson.traceparent || '',
+  );
+  if (!trace) return false;
+  const [traceId] = trace.slice(1);
+  return log.split(/\r?\n/u).filter((line) =>
+    field(line, 'controllerId', flow.controllerId) &&
+    field(line, 'toolCallId', evidence.spawn_tool_call_id) &&
+    field(line, 'taskId', evidence.spawn_task_id) &&
+    field(line, 'flowId', evidence.spawn_flow_id) &&
+    field(line, 'taskSha256', createHash('sha256').update(expectedTask).digest('hex')) &&
+    field(line, 'originRunId', evidence.parent_run_id) &&
+    field(line, 'childSessionKey', evidence.child_session_key) &&
+    field(line, 'childRunId', evidence.child_initial_run_id) &&
+    field(line, 'traceId', traceId) &&
+    field(line, 'status', 'succeeded') &&
+    field(line, 'disposition', 'granted')).length === 1;
+}
+
 function spansOf(trace) {
   if (Array.isArray(trace?.spans)) return trace.spans;
   return (trace?.batches || trace?.resourceSpans || []).flatMap((batch) =>
@@ -244,23 +275,14 @@ export function validateLineage({ row, evidence, manifest, flows, gatewayLog = '
         !parserBound(gatewayLog, evidence.child_session_key, evidence.child_initial_run_id, 5000)) {
       failures.push('exact requested raw token, delay and run-bound parser origin required');
     }
-    const spawn = flows.filter((entry) => entry.flowId === evidence.spawn_flow_id &&
-      entry.ownerKey === evidence.parent_session_key &&
-      entry.stateJson.childSessionKey === evidence.child_session_key &&
-      entry.stateJson.originRunId === evidence.parent_run_id &&
-      entry.stateJson.task === evidence.spawn_task);
     const expectedTask = renderRowTaskTemplate(manifest.invocation.promptTemplate, evidence.nonce, {
       token: '[[CONTINUE_WORK:5]]',
     });
+    const spawn = flows.filter((entry) => entry.flowId === evidence.spawn_flow_id);
     if (spawn.length !== 1 || evidence.spawn_task !== expectedTask ||
         !evidence.spawn_tool_call_id || !evidence.spawn_task_id ||
         evidence.spawn_mode !== 'run' || evidence.spawn_context !== 'isolated' ||
-        !gatewayLog.split(/\r?\n/u).some((line) =>
-          field(line, 'toolCallId', evidence.spawn_tool_call_id) &&
-          field(line, 'taskId', evidence.spawn_task_id) &&
-          field(line, 'flowId', evidence.spawn_flow_id) &&
-          field(line, 'childSessionKey', evidence.child_session_key) &&
-          field(line, 'runId', evidence.child_initial_run_id))) {
+        !delegateSpawnBound(spawn[0], evidence, expectedTask, gatewayLog)) {
       failures.push('spawn toolcall/task/flow/child session/run join missing');
     }
     join(flow, { runId: evidence.hop_two_run_id,

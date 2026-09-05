@@ -10,6 +10,10 @@ import {
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 import { processTerminalValid } from '../lib/process-terminal-authority.mjs';
+import {
+  artifactSigningKey,
+  validateArtifactAuthority,
+} from '../lib/artifact-authority.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -39,7 +43,10 @@ export function isSafeCandidateArtifact(name) {
   // Basename only. `../../private-summary.json` must never satisfy the summary
   // pattern, and no artifact entry may traverse out of the candidate directory.
   if (typeof name !== 'string' || !name || name.includes('/') || name.includes('\\') || name === '.' || name === '..') return false;
-  return SAFE_CANDIDATE_ARTIFACTS.has(name) || /(?:^|-)summary\.json$/i.test(name);
+  return SAFE_CANDIDATE_ARTIFACTS.has(name) ||
+    /(?:^|-)summary\.json$/i.test(name) ||
+    /^tempo-trace-[a-f0-9]+\.json$/u.test(name) ||
+    /^(?:continuation(?:-trace)?|tool-trace)-correlation\.json$/u.test(name);
 }
 
 // The envelope is machine-generated with a fixed shape. Refusing unknown keys
@@ -47,7 +54,7 @@ export function isSafeCandidateArtifact(name) {
 // path, raw process output) past review while every checked field still agrees.
 const ENVELOPE_KEYS = {
   root: {
-    required: ['schema', 'candidateOnly', 'foldRequiresReview', 'canonicalFoldForbidden', 'candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts'],
+    required: ['schema', 'candidateOnly', 'foldRequiresReview', 'canonicalFoldForbidden', 'candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts', 'artifactAuthority'],
     optional: ['authoritativeReceipt'],
   },
   candidate: { required: ['sha', 'docsRef'], optional: [] },
@@ -63,6 +70,7 @@ const ENVELOPE_KEYS = {
     required: ['manifest', 'scenario', 'runnerMetadata', 'runResult', 'files', 'tempoTraceJson', 'correlationReceipt'],
     optional: [],
   },
+  artifactAuthority: { required: ['schema', 'files', 'integrity'], optional: [] },
   authoritativeReceipt: { required: ['file', 'sha256'], optional: [] },
 };
 
@@ -76,6 +84,7 @@ function hasExactKeys(value, spec) {
 
 function envelopeShapeIsCanonical(envelope) {
   if (!hasExactKeys(envelope, ENVELOPE_KEYS.root)) return false;
+  if (!hasExactKeys(envelope.artifactAuthority, ENVELOPE_KEYS.artifactAuthority)) return false;
   for (const section of ['candidate', 'harness', 'run', 'result', 'observability', 'review', 'artifacts']) {
     if (!hasExactKeys(envelope[section], ENVELOPE_KEYS[section])) return false;
   }
@@ -217,7 +226,7 @@ export function candidateEnvelopeMatchesSiblings({
   metadata,
   runResult,
   runDir,
-  signingKey = process.env.OPENCLAW_GATEWAY_TOKEN,
+  signingKey = artifactSigningKey(),
 }) {
   let rCd2Authority = null;
   if (isRcd2AuthorityRequired({ runDir, envelope, manifest, metadata, runResult })) {
@@ -271,6 +280,24 @@ export function candidateEnvelopeMatchesSiblings({
     !existsSync(path.join(runDir, authoritative.file))
   )) return false;
   if (!artifactReferencesMatchRunResult(envelope, runResult)) return false;
+  if ([envelope.artifacts.tempoTraceJson, envelope.artifacts.correlationReceipt]
+    .some((reference) => reference && !envelope.artifacts.files.includes(reference))) return false;
+  const artifactReferences = [
+    ...envelope.artifacts.files,
+    envelope.artifacts.manifest,
+    envelope.artifacts.scenario,
+    envelope.artifacts.runnerMetadata,
+    envelope.artifacts.runResult,
+    envelope.artifacts.tempoTraceJson,
+    envelope.artifacts.correlationReceipt,
+    envelope.authoritativeReceipt?.file,
+  ].filter(Boolean);
+  if (!validateArtifactAuthority({
+    authority: envelope.artifactAuthority,
+    directory: runDir,
+    names: [...new Set(artifactReferences)],
+    signingKey,
+  })) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
   if (SHA.test(manifest.candidateSha || '') && manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;

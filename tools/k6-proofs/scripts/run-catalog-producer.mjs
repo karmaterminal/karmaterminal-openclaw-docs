@@ -13,6 +13,11 @@ import {
   PROCESS_RECEIPT_SCHEMA, PROCESS_REQUIRED_CHECKS,
   REQUIRED_PRODUCT_SHA, sha256, signProducerReceipt, validateProcessReceipt,
 } from '../lib/producer-receipt.mjs';
+import {
+  assertCanonicalGitCheckout,
+  withoutGitControlVariables,
+} from '../lib/git-execution-environment.mjs';
+import { runAuthenticatedVitest } from '../lib/authenticated-product-tests.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const proofsDir = path.resolve(scriptDir, '..');
@@ -64,16 +69,31 @@ try {
   }
   const argv = expandProducerArgv(commandSpec.argv, args);
   if (argv.some((value) => value === '')) throw new Error('producer argv contains an unresolved required value');
-  const productDir = path.resolve(args.productDir);
-  const head = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD'], { encoding: 'utf8' });
-  const status = spawnSync('git', ['-C', productDir, 'status', '--porcelain', '--untracked-files=all'], { encoding: 'utf8' });
+  const gitEnv = withoutGitControlVariables();
+  const git = (directory, commandArgs) => {
+    const result = spawnSync('git', ['-C', directory, ...commandArgs], {
+      encoding: 'utf8',
+      env: gitEnv,
+    });
+    if (result.status !== 0) throw new Error('product Git identity command failed');
+    return result.stdout.trim();
+  };
+  const productDir = assertCanonicalGitCheckout(args.productDir, git);
+  const head = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD'], {
+    encoding: 'utf8', env: gitEnv,
+  });
+  const status = spawnSync('git', ['-C', productDir, 'status', '--porcelain', '--untracked-files=all'], {
+    encoding: 'utf8', env: gitEnv,
+  });
   if (head.status !== 0 || head.stdout.trim() !== args.candidateSha) {
     throw new Error(`product checkout is not exact candidate ${args.candidateSha}`);
   }
   if (status.status !== 0 || status.stdout.trim()) {
     throw new Error('product checkout must be clean before process-local execution');
   }
-  const tree = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' });
+  const tree = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD^{tree}'], {
+    encoding: 'utf8', env: gitEnv,
+  });
   const bindings = {
     rowId: args.row, candidateSha: args.candidateSha, docsSha: args.docsSha,
     candidateTree: tree.stdout.trim(), runId: args.prerequisite
@@ -113,17 +133,29 @@ try {
   ]) {
     if (process.env[name] !== undefined) childEnv[name] = process.env[name];
   }
-  const run = spawnSync(command, commandArgs, {
-    cwd: args.prerequisite ? productDir : repoRoot,
-    env: childEnv,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  const run = args.prerequisite
+    ? runAuthenticatedVitest({
+        sourceDir: productDir,
+        candidateSha: args.candidateSha,
+        testArgs: commandArgs.slice(1),
+        artifactDir: args.artifactDir,
+        env: childEnv,
+      })
+    : spawnSync(command, commandArgs, {
+        cwd: repoRoot,
+        env: childEnv,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
   process.stdout.write(run.stdout || '');
   process.stderr.write(run.stderr || '');
   if (run.error) throw run.error;
-  const afterHead = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD'], { encoding: 'utf8' });
-  const afterStatus = spawnSync('git', ['-C', productDir, 'status', '--porcelain', '--untracked-files=all'], { encoding: 'utf8' });
+  const afterHead = spawnSync('git', ['-C', productDir, 'rev-parse', 'HEAD'], {
+    encoding: 'utf8', env: gitEnv,
+  });
+  const afterStatus = spawnSync('git', ['-C', productDir, 'status', '--porcelain', '--untracked-files=all'], {
+    encoding: 'utf8', env: gitEnv,
+  });
   if (afterHead.status !== 0 || afterHead.stdout.trim() !== args.candidateSha ||
       afterStatus.status !== 0 || afterStatus.stdout.trim()) {
     throw new Error('process-local producer changed the exact candidate checkout');
@@ -137,6 +169,7 @@ try {
     writeFileSync(path.join(args.artifactDir, file), JSON.stringify({
       stdoutSha256: sha256(run.stdout || ''), stderrSha256: sha256(run.stderr || ''),
       suiteExitCode: run.status,
+      runtime: run.attestation,
     }), { flag: 'wx', mode: 0o600 });
     artifactDigests = { [file]: sha256(readFileSync(path.join(args.artifactDir, file))) };
   } else {

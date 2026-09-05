@@ -702,7 +702,6 @@ fi
 if ! node "$PRODUCER_PLAN_RESOLVER" \
   --selection "$ROWS" \
   --run-id "${OPENCLAW_PRODUCER_RUN_ID:-$(cat /proc/sys/kernel/random/uuid)}" \
-  --consumption-dir "$OUT_ROOT/.consumed-producer-receipts" \
   "${PRODUCER_BINDING_ARGS[@]}" \
   "${PRODUCER_RECEIPT_ARGS[@]}" > "$PRODUCER_PLAN_FILE"; then
   fail_harness \

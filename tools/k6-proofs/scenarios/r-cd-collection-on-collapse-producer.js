@@ -17,6 +17,11 @@ import {
   taskRecordsForIdentity,
   uniquePush,
 } from '../lib/producer-live-harness.js';
+import {
+  beginTaskPagination,
+  consumeTaskPage,
+  createTaskPagination,
+} from '../lib/task-pagination.js';
 
 export const options = {
   scenarios: {
@@ -110,6 +115,7 @@ export default function () {
 
   const result = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    const taskPagination = createTaskPagination();
 
     function subscribe(key) {
       if (!key || subscribed[key]) return;
@@ -118,7 +124,10 @@ export default function () {
     }
 
     function pollTasks(delayMs) {
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 100 }), delayMs);
+      socket.setTimeout(() => {
+        const params = beginTaskPagination(taskPagination);
+        if (params) tracker.send(socket, 'tasks.list', params);
+      }, delayMs);
     }
 
     function startProof() {
@@ -197,7 +206,31 @@ export default function () {
         }
 
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          for (const task of taskRecordsForIdentity(classified.payload, [bLabel])) {
+          if (!classified.ok) {
+            failures.add(1);
+            socket.close();
+            return;
+          }
+          const page = consumeTaskPage(taskPagination, classified.payload);
+          if (page.next) {
+            tracker.send(socket, 'tasks.list', page.next);
+            return;
+          }
+          if (page.error) {
+            failures.add(1);
+            console.error(page.error);
+            socket.close();
+            return;
+          }
+          const bTasks = taskRecordsForIdentity({ tasks: page.tasks }, [bLabel]);
+          const cTasks = taskRecordsForIdentity({ tasks: page.tasks }, [cIdentity]);
+          if (bTasks.length > 1 || cTasks.length > 1) {
+            failures.add(1);
+            console.error('task identity is ambiguous across tasks.list pages');
+            socket.close();
+            return;
+          }
+          for (const task of bTasks) {
             if (task.childSessionKey === evidence.b_session_key && task.runId === evidence.b_run_id) {
               evidence.b_task_id = task.taskId;
               evidence.b_flow_id = task.flowId;
@@ -206,7 +239,7 @@ export default function () {
               }
             }
           }
-          for (const task of taskRecordsForIdentity(classified.payload, [cIdentity])) {
+          for (const task of cTasks) {
             if (task.childSessionKey && task.childSessionKey !== evidence.b_session_key) {
               evidence.c_task_id = task.taskId;
               evidence.c_flow_id = task.flowId;

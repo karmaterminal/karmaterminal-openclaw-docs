@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -227,6 +228,57 @@ function serviceIdentityFields(line) {
   return fields;
 }
 
+const PUBLIC_SERVICE_FIELDS = new Map([
+  ['timestamp', 'timestamp'],
+  ['time', 'timestamp'],
+  ['level', 'level'],
+  ['event', 'event'],
+  ['kind', 'kind'],
+  ['status', 'status'],
+  ['phase', 'phase'],
+  ['disposition', 'disposition'],
+  ['controllerid', 'controllerId'],
+  ['delayms', 'delayMs'],
+  ['hop', 'hop'],
+  ['row', 'row'],
+]);
+
+function publicServiceProjection(fields, orderedTokens) {
+  const projected = {};
+  for (const [rawKey, value] of fields) {
+    const key = normalizedKey(rawKey);
+    const category = {
+      nonce: 'nonce',
+      runid: 'run-id',
+      taskid: 'task-id',
+      flowid: 'flow-id',
+      traceid: 'trace-id',
+      spanid: 'span-id',
+      toolcallid: 'tool-call-id',
+      sessionkey: 'session-key',
+    }[key];
+    if (category) {
+      const correlated = orderedTokens.some(([token, replacement]) =>
+        token === value && replacement === `<redacted-${category}>`);
+      if (correlated) {
+        projected[`${key}Fingerprint`] = createHash('sha256')
+          .update(String(value))
+          .digest('hex')
+          .slice(0, 16);
+      }
+      continue;
+    }
+    const publicKey = PUBLIC_SERVICE_FIELDS.get(key);
+    if (!publicKey) continue;
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      projected[publicKey] = value;
+    } else if (typeof value === 'string' && /^[A-Za-z0-9_.:/-]{1,120}$/u.test(value)) {
+      projected[publicKey] = value;
+    }
+  }
+  return projected;
+}
+
 export function sanitizeServiceLog(logText, orderedTokens) {
   const lines = String(logText || '').split(/\r?\n/).filter(Boolean);
   const retained = [];
@@ -234,14 +286,18 @@ export function sanitizeServiceLog(logText, orderedTokens) {
     flowid: 'flow-id', traceid: 'trace-id', toolcallid: 'tool-call-id' };
 
   for (const line of lines) {
-    const fields = serviceIdentityFields(line).map(([key, value]) => [normalizedKey(key), value]);
+    const rawFields = serviceIdentityFields(line);
+    const fields = rawFields.map(([key, value]) => [normalizedKey(key), value]);
     const correlated = fields.some(([key, value]) => {
       if (!Object.hasOwn(categories, key) || fields.filter(([name]) => name === key).length !== 1) return false;
       return orderedTokens.some(([token, category]) =>
         token === value && category === `<redacted-${categories[key]}>`);
     });
     if (!correlated) continue;
-    retained.push(scrubString(line, orderedTokens));
+    retained.push(JSON.stringify({
+      schema: 'openclaw.k6.public-service-log-record.v1',
+      fields: publicServiceProjection(rawFields, orderedTokens),
+    }));
   }
 
   return {

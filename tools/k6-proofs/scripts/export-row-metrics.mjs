@@ -504,7 +504,12 @@ async function main() {
     ...(args['prometheus-out'] ? [[args['prometheus-out'], prom]] : []),
     ...(args['otlp-out'] ? [[args['otlp-out'], `${JSON.stringify(otlp, null, 2)}\n`]] : []),
   ]);
-  if (args['push-otlp']) push = await pushOtlp(args['push-otlp'], otlp);
+  if (args['push-otlp']) {
+    const publishedOtlp = args['otlp-out']
+      ? JSON.parse(await readFile(args['otlp-out'], 'utf8'))
+      : otlp;
+    push = await pushOtlp(args['push-otlp'], publishedOtlp);
+  }
 
   console.log(JSON.stringify({
     schema: 'openclaw.k6.proof-metrics-export.v1',

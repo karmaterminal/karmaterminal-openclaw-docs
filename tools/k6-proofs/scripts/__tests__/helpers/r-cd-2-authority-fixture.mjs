@@ -7,6 +7,7 @@ import {
   R_CD_2_COLLECTOR_SCHEMA,
   sealRcd2AcquisitionReceipt,
 } from '../../../lib/r-cd-2-authoritative-receipt.mjs';
+import { buildArtifactAuthority } from '../../../lib/artifact-authority.mjs';
 import {
   R_CD_2_SELECTION_RECEIPT_FILE,
   signRcd2SelectedContextReceipt,
@@ -459,6 +460,13 @@ export async function writeRcd2Bundle(repoRoot, {
   ]);
   if (includeReceipt) {
     await writeFile(path.join(runDir, 'r-cd-2-authoritative-receipt.json'), receiptBody);
+  }
+  if (includeReceipt) {
+    envelope.artifactAuthority = buildArtifactAuthority({
+      directory: runDir,
+      names: envelope.artifacts.files,
+      signingKey: SIGNING_KEY,
+    });
   }
   if (includeEnvelope) {
     await writeFile(path.join(runDir, 'candidate-run-result.json'), `${JSON.stringify(envelope, null, 2)}\n`);

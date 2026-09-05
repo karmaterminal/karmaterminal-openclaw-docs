@@ -17,6 +17,11 @@ import {
   taskRecordsForIdentity,
   uniquePush,
 } from '../lib/producer-live-harness.js';
+import {
+  beginTaskPagination,
+  consumeTaskPage,
+  createTaskPagination,
+} from '../lib/task-pagination.js';
 
 export const options = {
   scenarios: {
@@ -101,6 +106,7 @@ export default function () {
   const started = Date.now();
   const result = ws.connect(__ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789', {}, (socket) => {
     const tracker = new RequestTracker();
+    const taskPagination = createTaskPagination();
 
     function subscribe(key) {
       if (!key || subscribed[key]) return;
@@ -123,7 +129,10 @@ export default function () {
       });
       socket.setTimeout(() => socket.close(), 180_000);
       for (const delay of [3000, 8000, 15000, 30000, 60000, 120000]) {
-        socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 100 }), delay);
+        socket.setTimeout(() => {
+          const params = beginTaskPagination(taskPagination);
+          if (params) tracker.send(socket, 'tasks.list', params);
+        }, delay);
       }
     }
 
@@ -182,13 +191,39 @@ export default function () {
           tracker.send(socket, 'tools.effective', { sessionKey: spawn.childSessionKey });
         }
         if (classified.kind === 'response' && classified.method === 'tasks.list' && classified.ok) {
-          for (const task of taskRecordsForIdentity(classified.payload, [`RCW-DELEGATE-TOKEN-${rowNonce}`])) {
+          const page = consumeTaskPage(taskPagination, classified.payload);
+          if (page.next) {
+            tracker.send(socket, 'tasks.list', page.next);
+            return;
+          }
+          if (page.error) {
+            failures.add(1);
+            console.error(page.error);
+            socket.close();
+            return;
+          }
+          const records = taskRecordsForIdentity(
+            { tasks: page.tasks },
+            [`RCW-DELEGATE-TOKEN-${rowNonce}`],
+          );
+          if (records.length > 1) {
+            failures.add(1);
+            console.error('task identity is ambiguous across tasks.list pages');
+            socket.close();
+            return;
+          }
+          for (const task of records) {
             if (task.childSessionKey === evidence.child_session_key &&
                 task.runId === evidence.child_initial_run_id) {
               evidence.spawn_task_id = task.taskId;
               evidence.spawn_flow_id = task.flowId;
             }
           }
+        }
+        if (classified.kind === 'response' && classified.method === 'tasks.list' && !classified.ok) {
+          failures.add(1);
+          socket.close();
+          return;
         }
         if (classified.kind === 'response' && classified.method === 'tools.effective') {
           if (!classified.ok || !Array.isArray(classified.payload?.groups)) {

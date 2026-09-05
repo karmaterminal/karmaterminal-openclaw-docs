@@ -16,6 +16,11 @@ import {
   taskRecordsForIdentity,
   toolEvent,
 } from '../lib/producer-live-harness.js';
+import {
+  beginTaskPagination,
+  consumeTaskPage,
+  createTaskPagination,
+} from '../lib/task-pagination.js';
 
 export const options = {
   scenarios: {
@@ -93,6 +98,7 @@ export default function () {
   const started = Date.now();
   const result = ws.connect(__ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789', {}, (socket) => {
     const tracker = new RequestTracker();
+    const taskPagination = createTaskPagination();
 
     function subscribe(key) {
       if (!key || subscribed[key]) return;
@@ -112,7 +118,10 @@ export default function () {
         idempotencyKey: `${invocation.idempotencyKeyPrefix || ROW}-${rowNonce}`,
       });
       for (const delayMs of [3_000, 8_000, 15_000, 30_000, 60_000, 100_000, 150_000]) {
-        socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 100 }), delayMs);
+        socket.setTimeout(() => {
+          const params = beginTaskPagination(taskPagination);
+          if (params) tracker.send(socket, 'tasks.list', params);
+        }, delayMs);
       }
       socket.setTimeout(() => socket.close(), 180_000);
     }
@@ -177,7 +186,29 @@ export default function () {
           }
         }
         if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const records = taskRecordsForIdentity(classified.payload, [rowNonce]);
+          if (!classified.ok) {
+            failures.add(1);
+            socket.close();
+            return;
+          }
+          const page = consumeTaskPage(taskPagination, classified.payload);
+          if (page.next) {
+            tracker.send(socket, 'tasks.list', page.next);
+            return;
+          }
+          if (page.error) {
+            failures.add(1);
+            console.error(page.error);
+            socket.close();
+            return;
+          }
+          const records = taskRecordsForIdentity({ tasks: page.tasks }, [rowNonce]);
+          if (records.length > 1) {
+            failures.add(1);
+            console.error('task identity is ambiguous across tasks.list pages');
+            socket.close();
+            return;
+          }
           if (records.length === 1) {
             const task = records[0];
             evidence.child_session_key = task.childSessionKey;

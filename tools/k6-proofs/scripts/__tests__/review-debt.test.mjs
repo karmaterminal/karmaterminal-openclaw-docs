@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
+import { buildArtifactAuthority } from '../../lib/artifact-authority.mjs';
 
 const script = path.resolve('tools/k6-proofs/scripts/summarize-review-debt.mjs');
 const runNode = promisify(execFile);
@@ -14,6 +15,7 @@ const docsRef = 'b'.repeat(40);
 const repository = 'karmaterminal/karmaterminal-openclaw-docs';
 const scenarioSource = 'export default function scenario() { return true; }\n';
 const digest = (value) => createHash('sha256').update(value).digest('hex');
+const artifactKey = 'review-debt-artifact-key';
 
 function envelopeArtifacts({ files = [], tempoTraceJson = null, correlationReceipt = null } = {}) {
   return {
@@ -74,10 +76,22 @@ async function writeValidatedEnvelopeFixture(root, row) {
     result: { outcome: 'PASS-candidate', outcomeSource: 'k6-summary', effectiveExitCode: 0, behaviorProof: false },
     observability: { traceStatus: 'present', traceCaptured: true, correlationReceiptPresent: true },
     review: { status: 'ready-for-human-review', pendingReceipts: [], complete: true },
-    artifacts: envelopeArtifacts({ correlationReceipt: 'continuation-correlation.json' }),
+    artifacts: envelopeArtifacts({
+      files: ['row-manifest.json', 'row-scenario.js', 'runner-metadata.json',
+        'run-result.json', 'continuation-correlation.json'],
+      correlationReceipt: 'continuation-correlation.json',
+    }),
   };
   await writeFile(path.join(dir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
   await writeResult(root, row, runResult);
+  await writeFile(path.join(dir, 'continuation-correlation.json'), `${JSON.stringify({
+    schema: 'openclaw.k6.continuation-trace-correlation.v1',
+  })}\n`);
+  envelope.artifactAuthority = buildArtifactAuthority({
+    directory: dir,
+    names: envelope.artifacts.files,
+    signingKey: artifactKey,
+  });
   await writeCandidateResult(root, row, envelope);
   return { dir, identity, manifest: JSON.parse(manifestBody), metadata, runResult, envelope };
 }
@@ -141,8 +155,12 @@ test('consumes the versioned candidate envelope without double-counting its lega
       metadata: fixture.metadata,
       runResult: fixture.runResult,
       runDir: fixture.dir,
+      signingKey: artifactKey,
     }), true);
-    const run = await runNode(process.execPath, [script, '--run-root', root, '--json'], { encoding: 'utf8' });
+    const run = await runNode(process.execPath, [script, '--run-root', root, '--json'], {
+      encoding: 'utf8',
+      env: { ...process.env, OPENCLAW_ARTIFACT_MANIFEST_KEY: artifactKey },
+    });
     const summary = JSON.parse(run.stdout);
     assert.equal(summary.totalRows, 1);
     assert.equal(summary.pendingRows, 0);

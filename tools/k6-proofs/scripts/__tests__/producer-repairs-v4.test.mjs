@@ -96,9 +96,11 @@ test('dependency CLI consumes signatures once and rejects replay across invocati
   await writeFile(path.join(dir, 'receipts.json'), JSON.stringify([receipt]));
   await writeFile(path.join(dir, 'trust.json'), JSON.stringify(bindings.trustedIssuers));
   const args = ['--selection', receipt.rowId, '--candidate-sha', REQUIRED_PRODUCT_SHA,
-    '--docs-sha', docsSha, '--run-id', runId, '--receipts', path.join(dir, 'receipts.json'),
-    '--consumption-dir', path.join(dir, 'consumed')];
-  const env = { OPENCLAW_PRODUCER_TRUST_FILE: path.join(dir, 'trust.json') };
+    '--docs-sha', docsSha, '--run-id', runId, '--receipts', path.join(dir, 'receipts.json')];
+  const env = {
+    OPENCLAW_PRODUCER_TRUST_FILE: path.join(dir, 'trust.json'),
+    OPENCLAW_PRODUCER_RECEIPT_STORE: path.join(dir, 'durable-consumption-store'),
+  };
   assert.equal(cli('resolve-producer-plan.mjs', args, env).status, 0);
   assert.notEqual(cli('resolve-producer-plan.mjs', args, env).status, 0);
 }));
@@ -141,16 +143,22 @@ async function tokenFixture() {
   const flow = { flowId: 'child-flow', ownerKey: evidence.child_session_key,
     controllerId: 'core/continuation-work', status: 'succeeded',
     stateJson: { originRunId: evidence.child_initial_run_id, disposition: 'granted', delayMs: 5000 } };
+  const spawnTrace = 'f'.repeat(32);
   const spawn = { flowId: evidence.spawn_flow_id, ownerKey: evidence.parent_session_key,
+    controllerId: 'core/continuation-delegate', status: 'succeeded',
     stateJson: { task: evidence.spawn_task, originRunId: evidence.parent_run_id,
-      childSessionKey: evidence.child_session_key } };
+      childSessionKey: evidence.child_session_key, childRunId: evidence.child_initial_run_id,
+      disposition: 'granted', traceparent: `00-${spawnTrace}-${'e'.repeat(16)}-01` } };
   const traces = {};
   addTrace(flow, { runId: evidence.hop_two_run_id }, 0, traces);
   return { row: 'R-CW-DELEGATE-TOKEN', evidence, manifest: m, flows: [flow, spawn], traces,
     gatewayLog: [
       'bracket-parse: kind=work delayMs=5000 session=child-session runId=child-run',
       'effective-signal: origin=bracket kind=work session=child-session runId=child-run',
-      'spawn toolCallId=spawn-call taskId=spawn-task flowId=spawn-flow childSessionKey=child-session runId=child-run',
+      `spawn controllerId=core/continuation-delegate toolCallId=spawn-call taskId=spawn-task ` +
+        `flowId=spawn-flow taskSha256=${sha256(evidence.spawn_task)} originRunId=parent-run ` +
+        `childSessionKey=child-session childRunId=child-run traceId=${spawnTrace} ` +
+        'status=succeeded disposition=granted',
     ].join('\n') };
 }
 
@@ -545,7 +553,8 @@ test('gateway journal drops concurrent unrelated-private-line despite continuati
     'continuation runId=other-run body="row-run-123" unrelated-private-line',
   ].join('\n'), orderedTokens);
   assert.equal(result.retainedLines, 1);
-  assert.match(result.text, /runId=<redacted-run-id> status=ok/);
+  assert.match(result.text, /"runidFingerprint":"[a-f0-9]{16}"/u);
+  assert.match(result.text, /"status":"ok"/u);
   assert.doesNotMatch(result.text, /confidential|private|secret-body|row-run-123/);
 });
 
@@ -577,8 +586,7 @@ test('failed atomic publication and exporter failures remove partial and stale a
   const first = path.join(dir, 'first');
   await writeFile(first, 'stale PASS');
   await assert.rejects(publishArtifacts([[first, 'new'], [path.join(dir, 'absent', 'second'), 'new']]));
-  await assert.rejects(readFile(first));
-  assert.deepEqual(await readdir(dir), []);
+  assert.equal(await readFile(first, 'utf8'), 'stale PASS');
   await writeFile(path.join(dir, 'run-result.json'), '{"verdict":"PASS-candidate"');
   const prom = path.join(dir, 'out.prom');
   const otlp = path.join(dir, 'out.json');

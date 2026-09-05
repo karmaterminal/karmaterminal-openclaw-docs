@@ -90,6 +90,19 @@ async function fixture({ result = runResult(), metadata = null, manifestValue = 
     ...(metadata || {}),
   }, null, 2)}\n`);
   await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify(result, null, 2)}\n`);
+  if (result.observability?.correlationReceipt) {
+    await writeFile(path.join(candidateDir, result.observability.correlationReceipt), `${JSON.stringify({
+      schema: result.observability.correlationReceipt === 'tool-trace-correlation.json'
+        ? 'openclaw.k6.tool-trace-correlation.v1'
+        : 'openclaw.k6.continuation-trace-correlation.v1',
+    })}\n`);
+  }
+  if (result.observability?.tempoTraceJson) {
+    await writeFile(path.join(candidateDir, result.observability.tempoTraceJson), `${JSON.stringify({
+      schema: 'openclaw.k6.public-tempo-trace.v1',
+      spans: [],
+    })}\n`);
+  }
   return { root, candidateDir, manifestPath, manifestBody };
 }
 
@@ -273,6 +286,7 @@ test('candidate envelope binds the approved docs ref and both harness source dig
         metadata,
         runResult: runResult(),
         runDir: setup.candidateDir,
+        signingKey: gatewayKey,
         ...overrides,
       });
       assert.equal(candidateEnvelopeMatchesSiblings(siblings()), true);
@@ -338,6 +352,7 @@ test('candidate envelope binds the approved docs ref and both harness source dig
         metadata,
         runResult: runResult(),
         runDir: setup.candidateDir,
+        signingKey: gatewayKey,
       });
       assert.equal(siblings(envelope), true);
 
@@ -386,6 +401,7 @@ test('candidate envelope binds the approved docs ref and both harness source dig
         metadata,
         runResult: runResult(),
         runDir: setup.candidateDir,
+        signingKey: gatewayKey,
       });
       assert.equal(siblings(envelope), true);
 
@@ -459,6 +475,7 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
       metadata,
       runResult: validResult,
       runDir: setup.candidateDir,
+      signingKey: gatewayKey,
     }), true);
     assert.equal(candidateEnvelopeMatchesSiblings({
       envelope,
@@ -466,6 +483,7 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
       metadata,
       runResult: invalidResult,
       runDir: setup.candidateDir,
+      signingKey: gatewayKey,
     }), false);
 
     const verifiedPassEvidence = {
@@ -492,6 +510,7 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
       metadata,
       runResult: validPassResult,
       runDir: setup.candidateDir,
+      signingKey: gatewayKey,
     }), true);
 
     const invalidPassResult = runResult({
@@ -509,6 +528,7 @@ test('R-RC-2 honest limit requires the nonce-bound structured threshold receipt 
       metadata,
       runResult: invalidPassResult,
       runDir: setup.candidateDir,
+      signingKey: gatewayKey,
     }), false);
   } finally {
     await rm(setup.root, { recursive: true, force: true });
@@ -649,6 +669,13 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     },
     review: { status: 'ready-for-human-review', pendingReceipts: [] },
   }, null, 2)}\n`);
+  await writeFile(
+    path.join(candidateDir, 'continuation-trace-correlation.json'),
+    `${JSON.stringify({
+      schema: 'openclaw.k6.continuation-trace-correlation.v1',
+      ...correlation,
+    })}\n`,
+  );
   try {
     const good = JSON.parse((await invoke({ manifestPath, candidateDir })).stdout);
     assert.equal(good.authoritativeReceipt.sha256, receiptDigest);

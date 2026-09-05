@@ -10,6 +10,11 @@ import {
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import {
+  assertCanonicalGitCheckout,
+  withoutGitControlVariables,
+} from '../lib/git-execution-environment.mjs';
+import { runAuthenticatedVitest } from '../lib/authenticated-product-tests.mjs';
 
 const ROW = 'R-CW-MULTI-COLLAPSE';
 const DISPATCH = 'src/auto-reply/continuation/work-dispatch.ts';
@@ -58,6 +63,7 @@ function run(command, args, options = {}) {
   try {
     const stdout = execFileSync(command, args, {
       ...options,
+      env: withoutGitControlVariables(options.env),
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -100,7 +106,7 @@ function assertSource(args) {
   if (!/^[0-9a-f]{40}$/u.test(args.candidateSha)) {
     throw new Error('--candidate-sha must be a 40-character lowercase SHA');
   }
-  const sourceDir = path.resolve(args.sourceDir);
+  const sourceDir = assertCanonicalGitCheckout(args.sourceDir, git);
   for (const file of [DISPATCH, CLASSIFICATION_TEST, 'package.json']) {
     if (!existsSync(path.join(sourceDir, file))) throw new Error(`source dir is missing ${file}`);
   }
@@ -126,25 +132,26 @@ function assertSource(args) {
   return { sourceDir, sourceHead, sourceStatus, tree, contract };
 }
 
-function runClassificationSuite(sourceDir) {
-  const vitest = path.join(sourceDir, 'node_modules/.bin/vitest');
-  if (!existsSync(vitest)) {
-    return {
-      ok: false,
-      exitCode: 127,
-      stdout: '',
-      stderr: 'exact candidate node_modules/.bin/vitest is missing',
-    };
-  }
-  return run(vitest, [
-    'run',
+function runClassificationSuite(sourceDir, candidateSha, artifactDir, env) {
+  const result = runAuthenticatedVitest({
+    sourceDir,
+    candidateSha,
+    artifactDir,
+    env,
+    testArgs: [
     '--config',
     'test/vitest/vitest.auto-reply.config.ts',
     CLASSIFICATION_TEST,
     '-t',
     'partitionSupersededWork',
     '--reporter=json',
-  ], { cwd: sourceDir });
+    ],
+  });
+  return {
+    ...result,
+    ok: result.status === 0 && !result.error,
+    exitCode: typeof result.status === 'number' ? result.status : 1,
+  };
 }
 
 export function requiredCaseResults(suite) {
@@ -176,7 +183,12 @@ export async function main(argv = process.argv, env = process.env) {
     throw new Error('OPENCLAW_RCW_MULTI_COLLAPSE_MAX_DELAY_MS must be a positive integer');
   }
   const graceMs = maxDelayMs * source.contract.multiplier;
-  const suite = runClassificationSuite(source.sourceDir);
+  const suite = runClassificationSuite(
+    source.sourceDir,
+    args.candidateSha,
+    args.artifactDir,
+    env,
+  );
   const afterHead = git(source.sourceDir, ['rev-parse', 'HEAD']);
   const afterTree = git(source.sourceDir, ['rev-parse', 'HEAD^{tree}']);
   const afterStatus = git(source.sourceDir, ['status', '--porcelain', '--untracked-files=all']);
@@ -216,6 +228,7 @@ export async function main(argv = process.argv, env = process.env) {
       stdoutSha256: createHash('sha256').update(suite.stdout).digest('hex'),
       stderrBytes: Buffer.byteLength(suite.stderr),
       stderrSha256: createHash('sha256').update(suite.stderr).digest('hex'),
+      authenticatedRuntime: suite.attestation,
     },
     verdict: passed ? 'PASS-candidate' : 'FAIL-candidate',
     diagnosticOnly: true,

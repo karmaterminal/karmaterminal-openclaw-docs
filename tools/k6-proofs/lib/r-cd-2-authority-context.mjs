@@ -800,7 +800,7 @@ export function consumeRcd2Authority({
     rowResult,
   });
 
-  const summaries = summary ? [summary] : summaryClaims(dir);
+  const summaries = [...summaryClaims(dir), ...(summary ? [summary] : [])];
   for (const entry of summaries) reconcileFlatClaim(entry, context.selected, 'summary');
   const privateEvidence = readJson(
     path.join(dir, 'private-evidence.json'),
@@ -816,7 +816,14 @@ export function consumeRcd2Authority({
     'correlation receipt',
     { optional: true },
   )?.value;
-  if (correlationValue) reconcileFlatClaim(correlationValue, context.selected, 'correlation receipt');
+  if (correlationValue) {
+    reconcileFlatClaim(correlationValue, context.selected, 'correlation receipt');
+    reconcileCompleteIdentity(
+      correlationValue.authorityIdentity,
+      context.identity,
+      'correlation receipt',
+    );
+  }
   const envelopeValue = envelope || readJson(
     path.join(dir, 'candidate-run-result.json'),
     'candidate envelope',

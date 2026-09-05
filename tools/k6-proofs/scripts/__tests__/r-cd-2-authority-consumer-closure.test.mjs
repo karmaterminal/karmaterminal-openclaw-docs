@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { access, cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import test from 'node:test';
@@ -265,6 +265,7 @@ test('explicit selected summary never hides contradictory on-disk summary claims
         scenario: 'r-cw-1.js',
       }, null, 2)}\n`,
     );
+    await rm(path.join(fixture.runDir, 'candidate-run-result.json'));
 
     assert.deepEqual(
       await rejectedAuthorityConsumers(fixture),

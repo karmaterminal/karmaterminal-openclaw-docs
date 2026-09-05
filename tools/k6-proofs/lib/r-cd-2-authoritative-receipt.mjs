@@ -448,10 +448,12 @@ export function validateRcd2AuthoritativeReceipt(receipt, signingKey, expectedId
       !exactKeys(receipt.integrity, INTEGRITY_KEYS) ||
       receipt.integrity.algorithm !== GATEWAY_HMAC_RECEIPT_ALGORITHM ||
       !hex(receipt.integrity?.signature, 64)) return { valid: false, reason: 'invalid-shape' };
-  if (expectedIdentity !== undefined &&
-      (!validAuthorityIdentity(expectedIdentity) ||
-       JSON.stringify(canonicalIdentity(receipt.identity)) !==
-         JSON.stringify(canonicalIdentity(expectedIdentity)))) {
+  if (expectedIdentity === undefined) {
+    return { valid: false, reason: 'expected-identity-required' };
+  }
+  if (!validAuthorityIdentity(expectedIdentity) ||
+      JSON.stringify(canonicalIdentity(receipt.identity)) !==
+        JSON.stringify(canonicalIdentity(expectedIdentity))) {
     return { valid: false, reason: 'identity-mismatch' };
   }
   if (!validateSignedObserverReceiptIntegrity({

@@ -13,7 +13,10 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
-import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  rCd2AuthorityIdentity,
+  validateRcd2AuthoritativeReceipt,
+} from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 function usage() {
@@ -154,7 +157,14 @@ async function rowFromRunResult(root, runResultPath) {
       const raw = await readFile(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) throw new Error('authoritative receipt digest mismatch');
       const receipt = JSON.parse(raw.toString('utf8'));
-      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      const expectedIdentity = (metadata?.row || manifest?.rowId) === 'R-CD-2'
+        ? rCd2AuthorityIdentity(metadata, path.basename(runDir))
+        : undefined;
+      const integrity = authoritative.validate(
+        receipt,
+        process.env.OPENCLAW_GATEWAY_TOKEN,
+        expectedIdentity,
+      );
       if (!integrity.valid || integrity.verdict !== runResult.verdict) throw new Error('authoritative receipt invalid');
       if ((metadata?.row || manifest?.rowId) === 'R-CD-TOKEN' && (
         receipt.binding?.candidateSha !== metadata?.candidateSha ||

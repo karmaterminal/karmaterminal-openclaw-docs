@@ -2,7 +2,10 @@ import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { hasVerifiedRrc2Outcome } from '../lib/request-compaction-receipt.js';
-import { validateRcd2AuthoritativeReceipt } from '../lib/r-cd-2-authoritative-receipt.mjs';
+import {
+  rCd2AuthorityIdentity,
+  validateRcd2AuthoritativeReceipt,
+} from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
@@ -219,7 +222,14 @@ export function candidateEnvelopeMatchesSiblings({ envelope, manifest, metadata,
       const raw = readFileSync(path.join(runDir, declared.file));
       if (createHash('sha256').update(raw).digest('hex') !== declared.sha256) return false;
       const receipt = JSON.parse(raw.toString('utf8'));
-      const integrity = authoritative.validate(receipt, process.env.OPENCLAW_GATEWAY_TOKEN);
+      const expectedIdentity = rowId === 'R-CD-2'
+        ? rCd2AuthorityIdentity(metadata, path.basename(runDir))
+        : undefined;
+      const integrity = authoritative.validate(
+        receipt,
+        process.env.OPENCLAW_GATEWAY_TOKEN,
+        expectedIdentity,
+      );
       if (!integrity.valid || integrity.verdict !== runResult.verdict) return false;
       if (rowId === 'R-CD-TOKEN' && (
         receipt.binding?.candidateSha !== candidateSha ||

@@ -452,6 +452,22 @@ async function main() {
   const evidencePath = path.resolve(args.evidence || path.join(runDir, 'evidence.jsonl'));
   const evidence = await readEvidence(evidencePath);
   const manifest = JSON.parse(await readFile(args.manifest, 'utf8'));
+  let rowNonceFingerprint = null;
+  if (evidence.row === 'R-CD-2') {
+    if (typeof evidence.nonce !== 'string' || evidence.nonce.length === 0) {
+      throw new Error('R-CD-2 evidence nonce is required for row binding');
+    }
+    rowNonceFingerprint = createHash('sha256')
+      .update(String(evidence.nonce))
+      .digest('hex')
+      .slice(0, 16);
+    if (evidence.row_nonce_fingerprint != null &&
+        evidence.row_nonce_fingerprint !== rowNonceFingerprint) {
+      throw new Error(
+        `evidence row_nonce_fingerprint mismatch: expected ${rowNonceFingerprint}`,
+      );
+    }
+  }
 
   const contract = traceContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
@@ -574,7 +590,7 @@ async function main() {
                 // a second top-level topology schema for a fixture to fake.
                 rowBinding: {
                   acceptedSendRunFingerprint: evidence.send_run_fingerprint || null,
-                  nonceFingerprint: evidence.row_nonce_fingerprint || null,
+                  nonceFingerprint: rowNonceFingerprint,
                   acceptedSendTraceId: evidence.accepted_send_trace_id || traceId,
                   acceptedSendTraceSource: evidence.accepted_send_trace_id
                     ? 'sessions-send-response'
@@ -585,6 +601,7 @@ async function main() {
           ...(contract.mode === undefined ? {} : { delegate: { mode: contract.mode } }),
           sameTrace: true,
           distinctSpans: true,
+          resultClass: 'unique',
         }
       : {
           tool: {

@@ -48,6 +48,7 @@ function correlation(overrides = {}) {
   return {
     continuation: { tool: 'continue_delegate' }, delegate: { mode: 'silent-wake' },
     sameTrace: true, sameChain: true, toolSpanIds: ['a'.repeat(16)],
+    resultClass: 'unique',
     traceId: 'b'.repeat(32), chainId: 'private-chain-id',
     dispatchSpanId: 'c'.repeat(16), fireSpanId: 'd'.repeat(16),
     rowBinding: {
@@ -198,6 +199,20 @@ test('R-CD-2 rejects unsigned and signed receipt extension fields by exact shape
     );
   }
 
+  for (const rowEvidence of [
+    evidence({ session_created: false }),
+    evidence({ dispatch_failure_observed: true, failureCategory: 'provider-or-turn-failure' }),
+  ]) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: rowEvidence, correlation: correlation(), signingKey,
+    });
+    receipt.traceId = 'b'.repeat(32);
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(receipt, signingKey),
+      { valid: false, reason: 'invalid-shape' },
+    );
+  }
+
   const both = resolveRcd2AuthoritativeReceipt({
     evidence: evidence(), correlation: correlation(), signingKey,
   });
@@ -234,8 +249,8 @@ test('R-CD-2 requires a valid wake fingerprint distinct from the accepted send r
       signingKey,
     });
     assert.notEqual(receipt.verdict, 'PASS-candidate');
-    assert.equal(receipt.diagnostics.lifecycle.wakeRunFingerprint, false);
-    assert.equal(receipt.diagnostics.lifecycle.distinctWakeRun, wake_run_fingerprint !== run);
+    assert.equal(receipt.diagnostics.lifecycle.wakeRunFingerprint, wake_run_fingerprint === run);
+    assert.equal(receipt.diagnostics.lifecycle.distinctWakeRun, false);
     assert.equal(receipt.failureCategory, 'missing-send-run-lifecycle');
   }
   assert.equal(
@@ -275,6 +290,14 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
     ['dispatchTerminalSentinelSameRun', { dispatch_terminal_sentinel_same_run_window: false }, 'missing-terminal-sentinel'],
     ['terminalSuccessSameRun', { terminal_success_same_run: false }, 'missing-send-run-lifecycle'],
     ['typedDelegateSuccessSameRun', { typed_delegate_success_same_run: false }, 'missing-send-run-lifecycle'],
+    ['typedDelegateFailureFree', {
+      typed_delegate_failed_same_run: true,
+      typed_delegate_failure_category: 'codex_dynamic_tool_error',
+    }, 'provider-or-turn-failure'],
+    ['replaySafe', {
+      replay_invalid_observed: true,
+      failureCategory: 'delegate-replay-unsafe',
+    }, 'delegate-replay-unsafe'],
     ['wakeLifecycle', { wake_lifecycle_observed: false }, 'missing-send-run-lifecycle'],
     ['postWakeQuiet', { post_wake_quiet: false }, 'missing-send-run-lifecycle'],
     ['noChannelDelivery', { channel_message_observed: true }, 'silent-channel-delivery'],
@@ -282,7 +305,7 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
     ['wakeRunFingerprint', { wake_run_fingerprint: 'bad' }, 'missing-send-run-lifecycle'],
     ['distinctWakeRun', { wake_run_fingerprint: run }, 'missing-send-run-lifecycle'],
     ['rowNonceFingerprint', { row_nonce_fingerprint: 'e'.repeat(16) }, 'missing-send-run-lifecycle'],
-    ['terminalRunMatchesSend', { terminal_run_fingerprint: wakeRun }, 'missing-send-run-lifecycle'],
+    ['terminalRunMatchesSend', { terminal_run_fingerprint: wakeRun }, 'send-run-mismatch'],
     ['acceptedSendTraceShape', { accepted_send_trace_id: 'bad' }, 'missing-send-run-lifecycle'],
     ['dispatchAcceptedBeforeSentinel', { dispatch_accepted_at_ms: 201 }, 'missing-send-run-lifecycle'],
     ['sentinelBeforeLifecycleEnd', { dispatch_terminal_sentinel_at_ms: 301 }, 'missing-send-run-lifecycle'],
@@ -313,6 +336,31 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
     ['dispatchSpan', { dispatchSpanId: 'bad' }],
     ['fireSpan', { fireSpanId: 'bad' }],
     ['distinctDispatchAndFire', { fireSpanId: 'c'.repeat(16) }],
+    ['sendRunBinding', { rowBinding: {
+      acceptedSendRunFingerprint: 'bad',
+      nonceFingerprint: rowNonceFingerprint,
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
+    } }],
+    ['nonceBinding', { rowBinding: {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'bad',
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
+    } }],
+    ['acceptedTraceBinding', { rowBinding: {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: rowNonceFingerprint,
+      acceptedSendTraceId: 'bad',
+      acceptedSendTraceSource: 'sessions-send-response',
+    } }],
+    ['acceptedTraceSource', { rowBinding: {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: rowNonceFingerprint,
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'nearby-trace',
+    } }],
+    ['collectorUnique', { resultClass: 'ambiguous' }],
   ];
   for (const [gate, override] of topologyCases) {
     const receipt = resolveRcd2AuthoritativeReceipt({
@@ -324,6 +372,67 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
     assert.equal(receipt.failureCategory, 'invalid-continuation-topology', gate);
     assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, gate);
   }
+});
+
+test('R-CD-2 classifies missing correlation and each valid-topology join mismatch', () => {
+  const missing = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(), correlation: null, signingKey,
+  });
+  assert.deepEqual(
+    [missing.verdict, missing.failureCategory],
+    ['PARTIAL-candidate', 'missing-continuation-topology'],
+  );
+  assert.equal(missing.diagnostics.topologyComplete, false);
+  assert.equal(validateRcd2AuthoritativeReceipt(missing, signingKey).valid, true);
+
+  const cases = [
+    ['acceptedTrace', evidence({ accepted_send_trace_id: 'e'.repeat(32) }), correlation()],
+    ['acceptedRun', evidence(), correlation({ rowBinding: {
+      acceptedSendRunFingerprint: 'f'.repeat(16),
+      nonceFingerprint: rowNonceFingerprint,
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
+    } })],
+    ['rowNonce', evidence(), correlation({ rowBinding: {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'e'.repeat(16),
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
+    } })],
+  ];
+  for (const [gate, rowEvidence, rowCorrelation] of cases) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: rowEvidence, correlation: rowCorrelation, signingKey,
+    });
+    assert.equal(receipt.diagnostics.topologyComplete, true, gate);
+    assert.equal(receipt.diagnostics.joins[gate], false, gate);
+    assert.equal(receipt.diagnostics.joinComplete, false, gate);
+    assert.equal(receipt.failureCategory, 'send-topology-mismatch', gate);
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, gate);
+  }
+});
+
+test('R-CD-2 typed-tool failure outranks a missing sentinel', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      typed_delegate_attempted_same_run: true,
+      typed_delegate_success_same_run: false,
+      typed_delegate_failed_same_run: true,
+      typed_delegate_failure_category: 'codex_dynamic_tool_error',
+      dispatch_terminal_sentinel_observed: false,
+      dispatch_terminal_sentinel_same_run_window: false,
+      dispatch_failure_observed: true,
+      failureCategory: 'provider-or-turn-failure',
+    }),
+    correlation: null,
+    signingKey,
+  });
+  assert.deepEqual(
+    [receipt.verdict, receipt.failureCategory],
+    ['FAIL-candidate', 'provider-or-turn-failure'],
+  );
+  assert.equal(receipt.diagnostics.lifecycle.typedDelegateFailureFree, false);
+  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
 });
 
 test('R-CD-2 diagnostics are boolean-only and publish no private identities', () => {
@@ -364,8 +473,18 @@ test('R-CD-2 rejects individually valid lifecycle and topology receipts from dif
 
 test('R-CD-2 rejects a same-trace/chain topology with another row run or nonce', () => {
   for (const rowBinding of [
-    { acceptedSendRunFingerprint: 'f'.repeat(16), nonceFingerprint: 'e'.repeat(16), acceptedSendTraceId: 'b'.repeat(32) },
-    { acceptedSendRunFingerprint: run, nonceFingerprint: 'f'.repeat(16), acceptedSendTraceId: 'b'.repeat(32) },
+    {
+      acceptedSendRunFingerprint: 'f'.repeat(16),
+      nonceFingerprint: rowNonceFingerprint,
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
+    },
+    {
+      acceptedSendRunFingerprint: run,
+      nonceFingerprint: 'f'.repeat(16),
+      acceptedSendTraceId: 'b'.repeat(32),
+      acceptedSendTraceSource: 'sessions-send-response',
+    },
   ]) {
     const receipt = resolveRcd2AuthoritativeReceipt({
       evidence: evidence(),

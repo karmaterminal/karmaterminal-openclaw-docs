@@ -134,7 +134,10 @@ export default function () {
     dispatch_terminal_sentinel_observed: false,
     dispatch_terminal_sentinel_same_run_window: false,
     terminal_success_same_run: false,
+    typed_delegate_attempted_same_run: false,
     typed_delegate_success_same_run: false,
+    typed_delegate_failed_same_run: false,
+    typed_delegate_failure_category: null,
     // The silent wake is a fresh parent turn.  Its identity is therefore a
     // distinct top-level gateway lifecycle run, not a field guessed from a
     // session.message transcript payload.
@@ -298,6 +301,8 @@ export default function () {
             }
             console.log('✓ sessions.send accepted — agent turn triggered for R-CD-2 (mode=silent-wake)');
           } else if (classified.error) {
+            evidence.dispatch_failure_observed = true;
+            evidence.failureCategory = 'provider-or-turn-failure';
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
           }
@@ -406,9 +411,29 @@ export default function () {
               eventStr.includes('"outcome":"done"')) {
             evidence.silent_status_record_observed = true;
             if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
+              evidence.typed_delegate_attempted_same_run = true;
               evidence.typed_delegate_success_same_run = true;
             }
             console.log('ℹ internal continue_status notify:false receipt observed');
+          }
+
+          if (eventStr.includes(rowNonce) && eventStr.includes('continue_delegate') &&
+              acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
+            evidence.typed_delegate_attempted_same_run = true;
+            const failed = eventStr.includes('codex_dynamic_tool_error') ||
+              eventStr.includes('"outcome":"blocked"') ||
+              eventStr.includes('"status":"error"') ||
+              eventStr.includes('"status":"rejected"');
+            if (failed) {
+              evidence.typed_delegate_failed_same_run = true;
+              evidence.typed_delegate_failure_category = eventStr.includes('codex_dynamic_tool_error')
+                ? 'codex_dynamic_tool_error'
+                : eventStr.includes('"outcome":"blocked"')
+                  ? 'blocked'
+                  : 'provider-or-turn-failure';
+              evidence.dispatch_failure_observed = true;
+              evidence.failureCategory = 'provider-or-turn-failure';
+            }
           }
 
           // Negative check: only an explicit outbound-delivery-shaped event counts.
@@ -451,7 +476,6 @@ export default function () {
       (!evidence.dispatch_terminal_sentinel_observed ||
        !evidence.dispatch_terminal_sentinel_same_run_window) &&
       evidence.dispatch_failure_observed !== true) {
-    evidence.dispatch_failure_observed = true;
     evidence.failureCategory = 'missing-terminal-sentinel';
   }
   finalEvidence = evidence;

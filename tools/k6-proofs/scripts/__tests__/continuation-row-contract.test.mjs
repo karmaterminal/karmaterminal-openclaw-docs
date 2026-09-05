@@ -208,6 +208,13 @@ test('R-CD-2 dispatch turn requires an exact post-tool terminal sentinel', async
   assert.match(scenario, /observesRcd2DispatchTerminalSentinel\(/);
   assert.match(scenario, /dispatchLifecycleActive/);
   assert.match(scenario, /wakeLifecycleObserved:\s*evidence\.wake_lifecycle_observed/);
+  assert.match(scenario, /typed_delegate_attempted_same_run:\s*false/);
+  assert.match(scenario, /typed_delegate_failed_same_run:\s*false/);
+  assert.match(scenario, /typed_delegate_failure_category:\s*null/);
+  assert.doesNotMatch(
+    scenario,
+    /send_run_success_end_observed[\s\S]{0,240}dispatch_failure_observed\s*=\s*true/,
+  );
   assert.doesNotMatch(scenario, /execute the tool call immediately, no other action needed/);
 });
 

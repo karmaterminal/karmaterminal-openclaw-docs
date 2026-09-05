@@ -21,7 +21,7 @@ export function gatewayLifecyclePhase(value) {
 
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
-  const status = value.data?.status ?? value.status;
+  const status = value.data?.status;
   return typeof status === 'string' && status.toLowerCase() === 'ok';
 }
 

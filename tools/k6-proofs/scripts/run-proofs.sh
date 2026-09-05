@@ -1292,6 +1292,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       unset OPENCLAW_STATUS_SOURCE_PATH
     fi
     POSTPROCESS_RC=0
+    LINEAGE_FAILED=false
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then ACTIVE_TOKEN_PHASE="k6-running"; fi
     # Last assertion before unapproved bytes could be executed.
     assert_row_bytes_frozen "$ROW_ID" "pre-k6-execution"
@@ -1382,6 +1383,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         2> "$RUN_DIR/live-producer-lineage.error.log"; then
         echo "[$ROW_ID] TASKFLOW/PARSER LINEAGE FAILED; see $RUN_DIR/live-producer-lineage.error.log" >&2
         POSTPROCESS_RC=1
+        LINEAGE_FAILED=true
       fi
     fi
     SUMMARY_VERDICT="unknown"
@@ -1459,6 +1461,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         VERDICT_POLICY_APPLIED="true"
       fi
     fi
+    if [[ "$LINEAGE_FAILED" == "true" ]]; then
+      SUMMARY_VERDICT="PARTIAL-candidate"
+      SUMMARY_VERDICT_SOURCE="live-producer-lineage-failed"
+      VERDICT_POLICY_APPLIED="true"
+      VERDICT_POLICY_REASON="required taskflow or parser lineage validation failed"
+    fi
     if [[ "$VERDICT_POLICY_APPLIED" == "true" ||
           ( -n "$VU_LOG_VERDICT" &&
           "$SUMMARY_FILE_VERDICT" != "unknown" &&
@@ -1495,6 +1503,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     REVIEW_PENDING_RECEIPTS='[]'
     if [[ "$GATEWAY_JOURNAL_STATUS" != "captured" ]]; then
       REVIEW_PENDING_RECEIPTS='["gateway-journal"]'
+    fi
+    if [[ "$LINEAGE_FAILED" == "true" ]]; then
+      REVIEW_PENDING_RECEIPTS="$(
+        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+          '$current + ["taskflow-lineage"] | unique'
+      )"
+      if [[ "$ROW_ID" == "R-CW-DELEGATE-TOKEN" || "$ROW_ID" == "R-CW-MULTI" ]]; then
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["bracket-parser-origin"] | unique'
+        )"
+      fi
     fi
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
     MANIFEST_TOOL="$(jq -r '.invocation.traceTool // .invocation.tool // empty' "$MANIFEST_FILE")"

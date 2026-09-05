@@ -411,6 +411,9 @@ test('multi accepts three typed elections plus one isolated response-token parit
     runner,
     /"\$ROW_ID" == "R-CW-DELEGATE-TOKEN" \|\| "\$ROW_ID" == "R-CW-MULTI"[\s\S]{0,100}LINEAGE_ARGS\+=\(--gateway-log "\$PRIVATE_GATEWAY_LOG"\)/u,
   );
+  assert.match(runner, /SUMMARY_VERDICT_SOURCE="live-producer-lineage-failed"/u);
+  assert.match(runner, /\$current \+ \["taskflow-lineage"\] \| unique/u);
+  assert.match(runner, /\$current \+ \["bracket-parser-origin"\] \| unique/u);
 });
 
 test('delegate-child lineage fails without the parent delegate flow', async () => {

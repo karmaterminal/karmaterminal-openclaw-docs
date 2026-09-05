@@ -21,6 +21,24 @@ const repoRoot = path.resolve(import.meta.dirname, '../..');
 const manifestPath = path.join(repoRoot, 'manifests/r-cd-2.json');
 const writerPath = path.join(repoRoot, 'scripts/evidence-writer.mjs');
 const postprocessorPath = path.join(repoRoot, 'scripts/postprocess-k6-summary.mjs');
+const authorityIdentity = {
+  schema: 'openclaw.k6.r-cd-2-authority-identity.v1',
+  candidateSha: '1'.repeat(40),
+  runtimeBuildSha: '2'.repeat(40),
+  docsRef: '3'.repeat(40),
+  repository: 'karmaterminal/karmaterminal-openclaw-docs',
+  seat: 'ronan-dgx',
+  matrixId: '20260905T032057Z-333333333333-deadbeef',
+  runId: '20260905T032057Z-r-cd-2-deadbeef',
+  row: 'R-CD-2',
+  scenario: 'r-cd-2-silent-wake.js',
+  harness: {
+    manifestPath: 'tools/k6-proofs/manifests/r-cd-2.json',
+    manifestSha256: '4'.repeat(64),
+    scenarioPath: 'tools/k6-proofs/scenarios/r-cd-2-silent-wake.js',
+    scenarioSha256: '5'.repeat(64),
+  },
+};
 
 function evidence(overrides = {}) {
   return {
@@ -92,6 +110,67 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   assert.equal(receipt.diagnostics.topologyComplete, true);
   assert.equal(receipt.diagnostics.joinComplete, true);
   assert.equal(receipt.lifecycle.rowNonceFingerprint, rowNonceFingerprint);
+});
+
+test('R-CD-2 signed authority cannot be replayed across enclosing run identities', () => {
+  const first = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(),
+    correlation: correlation(),
+    identity: authorityIdentity,
+    signingKey,
+  });
+  const mutations = [
+    ['candidateSha', '6'.repeat(40)],
+    ['runtimeBuildSha', '7'.repeat(40)],
+    ['docsRef', '8'.repeat(40)],
+    ['repository', 'karmaterminal/other-docs'],
+    ['seat', 'ronan-secondary'],
+    ['matrixId', '20260905T032058Z-888888888888-feedface'],
+    ['runId', '20260905T032058Z-r-cd-2-feedface'],
+    ['scenario', 'r-cd-2-other.js'],
+  ];
+  for (const [key, value] of mutations) {
+    const changedIdentity = { ...authorityIdentity, [key]: value };
+    const changed = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(),
+      correlation: correlation(),
+      identity: changedIdentity,
+      signingKey,
+    });
+    assert.notEqual(changed.integrity.signature, first.integrity.signature, key);
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(first, signingKey, changedIdentity),
+      { valid: false, reason: 'identity-mismatch' },
+      key,
+    );
+  }
+
+  for (const [key, value] of [
+    ['manifestPath', 'tools/k6-proofs/manifests/r-cd-2-copy.json'],
+    ['manifestSha256', '9'.repeat(64)],
+    ['scenarioPath', 'tools/k6-proofs/scenarios/r-cd-2-copy.js'],
+    ['scenarioSha256', 'a'.repeat(64)],
+  ]) {
+    const changedIdentity = {
+      ...authorityIdentity,
+      harness: { ...authorityIdentity.harness, [key]: value },
+    };
+    const changed = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(),
+      correlation: correlation(),
+      identity: changedIdentity,
+      signingKey,
+    });
+    assert.notEqual(changed.integrity.signature, first.integrity.signature, `harness.${key}`);
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(first, signingKey, changedIdentity),
+      { valid: false, reason: 'identity-mismatch' },
+      `harness.${key}`,
+    );
+  }
+
+  assert.deepEqual(first.identity, authorityIdentity);
+  assert.deepEqual(Object.keys(first.identity).sort(), Object.keys(authorityIdentity).sort());
 });
 
 test('R-CD-2 binds a trace-less sessions.send through one unique nonce-reason trace', () => {

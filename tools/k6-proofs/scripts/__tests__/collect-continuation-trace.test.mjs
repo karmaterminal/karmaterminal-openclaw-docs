@@ -247,6 +247,53 @@ test('correlates a unique trace and validates tool/fire/dispatch topology', asyn
   }
 });
 
+test('treats the first valid Tempo trace as provisional until uniqueness stabilizes', async () => {
+  const fixture = await fixtureDir();
+  const traceA = '17171717171717171717171717171717';
+  const traceB = '18181818181818181818181818181818';
+  let searchCount = 0;
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      searchCount += 1;
+      response.end(JSON.stringify({
+        traces: searchCount === 1
+          ? [{ traceID: traceA }]
+          : [{ traceID: traceA }, { traceID: traceB }],
+      }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({
+      traceId: traceA,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'silas-prince',
+        '--tempo-url', server.url,
+        '--timeout-ms', '100',
+        '--poll-ms', '10',
+      ]),
+      (error) => {
+        assert.match(error.stderr, /trace correlation is ambiguous: 2 Tempo traces matched/);
+        return true;
+      },
+    );
+    assert.ok(searchCount >= 2);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
 test('rejects duplicate delegate dispatch/fire spans but retains different parents diagnostically', async () => {
   const fixture = await fixtureDir();
   const traceId = '1234567890abcdef1234567890abcdef';

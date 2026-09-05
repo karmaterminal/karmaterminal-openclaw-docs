@@ -340,7 +340,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, signing
       acceptedSendTraceFingerprint: fingerprint(correlation.rowBinding.acceptedSendTraceId),
       acceptedSendTraceSource: correlation.rowBinding.acceptedSendTraceSource,
       acceptedSendRunFingerprint: fingerprint(evidence.send_run_fingerprint),
-      rowNonceFingerprint: fingerprint(evidence.row_nonce_fingerprint),
+      rowNonceFingerprint: derivedNonceFingerprint(evidence),
       chainFingerprint: fingerprint(correlation.chainId),
       delegateFingerprint: fingerprint(`${correlation.dispatchSpanId}:${correlation.fireSpanId}`),
     },

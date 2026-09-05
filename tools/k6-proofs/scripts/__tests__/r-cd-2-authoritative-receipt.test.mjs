@@ -91,6 +91,7 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   assert.equal(receipt.diagnostics.lifecycleComplete, true);
   assert.equal(receipt.diagnostics.topologyComplete, true);
   assert.equal(receipt.diagnostics.joinComplete, true);
+  assert.equal(receipt.lifecycle.rowNonceFingerprint, rowNonceFingerprint);
 });
 
 test('R-CD-2 binds a trace-less sessions.send through one unique nonce-reason trace', () => {
@@ -259,6 +260,13 @@ test('R-CD-2 requires a valid wake fingerprint distinct from the accepted send r
     }).verdict,
     'PASS-candidate',
   );
+  const derivedWithoutSuppliedCopy = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ row_nonce_fingerprint: undefined }),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.equal(derivedWithoutSuppliedCopy.verdict, 'PASS-candidate');
+  assert.equal(derivedWithoutSuppliedCopy.lifecycle.rowNonceFingerprint, rowNonceFingerprint);
 });
 
 test('R-CD-2 rejects a consistently copied nonce fingerprint not derived from private evidence', () => {

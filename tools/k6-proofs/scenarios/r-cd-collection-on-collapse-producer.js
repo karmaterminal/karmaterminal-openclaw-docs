@@ -78,6 +78,11 @@ export default function () {
     b_run_id: null,
     b_task_id: null,
     b_flow_id: null,
+    b_delegate_tool_call_id: null,
+    b_delegate_tool_started: false,
+    b_delegate_tool_scheduled: false,
+    b_delegate_mode_observed: false,
+    b_delegate_fanout_observed: false,
     b_terminal_at_ms: null,
     b_terminal_phase: null,
     c_session_key: null,
@@ -208,6 +213,25 @@ export default function () {
         }
 
         if (evidence.b_session_key && evidence.b_run_id) {
+          if (identity?.event === 'agent' &&
+              identity.stream === 'tool' &&
+              identity.sessionKey === evidence.b_session_key &&
+              identity.runId === evidence.b_run_id &&
+              identity.data?.name === 'continue_delegate') {
+            if (identity.data.phase === 'start') {
+              evidence.b_delegate_tool_call_id = identity.data.toolCallId || null;
+              evidence.b_delegate_tool_started = true;
+              evidence.b_delegate_mode_observed =
+                identity.data.args?.mode === evidence.delegate_mode;
+              evidence.b_delegate_fanout_observed =
+                identity.data.args?.fanoutMode === evidence.fanout_mode;
+            }
+            if (identity.data.phase === 'result' &&
+                identity.data.toolCallId === evidence.b_delegate_tool_call_id &&
+                identity.data.isError !== true) {
+              evidence.b_delegate_tool_scheduled = true;
+            }
+          }
           const bLifecycle = lifecycleEvent(classified, evidence.b_session_key, evidence.b_run_id);
           if (bLifecycle && ['end', 'error'].includes(bLifecycle.phase)) {
             evidence.b_terminal_at_ms = bLifecycle.endedAt || Date.now();
@@ -270,6 +294,10 @@ export default function () {
     evidence.fanout_mode === 'tree' &&
     distinctSessions &&
     lineageBound &&
+    evidence.b_delegate_tool_started &&
+    evidence.b_delegate_tool_scheduled &&
+    evidence.b_delegate_mode_observed &&
+    evidence.b_delegate_fanout_observed &&
     evidence.b_terminal_phase === 'end' &&
     evidence.c_terminal_phase === 'end' &&
     bBeforeC &&
@@ -277,7 +305,12 @@ export default function () {
     Number(evidence.root_collected_at_ms) >= Number(evidence.c_terminal_at_ms);
   check(null, {
     'supported delegate mode normal and tree fanout': () =>
-      evidence.delegate_mode === 'normal' && evidence.fanout_mode === 'tree',
+      evidence.delegate_mode === 'normal' &&
+      evidence.fanout_mode === 'tree' &&
+      evidence.b_delegate_tool_started &&
+      evidence.b_delegate_tool_scheduled &&
+      evidence.b_delegate_mode_observed &&
+      evidence.b_delegate_fanout_observed,
     'A/B/C session and run lineage bound': () => distinctSessions && lineageBound,
     'B terminalized successfully before C started': () =>
       evidence.b_terminal_phase === 'end' && bBeforeC,

@@ -51,7 +51,7 @@
     {
       "name": "tree-fanout-semantics",
       "required": true,
-      "description": "The live fire uses supported mode=normal and fanoutMode=tree. Untargeted default delivery remains immediate-requester only."
+      "description": "B's observed continue_delegate start/result is bound to mode=normal and fanoutMode=tree. Untargeted default delivery remains immediate-requester only."
     }
   ],
   "artifactDestination": {

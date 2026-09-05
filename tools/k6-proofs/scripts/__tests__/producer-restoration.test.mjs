@@ -179,6 +179,13 @@ test('collection manifest uses supported mode and exact rendered tasks', async (
   assert.match(manifest.invocation.spawnPromptTemplate, /\{\{cTaskJson\}\}/u);
   assert.notEqual(manifest.invocation.mode, 'session');
   assert.notEqual(manifest.invocation.mode, 'run');
+  const scenario = await readFile(
+    path.join(proofsDir, 'scenarios/r-cd-collection-on-collapse-producer.js'),
+    'utf8',
+  );
+  assert.match(scenario, /identity\.data\.args\?\.mode === evidence\.delegate_mode/u);
+  assert.match(scenario, /identity\.data\.args\?\.fanoutMode === evidence\.fanout_mode/u);
+  assert.match(scenario, /evidence\.b_delegate_tool_scheduled/u);
 });
 
 test('delegate token uses exact grammar and rejects typed/message-tool substitutes', async () => {

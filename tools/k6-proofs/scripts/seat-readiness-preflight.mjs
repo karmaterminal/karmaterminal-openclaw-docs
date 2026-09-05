@@ -4,7 +4,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   evaluateTarget,
@@ -79,24 +79,25 @@ function detectK6(policy) {
   ]);
   const checked = [];
   for (const path of candidates) {
+    const command = basename(path);
     if (!existsSync(path)) {
-      checked.push({ path, exists: false, version: null, rawVersion: null });
+      checked.push({ command, exists: false, version: null, rawVersion: null });
       continue;
     }
     const rawVersion = commandOrNull(path, ['version']);
     const version = rawVersion?.match(/\bv\d+\.\d+\.\d+\b/u)?.[0] || null;
-    checked.push({ path, exists: true, version, rawVersion: redactRawVersion(rawVersion) });
+    checked.push({ command, exists: true, version, rawVersion: redactRawVersion(rawVersion) });
     if (version) {
       return {
         ok: true,
-        path,
+        command,
         version,
         rawVersion: redactRawVersion(rawVersion),
         checked,
       };
     }
   }
-  return { ok: false, path: null, version: null, rawVersion: null, checked };
+  return { ok: false, command: null, version: null, rawVersion: null, checked };
 }
 
 async function fetchHealth(wsUrl) {

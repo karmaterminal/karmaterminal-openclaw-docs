@@ -70,7 +70,8 @@ test('offline readiness remains public-safe and cannot become a pass receipt', a
     assert.equal(report.schema, 'openclaw.k6.seat-readiness.v2');
     assert.equal(report.outcome, 'PARTIAL-candidate');
     assert.equal(report.policy.name, 'k6 PROOFS seat readiness policy');
-    assert.equal(report.k6.path, fakeK6);
+    assert.equal(report.k6.command, 'k6');
+    assert.doesNotMatch(JSON.stringify(report.k6), new RegExp(dir));
     assert.equal(report.k6.version, 'v2.0.0');
     assert.equal(report.gateway.mode, 'skipped-by-flag');
     assert.equal(report.target.authentication.authenticated, false);

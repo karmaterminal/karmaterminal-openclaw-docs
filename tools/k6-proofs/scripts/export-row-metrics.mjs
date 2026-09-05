@@ -236,8 +236,12 @@ async function normalizeFromRunDir(runDir) {
   const candidateSha = authority?.identity.candidateSha || metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
   const seat = authority?.identity.seat || metadata.seat || manifest.seat || summary.seat || 'unknown';
   const scenario = authority?.identity.scenario || metadata.scenario || manifest?.scenario?.name || manifest?.scenario?.file?.replace(/\.js$/, '') || 'unknown';
-  const outcome = authority?.outcome || summary.verdict || (runResult.k6ExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
-  const proofFailures = Number(summary?.metrics?.failures ?? runResult.proofFailures ?? (runResult.k6ExitCode === 0 ? 0 : 1));
+  const effectiveExitCode = Number(runResult.effectiveExitCode ?? runResult.k6ExitCode ?? 0);
+  const outcome = authority?.outcome || runResult.verdict || summary.verdict ||
+    (effectiveExitCode === 0 ? 'PASS-candidate' : 'FAIL-candidate');
+  const proofFailures = Number(
+    summary?.metrics?.failures ?? runResult.proofFailures ?? (effectiveExitCode === 0 ? 0 : 1),
+  );
   const candidateOnly = authority?.candidateOnly ??
     (runResult.candidateOnly !== undefined ? Boolean(runResult.candidateOnly) : true);
   const foldRequiresReview = authority?.foldRequiresReview ??

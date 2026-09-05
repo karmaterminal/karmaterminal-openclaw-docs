@@ -258,7 +258,8 @@ write_harness_control_receipt() {
       rowSelection: $rowSelection,
       rowsExecuted: $rowsExecuted,
       rowsTerminatedPreDispatch: $rowsTerminatedPreDispatch,
-      rowVerdictsSynthesized: ($rowsExecuted > 0 or $rowsTerminatedPreDispatch > 0),
+      rowVerdictsSynthesized: false,
+      rowResultsPresent: ($rowsExecuted > 0 or $rowsTerminatedPreDispatch > 0),
       productVerdict: null,
       exitCode: $exitCode,
       detail: $detail,
@@ -1178,6 +1179,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ -f "$SEAT_READINESS_JSON" ]]; then
       cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
     fi
+    PREREQUISITE_RECEIPT="$RUN_DIR/process-local-prerequisite/prerequisite-receipt.json"
+    PREREQUISITE_REQUIRED="$(jq -r '(.liveRunSafety.requiredReceipts // []) | any(. == "process-local-propagation-tests")' "$MANIFEST_FILE")"
     if [[ "$(jq -r --arg row "$ROW_ID" '.rows[] | select(.rowId == $row) | .prerequisite != null' "$PRODUCER_PLAN_FILE")" == "true" ]]; then
       if [[ -z "${FINAL_PRODUCT_CHECKOUT:-}" ]] ||
          ! git -C "$FINAL_PRODUCT_CHECKOUT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -1194,6 +1197,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         PROVISIONAL_RUN_DIR=""
         continue
       fi
+      PREREQUISITE_ARGV_JSON="$(jq -c --arg row "$ROW_ID" '.rows[] | select(.rowId == $row) | .prerequisite.argv' "$PRODUCER_PLAN_FILE")"
       (umask 077; mkdir -p "$RUN_DIR/process-local-prerequisite")
       PRIVATE_PREREQ_STDOUT="$(mktemp "${TMPDIR:-/tmp}/openclaw-prerequisite-stdout.XXXXXX")"
       PRIVATE_PREREQ_STDERR="$(mktemp "${TMPDIR:-/tmp}/openclaw-prerequisite-stderr.XXXXXX")"
@@ -1221,10 +1225,37 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         PROVISIONAL_RUN_DIR=""
         continue
       fi
+      PREREQUISITE_STDOUT_SHA256="$(sha256sum "$PRIVATE_PREREQ_STDOUT" | cut -d' ' -f1)"
+      PREREQUISITE_STDERR_SHA256="$(sha256sum "$PRIVATE_PREREQ_STDERR" | cut -d' ' -f1)"
+      PREREQUISITE_ARGV_SHA256="$(printf '%s' "$PREREQUISITE_ARGV_JSON" | sha256sum | cut -d' ' -f1)"
+      jq -n \
+        --arg row "$ROW_ID" \
+        --arg candidateSha "$OPENCLAW_CANDIDATE_SHA" \
+        --arg docsSha "$DOCS_REF" \
+        --arg completedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        --arg argvSha256 "$PREREQUISITE_ARGV_SHA256" \
+        --arg stdoutSha256 "$PREREQUISITE_STDOUT_SHA256" \
+        --arg stderrSha256 "$PREREQUISITE_STDERR_SHA256" \
+        '{schema:"openclaw.k6.process-local-prerequisite-receipt.v1",row:$row,candidateSha:$candidateSha,docsSha:$docsSha,completedAt:$completedAt,exitCode:0,argvSha256:$argvSha256,stdoutSha256:$stdoutSha256,stderrSha256:$stderrSha256,verdict:"PASS-candidate"}' \
+        > "$PREREQUISITE_RECEIPT"
       rm -f "$PRIVATE_PREREQ_STDOUT" "$PRIVATE_PREREQ_STDERR"
       PRIVATE_PREREQ_STDOUT=""
       PRIVATE_PREREQ_STDERR=""
 
+    fi
+    if [[ "$PREREQUISITE_REQUIRED" == "true" && ! -f "$PREREQUISITE_RECEIPT" ]]; then
+      echo "[$ROW_ID] required process-local prerequisite receipt is missing; live producer was not fired." >&2
+      jq -n \
+        --arg row "$ROW_ID" \
+        --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        '{k6ExitCode:0,postprocessExitCode:1,effectiveExitCode:1,endedAt:$endedAt,verdict:"PARTIAL-candidate",verdictSource:"process-local-prerequisite-missing",summaryFileVerdict:null,vuLogVerdict:null,summaryFiles:[],evidence:{row:$row,dispatched:false},candidateOnly:true,foldRequiresReview:true,terminal:true,review:{status:"review-pending",pendingReceipts:["process-local-propagation-tests","live-behavioral-receipt"]}}' \
+        > "$RUN_DIR/run-result.json"
+      ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
+      MATRIX_EXIT_CODE=1
+      MATRIX_ROW_FAILURES+=("$ROW_ID:1")
+      rm -f "$RUN_DIR/.started"
+      PROVISIONAL_RUN_DIR=""
+      continue
     fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       export OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"

@@ -145,6 +145,33 @@ test('dependency-gated consumers require fresh exact candidate and docs receipts
   });
   assert.equal(unbound.ok, false);
   assert.deepEqual(unbound.blocked[0].missingDependencies, ['R-CD-RETURN-COVENANT-AUTHORITY']);
+
+  const authorityPlan = resolveProducerPlan({
+    selection: 'R-CD-RETURN-COVENANT-AUTHORITY',
+    registry,
+    receipts: [base],
+    candidateSha: 'a'.repeat(40),
+    docsSha: 'b'.repeat(40),
+    nowMs: Date.parse('2026-04-12T01:00:00.000Z'),
+  });
+  assert.equal(authorityPlan.ok, true);
+  assert.equal(authorityPlan.rows[0].ownReceiptSatisfied, true);
+  assert.deepEqual(authorityPlan.blocked, []);
+
+  const overlap = {
+    ...base,
+    rowId: 'R-CD-RETURN-OVERLAP',
+  };
+  const overlapPlan = resolveProducerPlan({
+    selection: 'R-CD-RETURN-OVERLAP',
+    registry,
+    receipts: [base, overlap],
+    candidateSha: 'a'.repeat(40),
+    docsSha: 'b'.repeat(40),
+    nowMs: Date.parse('2026-04-12T01:00:00.000Z'),
+  });
+  assert.equal(overlapPlan.ok, true);
+  assert.deepEqual(overlapPlan.blocked, []);
 });
 
 test('restored live producers emit evidence in the extractor contract', async () => {
@@ -299,6 +326,9 @@ test('process-local rows use private artifact directories and emit standard term
   assert.match(runner, /if \[\[ "\$process_rc" -ne 0 \]\]; then\s+process_verdict="FAIL-fixture"/u);
   assert.match(runner, /-z "\$process_result_file" \|\| -z "\$process_verdict"/u);
   assert.match(runner, /elif \[\[ "\$process_verdict" != "PASS-candidate" \]\]; then\s+process_rc=1/u);
+  assert.match(runner, /openclaw\.k6\.process-local-prerequisite-receipt\.v1/u);
+  assert.match(runner, /verdictSource:"process-local-prerequisite-missing"/u);
+  assert.match(runner, /"process-local-propagation-tests","live-behavioral-receipt"/u);
   assert.doesNotMatch(runner, /process-local-prerequisite\/stdout\.log/u);
   assert.doesNotMatch(runner, /process-local-prerequisite\/stderr\.log/u);
 });

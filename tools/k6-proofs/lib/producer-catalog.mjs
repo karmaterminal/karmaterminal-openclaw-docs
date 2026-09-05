@@ -195,13 +195,15 @@ export function resolveProducerPlan({
   failures.push(...topology.failures);
   const rows = topology.ordered.map((rowId) => {
     const row = registry.rows[rowId];
+    const ownReceiptSatisfied = receipts.some((receipt) => receipt?.rowId === rowId &&
+      receiptIsFresh(receipt, { candidateSha, docsSha }, nowMs));
     const missingDependencies = row.dependsOn.filter((dependency) => (
       !receipts.some((receipt) => receipt?.rowId === dependency &&
         receiptIsFresh(receipt, { candidateSha, docsSha }, nowMs))
     ));
     const blocked = row.classification === 'dependency-gated' &&
-      (Boolean(row.blockedBy) || missingDependencies.length > 0);
-    return { ...row, missingDependencies, blocked };
+      (!ownReceiptSatisfied || missingDependencies.length > 0);
+    return { ...row, ownReceiptSatisfied, missingDependencies, blocked };
   });
   return {
     schema: 'openclaw.k6.producer-plan.v1',

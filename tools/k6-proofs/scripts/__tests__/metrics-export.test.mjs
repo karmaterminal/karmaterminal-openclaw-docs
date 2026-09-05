@@ -128,6 +128,32 @@ test('exports row-list runner directory and marks trace-missing as pending recei
   });
 });
 
+test('exports process-local failures from final run verdict and effective exit code', async () => {
+  await withTmp(async (dir) => {
+    const runDir = join(dir, '20260905T120000Z-r-cw-multi-collapse');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(join(runDir, 'run-result.json'), `${JSON.stringify({
+      k6ExitCode: 0,
+      postprocessExitCode: 1,
+      effectiveExitCode: 1,
+      verdict: 'FAIL-fixture',
+      evidence: { row: 'R-CW-MULTI-COLLAPSE' },
+      candidateOnly: true,
+      foldRequiresReview: true,
+      review: { status: 'review-pending', pendingReceipts: ['process-local-behavioral-receipt'] },
+    })}\n`);
+
+    const prom = join(dir, 'metrics.prom');
+    const run = runExporter(['--run-dir', runDir, '--prometheus-out', prom]);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    const receipt = JSON.parse(run.stdout);
+    assert.equal(receipt.outcome, 'FAIL-fixture');
+    const promText = await readFile(prom, 'utf8');
+    assert.match(promText, /openclaw_proofs_k6_proof_failures_total\{[^\n]*\} 1/);
+    assert.doesNotMatch(promText, /outcome="PASS-candidate"/);
+  });
+});
+
 
 test('marks direct operator config-get receipts present from public-safe evidence', async () => {
   await withTmp(async (dir) => {

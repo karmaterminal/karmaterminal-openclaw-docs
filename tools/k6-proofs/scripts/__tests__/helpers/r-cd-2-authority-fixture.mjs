@@ -385,6 +385,16 @@ export async function writeRcd2Bundle(repoRoot, {
     seat: selected.seat,
     rows: [selected.row],
   }), null, 2)}\n`;
+  const seatReadiness = JSON.parse(seatReadinessBody);
+  metadata.readiness = {
+    receipt: 'seat-readiness.json',
+    sha256: digest(seatReadinessBody),
+    gatewayUrlFingerprint: seatReadiness.bindings.gatewayUrlFingerprint,
+    unit: seatReadiness.bindings.unit,
+    selectedRows: seatReadiness.bindings.selectedRows,
+    requiredMaxSpawnDepth: seatReadiness.bindings.requiredMaxSpawnDepth,
+    expectedMaxSpawnDepth: seatReadiness.bindings.expectedMaxSpawnDepth,
+  };
   const selectedHarness = {
     manifestPath: selected.manifestPath,
     manifestSha256: digest(`${JSON.stringify(manifestFor(selected), null, 2)}\n`),

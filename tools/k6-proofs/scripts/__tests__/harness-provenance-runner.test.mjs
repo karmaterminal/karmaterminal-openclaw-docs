@@ -411,7 +411,10 @@ test('the runner resolves its own harness root regardless of the caller working 
 
 const APPROVED_TOKEN = 'harness-provenance-test-token-do-not-log';
 
-function attachReadinessGateway(server) {
+function attachReadinessGateway(server, {
+  configRevisionHash = 'harness-fixture-applied',
+  appliedConfigHash = configRevisionHash,
+} = {}) {
   const send = (socket, value) => {
     const payload = Buffer.from(JSON.stringify(value));
     const header = payload.length < 126
@@ -520,8 +523,8 @@ function attachReadinessGateway(server) {
                   },
                 },
               },
-              configRevisionHash: 'harness-fixture-revision',
-              appliedConfigHash: 'harness-fixture-applied',
+              configRevisionHash,
+              appliedConfigHash,
             },
           });
         }
@@ -535,7 +538,7 @@ function attachReadinessGateway(server) {
  * provenance emission with stubbed tooling. R-CW-5A is runnable but
  * static-preflight-only, so no live k6 row is dispatched.
  */
-async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null } = {}) {
+async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null, rows = 'R-CW-5A', nodeShim = null, nodeShimFor = null, journalShimFor = null, k6ShimFor = null, envFor = null, gatewayConfig = null } = {}) {
   const root = await mkdtemp(path.join(tmpdir(), 'p86-harness-provenance-ok-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
@@ -545,7 +548,7 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
   if (afterCommit) await afterCommit(harness);
 
   const gateway = createServer((req, res) => res.writeHead(req.url.startsWith('/health') || req.url.startsWith('/status') ? 200 : 404).end('{}'));
-  attachReadinessGateway(gateway);
+  attachReadinessGateway(gateway, gatewayConfig || {});
   await new Promise((resolve) => gateway.listen(0, '127.0.0.1', resolve));
   const gatewayPort = gateway.address().port;
 
@@ -601,6 +604,63 @@ async function withApprovedMatrix(fn, { afterCommit = null, beforeCommit = null,
     await rm(root, { recursive: true, force: true });
   }
 }
+
+test('unapplied target config stops the live matrix with zero dispatch', async () => {
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      await assertInfrastructureFailure(harness, result, {
+        stage: 'seat-readiness',
+        check: 'authenticated-target-readiness',
+      });
+      await assert.rejects(
+        readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
+        /ENOENT/,
+      );
+    },
+    {
+      rows: 'R-CD-2',
+      gatewayConfig: {
+        configRevisionHash: 'pending-revision',
+        appliedConfigHash: 'running-revision',
+      },
+      k6ShimFor: (harness) => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+        `printf dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
+        'exit 0',
+        '',
+      ].join('\n'),
+    },
+  );
+});
+
+test('a different journal unit rejects before k6 dispatch', async () => {
+  await withApprovedMatrix(
+    async (harness) => {
+      const result = await harness.invoke();
+      await assertInfrastructureFailure(harness, result, {
+        stage: 'seat-readiness',
+        check: 'signed-gateway-unit',
+      });
+      await assert.rejects(
+        readFile(path.join(harness.root, 'k6-dispatched'), 'utf8'),
+        /ENOENT/,
+      );
+    },
+    {
+      rows: 'R-CD-2',
+      envFor: () => ({ OPENCLAW_PROOFS_GATEWAY_UNIT: 'wrong-gateway.service' }),
+      k6ShimFor: (harness) => [
+        '#!/bin/sh',
+        'if [ "${1:-}" = version ]; then printf \'%s\\n\' \'k6 v2.0.0\'; exit 0; fi',
+        `printf dispatched > ${path.join(harness.root, 'k6-dispatched')}`,
+        'exit 0',
+        '',
+      ].join('\n'),
+    },
+  );
+});
 
 test('the catalog preflight log is public-safe: no credentials, no local paths', async () => {
   await withApprovedMatrix(async (harness) => {

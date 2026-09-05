@@ -65,7 +65,7 @@ export function signedSeatReadinessFixture({
           authScopes: ['operator.read'],
           connectResponseId: connectRequestId,
           configResponseId: configRequestId,
-          configRevisionHash: 'fixture-config-revision',
+          configRevisionHash: 'fixture-applied-config',
           appliedConfigHash: 'fixture-applied-config',
         },
       },

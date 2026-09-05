@@ -112,7 +112,7 @@ export function attachReadinessGateway(server, {
                   },
                 },
               },
-              configRevisionHash: 'readiness-fixture-revision',
+              configRevisionHash: 'readiness-fixture-applied',
               appliedConfigHash: 'readiness-fixture-applied',
             },
           });

@@ -232,7 +232,8 @@ export async function inspectTarget(wsUrl, token, {
           !frame.payload.config ||
           typeof frame.payload.config !== 'object' ||
           typeof frame.payload.configRevisionHash !== 'string' ||
-          !Object.hasOwn(frame.payload, 'appliedConfigHash') ||
+          frame.payload.configRevisionHash.length === 0 ||
+          frame.payload.configRevisionHash !== frame.payload.appliedConfigHash ||
           !hello
         ) {
           finish(failure('config-get-rejected'));
@@ -398,7 +399,9 @@ export function validateReadinessReceipt(receipt, {
     !Array.isArray(receipt.target?.authentication?.response?.authScopes) ||
     !receipt.target.authentication.response.authScopes.includes('operator.read') ||
     typeof receipt.target?.authentication?.response?.configRevisionHash !== 'string' ||
-    !Object.hasOwn(receipt.target?.authentication?.response || {}, 'appliedConfigHash') ||
+    receipt.target.authentication.response.configRevisionHash.length === 0 ||
+    receipt.target.authentication.response.configRevisionHash !==
+      receipt.target.authentication.response.appliedConfigHash ||
     !DIGEST.test(receipt.bindingDigest || '') ||
     receipt.bindingDigest !== sha256(canonicalJson(readinessBinding(receipt))) ||
     receipt.integrity?.algorithm !== READINESS_SIGNATURE_ALGORITHM ||

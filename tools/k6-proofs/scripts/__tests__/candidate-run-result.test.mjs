@@ -13,6 +13,7 @@ import {
   SIGNING_KEY as RCD2_SIGNING_KEY,
   writeRcd2Bundle,
 } from './helpers/r-cd-2-authority-fixture.mjs';
+import { signedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const runNode = promisify(execFile);
 const script = path.resolve('tools/k6-proofs/scripts/validate-candidate-run-result.mjs');
@@ -22,6 +23,7 @@ const docsRef = 'b'.repeat(40);
 const repository = 'karmaterminal/karmaterminal-openclaw-docs';
 const scenarioSource = 'export default function scenario() { return true; }\n';
 const gatewayKey = 'candidate-test-gateway-key';
+const gatewayUnit = 'openclaw-candidate-test.service';
 
 function digest(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -81,14 +83,39 @@ async function fixture({ result = runResult(), metadata = null, manifestValue = 
   const manifestBody = `${JSON.stringify(manifestValue, null, 2)}\n`;
   await writeFile(manifestPath, manifestBody);
   await writeHarnessSources(candidateDir, manifestBody);
-  await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify({
+  const runnerMetadata = {
     row: 'R-CW-TEST',
     candidateSha: sha,
+    runtimeBuildSha: sha,
     seat: 'cael',
     scenario: 'r-cw-test.js',
     ...harnessMetadata({ manifestBody }),
     ...(metadata || {}),
-  }, null, 2)}\n`);
+  };
+  const readiness = signedSeatReadinessFixture({
+    signingKey: gatewayKey,
+    candidateSha: sha,
+    runtimeSha: sha,
+    docsSha: docsRef,
+    seat: runnerMetadata.seat,
+    unit: gatewayUnit,
+    rows: [runnerMetadata.row],
+  });
+  const readinessBody = `${JSON.stringify(readiness, null, 2)}\n`;
+  runnerMetadata.readiness = {
+    receipt: 'seat-readiness.json',
+    sha256: digest(readinessBody),
+    gatewayUrlFingerprint: readiness.bindings.gatewayUrlFingerprint,
+    unit: gatewayUnit,
+    selectedRows: [runnerMetadata.row],
+    requiredMaxSpawnDepth: 2,
+    expectedMaxSpawnDepth: 5,
+  };
+  await writeFile(
+    path.join(candidateDir, 'runner-metadata.json'),
+    `${JSON.stringify(runnerMetadata, null, 2)}\n`,
+  );
+  await writeFile(path.join(candidateDir, 'seat-readiness.json'), readinessBody);
   await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify(result, null, 2)}\n`);
   return { root, candidateDir, manifestPath, manifestBody };
 }
@@ -164,6 +191,57 @@ test('emits a public-safe, candidate-only routing envelope for a complete candid
     assert.deepEqual(JSON.parse(await readFile(out, 'utf8')), result);
   } finally {
     await rm(setup.root, { recursive: true, force: true });
+  }
+});
+
+test('candidate envelope consumer rejects missing, stale, invalid, and mismatched readiness', async (t) => {
+  const cases = [
+    ['missing', async (setup) => {
+      await rm(path.join(setup.candidateDir, 'seat-readiness.json'));
+    }, /missing or unreadable/],
+    ['stale v1', async (setup) => {
+      const receiptPath = path.join(setup.candidateDir, 'seat-readiness.json');
+      const metadataPath = path.join(setup.candidateDir, 'runner-metadata.json');
+      const receipt = JSON.parse(await readFile(receiptPath, 'utf8'));
+      receipt.schema = 'openclaw.k6.seat-readiness.v1';
+      const body = `${JSON.stringify(receipt, null, 2)}\n`;
+      const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+      metadata.readiness.sha256 = digest(body);
+      await writeFile(receiptPath, body);
+      await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
+    }, /invalid-receipt/],
+    ['invalid signature', async (setup) => {
+      const receiptPath = path.join(setup.candidateDir, 'seat-readiness.json');
+      const metadataPath = path.join(setup.candidateDir, 'runner-metadata.json');
+      const receipt = JSON.parse(await readFile(receiptPath, 'utf8'));
+      receipt.integrity.signature = '0'.repeat(64);
+      const body = `${JSON.stringify(receipt, null, 2)}\n`;
+      const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+      metadata.readiness.sha256 = digest(body);
+      await writeFile(receiptPath, body);
+      await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
+    }, /invalid-signature/],
+    ['mismatched unit', async (setup) => {
+      const metadataPath = path.join(setup.candidateDir, 'runner-metadata.json');
+      const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+      metadata.readiness.unit = 'wrong-gateway.service';
+      await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
+    }, /binding-mismatch:unit/],
+  ];
+  for (const [name, mutate, expected] of cases) {
+    await t.test(name, async () => {
+      const setup = await fixture();
+      try {
+        await mutate(setup);
+        await assert.rejects(invoke(setup), expected);
+        await assert.rejects(
+          readFile(path.join(setup.candidateDir, 'candidate-run-result.json'), 'utf8'),
+          /ENOENT/,
+        );
+      } finally {
+        await rm(setup.root, { recursive: true, force: true });
+      }
+    });
   }
 });
 
@@ -596,6 +674,25 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     seat: 'elliott', scenario: 'r-cd-token-bracket-delegate.js',
     ...harnessMetadata({ manifestBody: tokenManifestBody, rowFile: 'r-cd-token-bracket-delegate' }),
   };
+  const readiness = signedSeatReadinessFixture({
+    signingKey: gatewayKey,
+    candidateSha: sha,
+    runtimeSha: sha,
+    docsSha: docsRef,
+    seat: metadata.seat,
+    unit: gatewayUnit,
+    rows: [metadata.row],
+  });
+  const readinessBody = `${JSON.stringify(readiness, null, 2)}\n`;
+  metadata.readiness = {
+    receipt: 'seat-readiness.json',
+    sha256: digest(readinessBody),
+    gatewayUrlFingerprint: readiness.bindings.gatewayUrlFingerprint,
+    unit: gatewayUnit,
+    selectedRows: [metadata.row],
+    requiredMaxSpawnDepth: 2,
+    expectedMaxSpawnDepth: 5,
+  };
   const evidence = {
     surface_class: 'raw-final-text', session_created: true, disposable_origin_ready: true,
     prompt_injected: true,
@@ -634,6 +731,7 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   await writeFile(manifestPath, tokenManifestBody);
   await writeHarnessSources(candidateDir, tokenManifestBody);
   await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
+  await writeFile(path.join(candidateDir, 'seat-readiness.json'), readinessBody);
   await writeFile(path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'), raw);
   await writeFile(path.join(candidateDir, 'run-result.json'), `${JSON.stringify({
     effectiveExitCode: 0, verdict: 'PASS-candidate',
@@ -657,7 +755,7 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
       path.join(candidateDir, 'runner-metadata.json'),
       `${JSON.stringify({ ...metadata, runtimeBuildSha: 'f'.repeat(40) })}\n`,
     );
-    await assert.rejects(invoke({ manifestPath, candidateDir }), /build identity mismatch/);
+    await assert.rejects(invoke({ manifestPath, candidateDir }), /seat readiness receipt rejected/);
     await writeFile(path.join(candidateDir, 'runner-metadata.json'), `${JSON.stringify(metadata)}\n`);
     await writeFile(
       path.join(candidateDir, 'r-cd-token-authoritative-receipt.json'),

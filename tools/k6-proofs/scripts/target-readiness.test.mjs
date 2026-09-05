@@ -216,8 +216,8 @@ test('protocol handshake uses the canonical CLI identity and binds responses', a
                   },
                 },
               },
-              configRevisionHash: 'revision',
-              appliedConfigHash: 'applied',
+              configRevisionHash: 'applied-revision',
+              appliedConfigHash: 'applied-revision',
             },
           }),
         }));
@@ -239,6 +239,68 @@ test('protocol handshake uses the canonical CLI identity and binds responses', a
     configured: { enabled: true, defaultsPresent: true },
     effective: { enabled: true, defaultsPresent: true },
   });
+});
+
+test('authenticated config.get rejects a revision not applied by the running target', async () => {
+  class UnappliedConfigWebSocket {
+    constructor() {
+      queueMicrotask(() => this.onmessage({
+        data: JSON.stringify({
+          type: 'event',
+          event: 'connect.challenge',
+          payload: { nonce: 'server-nonce', ts: 1 },
+        }),
+      }));
+    }
+
+    send(raw) {
+      const frame = JSON.parse(raw);
+      const payload = frame.method === 'connect'
+        ? {
+            type: 'hello-ok',
+            protocol: 4,
+            server: {
+              version: '2026.8.1',
+              buildId: `2026.8.1-${values.runtimeSha.slice(0, 12)}-fixture`,
+              bootId: 'boot',
+              connId: 'connection',
+            },
+            features: { methods: ['config.get'], events: ['connect.challenge'] },
+            snapshot: {},
+            auth: { role: 'operator', scopes: ['operator.read'] },
+            policy: { maxPayload: 1024, maxBufferedBytes: 2048, tickIntervalMs: 1000 },
+          }
+        : {
+            valid: true,
+            sourceConfig: {},
+            config: {},
+            configRevisionHash: 'pending-revision',
+            appliedConfigHash: 'running-revision',
+          };
+      queueMicrotask(() => this.onmessage({
+        data: JSON.stringify({ type: 'res', id: frame.id, ok: true, payload }),
+      }));
+    }
+
+    close() {}
+  }
+
+  const result = await inspectTarget(values.gatewayWs, values.signingKey, {
+    WebSocketImpl: UnappliedConfigWebSocket,
+    timeoutMs: 100,
+  });
+  assert.equal(result.authenticated, false);
+  assert.equal(result.error, 'config-get-rejected');
+});
+
+test('a signed receipt with an unapplied target revision is invalid', () => {
+  const receipt = signedSeatReadinessFixture(values);
+  const unsigned = structuredClone(receipt);
+  delete unsigned.integrity;
+  unsigned.target.authentication.response.configRevisionHash = 'pending-revision';
+  unsigned.target.authentication.response.appliedConfigHash = 'running-revision';
+  const resigned = sealReadinessReceipt(unsigned, values.signingKey);
+  assert.deepEqual(verify(resigned), { valid: false, reason: 'invalid-receipt' });
 });
 
 test('tampered client identity is rejected even with a valid signature', () => {

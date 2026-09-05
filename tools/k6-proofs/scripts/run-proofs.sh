@@ -61,6 +61,7 @@ bind_execution_roots
 PRIVATE_K6_LOG=""
 PRIVATE_EVIDENCE_FILE=""
 PRIVATE_GATEWAY_LOG=""
+PRIVATE_SEAT_READINESS=""
 SOURCE_CONTRACT_FILE=""
 ACTIVE_TOKEN_RUN_DIR=""
 ACTIVE_TOKEN_PHASE=""
@@ -73,6 +74,7 @@ cleanup_private_artifacts() {
     "${PRIVATE_K6_LOG:-}" \
     "${PRIVATE_EVIDENCE_FILE:-}" \
     "${PRIVATE_GATEWAY_LOG:-}" \
+    "${PRIVATE_SEAT_READINESS:-}" \
     "${CATALOG_PREFLIGHT_RAW_FILE:-}" \
     "${SOURCE_CONTRACT_FILE:-}"
   if [[ -n "${HARNESS_SNAPSHOT_ROOT:-}" ]]; then rm -rf "$HARNESS_SNAPSHOT_ROOT"; fi
@@ -784,11 +786,23 @@ if [[ "$DRY_RUN" == "false" ]]; then
     fail_harness "seat-readiness" "authenticated supplied-target readiness failed" \
       "$(jq -c '{check:"authenticated-target-readiness",outcome,notes}' "$SEAT_READINESS_JSON")"
   fi
-  if ! node scripts/verify-seat-readiness.mjs "$SEAT_READINESS_JSON"; then
+  PRIVATE_SEAT_READINESS="$(mktemp "${TMPDIR:-/tmp}/openclaw-seat-readiness.XXXXXX")"
+  cp "$SEAT_READINESS_JSON" "$PRIVATE_SEAT_READINESS"
+  if ! node scripts/verify-seat-readiness.mjs "$PRIVATE_SEAT_READINESS"; then
     fail_harness "seat-readiness" "signed target readiness receipt failed verification" \
       '{"check":"signed-readiness-receipt"}'
   fi
+  SEAT_READINESS_JSON="$PRIVATE_SEAT_READINESS"
   SEAT_READINESS_SHA256="$(sha256sum "$SEAT_READINESS_JSON" | cut -d' ' -f1)"
+  SIGNED_GATEWAY_UNIT="$(jq -er '.bindings.unit' "$SEAT_READINESS_JSON")"
+  SIGNED_GATEWAY_FINGERPRINT="$(jq -er '.bindings.gatewayUrlFingerprint' "$SEAT_READINESS_JSON")"
+  SIGNED_REQUIRED_DEPTH="$(jq -er '.bindings.requiredMaxSpawnDepth' "$SEAT_READINESS_JSON")"
+  SIGNED_EXPECTED_DEPTH="$(jq -er '.bindings.expectedMaxSpawnDepth' "$SEAT_READINESS_JSON")"
+  if [[ -n "${OPENCLAW_PROOFS_GATEWAY_UNIT:-}" &&
+        "$OPENCLAW_PROOFS_GATEWAY_UNIT" != "$SIGNED_GATEWAY_UNIT" ]]; then
+    fail_harness "seat-readiness" "journal unit differs from the signed target unit" \
+      '{"check":"signed-gateway-unit"}'
+  fi
   echo "SEAT READINESS: $SEAT_READINESS_JSON"
 fi
 
@@ -952,6 +966,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # The exact scenario source travels with the receipt so a reviewer can prove
     # which contract bytes produced it without trusting the run directory name.
     cp "scenarios/$SCENARIO_FILE" "$RUN_DIR/row-scenario.js"
+    cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
+    if ! node scripts/verify-seat-readiness.mjs "$RUN_DIR/seat-readiness.json"; then
+      fail_harness "seat-readiness" "run-local signed target readiness receipt failed verification" \
+        "$(jq -n --arg row "$ROW_ID" '{check:"run-local-signed-readiness-receipt",row:$row}')"
+    fi
     assert_copied_artifact_frozen "$ROW_ID" "$RUN_DIR/row-manifest.json" "$ROW_MANIFEST_DIGEST"
     assert_copied_artifact_frozen "$ROW_ID" "$RUN_DIR/row-scenario.js" "$ROW_SCENARIO_DIGEST"
     # Everything downstream reads the verified copy, never the mutable worktree
@@ -975,7 +994,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --arg manifestSha256 "$ROW_MANIFEST_DIGEST" \
       --arg scenarioPath "$ROW_SCENARIO_REL" \
       --arg scenarioSha256 "$ROW_SCENARIO_DIGEST" \
-      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, runId:$runId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256}' \
+      --arg readinessSha256 "$SEAT_READINESS_SHA256" \
+      --arg gatewayUrlFingerprint "$SIGNED_GATEWAY_FINGERPRINT" \
+      --arg gatewayUnit "$SIGNED_GATEWAY_UNIT" \
+      --argjson selectedRows "$ROW_SELECTION_JSON" \
+      --argjson requiredMaxSpawnDepth "$SIGNED_REQUIRED_DEPTH" \
+      --argjson expectedMaxSpawnDepth "$SIGNED_EXPECTED_DEPTH" \
+      '{row:$row, scenario:$scenario, candidateSha:$candidate, runtimeBuildSha:$runtime, seat:$seat, sessionConfigured:true, startedAt:$started, docsRef:$docsRef, repository:$repository, matrixId:$matrixId, runId:$runId, manifestPath:$manifestPath, manifestSha256:$manifestSha256, scenarioPath:$scenarioPath, scenarioSha256:$scenarioSha256,readiness:{receipt:"seat-readiness.json",sha256:$readinessSha256,gatewayUrlFingerprint:$gatewayUrlFingerprint,unit:$gatewayUnit,selectedRows:$selectedRows,requiredMaxSpawnDepth:$requiredMaxSpawnDepth,expectedMaxSpawnDepth:$expectedMaxSpawnDepth}}' \
       > "$RUN_DIR/runner-metadata.json"
     if [[ "$ROW_ID" == "R-CD-2" ]]; then
       if ! node "$R_CD_2_RECEIPT_RESOLVER" \
@@ -1039,9 +1064,6 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         '{schema:"openclaw.k6.r-cd-token.attempt-state.v1",row:"R-CD-TOKEN",attemptIdHash:$attemptIdHash,rowNonceHash:$rowNonceHash,candidateSha:$candidateSha,runtimeBuildSha:$runtimeBuildSha,startedAt:$startedAt,phase:"prepared",proofTerminal:false,consumptionState:"not-yet-dispatched",automaticRetryAllowed:false}' \
         > "$RUN_DIR/attempt-state.json"
     fi
-    if [[ -f "$SEAT_READINESS_JSON" ]]; then
-      cp "$SEAT_READINESS_JSON" "$RUN_DIR/seat-readiness.json"
-    fi
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       export OPENCLAW_SEAT_CLASS="$(jq -r '.seat.class // "unknown"' "$RUN_DIR/seat-readiness.json" 2>/dev/null || echo unknown)"
       if [[ "$OPENCLAW_SEAT_CLASS" != "raw-final-text" ]]; then
@@ -1073,7 +1095,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     PRIVATE_K6_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-log.XXXXXX")"
     PRIVATE_EVIDENCE_FILE="$(mktemp "${TMPDIR:-/tmp}/openclaw-k6-evidence.XXXXXX")"
     PRIVATE_GATEWAY_LOG="$(mktemp "${TMPDIR:-/tmp}/openclaw-gateway-journal.XXXXXX")"
-    GATEWAY_UNIT="${OPENCLAW_PROOFS_GATEWAY_UNIT:-openclaw-gateway}"
+    GATEWAY_UNIT="$(jq -er '.bindings.unit' "$RUN_DIR/seat-readiness.json")"
     GATEWAY_JOURNAL_CURSOR=""
     GATEWAY_JOURNAL_METHOD="unavailable"
     GATEWAY_JOURNAL_RC=1

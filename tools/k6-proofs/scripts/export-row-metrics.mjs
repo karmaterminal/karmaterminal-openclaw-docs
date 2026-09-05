@@ -23,6 +23,7 @@ import {
   isRcd2AuthorityRequired,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
+import { consumeRunReadiness } from './run-readiness-consumer.mjs';
 
 const METRIC_PREFIX = 'openclaw_proofs_k6';
 
@@ -150,15 +151,12 @@ async function readEvidenceJsonl(file) {
     .filter(Boolean);
 }
 
-function receiptStatusFromEvidence(name, evidenceRows, readiness = null) {
+function receiptStatusFromEvidence(name, evidenceRows, readinessVerified = false) {
   const safe = safeLabelValue(name);
   const evidence = evidenceRows[0] || {};
   switch (safe) {
     case 'seat-readiness':
-      return readiness?.schema === 'openclaw.k6.seat-readiness.v2' &&
-        readiness?.outcome === 'PASS-candidate'
-        ? 'present'
-        : 'unknown';
+      return readinessVerified ? 'present' : 'unknown';
     case 'config-read':
       return evidence.config_read === true ? 'present' : 'unknown';
     case 'continuation-values':
@@ -197,7 +195,7 @@ async function normalizeFromRunDir(runDir) {
   const candidate = files.includes('candidate-run-result.json')
     ? await readOptionalJson(path.join(runDir, 'candidate-run-result.json'))
     : null;
-  const readiness = files.includes('seat-readiness.json') ? await readJson(path.join(runDir, 'seat-readiness.json')) : null;
+  await consumeRunReadiness(runDir, metadata, process.env.OPENCLAW_GATEWAY_TOKEN);
   const evidenceRows = files.includes('evidence.jsonl') ? await readEvidenceJsonl(path.join(runDir, 'evidence.jsonl')) : [];
   const summaryName = pickSummaryFile(files);
   const summary = summaryName ? await readJson(path.join(runDir, summaryName)) : {};
@@ -264,7 +262,7 @@ async function normalizeFromRunDir(runDir) {
     },
     receipts: receiptRowsFrom({ result: {}, manifest, runResult }).map((receipt) => ({
       ...receipt,
-      status: receipt.status === 'unknown' ? receiptStatusFromEvidence(receipt.name, evidenceRows, readiness) : receipt.status,
+      status: receipt.status === 'unknown' ? receiptStatusFromEvidence(receipt.name, evidenceRows, true) : receipt.status,
     })),
     failureClass: proofFailures > 0 ? 'threshold' : (runResult?.review?.pendingReceipts?.length ? 'missing-receipt' : 'none'),
     candidateOnly,
@@ -289,6 +287,7 @@ async function normalizeInput(args) {
         ? readOptionalJson(path.join(runDir, 'candidate-run-result.json'))
         : null,
     ]);
+    await consumeRunReadiness(runDir, metadata, process.env.OPENCLAW_GATEWAY_TOKEN);
     const rCd2Required = isRcd2AuthorityRequired({
       runDir,
       envelope: candidate,

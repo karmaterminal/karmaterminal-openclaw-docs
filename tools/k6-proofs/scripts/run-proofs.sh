@@ -1374,7 +1374,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --manifest "$MANIFEST_FILE"
         --out "$RUN_DIR/live-producer-lineage.json"
       )
-      if [[ "$ROW_ID" == "R-CW-DELEGATE-TOKEN" ]]; then
+      if [[ "$ROW_ID" == "R-CW-DELEGATE-TOKEN" || "$ROW_ID" == "R-CW-MULTI" ]]; then
         LINEAGE_ARGS+=(--gateway-log "$PRIVATE_GATEWAY_LOG")
       fi
       if ! node "$RUNNER_SCRIPT_DIR/collect-live-producer-lineage.mjs" "${LINEAGE_ARGS[@]}" \

@@ -406,6 +406,11 @@ test('multi accepts three typed elections plus one isolated response-token parit
   assert.equal(result.flows.length, 4);
   assert.equal(result.flows.every((flow) => flow.flowId === undefined), true);
   assert.equal(result.flows.every((flow) => /^[0-9a-f]{16}$/u.test(flow.flowIdFingerprint)), true);
+  const runner = await readFile(path.join(proofsDir, 'scripts/run-proofs.sh'), 'utf8');
+  assert.match(
+    runner,
+    /"\$ROW_ID" == "R-CW-DELEGATE-TOKEN" \|\| "\$ROW_ID" == "R-CW-MULTI"[\s\S]{0,100}LINEAGE_ARGS\+=\(--gateway-log "\$PRIVATE_GATEWAY_LOG"\)/u,
+  );
 });
 
 test('delegate-child lineage fails without the parent delegate flow', async () => {

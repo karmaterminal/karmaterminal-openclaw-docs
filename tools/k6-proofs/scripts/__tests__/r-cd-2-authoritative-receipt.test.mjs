@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash, createHmac } from 'node:crypto';
 import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -12,6 +13,9 @@ import {
 
 const signingKey = 'r-cd-2-authoritative-receipt-test-key';
 const run = 'a'.repeat(16);
+const wakeRun = 'f'.repeat(16);
+const rowNonce = 'R-CD-2-authority-test-nonce';
+const rowNonceFingerprint = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const manifestPath = path.join(repoRoot, 'manifests/r-cd-2.json');
@@ -20,6 +24,7 @@ const postprocessorPath = path.join(repoRoot, 'scripts/postprocess-k6-summary.mj
 
 function evidence(overrides = {}) {
   return {
+    nonce: rowNonce,
     session_created: true, session_unbound_confirmed: true,
     send_accepted: true, send_run_captured: true,
     dispatch_terminal_sentinel_observed: true,
@@ -27,8 +32,8 @@ function evidence(overrides = {}) {
     terminal_success_same_run: true, typed_delegate_success_same_run: true,
     wake_lifecycle_observed: true, post_wake_quiet: true,
     channel_message_observed: false, dispatch_failure_observed: false,
-    send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: run,
-    row_nonce_fingerprint: 'e'.repeat(16),
+    send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: wakeRun,
+    row_nonce_fingerprint: rowNonceFingerprint,
     accepted_send_trace_id: 'b'.repeat(32),
     dispatch_accepted_at_ms: 100,
     dispatch_terminal_sentinel_at_ms: 200,
@@ -47,12 +52,34 @@ function correlation(overrides = {}) {
     dispatchSpanId: 'c'.repeat(16), fireSpanId: 'd'.repeat(16),
     rowBinding: {
       acceptedSendRunFingerprint: run,
-      nonceFingerprint: 'e'.repeat(16),
+      nonceFingerprint: rowNonceFingerprint,
       acceptedSendTraceId: 'b'.repeat(32),
       acceptedSendTraceSource: 'sessions-send-response',
     },
     ...overrides,
   };
+}
+
+function canonical(receipt) {
+  return JSON.stringify({
+    schema: receipt.schema,
+    row: receipt.row,
+    authoritativeSource: receipt.authoritativeSource,
+    candidateOnly: receipt.candidateOnly,
+    foldRequiresReview: receipt.foldRequiresReview,
+    verdict: receipt.verdict,
+    failureCategory: receipt.failureCategory || null,
+    lifecycle: receipt.lifecycle || null,
+    diagnostics: receipt.diagnostics,
+    binding: receipt.binding,
+  });
+}
+
+function resign(receipt) {
+  receipt.integrity.signature = createHmac('sha256', signingKey)
+    .update(canonical(receipt))
+    .digest('hex');
+  return receipt;
 }
 
 test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
@@ -71,7 +98,7 @@ test('R-CD-2 binds a trace-less sessions.send through one unique nonce-reason tr
     correlation: correlation({
       rowBinding: {
         acceptedSendRunFingerprint: run,
-        nonceFingerprint: 'e'.repeat(16),
+        nonceFingerprint: rowNonceFingerprint,
         acceptedSendTraceId: 'b'.repeat(32),
         acceptedSendTraceSource: 'unique-reason-bound-trace',
       },
@@ -101,7 +128,7 @@ test('R-CD-2 signed diagnostics isolate lifecycle, topology, and join misses', (
       rowEvidence: evidence(),
       rowCorrelation: correlation({ rowBinding: {
         acceptedSendRunFingerprint: run,
-        nonceFingerprint: 'f'.repeat(16),
+        nonceFingerprint: 'e'.repeat(16),
         acceptedSendTraceId: 'b'.repeat(32),
         acceptedSendTraceSource: 'sessions-send-response',
       } }),
@@ -116,6 +143,186 @@ test('R-CD-2 signed diagnostics isolate lifecycle, topology, and join misses', (
       .filter(([, value]) => value === false).map(([key]) => key);
     assert.deepEqual(falseGates, [expectedGate]);
     assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+  }
+});
+
+test('R-CD-2 provider failure exposes a false lifecycle-owned diagnostic', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({
+      dispatch_failure_observed: true,
+      failureCategory: 'provider-or-turn-failure',
+    }),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.deepEqual(
+    [receipt.verdict, receipt.failureCategory],
+    ['FAIL-candidate', 'provider-or-turn-failure'],
+  );
+  assert.equal(receipt.diagnostics.lifecycle.dispatchFailureFree, false);
+  assert.equal(receipt.diagnostics.lifecycleComplete, false);
+  assert.equal(receipt.diagnostics.topologyComplete, true);
+  assert.equal(receipt.diagnostics.joinComplete, true);
+  assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true);
+
+  const allTrue = structuredClone(receipt);
+  for (const group of ['lifecycle', 'topology', 'joins']) {
+    for (const key of Object.keys(allTrue.diagnostics[group])) {
+      allTrue.diagnostics[group][key] = true;
+    }
+  }
+  allTrue.diagnostics.lifecycleComplete = true;
+  allTrue.diagnostics.topologyComplete = true;
+  allTrue.diagnostics.joinComplete = true;
+  resign(allTrue);
+  assert.deepEqual(
+    validateRcd2AuthoritativeReceipt(allTrue, signingKey),
+    { valid: false, reason: 'invalid-diagnostics' },
+  );
+});
+
+test('R-CD-2 rejects unsigned and signed receipt extension fields by exact shape', () => {
+  const variants = [
+    ['traceId', 'b'.repeat(32)],
+    ['privateSession', 'agent:main:private'],
+    ['forensic', { traceId: 'b'.repeat(32) }],
+  ];
+  for (const [key, value] of variants) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(), correlation: correlation(), signingKey,
+    });
+    receipt[key] = value;
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(receipt, signingKey),
+      { valid: false, reason: 'invalid-shape' },
+    );
+  }
+
+  const both = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(), correlation: correlation(), signingKey,
+  });
+  both.traceId = 'b'.repeat(32);
+  both.privateSession = 'agent:main:private';
+  assert.deepEqual(
+    validateRcd2AuthoritativeReceipt(both, signingKey),
+    { valid: false, reason: 'invalid-shape' },
+  );
+
+  for (const mutate of [
+    (receipt) => { receipt.binding.unsigned = true; },
+    (receipt) => { receipt.integrity.unsigned = true; },
+    (receipt) => { receipt.lifecycle.unsigned = true; },
+    (receipt) => { receipt.diagnostics.lifecycle.unsigned = true; },
+  ]) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(), correlation: correlation(), signingKey,
+    });
+    mutate(receipt);
+    resign(receipt);
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceipt(receipt, signingKey),
+      { valid: false, reason: 'invalid-shape' },
+    );
+  }
+});
+
+test('R-CD-2 requires a valid wake fingerprint distinct from the accepted send run', () => {
+  for (const wake_run_fingerprint of [run, null, 'malformed']) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence({ wake_run_fingerprint }),
+      correlation: correlation(),
+      signingKey,
+    });
+    assert.notEqual(receipt.verdict, 'PASS-candidate');
+    assert.equal(receipt.diagnostics.lifecycle.wakeRunFingerprint, false);
+    assert.equal(receipt.diagnostics.lifecycle.distinctWakeRun, wake_run_fingerprint !== run);
+    assert.equal(receipt.failureCategory, 'missing-send-run-lifecycle');
+  }
+  assert.equal(
+    resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(), correlation: correlation(), signingKey,
+    }).verdict,
+    'PASS-candidate',
+  );
+});
+
+test('R-CD-2 rejects a consistently copied nonce fingerprint not derived from private evidence', () => {
+  const wrongFingerprint = 'e'.repeat(16);
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence({ row_nonce_fingerprint: wrongFingerprint }),
+    correlation: correlation({
+      rowBinding: {
+        acceptedSendRunFingerprint: run,
+        nonceFingerprint: wrongFingerprint,
+        acceptedSendTraceId: 'b'.repeat(32),
+        acceptedSendTraceSource: 'sessions-send-response',
+      },
+    }),
+    signingKey,
+  });
+  assert.notEqual(receipt.verdict, 'PASS-candidate');
+  assert.equal(receipt.diagnostics.lifecycle.rowNonceFingerprint, false);
+  assert.equal(receipt.failureCategory, 'missing-send-run-lifecycle');
+});
+
+test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
+  const lifecycleCases = [
+    ['sessionCreated', { session_created: false }, 'missing-send-run-lifecycle'],
+    ['sessionUnbound', { session_unbound_confirmed: false }, 'missing-send-run-lifecycle'],
+    ['sendAccepted', { send_accepted: false }, 'missing-send-run-lifecycle'],
+    ['sendRunCaptured', { send_run_captured: false }, 'missing-send-run-lifecycle'],
+    ['dispatchTerminalSentinel', { dispatch_terminal_sentinel_observed: false }, 'missing-terminal-sentinel'],
+    ['dispatchTerminalSentinelSameRun', { dispatch_terminal_sentinel_same_run_window: false }, 'missing-terminal-sentinel'],
+    ['terminalSuccessSameRun', { terminal_success_same_run: false }, 'missing-send-run-lifecycle'],
+    ['typedDelegateSuccessSameRun', { typed_delegate_success_same_run: false }, 'missing-send-run-lifecycle'],
+    ['wakeLifecycle', { wake_lifecycle_observed: false }, 'missing-send-run-lifecycle'],
+    ['postWakeQuiet', { post_wake_quiet: false }, 'missing-send-run-lifecycle'],
+    ['noChannelDelivery', { channel_message_observed: true }, 'silent-channel-delivery'],
+    ['sendRunFingerprint', { send_run_fingerprint: 'bad' }, 'missing-send-run-lifecycle'],
+    ['wakeRunFingerprint', { wake_run_fingerprint: 'bad' }, 'missing-send-run-lifecycle'],
+    ['distinctWakeRun', { wake_run_fingerprint: run }, 'missing-send-run-lifecycle'],
+    ['rowNonceFingerprint', { row_nonce_fingerprint: 'e'.repeat(16) }, 'missing-send-run-lifecycle'],
+    ['terminalRunMatchesSend', { terminal_run_fingerprint: wakeRun }, 'missing-send-run-lifecycle'],
+    ['acceptedSendTraceShape', { accepted_send_trace_id: 'bad' }, 'missing-send-run-lifecycle'],
+    ['dispatchAcceptedBeforeSentinel', { dispatch_accepted_at_ms: 201 }, 'missing-send-run-lifecycle'],
+    ['sentinelBeforeLifecycleEnd', { dispatch_terminal_sentinel_at_ms: 301 }, 'missing-send-run-lifecycle'],
+    ['lifecycleEndBeforeWake', { dispatch_lifecycle_end_at_ms: 401 }, 'missing-send-run-lifecycle'],
+    ['wakeBeforeQuietWindow', { wake_lifecycle_at_ms: 501 }, 'missing-send-run-lifecycle'],
+    ['dispatchFailureFree', {
+      dispatch_failure_observed: true,
+      failureCategory: 'provider-or-turn-failure',
+    }, 'provider-or-turn-failure'],
+  ];
+  for (const [gate, override, category] of lifecycleCases) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(override), correlation: correlation(), signingKey,
+    });
+    assert.notEqual(receipt.verdict, 'PASS-candidate', gate);
+    assert.equal(receipt.diagnostics.lifecycle[gate], false, gate);
+    assert.equal(receipt.diagnostics.lifecycleComplete, false, gate);
+    assert.equal(receipt.failureCategory, category, gate);
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, gate);
+  }
+
+  const topologyCases = [
+    ['typedTool', { continuation: { tool: 'continue_work' } }],
+    ['silentWake', { delegate: { mode: 'normal' } }],
+    ['exactlyOneToolSpan', { toolSpanIds: ['a'.repeat(16), 'e'.repeat(16)] }],
+    ['traceId', { traceId: 'bad' }],
+    ['chainId', { chainId: '' }],
+    ['dispatchSpan', { dispatchSpanId: 'bad' }],
+    ['fireSpan', { fireSpanId: 'bad' }],
+    ['distinctDispatchAndFire', { fireSpanId: 'c'.repeat(16) }],
+  ];
+  for (const [gate, override] of topologyCases) {
+    const receipt = resolveRcd2AuthoritativeReceipt({
+      evidence: evidence(), correlation: correlation(override), signingKey,
+    });
+    assert.notEqual(receipt.verdict, 'PASS-candidate', gate);
+    assert.equal(receipt.diagnostics.topology[gate], false, gate);
+    assert.equal(receipt.diagnostics.topologyComplete, false, gate);
+    assert.equal(receipt.failureCategory, 'invalid-continuation-topology', gate);
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, gate);
   }
 });
 

@@ -567,6 +567,7 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
       accepted_send_trace_id: '1'.repeat(32),
     },
   });
+
   const traceId = '1'.repeat(32);
   const server = await listen((request, response) => {
     response.setHeader('content-type', 'application/json');
@@ -601,6 +602,60 @@ test('R-CD-2 correlation carries only matching opaque send run and nonce binding
   }
 });
 
+test('R-CD-2 derives the nonce fingerprint and rejects a supplied copied mismatch', async () => {
+  const rowNonce = 'R-CD-2-derived-fingerprint';
+  const derived = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
+  const wrong = 'e'.repeat(16);
+  assert.notEqual(wrong, derived);
+
+  for (const supplied of [undefined, derived, wrong]) {
+    const fixture = await fixtureDir({
+      rowId: 'R-CD-2',
+      delegateMode: 'silent-wake',
+      nonceOverride: rowNonce,
+      extraEvidence: {
+        send_run_fingerprint: 'a'.repeat(16),
+        ...(supplied === undefined ? {} : { row_nonce_fingerprint: supplied }),
+        accepted_send_trace_id: '7'.repeat(32),
+      },
+    });
+    const traceId = '7'.repeat(32);
+    const server = await listen((request, response) => {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify(
+        new URL(request.url, 'http://localhost').pathname === '/api/search'
+          ? { traces: [{ traceID: traceId }] }
+          : traceFixture({
+              traceId,
+              reasonHash: fixture.reasonHash,
+              reasonLength: fixture.reasonLength,
+              mode: 'silent-wake',
+            }),
+      ));
+    });
+    try {
+      const collect = () => execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+        '--seat', 'cael-prince', '--tempo-url', server.url,
+        '--timeout-ms', '100', '--poll-ms', '10',
+      ]);
+      if (supplied === wrong) {
+        await assert.rejects(collect(), /row_nonce_fingerprint mismatch/);
+      } else {
+        const { stdout } = await collect();
+        const result = JSON.parse(stdout);
+        const receipt = JSON.parse(
+          await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'),
+        );
+        assert.equal(receipt.rowBinding.nonceFingerprint, derived);
+      }
+    } finally {
+      await server.close();
+      await rm(fixture.dir, { recursive: true, force: true });
+    }
+  }
+});
+
 test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topology', async () => {
   const rowNonce = 'R-CD-2-resolver-example';
   const traceId = '2'.repeat(32);
@@ -613,7 +668,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
     extraEvidence: {
       send_run_fingerprint: runFingerprint,
       terminal_run_fingerprint: runFingerprint,
-      wake_run_fingerprint: runFingerprint,
+      wake_run_fingerprint: 'f'.repeat(16),
       row_nonce_fingerprint: nonceFingerprint,
       accepted_send_trace_id: traceId,
       session_created: true,

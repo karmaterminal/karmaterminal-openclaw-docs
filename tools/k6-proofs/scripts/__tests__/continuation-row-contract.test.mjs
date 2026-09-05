@@ -70,6 +70,7 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
 
   const manifest = JSON.parse(await readFile(path.join(manifestsDir, 'r-cd-2.json'), 'utf8'));
   const nonce = 'RCD2-RUNNER-CONTRACT-NONCE';
+  const nonceFingerprint = createHash('sha256').update(nonce).digest('hex').slice(0, 16);
   const reason = manifest.invocation.promptTemplate.replaceAll('{{nonce}}', nonce);
   const reasonHash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
   const now = new Date().toISOString();
@@ -87,8 +88,8 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
     dispatch_terminal_sentinel_same_run_window: true,
     wake_lifecycle_observed: true, post_wake_quiet: true, channel_message_observed: false,
     dispatch_failure_observed: false, send_run_fingerprint: 'a'.repeat(16),
-    terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'a'.repeat(16),
-    row_nonce_fingerprint: 'b'.repeat(16), accepted_send_trace_id: traceId,
+    terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'f'.repeat(16),
+    row_nonce_fingerprint: nonceFingerprint, accepted_send_trace_id: traceId,
   };
   const trace = rcd2Trace({ reasonHash, reasonLength: reason.length });
   const tempo = await listen((req, res) => {

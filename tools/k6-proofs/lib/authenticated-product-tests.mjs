@@ -75,8 +75,14 @@ export function runAuthenticatedVitest({
     if (managerVersion !== managerMatch[1]) throw new Error('executing package manager version mismatch');
 
     requireSuccess(execute(corepack, [
-      'pnpm', 'install', '--frozen-lockfile', '--force',
+      'pnpm', 'install', '--frozen-lockfile', '--force', '--ignore-scripts',
     ], { cwd: checkout, env: cleanEnv }), 'authenticated dependency installation');
+    const changedTrackedFiles = requireSuccess(execute('git', [
+      '-C', checkout, 'status', '--porcelain', '--untracked-files=no',
+    ], { env: cleanEnv }), 'authenticated product post-install identity').stdout.trim();
+    if (changedTrackedFiles) {
+      throw new Error('authenticated dependency installation modified tracked product bytes');
+    }
 
     const installedGraph = requireSuccess(execute(corepack, [
       'pnpm', 'list', '--json', '--depth', 'Infinity',

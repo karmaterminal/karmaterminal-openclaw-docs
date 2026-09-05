@@ -227,6 +227,7 @@ export function candidateEnvelopeMatchesSiblings({
   runResult,
   runDir,
   signingKey = artifactSigningKey(),
+  authoritySigningKey = process.env.OPENCLAW_GATEWAY_TOKEN || signingKey,
 }) {
   let rCd2Authority = null;
   if (isRcd2AuthorityRequired({ runDir, envelope, manifest, metadata, runResult })) {
@@ -237,7 +238,7 @@ export function candidateEnvelopeMatchesSiblings({
         manifest,
         metadata,
         runResult,
-        signingKey,
+        signingKey: authoritySigningKey,
       });
     } catch {
       return false;

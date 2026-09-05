@@ -202,6 +202,14 @@ test('signed artifact authority rejects missing, symlinked, wrong-schema and cha
     const names = [correlation, trace];
     const authority = buildArtifactAuthority({ directory, names, signingKey: key });
     assert.equal(validateArtifactAuthority({ authority, directory, names, signingKey: key }), true);
+    await writeFile(path.join(directory, 'continuation-correlation.json'), JSON.stringify({
+      schema: 'attacker.private-payload.v1', secret: 'must-not-be-published',
+    }));
+    assert.throws(() => buildArtifactAuthority({
+      directory,
+      names: ['continuation-correlation.json'],
+      signingKey: key,
+    }), /artifact schema mismatch/u);
     await writeFile(path.join(directory, trace), '{}');
     assert.equal(validateArtifactAuthority({ authority, directory, names, signingKey: key }), false);
     await rm(path.join(directory, trace));

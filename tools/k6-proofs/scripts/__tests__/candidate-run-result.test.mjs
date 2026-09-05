@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { buildArtifactAuthority } from '../../lib/artifact-authority.mjs';
 import { resolveRcdTokenAuthoritativeReceipt } from '../../lib/r-cd-token-authoritative-receipt.mjs';
 import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
 import {
@@ -596,6 +597,29 @@ test('R-CD-2 candidate envelope rejects a signed receipt copied from another sea
     );
   } finally {
     await fixture.cleanup();
+  }
+});
+
+test('R-CD-2 validates artifact and receipt authorities with their distinct keys', async () => {
+  const setup = await writeRcd2Bundle(path.resolve('.'));
+  const artifactKey = 'separate-artifact-authority-key';
+  try {
+    setup.envelope.artifactAuthority = buildArtifactAuthority({
+      directory: setup.runDir,
+      names: setup.envelope.artifacts.files,
+      signingKey: artifactKey,
+    });
+    assert.equal(candidateEnvelopeMatchesSiblings({
+      envelope: setup.envelope,
+      manifest: setup.manifest,
+      metadata: setup.metadata,
+      runResult: setup.runResult,
+      runDir: setup.runDir,
+      signingKey: artifactKey,
+      authoritySigningKey: RCD2_SIGNING_KEY,
+    }), true);
+  } finally {
+    await setup.cleanup();
   }
 });
 

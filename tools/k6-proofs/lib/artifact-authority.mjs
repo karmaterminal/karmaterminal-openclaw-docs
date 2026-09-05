@@ -18,7 +18,8 @@ export function artifactSigningKey(env = process.env) {
 
 function expectedSchema(name) {
   if (/^tempo-trace-[a-f0-9]+\.json$/u.test(name)) return 'openclaw.k6.public-tempo-trace.v1';
-  if (name === 'continuation-trace-correlation.json') {
+  if (name === 'continuation-trace-correlation.json' ||
+      name === 'continuation-correlation.json') {
     return new Set([
       'openclaw.k6.continuation-trace-correlation.v1',
       'openclaw.k6.r-cd-2-immutable-acquisition.v1',

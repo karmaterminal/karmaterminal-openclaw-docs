@@ -137,6 +137,7 @@ To be populated after per-case disposition complete. Each `required` case maps t
 **Existing historical-evidence preserved alongside**:
 - `swims/swim-44/rows/row-02-continue-delegate-normal.md` — yesterday's v5.5 substrate-finding (PASS-WITH-LAYER-CORRECTION verdict per L-v5.5-journal-vocabulary lesson; substrate-walk against v5.5 substrate, NOT v5.7)
 - `swims/swim-44/rows/row-02-measure.sh` — yesterday's v5.5 measurement-protocol script
+- `swims/swim-44/rows/row-1192-continue-delegate-input-attachments.md` — implementation-gated source/test row for typed child-input attachments. It is deliberately not a live proof and explicitly excludes attachment-bearing delegate returns (#666).
 
 These remain in-place as historical-evidence-of-v5.5-substrate-walk-from-yesterday. Row-02 against v5.7 substrate would be authored as separate row file (e.g. `row-02-v5.7-continue-delegate-normal.md`) if cohort dispositions row-02 as-required at v5.7 layer.
 

@@ -126,6 +126,7 @@ try {
     'LC_ALL',
     'NO_COLOR',
     'NODE_ENV',
+    'OPENCLAW_COREPACK_BIN',
     'PATH',
     'PNPM_HOME',
     'TMPDIR',

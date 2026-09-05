@@ -8,7 +8,7 @@ import path from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   resolveRcd2AuthoritativeReceipt as resolveRcd2AuthoritativeReceiptRaw,
-  validateRcd2AuthoritativeReceipt,
+  validateRcd2AuthoritativeReceipt as validateRcd2AuthoritativeReceiptRaw,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 
 const signingKey = 'r-cd-2-authoritative-receipt-test-key';
@@ -39,6 +39,11 @@ const authorityIdentity = {
     scenarioSha256: '5'.repeat(64),
   },
 };
+const validateRcd2AuthoritativeReceipt = (
+  receipt,
+  key,
+  expectedIdentity = authorityIdentity,
+) => validateRcd2AuthoritativeReceiptRaw(receipt, key, expectedIdentity);
 const resolveRcd2AuthoritativeReceipt = (input) => resolveRcd2AuthoritativeReceiptRaw({
   identity: authorityIdentity,
   ...input,
@@ -115,6 +120,41 @@ test('R-CD-2 promotes only a same-run typed silent-wake topology', () => {
   assert.equal(receipt.diagnostics.topologyComplete, true);
   assert.equal(receipt.diagnostics.joinComplete, true);
   assert.equal(receipt.lifecycle.rowNonceFingerprint, rowNonceFingerprint);
+});
+
+test('R-CD-2 validation rejects identity-less use and every foreign authority identity', () => {
+  const receipt = resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(),
+    correlation: correlation(),
+    signingKey,
+  });
+  assert.deepEqual(
+    validateRcd2AuthoritativeReceiptRaw(receipt, signingKey),
+    { valid: false, reason: 'expected-identity-required' },
+  );
+  const mutations = [
+    ['candidateSha', '6'.repeat(40)],
+    ['runtimeBuildSha', '7'.repeat(40)],
+    ['docsRef', '8'.repeat(40)],
+    ['seat', 'other-seat'],
+    ['matrixId', 'other-matrix'],
+    ['runId', 'other-run'],
+    ['harness', {
+      ...authorityIdentity.harness,
+      scenarioSha256: '9'.repeat(64),
+    }],
+  ];
+  for (const [key, value] of mutations) {
+    assert.deepEqual(
+      validateRcd2AuthoritativeReceiptRaw(
+        receipt,
+        signingKey,
+        { ...authorityIdentity, [key]: value },
+      ),
+      { valid: false, reason: 'identity-mismatch' },
+      key,
+    );
+  }
 });
 
 test('R-CD-2 signed authority cannot be replayed across enclosing run identities', () => {
@@ -689,7 +729,7 @@ test('R-CD-2 rejects a terminal sentinel observed outside the accepted dispatch 
   );
 });
 
-test('R-CD-2 writer and postprocessor accept only the authoritative receipt', async () => {
+test('legacy R-CD-2 writer and postprocessor reject receipts without complete run identity', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'r-cd-2-authoritative-'));
   try {
     const receipt = resolveRcd2AuthoritativeReceipt({ evidence: evidence(), correlation: correlation(), signingKey });
@@ -700,21 +740,43 @@ test('R-CD-2 writer and postprocessor accept only the authoritative receipt', as
     await writeFile(logPath, '--- R-CD-2 EVIDENCE SUMMARY ---\n{"row":"R-CD-2","redacted_events":[]}\n--- END EVIDENCE ---\n');
     await writeFile(summaryPath, JSON.stringify({ metrics: { proof_failures: { values: { count: 0 } }, checks: { values: { rate: 1 } } } }));
     const env = { ...process.env, OPENCLAW_GATEWAY_TOKEN: signingKey };
-    const writer = await execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40), '--manifest', manifestPath, '--authoritative-receipt', receiptPath], { cwd: dir, env });
-    const writerDir = JSON.parse(writer.stdout).runDir;
-    const writerResult = JSON.parse(await readFile(path.join(dir, writerDir, 'row-result.json'), 'utf8'));
-    assert.equal(writerResult.outcome, 'PASS-candidate');
-    assert.equal(writerResult.verdictSource, 'r-cd-2-authoritative-receipt');
-    assert.equal(writerResult.authoritativeReceipt.validated, true);
-    await access(path.join(dir, writerDir, 'r-cd-2-authoritative-receipt.json'));
-    const post = await execFileAsync(process.execPath, [postprocessorPath, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', '--authoritative-receipt', receiptPath], { cwd: dir, env });
-    const postDir = JSON.parse(post.stdout).runDir;
-    const postResult = JSON.parse(await readFile(path.join(postDir, 'row-result.json'), 'utf8'));
-    assert.equal(postResult.outcome, 'PASS-candidate');
-    assert.equal(postResult.verdictSource, 'r-cd-2-authoritative-receipt');
-    assert.equal(postResult.authoritativeReceipt.validated, true);
+    await assert.rejects(
+      execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40), '--manifest', manifestPath, '--authoritative-receipt', receiptPath], { cwd: dir, env }),
+      /complete runner identity/,
+    );
+    await assert.rejects(
+      execFileAsync(process.execPath, [postprocessorPath, '--manifest', manifestPath, '--summary', summaryPath, '--out-root', path.join(dir, 'post'), '--run-id', 'unit', '--authoritative-receipt', receiptPath], { cwd: dir, env }),
+      /complete runner identity/,
+    );
     await assert.rejects(execFileAsync(process.execPath, [writerPath, '--input', logPath, '--row', 'R-CD-2', '--seat', 'unit', '--sha', 'a'.repeat(40)], { cwd: dir, env }));
   } finally {
     await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('every production R-CD-2 receipt consumer binds or rejects complete run identity', async () => {
+  const sources = new Map(await Promise.all([
+    'candidate-run-result-contract.mjs',
+    'render-run-report.mjs',
+    'evidence-writer.mjs',
+    'postprocess-k6-summary.mjs',
+  ].map(async (name) => [
+    name,
+    await readFile(path.join(repoRoot, 'scripts', name), 'utf8'),
+  ])));
+  for (const name of ['candidate-run-result-contract.mjs', 'render-run-report.mjs']) {
+    const source = sources.get(name);
+    assert.match(source, /rCd2AuthorityIdentity/);
+    assert.match(
+      source,
+      /validateRcd2AuthoritativeReceipt|authoritative\.validate/,
+    );
+    assert.match(source, /path\.basename\(runDir\)/);
+  }
+  for (const name of ['evidence-writer.mjs', 'postprocess-k6-summary.mjs']) {
+    assert.match(
+      sources.get(name),
+      /R-CD-2 requires complete runner identity/,
+    );
   }
 });

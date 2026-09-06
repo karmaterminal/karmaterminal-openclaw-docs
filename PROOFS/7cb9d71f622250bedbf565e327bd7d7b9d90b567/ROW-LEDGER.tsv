@@ -4,7 +4,7 @@ R-CD-2	historical_baseline	inherited	fail	unchanged_baseline_state	historical-ba
 R-CD-3	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1
 R-CD-4	independent_manual_review	reviewed	pass	none	independent-review-5556060622	2
 R-CD-CHAINED-DEPTH-2	independent_manual_review	reviewed	pass	none	independent-review-5556060622	2
-R-CD-COLLECTION-ON-COLLAPSE	historical_baseline	inherited	missing	unchanged_baseline_state	historical-baseline-review	1
+R-CD-COLLECTION-ON-COLLAPSE	independent_manual_review	reviewed	partial	corrected_fresh_attempt_required	independent-review-5556789060	2
 R-CD-MODEL-CHAINED-ALT	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1
 R-CD-MODEL-DEFAULT	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1
 R-CD-MODEL-TOKEN	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1
@@ -26,8 +26,8 @@ R-CW-6A	historical_baseline	inherited	pass	unchanged_baseline_state	historical-b
 R-CW-7	independent_manual_review	reviewed	pass	none	independent-review-5555528271	2
 R-CW-DELEGATE-CHILD-LIVE	independent_manual_review	reviewed	pass	none	independent-review-5555528271	2
 R-CW-DELEGATE-SELF-CONTINUATION	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1
-R-CW-DELEGATE-TOKEN	historical_baseline	inherited	missing	canonical_bare_token_evidence_missing	historical-baseline-review	1
-R-CW-MULTI	historical_baseline	inherited	missing	unchanged_baseline_state	historical-baseline-review	1
+R-CW-DELEGATE-TOKEN	independent_manual_review	reviewed	pass	none	independent-review-5556789060	2
+R-CW-MULTI	independent_manual_review	reviewed	pass	none	independent-review-5556789060	3
 R-CW-MULTI-COLLAPSE	independent_manual_review	reviewed	pass	none	independent-review-5555528271	2
 R-CW-TOKEN	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1
 R-OBS-1	historical_baseline	inherited	pass	unchanged_baseline_state	historical-baseline-review	1

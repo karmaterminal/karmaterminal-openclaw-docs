@@ -4,15 +4,15 @@
   "canonical": {
     "pure_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "pure_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
-    "structural_checkpoint": "08f8731490ce93879dabc973e7563c7ae0a65683",
+    "structural_checkpoint": "8f1163d757342c3ac36b8e446222b0446159211b",
     "rollup": {
       "total_rows": 38,
-      "pass": 29,
-      "partial": 2,
+      "pass": 31,
+      "partial": 3,
       "thin": 0,
       "fail": 1,
       "honest_limit": 0,
-      "missing": 6
+      "missing": 3
     },
     "baseline_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
     "baseline_tree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2"
@@ -90,11 +90,18 @@
       "successor integration and refire matrix"
     ],
     "reason_no_immediate_acceptance_refires": "dbf5795b is the current deployment composite, not the pending final successor product. Evidence produced before the successor and its fleet deployment cannot close changed behavior.",
-    "only_permitted_final_non_pass": "R-RC-2 HONEST-LIMIT with nonce-bound structured request_compaction receipt, finite numeric contextUsage below canonical threshold 70, matching numeric child report, and trace"
+    "current_non_pass_rows": [
+      "R-CD-2",
+      "R-CD-COLLECTION-ON-COLLAPSE",
+      "R-CD-RETURN-COVENANT-AUTHORITY",
+      "R-CD-RETURN-OVERLAP",
+      "R-CD-TOKEN",
+      "R-OBS-2",
+      "R-RC-2"
+    ]
   },
   "producer_rows": [
-    "R-CD-COLLECTION-ON-COLLAPSE",
-    "R-CW-MULTI"
+    "R-CD-COLLECTION-ON-COLLAPSE"
   ],
   "partial_control_rows": [],
   "rows": [
@@ -201,39 +208,43 @@
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
-      "state": "missing",
+      "state": "partial",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556789060"
       ],
       "owner": "proof-conductor",
       "command": "PRODUCER-R-CD-COLLECTION-ON-COLLAPSE",
-      "rejected_base": "only the static consumer ran; no A-to-B-to-delayed-C producer packet exists",
-      "successor_control": "root A receives C after B terminal collapse with no orphan and exact task/trace lineage",
-      "gate": "reviewed-producer-harness-and-final-successor-fleet"
+      "rejected_base": "B supplied recipientContext while artifact returns were forbidden; exact product rejected the malformed call before C scheduling",
+      "successor_control": "omit recipientContext while artifacts are forbidden; B terminal before C return; root A receives the C sentinel; no orphan",
+      "gate": "one-corrected-fresh-authenticated-attempt"
     },
     {
       "row": "R-CW-MULTI",
-      "state": "missing",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5555528271",
+        "independent-review-5556789060"
       ],
       "owner": "proof-conductor",
       "command": "PRODUCER-R-CW-MULTI",
-      "rejected_base": "only the static consumer ran; no three-election producer packet exists",
-      "successor_control": "one turn elects default, 60, and 120 second work; all three distinct outcomes and provenance are retained",
-      "gate": "final-successor-fleet-deployed"
+      "rejected_base": "the typed 0/60/120 packet lacked the required response-token parity phase",
+      "successor_control": "join the reviewed typed 0/60/120 packet to canonical bare CONTINUE_WORK:0 response-text parity",
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
-      "state": "missing",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556789060"
       ],
       "owner": "proof-conductor",
       "command": "PRODUCER-R-CW-DELEGATE-TOKEN",
-      "rejected_base": "the reviewed canary exercised bracket-origin continuation rather than the canonical bare-token surface",
-      "successor_control": "a fresh canonical bare-token attempt must produce the required bare-token-hop2-executed receipt",
-      "gate": "reviewed-bare-token-producer-and-final-successor-fleet"
+      "rejected_base": "prior review incorrectly treated parser origin bracket as proof of a square-bracketed work token",
+      "successor_control": "canonical bare CONTINUE_WORK:5 with response-text parser origin, zero typed substitution, and complete task/flow/successor/return/trace joins",
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CD-RETURN-COVENANT-AUTHORITY",
@@ -328,13 +339,49 @@
       "to": "pass",
       "receipt": "R-CW-DELEGATE-CHILD-LIVE/PUBLIC-REVIEW.json",
       "receipt_sha256": "53a023f819745d54dd4d6491cb4034096e77b7033a5f0eabb0ef9de6ada569c6"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "from": "missing",
+      "to": "pass",
+      "receipt": "R-CW-DELEGATE-TOKEN/PUBLIC-REVIEW.json",
+      "receipt_sha256": "2d48229c030e1092da26d5259221a6da009ca3f07dc01d029b8eefe68c1ebf85"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "from": "missing",
+      "to": "pass",
+      "receipt": "R-CW-MULTI/PUBLIC-REVIEW.json",
+      "receipt_sha256": "09bf67fca92cd41329cad6bb4ad817133c969b9111ab838e947da4761f4bc75b"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "from": "missing",
+      "to": "partial",
+      "receipt": "R-CD-COLLECTION-ON-COLLAPSE/PUBLIC-REVIEW.json",
+      "receipt_sha256": "02b30c1da2407ec8765d47e8fa45e21bb1d2e22b04802347a5dda6159db5e525"
     }
   ],
   "manual_authority": {
     "automatic_authority": false,
-    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
-    "private_artifact_manifest_sha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
-    "previous_review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
-    "previous_private_artifact_manifest_sha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470"
+    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060",
+    "canary_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557",
+    "readiness_binding_sha256": "cafbccd8bd71f7ba0dfe88a58f110c96df7c8759e17f91b659057c77d763db40",
+    "private_row_artifact_sha256": {
+      "R-CW-DELEGATE-TOKEN": "897e04319ca2397497bc5b79aee8adeb9fa31fc88b16d7eab257686b7820621c",
+      "R-CW-MULTI": "8768551f24255a744dfd330a0ecf06fdcafd2b0de76f8eba6ee45e51e13ee953",
+      "R-CD-COLLECTION-ON-COLLAPSE": "6e7bf50c95ee80064f8de79fa2dffc65853e158abfd9a381aa95956db87acc9a"
+    },
+    "related_private_row_artifact_sha256": {
+      "R-CW-MULTI-typed-0-60-120": "aaf199d4fcec922467f73ccd1e81109f60c01cbc3506b4fceeef918db7d38fcd"
+    },
+    "previous_review_receipt_urls": [
+      "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+      "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271"
+    ],
+    "previous_private_artifact_manifest_sha256": [
+      "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
+      "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470"
+    ]
   }
 }

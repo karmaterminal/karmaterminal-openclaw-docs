@@ -5,11 +5,11 @@ ledger is the status baseline. Product ancestry from that SHA to
 `7cb9d71f622250bedbf565e327bd7d7b9d90b567` is verified.
 
 The current-main baseline is
-`08f8731490ce93879dabc973e7563c7ae0a65683`. Exactly five PARTIAL rows consume
-the sealed canary evidence. Their sole authority is the independent manual
-review linked by each public receipt; rejected automatic producer authority is
-excluded. Every other state is checked by row-name comparison against current
-main.
+`8f1163d757342c3ac36b8e446222b0446159211b`. Exactly three MISSING rows consume
+the sealed canary evidence: two become PASS and one becomes PARTIAL. Their sole
+authority is the independent manual review linked by each public receipt;
+rejected automatic producer authority is excluded. Every other state is
+checked by row-name comparison against current main.
 
 Synthetic proof identifiers and acquisition-path references disclosed in the
 cited public review receipts are public provenance. Credentials, provider

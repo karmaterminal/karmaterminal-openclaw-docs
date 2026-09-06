@@ -8,12 +8,16 @@ shows that baseline as an ancestor of exact product
 `85821bfd8f4676cfac8be658122910a7eb862f55`.
 
 This promotion candidate starts from docs main
-`08f8731490ce93879dabc973e7563c7ae0a65683`. Exactly five PARTIAL row states
-change. Their exact-target evidence is represented by
+`8f1163d757342c3ac36b8e446222b0446159211b`. Exactly three MISSING row states
+change: two to PASS and one to PARTIAL. Their exact-target evidence is represented by
 public-safe review receipts and derives authority solely from the independent
 manual review:
 
-<https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622>
+<https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060>
+
+The reviewed canary receipt is:
+
+<https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557>
 
 Rejected automatic verdicts and automatic authority paths were not merged or
 used. Historical files retain their original identities; they must not be

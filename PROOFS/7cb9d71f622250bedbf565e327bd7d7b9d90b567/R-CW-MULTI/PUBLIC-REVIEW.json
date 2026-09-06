@@ -1,0 +1,49 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CW-MULTI",
+  "scenario": "targeted-three-row-canary/multi-token-parity",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "08f8731490ce93879dabc973e7563c7ae0a65683",
+  "privateArtifactManifestSha256": "8768551f24255a744dfd330a0ecf06fdcafd2b0de76f8eba6ee45e51e13ee953",
+  "privateRowArtifactSha256": "8768551f24255a744dfd330a0ecf06fdcafd2b0de76f8eba6ee45e51e13ee953",
+  "relatedPrivateRowArtifactSha256": [
+    "aaf199d4fcec922467f73ccd1e81109f60c01cbc3506b4fceeef918db7d38fcd"
+  ],
+  "readinessBindingSha256": "cafbccd8bd71f7ba0dfe88a58f110c96df7c8759e17f91b659057c77d763db40",
+  "canaryReceiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": [],
+    "flow": ["a5bcac41a20935fd", "50dce14b5a91a82a"],
+    "session": ["714650d1d9af7d71"],
+    "run": ["b36cefe56424ab4a"],
+    "trace": ["a5c682883d804d3d"]
+  },
+  "observedPredicates": {
+    "typedZeroSixtyOneTwentyPreviouslyReviewed": true,
+    "typedThreeFlowsSucceeded": true,
+    "typedThreeDistinctSameSessionSuccessorsCompleted": true,
+    "bareTerminalContinueWorkZero": true,
+    "responseTextParserOriginBracket": true,
+    "typedContinueWorkCountZeroInParityPhase": true,
+    "tokenFlowSucceeded": true,
+    "tokenSuccessorDistinctAndCompleted": true,
+    "nonceBoundTokenWakeObserved": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060",
+    "reviewedAt": "2026-09-06T04:05:21Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "The typed 0/60/120 phase is bound through the prior independently reviewed packet and related private digest.",
+    "The parity producer mislabeled gateway status done as error; private raw records and the durable succeeded flow establish the token phase."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

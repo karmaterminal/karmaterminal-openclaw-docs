@@ -1,0 +1,47 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CD-COLLECTION-ON-COLLAPSE",
+  "scenario": "targeted-three-row-canary/collection-on-collapse",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "08f8731490ce93879dabc973e7563c7ae0a65683",
+  "privateArtifactManifestSha256": "6e7bf50c95ee80064f8de79fa2dffc65853e158abfd9a381aa95956db87acc9a",
+  "privateRowArtifactSha256": "6e7bf50c95ee80064f8de79fa2dffc65853e158abfd9a381aa95956db87acc9a",
+  "readinessBindingSha256": "cafbccd8bd71f7ba0dfe88a58f110c96df7c8759e17f91b659057c77d763db40",
+  "canaryReceiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": ["5b32de6cb2757a3d"],
+    "flow": ["de879c7d5c16a232"],
+    "session": ["2d8f1129d9ecfe0d"],
+    "run": ["0240249cc8ea76a0"],
+    "trace": [],
+    "notApplicableReason": "The malformed B-to-C call was rejected before C scheduling, so no C trace identity exists."
+  },
+  "observedPredicates": {
+    "providerAuthAndGatewaySucceeded": true,
+    "aToBJoinObserved": true,
+    "recipientContextSuppliedWithForbiddenArtifacts": true,
+    "malformedCallRejectedBeforeScheduling": true,
+    "bTerminatedAndDelivered": true,
+    "noCTaskFlowSessionRunOrTraceCreated": true,
+    "noCSentinelAtRoot": true,
+    "noOrphanRemained": true
+  },
+  "independentReview": {
+    "verdict": "PARTIAL",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060",
+    "reviewedAt": "2026-09-06T04:05:21Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "This is a malformed model call, not a product behavior failure.",
+    "The product correctly rejected recipientContext combined with forbidden artifact returns before C scheduling.",
+    "No C existed and no sentinel reached root A, so the collection-on-collapse success contract is not proved and this row is not PASS."
+  ],
+  "finalClassification": "PARTIAL",
+  "canonicalFoldAllowed": true
+}

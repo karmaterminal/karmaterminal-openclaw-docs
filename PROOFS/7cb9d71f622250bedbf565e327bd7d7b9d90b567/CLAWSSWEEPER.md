@@ -6,5 +6,5 @@ self-contained `7cb9d71f622250bedbf565e327bd7d7b9d90b567` subtree.
 reviewed promotions. Validate each promoted
 `PUBLIC-REVIEW.json` against `PUBLIC-REVIEW-RECEIPT.schema.json`.
 
-The rollup is 29 PASS, 2 PARTIAL, 1 FAIL, and 6 MISSING. This is a review
+The rollup is 31 PASS, 3 PARTIAL, 1 FAIL, and 3 MISSING. This is a review
 candidate, not a merged or presentation-ready corpus.

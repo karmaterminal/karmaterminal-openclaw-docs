@@ -24,14 +24,14 @@
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
     "total_rows": 38,
-    "pass": 29,
-    "partial": 2,
+    "pass": 31,
+    "partial": 3,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 6
+    "missing": 3
   },
-  "disposition_note": "Exactly five exact-product rows promoted PARTIAL to PASS solely from independent manual review; all other row states are unchanged. R-CD-TOKEN and R-RC-2 remain PARTIAL.",
+  "disposition_note": "Exactly two exact-product rows promoted MISSING to PASS and one promoted MISSING to PARTIAL solely from independent manual review; all other row states are unchanged.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-09-05",
   "generated_by": "copilot-cli",
@@ -41,12 +41,13 @@
     "target_corpus_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "target_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
     "source_docs_commit": "0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1",
-    "canonical_source_docs_main": "08f8731490ce93879dabc973e7563c7ae0a65683",
+    "canonical_source_docs_main": "8f1163d757342c3ac36b8e446222b0446159211b",
     "target_descends_from_source": true,
     "source_evidence_preserved_in_subtree": false,
     "exact_target_execution": true,
     "automatic_authority": false,
-    "independent_review_receipt": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+    "independent_review_receipt": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060",
+    "canary_receipt": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557",
     "exact_target_execution_rows": [
       "R-CD-1",
       "R-CD-4",
@@ -55,7 +56,10 @@
       "R-CD-SILENT",
       "R-CW-MULTI-COLLAPSE",
       "R-CW-7",
-      "R-CW-DELEGATE-CHILD-LIVE"
+      "R-CW-DELEGATE-CHILD-LIVE",
+      "R-CW-DELEGATE-TOKEN",
+      "R-CW-MULTI",
+      "R-CD-COLLECTION-ON-COLLAPSE"
     ],
     "previous": {
       "source_corpus_sha": "00c7f721a55554d0b9228337cc8bc6bec88f9e9f",

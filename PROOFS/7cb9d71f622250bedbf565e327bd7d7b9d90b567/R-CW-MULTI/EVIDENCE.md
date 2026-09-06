@@ -1,10 +1,13 @@
-# R-CW-MULTI — inherited baseline state
+# R-CW-MULTI — exact-product joined review evidence
 
-- canonical state: `missing`
-- reviewed baseline product: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed baseline docs commit: `0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1`
-- exact-target execution claimed here: `false`
+- product/runtime: `7cb9d71f622250bedbf565e327bd7d7b9d90b567`
+- canary readiness docs: `08f8731490ce93879dabc973e7563c7ae0a65683`
+- canonical state: `pass`
+- authority: independent manual review
+- public receipt: [`PUBLIC-REVIEW.json`](PUBLIC-REVIEW.json)
 
-Static multi-election validator found its required producer artifacts absent.
-
-This row's state is unchanged. Historical raw artifacts are not republished in the exact-product corpus; consult the immutable baseline commit for the original evidence.
+The new bare `CONTINUE_WORK:0` response-text phase closes token parity with
+zero typed substitutions, one succeeded continuation flow, and one distinct
+completed same-session successor. The independent review joins that packet to
+the previously reviewed typed 0/60/120 packet, which proves three distinct
+succeeded flows and three distinct completed same-session successors.

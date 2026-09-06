@@ -1,0 +1,46 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CW-DELEGATE-TOKEN",
+  "scenario": "targeted-three-row-canary/delegate-token",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "08f8731490ce93879dabc973e7563c7ae0a65683",
+  "privateArtifactManifestSha256": "897e04319ca2397497bc5b79aee8adeb9fa31fc88b16d7eab257686b7820621c",
+  "privateRowArtifactSha256": "897e04319ca2397497bc5b79aee8adeb9fa31fc88b16d7eab257686b7820621c",
+  "readinessBindingSha256": "cafbccd8bd71f7ba0dfe88a58f110c96df7c8759e17f91b659057c77d763db40",
+  "canaryReceiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": ["0e1b4c5cb02c0c49"],
+    "flow": ["12bcb8b832165f6b", "9d9947d7068016f0", "ad7c2bb8c51043eb"],
+    "session": ["910258583937a244"],
+    "run": ["6040b50146d4a1f4", "94727c6b2ec86b98"],
+    "trace": ["26fe6a9e2d0ae709"]
+  },
+  "observedPredicates": {
+    "bareTerminalContinueWorkFive": true,
+    "responseTextParserOriginBracket": true,
+    "typedContinueWorkCountZero": true,
+    "delayFiveSeconds": true,
+    "delegateTaskSucceededAndDelivered": true,
+    "continuationFlowSucceeded": true,
+    "sameSessionSuccessorDistinctAndCompleted": true,
+    "nonceBoundReturnObserved": true,
+    "traceJoinObserved": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060",
+    "reviewedAt": "2026-09-06T04:05:21Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "The producer timed out because it did not bind emitted task events to child fields; private raw stream, gateway log, task database, and durable successful flow independently satisfy the row.",
+    "Parser origin bracket identifies the response-text parser path; the canonical terminal text itself was the bare token CONTINUE_WORK:5."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

@@ -12,14 +12,14 @@
     "baseline_corpus_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
     "baseline_product_tree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
     "baseline_is_ancestor": true,
-    "materiality": "The exact-product canaries ran at the target commit. The current wave changes only five PARTIAL rows from docs main 08f8731490ce93879dabc973e7563c7ae0a65683 and consumes only independent manual review."
+    "materiality": "The exact-product canaries ran at the target commit. The current wave changes only three MISSING rows from docs main 8f1163d757342c3ac36b8e446222b0446159211b and consumes only independent manual review."
   },
   "harness_sha": "d01af8c6f7c778d77b154f7fe7a61a4a0d90de95",
   "fire_type": "reviewed-exact-product-canary-promotion",
   "corpus": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567",
   "sha_short": "7cb9d71f",
   "build_string": "OpenClaw 2026.8.1 (7cb9d71f)",
-  "method": "Current-main 38-row corpus plus exactly five PARTIAL-to-PASS exact-product promotions authorized solely by independent manual review.",
+  "method": "Current-main 38-row corpus plus exactly two MISSING-to-PASS and one MISSING-to-PARTIAL exact-product promotions authorized solely by independent manual review.",
   "required_rows": [
     "R-CD-1",
     "R-CD-2",
@@ -62,12 +62,12 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 29,
-    "partial": 2,
+    "pass": 31,
+    "partial": 3,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 6
+    "missing": 3
   },
   "rows": [
     {
@@ -208,30 +208,31 @@
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
       "title": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
-      "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "owner": "independent-manual-review",
+      "state": "partial",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-COLLECTION-ON-COLLAPSE/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-evidence-missing",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
       "pending_receipts": [
-        "PASS; A-B-C artifact set; root receives sentinel after B collapse; no orphan"
+        "Corrected A-B-C attempt with recipientContext omitted; root receives the C sentinel after B terminal; no orphan"
       ],
-      "summary": "Static current-corpus validator found its required producer artifacts absent; this is missing evidence, not a product-behavior contradiction.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "summary": "PARTIAL: A reached B, whose malformed recipientContext plus forbidden-artifacts call was correctly rejected before C scheduling; B terminated and no orphan remained.",
+      "notes": "Independent review at issue comment 5556789060 classifies the attempt as PARTIAL, not product behavior failure and not PASS.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-COLLECTION-ON-COLLAPSE/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "02b30c1da2407ec8765d47e8fa45e21bb1d2e22b04802347a5dda6159db5e525"
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
@@ -800,58 +801,57 @@
     {
       "row": "R-CW-DELEGATE-TOKEN",
       "title": "Static validator for committed delegate child bare-token continuation receipts.",
-      "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-evidence-missing",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "bare-token-hop2-executed"
-      ],
-      "summary": "Canonical bare-token continuation evidence is missing; the reviewed canary exercised the distinct bracket-origin surface.",
-      "notes": "State remains at the reviewed 5035aac3 baseline. Private canary evidence is retained only through issue comment 5555706100; no private artifacts are republished and no exact-target execution is claimed for this canonical row.",
+      "pending_receipts": [],
+      "summary": "PASS: canonical bare CONTINUE_WORK:5 used the response-text parser path with zero typed substitution and completed the task, flow, successor, return, and trace joins.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556789060. Parser origin bracket names the response-text parser path and does not imply a square-bracketed work token.",
       "supporting_docs": [
-        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555706100"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "2d48229c030e1092da26d5259221a6da009ca3f07dc01d029b8eefe68c1ebf85"
     },
     {
       "row": "R-CW-MULTI",
       "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
-      "owner": "ronan_remaining_runnable_matrix",
-      "state": "missing",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "MISSING-candidate",
-      "review_status": "producer-evidence-missing",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; three elections yield three distinct wakes at default/60/120; both forms"
-      ],
-      "summary": "Static multi-election validator found its required producer artifacts absent.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "pending_receipts": [],
+      "summary": "PASS: the newly reviewed bare CONTINUE_WORK:0 parity phase joins the previously reviewed typed 0/60/120 evidence.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556789060 joined to the prior typed-phase review at issue comment 5555528271.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-MULTI/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review",
+        "canary-20260905-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "09bf67fca92cd41329cad6bb4ad817133c969b9111ab838e947da4761f4bc75b"
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
@@ -1096,8 +1096,8 @@
   ],
   "exact_target_execution": true,
   "exact_target_mode_b": false,
-  "generated": "2026-09-06T01:37:10Z",
-  "notes": "Exactly five independently reviewed exact-product rows moved PARTIAL to PASS from docs main 08f8731490ce93879dabc973e7563c7ae0a65683. The other 33 row states are unchanged. Automatic producer authority was not used.",
+  "generated": "2026-09-06T04:34:58Z",
+  "notes": "Exactly two independently reviewed exact-product rows moved MISSING to PASS and one moved MISSING to PARTIAL from docs main 8f1163d757342c3ac36b8e446222b0446159211b. The other 35 row states are unchanged. Automatic producer authority was not used.",
   "execution_status": "READY_FOR_DETACHED_REVIEW",
   "promotion": {
     "authority": "independent-manual-review",
@@ -1105,34 +1105,38 @@
     "product_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "product_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
     "runtime_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
-    "docs_sha": "5831d6dfcb05f1bf819c32598f07dbfaddba0240",
-    "current_main_docs_sha": "08f8731490ce93879dabc973e7563c7ae0a65683",
+    "docs_sha": "08f8731490ce93879dabc973e7563c7ae0a65683",
+    "current_main_docs_sha": "8f1163d757342c3ac36b8e446222b0446159211b",
     "baseline_corpus_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "baseline_rollup": {
       "total_rows": 38,
-      "pass": 24,
-      "partial": 7,
+      "pass": 29,
+      "partial": 2,
       "thin": 0,
       "fail": 1,
       "honest_limit": 0,
       "missing": 6
     },
-    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
-    "canary_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555964397",
-    "private_artifact_manifest_sha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
+    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060",
+    "canary_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557",
+    "readiness_binding_sha256": "cafbccd8bd71f7ba0dfe88a58f110c96df7c8759e17f91b659057c77d763db40",
+    "private_row_artifact_sha256": {
+      "R-CW-DELEGATE-TOKEN": "897e04319ca2397497bc5b79aee8adeb9fa31fc88b16d7eab257686b7820621c",
+      "R-CW-MULTI": "8768551f24255a744dfd330a0ecf06fdcafd2b0de76f8eba6ee45e51e13ee953",
+      "R-CD-COLLECTION-ON-COLLAPSE": "6e7bf50c95ee80064f8de79fa2dffc65853e158abfd9a381aa95956db87acc9a"
+    },
+    "related_private_row_artifact_sha256": {
+      "R-CW-MULTI-typed-0-60-120": "aaf199d4fcec922467f73ccd1e81109f60c01cbc3506b4fceeef918db7d38fcd"
+    },
     "promoted_rows": [
-      "R-CD-1",
-      "R-CD-4",
-      "R-CD-CHAINED-DEPTH-2",
-      "R-CD-MODEL-TOOL",
-      "R-CD-SILENT"
+      "R-CW-DELEGATE-TOKEN",
+      "R-CW-MULTI",
+      "R-CD-COLLECTION-ON-COLLAPSE"
     ],
     "receipt_sha256": {
-      "R-CD-1": "e963807590be05ae4b585074f8ebddcb825a753ea2ff34dd8434cdb585b63c2e",
-      "R-CD-4": "53cae038e531cb0d01febb43653267e4b93bdf7552361be9685049ecc0577bed",
-      "R-CD-CHAINED-DEPTH-2": "fed6c2e935a81d757139d926b7cf0576f31b06fc9c930d00ff261ef505b90239",
-      "R-CD-MODEL-TOOL": "fcf703b5ce12c642b16ac448255adabd86428380d372e9fdfaf9cad17c0e3109",
-      "R-CD-SILENT": "7e65512c4cfff7d0f7b82a96174a04e51323eb11f645c9d7b02a7d8befd60e0b"
+      "R-CW-DELEGATE-TOKEN": "2d48229c030e1092da26d5259221a6da009ca3f07dc01d029b8eefe68c1ebf85",
+      "R-CW-MULTI": "09bf67fca92cd41329cad6bb4ad817133c969b9111ab838e947da4761f4bc75b",
+      "R-CD-COLLECTION-ON-COLLAPSE": "02b30c1da2407ec8765d47e8fa45e21bb1d2e22b04802347a5dda6159db5e525"
     }
   },
   "exact_target_execution_rows": [
@@ -1143,6 +1147,9 @@
     "R-CD-SILENT",
     "R-CW-MULTI-COLLAPSE",
     "R-CW-7",
-    "R-CW-DELEGATE-CHILD-LIVE"
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CD-COLLECTION-ON-COLLAPSE"
   ]
 }

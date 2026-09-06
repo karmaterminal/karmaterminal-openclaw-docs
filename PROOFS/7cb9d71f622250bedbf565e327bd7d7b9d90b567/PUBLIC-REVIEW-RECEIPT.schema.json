@@ -53,6 +53,21 @@
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
+    "relatedPrivateRowArtifactSha256": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "readinessBindingSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "canaryReceiptUrl": {
+      "const": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556133557"
+    },
     "identityFingerprints": {
       "additionalProperties": false,
       "required": [
@@ -111,12 +126,16 @@
       ],
       "properties": {
         "verdict": {
-          "const": "PASS-EVIDENCE-SUFFICIENT"
+          "enum": [
+            "PASS-EVIDENCE-SUFFICIENT",
+            "PARTIAL"
+          ]
         },
         "receiptUrl": {
           "enum": [
             "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
-            "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622"
+            "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+            "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556789060"
           ]
         },
         "reviewedAt": {
@@ -151,12 +170,50 @@
       "type": "array"
     },
     "finalClassification": {
-      "const": "PASS"
+      "enum": [
+        "PASS",
+        "PARTIAL"
+      ]
     },
     "canonicalFoldAllowed": {
       "const": true
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "finalClassification": {
+            "const": "PASS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "independentReview": {
+            "type": "object",
+            "properties": {
+              "verdict": {
+                "const": "PASS-EVIDENCE-SUFFICIENT"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "independentReview": {
+            "type": "object",
+            "properties": {
+              "verdict": {
+                "const": "PARTIAL"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "fingerprintArray": {
       "items": {

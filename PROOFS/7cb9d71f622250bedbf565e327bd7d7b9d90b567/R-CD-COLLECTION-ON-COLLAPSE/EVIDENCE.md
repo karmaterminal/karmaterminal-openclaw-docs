@@ -1,10 +1,13 @@
-# R-CD-COLLECTION-ON-COLLAPSE — inherited baseline state
+# R-CD-COLLECTION-ON-COLLAPSE — exact-product partial attempt
 
-- canonical state: `missing`
-- reviewed baseline product: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed baseline docs commit: `0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1`
-- exact-target execution claimed here: `false`
+- product/runtime: `7cb9d71f622250bedbf565e327bd7d7b9d90b567`
+- canary readiness docs: `08f8731490ce93879dabc973e7563c7ae0a65683`
+- canonical state: `partial`
+- authority: independent manual review
+- public receipt: [`PUBLIC-REVIEW.json`](PUBLIC-REVIEW.json)
 
-Static current-corpus validator found its required producer artifacts absent; this is missing evidence, not a product-behavior contradiction.
-
-This row's state is unchanged. Historical raw artifacts are not republished in the exact-product corpus; consult the immutable baseline commit for the original evidence.
+A reached B, but B supplied `recipientContext` while artifact returns were
+forbidden. Exact product correctly rejected that malformed call before
+scheduling C. B terminated and delivered; no C task, flow, session, run,
+trace, or sentinel existed, and no orphan remained. This attempt is not a
+product behavior failure and does not prove PASS.

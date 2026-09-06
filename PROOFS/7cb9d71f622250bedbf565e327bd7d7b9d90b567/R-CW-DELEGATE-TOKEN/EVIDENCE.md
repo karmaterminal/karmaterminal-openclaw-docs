@@ -1,12 +1,13 @@
-# R-CW-DELEGATE-TOKEN — inherited baseline state
+# R-CW-DELEGATE-TOKEN — exact-product review evidence
 
-- canonical state: `missing`
-- reviewed baseline product: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed baseline docs commit: `0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1`
-- exact-target execution claimed here: `false`
+- product/runtime: `7cb9d71f622250bedbf565e327bd7d7b9d90b567`
+- canary readiness docs: `08f8731490ce93879dabc973e7563c7ae0a65683`
+- canonical state: `pass`
+- authority: independent manual review
+- public receipt: [`PUBLIC-REVIEW.json`](PUBLIC-REVIEW.json)
 
-The canary's bracket-origin continuation evidence does not prove the canonical
-bare-token surface or its required `bare-token-hop2-executed` receipt. The
-private canary evidence remains available only through the existing
-[detached-review receipt](https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555706100);
-no private artifacts are published here.
+The child emitted canonical bare `CONTINUE_WORK:5` with zero typed
+substitutions. Exact product reported response-text parser origin `bracket`,
+scheduled one five-second continuation, completed a distinct same-session
+successor, and joined task, flow, return, and trace evidence. Parser origin
+does not imply that the raw work token used square brackets.

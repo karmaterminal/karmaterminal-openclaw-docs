@@ -1,0 +1,44 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "scenario": "r-cd-chained-depth-2.js",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "5831d6dfcb05f1bf819c32598f07dbfaddba0240",
+  "privateArtifactManifestSha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
+  "privateRowArtifactSha256": "f828dbaca34478152455ae3ea87fb4cdc784dff5765173570c58398b4ba3ee06",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": ["a2429b9ecb8e039c", "ac84c3ecc6a4f358"],
+    "flow": ["0c040a3c41815d2f", "a36b35e5e4075693", "a84b02c576e923bd", "b85587262a74d53f"],
+    "session": ["13da3f8ebc014e0b", "8ea30766c0f3d2d3", "91ed0d67824b0a8b"],
+    "run": ["411ab775abf1df71", "5cf8fae77bc9aca0", "70e8a0ee7b8cfb9f", "9256b240af4854e8"],
+    "trace": ["cb908432d7939187"],
+    "traceparent": ["9f12e2bed0781857", "c7f12c83a1c5e7f0"],
+    "span": ["648dcedb26220929", "6ceb7dccc40c0e71"]
+  },
+  "observedPredicates": {
+    "childSpawned": true,
+    "grandchildSpawned": true,
+    "childDoneSentinel": true,
+    "grandchildDoneSentinel": true,
+    "distinctHopIdentities": true,
+    "maximumDepthTwoObserved": true,
+    "rootReturnObserved": true,
+    "sharedTraceWithDistinctSpans": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+    "reviewedAt": "2026-09-06T01:25:33Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "Tempo retrieval was unavailable; the retained exact W3C traceparent and distinct span identities for both hops satisfy the canonical trace-lineage binding."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

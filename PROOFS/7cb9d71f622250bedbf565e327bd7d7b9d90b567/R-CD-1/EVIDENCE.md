@@ -1,10 +1,12 @@
-# R-CD-1 — inherited baseline state
+# R-CD-1 — exact-product review evidence
 
-- canonical state: `partial`
-- reviewed baseline product: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed baseline docs commit: `0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1`
-- exact-target execution claimed here: `false`
+- product/runtime: `7cb9d71f622250bedbf565e327bd7d7b9d90b567`
+- docs readiness: `5831d6dfcb05f1bf819c32598f07dbfaddba0240`
+- canonical state: `pass`
+- authority: independent manual review
+- public receipt: [`PUBLIC-REVIEW.json`](PUBLIC-REVIEW.json)
 
-Accepted parent send but no authoritative scheduled sentinel, parent return, or trace.
-
-This row's state is unchanged. Historical raw artifacts are not republished in the exact-product corpus; consult the immutable baseline commit for the original evidence.
+The retained evidence binds one accepted typed delegate to one scheduled,
+succeeded, delivered child and one parent return. Tempo retrieval was
+unavailable; retained exact W3C traceparent and span identities satisfy the
+canonical trace binding.

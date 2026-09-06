@@ -1,10 +1,12 @@
-# R-CD-MODEL-TOOL — inherited baseline state
+# R-CD-MODEL-TOOL — exact-product review evidence
 
-- canonical state: `partial`
-- reviewed baseline product: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed baseline docs commit: `0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1`
-- exact-target execution claimed here: `false`
+- product/runtime: `7cb9d71f622250bedbf565e327bd7d7b9d90b567`
+- docs readiness: `5831d6dfcb05f1bf819c32598f07dbfaddba0240`
+- canonical state: `pass`
+- authority: independent manual review
+- public receipt: [`PUBLIC-REVIEW.json`](PUBLIC-REVIEW.json)
 
-Dispatch was accepted, but no child session, observed model, or return payload was captured.
-
-This row's state is unchanged. Historical raw artifacts are not republished in the exact-product corpus; consult the immutable baseline commit for the original evidence.
+The requested and authoritative observed model are both
+`openai/gpt-5.6-luna`; the separate summary mismatch is packaging only.
+The child session completed and returned. Tempo retrieval was unavailable,
+and retained exact W3C traceparent and span identities bind the run/session.

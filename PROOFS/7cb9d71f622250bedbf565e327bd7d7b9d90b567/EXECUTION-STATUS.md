@@ -2,16 +2,16 @@
 
 `REVIEW_CANDIDATE`
 
-An exact-product canary attempted six rows. Detached review accepted three
-rows for PASS promotion and rejected the `R-CW-DELEGATE-TOKEN` promotion
-because bracket-origin evidence does not prove the canonical bare-token row.
+An exact-product canary attempted five PARTIAL rows. Independent review found
+all five evidence packets sufficient for PASS.
 
-Exactly these rows moved MISSING to PASS:
+Exactly these rows moved PARTIAL to PASS:
 
-- `R-CW-MULTI-COLLAPSE`
-- `R-CW-7`
-- `R-CW-DELEGATE-CHILD-LIVE`
+- `R-CD-1`
+- `R-CD-4`
+- `R-CD-CHAINED-DEPTH-2`
+- `R-CD-MODEL-TOOL`
+- `R-CD-SILENT`
 
-`R-CW-DELEGATE-TOKEN`, `R-CW-MULTI`, and
-`R-CD-COLLECTION-ON-COLLAPSE` remain MISSING. Final rollup:
-24 PASS / 7 PARTIAL / 1 FAIL / 6 MISSING.
+`R-CD-TOKEN` and `R-RC-2` remain PARTIAL. The six MISSING rows and one FAIL
+row are unchanged. Final rollup: 29 PASS / 2 PARTIAL / 1 FAIL / 6 MISSING.

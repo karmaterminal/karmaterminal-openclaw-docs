@@ -4,11 +4,11 @@
   "canonical": {
     "pure_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "pure_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
-    "structural_checkpoint": "ad07501c5b2bc04178fc50628a5ca446ee0db5d7",
+    "structural_checkpoint": "08f8731490ce93879dabc973e7563c7ae0a65683",
     "rollup": {
       "total_rows": 38,
-      "pass": 24,
-      "partial": 7,
+      "pass": 29,
+      "partial": 2,
       "thin": 0,
       "fail": 1,
       "honest_limit": 0,
@@ -86,7 +86,6 @@
       "corpus reconciliation",
       "R-RC-2 parser and candidate-envelope numeric controls",
       "producer command and artifact-contract preparation",
-      "five live PARTIAL rejected-base/successor controls",
       "authority restart-transition control preparation",
       "successor integration and refire matrix"
     ],
@@ -97,25 +96,20 @@
     "R-CD-COLLECTION-ON-COLLAPSE",
     "R-CW-MULTI"
   ],
-  "partial_control_rows": [
-    "R-CD-1",
-    "R-CD-4",
-    "R-CD-CHAINED-DEPTH-2",
-    "R-CD-MODEL-TOOL",
-    "R-CD-SILENT"
-  ],
+  "partial_control_rows": [],
   "rows": [
     {
       "row": "R-CD-1",
-      "state": "partial",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556060622"
       ],
       "owner": "proof-conductor",
       "command": "LIVE-R-CD-1",
       "rejected_base": "parent send accepted; no authoritative scheduled child, return, or trace",
       "successor_control": "one exact typed delegate task, one child, one bound return, and one correlated trace",
-      "gate": "final-successor-fleet-deployed"
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CD-2",
@@ -131,51 +125,55 @@
     },
     {
       "row": "R-CD-4",
-      "state": "partial",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556060622"
       ],
       "owner": "proof-conductor",
       "command": "LIVE-R-CD-4",
       "rejected_base": "target accepted; no child completion or target return",
       "successor_control": "two disposable sessions prove exactly one return at target and none at parent",
-      "gate": "final-successor-fleet-deployed"
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
-      "state": "partial",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556060622"
       ],
       "owner": "proof-conductor",
       "command": "LIVE-R-CD-CHAINED-DEPTH-2",
       "rejected_base": "child and grandchild prose appeared without authoritative spawn and root-return receipts",
       "successor_control": "serial Chain-1/2/3 task identities with child, grandchild, and root return on one trace lineage",
-      "gate": "final-successor-fleet-deployed"
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CD-MODEL-TOOL",
-      "state": "partial",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556060622"
       ],
       "owner": "proof-conductor",
       "command": "LIVE-R-CD-MODEL-TOOL",
       "rejected_base": "dispatch accepted; no child session, observed model, or return",
       "successor_control": "one explicit model override bound to child task identity, observed runtime model, return, and trace",
-      "gate": "final-successor-fleet-deployed-and-model-available"
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CD-SILENT",
-      "state": "partial",
+      "state": "pass",
       "attempts": [
-        "historical-baseline-review"
+        "historical-baseline-review",
+        "independent-review-5556060622"
       ],
       "owner": "proof-conductor",
       "command": "LIVE-R-CD-SILENT",
       "rejected_base": "parent send accepted; no authoritative child completion, internal follow-up, or trace",
       "successor_control": "one silent delegate completes and returns internally with zero channel delivery",
-      "gate": "final-successor-fleet-deployed"
+      "gate": "satisfied-by-independent-manual-review"
     },
     {
       "row": "R-CD-TOKEN",
@@ -276,6 +274,41 @@
   ],
   "reviewed_promotions": [
     {
+      "row": "R-CD-1",
+      "from": "partial",
+      "to": "pass",
+      "receipt": "R-CD-1/PUBLIC-REVIEW.json",
+      "receipt_sha256": "e963807590be05ae4b585074f8ebddcb825a753ea2ff34dd8434cdb585b63c2e"
+    },
+    {
+      "row": "R-CD-4",
+      "from": "partial",
+      "to": "pass",
+      "receipt": "R-CD-4/PUBLIC-REVIEW.json",
+      "receipt_sha256": "53cae038e531cb0d01febb43653267e4b93bdf7552361be9685049ecc0577bed"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "from": "partial",
+      "to": "pass",
+      "receipt": "R-CD-CHAINED-DEPTH-2/PUBLIC-REVIEW.json",
+      "receipt_sha256": "fed6c2e935a81d757139d926b7cf0576f31b06fc9c930d00ff261ef505b90239"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "from": "partial",
+      "to": "pass",
+      "receipt": "R-CD-MODEL-TOOL/PUBLIC-REVIEW.json",
+      "receipt_sha256": "fcf703b5ce12c642b16ac448255adabd86428380d372e9fdfaf9cad17c0e3109"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "from": "partial",
+      "to": "pass",
+      "receipt": "R-CD-SILENT/PUBLIC-REVIEW.json",
+      "receipt_sha256": "7e65512c4cfff7d0f7b82a96174a04e51323eb11f645c9d7b02a7d8befd60e0b"
+    },
+    {
       "row": "R-CW-MULTI-COLLAPSE",
       "from": "missing",
       "to": "pass",
@@ -299,7 +332,9 @@
   ],
   "manual_authority": {
     "automatic_authority": false,
-    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
-    "private_artifact_manifest_sha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470"
+    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+    "private_artifact_manifest_sha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
+    "previous_review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
+    "previous_private_artifact_manifest_sha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470"
   }
 }

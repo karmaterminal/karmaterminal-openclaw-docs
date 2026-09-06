@@ -1,0 +1,43 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CD-4",
+  "scenario": "r-cd-4-target-session-key.js",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "5831d6dfcb05f1bf819c32598f07dbfaddba0240",
+  "privateArtifactManifestSha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
+  "privateRowArtifactSha256": "ec412490d6bff66efacefe3c1e1083347ff6f5c9aa1878e0c6e53bafd7188464",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": ["99a2e2737d99687c"],
+    "flow": ["48f50c7d638a2620", "93d99ca238d901ef"],
+    "session": ["6c3916a030e910d8", "7c1e46214d88e93c", "c1aab11d473ae2ca"],
+    "run": ["108e88f3af8a8cf9", "c4921d56a7f5fe9c"],
+    "trace": ["321fb79f860ad75d"],
+    "traceparent": ["dc7908f3e850bada"],
+    "span": ["22f12a9139f65677"]
+  },
+  "observedPredicates": {
+    "targetPrimed": true,
+    "childCompleted": true,
+    "childSucceeded": true,
+    "childDelivered": true,
+    "returnObservedInTarget": true,
+    "returnAbsentFromParent": true,
+    "traceparentBoundToTargetRunAndSession": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+    "reviewedAt": "2026-09-06T01:25:33Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "Tempo retrieval was unavailable; the retained exact W3C traceparent and span identities bound to the authoritative target run and session satisfy the canonical trace binding."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openclaw.proofs.public-independent-review-receipt.v1",
+  "title": "Public-safe independent proof review receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "row",
+    "scenario",
+    "productSha",
+    "runtimeSha",
+    "docsSha",
+    "privateArtifactManifestSha256",
+    "privateRowArtifactSha256",
+    "identityFingerprints",
+    "observedPredicates",
+    "independentReview",
+    "authority",
+    "evidenceLimitations",
+    "finalClassification",
+    "canonicalFoldAllowed"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.proofs.public-independent-review-receipt.v1"
+    },
+    "row": {
+      "pattern": "^R-[A-Z0-9-]+$",
+      "type": "string"
+    },
+    "scenario": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "productSha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "runtimeSha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "docsSha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "privateArtifactManifestSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "privateRowArtifactSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "identityFingerprints": {
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "task",
+        "flow",
+        "session",
+        "run",
+        "trace"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256-16"
+        },
+        "task": {
+          "$ref": "#/$defs/fingerprintArray"
+        },
+        "flow": {
+          "$ref": "#/$defs/fingerprintArray"
+        },
+        "session": {
+          "$ref": "#/$defs/fingerprintArray"
+        },
+        "run": {
+          "$ref": "#/$defs/fingerprintArray"
+        },
+        "trace": {
+          "$ref": "#/$defs/fingerprintArray"
+        },
+        "notApplicableReason": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "observedPredicates": {
+      "additionalProperties": {
+        "type": "boolean"
+      },
+      "minProperties": 1,
+      "type": "object"
+    },
+    "independentReview": {
+      "additionalProperties": false,
+      "required": [
+        "verdict",
+        "receiptUrl",
+        "reviewedAt"
+      ],
+      "properties": {
+        "verdict": {
+          "const": "PASS-EVIDENCE-SUFFICIENT"
+        },
+        "receiptUrl": {
+          "const": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271"
+        },
+        "reviewedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "authority": {
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "automaticAuthority"
+      ],
+      "properties": {
+        "source": {
+          "const": "independent-manual-review"
+        },
+        "automaticAuthority": {
+          "const": false
+        }
+      },
+      "type": "object"
+    },
+    "evidenceLimitations": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "finalClassification": {
+      "const": "PASS"
+    },
+    "canonicalFoldAllowed": {
+      "const": true
+    }
+  },
+  "$defs": {
+    "fingerprintArray": {
+      "items": {
+        "pattern": "^[0-9a-f]{16}$",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    }
+  }
+}

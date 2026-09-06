@@ -1,0 +1,1143 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "capture_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "ship_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "proof_source_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+  "execution_runtime_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "execution_runtime_provenance": {
+    "execution_runtime_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+    "execution_runtime_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
+    "exact_product_runtime": true,
+    "baseline_corpus_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+    "baseline_product_tree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
+    "baseline_is_ancestor": true,
+    "materiality": "The exact-product canary ran at the target commit. Unchanged row states retain the reviewed 5035aac3 baseline; only the three named rows consume the independent manual review."
+  },
+  "harness_sha": "d01af8c6f7c778d77b154f7fe7a61a4a0d90de95",
+  "fire_type": "reviewed-exact-product-canary-promotion",
+  "corpus": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "sha_short": "7cb9d71f",
+  "build_string": "OpenClaw 2026.8.1 (7cb9d71f)",
+  "method": "Ancestry-preserving 38-row baseline plus three exact-product promotions authorized solely by independent manual review.",
+  "required_rows": [
+    "R-CD-1",
+    "R-CD-2",
+    "R-CD-3",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CD-MODEL-DEFAULT",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-MODEL-TOOL",
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-RETURN-COVENANT-AUTHORITY",
+    "R-CD-SILENT",
+    "R-CD-TOKEN",
+    "R-CONFIG-DEFAULTS",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-4",
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-TOKEN",
+    "R-OBS-1",
+    "R-OBS-2",
+    "R-OBS-STATUS",
+    "R-RC-1",
+    "R-RC-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "rollup": {
+    "total_rows": 38,
+    "pass": 24,
+    "partial": 7,
+    "thin": 0,
+    "fail": 1,
+    "honest_limit": 0,
+    "missing": 6
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "title": "Typed continue_delegate() schedule/spawn/return.",
+      "owner": "consumed_prior_one_fire",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-1/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; typed schedule/spawn/return; seat-readiness; accepted tool; parent return; trace"
+      ],
+      "summary": "Accepted parent send but no authoritative scheduled sentinel, parent return, or trace.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-1/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-2",
+      "title": "continue_delegate(mode='silent-wake') full path.",
+      "owner": "consumed_prior_one_fire",
+      "state": "fail",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-2/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "FAIL-candidate",
+      "review_status": "terminal-fail",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; one typed delegate topology; authoritative row receipt; no channel delivery; trace"
+      ],
+      "summary": "Authoritative signed receipt: missing-terminal-sentinel.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-2/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-3",
+      "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-3/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-3/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Compaction/lifeboat scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-3/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-4",
+      "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-4/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-4/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; return reaches target not parent; identities and trace present"
+      ],
+      "summary": "Parent request and target session were accepted, but no child completion or target return was observed.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-4/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "title": "Depth-2 delegate chain: parent→child→grandchild→return path.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; child and grandchild spawn/return; root consumes return; trace"
+      ],
+      "summary": "Child/grandchild sentinels appeared, but authoritative spawn and root-return receipts were absent.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "title": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "missing",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-COLLECTION-ON-COLLAPSE/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "producer-evidence-missing",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; A-B-C artifact set; root receives sentinel after B collapse; no orphan"
+      ],
+      "summary": "Static current-corpus validator found its required producer artifacts absent; this is missing evidence, not a product-behavior contradiction.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-CHAINED-ALT/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Chained alternate-model scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-DEFAULT/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Default model inheritance scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-DEFAULT/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOKEN/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Bracket-token model override and return scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOKEN/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOOL/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; explicit override forwarded; child requested=observed; return"
+      ],
+      "summary": "Dispatch was accepted, but no child session, observed model, or return payload was captured.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOOL/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "missing",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-RETURN-OVERLAP/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "producer-evidence-missing",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; overlapping returns retained with no loss; fixture cleanup receipt"
+      ],
+      "summary": "Scenario initialization failed because its required current-corpus evidence file was absent; no behavioral verdict exists.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-RETURN-OVERLAP/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+      "title": "Return-covenant lifecycle authority matrix.",
+      "owner": "frond_local_process_and_hermetic",
+      "state": "missing",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-RETURN-COVENANT-AUTHORITY/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-RETURN-COVENANT-AUTHORITY/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-return-covenant-authority.json",
+      "scenario_status": "process-local-accepted-launcher",
+      "live_run_classification": "process-local-indivisible-24-observation-matrix",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; all 12 cases x typed-tool+bracket-token exactly once; allowed exact effects; forbidden zero prompt/wake/channel; schema v18/v19; restart replay; signed authority; full cleanup"
+      ],
+      "summary": "Repaired launcher reached readiness and read-only mounts, but fixture gateway phase calls failed; zero of 24 observations and no signed cleanup/observer receipt.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@5384acb5a137fdcfe30f1742bdc6af86ef8899d1"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-SILENT",
+      "title": "Typed continue_delegate(mode='silent') proof.",
+      "owner": "consumed_prior_one_fire",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-SILENT/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-SILENT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; child completion and internal context; no channel delivery"
+      ],
+      "summary": "Accepted parent send but no authoritative child completion, follow-up, internal context, or trace.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-SILENT/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an explicitly agent-bound isolated raw-final-text parent; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-TOKEN/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; exact raw final text; parser/queue/child/return identities; trace correlation"
+      ],
+      "summary": "Final explicit-owner replacement passed ancillary provenance, verified ownership 208 times, and parsed the exact terminal delegate token, but completion announcement failed with AgentSelectionRequiredError; the stable ledger retained one completed origin task and zero delegate tasks.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-TOKEN/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Reviewed complete candidate receipt after retained infrastructure attempt.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CONFIG-DEFAULTS/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Intersession config scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CONFIG-INTERSESSION/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-1",
+      "title": "Typed continue_work() tool-form schedule + wake.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-1/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Schedule/wake scenario emitted PASS-candidate with recovered Tempo trace.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-1/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-2",
+      "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-2/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Reviewed complete candidate receipt.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-2/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-3",
+      "title": "continue_work reason telemetry/redaction partial candidate.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-3/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-3/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Runner partial was review-promoted only after recovered Tempo correlation and redaction review passed.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-3/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-4",
+      "title": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-4/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-4/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Multi-hop chain scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-4/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-5",
+      "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+      "owner": "frond_local_process_and_hermetic",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-5/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-5/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
+      "scenario_status": "scaffold",
+      "live_run_classification": "orchestration-required",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; boundary matrix; typed tool; dispatch reject/no-spawn; readiness; cleanup"
+      ],
+      "summary": "Repaired exact-pure process fixture passed dependency provenance, boundary matrix, typed-tool, dispatch, and cleanup.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-5A",
+      "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
+      "owner": "frond_local_process_and_hermetic",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-5A/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-5A/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "static-preflight-only",
+      "candidate_verdict": "construct-only",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS at corpus level only with static boundary receipts; never claim live behavior"
+      ],
+      "summary": "Strict current-corpus consumer selected exactly one reviewed R-CW-5 PASS producer and validated its complete agreeing fixture, readiness, boundary, typed-tool, dispatch, dependency-integrity, and cleanup receipts.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-5A/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-6",
+      "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+      "owner": "frond_local_process_and_hermetic",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-6/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-6/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
+      "scenario_status": "scaffold",
+      "live_run_classification": "orchestration-required",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; below/at/over matrix; no-spawn; durable recovery; selected delegate; cleanup; safety"
+      ],
+      "summary": "Approved f909 harness produced independent runtime, typed-tool, selected-delegate, regression, dependency-provenance, durable-recovery, cleanup, and public-safety PASS receipts.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-6A",
+      "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
+      "owner": "frond_local_process_and_hermetic",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-6A/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-6A/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "static-preflight-only",
+      "candidate_verdict": "construct-only",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS at corpus level only with static boundary receipts; never claim live behavior"
+      ],
+      "summary": "Strict current-corpus consumer selected the reviewed repaired R-CW-6 PASS producer and validated its complete agreeing runtime, durable-state, typed-tool, delegate, regression, dependency-provenance, cleanup, and public-safety receipts.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-6A/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-7",
+      "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
+      "owner": "independent-manual-review",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-7/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-7/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
+      "fired": true,
+      "exact_target_execution": true,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "PASS: exact-product behavior and structured private evidence were independently reviewed; the public-safe receipt is canonical authority.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5555528271. Rejected producer-v6 automatic authority was not used.",
+      "supporting_docs": [
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-7/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "canary-20260905-independent-review"
+      ],
+      "traces": [],
+      "reviewed_receipt_sha256": "02ca361d7fd7b44e2c77f2b002aaae95f20858115ae8bddf18acf0de2a6e379a"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+      "owner": "independent-manual-review",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
+      "fired": true,
+      "exact_target_execution": true,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "PASS: exact-product behavior and structured private evidence were independently reviewed; the public-safe receipt is canonical authority.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5555528271. Rejected producer-v6 automatic authority was not used.",
+      "supporting_docs": [
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-CHILD-LIVE/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "canary-20260905-independent-review"
+      ],
+      "traces": [],
+      "reviewed_receipt_sha256": "53a023f819745d54dd4d6491cb4034096e77b7033a5f0eabb0ef9de6ada569c6"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "title": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Delegate self-continuation scenario emitted PASS-candidate.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "title": "Static validator for committed delegate child bare-token continuation receipts.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "missing",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "producer-evidence-missing",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "bare-token-hop2-executed"
+      ],
+      "summary": "Canonical bare-token continuation evidence is missing; the reviewed canary exercised the distinct bracket-origin surface.",
+      "notes": "State remains at the reviewed 5035aac3 baseline. Private canary evidence is retained only through issue comment 5555706100; no private artifacts are republished and no exact-target execution is claimed for this canonical row.",
+      "supporting_docs": [
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555706100"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-MULTI",
+      "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "missing",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "producer-evidence-missing",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; three elections yield three distinct wakes at default/60/120; both forms"
+      ],
+      "summary": "Static multi-election validator found its required producer artifacts absent.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-MULTI/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+      "owner": "independent-manual-review",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
+      "fired": true,
+      "exact_target_execution": true,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "PASS: exact-product behavior and structured private evidence were independently reviewed; the public-safe receipt is canonical authority.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5555528271. Rejected producer-v6 automatic authority was not used.",
+      "supporting_docs": [
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-MULTI-COLLAPSE/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "canary-20260905-independent-review"
+      ],
+      "traces": [],
+      "reviewed_receipt_sha256": "68b4e761b83cb09be9b8ec6bc59946b0c25216e8fae469ef7198fd8d570fb129"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-TOKEN/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Reviewed complete candidate receipt.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CW-TOKEN/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-OBS-1",
+      "title": "Session-status-card observability via the session_status tool.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-OBS-1/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-OBS-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Single-seat R-OBS-1 PASS retained; subsequent 6/6 exact deployment/readiness crosswalk folded without refire.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-1/EVIDENCE.md",
+        "PROOFS/5035aac3a96df18f0a5d5a5c3e91a516a32daf32/R-OBS-1/fleet-readiness-crosswalk.json"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-OBS-2",
+      "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "missing",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-OBS-2/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-OBS-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "producer-evidence-missing",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "PASS; exported parent-child continuation span tree bound to exact run ids"
+      ],
+      "summary": "Observer initialization failed because the required current-corpus trace tree was absent; no behavioral verdict exists.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-2/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-OBS-STATUS/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-OBS-STATUS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Exact-pure source contract passed.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-OBS-STATUS/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-RC-1",
+      "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-RC-1/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-RC-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Reviewed structured threshold rejection.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-RC-1/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-RC-2",
+      "title": "Parent fires continue_delegate to a child that calls request_compaction.",
+      "owner": "consumed_prior_one_fire",
+      "state": "partial",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-RC-2/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-RC-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "terminal-nonpass",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [
+        "HONEST-LIMIT only; child invokes request_compaction; authoritative insufficient-context threshold receipt; trace"
+      ],
+      "summary": "No child session or nonce-bound structured request_compaction tool result; text-only threshold report is insufficient.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-RC-2/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Twenty exact-pure files, 273 tests, five serial Vitest shards passed.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+      "owner": "consumed_prior_one_fire",
+      "state": "pass",
+      "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-TRACE-REDACTION-1121/",
+      "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": true,
+      "pending_receipts": [],
+      "summary": "Exact-pure continuation tracer/redaction tests passed within the 273-test run.",
+      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "supporting_docs": [
+        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-TRACE-REDACTION-1121/EVIDENCE.md"
+      ],
+      "test_cases_executed": [
+        "historical-baseline-review"
+      ],
+      "traces": []
+    }
+  ],
+  "exact_target_execution": true,
+  "exact_target_mode_b": false,
+  "generated": "2026-09-06T00:20:13Z",
+  "notes": "Exactly three independently reviewed exact-product rows moved MISSING to PASS. R-CW-DELEGATE-TOKEN, R-CW-MULTI, and R-CD-COLLECTION-ON-COLLAPSE remain MISSING; every other baseline state is unchanged. Automatic authority was not used.",
+  "execution_status": "READY_FOR_DETACHED_REVIEW",
+  "promotion": {
+    "authority": "independent-manual-review",
+    "automatic_authority": false,
+    "product_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+    "product_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
+    "runtime_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+    "docs_sha": "ad07501c5b2bc04178fc50628a5ca446ee0db5d7",
+    "baseline_corpus_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+    "baseline_rollup": {
+      "total_rows": 38,
+      "pass": 21,
+      "partial": 7,
+      "thin": 0,
+      "fail": 1,
+      "honest_limit": 0,
+      "missing": 9
+    },
+    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
+    "canary_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555487647",
+    "private_artifact_manifest_sha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470",
+    "promoted_rows": [
+      "R-CW-MULTI-COLLAPSE",
+      "R-CW-7",
+      "R-CW-DELEGATE-CHILD-LIVE"
+    ],
+    "receipt_sha256": {
+      "R-CW-MULTI-COLLAPSE": "68b4e761b83cb09be9b8ec6bc59946b0c25216e8fae469ef7198fd8d570fb129",
+      "R-CW-7": "02ca361d7fd7b44e2c77f2b002aaae95f20858115ae8bddf18acf0de2a6e379a",
+      "R-CW-DELEGATE-CHILD-LIVE": "53a023f819745d54dd4d6491cb4034096e77b7033a5f0eabb0ef9de6ada569c6"
+    }
+  },
+  "exact_target_execution_rows": [
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE"
+  ]
+}

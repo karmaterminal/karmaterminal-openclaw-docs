@@ -1,0 +1,51 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CW-7",
+  "scenario": "r-cw-7-producer.js",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "ad07501c5b2bc04178fc50628a5ca446ee0db5d7",
+  "privateArtifactManifestSha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470",
+  "privateRowArtifactSha256": "1434071f8d3beb2ac4fea7bb576039f29ce80eddcf0d3c79ad5d274ee71db2f1",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": [],
+    "flow": [
+      "a38f97cff2697935"
+    ],
+    "session": [
+      "915247167addef07"
+    ],
+    "run": [
+      "0574fb2c798d58ce",
+      "95323dc3b37dfa06"
+    ],
+    "trace": [
+      "57199e98d4f2cfc3",
+      "f23d6d3be84384c8"
+    ]
+  },
+  "observedPredicates": {
+    "typedDelaySevenAccepted": true,
+    "flowSucceeded": true,
+    "sameSessionWoke": true,
+    "successorRunDistinct": true,
+    "originAndSuccessorCompleted": true,
+    "traceparentMatchedSuccessor": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
+    "reviewedAt": "2026-09-05T23:33:14Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "The synthetic CW7-WOKE label was absent.",
+    "The reviewer found structured scheduling, wake, completion, and trace evidence sufficient despite that harness subscription/output-label miss."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

@@ -11,6 +11,9 @@ review linked by each public receipt; rejected automatic producer authority is
 excluded. Every other state is checked by row-name comparison against current
 main.
 
-Public receipts expose only SHA-256 digests and 16-hex SHA-256 identity
-fingerprints, including traceparent and span fingerprints. Raw evidence,
-prompts, credentials, session keys, and runtime identifiers remain private.
+Synthetic proof identifiers and acquisition-path references disclosed in the
+cited public review receipts are public provenance. Credentials, provider
+tokens, prompts or other private content, and raw acquisition bytes are not
+published. Public corpus receipts use deterministic 16-hex SHA-256
+fingerprints for compact joins, not to claim that every source identifier is
+secret.

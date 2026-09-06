@@ -20,4 +20,4 @@ observed predicates, limitations, and the independent manual review.
 Rejected automatic producer authority was not consumed.
 
 `R-CD-TOKEN` and `R-RC-2` remain PARTIAL. All six MISSING rows and `R-CD-2`
-FAIL remain unchanged, as do the other 30 row states.
+FAIL remain unchanged, as do the other 24 row states.

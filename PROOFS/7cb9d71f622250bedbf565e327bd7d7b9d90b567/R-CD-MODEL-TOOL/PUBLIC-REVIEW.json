@@ -10,7 +10,7 @@
   "identityFingerprints": {
     "algorithm": "sha256-16",
     "task": ["5c28a17192942c15"],
-    "flow": ["b516fdd79d9abd2d", "e59a5eb15e58c9dd"],
+    "flow": ["b516fdd79d9abd2d", "9ebba523c5a0f20c"],
     "session": ["ca9d324583644cdd", "e97295057a5b249b"],
     "run": ["0383d6dc5a4d66cc", "484c81f397aabad2"],
     "trace": ["0debc60a98c10b39"],

@@ -95,7 +95,7 @@
         "canary-20260906-independent-review"
       ],
       "traces": [],
-      "reviewed_receipt_sha256": "bace8733197597190a98b8506a6cbd412b4c18700242ea30c75f8ed37440449b"
+      "reviewed_receipt_sha256": "e963807590be05ae4b585074f8ebddcb825a753ea2ff34dd8434cdb585b63c2e"
     },
     {
       "row": "R-CD-2",
@@ -336,7 +336,7 @@
         "canary-20260906-independent-review"
       ],
       "traces": [],
-      "reviewed_receipt_sha256": "8572015bd97168aa5b66ce584e5dda2c18c5bafa206f56ad4b418bcdeb77644b"
+      "reviewed_receipt_sha256": "fcf703b5ce12c642b16ac448255adabd86428380d372e9fdfaf9cad17c0e3109"
     },
     {
       "row": "R-CD-RETURN-OVERLAP",
@@ -1128,10 +1128,10 @@
       "R-CD-SILENT"
     ],
     "receipt_sha256": {
-      "R-CD-1": "bace8733197597190a98b8506a6cbd412b4c18700242ea30c75f8ed37440449b",
+      "R-CD-1": "e963807590be05ae4b585074f8ebddcb825a753ea2ff34dd8434cdb585b63c2e",
       "R-CD-4": "53cae038e531cb0d01febb43653267e4b93bdf7552361be9685049ecc0577bed",
       "R-CD-CHAINED-DEPTH-2": "fed6c2e935a81d757139d926b7cf0576f31b06fc9c930d00ff261ef505b90239",
-      "R-CD-MODEL-TOOL": "8572015bd97168aa5b66ce584e5dda2c18c5bafa206f56ad4b418bcdeb77644b",
+      "R-CD-MODEL-TOOL": "fcf703b5ce12c642b16ac448255adabd86428380d372e9fdfaf9cad17c0e3109",
       "R-CD-SILENT": "7e65512c4cfff7d0f7b82a96174a04e51323eb11f645c9d7b02a7d8befd60e0b"
     }
   },

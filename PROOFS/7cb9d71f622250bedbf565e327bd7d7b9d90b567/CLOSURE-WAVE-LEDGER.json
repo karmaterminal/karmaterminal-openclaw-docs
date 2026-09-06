@@ -86,7 +86,6 @@
       "corpus reconciliation",
       "R-RC-2 parser and candidate-envelope numeric controls",
       "producer command and artifact-contract preparation",
-      "five live PARTIAL rejected-base/successor controls",
       "authority restart-transition control preparation",
       "successor integration and refire matrix"
     ],
@@ -279,7 +278,7 @@
       "from": "partial",
       "to": "pass",
       "receipt": "R-CD-1/PUBLIC-REVIEW.json",
-      "receipt_sha256": "bace8733197597190a98b8506a6cbd412b4c18700242ea30c75f8ed37440449b"
+      "receipt_sha256": "e963807590be05ae4b585074f8ebddcb825a753ea2ff34dd8434cdb585b63c2e"
     },
     {
       "row": "R-CD-4",
@@ -300,7 +299,7 @@
       "from": "partial",
       "to": "pass",
       "receipt": "R-CD-MODEL-TOOL/PUBLIC-REVIEW.json",
-      "receipt_sha256": "8572015bd97168aa5b66ce584e5dda2c18c5bafa206f56ad4b418bcdeb77644b"
+      "receipt_sha256": "fcf703b5ce12c642b16ac448255adabd86428380d372e9fdfaf9cad17c0e3109"
     },
     {
       "row": "R-CD-SILENT",

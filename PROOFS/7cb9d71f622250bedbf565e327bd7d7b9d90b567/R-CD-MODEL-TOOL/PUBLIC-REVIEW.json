@@ -1,0 +1,44 @@
+{
+  "schema": "openclaw.proofs.public-independent-review-receipt.v1",
+  "row": "R-CD-MODEL-TOOL",
+  "scenario": "r-cd-model-tool.js",
+  "productSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "runtimeSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+  "docsSha": "5831d6dfcb05f1bf819c32598f07dbfaddba0240",
+  "privateArtifactManifestSha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
+  "privateRowArtifactSha256": "fbde3246627942e09d19c3ad7639eda49760e828ee97c7d7841763e2201cd046",
+  "identityFingerprints": {
+    "algorithm": "sha256-16",
+    "task": ["5c28a17192942c15"],
+    "flow": ["b516fdd79d9abd2d", "e59a5eb15e58c9dd"],
+    "session": ["ca9d324583644cdd", "e97295057a5b249b"],
+    "run": ["0383d6dc5a4d66cc", "484c81f397aabad2"],
+    "trace": ["0debc60a98c10b39"],
+    "traceparent": ["ccc3e5a934560989"],
+    "span": ["3e18ab2c5c669120"]
+  },
+  "observedPredicates": {
+    "dispatchAccepted": true,
+    "childSessionObserved": true,
+    "requestedModelIsOpenaiGpt56Luna": true,
+    "authoritativeObservedModelIsOpenaiGpt56Luna": true,
+    "requestedAndObservedModelsMatch": true,
+    "returnPayloadObserved": true,
+    "traceparentBoundToRunAndSession": true
+  },
+  "independentReview": {
+    "verdict": "PASS-EVIDENCE-SUFFICIENT",
+    "receiptUrl": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+    "reviewedAt": "2026-09-06T01:25:33Z"
+  },
+  "authority": {
+    "source": "independent-manual-review",
+    "automaticAuthority": false
+  },
+  "evidenceLimitations": [
+    "Tempo retrieval was unavailable; the retained exact W3C traceparent and span identities bind the authoritative run and session.",
+    "The separate summary mismatch is packaging only; requested and authoritative observed model are both openai/gpt-5.6-luna."
+  ],
+  "finalClassification": "PASS",
+  "canonicalFoldAllowed": true
+}

@@ -12,14 +12,14 @@
     "baseline_corpus_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
     "baseline_product_tree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
     "baseline_is_ancestor": true,
-    "materiality": "The exact-product canary ran at the target commit. Unchanged row states retain the reviewed 5035aac3 baseline; only the three named rows consume the independent manual review."
+    "materiality": "The exact-product canaries ran at the target commit. The current wave changes only five PARTIAL rows from docs main 08f8731490ce93879dabc973e7563c7ae0a65683 and consumes only independent manual review."
   },
   "harness_sha": "d01af8c6f7c778d77b154f7fe7a61a4a0d90de95",
   "fire_type": "reviewed-exact-product-canary-promotion",
   "corpus": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567",
   "sha_short": "7cb9d71f",
   "build_string": "OpenClaw 2026.8.1 (7cb9d71f)",
-  "method": "Ancestry-preserving 38-row baseline plus three exact-product promotions authorized solely by independent manual review.",
+  "method": "Current-main 38-row corpus plus exactly five PARTIAL-to-PASS exact-product promotions authorized solely by independent manual review.",
   "required_rows": [
     "R-CD-1",
     "R-CD-2",
@@ -62,8 +62,8 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 24,
-    "partial": 7,
+    "pass": 29,
+    "partial": 2,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
@@ -73,30 +73,29 @@
     {
       "row": "R-CD-1",
       "title": "Typed continue_delegate() schedule/spawn/return.",
-      "owner": "consumed_prior_one_fire",
-      "state": "partial",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-1/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "PARTIAL-candidate",
-      "review_status": "terminal-nonpass",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; typed schedule/spawn/return; seat-readiness; accepted tool; parent return; trace"
-      ],
-      "summary": "Accepted parent send but no authoritative scheduled sentinel, parent return, or trace.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "pending_receipts": [],
+      "summary": "PASS: one typed delegate was scheduled, succeeded, delivered, and returned to its parent with retained W3C trace binding.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556060622. Tempo retrieval was unavailable; exact retained traceparent/span identities satisfy the canonical trace predicate. Automatic producer authority was not used.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-1/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-1/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "bace8733197597190a98b8506a6cbd412b4c18700242ea30c75f8ed37440449b"
     },
     {
       "row": "R-CD-2",
@@ -155,58 +154,56 @@
     {
       "row": "R-CD-4",
       "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
-      "owner": "ronan_remaining_runnable_matrix",
-      "state": "partial",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-4/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "PARTIAL-candidate",
-      "review_status": "terminal-nonpass",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; return reaches target not parent; identities and trace present"
-      ],
-      "summary": "Parent request and target session were accepted, but no child completion or target return was observed.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "pending_receipts": [],
+      "summary": "PASS: the child completed and returned exactly once to the selected target and not to the dispatching parent.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556060622. Tempo retrieval was unavailable; exact retained traceparent/span identities satisfy the canonical trace predicate. Automatic producer authority was not used.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-4/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-4/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "53cae038e531cb0d01febb43653267e4b93bdf7552361be9685049ecc0577bed"
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
       "title": "Depth-2 delegate chain: parent→child→grandchild→return path.",
-      "owner": "ronan_remaining_runnable_matrix",
-      "state": "partial",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-CHAINED-DEPTH-2/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "PARTIAL-candidate",
-      "review_status": "terminal-nonpass",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; child and grandchild spawn/return; root consumes return; trace"
-      ],
-      "summary": "Child/grandchild sentinels appeared, but authoritative spawn and root-return receipts were absent.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "pending_receipts": [],
+      "summary": "PASS: distinct child and grandchild hops completed at depth two and returned once to the root on one retained trace lineage.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556060622. Tempo retrieval was unavailable; the retained traceparent/span lineage satisfies the canonical trace predicate. Automatic producer authority was not used.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-CHAINED-DEPTH-2/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "fed6c2e935a81d757139d926b7cf0576f31b06fc9c930d00ff261ef505b90239"
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
@@ -317,30 +314,29 @@
     {
       "row": "R-CD-MODEL-TOOL",
       "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
-      "owner": "ronan_remaining_runnable_matrix",
-      "state": "partial",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOOL/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOOL/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "PARTIAL-candidate",
-      "review_status": "terminal-nonpass",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; explicit override forwarded; child requested=observed; return"
-      ],
-      "summary": "Dispatch was accepted, but no child session, observed model, or return payload was captured.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "pending_receipts": [],
+      "summary": "PASS: requested and authoritative observed model were both openai/gpt-5.6-luna; the child completed and returned.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556060622. The separate summary mismatch is packaging only. Tempo retrieval was unavailable, and automatic producer authority was not used.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-MODEL-TOOL/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-MODEL-TOOL/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "8572015bd97168aa5b66ce584e5dda2c18c5bafa206f56ad4b418bcdeb77644b"
     },
     {
       "row": "R-CD-RETURN-OVERLAP",
@@ -401,30 +397,29 @@
     {
       "row": "R-CD-SILENT",
       "title": "Typed continue_delegate(mode='silent') proof.",
-      "owner": "consumed_prior_one_fire",
-      "state": "partial",
+      "owner": "independent-manual-review",
+      "state": "pass",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-SILENT/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-SILENT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "PARTIAL-candidate",
-      "review_status": "terminal-nonpass",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "independent-manual-review-complete",
       "fired": true,
-      "exact_target_execution": false,
+      "exact_target_execution": true,
       "exact_target_mode_b": true,
-      "pending_receipts": [
-        "PASS; child completion and internal context; no channel delivery"
-      ],
-      "summary": "Accepted parent send but no authoritative child completion, follow-up, internal context, or trace.",
-      "notes": "State inherited unchanged from the reviewed 5035aac3 baseline; historical raw artifacts are not republished and no exact-target execution is claimed.",
+      "pending_receipts": [],
+      "summary": "PASS: the silent child completed, was read back from internal context, and produced no channel delivery during the bounded window.",
+      "notes": "Promotion authority is the independent manual review at issue comment 5556060622. Tempo retrieval was unavailable and is not a canonical predicate for this row. Automatic producer authority was not used.",
       "supporting_docs": [
-        "PROOFS/7c100aede1fd9895c0ae3e3837eafc9d98ad6982/R-CD-SILENT/EVIDENCE.md"
+        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CD-SILENT/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "historical-baseline-review"
+        "canary-20260906-independent-review"
       ],
-      "traces": []
+      "traces": [],
+      "reviewed_receipt_sha256": "7e65512c4cfff7d0f7b82a96174a04e51323eb11f645c9d7b02a7d8befd60e0b"
     },
     {
       "row": "R-CD-TOKEN",
@@ -1101,8 +1096,8 @@
   ],
   "exact_target_execution": true,
   "exact_target_mode_b": false,
-  "generated": "2026-09-06T00:20:13Z",
-  "notes": "Exactly three independently reviewed exact-product rows moved MISSING to PASS. R-CW-DELEGATE-TOKEN, R-CW-MULTI, and R-CD-COLLECTION-ON-COLLAPSE remain MISSING; every other baseline state is unchanged. Automatic authority was not used.",
+  "generated": "2026-09-06T01:37:10Z",
+  "notes": "Exactly five independently reviewed exact-product rows moved PARTIAL to PASS from docs main 08f8731490ce93879dabc973e7563c7ae0a65683. The other 33 row states are unchanged. Automatic producer authority was not used.",
   "execution_status": "READY_FOR_DETACHED_REVIEW",
   "promotion": {
     "authority": "independent-manual-review",
@@ -1110,32 +1105,42 @@
     "product_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "product_tree": "85821bfd8f4676cfac8be658122910a7eb862f55",
     "runtime_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
-    "docs_sha": "ad07501c5b2bc04178fc50628a5ca446ee0db5d7",
-    "baseline_corpus_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
+    "docs_sha": "5831d6dfcb05f1bf819c32598f07dbfaddba0240",
+    "current_main_docs_sha": "08f8731490ce93879dabc973e7563c7ae0a65683",
+    "baseline_corpus_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
     "baseline_rollup": {
       "total_rows": 38,
-      "pass": 21,
+      "pass": 24,
       "partial": 7,
       "thin": 0,
       "fail": 1,
       "honest_limit": 0,
-      "missing": 9
+      "missing": 6
     },
-    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555528271",
-    "canary_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555487647",
-    "private_artifact_manifest_sha256": "71d96105d9d01b32d1739fe0371b7d80aa235293627d61a222918c8ef6565470",
+    "review_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5556060622",
+    "canary_receipt_url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555964397",
+    "private_artifact_manifest_sha256": "fe025f9545142d392b3a42518e4f8414ced16b50bf4efebcd9dc83fd9dc2ca82",
     "promoted_rows": [
-      "R-CW-MULTI-COLLAPSE",
-      "R-CW-7",
-      "R-CW-DELEGATE-CHILD-LIVE"
+      "R-CD-1",
+      "R-CD-4",
+      "R-CD-CHAINED-DEPTH-2",
+      "R-CD-MODEL-TOOL",
+      "R-CD-SILENT"
     ],
     "receipt_sha256": {
-      "R-CW-MULTI-COLLAPSE": "68b4e761b83cb09be9b8ec6bc59946b0c25216e8fae469ef7198fd8d570fb129",
-      "R-CW-7": "02ca361d7fd7b44e2c77f2b002aaae95f20858115ae8bddf18acf0de2a6e379a",
-      "R-CW-DELEGATE-CHILD-LIVE": "53a023f819745d54dd4d6491cb4034096e77b7033a5f0eabb0ef9de6ada569c6"
+      "R-CD-1": "bace8733197597190a98b8506a6cbd412b4c18700242ea30c75f8ed37440449b",
+      "R-CD-4": "53cae038e531cb0d01febb43653267e4b93bdf7552361be9685049ecc0577bed",
+      "R-CD-CHAINED-DEPTH-2": "fed6c2e935a81d757139d926b7cf0576f31b06fc9c930d00ff261ef505b90239",
+      "R-CD-MODEL-TOOL": "8572015bd97168aa5b66ce584e5dda2c18c5bafa206f56ad4b418bcdeb77644b",
+      "R-CD-SILENT": "7e65512c4cfff7d0f7b82a96174a04e51323eb11f645c9d7b02a7d8befd60e0b"
     }
   },
   "exact_target_execution_rows": [
+    "R-CD-1",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-MODEL-TOOL",
+    "R-CD-SILENT",
     "R-CW-MULTI-COLLAPSE",
     "R-CW-7",
     "R-CW-DELEGATE-CHILD-LIVE"

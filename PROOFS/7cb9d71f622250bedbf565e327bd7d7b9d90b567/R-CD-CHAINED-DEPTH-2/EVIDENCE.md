@@ -1,10 +1,12 @@
-# R-CD-CHAINED-DEPTH-2 — inherited baseline state
+# R-CD-CHAINED-DEPTH-2 — exact-product review evidence
 
-- canonical state: `partial`
-- reviewed baseline product: `5035aac3a96df18f0a5d5a5c3e91a516a32daf32`
-- reviewed baseline docs commit: `0a893f80e55e0f93626d9a5f71bcb5dd38ca56f1`
-- exact-target execution claimed here: `false`
+- product/runtime: `7cb9d71f622250bedbf565e327bd7d7b9d90b567`
+- docs readiness: `5831d6dfcb05f1bf819c32598f07dbfaddba0240`
+- canonical state: `pass`
+- authority: independent manual review
+- public receipt: [`PUBLIC-REVIEW.json`](PUBLIC-REVIEW.json)
 
-Child/grandchild sentinels appeared, but authoritative spawn and root-return receipts were absent.
-
-This row's state is unchanged. Historical raw artifacts are not republished in the exact-product corpus; consult the immutable baseline commit for the original evidence.
+The retained evidence binds distinct child and grandchild identities, both
+terminal sentinels, observed depth two, and one root return. Tempo retrieval
+was unavailable; one retained W3C trace identity with two exact span
+identities satisfies the canonical lineage binding.

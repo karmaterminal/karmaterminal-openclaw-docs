@@ -12,14 +12,14 @@
     "baseline_corpus_sha": "5035aac3a96df18f0a5d5a5c3e91a516a32daf32",
     "baseline_product_tree": "5ff71a670d75022c45e0ecaf9ecddcf57d2a33a2",
     "baseline_is_ancestor": true,
-    "materiality": "The exact-product canary ran at the target commit. Unchanged row states retain the reviewed 5035aac3 baseline; only the four named rows consume the independent manual review."
+    "materiality": "The exact-product canary ran at the target commit. Unchanged row states retain the reviewed 5035aac3 baseline; only the three named rows consume the independent manual review."
   },
   "harness_sha": "d01af8c6f7c778d77b154f7fe7a61a4a0d90de95",
   "fire_type": "reviewed-exact-product-canary-promotion",
   "corpus": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567",
   "sha_short": "7cb9d71f",
   "build_string": "OpenClaw 2026.8.1 (7cb9d71f)",
-  "method": "Ancestry-preserving 38-row baseline plus four exact-product promotions authorized solely by independent manual review.",
+  "method": "Ancestry-preserving 38-row baseline plus three exact-product promotions authorized solely by independent manual review.",
   "required_rows": [
     "R-CD-1",
     "R-CD-2",
@@ -62,12 +62,12 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 25,
+    "pass": 24,
     "partial": 7,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 5
+    "missing": 6
   },
   "rows": [
     {
@@ -805,29 +805,30 @@
     {
       "row": "R-CW-DELEGATE-TOKEN",
       "title": "Static validator for committed delegate child bare-token continuation receipts.",
-      "owner": "independent-manual-review",
-      "state": "pass",
+      "owner": "ronan_remaining_runnable_matrix",
+      "state": "missing",
       "dir": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "PASS-candidate",
-      "review_status": "independent-manual-review-complete",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "producer-evidence-missing",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "exact_target_mode_b": true,
-      "pending_receipts": [],
-      "summary": "PASS: exact-product behavior and structured private evidence were independently reviewed; the public-safe receipt is canonical authority.",
-      "notes": "Promotion authority is the independent manual review at issue comment 5555528271. Rejected producer-v6 automatic authority was not used.",
+      "pending_receipts": [
+        "bare-token-hop2-executed"
+      ],
+      "summary": "Canonical bare-token continuation evidence is missing; the reviewed canary exercised the distinct bracket-origin surface.",
+      "notes": "State remains at the reviewed 5035aac3 baseline. Private canary evidence is retained only through issue comment 5555706100; no private artifacts are republished and no exact-target execution is claimed for this canonical row.",
       "supporting_docs": [
-        "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/R-CW-DELEGATE-TOKEN/PUBLIC-REVIEW.json"
+        "https://github.com/karmaterminal/karmaterminal-openclaw-docs/issues/451#issuecomment-5555706100"
       ],
       "test_cases_executed": [
-        "canary-20260905-independent-review"
+        "historical-baseline-review"
       ],
-      "traces": [],
-      "reviewed_receipt_sha256": "0bb14f61bc38552859e867ee72936aad141ee3f373c3a214c868c08a765bb68d"
+      "traces": []
     },
     {
       "row": "R-CW-MULTI",
@@ -1100,8 +1101,8 @@
   ],
   "exact_target_execution": true,
   "exact_target_mode_b": false,
-  "generated": "2026-09-05T23:46:09Z",
-  "notes": "Exactly four independently reviewed exact-product rows moved MISSING to PASS. R-CW-MULTI and R-CD-COLLECTION-ON-COLLAPSE remain MISSING; every other baseline state is unchanged. Automatic authority was not used.",
+  "generated": "2026-09-06T00:20:13Z",
+  "notes": "Exactly three independently reviewed exact-product rows moved MISSING to PASS. R-CW-DELEGATE-TOKEN, R-CW-MULTI, and R-CD-COLLECTION-ON-COLLAPSE remain MISSING; every other baseline state is unchanged. Automatic authority was not used.",
   "execution_status": "READY_FOR_DETACHED_REVIEW",
   "promotion": {
     "authority": "independent-manual-review",
@@ -1126,20 +1127,17 @@
     "promoted_rows": [
       "R-CW-MULTI-COLLAPSE",
       "R-CW-7",
-      "R-CW-DELEGATE-CHILD-LIVE",
-      "R-CW-DELEGATE-TOKEN"
+      "R-CW-DELEGATE-CHILD-LIVE"
     ],
     "receipt_sha256": {
       "R-CW-MULTI-COLLAPSE": "68b4e761b83cb09be9b8ec6bc59946b0c25216e8fae469ef7198fd8d570fb129",
       "R-CW-7": "02ca361d7fd7b44e2c77f2b002aaae95f20858115ae8bddf18acf0de2a6e379a",
-      "R-CW-DELEGATE-CHILD-LIVE": "53a023f819745d54dd4d6491cb4034096e77b7033a5f0eabb0ef9de6ada569c6",
-      "R-CW-DELEGATE-TOKEN": "0bb14f61bc38552859e867ee72936aad141ee3f373c3a214c868c08a765bb68d"
+      "R-CW-DELEGATE-CHILD-LIVE": "53a023f819745d54dd4d6491cb4034096e77b7033a5f0eabb0ef9de6ada569c6"
     }
   },
   "exact_target_execution_rows": [
     "R-CW-MULTI-COLLAPSE",
     "R-CW-7",
-    "R-CW-DELEGATE-CHILD-LIVE",
-    "R-CW-DELEGATE-TOKEN"
+    "R-CW-DELEGATE-CHILD-LIVE"
   ]
 }

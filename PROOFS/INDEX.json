@@ -24,14 +24,14 @@
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
     "total_rows": 38,
-    "pass": 25,
+    "pass": 24,
     "partial": 7,
     "thin": 0,
     "fail": 1,
     "honest_limit": 0,
-    "missing": 5
+    "missing": 6
   },
-  "disposition_note": "Four exact-product rows promoted MISSING to PASS solely from independent manual review; all other row states are unchanged. R-CW-MULTI and R-CD-COLLECTION-ON-COLLAPSE remain MISSING.",
+  "disposition_note": "Three exact-product rows promoted MISSING to PASS solely from independent manual review; all other row states are unchanged. R-CW-DELEGATE-TOKEN, R-CW-MULTI, and R-CD-COLLECTION-ON-COLLAPSE remain MISSING.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-09-05",
   "generated_by": "copilot-cli",
@@ -50,8 +50,7 @@
     "exact_target_execution_rows": [
       "R-CW-MULTI-COLLAPSE",
       "R-CW-7",
-      "R-CW-DELEGATE-CHILD-LIVE",
-      "R-CW-DELEGATE-TOKEN"
+      "R-CW-DELEGATE-CHILD-LIVE"
     ],
     "previous": {
       "source_corpus_sha": "00c7f721a55554d0b9228337cc8bc6bec88f9e9f",

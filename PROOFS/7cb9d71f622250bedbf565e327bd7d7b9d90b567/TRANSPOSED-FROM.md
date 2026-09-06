@@ -7,7 +7,7 @@ shows that baseline as an ancestor of exact product
 `7cb9d71f622250bedbf565e327bd7d7b9d90b567`, tree
 `85821bfd8f4676cfac8be658122910a7eb862f55`.
 
-Only four row states change. Their exact-target evidence is represented by
+Only three row states change. Their exact-target evidence is represented by
 public-safe review receipts and derives authority solely from the independent
 manual review:
 

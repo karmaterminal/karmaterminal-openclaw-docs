@@ -1,13 +1,15 @@
 # Return-covenant authority proof harness
 
-Status: **runtime artifact attested; product fixture seam missing; no proof run**.
+Status: **runtime artifact attested; product fixture seam present at the exact P89 head; row registered in the current corpus**.
 
 This document defines the reusable k6 and signed-observer contract requested by
 the ClawSweeper review on openclaw/openclaw#129388. It does not claim the
 return covenant is satisfied. The harness can now launch a tracked gateway blob
 with a closed, read-only runtime artifact, but exact-head matrix execution and
-proof folding remain deferred until the product supplies the fixture seam
-described below.
+proof folding were deferred until the product supplied the fixture seam
+described below. That seam now exists — see **Exact P89 seam binding** — so the
+deferral no longer applies and the plan declares `available` rather than
+`missing-product-seam`.
 
 ## Named-reference contract
 
@@ -756,11 +758,44 @@ The repository-local owner test covers:
 The complete synthetic matrix passes only inside the harness test. It is not a
 product behavior run, an exact-head receipt, or corpus evidence.
 
+## Exact P89 seam binding
+
+The ten-item **Required product seam** above was written against product authority
+`0ed59cb64f31971e8659b417fe3fd2ba6a1730c3`, which predates the product's
+return-covenant fixture module. The frozen P89 composite base supplies it:
+
+| Surface | Value |
+|---|---|
+| Candidate (product) | `3821eaef72677c78f450ae9956cb582a22ba4cba` |
+| Product tree | `d5e701bcce20bb3c972ddf1451b02d88cc04808e` |
+| Product fixture command | `scripts/return-covenant-fixture-driver.mjs` |
+| Fixture command SHA-256 | `f05803047bd479e18390b9240b10399287f395e5cc0a34f35131a516c1188f14` |
+| Gateway command | same path, `args: ["gateway"]` |
+| Driver ownership | `product` |
+
+The command implements both halves of the v1 protocol — `runReturnCovenantFixtureDriver`
+for the driver and `runReturnCovenantFixtureGateway` for `argv[2] === "gateway"` — and
+consumes exactly the launcher's inherited authority values:
+`OPENCLAW_GATEWAY_TOKEN`, `OPENCLAW_PRODUCT_TREE_SHA`,
+`OPENCLAW_RETURN_COVENANT_PHASE_KEY`,
+`OPENCLAW_RETURN_COVENANT_PHASE_KEY_FINGERPRINT`,
+`OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256`,
+`OPENCLAW_RETURN_COVENANT_LAUNCH_NONCE`,
+`OPENCLAW_RETURN_COVENANT_ATTESTATION_PATH`, `OPENCLAW_CANDIDATE_SHA` and
+`OPENCLAW_PROOFS_DOCS_REF`. Its v18/v19 fixture creators live beside it in
+`src/auto-reply/continuation/return-covenant-fixture/` (`database.ts`, `protocol.ts`).
+
+The command loads `dist/test-runtime/return-covenant-fixture-driver.js`, so matrix
+execution requires a built runtime at the candidate SHA.
+
 ## Current completion boundary
 
-- No exact-head proof ran.
-- The exact-product runtime smoke is bootstrap evidence only; it cannot satisfy
-  or promote the absent product-owned fixture seam.
+- The exact-head plan validates and is executable: `validateReturnCovenantPlan`
+  returns no errors and `assertExecutableReturnCovenantPlan` accepts a plan bound
+  to `3821eaef72677c78f450ae9956cb582a22ba4cba`.
+- The exact-product runtime smoke remains bootstrap evidence only; the
+  product-owned fixture seam is satisfied separately, by the tracked command
+  recorded under **Exact P89 seam binding**.
 - No disposable control was run against `7c100aed`.
 - No Mode-B workflow or fleet deployment ran.
 - No live prince, Discord, Telegram, or user data was used.

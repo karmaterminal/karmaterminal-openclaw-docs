@@ -7,7 +7,7 @@ const root = path.resolve(import.meta.dirname, '../..');
 const repoRoot = path.resolve(root, '../..');
 const read = (relative) => readFile(path.join(root, relative), 'utf8');
 
-test('return covenant harness is complete but remains outside proof authority registries', async () => {
+test('return covenant harness is complete, registered in the current corpus, and bound to the exact P89 seam', async () => {
   const [
     documentation,
     scenario,
@@ -68,9 +68,22 @@ test('return covenant harness is complete but remains outside proof authority re
     await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
   );
 
-  assert.match(documentation, /runtime artifact attested; product fixture seam missing; no proof run/i);
+  assert.match(
+    documentation,
+    /runtime artifact attested; product fixture seam present at the exact P89 head; row registered in the current corpus/i,
+  );
   assert.match(documentation, /R-CD-2[\s\S]*current corpus state `partial`/);
-  assert.match(documentation, /No exact-head proof ran/);
+  // The seam the ten-item requirement asked for now exists on the frozen P89
+  // head, so the document binds it by candidate, tree, command and digest.
+  assert.match(documentation, /## Exact P89 seam binding/);
+  assert.match(documentation, /3821eaef72677c78f450ae9956cb582a22ba4cba/);
+  assert.match(documentation, /d5e701bcce20bb3c972ddf1451b02d88cc04808e/);
+  assert.match(documentation, /scripts\/return-covenant-fixture-driver\.mjs/);
+  assert.match(
+    documentation,
+    /f05803047bd479e18390b9240b10399287f395e5cc0a34f35131a516c1188f14/,
+  );
+  assert.match(documentation, /assertExecutableReturnCovenantPlan/);
   assert.match(documentation, /driver\.fixtureCommand\.status=missing-product-seam/);
   assert.match(documentation, /launch-return-covenant-driver\.mjs/);
   assert.match(documentation, /runtime artifact/i);
@@ -96,15 +109,28 @@ test('return covenant harness is complete but remains outside proof authority re
     access(path.join(root, 'scripts/resolve-return-covenant-authority-receipt.mjs')),
     (error) => error?.code === 'ENOENT',
   );
-  assert.equal(
-    currentManifest.rows.some((row) => row.row === 'R-CD-RETURN-COVENANT-AUTHORITY'),
-    false,
+  // The row is registered in the current corpus. It is deliberately still absent
+  // from the k6 workflow and pipeline above: manifest registration and pipeline
+  // promotion are separate reviewed steps, and the assertions above keep an
+  // unreviewed pipeline registration fail-closed.
+  const authorityRow = currentManifest.rows.find(
+    (row) => row.row === 'R-CD-RETURN-COVENANT-AUTHORITY',
   );
-  assert.equal(currentManifest.exact_target_execution, false);
+  assert.ok(authorityRow, 'the authority row must be registered in the current manifest');
+  assert.equal(authorityRow.manifest, 'tools/k6-proofs/manifests/r-cd-return-covenant-authority.json');
+  assert.equal(
+    authorityRow.supporting_docs?.some((entry) =>
+      entry.startsWith('tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@'),
+    ),
+    true,
+  );
+  await access(path.join(root, 'manifests/r-cd-return-covenant-authority.json'));
+  await access(path.join(root, 'docs/RETURN-COVENANT-AUTHORITY-HARNESS.md'));
+  assert.equal(currentManifest.exact_target_execution, true);
   assert.equal(currentManifest.exact_target_mode_b, false);
   assert.equal(
     currentManifest.rows.find((row) => row.row === 'R-CD-2')?.state,
-    'partial',
+    'fail',
   );
   assert.equal(
     currentManifest.rows.find((row) => row.row === 'R-CD-4')?.state,

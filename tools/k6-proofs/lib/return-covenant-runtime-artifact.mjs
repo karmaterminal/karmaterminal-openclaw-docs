@@ -686,7 +686,13 @@ function validateManifestShape(manifest) {
       'dependencyCommand',
       'inputs',
       'workspaceOutputs',
+      'unreachableWorkspaceOutputs',
     ]) ||
+    !Array.isArray(manifest.build.unreachableWorkspaceOutputs) ||
+    manifest.build.unreachableWorkspaceOutputs.some((entry) =>
+      typeof entry !== 'string' || !safeArtifactPath(entry)) ||
+    new Set(manifest.build.unreachableWorkspaceOutputs).size !==
+      manifest.build.unreachableWorkspaceOutputs.length ||
     manifest.build.inputTreeSha !== manifest.product.treeSha ||
     canonicalJson(manifest.build.command) !==
       canonicalJson(['pnpm', 'run', 'build']) ||
@@ -1041,12 +1047,77 @@ async function discoverWorkspaceDependencyLinks({
     left.linkRelativePath.localeCompare(right.linkRelativePath));
 }
 
+/**
+ * Production-reachable workspace packages, walked from the candidate root's own
+ * `dependencies`/`optionalDependencies` through workspace packages.
+ *
+ * The link walk above deliberately collects every workspace symlink the package
+ * manager materialises, which includes pnpm's virtual-store hoist directory
+ * (`node_modules/.pnpm/node_modules`). Those entries are store bookkeeping, not
+ * the candidate's production closure: a workspace package appears there whether
+ * or not anything depends on it. Only a package reachable from the root through
+ * declared production dependencies can be resolved by the running candidate, so
+ * only such a package owes the artifact a build output.
+ */
+async function collectProductionReachableWorkspaceTargets({
+  dependencySourcePath,
+  links,
+}) {
+  const targetByName = new Map();
+  for (const link of links) {
+    if (targetByName.has(link.targetRelativePath)) continue;
+    let manifest;
+    try {
+      manifest = JSON.parse(
+        await readFile(path.join(link.target, 'package.json'), 'utf8'),
+      );
+    } catch {
+      continue;
+    }
+    if (typeof manifest.name === 'string' && manifest.name.length > 0) {
+      if (!targetByName.has(manifest.name)) {
+        targetByName.set(manifest.name, link);
+      }
+    }
+  }
+  const dependencyNames = (manifest) => [
+    ...Object.keys(manifest?.dependencies || {}),
+    ...Object.keys(manifest?.optionalDependencies || {}),
+  ];
+  const rootManifest = JSON.parse(
+    await readFile(path.join(dependencySourcePath, 'package.json'), 'utf8'),
+  );
+  const reachable = new Set();
+  const pending = dependencyNames(rootManifest);
+  const visited = new Set();
+  while (pending.length > 0) {
+    const name = pending.pop();
+    if (visited.has(name)) continue;
+    visited.add(name);
+    const link = targetByName.get(name);
+    if (!link) continue;
+    reachable.add(link.targetRelativePath);
+    let manifest;
+    try {
+      manifest = JSON.parse(
+        await readFile(path.join(link.target, 'package.json'), 'utf8'),
+      );
+    } catch {
+      continue;
+    }
+    pending.push(...dependencyNames(manifest));
+  }
+  return reachable;
+}
+
 async function injectWorkspaceBuildOutputs({
   links,
   buildSourcePath,
+  reachableTargets,
 }) {
   const outputs = [];
   const injectedTargets = new Set();
+  const skipped = [];
   for (const link of links) {
     const packageJsonPath = path.join(link.target, 'package.json');
     const packageJsonInfo = await lstat(packageJsonPath);
@@ -1067,19 +1138,32 @@ async function injectWorkspaceBuildOutputs({
     const sourcePath = path.posix.join(link.targetRelativePath, 'dist');
     const sourceOutput = path.join(buildSourcePath, sourcePath);
     const destinationOutput = path.join(link.target, 'dist');
+    const required = reachableTargets.has(link.targetRelativePath);
     if (!injectedTargets.has(link.targetRelativePath)) {
       let sourceInfo;
       try {
         sourceInfo = await lstat(sourceOutput);
       } catch (error) {
         if (error?.code === 'ENOENT') {
-          throw new Error(
-            `required workspace build output is unavailable: ${sourcePath}`,
-          );
+          // A package the candidate can actually resolve must ship its build
+          // output. One that only exists in the store's hoist directory cannot
+          // be resolved at runtime, so an absent output is not a closure defect
+          // and must not fail the build.
+          if (required) {
+            throw new Error(
+              `required workspace build output is unavailable: ${sourcePath}`,
+            );
+          }
+          skipped.push(sourcePath);
+          continue;
         }
         throw error;
       }
       if (!sourceInfo.isDirectory() || sourceInfo.isSymbolicLink()) {
+        if (!required) {
+          skipped.push(sourcePath);
+          continue;
+        }
         throw new Error(
           `required workspace build output is unavailable: ${sourcePath}`,
         );
@@ -1110,7 +1194,7 @@ async function injectWorkspaceBuildOutputs({
       ),
     });
   }
-  return outputs;
+  return { outputs, skipped: [...new Set(skipped)].toSorted() };
 }
 
 async function packageManagerIdentity({
@@ -1341,9 +1425,18 @@ export async function createReturnCovenantRuntimeArtifact({
         dependencyDir,
         dependencySourcePath,
       });
-    const workspaceOutputMappings = await injectWorkspaceBuildOutputs({
+    const reachableWorkspaceTargets =
+      await collectProductionReachableWorkspaceTargets({
+        dependencySourcePath,
+        links: workspaceDependencyLinks,
+      });
+    const {
+      outputs: workspaceOutputMappings,
+      skipped: unreachableWorkspaceOutputs,
+    } = await injectWorkspaceBuildOutputs({
       links: workspaceDependencyLinks,
       buildSourcePath: sourcePath,
+      reachableTargets: reachableWorkspaceTargets,
     });
     const buildOutputDir = path.join(sourcePath, 'dist');
     const [dependencyInfo, buildInfo] = await Promise.all([
@@ -1396,6 +1489,11 @@ export async function createReturnCovenantRuntimeArtifact({
         dependencyCommand: ['pnpm', ...dependencyCommand],
         inputs: buildInputs,
         workspaceOutputs,
+        // Workspace packages that declare dist-based entry points but are not
+        // reachable from the candidate's production dependency graph, so they
+        // ship no build output and none is required. Recorded here so the skip
+        // is covered by the manifest digest rather than left implicit.
+        unreachableWorkspaceOutputs,
       },
       toolchain: {
         node: nodeIdentity,

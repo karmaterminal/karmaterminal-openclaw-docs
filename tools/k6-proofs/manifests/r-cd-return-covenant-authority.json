@@ -1,0 +1,123 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "issue": 129388,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-frond-scribe}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-process-local}",
+  "transport": "process-local",
+  "toolSurface": "typed-tool-and-bracket-token",
+  "mutates": false,
+  "timeoutSeconds": 900,
+  "scenario": {
+    "name": "r-cd-return-covenant-authority",
+    "description": "One indivisible product-owned return-covenant matrix executes all 12 lifecycle cases in typed-tool then bracket-token order.",
+    "methods": [
+      "build-return-covenant-runtime-artifact.mjs",
+      "launch-return-covenant-driver.mjs",
+      "contracts/return-covenant-authority/scenario.js"
+    ],
+    "status": "scaffold",
+    "expectedFile": "r-cd-return-covenant-authority.js",
+    "registryNotes": "The accepted path is the process-local launcher and contract scenario, not the generic live gateway runner. The 24 observations cannot be split or spliced."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "forms": [
+      "typed-tool",
+      "bracket-token"
+    ],
+    "fixture": "tools/k6-proofs/scripts/launch-return-covenant-driver.mjs",
+    "caseCount": 12,
+    "observationCount": 24,
+    "fixtureState": "exact clean product checkout, attested read-only runtime artifact, isolated state/config, and product-owned fixture driver"
+  },
+  "expectedReceipts": [
+    {
+      "name": "exact-product-build-identity",
+      "required": true,
+      "description": "Candidate commit/tree, runtime artifact, package manager, Node, and tracked command identities are exact and immutable."
+    },
+    {
+      "name": "product-owned-schema-fixture",
+      "required": true,
+      "description": "Fresh v19, both v18 upgrade profiles, and idempotent v19 reopen are exercised through the tracked product fixture."
+    },
+    {
+      "name": "accepted-held-dispatch",
+      "required": true,
+      "description": "Each form records an accepted held result and captured recipient generation before the lifecycle transition."
+    },
+    {
+      "name": "recipient-generation-diagnostic",
+      "required": true,
+      "description": "Captured and current recipient generations are observed from product-owned authority."
+    },
+    {
+      "name": "lifecycle-transition",
+      "required": true,
+      "description": "All seven allowed and five forbidden lifecycle edges execute in the accepted serial order."
+    },
+    {
+      "name": "queue-admission-disposition",
+      "required": true,
+      "description": "Allowed results are admitted exactly once and stale or revoked results are acknowledged and removed."
+    },
+    {
+      "name": "prompt-wake-channel-effect-counts",
+      "required": true,
+      "description": "Allowed cases match configured effects and forbidden cases prove zero prompt adoption, wake, and channel delivery."
+    },
+    {
+      "name": "bounded-transcript-and-system-event-scan",
+      "required": true,
+      "description": "Successor transcript and trusted system-event scans corroborate every final-effect count."
+    },
+    {
+      "name": "signed-authoritative-receipt",
+      "required": true,
+      "description": "One signed receipt binds the complete 12-case and 24-observation matrix."
+    },
+    {
+      "name": "cleanup",
+      "required": true,
+      "description": "The isolated process group, state, config, control, and writable runtime roots are fully cleaned."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+    "seat": "${OPENCLAW_SEAT_NAME:-frond-scribe}",
+    "runDirPrefix": "authority-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS requires the complete indivisible matrix, signed authority, and cleanup receipt. No subset or historical observation transfers authority."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "exact-product-build-identity",
+      "product-owned-schema-fixture",
+      "accepted-held-dispatch",
+      "recipient-generation-diagnostic",
+      "lifecycle-transition",
+      "queue-admission-disposition",
+      "prompt-wake-channel-effect-counts",
+      "bounded-transcript-and-system-event-scan",
+      "signed-authoritative-receipt",
+      "cleanup"
+    ],
+    "foldRequiresReview": true,
+    "notes": "The generic live-run guard must reject this row. Execute only with the accepted process-local runtime-artifact builder and launcher."
+  }
+}

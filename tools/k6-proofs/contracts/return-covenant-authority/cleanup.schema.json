@@ -1,0 +1,504 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/cleanup.schema.json",
+  "title": "Return covenant run cleanup receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rowId",
+    "runId",
+    "candidateSha",
+    "runtimeBuildSha",
+    "docsHarnessSha",
+    "runtimeConfigSha256",
+    "runtimeArtifactManifestSha256",
+    "startedAt",
+    "endedAt",
+    "retained",
+    "retentionAuthority",
+    "candidateCleanupDiagnostic",
+    "resourceObservation",
+    "durableStoreObservation",
+    "homeRemoved",
+    "stateRemoved",
+    "configRemoved",
+    "fixtureProcessStopped",
+    "gatewayProcessStopped",
+    "allCaseHandlesClosed",
+    "caseHandles",
+    "observationSetSha256",
+    "phaseChainSha256",
+    "driverAttestationSha256",
+    "runCleanupReceiptId",
+    "snapshotMatchedCandidateAfterRun",
+    "runtimeArtifactRemoved",
+    "runRootRemoved",
+    "driverExitCode",
+    "processGroupEmpty",
+    "unexpectedProcessGroupMembers",
+    "gatewayLifecycle",
+    "k6",
+    "isolationFingerprint",
+    "launcherIntegrity"
+  ],
+  "properties": {
+    "schema": { "const": "openclaw.k6.return-covenant-cleanup.v1" },
+    "rowId": { "const": "R-CD-RETURN-COVENANT-AUTHORITY" },
+    "runId": {
+      "type": "string",
+      "pattern": "^rcv-[0-9a-f]{32}$"
+    },
+    "candidateSha": { "$ref": "#/$defs/sha40" },
+    "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+    "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+    "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+    "runtimeArtifactManifestSha256": { "$ref": "#/$defs/sha256" },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "endedAt": { "type": "string", "format": "date-time" },
+    "retained": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delegates",
+        "queueItems",
+        "temporarySessions",
+        "gateways",
+        "fixtureProcesses"
+      ],
+      "properties": {
+        "delegates": { "$ref": "#/$defs/retainedCount" },
+        "queueItems": { "$ref": "#/$defs/retainedCount" },
+        "temporarySessions": { "$ref": "#/$defs/retainedCount" },
+        "gateways": { "$ref": "#/$defs/retainedCount" },
+        "fixtureProcesses": { "$ref": "#/$defs/retainedCount" }
+      }
+    },
+    "retentionAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceState",
+        "gatewayState",
+        "processState",
+        "caseHandles",
+        "candidateCleanup"
+      ],
+      "properties": {
+        "resourceState": {
+          "const": "docs-owned-isolated-durable-store-observation"
+        },
+        "gatewayState": {
+          "const": "docs-owned-gateway-corroboration"
+        },
+        "processState": {
+          "const": "trusted-launcher-proc-observation"
+        },
+        "caseHandles": {
+          "const": "docs-owned-phase-chain-ledger"
+        },
+        "candidateCleanup": {
+          "const": "untrusted-diagnostic-only"
+        }
+      }
+    },
+    "candidateCleanupDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "failureCategory"],
+      "properties": {
+        "status": {
+          "enum": ["read", "missing", "invalid"]
+        },
+        "failureCategory": {
+          "enum": [
+            null,
+            "missing",
+            "symlink",
+            "access-denied",
+            "invalid-file-type",
+            "path-rejected",
+            "size-bound",
+            "malformed-json",
+            "invalid-shape"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": { "const": "read" },
+            "failureCategory": { "const": null }
+          }
+        },
+        {
+          "properties": {
+            "status": { "const": "missing" },
+            "failureCategory": { "const": "missing" }
+          }
+        },
+        {
+          "properties": {
+            "status": { "const": "invalid" },
+            "failureCategory": {
+              "enum": [
+                "symlink",
+                "access-denied",
+                "invalid-file-type",
+                "path-rejected",
+                "size-bound",
+                "malformed-json",
+                "invalid-shape"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "durableStoreObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "stable", "live", "final"],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-durable-store-chain.v1"
+        },
+        "stable": { "type": "boolean" },
+        "live": { "$ref": "#/$defs/storeObservation" },
+        "final": { "$ref": "#/$defs/storeObservation" }
+      }
+    },
+    "resourceObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidenceSha256",
+        "responseSha256",
+        "observedAt",
+        "gatewayPid",
+        "gatewayStartFingerprint",
+        "gatewaySocketFingerprint",
+        "gatewayEndpoint"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["verified", "unverified-resource-retention"]
+        },
+        "evidenceSha256": { "$ref": "#/$defs/sha256" },
+        "responseSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "observedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "gatewayPid": {
+          "type": ["integer", "null"],
+          "minimum": 2
+        },
+        "gatewayStartFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewaySocketFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewayEndpoint": {
+          "type": ["string", "null"],
+          "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+        }
+      }
+    },
+    "homeRemoved": { "const": true },
+    "stateRemoved": { "const": true },
+    "configRemoved": { "const": true },
+    "fixtureProcessStopped": { "const": true },
+    "gatewayProcessStopped": { "const": true },
+    "allCaseHandlesClosed": { "const": true },
+    "caseHandles": {
+      "type": "array",
+      "minItems": 24,
+      "maxItems": 24,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 8 }
+    },
+    "observationSetSha256": { "$ref": "#/$defs/sha256" },
+    "phaseChainSha256": { "$ref": "#/$defs/sha256" },
+    "driverAttestationSha256": { "$ref": "#/$defs/sha256" },
+    "runCleanupReceiptId": { "type": "string", "minLength": 8 },
+    "snapshotMatchedCandidateAfterRun": { "const": true },
+    "runtimeArtifactRemoved": { "const": true },
+    "runRootRemoved": { "const": true },
+    "driverExitCode": { "const": 0 },
+    "processGroupEmpty": { "const": true },
+    "unexpectedProcessGroupMembers": { "const": 0 },
+    "gatewayLifecycle": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pid",
+          "startFingerprint",
+          "namespacePid",
+          "namespaceStartFingerprint",
+          "verified",
+          "endpoints",
+          "socketFingerprint",
+          "listenerFingerprints",
+          "verificationSource",
+          "firstSeenMonotonicMs",
+          "lastSeenMonotonicMs",
+          "exitedAtMonotonicMs",
+          "firstSeenAt",
+          "lastSeenAt",
+          "exitedAt",
+          "retainedAtCleanup"
+        ],
+        "properties": {
+          "pid": { "type": "integer", "minimum": 2 },
+          "startFingerprint": { "$ref": "#/$defs/sha256" },
+          "namespacePid": { "type": "integer", "minimum": 1 },
+          "namespaceStartFingerprint": { "$ref": "#/$defs/sha256" },
+          "verified": { "const": true },
+          "endpoints": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+            }
+          },
+          "socketFingerprint": { "$ref": "#/$defs/sha256" },
+          "listenerFingerprints": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/sha256" }
+          },
+          "verificationSource": {
+            "enum": ["direct-environ", "namespace-inherited"]
+          },
+          "firstSeenMonotonicMs": { "type": "number", "minimum": 0 },
+          "lastSeenMonotonicMs": { "type": "number", "minimum": 0 },
+          "exitedAtMonotonicMs": {
+            "type": ["number", "null"],
+            "minimum": 0
+          },
+          "firstSeenAt": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "lastSeenAt": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "exitedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "retainedAtCleanup": { "type": "boolean" }
+        }
+      }
+    },
+    "k6": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "sha256", "pathFingerprint"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^k6 v2\\.0\\.0\\b"
+        },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "pathFingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "isolationFingerprint": { "$ref": "#/$defs/sha256" },
+    "launcherIntegrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "signature"],
+      "properties": {
+        "algorithm": { "const": "hmac-sha256-launch-key-v1" },
+        "signature": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "retainedCount": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "storeObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "failureReason",
+        "source",
+        "runtimeAlive",
+        "runtimeProcess",
+        "requestedAt",
+        "snapshotStartedAt",
+        "snapshotCompletedAt",
+        "observedAt",
+        "identity",
+        "resources",
+        "sourceBinding",
+        "rawSnapshotSha256"
+      ],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-store-observation.v1"
+        },
+        "status": {
+          "enum": ["observed", "unverified-resource-retention"]
+        },
+        "failureReason": { "type": ["string", "null"] },
+        "source": {
+          "const": "docs-owned-isolated-durable-store-reader"
+        },
+        "runtimeAlive": { "type": "boolean" },
+        "runtimeProcess": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "driverPidFingerprint",
+            "gatewayPidFingerprint",
+            "processGroupFingerprint",
+            "expectedDriverStartFingerprint",
+            "expectedGatewayStartFingerprint",
+            "expectedGatewaySocketFingerprint",
+            "expectedGatewayEndpoint",
+            "expectedAlive",
+            "before",
+            "after",
+            "quiescence",
+            "shutdownSettledAt",
+            "matched"
+          ],
+          "properties": {
+            "driverPidFingerprint": { "$ref": "#/$defs/sha256" },
+            "gatewayPidFingerprint": { "$ref": "#/$defs/sha256" },
+            "processGroupFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedDriverStartFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedGatewayStartFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedGatewaySocketFingerprint": { "$ref": "#/$defs/sha256" },
+            "expectedGatewayEndpoint": {
+              "type": "string",
+              "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+            },
+            "expectedAlive": { "type": "boolean" },
+            "before": { "$ref": "#/$defs/runtimeSample" },
+            "after": { "$ref": "#/$defs/runtimeSample" },
+            "quiescence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "required",
+                "stoppedAt",
+                "resumedAt",
+                "membersStopped"
+              ],
+              "properties": {
+                "required": { "type": "boolean" },
+                "stoppedAt": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "resumedAt": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "membersStopped": {
+                  "type": ["integer", "null"],
+                  "minimum": 1
+                }
+              }
+            },
+            "shutdownSettledAt": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "matched": { "type": "boolean" }
+          }
+        },
+        "requestedAt": { "$ref": "#/$defs/timestamp" },
+        "snapshotStartedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "snapshotCompletedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "observedAt": { "$ref": "#/$defs/timestamp" },
+        "identity": { "type": "object" },
+        "resources": { "type": "object" },
+        "sourceBinding": { "type": ["object", "null"] },
+        "rawSnapshotSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "runtimeSample": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "driverStartFingerprint",
+        "gatewayStartFingerprint",
+        "gatewaySocketFingerprint",
+        "gatewayEndpointOwned",
+        "processGroupMembers"
+      ],
+      "properties": {
+        "driverStartFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewayStartFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewaySocketFingerprint": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "gatewayEndpointOwned": { "type": "boolean" },
+        "processGroupMembers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pidFingerprint", "startFingerprint", "state"],
+            "properties": {
+              "pidFingerprint": { "$ref": "#/$defs/sha256" },
+              "startFingerprint": { "$ref": "#/$defs/sha256" },
+              "state": { "enum": ["T", "t"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

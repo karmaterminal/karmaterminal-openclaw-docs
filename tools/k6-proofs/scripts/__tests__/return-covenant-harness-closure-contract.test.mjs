@@ -1,0 +1,365 @@
+import assert from 'node:assert/strict';
+import { access, readFile } from 'node:fs/promises';
+import path from 'node:path';
+import test from 'node:test';
+
+const root = path.resolve(import.meta.dirname, '../..');
+const repoRoot = path.resolve(root, '../..');
+const read = (relative) => readFile(path.join(root, relative), 'utf8');
+
+test('return covenant harness is complete but remains outside proof authority registries', async () => {
+  const [
+    documentation,
+    scenario,
+    observer,
+    scenarioContract,
+    inputSchemaRaw,
+    observerSchemaRaw,
+    cleanupSchemaRaw,
+    retentionSchemaRaw,
+    retentionInspector,
+    runtimeArtifactSchemaRaw,
+    runtimeArtifactContract,
+    runtimeArtifact,
+    runtimeConfigAuthority,
+    processObserver,
+    runtimeArtifactBuilder,
+    launcher,
+    runtimeSmoke,
+    supervisor,
+    mockDriver,
+    runtimeConfigRaw,
+    workflow,
+    pipeline,
+    indexRaw,
+  ] = await Promise.all([
+    read('docs/RETURN-COVENANT-AUTHORITY-HARNESS.md'),
+    read('contracts/return-covenant-authority/scenario.js'),
+    read('lib/return-covenant-authoritative-receipt.mjs'),
+    read('lib/return-covenant-scenario-contract.mjs'),
+    read('contracts/return-covenant-authority/fixture-input.schema.json'),
+    read('contracts/return-covenant-authority/observer.schema.json'),
+    read('contracts/return-covenant-authority/cleanup.schema.json'),
+    read('contracts/return-covenant-authority/retention-observation.schema.json'),
+    read('lib/return-covenant-retention-inspector.mjs'),
+    read('contracts/return-covenant-authority/runtime-artifact.schema.json'),
+    read('lib/return-covenant-runtime-artifact-contract.mjs'),
+    read('lib/return-covenant-runtime-artifact.mjs'),
+    read('lib/return-covenant-runtime-config.mjs'),
+    read('lib/return-covenant-process-observer.mjs'),
+    read('scripts/build-return-covenant-runtime-artifact.mjs'),
+    read('scripts/launch-return-covenant-driver.mjs'),
+    read('scripts/smoke-return-covenant-runtime-artifact.mjs'),
+    read('scripts/run-return-covenant-sandbox.mjs'),
+    read('tests/fixtures/return-covenant-authority/mock-product-driver.mjs'),
+    read('tests/fixtures/return-covenant-authority/runtime-config.valid.json'),
+    readFile(path.join(repoRoot, '.github/workflows/k6-proof.yml'), 'utf8'),
+    read('k6-proofs-pipeline.xml'),
+    readFile(path.join(repoRoot, 'PROOFS/INDEX.json'), 'utf8'),
+  ]);
+  const inputSchema = JSON.parse(inputSchemaRaw);
+  const observerSchema = JSON.parse(observerSchemaRaw);
+  const cleanupSchema = JSON.parse(cleanupSchemaRaw);
+  const retentionSchema = JSON.parse(retentionSchemaRaw);
+  const runtimeArtifactSchema = JSON.parse(runtimeArtifactSchemaRaw);
+  const runtimeConfig = JSON.parse(runtimeConfigRaw);
+  const index = JSON.parse(indexRaw);
+  const currentManifest = JSON.parse(
+    await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
+  );
+
+  assert.match(documentation, /runtime artifact attested; product fixture seam missing; no proof run/i);
+  assert.match(documentation, /R-CD-2[\s\S]*current corpus state `partial`/);
+  assert.match(documentation, /No exact-head proof ran/);
+  assert.match(documentation, /driver\.fixtureCommand\.status=missing-product-seam/);
+  assert.match(documentation, /launch-return-covenant-driver\.mjs/);
+  assert.match(documentation, /runtime artifact/i);
+  assert.match(documentation, /--artifact-dir/);
+  assert.match(documentation, /--log-format raw --log-output stdout/);
+  assert.match(documentation, /k6-exit-code\.txt/);
+  assert.match(documentation, /resource-inspection[\s\S]*diagnostic only/i);
+  assert.match(documentation, /unverified-resource-retention/);
+  assert.match(documentation, /candidate-cleanup-diagnostic\.json/);
+  assert.match(documentation, /state\/openclaw\.sqlite/);
+  assert.match(documentation, /subagent_runs/);
+  assert.match(documentation, /flow_runs/);
+  assert.match(documentation, /delivery_queue_entries/);
+  assert.match(documentation, /session_nodes\.entry_json/);
+  assert.match(documentation, /0ed59cb64f31971e8659b417fe3fd2ba6a1730c3/);
+  assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
+  assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
+  await assert.rejects(
+    access(path.join(root, 'scenarios/r-cd-return-covenant-authority.js')),
+    (error) => error?.code === 'ENOENT',
+  );
+  await assert.rejects(
+    access(path.join(root, 'scripts/resolve-return-covenant-authority-receipt.mjs')),
+    (error) => error?.code === 'ENOENT',
+  );
+  assert.equal(
+    currentManifest.rows.some((row) => row.row === 'R-CD-RETURN-COVENANT-AUTHORITY'),
+    false,
+  );
+  assert.equal(currentManifest.exact_target_execution, false);
+  assert.equal(currentManifest.exact_target_mode_b, false);
+  assert.equal(
+    currentManifest.rows.find((row) => row.row === 'R-CD-2')?.state,
+    'partial',
+  );
+  assert.equal(
+    currentManifest.rows.find((row) => row.row === 'R-CD-4')?.state,
+    'pass',
+  );
+
+  const dispatch = scenario.indexOf("const dispatched = postPhase('dispatch'");
+  const transition = scenario.indexOf("const transitioned = postPhase('transition'");
+  const release = scenario.indexOf("postPhase('release'");
+  const observe = scenario.indexOf('const observed = observeUntilSettled');
+  assert.ok(dispatch >= 0 && dispatch < transition);
+  assert.ok(transition < release && release < observe);
+  assert.match(scenarioContract, /holdCompletion: true/);
+  assert.match(scenario, /finally \{/);
+  assert.match(scenario, /HTTP IPv4 loopback/);
+  assert.doesNotMatch(scenario, /from 'node:/);
+  assert.match(launcher, /observerSigningKey/);
+  assert.match(launcher, /gatewayToken = randomBytes\(32\)/);
+  assert.match(launcher, /validateReturnCovenantAuthoritativeReceipt/);
+  assert.doesNotMatch(launcher, /docs-dir/);
+  assert.match(launcher, /k6-proof-binaries\.json/);
+  assert.match(launcher, /O_NOFOLLOW/);
+  assert.match(supervisor, /spawn\(input\.k6/);
+  assert.match(launcher, /\/usr\/bin\/bwrap/);
+  assert.match(launcher, /--runtime-artifact/);
+  assert.match(launcher, /materializeReturnCovenantRuntimeArtifact/);
+  assert.match(
+    launcher,
+    /'--ro-bind',\s*mount\.source,\s*mount\.destination/,
+  );
+  assert.doesNotMatch(
+    launcher,
+    /'--bind',\s*mount\.source,\s*mount\.destination/,
+  );
+  assert.match(launcher, /--unshare-pid/);
+  assert.match(launcher, /--unshare-net/);
+  assert.match(launcher, /--unshare-ipc/);
+  assert.match(launcher, /--proc', '\/proc'/);
+  assert.match(launcher, /await unlink\(copyPath\)/);
+  assert.match(launcher, /capturedK6Log/);
+  assert.match(launcher, /run-return-covenant-sandbox\.mjs/);
+  assert.match(launcher, /readBoundedCandidateJson/);
+  assert.match(launcher, /DOCS_AUTHORITY_FILES/);
+  assert.match(launcher, /verifyPublishedReturnCovenantRuntimeConfig/);
+  assert.match(
+    launcher,
+    /'--bind',\s*configDir,\s*configDir/,
+  );
+  assert.doesNotMatch(
+    launcher,
+    /'--ro-bind',\s*configDir,\s*configDir/,
+  );
+  assert.match(
+    launcher,
+    /'--ro-bind',\s*authorityDir,\s*authorityDir/,
+  );
+  assert.match(runtimeConfigAuthority, /suppliedPath !== publishedPath/);
+  assert.match(
+    runtimeConfigAuthority,
+    /published runtime config Git blob differs from the frozen plan/,
+  );
+  assert.match(runtimeSmoke, /waitForTrackedGatewayListeners/);
+  assert.match(runtimeSmoke, /verifyPublishedReturnCovenantRuntimeConfig/);
+  assert.match(
+    runtimeSmoke,
+    /'--bind',\s*configDir,\s*configDir/,
+  );
+  assert.doesNotMatch(
+    runtimeSmoke,
+    /'--ro-bind',\s*configDir,\s*configDir/,
+  );
+  assert.match(
+    runtimeSmoke,
+    /'--ro-bind',\s*mount\.source,\s*mount\.destination/,
+  );
+  assert.match(runtimeSmoke, /openclaw\.json\.lock/);
+  assert.match(runtimeSmoke, /runtimeConfigWriteObservation/);
+  assert.match(supervisor, /--config/);
+  assert.match(supervisor, /cwd: input\['k6-home'\]/);
+  assert.match(launcher, /terminateProcessGroup/);
+  assert.match(launcher, /deriveReturnCovenantCaseHandleClosure/);
+  assert.match(launcher, /deriveReturnCovenantTrustedRetention/);
+  assert.match(launcher, /inspectReturnCovenantDurableStores/);
+  assert.match(launcher, /waitForShutdownSettlement/);
+  assert.match(launcher, /retention-snapshots/);
+  assert.match(launcher, /candidate-cleanup-diagnostic\.json/);
+  assert.doesNotMatch(launcher, /retained:\s*cleanupDraft\.retained/);
+  assert.doesNotMatch(
+    launcher,
+    /allCaseHandlesClosed:\s*cleanupDraft\.allCaseHandlesClosed/,
+  );
+  assert.match(
+    launcher,
+    /existing\.listenerFingerprints\.length > 0 &&\s+observation\.listenerFingerprints\.length === 0[\s\S]*?continue;/,
+  );
+  assert.match(launcher, /gateway listener resumed after exit/);
+  assert.match(
+    mockDriver,
+    /gatewayServer\.close\(\(\) => \{\s+setTimeout\(\(\) => process\.exit\(0\), 50\);/,
+  );
+  assert.match(launcher, /git'?,?\s*\[\s*'clone'|git[\s\S]*clone/);
+  assert.match(launcher, /randomBytes\(32\)/);
+  assert.match(launcher, /OPENCLAW_RETURN_COVENANT_PHASE_KEY/);
+  assert.match(launcher, /OPENCLAW_STATE_DIR/);
+  assert.match(
+    launcher,
+    /OPENCLAW_RETURN_COVENANT_RUNTIME_ARTIFACT_SHA256/,
+  );
+  assert.match(launcher, /rm\(runRoot, \{ recursive: true, force: true \}\)/);
+  const inheritedGatewayObservation = launcher.slice(
+    launcher.lastIndexOf(
+      'return {',
+      launcher.indexOf("verificationSource: 'namespace-inherited'"),
+    ),
+    launcher.indexOf("verificationSource: 'namespace-inherited'"),
+  );
+  assert.match(inheritedGatewayObservation, /listenerFingerprints:/);
+  assert.match(observer, /observation-missing/);
+  assert.match(observer, /observation-duplicate/);
+  assert.match(observer, /stale-side-effect/);
+  assert.match(observer, /cleanup-failure/);
+  assert.match(observer, /candidate-cleanup-diagnostic-/);
+  assert.match(observer, /unverified-resource-retention/);
+  assert.match(observer, /docs-owned-gateway-corroboration/);
+  assert.match(
+    observer,
+    /docs-owned-isolated-durable-store-observation/,
+  );
+  assert.match(retentionInspector, /new DatabaseSync/);
+  assert.match(retentionInspector, /FROM flow_runs/);
+  assert.match(retentionInspector, /FROM subagent_runs/);
+  assert.match(retentionInspector, /FROM delivery_queue_entries/);
+  assert.match(retentionInspector, /FROM session_nodes/);
+  assert.match(retentionInspector, /payload_json/);
+  assert.match(retentionInspector, /terminalNoticePending/);
+  assert.match(
+    retentionInspector,
+    /state\.terminalNoticePending !== undefined/,
+  );
+  assert.match(
+    documentation,
+    /any defined\s+`terminalNoticePending` value is an obligation/,
+  );
+  assert.match(retentionInspector, /quiesced-opened-file-set-v1/);
+  assert.match(retentionInspector, /-wal/);
+  assert.match(retentionInspector, /-shm/);
+  assert.match(retentionInspector, /sqlite_schema/);
+  assert.match(retentionInspector, /PRAGMA table_xinfo/);
+  assert.match(retentionInspector, /PRAGMA index_list/);
+  assert.match(retentionInspector, /PRAGMA index_xinfo/);
+  assert.match(retentionInspector, /PRAGMA foreign_key_list/);
+  assert.match(retentionInspector, /TABLE_CHECKS/);
+  assert.match(retentionInspector, /generatedColumnFingerprint/);
+  assert.match(retentionInspector, /columnCollations/);
+  assert.match(retentionInspector, /triggerFingerprint/);
+  assert.match(
+    documentation,
+    /complete ordered `table_xinfo` inventory/,
+  );
+  assert.match(
+    documentation,
+    /fresh-database drift control/,
+  );
+  assert.match(retentionInspector, /O_NOFOLLOW/);
+  assert.match(runtimeArtifact, /O_NOFOLLOW/);
+  assert.match(runtimeArtifact, /hard-linked/);
+  assert.match(runtimeArtifact, /special file/);
+  assert.match(runtimeArtifact, /runtime artifact Node identity differs/);
+  assert.match(runtimeArtifact, /missing or extra mount roots/);
+  assert.match(runtimeArtifactContract, /readOnly/);
+  assert.match(processObserver, /trusted-launcher-pre-title-procfs-v1/);
+  assert.match(processObserver, /commandLineSha256/);
+  assert.match(runtimeArtifactBuilder, /package-manager-command/);
+  assert.doesNotMatch(
+    retentionInspector,
+    /new DatabaseSync\(databasePath/,
+  );
+  assert.match(observer, /forbidden-value scan/);
+  assert.match(scenarioContract, /typed-tool[\s\S]*bracket-token/);
+  assert.match(scenarioContract, /covenant-v18-upgrade/);
+  assert.match(scenarioContract, /participant-v18-upgrade/);
+  assert.match(scenario, /RETURN_COVENANT_TEARDOWN_PREFIX/);
+  assert.match(scenario, /buildReturnCovenantRetentionRequest/);
+  assert.match(
+    scenario,
+    /\/v1\/return-covenant\/resource-inspection/,
+  );
+  assert.match(scenario, /redirects:\s*0/);
+  assert.match(observer, /response\?\.url/);
+  assert.match(observer, /finalGateway\.lastSeenAt/);
+  assert.match(scenario, /notBefore/);
+  assert.match(scenario, /driverBinding/);
+  assert.equal(
+    inputSchema.properties.schema.const,
+    'openclaw.k6.return-covenant-fixture-input.v1',
+  );
+  assert.equal(
+    observerSchema.properties.schema.const,
+    'openclaw.k6.return-covenant-observation.v1',
+  );
+  assert.equal(
+    retentionSchema.properties.schema.const,
+    'openclaw.k6.return-covenant-retention-observation.v1',
+  );
+  assert.equal(
+    runtimeArtifactSchema.properties.schema.const,
+    'openclaw.k6.return-covenant-runtime-artifact.v1',
+  );
+  assert.equal(runtimeConfig.gateway.mode, 'local');
+  assert.deepEqual(
+    inputSchema.properties.target.required.filter((name) =>
+      name.startsWith('runtimeConfig')),
+    [
+      'runtimeConfigRelativePath',
+      'runtimeConfigGitBlob',
+      'runtimeConfigSha256',
+    ],
+  );
+  assert.equal(
+    cleanupSchema.properties.retentionAuthority.properties.candidateCleanup.const,
+    'untrusted-diagnostic-only',
+  );
+  assert.deepEqual(
+    cleanupSchema.properties.candidateCleanupDiagnostic.required,
+    ['status', 'failureCategory'],
+  );
+  assert.equal(
+    cleanupSchema.properties.retained.properties.delegates.$ref,
+    '#/$defs/retainedCount',
+  );
+  assert.match(mockDriver, /resourceState/);
+  assert.match(mockDriver, /candidateClaimsClean/);
+  assert.match(supervisor, /childTerminationReason/);
+  assert.match(supervisor, /requireChmodErofs/);
+  assert.match(supervisor, /error\?\.code === 'EROFS'/);
+  await Promise.all([
+    access(path.join(root, 'tests/fixtures/return-covenant-authority/allowed-pass.json')),
+    access(path.join(root, 'tests/fixtures/return-covenant-authority/forbidden-pass.json')),
+    access(path.join(root, 'tests/fixtures/return-covenant-authority/cleanup-failure.json')),
+  ]);
+});
+
+test('existing signed authorities use the shared sealing primitive', async () => {
+  const [rCd2, token, shared, runtime] = await Promise.all([
+    read('lib/r-cd-2-authoritative-receipt.mjs'),
+    read('lib/r-cd-token-authoritative-receipt.mjs'),
+    read('lib/signed-observer-receipt.mjs'),
+    read('lib/isolated-runtime-plugin-contract.mjs'),
+  ]);
+  for (const authority of [rCd2, token]) {
+    assert.match(authority, /sealSignedObserverReceipt/);
+    assert.match(authority, /validateSignedObserverReceiptIntegrity/);
+    assert.doesNotMatch(authority, /createHmac/);
+  }
+  assert.match(shared, /hmac-sha256-gateway-token-v1/);
+  assert.match(runtime, /39ef6b268650c5ff718226cb17fdfcf2d5f4a3da/);
+  assert.match(runtime, /isolated-target-config/);
+});

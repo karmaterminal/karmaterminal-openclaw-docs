@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/tools/k6-proofs/contracts/return-covenant-authority/driver-ready.schema.json",
+  "title": "Return covenant product-driver ready receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol",
+    "runId",
+    "rowId",
+    "candidateSha",
+    "productTreeSha",
+    "runtimeBuildSha",
+    "docsHarnessSha",
+    "commandRelativePath",
+    "commandSha256",
+    "gatewayCommandRelativePath",
+    "gatewayCommandSha256",
+    "runtimeConfigSha256",
+    "runtimeArtifactManifestSha256",
+    "launchNonce",
+    "phaseKeyFingerprint",
+    "pid",
+    "gatewayPid",
+    "gatewayEndpoint",
+    "namespacePid",
+    "namespaceGatewayPid",
+    "revocationCapability",
+    "endpoint"
+  ],
+  "properties": {
+    "schema": {
+      "const": "openclaw.k6.return-covenant-driver-ready.v1"
+    },
+    "protocol": {
+      "const": "openclaw.k6.return-covenant-fixture-driver.v1"
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^rcv-[0-9a-f]{32}$"
+    },
+    "rowId": { "const": "R-CD-RETURN-COVENANT-AUTHORITY" },
+    "candidateSha": { "$ref": "#/$defs/sha40" },
+    "productTreeSha": { "$ref": "#/$defs/sha40" },
+    "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+    "docsHarnessSha": { "$ref": "#/$defs/sha40" },
+    "commandRelativePath": { "type": "string", "minLength": 1 },
+    "commandSha256": { "$ref": "#/$defs/sha256" },
+    "gatewayCommandRelativePath": { "type": "string", "minLength": 1 },
+    "gatewayCommandSha256": { "$ref": "#/$defs/sha256" },
+    "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+    "runtimeArtifactManifestSha256": { "$ref": "#/$defs/sha256" },
+    "launchNonce": { "type": "string", "minLength": 24 },
+    "phaseKeyFingerprint": { "$ref": "#/$defs/sha256" },
+    "pid": { "type": "integer", "minimum": 2 },
+    "gatewayPid": { "type": "integer", "minimum": 2 },
+    "namespacePid": { "type": "integer", "minimum": 1 },
+    "namespaceGatewayPid": { "type": "integer", "minimum": 1 },
+    "gatewayEndpoint": {
+      "type": "string",
+      "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+    },
+    "revocationCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source",
+        "productSha",
+        "runtimeBuildSha",
+        "runtimeConfigSha256",
+        "inventoryComplete",
+        "revocationApiExposed",
+        "surface",
+        "receiptId"
+      ],
+      "properties": {
+        "schema": {
+          "const": "openclaw.k6.return-covenant-capability-inventory.v1"
+        },
+        "source": { "const": "product-owned" },
+        "productSha": { "$ref": "#/$defs/sha40" },
+        "runtimeBuildSha": { "$ref": "#/$defs/sha40" },
+        "runtimeConfigSha256": { "$ref": "#/$defs/sha256" },
+        "inventoryComplete": { "const": true },
+        "revocationApiExposed": { "type": "boolean" },
+        "surface": { "type": "string", "minLength": 8 },
+        "receiptId": { "type": "string", "minLength": 8 }
+      }
+    },
+    "endpoint": {
+      "type": "string",
+      "pattern": "^http://127\\.0\\.0\\.1(:[0-9]+)?$"
+    }
+  },
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

@@ -103,12 +103,67 @@ export function parseStaticSpecifiers(source, identifier) {
   }
 }
 
+/**
+ * Whether a candidate occurrence sits in code position, decided by the parser.
+ *
+ * The occurrence is replaced with a token sequence that is a syntax error in
+ * code but inert inside a string, template, comment or regex. If the module
+ * still parses, the occurrence was not code. This is how a dynamic site is
+ * distinguished from text that merely looks like one, without a pattern having
+ * to lex JavaScript.
+ */
+function isCodePosition(source, index, length, identifier) {
+  const perturbed = `${source.slice(0, index)}import{{{(${source.slice(index + length)}`;
+  try {
+    new vm.SourceTextModule(perturbed, { identifier });
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Dynamic import sites that are really code, split by whether their target is a
+ * single string literal.
+ *
+ * A literal target is statically finite by construction, so it joins the
+ * closure like any static specifier. A non-literal target is only lawful when
+ * the policy enumerates a finite target set for it.
+ */
+export function resolveDynamicSites(source, identifier) {
+  const literals = new Set();
+  const nonLiteral = [];
+  for (const match of source.matchAll(DYNAMIC_SITE)) {
+    const start = source.indexOf('import', match.index);
+    const opener = source.slice(start).match(/^import\s*\(/u);
+    if (!opener) continue;
+    if (!isCodePosition(source, start, opener[0].length, identifier)) continue;
+    const argument = source.slice(start + opener[0].length);
+    const literal = argument.match(/^\s*(["'])([^"'\n\r]+)\1\s*\)/u);
+    if (literal) {
+      literals.add(literal[2]);
+      continue;
+    }
+    nonLiteral.push(source.slice(start, start + opener[0].length + 60)
+      .replace(/\s+/gu, ' ')
+      .trim());
+  }
+  return {
+    literals: [...literals].toSorted(),
+    nonLiteral: nonLiteral.toSorted(),
+  };
+}
+
 /** Parsed static specifiers plus a conservative count of dynamic sites. */
 export function scanModuleReferences(text, identifier = 'closure-input.mjs') {
   const statics = parseStaticSpecifiers(text, identifier);
-  let dynamicSites = 0;
-  for (const _ of text.matchAll(DYNAMIC_SITE)) dynamicSites += 1;
-  return { statics, dynamicSites };
+  const dynamic = resolveDynamicSites(text, identifier);
+  return {
+    statics,
+    dynamicLiterals: dynamic.literals,
+    dynamicNonLiteral: dynamic.nonLiteral,
+    dynamicSites: dynamic.literals.length + dynamic.nonLiteral.length,
+  };
 }
 
 /** Every export target a manifest declares, flattened across conditions. */
@@ -442,11 +497,16 @@ export async function selectFirstPartyFileClosure({
     } catch {
       throw new Error(`selected runtime file is unreadable: ${relative}`);
     }
-    const { statics, dynamicSites: count } = scanModuleReferences(text, relative);
-    if (count > 0) {
+    const scanned = scanModuleReferences(text, relative);
+    const statics = [...scanned.statics, ...scanned.dynamicLiterals];
+    if (scanned.dynamicNonLiteral.length > 0) {
       const enumerated = dynamicPolicy[relative];
       if (!Array.isArray(enumerated)) {
-        dynamicSites.push({ file: relative, sites: count });
+        dynamicSites.push({
+          file: relative,
+          sites: scanned.dynamicNonLiteral.length,
+          samples: scanned.dynamicNonLiteral.slice(0, 2),
+        });
       } else {
         for (const target of enumerated) statics.push(target);
       }

@@ -14,6 +14,7 @@
 import { lstat, readFile, readdir, realpath } from 'node:fs/promises';
 import { builtinModules } from 'node:module';
 import path from 'node:path';
+import vm from 'node:vm';
 
 export const RETURN_COVENANT_CLOSURE_SCHEMA =
   'openclaw.k6.return-covenant-runtime-closure.v1';
@@ -69,32 +70,45 @@ export function specifierPackageName(specifier) {
   return classified.kind === 'package' ? classified.name : null;
 }
 
-const SPECIFIER_BODY = '([^"\'\\n\\r]+)';
-const STATIC_SPECIFIER = new RegExp(
-  [
-    `from\\s*["\']${SPECIFIER_BODY}["\']`,
-    `import\\s*["\']${SPECIFIER_BODY}["\']`,
-    `require\\(\\s*["\']${SPECIFIER_BODY}["\']\\s*\\)`,
-    `import\\(\\s*["\']${SPECIFIER_BODY}["\']\\s*\\)`,
-  ].join('|'),
-  'g',
-);
+// A dynamic import cannot be aliased in ESM: the `import` keyword must appear
+// literally before its parenthesis. A substring scan therefore cannot *miss* a
+// dynamic site, though it may over-report one inside a string or comment.
+// Over-reporting is the fail-closed direction, so the conservative scan is
+// sound for this contract's purpose.
+const DYNAMIC_SITE = /(?:^|[^A-Za-z0-9_$.])import\s*\(/g;
 
-// A dynamic site is `import(` or `require(` whose argument does not begin with a
-// string literal. Such a site is only lawful when the policy can enumerate a
-// finite target set for it; otherwise it fails closed.
-const DYNAMIC_SITE = /(?:^|[^A-Za-z0-9_$.])(?:import|require)\(\s*(?!["'])/g;
-
-/** Static specifiers and unresolved dynamic sites in one source text. */
-export function scanModuleReferences(text) {
-  const statics = new Set();
-  for (const match of text.matchAll(STATIC_SPECIFIER)) {
-    const specifier = match[1] ?? match[2] ?? match[3] ?? match[4];
-    if (specifier) statics.add(specifier);
+/**
+ * Static import specifiers, parsed rather than pattern-matched.
+ *
+ * `vm.SourceTextModule` runs the real ESM parser without evaluating anything, so
+ * `dependencySpecifiers` is the specification's own answer. A regular expression
+ * cannot lex JavaScript: it both invents specifiers out of string and template
+ * content and can miss real ones, and a missed specifier in a fail-closed proof
+ * is the silent corruption this contract exists to prevent.
+ */
+export function parseStaticSpecifiers(source, identifier) {
+  if (typeof vm.SourceTextModule !== 'function') {
+    throw new Error(
+      'closure verification requires node --experimental-vm-modules so module ' +
+        'specifiers can be parsed instead of pattern-matched',
+    );
   }
-  let dynamic = 0;
-  for (const _ of text.matchAll(DYNAMIC_SITE)) dynamic += 1;
-  return { statics: [...statics].toSorted(), dynamicSites: dynamic };
+  try {
+    return [...new Set(new vm.SourceTextModule(source, { identifier })
+      .dependencySpecifiers)].toSorted();
+  } catch (error) {
+    throw new Error(
+      `selected runtime file does not parse as a module: ${identifier}: ${error.message}`,
+    );
+  }
+}
+
+/** Parsed static specifiers plus a conservative count of dynamic sites. */
+export function scanModuleReferences(text, identifier = 'closure-input.mjs') {
+  const statics = parseStaticSpecifiers(text, identifier);
+  let dynamicSites = 0;
+  for (const _ of text.matchAll(DYNAMIC_SITE)) dynamicSites += 1;
+  return { statics, dynamicSites };
 }
 
 /** Every export target a manifest declares, flattened across conditions. */
@@ -428,7 +442,7 @@ export async function selectFirstPartyFileClosure({
     } catch {
       throw new Error(`selected runtime file is unreadable: ${relative}`);
     }
-    const { statics, dynamicSites: count } = scanModuleReferences(text);
+    const { statics, dynamicSites: count } = scanModuleReferences(text, relative);
     if (count > 0) {
       const enumerated = dynamicPolicy[relative];
       if (!Array.isArray(enumerated)) {

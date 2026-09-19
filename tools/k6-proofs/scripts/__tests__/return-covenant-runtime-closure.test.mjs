@@ -364,6 +364,20 @@ test('closure reference scanner and helpers behave as the policy assumes', () =>
   const scanned = scanModuleReferences(
     'import a from "x";\nexport {b} from "./y.js";\nrequire("z");\nawait import(dyn);\n',
   );
-  assert.deepEqual(scanned.statics, ['./y.js', 'x', 'z']);
+  // The real ESM parser answers, not a pattern: `require("z")` is a call
+  // expression in a module, not a dependency, so it must not appear.
+  assert.deepEqual(scanned.statics, ['./y.js', 'x']);
   assert.equal(scanned.dynamicSites, 1);
+  // String and template content that a regular expression would mistake for a
+  // specifier contributes nothing.
+  const noisy = scanModuleReferences(
+    [
+      'import real from "./real.js";',
+      'const a = ", () => import(";',
+      'const b = `${interpolated}`;',
+      'const c = "In Progress";',
+      '',
+    ].join('\n'),
+  );
+  assert.deepEqual(noisy.statics, ['./real.js']);
 });

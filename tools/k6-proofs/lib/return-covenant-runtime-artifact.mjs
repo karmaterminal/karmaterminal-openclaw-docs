@@ -248,13 +248,22 @@ async function copyPreparedEntry({
   allowedRoots,
   activeDirectories,
   budget,
+  omitResolvedPath,
 }) {
   let sourcePath = source;
   let info = await lstat(sourcePath, { bigint: true });
   if (info.isSymbolicLink()) {
     sourcePath = await realpath(sourcePath);
+    // An escape is still fatal: scope narrowing never relaxes the root fence.
     if (!allowedRoots.some((root) => pathWithin(sourcePath, root))) {
       throw new Error(`prepared runtime symlink escapes its allowed roots: ${source}`);
+    }
+    // Scope narrowing: a workspace package the running candidate cannot resolve
+    // is not part of the runtime closure, so it is omitted rather than
+    // materialised. Dereferencing it would also pull in its own nested
+    // node_modules symlink farm and duplicate the real closure many times over.
+    if (omitResolvedPath?.(sourcePath) === true) {
+      return;
     }
     info = await lstat(sourcePath, { bigint: true });
     if (info.isSymbolicLink()) {
@@ -281,6 +290,7 @@ async function copyPreparedEntry({
           allowedRoots,
           activeDirectories,
           budget,
+          omitResolvedPath,
         });
       }
     } finally {
@@ -687,7 +697,13 @@ function validateManifestShape(manifest) {
       'inputs',
       'workspaceOutputs',
       'unreachableWorkspaceOutputs',
+      'omittedWorkspacePackages',
     ]) ||
+    !Array.isArray(manifest.build.omittedWorkspacePackages) ||
+    manifest.build.omittedWorkspacePackages.some((entry) =>
+      typeof entry !== 'string' || !safeArtifactPath(entry)) ||
+    new Set(manifest.build.omittedWorkspacePackages).size !==
+      manifest.build.omittedWorkspacePackages.length ||
     !Array.isArray(manifest.build.unreachableWorkspaceOutputs) ||
     manifest.build.unreachableWorkspaceOutputs.some((entry) =>
       typeof entry !== 'string' || !safeArtifactPath(entry)) ||
@@ -913,6 +929,7 @@ async function copyRuntimePayload({
   buildOutputDir,
   outputDir,
   allowedRoots,
+  omitResolvedPath,
 }) {
   const payloadDir = path.join(outputDir, 'payload');
   await mkdir(payloadDir, { mode: 0o700 });
@@ -923,6 +940,7 @@ async function copyRuntimePayload({
     allowedRoots,
     activeDirectories: new Set(),
     budget,
+    omitResolvedPath,
   });
   await copyPreparedEntry({
     source: buildOutputDir,
@@ -930,6 +948,7 @@ async function copyRuntimePayload({
     allowedRoots,
     activeDirectories: new Set(),
     budget,
+    omitResolvedPath,
   });
   await chmod(payloadDir, 0o555);
 }
@@ -1138,32 +1157,26 @@ async function injectWorkspaceBuildOutputs({
     const sourcePath = path.posix.join(link.targetRelativePath, 'dist');
     const sourceOutput = path.join(buildSourcePath, sourcePath);
     const destinationOutput = path.join(link.target, 'dist');
-    const required = reachableTargets.has(link.targetRelativePath);
+    // A package the candidate cannot resolve is omitted from the payload, so it
+    // owes no build output and must not appear in the output mappings either:
+    // a mapping without payload bytes would fail the inventory bound checks.
+    if (!reachableTargets.has(link.targetRelativePath)) {
+      skipped.push(sourcePath);
+      continue;
+    }
     if (!injectedTargets.has(link.targetRelativePath)) {
       let sourceInfo;
       try {
         sourceInfo = await lstat(sourceOutput);
       } catch (error) {
         if (error?.code === 'ENOENT') {
-          // A package the candidate can actually resolve must ship its build
-          // output. One that only exists in the store's hoist directory cannot
-          // be resolved at runtime, so an absent output is not a closure defect
-          // and must not fail the build.
-          if (required) {
-            throw new Error(
-              `required workspace build output is unavailable: ${sourcePath}`,
-            );
-          }
-          skipped.push(sourcePath);
-          continue;
+          throw new Error(
+            `required workspace build output is unavailable: ${sourcePath}`,
+          );
         }
         throw error;
       }
       if (!sourceInfo.isDirectory() || sourceInfo.isSymbolicLink()) {
-        if (!required) {
-          skipped.push(sourcePath);
-          continue;
-        }
         throw new Error(
           `required workspace build output is unavailable: ${sourcePath}`,
         );
@@ -1459,12 +1472,30 @@ export async function createReturnCovenantRuntimeArtifact({
       await realpath(dependencyDir),
       await realpath(buildOutputDir),
     ];
+    // Scope the payload to the runtime-reachable closure. Everything the
+    // candidate can resolve is still materialised in full, once, as real
+    // immutable files; only workspace packages it cannot resolve are omitted.
+    const unreachableWorkspacePaths = new Map();
+    for (const link of workspaceDependencyLinks) {
+      if (!reachableWorkspaceTargets.has(link.targetRelativePath)) {
+        unreachableWorkspacePaths.set(link.target, link.targetRelativePath);
+      }
+    }
+    const omittedWorkspacePackageSet = new Set();
+    const omitResolvedPath = (resolved) => {
+      const relative = unreachableWorkspacePaths.get(resolved);
+      if (relative === undefined) return false;
+      omittedWorkspacePackageSet.add(relative);
+      return true;
+    };
     await copyRuntimePayload({
       dependencyDir,
       buildOutputDir,
       outputDir: outputPath,
       allowedRoots,
+      omitResolvedPath,
     });
+    const omittedWorkspacePackages = [...omittedWorkspacePackageSet].toSorted();
     const [buildInputs, inventory] = await Promise.all([
       Promise.all(RETURN_COVENANT_RUNTIME_BUILD_INPUTS.map((relativePath) =>
         gitBuildInputIdentity(sourcePath, relativePath, productSha))),
@@ -1489,6 +1520,10 @@ export async function createReturnCovenantRuntimeArtifact({
         dependencyCommand: ['pnpm', ...dependencyCommand],
         inputs: buildInputs,
         workspaceOutputs,
+        // Workspace packages omitted from the payload because the candidate
+        // cannot resolve them. Recorded so the narrowed scope is covered by the
+        // manifest digest and independently checkable.
+        omittedWorkspacePackages,
         // Workspace packages that declare dist-based entry points but are not
         // reachable from the candidate's production dependency graph, so they
         // ship no build output and none is required. Recorded here so the skip

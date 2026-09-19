@@ -75,6 +75,7 @@ async function createSyntheticSource(
     packageManagerVersion = '1.2.3',
     failProductionInstall = false,
     workspaceDependency = false,
+    unreachableWorkspacePackage = false,
     hardlinkProductionStore = false,
   } = {},
 ) {
@@ -89,6 +90,11 @@ async function createSyntheticSource(
       name: 'synthetic-openclaw',
       packageManager: `pnpm@${packageManagerVersion}+sha512.synthetic`,
       scripts: { build: 'synthetic' },
+      // Declared so the package is part of the production closure the candidate
+      // can resolve. An undeclared workspace package is omitted by design.
+      ...(workspaceDependency
+        ? { dependencies: { '@openclaw/ai': 'workspace:*' } }
+        : {}),
     }, null, 2)],
     ['pnpm-lock.yaml', 'lockfileVersion: synthetic\n'],
     ['pnpm-workspace.yaml', 'packages: []\n'],
@@ -104,6 +110,12 @@ async function createSyntheticSource(
       exports: {
         './internal/policy': './dist/internal/policy.mjs',
       },
+    }, null, 2));
+  }
+  if (unreachableWorkspacePackage) {
+    files.set('extensions/unreachable/package.json', JSON.stringify({
+      name: '@openclaw/unreachable',
+      exports: { '.': './dist/index.mjs' },
     }, null, 2));
   }
   for (const [relative, contents] of files) {
@@ -126,6 +138,17 @@ async function createSyntheticSource(
     await writeFile(
       path.join(sourceDir, 'packages/ai/dist/internal/policy.mjs'),
       'export const policy = true;\n',
+      { mode: 0o600 },
+    );
+  }
+  if (unreachableWorkspacePackage) {
+    await mkdir(path.join(sourceDir, 'extensions/unreachable/dist'), {
+      recursive: true,
+      mode: 0o700,
+    });
+    await writeFile(
+      path.join(sourceDir, 'extensions/unreachable/dist/index.mjs'),
+      'export const unreachableMarker = true;\n',
       { mode: 0o600 },
     );
   }
@@ -182,6 +205,13 @@ async function createSyntheticSource(
           "  const scope = path.join(process.cwd(), 'node_modules/@openclaw');",
           "  fs.mkdirSync(scope, { recursive: true });",
           "  fs.symlinkSync('../../packages/ai', path.join(scope, 'ai'));",
+        ]
+        : []),
+      ...(unreachableWorkspacePackage
+        ? [
+          "  const hoist = path.join(process.cwd(), 'node_modules/.pnpm/node_modules/@openclaw');",
+          "  fs.mkdirSync(hoist, { recursive: true });",
+          "  fs.symlinkSync('../../../../extensions/unreachable', path.join(hoist, 'unreachable'));",
         ]
         : []),
       "  process.stdout.write('synthetic production install complete\\n');",
@@ -411,6 +441,107 @@ test('runtime artifact producer injects referenced workspace build output', asyn
       ), 'utf8'),
       'export const policy = true;\n',
     );
+  } finally {
+    await removeTree(root);
+  }
+});
+
+test('runtime artifact omits unreachable workspace packages and keeps the reachable closure complete', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'return-covenant-runtime-omit-'));
+  try {
+    const source = await createSyntheticSource(root, {
+      workspaceDependency: true,
+      unreachableWorkspacePackage: true,
+    });
+    const outputDir = path.join(root, 'artifact');
+    const created = await createReturnCovenantRuntimeArtifact({
+      sourceDir: source.sourceDir,
+      outputDir,
+      runId: RUN_ID,
+      docsHarnessSha: source.head,
+      packageManagerCommand: [source.packageManager],
+    });
+
+    // Negative half: the undeclared workspace package is recorded as omitted,
+    // contributes no output mapping, and leaves no bytes in the payload.
+    assert.deepEqual(
+      created.manifest.build.omittedWorkspacePackages,
+      ['extensions/unreachable'],
+    );
+    assert.deepEqual(
+      created.manifest.build.unreachableWorkspaceOutputs,
+      ['extensions/unreachable/dist'],
+    );
+    assert.deepEqual(
+      created.manifest.build.workspaceOutputs.map((entry) => entry.sourcePath),
+      ['packages/ai/dist'],
+    );
+    await assert.rejects(
+      lstat(path.join(
+        outputDir,
+        'payload/node_modules/.pnpm/node_modules/@openclaw/unreachable',
+      )),
+      (error) => error?.code === 'ENOENT',
+    );
+    assert.equal(
+      created.manifest.inventory.entries.some((entry) =>
+        entry.path.includes('unreachable')),
+      false,
+    );
+
+    // Positive half: everything the candidate can resolve is present in full.
+    assert.equal(
+      await readFile(path.join(
+        outputDir,
+        'payload/node_modules/@openclaw/ai/dist/internal/policy.mjs',
+      ), 'utf8'),
+      'export const policy = true;\n',
+    );
+    assert.equal(
+      await readFile(path.join(
+        outputDir,
+        'payload/node_modules/runtime-package/index.js',
+      ), 'utf8'),
+      'export const runtimeDependency = true;\n',
+    );
+    assert.equal(
+      await readFile(path.join(outputDir, 'payload/dist/entry.js'), 'utf8'),
+      'export const builtEntry = true;\n',
+    );
+    // The narrowed payload still satisfies the unchanged closure bounds.
+    assert.ok(created.manifest.inventory.entryCount > 0);
+    for (const rootEntry of created.manifest.inventory.roots) {
+      assert.ok(rootEntry.fileCount >= 1);
+    }
+  } finally {
+    await removeTree(root);
+  }
+});
+
+test('runtime artifact fails closed when a reachable workspace build output is missing', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'return-covenant-runtime-required-'));
+  try {
+    const source = await createSyntheticSource(root, {
+      workspaceDependency: true,
+      unreachableWorkspacePackage: true,
+    });
+    // Remove the build output of the one package the candidate CAN resolve.
+    // Omission must never extend to a reachable package.
+    await removeTree(path.join(source.sourceDir, 'packages/ai/dist'));
+    const outputDir = path.join(root, 'artifact');
+    await assert.rejects(
+      createReturnCovenantRuntimeArtifact({
+        sourceDir: source.sourceDir,
+        outputDir,
+        runId: RUN_ID,
+        docsHarnessSha: source.head,
+        packageManagerCommand: [source.packageManager],
+      }),
+      (error) =>
+        /required workspace build output is unavailable: packages\/ai\/dist/
+          .test(`${error?.message}`),
+    );
+    await assert.rejects(lstat(outputDir), (error) => error?.code === 'ENOENT');
   } finally {
     await removeTree(root);
   }

@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 15,
+  "scenario": {
+    "status": "construct-only",
+    "name": "r-cd-return-covenant-authority",
+    "description": "Return-covenant authority must survive a gateway-restart transition: the current generation may not be cleared before its replacement is usable, and the transition's failure body must be retained rather than lost.",
+    "methods": [
+      "manual-corpus-review"
+    ],
+    "notes": "Construct-only. Ledger command AUTHORITY-RESTART-CONTROL, state missing, gate reviewed-restart-control-on-final-successor. The rejected base is that the first gateway-restart transition cleared the current generation before the replacement became usable and the exact failure body was lost. The only attempt on record is historical-baseline-review: the repaired launcher reached readiness and read-only mounts, but fixture gateway phase calls failed, yielding zero of 24 observations and no signed cleanup/observer receipt. The corpus row therefore holds EVIDENCE.md alone, so there are no committed artifacts for a static validator to parse and no validators[rowId] implementation exists in scenarios/static-corpus-row-validator.js. Binding it to that generic validator would fail closed on a missing implementation rather than record the row's real state, so it is declared non-runnable until a successor restart control exists.",
+    "registryNotes": "Catalogued to close a fail-closed gap: check-proof-row-manifests.mjs requires every corpus row to carry a manifest, and this row had none, which blocked every catalog-mode proof run rather than only this row."
+  },
+  "expectedReceipts": [
+    {
+      "name": "transition-http-body",
+      "required": true,
+      "description": "The gateway-restart transition's HTTP response body is retained; the rejected base lost it."
+    },
+    {
+      "name": "replacement-process-output",
+      "required": true,
+      "description": "Replacement process stdout and stderr are captured across the transition."
+    },
+    {
+      "name": "generation-fingerprints",
+      "required": true,
+      "description": "Old and new process and socket fingerprints identify both generations across the restart."
+    },
+    {
+      "name": "observation-record",
+      "required": true,
+      "description": "Observations are recorded for the restart case; the baseline attempt produced zero of twenty-four."
+    },
+    {
+      "name": "signed-cleanup-receipt",
+      "required": true,
+      "description": "A signed cleanup and observer receipt closes the case; the baseline attempt produced none."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Declaring this row in the catalog records its state; it does not promote it. The row remains MISSING until a reviewed restart control runs on the final successor product."
+  },
+  "liveRunSafety": {
+    "classification": "construct-only",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "construct-only",
+    "requiredReceipts": [
+      "transition-http-body",
+      "replacement-process-output",
+      "generation-fingerprints",
+      "observation-record",
+      "signed-cleanup-receipt"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Construct-only rows are rejected by the live-run guard, so cataloguing this row cannot cause it to fire. A future live restart control requires its own review before any fold."
+  }
+}

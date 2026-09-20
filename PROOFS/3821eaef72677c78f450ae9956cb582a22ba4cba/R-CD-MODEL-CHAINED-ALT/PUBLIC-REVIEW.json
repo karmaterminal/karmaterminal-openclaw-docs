@@ -1,0 +1,60 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PARTIAL-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-cd-model-chained-alt-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-CD-MODEL-CHAINED-ALT",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "started": "2026-09-20T14:25:51.343Z",
+    "requested_model_byte": "gpt",
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1789914352133,
+    "depth_1_child_observed": true,
+    "depth_2_child_observed": false,
+    "depth_1_scheduled_inner": true,
+    "depth_2_model_byte": null,
+    "model_matches": false,
+    "return_payload": false,
+    "trace_id": null,
+    "ended": "2026-09-20T14:29:31.625Z",
+    "duration_ms": 220282
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [
+    "candidate verdict only; no independent manual review was performed"
+  ],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T142547Z-r-cd-model-chained-alt-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "2d67e78de5c905c84ee99808993353658ed07de5a173af0d11aaf57b32081f52",
+  "privateRowArtifactFileCount": 20,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-CD-MODEL-CHAINED-ALT/ronan/20260920T142547Z-r-cd-model-chained-alt-743bccb7/"
+}

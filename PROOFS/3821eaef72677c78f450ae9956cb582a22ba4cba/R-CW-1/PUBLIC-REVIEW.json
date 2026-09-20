@@ -1,0 +1,57 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-CW-1",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PASS-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-cw-1-tool-schedule-wake-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-CW-1",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "started": "2026-09-20T14:34:40.769Z",
+    "tool_invoke_accepted": true,
+    "continue_work_tool_result_scheduled": true,
+    "work_woke_event": true,
+    "dispatch_accepted_at_ms": 1789914881552,
+    "scheduled_result_at_ms": 1789914894574,
+    "wake_delay_ms": 32816,
+    "reason_hash": "777ac721092db869",
+    "reason_length": 121,
+    "trace_id": null,
+    "ended": "2026-09-20T14:35:27.390Z",
+    "duration_ms": 46620
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "e77a8320dd873576860ea55fc1542da6",
+    "tempoTraceJson": "tempo-trace-e77a8320dd87.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T143437Z-r-cw-1-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "ab0ce63e0dbb7f2afccb1c0e1d75454b98232d7866c896faff073f927b54c82e",
+  "privateRowArtifactFileCount": 23,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-CW-1/ronan/20260920T143437Z-r-cw-1-743bccb7/"
+}

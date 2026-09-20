@@ -1,0 +1,51 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-CD-TOKEN",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PARTIAL-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [],
+  "observedPredicates": {
+    "row": "R-CD-TOKEN",
+    "surface_class": "message-body",
+    "dispatched": false
+  },
+  "pendingReceipts": [
+    "raw-final-text-origin",
+    "parser-detected",
+    "queue-identity",
+    "child-spawned",
+    "child-completed",
+    "parent-return-event",
+    "tempo-trace-json",
+    "continuation-trace-correlation"
+  ],
+  "observability": {
+    "traceStatus": "not-applicable",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "serviceLogStatus": "not-started",
+    "serviceLog": null,
+    "serviceLogCapture": null,
+    "serviceLogRedaction": null
+  },
+  "evidenceLimitations": [
+    "candidate verdict only; no independent manual review was performed"
+  ],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T143418Z-r-cd-token-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "6a4b94680c167b5a3c115453609e4bc6d237b574dd69bda8112de05a9f7ea83a",
+  "privateRowArtifactFileCount": 6,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-CD-TOKEN/ronan/20260920T143418Z-r-cd-token-743bccb7/"
+}

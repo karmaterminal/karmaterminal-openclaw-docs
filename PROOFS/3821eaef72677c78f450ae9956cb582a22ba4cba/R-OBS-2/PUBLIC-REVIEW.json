@@ -1,0 +1,68 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-OBS-2",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PASS-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-obs-2-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-OBS-2",
+    "manifest_loaded": true,
+    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "currentProofSha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+    "sourceEvidenceSha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+    "started": "2026-09-20T14:43:52.752Z",
+    "trace_ids_hex": [
+      "0cf17ea0b7eab7a5e998f6a581e7b5bf"
+    ],
+    "span_count": 46,
+    "root_count": 1,
+    "orphan_count": 0,
+    "required_span_names_present": {
+      "continuation.delegate.dispatch": true,
+      "openclaw.harness.run": true,
+      "openclaw.run": true,
+      "openclaw.tool.execution": true,
+      "continuation.queue.fanout": true,
+      "continuation.queue.drain": true
+    },
+    "source_files": {
+      "traceTree": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/trace-tree.json",
+      "spanTree": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-tree.txt",
+      "spanCounts": "../../../PROOFS/1cc8f4e3d617ef6f173283ef83d7b739a4995734/R-OBS-2/cael-dgx/span-counts.json"
+    },
+    "ended": "2026-09-20T14:43:52.752Z",
+    "duration_ms": 0,
+    "verdict": "PASS-candidate"
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T144349Z-r-obs-2-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "2962f9204515e50143ec69bc6225178a1d277c0207ec42c6eb191c0d57f9693a",
+  "privateRowArtifactFileCount": 20,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-OBS-2/ronan/20260920T144349Z-r-obs-2-743bccb7/"
+}

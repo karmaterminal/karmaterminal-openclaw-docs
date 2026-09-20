@@ -1,0 +1,57 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PARTIAL-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-cw-delegate-self-continuation-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "started": "2026-09-20T14:37:37.448Z",
+    "delegate_accepted": true,
+    "child_spawned": true,
+    "child_continue_work_accepted": true,
+    "child_hop_2_woke": false,
+    "parent_return": true,
+    "dispatch_accepted_at_ms": 1789915058232,
+    "trace_id": null,
+    "ended": "2026-09-20T14:39:37.727Z",
+    "duration_ms": 120279
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [
+    "candidate verdict only; no independent manual review was performed"
+  ],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T143733Z-r-cw-delegate-self-continuation-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "7156c210c380a671f7367905031104f3409658732ad5808b5bcf2733f3c04ae5",
+  "privateRowArtifactFileCount": 20,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-CW-DELEGATE-SELF-CONTINUATION/ronan/20260920T143733Z-r-cw-delegate-self-continuation-743bccb7/"
+}

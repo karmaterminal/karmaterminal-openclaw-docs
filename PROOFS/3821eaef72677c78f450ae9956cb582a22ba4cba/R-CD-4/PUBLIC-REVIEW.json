@@ -1,0 +1,73 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-CD-4",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PARTIAL-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-cd-4-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-CD-4",
+    "manifest_loaded": true,
+    "task_identity_token": "RCD4:4080261-nsipbhn9",
+    "seat": "ronan",
+    "parent_session_created": true,
+    "target_session_created": true,
+    "target_primed": true,
+    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "started": "2026-09-20T14:21:20.261Z",
+    "tool_accepted": true,
+    "agent_turn_observed": true,
+    "child_completed": true,
+    "child_session_candidates": [
+      "<redacted-session-key>"
+    ],
+    "child_session_ambiguous": false,
+    "child_session_invalid": false,
+    "return_in_target": false,
+    "return_in_parent": false,
+    "target_return_candidate": null,
+    "parent_return_candidate": null,
+    "target_return_receipt": null,
+    "parent_return_receipt": null,
+    "dispatch_accepted_at_ms": 1789914085218,
+    "wake_gate_ms": 5000,
+    "reason_hash": "1e35074d6ab7ca00",
+    "reason_length": 127,
+    "delegate_mode": "silent-wake",
+    "trace_id": null,
+    "ended": "2026-09-20T14:22:55.209Z",
+    "duration_ms": 94948
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "f1029ffadf498c5fb291487860e4d316",
+    "tempoTraceJson": "tempo-trace-f1029ffadf49.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [
+    "candidate verdict only; no independent manual review was performed"
+  ],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T142116Z-r-cd-4-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "679542ee9141028137e91a5720ae1e730d635fb7a5b36494ce1baca3823c0b27",
+  "privateRowArtifactFileCount": 23,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-CD-4/ronan/20260920T142116Z-r-cd-4-743bccb7/"
+}

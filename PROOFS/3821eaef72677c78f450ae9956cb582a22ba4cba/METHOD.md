@@ -59,6 +59,12 @@ Seat config verified rather than assumed: `agents.defaults.subagents.maxSpawnDep
    path. The signed readiness receipt binds gateway URL fingerprint, candidate, runtime, docs ref,
    rows and depths.
 4. **No independent review.** Candidate verdicts only; nothing promoted.
+5. **One disclosed single-row refire.** R-OBS-1 was refired alone, into a separate artifact root
+   (`ronan:k6-refire-obs1/`), after its first fire was invalidated by an agent-turn stall. The
+   canonical method permits refiring an invalidated slice; the prior FAIL is retained as provenance
+   in the row's evidence, its public receipt, and `proofs-manifest.json::refires`. No assertion,
+   timeout or threshold was altered to obtain the pass — the refire ran the identical frozen row
+   bytes at the same docs ref.
 
 ## Known harness defect found by this cycle
 

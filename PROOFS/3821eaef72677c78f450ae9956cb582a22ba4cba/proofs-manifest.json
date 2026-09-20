@@ -132,10 +132,10 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 22,
+    "pass": 23,
     "partial": 9,
     "thin": 0,
-    "fail": 1,
+    "fail": 0,
     "honest_limit": 1,
     "missing": 5
   },
@@ -978,28 +978,30 @@
       "row": "R-OBS-1",
       "title": "Session-status-card observability via the session_status tool.",
       "owner": "automated-candidate-fire",
-      "state": "fail",
+      "state": "pass",
       "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1/",
       "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
       "scenario_status": "runnable",
       "live_run_classification": "k6-runnable",
-      "candidate_verdict": "FAIL-candidate",
+      "candidate_verdict": "PASS-candidate",
       "review_status": "candidate-only-no-independent-review",
       "fired": true,
       "exact_target_execution": false,
       "exact_target_mode_b": false,
       "pending_receipts": [],
-      "summary": "FAIL-candidate on an automated candidate fire; effective exit 99.",
-      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "summary": "PASS: complete OBS1-STATUS sentinel with build/context/chain/route all visible, on a disclosed refire.",
+      "notes": "DISCLOSED REFIRE. First fire (run 20260920T144241Z-r-obs-1-743bccb7) returned FAIL-candidate: dispatch was accepted but no OBS1-STATUS sentinel arrived within the row's 60s window and all four visibility predicates were false. That first fire was INVALIDATED by an agent-turn stall, not by row behavior: its bounded gateway-journal capture (14:42:41Z-14:43:45Z) contained zero proof-relevant lines, no assistant_output_started milestone exists anywhere in that window, and an '[agent/embedded] Codex parent-local egress workaround is unavailable' warning was logged 2s after dispatch. For comparison a later row in the same suite (R-RC-1) reached assistant_output_started in 11.3s. The row was refired once, alone, into a separate artifact root; it produced the complete sentinel in 22.2s with build=yes context=yes chain=yes route=yes. The prior FAIL is retained here as provenance and is not hidden.",
       "supporting_docs": [
         "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1/PUBLIC-REVIEW.json"
       ],
       "test_cases_executed": [
-        "20260920T144241Z-r-obs-1-743bccb7"
+        "20260920T150148Z-r-obs-1-4596b8c1",
+        "20260920T144241Z-r-obs-1-743bccb7 (first fire, FAIL, invalidated)"
       ],
       "traces": [],
-      "private_row_artifact_sha256": "27c33e8d00a110262908e757e593140a29fbbf1225e679671cf97ebd3ae772aa"
+      "private_row_artifact_sha256": "25591484569bf0fefbe8d5ada3b1d4d5fc41fb3eae3d230ae71df17f15c42b0d",
+      "refired": true
     },
     {
       "row": "R-OBS-2",
@@ -1167,5 +1169,15 @@
       "private_row_artifact_sha256": "68ce3674a4171b97a488dc111b53d0f84e198f63863e56e267a876287ca029c6"
     }
   ],
-  "notes": "Candidate-only corpus. Not acceptance-complete: 22 pass, 9 partial, 1 honest_limit, 1 fail, 5 missing of 38 required rows. Raw per-row artifacts are retained privately on the seat and bound here by sha256; only public-safe review documents are published, matching the established corpus shape."
+  "notes": "Candidate-only corpus. Not acceptance-complete: 23 pass, 9 partial, 1 honest_limit, 0 fail, 5 missing of 38 required rows. R-OBS-1 rests on a disclosed refire after an invalidated first fire. Raw per-row artifacts are retained privately on the seat and bound here by sha256; only public-safe review documents are published, matching the established corpus shape.",
+  "refires": [
+    {
+      "row": "R-OBS-1",
+      "firstFireRunId": "20260920T144241Z-r-obs-1-743bccb7",
+      "firstFireVerdict": "FAIL-candidate",
+      "refireRunId": "20260920T150148Z-r-obs-1-4596b8c1",
+      "refireVerdict": "PASS-candidate",
+      "reason": "DISCLOSED REFIRE. First fire (run 20260920T144241Z-r-obs-1-743bccb7) returned FAIL-candidate: dispatch was accepted but no OBS1-STATUS sentinel arrived within the row's 60s window and all four visibility predicates were false. That first fire was INVALIDATED by an agent-turn stall, not by row behavior: its bounded gateway-journal capture (14:42:41Z-14:43:45Z) contained zero proof-relevant lines, no assistant_output_started milestone exists anywhere in that window, and an '[agent/embedded] Codex parent-local egress workaround is unavailable' warning was logged 2s after dispatch. For comparison a later row in the same suite (R-RC-1) reached assistant_output_started in 11.3s. The row was refired once, alone, into a separate artifact root; it produced the complete sentinel in 22.2s with build=yes context=yes chain=yes route=yes. The prior FAIL is retained here as provenance and is not hidden."
+    }
+  ]
 }

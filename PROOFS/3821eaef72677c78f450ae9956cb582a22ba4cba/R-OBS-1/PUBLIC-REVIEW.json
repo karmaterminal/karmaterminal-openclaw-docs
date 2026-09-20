@@ -4,7 +4,7 @@
   "authority": "automated-candidate-fire",
   "independentReview": false,
   "canonicalFoldAllowed": false,
-  "finalClassification": "FAIL-candidate",
+  "finalClassification": "PASS-candidate",
   "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
   "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
   "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
@@ -14,20 +14,15 @@
   ],
   "observedPredicates": {
     "row": "R-OBS-1",
-    "manifest_loaded": true,
     "seat": "ronan",
     "session_created": true,
-    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
-    "started": "2026-09-20T14:42:45.060Z",
     "dispatch_accepted": true,
-    "status_card_observed": false,
-    "build_visible": false,
-    "context_visible": false,
-    "continuation_chain_visible": false,
-    "route_visible": false,
-    "trace_id": null,
-    "ended": "2026-09-20T14:43:45.344Z",
-    "duration_ms": 60284
+    "status_card_observed": true,
+    "build_visible": true,
+    "context_visible": true,
+    "continuation_chain_visible": true,
+    "route_visible": true,
+    "duration_ms": 22165
   },
   "pendingReceipts": [],
   "observability": {
@@ -42,16 +37,23 @@
     "serviceLogRedaction": "gateway-journal-redaction.json"
   },
   "evidenceLimitations": [
-    "candidate verdict only; no independent manual review was performed"
+    "candidate verdict only; no independent manual review was performed",
+    "canonical state rests on a disclosed single refire after an invalidated first fire"
   ],
   "identityFingerprints": {
     "seat": "ronan",
-    "runId": "20260920T144241Z-r-obs-1-743bccb7",
+    "runId": "20260920T150148Z-r-obs-1-4596b8c1",
     "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
     "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
     "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
   },
-  "privateRowArtifactSha256": "27c33e8d00a110262908e757e593140a29fbbf1225e679671cf97ebd3ae772aa",
+  "privateRowArtifactSha256": "25591484569bf0fefbe8d5ada3b1d4d5fc41fb3eae3d230ae71df17f15c42b0d",
   "privateRowArtifactFileCount": 20,
-  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-OBS-1/ronan/20260920T144241Z-r-obs-1-743bccb7/"
+  "privateArtifactLocation": "ronan:k6-refire-obs1/1baff536afa549fea75660403c453bbd265352c0/R-OBS-1/ronan/20260920T150148Z-r-obs-1-4596b8c1/",
+  "refireDisclosure": {
+    "refired": true,
+    "firstFireRunId": "20260920T144241Z-r-obs-1-743bccb7",
+    "firstFireVerdict": "FAIL-candidate",
+    "reason": "DISCLOSED REFIRE. First fire (run 20260920T144241Z-r-obs-1-743bccb7) returned FAIL-candidate: dispatch was accepted but no OBS1-STATUS sentinel arrived within the row's 60s window and all four visibility predicates were false. That first fire was INVALIDATED by an agent-turn stall, not by row behavior: its bounded gateway-journal capture (14:42:41Z-14:43:45Z) contained zero proof-relevant lines, no assistant_output_started milestone exists anywhere in that window, and an '[agent/embedded] Codex parent-local egress workaround is unavailable' warning was logged 2s after dispatch. For comparison a later row in the same suite (R-RC-1) reached assistant_output_started in 11.3s. The row was refired once, alone, into a separate artifact root; it produced the complete sentinel in 22.2s with build=yes context=yes chain=yes route=yes. The prior FAIL is retained here as provenance and is not hidden."
+  }
 }

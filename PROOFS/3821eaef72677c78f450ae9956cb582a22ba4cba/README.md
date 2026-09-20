@@ -39,10 +39,10 @@ in `proofs-manifest.json::execution_runtime_provenance`.
 
 | state | rows |
 |---|---|
-| pass | 22 |
+| pass | 23 |
 | partial | 9 |
 | honest_limit | 1 |
-| fail | 1 |
+| fail | 0 |
 | missing | 5 |
 | **total required** | **38** |
 
@@ -58,7 +58,6 @@ a step this corpus has not had. Comparing the two rollups directly is not apples
 
 | row | state | note |
 |---|---|---|
-| R-OBS-1 | fail | only FAIL in the cycle; triage owed |
 | R-CD-2 | partial | `r-cd-2-authoritative-receipt.json` never written; trace receipts pending |
 | R-CD-4 | partial | child completed but no return observed in target or parent |
 | R-CD-CHAINED-DEPTH-2 | partial | |
@@ -71,6 +70,18 @@ a step this corpus has not had. Comparing the two rollups directly is not apples
 | R-RC-2 | honest_limit | the one closure the method sanctions |
 | R-CW-5 / R-CW-5A / R-CW-6 / R-CW-6A | missing | orchestration-required; excluded from the live-suite by design, provable only via their documented process-local isolated fixtures |
 | R-CD-RETURN-COVENANT-AUTHORITY | missing | not fired this cycle |
+
+## R-OBS-1 — disclosed refire
+
+R-OBS-1 **failed on its first fire and passed on one disclosed refire**, so its `pass` state does
+not rest on the original suite run. The first fire was invalidated by an agent-turn stall rather
+than by row behavior: its bounded journal capture held zero proof-relevant lines, no
+`assistant_output_started` milestone exists in that 60s window, and an `[agent/embedded] Codex
+parent-local egress workaround is unavailable` warning was logged 2s after dispatch — while a later
+row in the same suite reached `assistant_output_started` in 11.3s. The refire produced the complete
+sentinel in 22.2s with all four predicates true. Both run ids are recorded in the row's
+`PUBLIC-REVIEW.json`, in `proofs-manifest.json::refires`, and in the row's `test_cases_executed`.
+The earlier FAIL is retained as provenance, not discarded.
 
 ## Trace evidence
 

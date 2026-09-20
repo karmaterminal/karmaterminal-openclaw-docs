@@ -68,8 +68,9 @@ a step this corpus has not had. Comparing the two rollups directly is not apples
 | R-CW-DELEGATE-SELF-CONTINUATION | partial | |
 | R-CW-TOKEN | partial | |
 | R-RC-2 | honest_limit | the one closure the method sanctions |
-| R-CW-5 / R-CW-5A / R-CW-6 / R-CW-6A | missing | orchestration-required; excluded from the live-suite by design, provable only via their documented process-local isolated fixtures |
-| R-CD-RETURN-COVENANT-AUTHORITY | missing | not fired this cycle |
+| R-CW-5 / R-CW-6 | missing | `orchestration-required`; excluded from the live-suite by design, provable only via their documented process-local isolated fixtures (`run-cost-cap-fixture.mjs`, max-chain fixture) |
+| R-CW-5A / R-CW-6A | missing | `static-preflight-only`; these validate the **committed artifacts** of their live siblings, so they can only go green after R-CW-5/R-CW-6 fixture packets are committed. Derivative, not independent blockers. |
+| R-CD-RETURN-COVENANT-AUTHORITY | missing | `construct-only`; **has never passed in any corpus** — see provenance below |
 
 ## R-OBS-1 — disclosed refire
 
@@ -82,6 +83,35 @@ row in the same suite reached `assistant_output_started` in 11.3s. The refire pr
 sentinel in 22.2s with all four predicates true. Both run ids are recorded in the row's
 `PUBLIC-REVIEW.json`, in `proofs-manifest.json::refires`, and in the row's `test_cases_executed`.
 The earlier FAIL is retained as provenance, not discarded.
+
+## R-CD-RETURN-COVENANT-AUTHORITY — required-row provenance
+
+This row is recorded `missing` and its required-row status is **flagged for method review** rather
+than treated as a settled merge gate.
+
+- It originated on 2026-08-28 in a separate frond-scribe lane, in response to a **ClawSweeper review
+  comment on the presentation PR itself** (`openclaw/openclaw#129388`) — not from the continuation
+  feature's original acceptance method (docs #117/#118 and `PROOF-CORPUS-METHOD.md`).
+- Its authoring lane doc states plainly: *"No row manifest or pipeline entry is added in this lane"*
+  and that *"exact-head matrix execution and proof folding remain deferred until the product supplies
+  the fixture seam."*
+- It entered docs-main `required_rows` via PR #540 (`5831d6df`, 2026-09-05) by **inheriting a 38-row
+  baseline set wholesale**. That PR's body promotes three unrelated rows and states no producer
+  implementation is included; the widening of the required set from 37 to 38 was never separately
+  called out or approved.
+- PR #544 (`45d301cb`, 2026-09-19) catalogued it `construct-only` **only to unblock a fail-closed
+  manifest preflight**, and says in its own commit message that it records the row's state and does
+  not promote it.
+- It has **never passed**. Its single recorded attempt produced 0 of 24 observations because the
+  fixture gateway was not running for phase calls — a harness defect, not a product contradiction.
+
+The product seam this row would exercise already exists on this head
+(`src/auto-reply/continuation/return-covenant-fixture/`, plus
+`scripts/return-covenant-fixture-driver.mjs` and its `tsdown` entry), so closing the row is a
+**harness** project, not new product code. Per the canonical method, a never-passed row from a
+separate lane should stay outside `required_rows` unless the feature method and the maintainer
+explicitly adopt it. Because the request originated from ClawSweeper on this very PR, that adoption
+call belongs to the maintainer and is recorded here as open.
 
 ## Trace evidence
 

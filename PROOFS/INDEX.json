@@ -1,14 +1,14 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
-  "current_sha_short": "7cb9d71f",
+  "current_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "current_sha_short": "3821eaef",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw 2026.8.1 (7cb9d71f)",
-  "corpus_path": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/",
-  "manifest_path": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/proofs-manifest.json",
-  "readme_path": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/README.md",
+  "build_string": "OpenClaw composite carrier (1baff536) presenting 3821eaef",
+  "corpus_path": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/",
+  "manifest_path": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/proofs-manifest.json",
+  "readme_path": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/README.md",
   "clawsweeper_path": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/CLAWSSWEEPER.md",
   "entrypoints": {
     "clawsweeper": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/CLAWSSWEEPER.md",
@@ -24,14 +24,14 @@
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
     "total_rows": 38,
-    "pass": 31,
-    "partial": 3,
+    "pass": 23,
+    "partial": 9,
     "thin": 0,
-    "fail": 1,
-    "honest_limit": 0,
-    "missing": 3
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 5
   },
-  "disposition_note": "Exactly two exact-product rows promoted MISSING to PASS and one promoted MISSING to PARTIAL solely from independent manual review; all other row states are unchanged.",
+  "disposition_note": "Repointed to 3821eaef72677c78f450ae9956cb582a22ba4cba, which is the live head of openclaw/openclaw#129388 on the protected ref codeagent/85651-upstream-1ba243c8-gates. The previous pointer 7cb9d71f622250bedbf565e327bd7d7b9d90b567 is an EARLIER presentation of the same lineage and is retained on disk as provenance; leaving the index on a stale head is what makes reviewers report that the linked corpus belongs to earlier branch heads. READ THE AUTHORITY CAVEAT BEFORE COMPARING ROLLUPS: this corpus is CANDIDATE-ONLY and not acceptance-complete (23 pass, 9 partial, 1 honest_limit, 0 fail, 5 missing of 38; 14 rows block acceptance). Its verdicts come from one automated fire with no independent manual review, whereas 7cb9d71f622250bedbf565e327bd7d7b9d90b567 reported 31 pass partly through independent-manual-review promotions. The two rollups are therefore not directly comparable and no row here is promoted. Carrier: rows executed on the deployed composite 1baff536afa549fea75660403c453bbd265352c0 while the corpus presents the pure continuation head; exact_product_runtime=false, the presented SHA is a git ancestor of the composite, and the continuation surface is byte-identical between them. Ancillary: openclaw/openclaw#121204 and #124337 have their own light corpora under PR-121204/PROOFS/ and PR-124337/PROOFS/ keyed to their pure upstream heads; the fleet composite carries cherry-picked variants of both, so their verdicts are not interchangeable with this one.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
   "generated": "2026-09-05",
   "generated_by": "copilot-cli",
@@ -227,5 +227,7 @@
         }
       }
     }
-  }
+  },
+  "generated_at": "2026-09-20T15:21:11Z",
+  "previous_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567"
 }

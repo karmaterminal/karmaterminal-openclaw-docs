@@ -1,0 +1,75 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "035122431921a736cd007bb46b94b765f35a5b02",
+  "ship_sha": "035122431921a736cd007bb46b94b765f35a5b02",
+  "proof_source_sha": "035122431921a736cd007bb46b94b765f35a5b02",
+  "previous_pr_head_sha": "ba0f670a0959a9eeeb0b28ace59d3838079998b7",
+  "execution_runtime_sha": "035122431921a736cd007bb46b94b765f35a5b02",
+  "target_exact_execution": true,
+  "target_execution_receipt": "PR-121204/PROOFS/035122431921a736cd007bb46b94b765f35a5b02/vitest-own-tests.log",
+  "execution_runtime_provenance": {
+    "execution_runtime_sha": "035122431921a736cd007bb46b94b765f35a5b02",
+    "exact_product_runtime": true,
+    "runtime_source": "detached git worktree at the upstream PR head",
+    "dependency_bytes": "the PR changes zero dependency files, so the worktree reused the sibling checkout's installed workspace node_modules by symlink instead of a fresh pnpm install; dependency bytes are those of a normal install of this lockfile",
+    "materiality": "Evidence is confined to this PR's own bytes. The six-seat fleet composite 1baff536afa549fea75660403c453bbd265352c0 carries a cherry-picked variant with a different file set, so no fleet verdict is credited to this SHA."
+  },
+  "harness_docs_sha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "harness_path": "scripts/run-vitest.mjs",
+  "method": "Fetched pull/121204/head from openclaw/openclaw, created a detached worktree at 035122431921a736cd007bb46b94b765f35a5b02, and ran the 4 test files this PR touches through the repository's supported vitest lane. No assertion, timeout or baseline was modified.",
+  "proof_run": {
+    "seat": "ronan",
+    "generated": "2026-09-20T15:20:51Z",
+    "upstream_ci": {
+      "SKIPPED": 9,
+      "SUCCESS": 9
+    },
+    "upstream_ci_classification": "none"
+  },
+  "qualification": "Light proof load agreed for a small PR: the PR's own tests at its own pure head plus the upstream CI receipt. This corpus is NOT measured by the continuation 38-row k6 matrix, which belongs to the repository-root PROOFS/ corpora.",
+  "transpose": {
+    "carried_forward": false,
+    "note": "The earlier corpus at ba0f670a0959a9eeeb0b28ace59d3838079998b7 is diagnostic provenance only. Its rows were produced on a different composite and explicitly did not claim exact-target execution; they are not carried forward as proof for this SHA."
+  },
+  "pinned_floor_sha": null,
+  "required_rows": [
+    "OWN-TESTS-AT-PURE-HEAD"
+  ],
+  "dispatch_allocation": {
+    "ronan": [
+      "OWN-TESTS-AT-PURE-HEAD"
+    ]
+  },
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "row": "OWN-TESTS-AT-PURE-HEAD",
+      "title": "The PR's own 4 test files execute green at its exact pure head",
+      "owner": "ronan",
+      "state": "pass",
+      "dir": "PR-121204/PROOFS/035122431921a736cd007bb46b94b765f35a5b02",
+      "evidence_doc": "PR-121204/PROOFS/035122431921a736cd007bb46b94b765f35a5b02/README.md",
+      "summary": "53 tests across 2 vitest shards passed at 035122431921; every test file the PR touches was run.",
+      "test_cases_executed": [
+        "4 PR-owned test files",
+        "53 assertions green",
+        "run via scripts/run-vitest.mjs"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-121204/PROOFS/035122431921a736cd007bb46b94b765f35a5b02/vitest-own-tests.log",
+        "PR-121204/PROOFS/035122431921a736cd007bb46b94b765f35a5b02/upstream-ci-receipt.json",
+        "PR-121204/PROOFS/035122431921a736cd007bb46b94b765f35a5b02/diffstat.txt"
+      ],
+      "target_exact_execution": true
+    }
+  ]
+}

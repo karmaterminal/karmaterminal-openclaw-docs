@@ -1,0 +1,85 @@
+[test] starting test/vitest/vitest.unit-fast.config.ts
+ DEPRECATED  `experimental.fsModuleCache` is deprecated. Use the top-level `fsModuleCache` option instead.
+ DEPRECATED  `experimental.fsModuleCachePath` is deprecated. Use the top-level `fsModuleCachePath` option instead.
+ DEPRECATED  `experimental_defineCacheKeyGenerator` is deprecated. Use `defineCacheKeyGenerator` instead.
+
+ RUN  v5.0.0 <WORKTREES>/pr124337-proof
+
+ ✓ |unit-fast| src/channels/message/ingress-drain-lifecycle.test.ts > channel ingress drain lifecycle > binds only the reply-lane ownership surface 1ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:16:45
+   Duration  82ms (transform 45%, setup 37%, import 9%, tests 5%, worker 4%)
+
+[test] starting test/vitest/vitest.extension-msteams.config.ts
+ DEPRECATED  `experimental.fsModuleCache` is deprecated. Use the top-level `fsModuleCache` option instead.
+ DEPRECATED  `experimental.fsModuleCachePath` is deprecated. Use the top-level `fsModuleCachePath` option instead.
+ DEPRECATED  `experimental_defineCacheKeyGenerator` is deprecated. Use `defineCacheKeyGenerator` instead.
+
+ RUN  v5.0.0 <WORKTREES>/pr124337-proof
+
+extensions/anthropic/agent-sdk.runtime.ts (548:33) [33m[UNRESOLVED_IMPORT] [0mCould not resolve '@anthropic-ai/claude-agent-sdk' in extensions/anthropic/agent-sdk.runtime.ts
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m extensions/anthropic/agent-sdk.runtime.ts:548:34 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m548 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m{[0m[38;5;249m [0m[38;5;249mq[0m[38;5;249mu[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249my[0m[38;5;249m [0m[38;5;249m}[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249ma[0m[38;5;249mw[0m[38;5;249ma[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m([0m"@anthropic-ai/claude-agent-sdk"[38;5;249m)[0m[38;5;249m;[0m
+ [38;5;240m    │[0m                                  ────────────────┬───────────────  
+ [38;5;240m    │[0m                                                  ╰───────────────── Module not found, treating it as an external dependency
+[38;5;246m─────╯[0m
+
+[vitest-workers] prepared a3868fc6c288 in 3002ms (7495 inputs, 3312 outputs)
+ ✓ |extension-msteams| extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts > Microsoft Teams drain claim ownership > defers a claimed activity and binds completion to reply adoption 277ms
+ ✓ |extension-msteams| extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts > Microsoft Teams drain claim ownership > fans merged-flush adoption to every constituent claim 54ms
+ ✓ |extension-msteams| extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts > Microsoft Teams drain claim ownership > completes a gated no-dispatch turn instead of stalling its claim 54ms
+ ✓ |extension-msteams| extensions/msteams/src/monitor-handler/message-handler.ingress-lifecycle.test.ts > Microsoft Teams drain claim ownership > preserves abandon retry accounting, backoff, threshold, and restart behavior 360ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  08:16:46
+   Duration  27.33s (transform 83%, import 13%, tests 3%, worker 1%)
+
+[test] starting test/vitest/vitest.channels.config.ts
+ DEPRECATED  `experimental.fsModuleCache` is deprecated. Use the top-level `fsModuleCache` option instead.
+ DEPRECATED  `experimental.fsModuleCachePath` is deprecated. Use the top-level `fsModuleCachePath` option instead.
+ DEPRECATED  `experimental_defineCacheKeyGenerator` is deprecated. Use `defineCacheKeyGenerator` instead.
+
+ RUN  v5.0.0 <WORKTREES>/pr124337-proof
+
+ ✓ |channels| src/channels/message/ingress-drain.abandonment.test.ts > channel ingress drain abandonment > applies the failure disposition once per abandonment and stops at the threshold 284ms
+ ✓ |channels| src/channels/message/ingress-drain.cancellation.test.ts > channel ingress drain cancellation > cancels unadopted work without changing its retry facts 283ms
+ ✓ |channels| src/channels/message/ingress-drain.cancellation.test.ts > channel ingress drain cancellation > keeps mixed modern and legacy fan-in cancellation budget-free 125ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > crash-window: lost claim is recovered and dispatched exactly once 289ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > dispatches a resubmitted dead letter exactly once 153ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > complete-at-adoption: adoption tombstones; settle is not required 99ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > deferred holds claim without complete until adopted or abandoned 126ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > keeps the lane owned until a dead-letter write commits 98ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > keeps ownership when every dead-letter write fails 120ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > holds lanes by default and releases only opted-in deferred lanes 223ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > keeps heartbeat and watchdog ownership after releasing a deferred lane 104ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > applies retry, non-retryable, and retry-limit policy to deferred failures 196ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > protects and aborts released deferred claims until disposal 98ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > lets callers await an abandoned claim release 95ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > abandoned reply ownership releases claim with attempt increment 127ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > queued deferral -> admission completes the claim exactly once 103ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > supersede tombstones the superseded claim (never re-dispatches) 99ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > does not supersede without predicate 96ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > dead-letter needs both attempt floor and age (releases when age insufficient) 103ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > refreshes active claims on claimLeaseMs/3 while deferred 95ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > throws IngressAdoptionLostError when onAdopted races supersede 122ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > retries tombstone complete failures then commits 96ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > holds claim ownership when tombstone complete keeps failing 101ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > does not steal live peer-drain claims; recovers after owner abort 99ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > throws IngressAdoptionLostError when complete returns false (lease reclaimed) 99ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > exports default adoption stall matching Telegram product default 1ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > tombstone-fail after handler completed keeps ownership and never re-dispatches 97ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > refreshClaim false aborts the handler mid-dispatch (lease reclaimed) 99ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > late supersede predicate does not kill an adopted turn 201ms
+ ✓ |channels| src/channels/message/ingress-drain.test.ts > channel ingress drain > continues draining a backlog above SQLite's bind-variable ceiling 1057ms
+
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  08:17:14
+   Duration  6.40s (tests 43%, transform 27%, worker 24%, import 4%, setup 2%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 3 Vitest shards in 35.61s

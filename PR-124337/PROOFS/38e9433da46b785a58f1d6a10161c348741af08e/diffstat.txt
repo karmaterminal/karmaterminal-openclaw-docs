@@ -1,0 +1,9 @@
+ .../message-handler.ingress-lifecycle.test.ts      | 32 ++++++-----
+ .../message/ingress-drain-lifecycle.test.ts        |  6 ++-
+ src/channels/message/ingress-drain-lifecycle.ts    | 19 ++++++-
+ .../message/ingress-drain.abandonment.test.ts      | 63 ++++++++++++++++++++++
+ .../message/ingress-drain.cancellation.test.ts     | 45 ++++++++++++++++
+ src/channels/message/ingress-drain.test.ts         | 33 ------------
+ src/channels/message/ingress-drain.ts              | 19 ++++---
+ src/plugin-sdk/channel-ingress-runtime.ts          | 10 ++--
+ 8 files changed, 171 insertions(+), 56 deletions(-)

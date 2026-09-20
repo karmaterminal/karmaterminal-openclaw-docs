@@ -1,0 +1,16 @@
+ config/assertion-safety-baseline.txt               |   2 +-
+ docs/plugins/sdk-channel-outbound.md               |   6 +
+ extensions/discord/src/internal/client.ts          | 113 ++++-
+ .../src/internal/gateway-channel-inventory.test.ts |  57 +++
+ .../discord/src/monitor/ingress-stale-policy.ts    | 330 ++++++++++++++
+ extensions/discord/src/monitor/ingress.test.ts     | 499 ++++++++++++++++++++-
+ extensions/discord/src/monitor/ingress.ts          |  56 ++-
+ .../monitor/message-handler.preflight-helpers.ts   |  22 -
+ .../src/monitor/message-handler.preflight.ts       |   2 +-
+ .../src/monitor/message-handler.queue.test.ts      |   1 +
+ .../src/monitor/message-handler.raw-mention.ts     |  22 +
+ extensions/discord/src/monitor/message-handler.ts  |   5 +
+ .../ingress-drain-pending-disposition.test.ts      | 110 +++++
+ .../message/ingress-drain-pending-disposition.ts   |  72 +++
+ src/channels/message/ingress-drain.ts              |  20 +-
+ 15 files changed, 1261 insertions(+), 56 deletions(-)

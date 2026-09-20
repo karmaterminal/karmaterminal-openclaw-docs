@@ -1,0 +1,13 @@
+{
+  "schema": "openclaw.pr-proof.ci-receipt.v1",
+  "pr": 121204,
+  "pure_head_sha": "035122431921a736cd007bb46b94b765f35a5b02",
+  "pr_url": "https://github.com/openclaw/openclaw/pull/121204",
+  "title": "fix(discord): keep stale ambient backlog from starving live mentions after gateway recovery",
+  "upstream_check_tally": {
+    "SKIPPED": 9,
+    "SUCCESS": 9
+  },
+  "failing_check_names": [],
+  "failure_classification": "none"
+}

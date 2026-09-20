@@ -1,0 +1,90 @@
+[test] starting test/vitest/vitest.extension-discord.config.ts
+ DEPRECATED  `experimental.fsModuleCache` is deprecated. Use the top-level `fsModuleCache` option instead.
+ DEPRECATED  `experimental.fsModuleCachePath` is deprecated. Use the top-level `fsModuleCachePath` option instead.
+ DEPRECATED  `experimental_defineCacheKeyGenerator` is deprecated. Use `defineCacheKeyGenerator` instead.
+
+ RUN  v5.0.0 <WORKTREES>/pr121204-proof
+
+extensions/anthropic/agent-sdk.runtime.ts (548:33) [33m[UNRESOLVED_IMPORT] [0mCould not resolve '@anthropic-ai/claude-agent-sdk' in extensions/anthropic/agent-sdk.runtime.ts
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m extensions/anthropic/agent-sdk.runtime.ts:548:34 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m548 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m{[0m[38;5;249m [0m[38;5;249mq[0m[38;5;249mu[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249my[0m[38;5;249m [0m[38;5;249m}[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249ma[0m[38;5;249mw[0m[38;5;249ma[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m([0m"@anthropic-ai/claude-agent-sdk"[38;5;249m)[0m[38;5;249m;[0m
+ [38;5;240m    │[0m                                  ────────────────┬───────────────  
+ [38;5;240m    │[0m                                                  ╰───────────────── Module not found, treating it as an external dependency
+[38;5;246m─────╯[0m
+
+[vitest-workers] prepared 9b7562e26f56 in 3458ms (7504 inputs, 3314 outputs)
+ ✓ |extension-discord| extensions/discord/src/internal/gateway-channel-inventory.test.ts > resolves a real MESSAGE_CREATE channel from the gateway guild inventory 19ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > does not normalize or dispatch before the durable append completes 219ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > rejects unstable message identity before durable allocation 139ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > resets busy counters when the handler is created 5ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > starts a second same-session event while the first run is active 3ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > fans merged-turn adoption out to every debounced ingress claim 55ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > recovers a claimed row with a fresh drain and dispatches it exactly once 272ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > completes every debounced ingress claim when preflight gates the merged turn 53ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > returns retryable, never completed, for a dispatch after shutdown 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > reports a genuine pre-admission exception only through onFailed 1ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > cancels a buffered ingress claim during deactivation 1ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > settles every buffered claim when cancellation fan-in includes a legacy lifecycle 1ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > waits for an active debounce flush and cancels it after shutdown 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > waits for an active durable admission before stopping the drain 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > rejects a duplicate after completion 204ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > matches the old guard for duplicate MESSAGE_CREATE delivery during RESUME 155ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > dead-letters an exhausted preflight failure and releases its Discord lane 321ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > dead-letters a permanent Discord authentication failure 152ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > dead-letters an exhausted queued processing failure and releases its Discord lane 109ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > persists channel kind non-thread at durable admission 116ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > preserves retry facts when deactivation cancels a durable Discord claim 226ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > persists channel kind thread at durable admission 102ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > persists channel kind from the gateway channel inventory 141ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > preserves retry facts when a started durable Discord job returns after cancellation 212ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > fences stale ambient backlog before claim and keeps the disposition across restart 150ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > leaves malformed policy fields to claim-time failure while unrelated work drains 149ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > preserves retry facts when a started durable Discord job throws after cancellation 213ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > preserves retry facts when deactivation skips a queued durable Discord job 192ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > does not abort concurrent runs with a Discord-owned channel timeout 3ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > refreshes run activity while active runs are in progress 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > stops status publishing after lifecycle abort 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > stops status publishing after handler deactivation 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > removes lifecycle abort listeners after handler deactivation 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > preserves non-debounced message ordering by awaiting debouncer enqueue 2ms
+ ✓ |extension-discord| extensions/discord/src/monitor/message-handler.queue.test.ts > createDiscordMessageHandler queue behavior > reports a concurrent run failure without leaving busy state stuck 3ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps current ambient work claimable 154ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps direct work claimable 149ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps explicitly mentioned work claimable 151ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps thread work claimable 146ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps fully hydrated ordinary reply claimable 144ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps bound thread work claimable 144ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps unknown channel inventory work claimable 146ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps configured text mention claimable 144ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps provider-scoped identity mention claimable 171ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps identity-derived name mention claimable 146ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps identity-derived emoji mention claimable 146ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps everyone mention claimable 146ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > keeps audio-only configured mention candidate claimable 146ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > retains unresolved configured-guild cha… 167ms
+ ✓ |extension-discord| extensions/discord/src/monitor/ingress.test.ts > Discord durable ingress > disposes positively allowed configured-… 143ms
+
+ Test Files  3 passed (3)
+      Tests  50 passed (50)
+   Start at  08:17:45
+   Duration  26.62s (transform 56%, tests 30%, import 9%, worker 5%)
+
+[test] starting test/vitest/vitest.channels.config.ts
+ DEPRECATED  `experimental.fsModuleCache` is deprecated. Use the top-level `fsModuleCache` option instead.
+ DEPRECATED  `experimental.fsModuleCachePath` is deprecated. Use the top-level `fsModuleCachePath` option instead.
+ DEPRECATED  `experimental_defineCacheKeyGenerator` is deprecated. Use `defineCacheKeyGenerator` instead.
+
+ RUN  v5.0.0 <WORKTREES>/pr121204-proof
+
+ ✓ |channels| src/channels/message/ingress-drain-pending-disposition.test.ts > channel ingress pending disposition > settles stale policy rows before the existing candidate window 254ms
+ ✓ |channels| src/channels/message/ingress-drain-pending-disposition.test.ts > channel ingress pending disposition > keeps pending rows claimable when a channel does not provide policy 120ms
+ ✓ |channels| src/channels/message/ingress-drain-pending-disposition.test.ts > channel ingress pending disposition > fences a disposition CAS race without blocking unrelated lanes 118ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:18:12
+   Duration  3.27s (transform 50%, worker 26%, tests 15%, import 6%, setup 2%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 2 Vitest shards in 31.41s

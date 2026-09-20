@@ -4,6 +4,7 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { resolveAltModel, DEFAULT_ALT_MODEL } from '../lib/alt-model.js';
 
 export const options = {
   scenarios: { r_cd_model_chained_alt: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '240s' } },
@@ -17,7 +18,7 @@ const DEFAULTS = {
   sessionKey: 'main',
   seat: 'cael-dgx',
   delaySeconds: 1,
-  requestedModel: 'gpt',
+  requestedModel: DEFAULT_ALT_MODEL,
   idempotencyKeyPrefix: 'R-CD-MODEL-CHAINED-ALT',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -28,7 +29,7 @@ function invocationCfg() {
   const inv = manifest?.invocation || {};
   return {
     delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds),
-    requestedModel: __ENV.OPENCLAW_ALT_MODEL || inv.model || DEFAULTS.requestedModel,
+    requestedModel: resolveAltModel(__ENV, inv.model),
     idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix,
   };
 }

@@ -30,8 +30,8 @@
     "forms": [
       "typed-tool-depth1-spawns-depth2-model-override"
     ],
-    "model": "${OPENCLAW_ALT_MODEL:-gpt}",
-    "promptTemplate": "Proof nonce {{nonce}} depth-1: schedule one depth-2 continue_delegate with model=${OPENCLAW_ALT_MODEL:-gpt}; depth-2 reports current time, observed model/provider, and nonce. Do not mutate files.",
+    "model": "${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}",
+    "promptTemplate": "Proof nonce {{nonce}} depth-1: schedule one depth-2 continue_delegate with model=${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}; depth-2 reports current time, observed model/provider, and nonce. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-MODEL-CHAINED-ALT"
   },
   "expectedReceipts": [

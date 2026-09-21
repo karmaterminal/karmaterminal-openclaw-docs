@@ -1,14 +1,14 @@
 {
   "schema": "openclaw.proofs.index.v1",
   "purpose": "Top-level signpost for clawsweeper and humans: which PROOFS/<sha>/ corpus is current.",
-  "current_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
-  "current_sha_short": "3821eaef",
+  "current_sha": "a319b1aaa29ab50b67a3305b3d9431a899cee36e",
+  "current_sha_short": "a319b1aa",
   "static_evidence_sha": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
   "static_evidence_note": "Pinned historical static baseline used only by static-corpus validators; current candidate verdicts remain separately labeled.",
-  "build_string": "OpenClaw composite carrier (1baff536) presenting 3821eaef",
-  "corpus_path": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/",
-  "manifest_path": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/proofs-manifest.json",
-  "readme_path": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/README.md",
+  "build_string": "OpenClaw P89 continuation presented at a319b1aaa2 after three upstream absorbs; fleet still serving composite 1baff536af (divergent sibling, NOT an ancestor)",
+  "corpus_path": "PROOFS/a319b1aaa29ab50b67a3305b3d9431a899cee36e/",
+  "manifest_path": "PROOFS/a319b1aaa29ab50b67a3305b3d9431a899cee36e/proofs-manifest.json",
+  "readme_path": "PROOFS/a319b1aaa29ab50b67a3305b3d9431a899cee36e/README.md",
   "clawsweeper_path": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/CLAWSSWEEPER.md",
   "entrypoints": {
     "clawsweeper": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/CLAWSSWEEPER.md",
@@ -24,12 +24,12 @@
   "manifest_filename": "proofs-manifest.json",
   "rollup": {
     "total_rows": 38,
-    "pass": 23,
-    "partial": 9,
+    "pass": 0,
+    "partial": 0,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 1,
-    "missing": 5
+    "honest_limit": 0,
+    "not_fired_at_this_sha": 38
   },
   "disposition_note": "Repointed to 3821eaef72677c78f450ae9956cb582a22ba4cba, which is the live head of openclaw/openclaw#129388 on the protected ref codeagent/85651-upstream-1ba243c8-gates. The previous pointer 7cb9d71f622250bedbf565e327bd7d7b9d90b567 is an EARLIER presentation of the same lineage and is retained on disk as provenance; leaving the index on a stale head is what makes reviewers report that the linked corpus belongs to earlier branch heads. READ THE AUTHORITY CAVEAT BEFORE COMPARING ROLLUPS: this corpus is CANDIDATE-ONLY and not acceptance-complete (23 pass, 9 partial, 1 honest_limit, 0 fail, 5 missing of 38; 14 rows block acceptance). Its verdicts come from one automated fire with no independent manual review, whereas 7cb9d71f622250bedbf565e327bd7d7b9d90b567 reported 31 pass partly through independent-manual-review promotions. The two rollups are therefore not directly comparable and no row here is promoted. Carrier: rows executed on the deployed composite 1baff536afa549fea75660403c453bbd265352c0 while the corpus presents the pure continuation head; exact_product_runtime=false, the presented SHA is a git ancestor of the composite, and the continuation surface is byte-identical between them. Ancillary: openclaw/openclaw#121204 and #124337 have their own light corpora under PR-121204/PROOFS/ and PR-124337/PROOFS/ keyed to their pure upstream heads; the fleet composite carries cherry-picked variants of both, so their verdicts are not interchangeable with this one.",
   "navigation": "clawsweeper: read INDEX.json -> current_sha -> manifest_path -> rows[]",
@@ -228,6 +228,8 @@
       }
     }
   },
-  "generated_at": "2026-09-20T15:21:11Z",
-  "previous_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567"
+  "generated_at": "2026-09-21T05:22:13Z",
+  "previous_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "current_status": "STATIC_GATES_ONLY_NO_LIVE_ROWS_AT_THIS_SHA",
+  "current_status_note": "The presentation ref was fast-forwarded to a319b1aaa2 this cycle so upstream #129388 presents a mergeable head. The fleet runtime 1baff536af and a319b1aaa2 are divergent siblings (merge-base 3821eaef72, 13956 files differ), so no live behavioral row fired on the fleet is evidence for this SHA. Static gates ARE proven at this SHA: tsgo:core rc=0, pnpm lint rc=0, Gate 2.7 0 FROZEN-STALE / 0 MIXED-CLOBBER, mergeable against upstream/main. One known red: openclaw#1350 streamed-text offset contract, 6 assertions. Live rows are unblocked by a figs-gated redeploy onto a runtime that has this SHA as an ancestor."
 }

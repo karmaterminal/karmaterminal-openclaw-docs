@@ -1,0 +1,50 @@
+# mergeability + fast-forward safety receipts for a319b1aaa29ab50b67a3305b3d9431a899cee36e
+# captured 2026-09-21T05:19:58Z on ronan (aarch64)
+
+$ git rev-parse upstream/main
+41ee7fb2422bd7a0eea18f744dbfe075c9614db9
+
+$ git merge-tree --write-tree a319b1aaa29ab50b67a3305b3d9431a899cee36e upstream/main  # result tree, rc=0 means CLEAN
+dfb54c3e0dde9da1c70d87ac4dc8a2a71d600bbb
+rc=0
+
+$ git rev-list --count a319b1aaa29ab50b67a3305b3d9431a899cee36e..upstream/main   # upstream commits NOT absorbed
+0
+
+$ git merge-base --is-ancestor upstream/main a319b1aaa29ab50b67a3305b3d9431a899cee36e; echo $?   # 0 = upstream fully absorbed
+0
+
+== fast-forward safety gate, presentation ref ==
+$ git merge-base --is-ancestor 3821eaef72677c78f450ae9956cb582a22ba4cba a319b1aaa29ab50b67a3305b3d9431a899cee36e; echo $?   # 0 = pure fast-forward
+0
+
+$ git rev-list --count a319b1aaa29ab50b67a3305b3d9431a899cee36e..3821eaef72677c78f450ae9956cb582a22ba4cba   # commits lost by the ff, MUST be 0
+0
+
+$ git rev-list --count 3821eaef72677c78f450ae9956cb582a22ba4cba..a319b1aaa29ab50b67a3305b3d9431a899cee36e   # commits added by the ff
+484
+
+== presented vs fleet runtime ancestry (the honest limit on live rows) ==
+$ git merge-base --is-ancestor a319b1aaa29ab50b67a3305b3d9431a899cee36e 1baff536afa549fea75660403c453bbd265352c0; echo $?
+1
+$ git merge-base --is-ancestor 1baff536afa549fea75660403c453bbd265352c0 a319b1aaa29ab50b67a3305b3d9431a899cee36e; echo $?
+1
+$ git merge-base a319b1aaa29ab50b67a3305b3d9431a899cee36e 1baff536afa549fea75660403c453bbd265352c0
+3821eaef72677c78f450ae9956cb582a22ba4cba
+
+$ git diff --name-only 1baff536af a319b1aaa29ab50b67a3305b3d9431a899cee36e -- src/auto-reply/continuation/ src/infra/continuation-tracer.ts
+src/auto-reply/continuation/context-pressure.ts
+src/auto-reply/continuation/delegate-dispatch-post-compaction.test.ts
+src/auto-reply/continuation/delegate-dispatch.admission-reset-race.test.ts
+src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts
+src/auto-reply/continuation/delegate-dispatch.contract.test.ts
+src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts
+src/auto-reply/continuation/delegate-dispatch.fanout-error-isolation.test.ts
+src/auto-reply/continuation/delegate-dispatch.hedge-cleanup.test.ts
+src/auto-reply/continuation/delegate-dispatch.post-compaction-recovery.test.ts
+src/auto-reply/continuation/delegate-dispatch.recovery-1.test.ts
+src/auto-reply/continuation/delegate-dispatch.recovery-2.test.ts
+src/auto-reply/continuation/delegate-dispatch.spawn-failure-and-missing-target.test.ts
+src/auto-reply/continuation/delegate-dispatch.test.ts
+src/auto-reply/continuation/post-compaction-staged-dispatch.ts
+src/auto-reply/continuation/system-event-ownership.ts

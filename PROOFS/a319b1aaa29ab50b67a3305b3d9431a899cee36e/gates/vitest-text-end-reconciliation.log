@@ -1,0 +1,231 @@
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ × |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > delivers a replacement after its prior … 50ms
+   → expected [ 'First', 'First\nSecond' ] to deeply equal [ 'First', 'Second' ]
+ × |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > restarts when a retained native boundar… 6ms
+   → expected [ 'Use `', 'Use `\nOld' ] to deeply equal [ 'Use `', 'Old' ]
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > preserves an orphan-close replacement after a drained raw prefix at text_end 10ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > preserves an orphan-close replacement after a drained raw prefix at message_end 14ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint clears a withdrawn reply 4ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint retains text when the checkpoint is abs… 2ms
+ × |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves an earlier block when the las… 4ms
+   → expected { events: [ { …(2) } ], …(2) } to match object { events: [ { …(2) } ], …(2) }
+ × |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint corrects a later block without replayin… 3ms
+   → expected { events: [ { …(2) } ], …(2) } to match object { events: [ { …(2) } ], …(2) }
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint replaces a completed code prefix with r… 28ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > preserves delivered sentence chunks at a unchanged unphased checkpoint 3ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > preserves delivered sentence chunks at a shortened unphased checkpoint 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > preserves delivered sentence chunks at a corrected-tail unphased checkpoint 1ms
+ × |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > keeps native code continuation fenced after a shortened open-fence checkpoint 4ms
+   → expected [ '```txt\nabcdefghi\n```', …(4) ] to deeply equal [ '```txt\nabcdefghi\n```', …(3) ]
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > delivers an unphased block first seen at message_end with text already contained in the delivered… 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > delivers an unphased block first seen at message_end with identical text in distinct blocks 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > delivers an unphased block first seen at message_end with final tags spanning content blocks 3ms
+ × |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > does not read future blocks from shared mutable text_end partials 2ms
+   → expected [ 'First', 'First\nSecond' ] to deeply equal [ 'First', 'Second' ]
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves reasoning visibility 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves final-tag-only visibility 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves final-tag suppression 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves a reasoning tag split across native con… 3ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves a final tag split across native content… 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves literal tags inside a fence split acros… 3ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves a native block separator before a code … 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves prepared native block offsets after a r… 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves a reasoning tag completed only at messa… 1ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves a final tag completed only at message_e… 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves a fence completed only at message_end 4ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > does not append when text_end content i… 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > does not append when text_end content i… 1ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > appends suffix when text_end content ex… 1ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > sends only the suffix when text_end block replies grow across assistant messages 5ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > keeps a full later reply that shares a … 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > keeps a full post-tool reply when the p… 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > keeps a full post-tool reply when the s… 2ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > does not safety-send a cumulative text_end reply when the suffix was sent by a messaging tool 306ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end replay de-duplication > preserves split reply directives after a delivered chunk through text_end 3ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end replay de-duplication > preserves split reply directives after a delivered chunk through checkpoint text_end 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end replay de-duplication > preserves split reply directives after a delivered chunk through message_end 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end replay de-duplication > does not duplicate when text_end repeats full content 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end replay de-duplication > does not duplicate block chunks when text_end repeats full content 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > assistant snapshot replay > does not emit duplicate block replies when text_end repeats 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > assistant snapshot replay > does not duplicate assistantTexts when … 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > assistant snapshot replay > does not duplicate assistantTexts when … 1ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > assistant snapshot replay > does not duplicate assistantTexts when … 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > assistant snapshot replay > keeps the completed assistant independent from transcript mutation 2ms
+ ✓ |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > assistant snapshot replay > populates assistantTexts for non-streaming models with chunking enabled 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > delivers a replacement after its prior …
+AssertionError: expected [ 'First', 'First\nSecond' ] to deeply equal [ 'First', 'Second' ]
+
+- Expected
++ Received
+
+  [
+    "First",
+-   "Second",
++   "First
++ Second",
+  ]
+
+ ❯ src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts:<redacted len=5>
+     68|         end(texts, contentIndex);
+     69|         await subscription.waitForPendingEvents();
+     70|         expect(extractTextPayloads(onBlockReply.mock.calls)).toEqual(t…
+       |                                                              ^
+     71|       }
+     72|       end([scenario.prefix, ""], 1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > restarts when a retained native boundar…
+AssertionError: expected [ 'Use `', 'Use `\nOld' ] to deeply equal [ 'Use `', 'Old' ]
+
+- Expected
++ Received
+
+  [
+    "Use `",
+-   "Old",
++   "Use `
++ Old",
+  ]
+
+ ❯ src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts:<redacted len=5>
+     68|         end(texts, contentIndex);
+     69|         await subscription.waitForPendingEvents();
+     70|         expect(extractTextPayloads(onBlockReply.mock.calls)).toEqual(t…
+       |                                                              ^
+     71|       }
+     72|       end([scenario.prefix, ""], 1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint preserves an earlier block when the las…
+AssertionError: expected { events: [ { …(2) } ], …(2) } to match object { events: [ { …(2) } ], …(2) }
+
+- Expected
++ Received
+
+@@ -1,10 +1,12 @@
+  {
+    "assistantTexts": [
+      "First.",
++     "First.",
+    ],
+    "blocks": [
++     "First.",
+      "First.",
+    ],
+    "events": [
+      {
+        "data": {
+
+ ❯ src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts:<redacted len=6>
+    255|         blocks: extractTextPayloads(onBlockReply.mock.calls),
+    256|         assistantTexts: subscription.assistantTexts,
+    257|       }).toMatchObject({
+       |          ^
+    258|         events:
+    259|           finalBlock === undefined
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > unphased terminal checkpoint corrects a later block without replayin…
+AssertionError: expected { events: [ { …(2) } ], …(2) } to match object { events: [ { …(2) } ], …(2) }
+
+- Expected
++ Received
+
+@@ -1,13 +1,15 @@
+  {
+    "assistantTexts": [
+      "First",
+-     "Corrected",
++     "First
++ Corrected",
+    ],
+    "blocks": [
+      "First",
+-     "Corrected",
++     "First
++ Corrected",
+    ],
+    "events": [
+      {
+        "data": {
+          "delta": "",
+
+ ❯ src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts:<redacted len=6>
+    255|         blocks: extractTextPayloads(onBlockReply.mock.calls),
+    256|         assistantTexts: subscription.assistantTexts,
+    257|       }).toMatchObject({
+       |          ^
+    258|         events:
+    259|           finalBlock === undefined
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > keeps native code continuation fenced after a shortened open-fence checkpoint
+AssertionError: expected [ '```txt\nabcdefghi\n```', …(4) ] to deeply equal [ '```txt\nabcdefghi\n```', …(3) ]
+
+- Expected
++ Received
+
+@@ -10,6 +10,10 @@
+  lmnopqrst
+  ```",
+    "```txt
+  uvwxyz
+  ```",
++   "```txt
++ abc
++ defghijklmnopqrstuvwxyz
++ ```",
+  ]
+
+ ❯ src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts:<redacted len=6>
+    413|       emit({ type: "message_end", message: createUnphasedAssistant([sh…
+    414|       await subscription.waitForPendingEvents();
+    415|       expect(extractTextPayloads(onBlockReply.mock.calls)).toEqual(del…
+       |                                                            ^
+    416|       expect(onBlockReply).toHaveBeenCalledTimes(delivered.length);
+    417|     } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |agents-core| src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts > text_end snapshot reconciliation > does not read future blocks from shared mutable text_end partials
+AssertionError: expected [ 'First', 'First\nSecond' ] to deeply equal [ 'First', 'Second' ]
+
+- Expected
++ Received
+
+  [
+    "First",
+-   "Second",
++   "First
++ Second",
+  ]
+
+ ❯ src/agents/embedded-agent-subscribe.subscribe-embedded-agent-session.text-end-reconciliation.test.ts:<redacted len=6>
+    521|         }
+    522|         await subscription.waitForPendingEvents();
+    523|         expect(extractTextPayloads(onBlockReply.mock.calls)).toEqual(e…
+       |                                                              ^
+    524|         expect(subscription.assistantTexts).toEqual(expected);
+    525|         expect(onAgentEvent.mock.calls.at(-1)?.[0]).toMatchObject({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 41 passed (47)
+   Start at  22:06:13
+   Duration  21.17s (transform 70%, import 14%, worker 13%, tests 2%)
+

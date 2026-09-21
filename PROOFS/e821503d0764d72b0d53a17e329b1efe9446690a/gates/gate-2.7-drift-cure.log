@@ -1,0 +1,11 @@
+drift-cure-gate: 6d65c8b7f2  HEAD=HEAD  base=6d65c8b7f2  PRcreate=6d65c8b7f2
+files examined: 843
+
+  GENUINE        468
+  SAFE-NEW       375
+
+== FROZEN-STALE (high-confidence pure clobber; re-sync to upstream) ==
+
+== MIXED-CLOBBER (ranked by dropped post-fork upstream lines; triage top-down) ==
+
+full TSV: ./gate-out/classification.tsv

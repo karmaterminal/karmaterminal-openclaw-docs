@@ -1,0 +1,2 @@
+continuation guard call-sites OK: 22 pinned call site(s) across 11 guard(s).
+rc=0

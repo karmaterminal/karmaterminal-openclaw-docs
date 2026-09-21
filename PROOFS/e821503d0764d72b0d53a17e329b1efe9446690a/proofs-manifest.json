@@ -1,0 +1,123 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "presented_sha": "e821503d0764d72b0d53a17e329b1efe9446690a",
+  "presented_sha_short": "e821503d",
+  "prior_presented_sha": "ebcc116058f4a2ff87398a47ca2794bf7d408e40",
+  "upstream_base_absorbed": "6d65c8b7f229641bf9b32e16da2c0fec1b64079f",
+  "upstream_main_at_publication": "13370789ba48545cb3a1a91a8fba55441e8870f3",
+  "upstream_commits_ahead": 8,
+  "fleet_runtime_at_publication": "1baff536afa549fea75660403c453bbd265352c0",
+  "exact_product_runtime": false,
+  "carrier_note": "Fleet serves composite 1baff536af, a divergent sibling of the presented SHA (merge-base 3821eaef7267). The composite carrying this SHA is 803b29339d36b0aa7a61a87cb725b906e7ea582b: built and pushed, not deployed. Rows are NOT marked PARTIAL for this; the carrier fact is recorded here per standing direction.",
+  "status": "STATIC_GATES_ONLY",
+  "mergeable_vs_current_upstream": true,
+  "diff_vs_merge_base": {
+    "files": 844,
+    "insertions": 141340,
+    "deletions": 4286
+  },
+  "rows": [
+    {
+      "id": "gate-tsgo-core",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "gates/gate-tsgo-core.log"
+    },
+    {
+      "id": "gate-tsgo-scripts",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "gates/gate-tsgo-scripts.log"
+    },
+    {
+      "id": "gate-format-check",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "gates/gate-format-check.log",
+      "detail": "43281 files"
+    },
+    {
+      "id": "gate-lint",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "gates/gate-lint.log",
+      "detail": "0 error-level findings"
+    },
+    {
+      "id": "gate-continuation-guard-callsites",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "gates/gate-continuation-guard-callsites.log",
+      "detail": "22 pinned call sites across 11 guards"
+    },
+    {
+      "id": "gate-2.7-drift-cure",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "gates/gate-2.7-drift-cure.log",
+      "detail": "843 files: 468 GENUINE, 375 SAFE-NEW, 0 FROZEN-STALE, 0 MIXED-CLOBBER"
+    },
+    {
+      "id": "mergeability",
+      "kind": "static",
+      "verdict": "pass",
+      "evidence": "mergeability/ancestry-and-mergeability.log",
+      "detail": "merge-tree --write-tree rc=0"
+    },
+    {
+      "id": "affected-surface-116",
+      "kind": "local-test",
+      "verdict": "fail-known",
+      "evidence": "gates/vitest-affected-surface-116-files.log",
+      "detail": "15 failures, zero new, all proven pre-existing at the pre-absorb base"
+    },
+    {
+      "id": "bytewalk-gateway-server-isolated",
+      "kind": "comparison",
+      "verdict": "not-us",
+      "evidence": [
+        "gates/bytewalk-gateway-server-isolated-OURS.log",
+        "gates/bytewalk-gateway-server-isolated-NAIVE-UPSTREAM.log"
+      ],
+      "detail": "naive upstream 16 failed/41 passed/6 skipped; ours 8 failed/55 passed; ours-only failure set EMPTY",
+      "caveat": "upstream reported 6 skipped where ours reported 0; unexplained"
+    },
+    {
+      "id": "bytewalk-seven-shared-files",
+      "kind": "comparison",
+      "verdict": "mixed",
+      "evidence": [
+        "gates/bytewalk-seven-shared-files-OURS.log",
+        "gates/bytewalk-seven-shared-files-NAIVE-UPSTREAM.log"
+      ],
+      "detail": "naive upstream 12 failed/87 passed; ours 5 failed/97 passed"
+    },
+    {
+      "id": "live-continuation-rows",
+      "kind": "behavioural",
+      "verdict": "not-run",
+      "evidence": null,
+      "detail": "Requires a deployed composite carrying this SHA. Blocked: one seat has an abandoned git index in its runtime checkout; the other five need a dispatching identity."
+    }
+  ],
+  "rollup": {
+    "static_pass": 7,
+    "local_test_known_fail": 1,
+    "comparison": 2,
+    "behavioural_not_run": 1
+  },
+  "ci_attribution": {
+    "source_run": "karmaterminal/openclaw-bootstrap actions run 35636916001",
+    "distinct_failing_files": 17,
+    "absorb_caused_fixed_in_this_sha": 1,
+    "tracked_1350": 2,
+    "newly_filed_1361": 1,
+    "not_us": 2,
+    "ours_pre_existing": 11,
+    "absorb_caused_unfixed": 0
+  },
+  "upstream_ci_status": {
+    "ran": false,
+    "reason": "openclaw/security-sensitive-review and openclaw/ci-gate both report 'A maintainer must approve the current PR revision'. Triggered by diff paths in upstream .github/security-review-policy.yml (src/gateway/server-http.ts named at line 54). Re-arms on every push."
+  }
+}

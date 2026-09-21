@@ -1,0 +1,234 @@
+Plugin "vitest:mocks:interceptor" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > rejects model-selection-locked parent context 23ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > rejects a newer locked parent alias shadowed by a stale canonical row 230ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > forks the active parent branch into SQLite and persists the child entry 2269ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > marks the child as handled when the SQLite parent is over the fork limit 74ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > skips stale-token SQLite parents using transcript usage estimates 105ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > does not reconstruct SQLite parent context from billing buckets when context is unavailable 65ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > uses exact SQLite context usage instead of stale cached totals 70ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > forks retained messages without reviving their usage before compaction 88ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > forks retained messages without reviving their usage before reset 87ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > rejects post-usage transcript growth with freshness false and selected side append false 81ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/auto-reply/reply/session-fork.test.ts: draining agent database custody {"databases":11,"leases":11,"pending":0,"activePending":0,"retainedCloses":0,"resources":0,"closing":0,"selections":0}
+
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > rejects post-usage transcript growth with freshness true and selected side append false 111ms
+ ✓ |auto-reply| src/auto-reply/reply/session-fork.test.ts > forkSessionEntryFromParent > rejects post-usage transcript growth with freshness true and selected side append true 86ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/auto-reply/reply/session-fork.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/auto-reply/reply/session-fork.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > counts ended orchestrators with active descendants as active 2215ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > dedupes stale rows in the verbose subagent status summary 68ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > does not count a child session that moved to a newer parent in the old parent's status 63ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > counts controller-owned runs even when the latest child requester differs 65ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > includes active and total task counts for the current session 68ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > isolates global task status for research 61ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > isolates global task status for ops 63ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > hides stale completed task rows from the session task line 65ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > shows blocked completion outcomes when no active tasks remain 75ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > does not leak internal runtime context through the task status line 64ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > truncates long task titles and details in the session task line 60ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > prefers failure context over newer success context when showing recent failures 67ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > falls back to same-agent task counts without details when the current session has none 61ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses transcript usage fallback in /status output 3177ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses a prepared context window in ordinary /status text and presentation 2285ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > binds a bare transcript model to its pr… 1244ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > binds a qualified transcript model to i… 2874ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > keeps a cross-route qualified transcrip… 2778ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > ignores stale live contextTokens when /status displays the current default model 2473ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > shows gateway and system uptime in /status output 99ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > renders compact plugin health from the runtime snapshot 67ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > gates /status plugins behind the plugin command flag 57ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > shows the effective non-OpenClaw embedded harness in /status 70ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses Codex OAuth auth labels for openai models running on the Codex harness 372ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > does not read a legacy native credential file from an SDK status render 403ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses Codex usage for bare codex models running on the Codex harness 316ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > forwards a selected OpenAI profile to Codex synthetic usage 340ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > loads Codex synthetic usage when no local OpenAI profile label exists 395ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > does not forward stale non-OpenAI profile overrides to Codex usage 354ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses active fallback provider usage for legacy fallback notices 215ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses live runtime context for unresolved active fallback notices 222ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > shows DeepSeek balance summaries in /status output 77ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > shows typed billing-only snapshots in /status output 62ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses the session-selected model provider for /status usage 182ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses the session-selected provider for /status usage when runtime state is stale 207ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses provider-qualified model overrides for /status usage lookup 365ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses Codex OAuth auth labels for explicit OpenAI OpenClaw auth order 2440ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses native Claude CLI auth labels for anthropic models running on the Claude CLI runtime 399ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > prefers active native Claude CLI auth over selected env API-key labels for runtime aliases 213ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses Codex OAuth context overrides for openai models running on the Codex harness 65ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > caps stale persisted /status context limits with the active Codex runtime window 67ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > uses workspace-scoped auth evidence in /status auth labels 212ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > keeps /status on an explicit OpenClaw runtime override after config changes 67ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > shows the effective Luna thinking level for a pinned Codex runtime 67ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > clamps off to the active provider's always-thinking level 69ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > treats the persisted harness id as observational in /status 64ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply subagent summary > labels a divergent locked harness as an active session pin in /status 66ms
+ × |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusText continuation line > shows continuation line when continuation is enabled 192ms
+   → Task registry restore failed: Shared-state admission requires the host broker
+ × |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusText continuation line > does not show continuation line when continuation is disabled 133ms
+   → Task registry restore failed: Shared-state admission requires the host broker
+ × |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusText continuation line > renders delegate and post-compaction counts correctly 151ms
+   → Task registry restore failed: Shared-state admission requires the host broker
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply error handling > delivers a fixed generic reply and logs details when status rendering throws 3ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply error handling > keeps the structured rich payload on the success path 2ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply error handling > returns a generic reply and logs details when plugin health collection fails 3ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply > shows per-agent thinkingDefault in the status card 24ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply > shows per-agent fallback overrides in the status card 133ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply > keeps default fallback config when the agent has no explicit model 134ms
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply > keeps agent primary strict when the agent has no explicit fallback override 136ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/auto-reply/reply/commands-status.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/auto-reply/reply/commands-status.test.ts: retiring openclaw.agentDatabaseLifecycle
+[sqlite-test-lifecycle] src/auto-reply/reply/commands-status.test.ts: retiring openclaw.sqliteWorkerBroker
+[sqlite-test-lifecycle] src/auto-reply/reply/commands-status.test.ts: retiring openclaw.sharedStateWorkerOwner
+
+ ✓ |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusReply > treats an explicit empty per-agent fallback override as disabling inherited fallbacks 133ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > classifies activation after first-use database creation (agent=main, changed=none) 1989ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > classifies activation after first-use database creation (agent=verification, changed=none) 1808ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > classifies activation after first-use database creation (agent=main, changed=shared) 1822ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > classifies activation after first-use database creation (agent=main, changed=agent) 1832ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > retains the backup across migrated finalization (readiness pending=true, status=skipped) 179ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > retains the backup across migrated finalization (readiness pending=false, status=error) 126ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > retains the backup across migrated finalization (readiness pending=true, status=error) 128ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > refuses state inspection when activation leaves no known runtime root 3ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > accepts applied shared content through activation (alreadyApplied=false, published=false) 1601ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > accepts applied shared content through activation (alreadyApplied=true, published=false) 1669ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > accepts applied shared content through activation (alreadyApplied=true, published=true) 1707ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=false, legacy=false, parentOwns=false, foreground=undefined, retained=undefined, original=undefined, check=undefined, budget=undefined) 3990ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=false, parentOwns=true, foreground=undefined, retained=undefined, original=undefined, check=undefined, budget=undefined) 3756ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=false, legacy=true, parentOwns=true, foreground=undefined, retained=undefined, original=undefined, check=undefined, budget=undefined) 1944ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=true, parentOwns=true, foreground=true, retained=undefined, original=undefined, check=undefined, budget=undefined) 1798ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=false, parentOwns=true, foreground=undefined, retained=true, original=undefined, check=undefined, budget=undefined) 3729ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=true, parentOwns=true, foreground=undefined, retained=true, original=undefined, check=undefined, budget=undefined) 1964ms
+ × |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=false, parentOwns=true, foreground=undefined, retained=true, original=true, check=undefined, budget=undefined) 3670ms
+   → expected [ { …(6) } ] to deep equally contain ObjectContaining{…}
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=false, parentOwns=true, foreground=undefined, retained=undefined, original=undefined, check=31000, budget=120000) 3680ms
+ ✓ |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=false, parentOwns=true, foreground=undefined, retained=undefined, original=undefined, check=31000, budget=20000) 862ms
+ ✓ |extension-database-workers| extensions/codex/src/app-server/event-projector.output-fidelity.native.test.ts > native Codex tool response fidelity > preserves the native exec response with max_output_tokens=<redacted len=23>
+ ✓ |extension-database-workers| extensions/codex/src/app-server/event-projector.output-fidelity.native.test.ts > native Codex tool response fidelity > preserves the native exec response with max_output_tokens=<redacted len=23>
+ ✓ |gateway-core| src/gateway/worker-environments/workspace-large-inventory.test.ts > recovers the shipped v1 full tree while applying only changed entries 1253ms
+ ✓ |gateway-core| src/gateway/worker-environments/workspace-large-inventory.test.ts > recovers a converged shipped v1 deletion above the historical 25,000-record limit 2298ms
+ ✓ |gateway-core| src/gateway/worker-environments/workspace-large-inventory.test.ts > stages a directory-only v2 result above 25,000 reconciliation records 793ms
+ ✓ |gateway-core| src/gateway/worker-environments/workspace-large-inventory.test.ts > stages, applies, and recovers 13,000 modified files through a serialized journal 24278ms
+ ✓ |gateway-core| src/gateway/worker-environments/workspace-large-inventory.test.ts > stages only a one-file delta for a 31,274-entry Git baseline 3784ms
+ ✓ |gateway-server (gateway-server) (gateway-server-native)| src/gateway/server.startup-fixture-lifetime.test.ts > startup fixture ownership: public clean cleanup 30049ms
+ ✓ |gateway-server (gateway-server) (gateway-server-native)| src/gateway/server.startup-fixture-lifetime.test.ts > startup fixture ownership: public required cleanup failure 6525ms
+ ✓ |gateway-server (gateway-server) (gateway-server-native)| src/gateway/server.startup-fixture-lifetime.test.ts > startup fixture ownership: kernel required cleanup failure 6336ms
+stderr | src/gateway/server.startup-fixture-lifetime.test.ts > retains shared code when a native fixture has no worker join receipt
+Retained unjoined native Gateway fixture: /tmp/gateway-fixture-receipt-probe-KMsNu3/gateway-close-fork-Hi4Imj
+
+ ✓ |gateway-server (gateway-server) (gateway-server-native)| src/gateway/server.startup-fixture-lifetime.test.ts > retains shared code when a native fixture has no worker join receipt 429ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/gateway/server-runtime-services.delivery-recovery.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/gateway/server-runtime-services.delivery-recovery.test.ts: retiring openclaw.sharedStateWorkerOwner
+[sqlite-test-lifecycle] src/gateway/server-runtime-services.delivery-recovery.test.ts: retiring openclaw.sqliteWorkerBroker
+[sqlite-test-lifecycle] src/gateway/server-runtime-services.delivery-recovery.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ × |gateway-server (gateway-server) (gateway-server-parallel)| src/gateway/server-runtime-services.delivery-recovery.test.ts > recovers a watcher-owned update notice on its runtime state after ambient root drift 2468ms
+   → [vitest] No "scheduleSessionDelivery" export is defined on the "../infra/session-delivery-queue-runtime.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |cli-process| src/cli/update-cli/update-command-migrated.test.ts > fences migrated candidate finalization (json=true, legacy=false, parentOwns=true, foreground=undefined, retained=true, original=true, check=undefined, budget=undefined)
+AssertionError: expected [ { …(6) } ] to deep equally contain ObjectContaining{…}
+
+- Expected:
+ObjectContaining {
+  "cwd": "/tmp/migrated-update-6gSAcU/service-A",
+  "exitCode": 1,
+  "name": "original-managed-service-compensation",
+}
+
++ Received:
+[
+  {
+    "command": "openclaw gateway restart --preserve-definition",
+    "cwd": "/tmp/migrated-update-6gSAcU/service-A",
+    "durationMs": 0,
+    "exitCode": 1,
+    "name": "original managed service compensation",
+    "stderrTail": "Original managed service compensation was not verified; package and current state were retained.",
+  },
+]
+
+ ❯ src/cli/update-cli/update-command-migrated.test.ts:617:35
+    615|     });
+    616|     if (original) {
+    617|       expect(result.result.steps).toContainEqual(
+       |                                   ^
+    618|         expect.objectContaining({
+    619|           name: "original-managed-service-compensation",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |gateway-server (gateway-server) (gateway-server-parallel)| src/gateway/server-runtime-services.delivery-recovery.test.ts > recovers a watcher-owned update notice on its runtime state after ambient root drift
+Error: [vitest] No "scheduleSessionDelivery" export is defined on the "../infra/session-delivery-queue-runtime.js" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("../infra/session-delivery-queue-runtime.js"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ src/auto-reply/continuation/work-terminal-notice.ts:71:3
+     69| const defaultDeps: ContinuationWorkTerminalNoticeDeps = {
+     70|   enqueueSessionDeliveryWithStatus,
+     71|   scheduleSessionDelivery,
+       |   ^
+     72|   enqueueSystemEvent,
+     73|   requestHeartbeatNow,
+ ❯ src/auto-reply/continuation/work-dispatch-execution.ts:27:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusText continuation line > shows continuation line when continuation is enabled
+ FAIL  |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusText continuation line > does not show continuation line when continuation is disabled
+ FAIL  |auto-reply| src/auto-reply/reply/commands-status.test.ts > buildStatusText continuation line > renders delegate and post-compaction counts correctly
+Error: Task registry restore failed: Shared-state admission requires the host broker
+ ❯ Object.failTaskRegistryRestore [as fail] src/tasks/task-registry-state.ts:417:24
+    415|   }
+    416|   const message = formatErrorMessage(error);
+    417|   const restoreError = new Error(`Task registry restore failed: ${mess…
+       |                        ^
+    418|   taskRegistryRestoreState = { status: "failed", error: restoreError, …
+    419|   // Compact console logs omit structured metadata, so keep the reject…
+ ❯ src/tasks/task-registry-restore.ts:206:19
+ ❯ ensure src/tasks/task-registry-restore.ts:229:7
+ ❯ prepareTaskRegistryReadOwner src/tasks/task-registry-read.ts:146:19
+ ❯ prepareTaskRegistryRead src/tasks/task-registry-read.ts:192:17
+ ❯ readTaskStatusSnapshots src/tasks/task-status-access.ts:39:16
+ ❯ buildStatusReplyParts src/status/status-text.ts:511:25
+ ❯ Module.buildStatusText src/status/status-text.ts:263:11
+ ❯ src/auto-reply/reply/commands-status.test.ts:2333:18
+
+Caused by: SqliteWorkerError: Shared-state admission requires the host broker
+ ❯ openSharedStateSqliteWorkerStore src/infra/sqlite-worker-store.ts:221:7
+ ❯ src/state/openclaw-state-worker-store.ts:473:13
+ ❯ runInDetachedAsyncContext src/shared/async-work-scope.ts:172:31
+ ❯ Object.open src/state/openclaw-state-worker-store.ts:472:20
+ ❯ runAdmittedOpenClawStateWorkerOperation src/state/openclaw-state-worker-store.ts:629:33
+ ❯ runTaskFlowRestoreWorkerOperation src/tasks/task-flow-restore-store.ts:69:19
+ ❯ src/tasks/task-registry-restore.ts:177:11
+ ❯ ensure src/tasks/task-registry-restore.ts:229:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'unavailable' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+ Test Files  3 failed | 4 passed (7)
+      Tests  5 failed | 97 passed (102)
+   Start at  13:38:44
+   Duration  217.24s (tests 65%, transform 27%, import 5%, worker 1%)
+
+OURS rc=1

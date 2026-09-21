@@ -1,0 +1,17 @@
+=== identity ===
+presented: e821503d0764d72b0d53a17e329b1efe9446690a
+prior presented: ebcc116058f4a2ff87398a47ca2794bf7d408e40
+prior-prior: 139e3657b1fd5e53166789b8676f18578e209393
+upstream base absorbed: 6d65c8b7f229641bf9b32e16da2c0fec1b64079f
+upstream/main at publication: 13370789ba48545cb3a1a91a8fba55441e8870f3
+upstream ahead of presented: 8
+fleet runtime at publication: 1baff536afa549fea75660403c453bbd265352c0
+=== mergeability ===
+merge-tree vs current upstream/main rc=0 (0 = MERGEABLE)
+=== ancestry ===
+prior presented is ancestor: yes (genuine ff)
+commits added by the ff: 2
+composite 0b26a6a92d intact: yes
+merge-base with fleet runtime: 3821eaef7267
+=== diff size vs merge-base with upstream ===
+844 files changed, 141340 insertions(+), 4286 deletions(-)

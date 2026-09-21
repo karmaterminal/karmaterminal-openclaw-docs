@@ -1,0 +1,334 @@
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send recovers a settled failure 32105ms
+   → expected 'AuthProfileStoreUnreadableError: Auth…' to contain 'controlled settled failure'
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send leaves active siblings alone 3830ms
+   → expected 'AuthProfileStoreUnreadableError: Auth…' to contain 'controlled settled failure'
+ ✓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send preserves a fresh CLI reply across a pr… 7732ms
+stderr | src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send ends a resumed CLI stall at the normal …
+Embedded agent failed before reply: CLI produced no output for 40s and was terminated.
+
+ ✓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send ends a resumed CLI stall at the normal … 2383ms
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send reloads a healthy thread 4112ms
+   → expected { …(4) } to match object { status: 'ok' }
+(3 matching properties omitted from actual)
+stderr | src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send counts a short process pause against th…
+Embedded agent failed before reply: CLI produced no output for 40s and was terminated.
+
+ ✓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send counts a short process pause against th… 2915ms
+stderr | src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send preserves the total active budget witho…
+Embedded agent failed before reply: CLI exceeded timeout (40s) and was terminated.
+
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves an idle Incognito sibling 4421ms
+   → expected { …(4) } to match object { status: 'ok' }
+(3 matching properties omitted from actual)
+ ✓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send preserves the total active budget witho… 2376ms
+stderr | src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send keeps the quiet deadline when output pr…
+Embedded agent failed before reply: CLI produced no output for 40s and was terminated.
+
+ ✓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send keeps the quiet deadline when output pr… 2096ms
+ ✓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send still allows chat.abort to cancel the a… 1249ms
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cold resumes an idle persistent sibling 4595ms
+   → expected { …(4) } to match object { status: 'ok' }
+(3 matching properties omitted from actual)
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send waits for physical exit before recovery 3861ms
+   → expected 'AuthProfileStoreUnreadableError: Auth…' to contain 'controlled settled failure'
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cancels during physical exit without re… 3784ms
+   → expected 'AuthProfileStoreUnreadableError: Auth…' to contain 'controlled settled failure'
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves its binding when physical exi… 3850ms
+   → expected 'AuthProfileStoreUnreadableError: Auth…' to contain 'controlled settled failure'
+stderr | src/gateway/server.chat.canonical-publication.test.ts > chat.send preserves canonical sanitized message publication through chat.history and artifacts.download
+[tools] message failed: Current-source media could not be staged.
+⚠️ missing.txt: File not found. Check the path and try again. raw_params={"action":"send","message":"<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nBOOT.md:\nPrivate synthetic instruction.\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>","media":"/tmp/openclaw-canonical-display-TsJhHS/workspace/missing.txt","filename":"proof.txt","contentType":"text/plain"}
+
+ ✓ |gateway-server-isolated| src/gateway/server.chat.canonical-publication.test.ts > chat.send preserves canonical sanitized message publication through chat.history and artifacts.download 16907ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.test.ts > moves an offline device with a result a…, completes a fresh turn, and archives deletion 12131ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send keeps native account history when a sav… > preserves account selection and session history 20348ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token with… > preserves account selection and session history 7361ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.test.ts > recovers persisted abandonment after da…, completes a fresh turn, and archives deletion 10250ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token sele… > preserves account selection and session history 7620ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.test.ts > recovers persisted abandonment with a d…, completes a fresh turn, and archives deletion 7774ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send honors an explicit empty CLI account or… > preserves account selection and session history 6017ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send leaves native authentication in charge … > preserves account selection and session history 6417ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > persists config health in the isolated Gateway process 2250ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > does not start a Gateway after CLI auth fixture acquisition is cancelled 338ms
+ ✓ |gateway-server-isolated| src/gateway/server.encrypted-tool-continuation.test.ts > chat.send retains only matching encrypted tool state across real reads and reasoning visibility 12949ms
+stderr | src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download
+[tools] message failed: message.send buffer has invalid base64 data raw_params={"action":"send","message":"<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nBOOT.md:\nWake up and report.\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>","buffer":"%%%","filename":"proof.txt","contentType":"text/plain"}
+
+stderr | src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download
+[tools] message failed: Media too large: 2048 bytes (limit: 1024 bytes) raw_params={"action":"send","message":"Delivery: Final assistant text is not automatically delivered in this run. Use the `message` tool to send user-visible output.","buffer":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA…
+
+stderr | src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download
+[tools] message failed: Current-source media could not be staged.
+⚠️ private.txt: Delivery failed. Try sending this file again. raw_params={"action":"send","message":"<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nBOOT.md:\nWake up and report.\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>","media":"/tmp/openclaw-message-buffer-sFnHXl/private.txt","filename":"proof.txt","contentType":"text/plain"}
+
+ ✓ |gateway-server-isolated| src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download 15758ms
+stderr | src/gateway/server.xai-fallback.test.ts > chat.send preserves xAI rejection priority and recovers statusless failures
+Embedded agent failed before reply: ⚠️ xai/grok-4.6 request failed (provider internal error). This is usually temporary — try again shortly.
+
+ ✓ |gateway-server-isolated| src/gateway/server.labs-hot-reload.test.ts > applies all Labs switches through config.patch without restarting the Gateway 6786ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.lifecycle.test.ts > abandonment fixture joins canceled startup and teardown before admitting another case 23ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after continuation 8172ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after fallback 2838ms
+stderr | src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after terminal
+Embedded agent failed before reply: All models failed (2): openai/terminal: unknown: Internal server error (timeout) | openai/terminal-fallback: unknown: Internal server error (timeout) | ⚠️ openai/terminal-fallback request failed (request timed out). This is usually temporary — try again shortly.
+
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after terminal 4644ms
+ ✓ |gateway-server-isolated| src/gateway/server.xai-fallback.test.ts > chat.send preserves xAI rejection priority and recovers statusless failures 50746ms
+stderr | src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after no-fallback
+Embedded agent failed before reply: ⚠️ openai/no-fallback request failed (request timed out). This is usually temporary — try again shortly.
+
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after no-fallback 3646ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves hidden heartbeat tool suppression (false) 6ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves hidden heartbeat tool suppression (true) 0ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves run verbosity until a newer session preference replaces it 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves heartbeat final ACK/alert policy after cleanup (HEARTBEAT_OK) 4ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves heartbeat final ACK/alert policy after cleanup (HEARTBEAT_OK Service outage requires ac…) 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > keeps heartbeat alias suppression separate from source flags (false) 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > keeps heartbeat alias suppression separate from source flags (undefined) 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > uses the selected agent for newer global-session verbosity 1ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after settled-write 5873ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact reports initial transcript read failures as unavailable 2049ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact reports model compaction transcript re-read failures as unavailable 1427ms
+stderr | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+Embedded agent failed before reply: LLM request timed out.
+
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact maxLines reports transcript preflight read failures as unavailable 1110ms
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"started-text","status":"error","stopReason":"error","requests":1,"toolResults":0,"content":[{"type":"text","text":"⚠️ LLM request failed (request timed out). This is usually temporary — try again shortly.\n\nPartial answer"}]}
+
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact keeps an empty transcript as a successful no-op (maxLines=undefined) 1094ms
+stderr | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+Embedded agent failed before reply: LLM request timed out.
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"sealed-text","status":"error","stopReason":"error","requests":1,"toolResults":0,"content":[{"type":"text","text":"⚠️ LLM request failed (request timed out). This is usually temporary — try again shortly.\n\nPartial answer"}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"started-tool","status":"error","stopReason":"error","requests":4,"toolResults":0,"content":[{"type":"text","text":"The agent run failed before producing a reply."}]}
+
+stderr | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+Embedded agent failed before reply: LLM request timed out.
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"sealed-tool","status":"error","stopReason":"error","requests":1,"toolResults":0,"content":[{"type":"text","text":"⚠️ LLM request failed (request timed out). This is usually temporary — try again shortly."}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"complete-text","status":"ok","stopReason":"stop","requests":1,"toolResults":0,"content":[{"type":"text","text":"COMPLETE_REPLY_MARKER"}]}
+
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact keeps an empty transcript as a successful no-op (maxLines=50) 1094ms
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"compatible-text","status":"ok","stopReason":"stop","requests":1,"toolResults":0,"content":[{"type":"text","text":"COMPLETE_REPLY_MARKER"}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"compatible-tool","status":"ok","stopReason":"stop","requests":2,"toolResults":1,"content":[{"type":"text","text":"COMPLETE_REPLY_MARKER"}]}
+
+ ✓ |gateway-server-isolated| src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns 16683ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > checks the exact configured execution target for {"provider":"fixture","model":"literal"} 276ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > checks the exact configured execution target for {"model":"fixture/literal"} 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves an explicit API owner without configured model rows for {"provider":"fixture","model":"literal"} 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves an explicit API owner without configured model rows for {"model":"fixture/literal"} 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { provider: 'fixture', …(1) } with chained aliases=false 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { model: 'fixture/literal' } with chained aliases=false 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { provider: 'fixture', …(1) } with chained aliases=true 0ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { model: 'fixture/literal' } with chained aliases=true 0ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > allows an explicitly permitted configured literal without applying its runtime alias 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > rejects a replaced configuration before admitting its prepared override 0ms
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[openclaw] tightened permissions on temp dir: /tmp/openclaw-test-home-5CxEPz/.cache/openclaw
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 20ms[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 57ms[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive 3320ms
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 11ms[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 55ms[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive 2518ms
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[33m[shutdown][39m [36mcompleted cleanly in 46ms[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state 1976ms
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[33m[shutdown][39m [33mfailed in 29ms[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [31mshutdown step failed (gateway close): Plugin runtime still owns resources; inspect cleanup failures before retrying Gateway close. | native agent database close failed[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[33m[shutdown][39m [33mfailed in 2ms[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [31mshutdown step failed (gateway close): Plugin runtime still owns resources; inspect cleanup failures before retrying Gateway close. | native agent database close failed[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease 1696ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send recovers a settled failure
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send leaves active siblings alone
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send waits for physical exit before recovery
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cancels during physical exit without re…
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves its binding when physical exi…
+AssertionError: expected 'AuthProfileStoreUnreadableError: Auth…' to contain 'controlled settled failure'
+
+Expected: "controlled settled failure"
+Received: "AuthProfileStoreUnreadableError: Auth profile store ~/state/agents/main/agent/openclaw-agent.sqlite is unreadable; run openclaw doctor --fix."
+
+ ❯ src/gateway/server.codex-failure-recovery.test.ts:361:29
+    359|     expect(settled).toMatchObject({ status: failFirst ? "error" : "ok"…
+    360|     if (failFirst) {
+    361|       expect(settled.error).toContain("controlled settled failure");
+       |                             ^
+    362|     }
+    363|     const previous = await ready(first.runId);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send reloads a healthy thread
+AssertionError: expected { …(4) } to match object { status: 'ok' }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "ok",
++   "status": "error",
+  }
+
+ ❯ src/gateway/server.codex-failure-recovery.test.ts:359:21
+    357|     const first = await start("Remember HISTORY_ALPHA.", "first");
+    358|     const settled = await wait(first.runId);
+    359|     expect(settled).toMatchObject({ status: failFirst ? "error" : "ok"…
+       |                     ^
+    360|     if (failFirst) {
+    361|       expect(settled.error).toContain("controlled settled failure");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves an idle Incognito sibling
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cold resumes an idle persistent sibling
+AssertionError: expected { …(4) } to match object { status: 'ok' }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "ok",
++   "status": "error",
+  }
+
+ ❯ src/gateway/server.codex-failure-recovery.test.ts:354:38
+    352|       }
+    353|       const idle = await start("Remember IDLE_SIBLING_CONTEXT.", "idle…
+    354|       expect(await wait(idle.runId)).toMatchObject({ status: "ok" });
+       |                                      ^
+    355|       idleThread = await ready(idle.runId);
+    356|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+
+ Test Files  1 failed | 15 passed (16)
+      Tests  8 failed | 55 passed (63)
+   Start at  12:58:19
+   Duration  205.44s (tests 89%, import 6%, transform 5%)
+
+OURS rc=1 (124=timeout/hang)

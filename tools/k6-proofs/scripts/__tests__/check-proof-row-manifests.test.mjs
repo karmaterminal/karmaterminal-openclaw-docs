@@ -36,12 +36,19 @@ function run(root) {
 }
 
 test('ignores proof-corpus support directories while checking real rows', async () => {
-  await withFixture({ rows: ['R-OK', 'artifacts', 'gates'] }, async (root) => {
-    const result = run(root);
-    assert.equal(result.status, 0, result.stderr || result.stdout);
-    assert.match(result.stdout, /Proof rows: 1/);
-    assert.match(result.stdout, /Missing manifests: 0/);
-  });
+  // Every support directory the documented corpus shape allows, not just the two
+  // that happened to be listed. `cure-bytes` and `mergeability` were missing from
+  // SUPPORT_DIRECTORIES, and because this validator is run-proofs.sh's catalog
+  // preflight, either one failed closed and blocked every runnable row.
+  await withFixture(
+    { rows: ['R-OK', 'artifacts', 'gates', 'cure-bytes', 'mergeability'] },
+    async (root) => {
+      const result = run(root);
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+      assert.match(result.stdout, /Proof rows: 1/);
+      assert.match(result.stdout, /Missing manifests: 0/);
+    },
+  );
 });
 
 test('fails closed for missing, invalid, and duplicate manifests', async (t) => {

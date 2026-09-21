@@ -17,7 +17,16 @@ const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
 const indexPath = path.join(root, 'PROOFS', 'INDEX.json');
 const manifestsDir = proofsToolPath(root, 'manifests');
 const failures = [];
-const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates']);
+// Non-row directories a proof corpus may carry. These are NOT proof rows and must
+// never be required to have a manifest entry. Kept in sync with the corpus shape in
+// openclaw-bootstrap RUNBOOKS/PROOF-CORPUS-METHOD.md, which documents `gates/` and
+// `cure-bytes/` alongside the row directories.
+//
+// A missing entry here is not cosmetic: this validator is a catalog preflight for
+// run-proofs.sh, so one unlisted support directory fails closed and blocks EVERY
+// runnable row before any of them fires. `cure-bytes` (11 corpora) and
+// `mergeability` (3) were both absent, so any corpus carrying them could not run.
+const SUPPORT_DIRECTORIES = new Set(['artifacts', 'gates', 'cure-bytes', 'mergeability']);
 
 if (!existsSync(indexPath)) failures.push(`missing ${indexPath}`);
 if (!existsSync(manifestsDir)) failures.push(`missing ${manifestsDir}`);

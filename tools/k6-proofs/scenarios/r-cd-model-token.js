@@ -4,6 +4,7 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { resolveAltModel, DEFAULT_ALT_MODEL } from '../lib/alt-model.js';
 
 export const options = {
   scenarios: { r_cd_model_token: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -13,7 +14,7 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_model_token_duration');
 const manifest = loadManifestFromEnv();
-const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 1, requestedModel: 'gpt', idempotencyKeyPrefix: 'R-CD-MODEL-TOKEN', taskNamePrefix: 'r-cd-model-token' };
+const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 1, requestedModel: DEFAULT_ALT_MODEL, idempotencyKeyPrefix: 'R-CD-MODEL-TOKEN', taskNamePrefix: 'r-cd-model-token' };
 const HARNESS_MARKER = '[k6-proof-harness]';
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_TOKEN_EVIDENCE_DELAY_MS || 1500);
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
@@ -21,7 +22,7 @@ function invocationCfg() {
   const inv = manifest?.invocation || {};
   return {
     delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELEGATE_DELAY_SECONDS ?? DEFAULTS.delaySeconds),
-    requestedModel: __ENV.OPENCLAW_ALT_MODEL || inv.model || DEFAULTS.requestedModel,
+    requestedModel: resolveAltModel(__ENV, inv.model),
     idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix,
     taskNamePrefix: inv.taskNamePrefix || DEFAULTS.taskNamePrefix,
     lightContext: inv.lightContext !== false,
@@ -95,7 +96,14 @@ export default function () {
               if (eventStr.includes('MODEL-TOKEN-PARENT-SPAWNED') || eventStr.includes('sessions_spawn') || eventStr.includes('childSessionKey')) { evidence.subagent_spawn_accepted = true; console.log('✓ parent sessions_spawn acceptance signal observed'); }
               if (eventStr.includes('MODEL-TOKEN-HOP1 ' + rowNonce) || eventStr.includes('[[CONTINUE_DELEGATE:') || eventStr.includes('bracket')) { evidence.bracket_token_observed = true; console.log('✓ bracket-token child turn observed'); }
               if (eventStr.includes('model=' + evidence.requested_model_byte)) { evidence.bracket_model_modifier_observed = true; console.log('✓ bracket model modifier observed'); }
-              if (eventStr.includes('MODEL-TOKEN-DELEGATE-DONE ' + rowNonce)) {
+              // The scenario AUTHORS a child task (line ~58) that contains the dispatch
+              // bracket, the DONE sentinel and the model string, so any event echoing that
+              // prompt satisfies return_payload and model_matches without a delegate ever
+              // running. Observed 2026-09-20: this row reported PASS-candidate with ZERO
+              // delegate-spawned lines in its gateway journal. A genuine delegate RESULT
+              // never carries the dispatch bracket, so require its absence.
+              const isAuthoredPromptEcho = eventStr.includes('[[CONTINUE_DELEGATE:');
+              if (!isAuthoredPromptEcho && eventStr.includes('MODEL-TOKEN-DELEGATE-DONE ' + rowNonce)) {
                 evidence.child_session_observed = true; evidence.return_payload = true;
                 const m = eventStr.match(/MODEL ([A-Za-z0-9_.\/-]+)/);
                 if (m) evidence.child_model_byte = m[1];

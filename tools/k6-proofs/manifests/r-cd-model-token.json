@@ -30,8 +30,8 @@
     "forms": [
       "bracket-token-model-override"
     ],
-    "model": "${OPENCLAW_ALT_MODEL:-gpt}",
-    "tokenTemplate": "[[CONTINUE_DELEGATE: Proof nonce {{nonce}}: report observed provider/model and nonce only. Do not mutate files. | silent-wake | model=${OPENCLAW_ALT_MODEL:-gpt}]]",
+    "model": "${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}",
+    "tokenTemplate": "[[CONTINUE_DELEGATE: Proof nonce {{nonce}}: report observed provider/model and nonce only. Do not mutate files. | silent-wake | model=${OPENCLAW_ALT_MODEL:-openai/gpt-5.6-luna}]]",
     "idempotencyKeyPrefix": "R-CD-MODEL-TOKEN",
     "delaySeconds": 1,
     "taskNamePrefix": "r-cd-model-token"

@@ -158,6 +158,11 @@ function buildResult(manifest, env = process.env, requireLock = false) {
     lockLabel: lockRequired ? `${rowId}:${resolvedSession}` : '',
     sessionLockPath: lockRequired ? `/tmp/openclaw-k6-session-${sessionLockHash}.lock` : '',
     sessionLockLabel: lockRequired ? `session:${resolvedSession}` : '',
+    // The manifest is the declaration of record for WHICH scenario proves a row.
+    // Several rows are proved by the shared static-corpus-row-validator rather
+    // than by a same-named scenario file, so a runner that resolves by row name
+    // alone silently runs the wrong scenario (or reports the row unimplemented).
+    scenarioFile: typeof manifest.scenario?.file === 'string' ? manifest.scenario.file : '',
   };
 }
 
@@ -193,6 +198,7 @@ if (args.mode === 'json') {
   console.log(`K6_PROOF_LOCK_REASON=${shellQuote(result.lockRequiredReason)}`);
   console.log(`K6_PROOF_SESSION_LOCK_PATH=${shellQuote(result.sessionLockPath)}`);
   console.log(`K6_PROOF_SESSION_LOCK_LABEL=${shellQuote(result.sessionLockLabel)}`);
+  console.log(`K6_PROOF_SCENARIO_FILE=${shellQuote(result.scenarioFile)}`);
 } else {
   console.log(`live-run safety OK: ${result.rowId} (${result.classification}, expected ${result.expectedArtifactClass})`);
   if (result.lockRequired) {

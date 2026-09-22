@@ -1,0 +1,8 @@
+product_pr_sha=b958ca22efd5e67de16746d1341d6bea7c594847
+composite_parent_sha=310252733a626568c98071bdaf9ee09dbdf38a88
+proof_composite_sha=0dec285645550f6ca4d2da0cb0153ee95acf9f6a
+product_pr_ancestor=yes
+composite_parent_ancestor=yes
+ .../src/monitor/ingress-stale-direct-config.test.ts    | 18 +++++++++---------
+ extensions/discord/src/monitor/ingress.ts              |  6 ++++--
+ 2 files changed, 13 insertions(+), 11 deletions(-)

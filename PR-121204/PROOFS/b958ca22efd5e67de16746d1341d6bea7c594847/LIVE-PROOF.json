@@ -1,0 +1,46 @@
+{
+  "product_sha": "b958ca22efd5e67de16746d1341d6bea7c594847",
+  "execution_sha": "0dec285645550f6ca4d2da0cb0153ee95acf9f6a",
+  "composite_parent_sha": "310252733a626568c98071bdaf9ee09dbdf38a88",
+  "runtime": {
+    "head_matches_build_info": true,
+    "package_dist_count": 16,
+    "gateway_health": 200,
+    "agent_schema": 17,
+    "agent_quick_check": "ok",
+    "ingress_quick_check": "ok"
+  },
+  "stale_suppression": {
+    "source_event_id": "1536809450147422268",
+    "received_at": "2026-08-13T16:00:03.471Z",
+    "age_ms": 969152,
+    "threshold_ms": 900000,
+    "attempts_before": 7,
+    "attempts_after": 7,
+    "status": "failed",
+    "reason": "stale-ambient-backlog",
+    "journal_receipt": "discord ingress stale ambient backlog suppressed"
+  },
+  "fresh_addressed_contrast": {
+    "request_id": "1537503743359189128",
+    "response_id": "1537503822341996666",
+    "response_contract_matched": true,
+    "ingress_status": "completed",
+    "attempts": 0,
+    "latency_seconds": 27
+  },
+  "typed_continue_work": {
+    "request_id": "1537505186363351201",
+    "response_id": "1537505290818162739",
+    "response_contract_matched": true,
+    "trace_origin": "tool-call",
+    "trace_kind": "work"
+  },
+  "bracket_continue_work": {
+    "request_id": "1537506217407156295",
+    "response_id": "1537506337150210168",
+    "trace_origin": "none",
+    "trace_kind": "none",
+    "proof_credit": false
+  }
+}

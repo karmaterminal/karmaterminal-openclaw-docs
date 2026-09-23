@@ -1,0 +1,26 @@
+Plugin "vitest:mocks:interceptor" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > persists exact-registration rollback custody even after cleanup ownership flips 135ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > rejects rollback custody when the registration identity no longer matches 2ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > restores same-id and older kill state after task registration throws 83ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > restores a same-id run when initial registration persistence fails 79ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > surfaces task registration and rollback persistence failures together 84ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > retains exact rollback authority when registration survives and termination is incomplete 126ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > preserves a restored same-id predecessor after failed replacement registration 80ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > attempts external cleanup without a rollback marker when no durable row survives 74ms
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > fails closed when registration ownership is unknown at the pipeline boundary 78ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/agents/subagent-registry-registration-rollback.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/agents/subagent-registry-registration-rollback.test.ts: retiring openclaw.sharedStateWorkerOwner
+[sqlite-test-lifecycle] src/agents/subagent-registry-registration-rollback.test.ts: retiring openclaw.sqliteWorkerBroker
+[sqlite-test-lifecycle] src/agents/subagent-registry-registration-rollback.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ ✓ |agents-core| src/agents/subagent-registry-registration-rollback.test.ts > subagent registration rollback > keeps normal registration and rollback exactly once 87ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  23:45:52
+   Duration  6.39s (transform 45%, import 34%, tests 13%, worker 6%, setup 1%)
+

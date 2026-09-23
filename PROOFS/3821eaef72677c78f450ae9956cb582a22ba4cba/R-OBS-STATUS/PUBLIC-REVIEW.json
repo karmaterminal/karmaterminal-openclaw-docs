@@ -1,0 +1,51 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-OBS-STATUS",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PASS-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-obs-status-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-OBS-STATUS",
+    "candidate_sha": "1baff536afa549fea75660403c453bbd265352c0",
+    "source_repository": "karmaterminal/openclaw",
+    "source_path": "src/status/status-continuation-line.ts",
+    "source_fetch_ok": true,
+    "source_sha256": "96370622632121bc109e61d93e649c9fde8a55dbcf692754fe5e2556cb0176e7",
+    "formatter_extracted": true,
+    "active_continuation_line_present": true,
+    "clean_session_continuation_line_absent": true,
+    "ended": "2026-09-20T14:44:00.411Z",
+    "duration_ms": 5
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T144356Z-r-obs-status-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "f248b81ce5922f52aaf75b2d000e0a1fd82bd8af383c59e64518d9684ac676c4",
+  "privateRowArtifactFileCount": 20,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-OBS-STATUS/ronan/20260920T144356Z-r-obs-status-743bccb7/"
+}

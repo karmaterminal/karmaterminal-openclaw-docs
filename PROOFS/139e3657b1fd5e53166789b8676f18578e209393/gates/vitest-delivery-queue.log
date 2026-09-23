@@ -1,0 +1,133 @@
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dedupes entries when an idempotency key is reused 1984ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > projects generic queue attachments to descriptor-only metadata before persistence 1029ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > scrubs widened generic attachment metadata during pending recovery 1019ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > requires exact generic metadata kinds and strict generic payload shapes during recovery 1059ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > fails closed for untrusted trace context and malformed continuation triggers 966ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > fails a managed delegate return whose durable receipt and projection disagree 7ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > grants one initial-attempt lease and releases it for recovery 946ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > reports a dead-letter conflict instead of claiming it as pending 1008ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > lets an explicit enqueue replace a deleted ordinary failure 1022ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > never revives a failed permanent producer intent 1062ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > reports a completed conflict after acknowledgement 1087ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > persists retry metadata and retains acked idempotency tombstones 1065ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > does not charge a retry through a retired worker admission 1124ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > persists only canonical relative post-compaction mount hints 1084ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > rejects one-sided post-compaction source metadata before persistence 1149ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters noncanonical recovered post-compaction mount hints and scrubs them 1110ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > normalizes empty post-compaction attachments to absence 1184ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > advances only the agent run attempt and can focus its retry media 1064ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > rejects invalid post-compaction snapshot bytes before durable enqueue 1067ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > rejects oversized serialized snapshot metadata before queue persistence 981ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters invalid post-compaction JSON without retaining raw bytes 1009ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters invalid generic JSON without retaining raw bytes 1009ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters post-compaction snapshots that fail byte-level attachment validation 1000ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters raw post-compaction snapshots when entry_kind is missing or stale 987ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > accepts generic descriptor attachment refs without widening them to inline input 986ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters empty or widened generic blob descriptors before returning them 983ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters seeded generic inline attachments before they can be returned 1001ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters malformed post-compaction attachment members without retaining content 1066ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > dead-letters post-compaction rows that violate live queue semantics 1008ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > retains ambiguous attempt ownership and clears it only for a safe retry 1016ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > records which agent run attempt consumed retry budget 988ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > persists agent-loop routing and provenance for restart replay 1049ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > moves entries into completed idempotency state 1077ms
+ ✓ |infra| src/infra/session-delivery-queue.storage.test.ts > session-delivery queue storage > retains a permanent completion receipt 1122ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > replays and acks pending entries on recovery 1446ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > replays continuation trigger and trusted trace exactly once after restart 1240ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > does not deliver seeded generic rows containing inline attachment bytes 1273ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > dead-letters recovered post-compaction rows with one-sided source metadata 1420ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > dead-letters invalid recovered mount hints without delivering or retaining snapshots 1234ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > scrubs post-compaction snapshots before retrying settlement cleanup 1236ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > lets the delivery owner persist its fence at the side-effect boundary 1068ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > retries settlement cleanup without replaying a delivered side effect 1057ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > retries dead-letter cleanup without replaying an ambiguous agent turn 1029ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > cleans an acknowledged tombstone without replaying delivery 1103ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > drains an exhausted acknowledged tombstone without replay or backoff 1051ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > paces startup replay for multiple eligible session deliveries 1054ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > counts replay pacing against the session recovery budget 1099ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > defers recovery when the recovery budget would exceed the date range 1117ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > keeps failed entries queued with retry metadata for later recovery 1054ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > leaves pre-dispatch failures retryable without claiming side-effect ownership 1066ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > releases attempt ownership only for an explicitly safe retry 1044ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > defers active agent ownership without consuming retry budget 1054ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > does not charge retry budget twice after a charged transition failure 1264ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > does not report an explicitly dead-lettered delivery as recovered 1141ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > uses the entry retry budget when draining entries 1210ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > settles entries moved to failed after drain retry exhaustion 1064ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > settles entries moved to failed after startup retry exhaustion 1169ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > reconciles an accepted agent turn before runtime retry exhaustion 1027ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > reconciles an accepted agent turn before startup retry exhaustion 1044ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > dead-letters a started agent turn after its bounded reconciliation fails 1030ms
+ ✓ |infra| src/infra/session-delivery-queue.recovery.test.ts > session-delivery queue recovery > skips entries queued after the startup recovery cutoff 1045ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > loadDeliveryQueueEntry > returns null for a row with corrupted entry_json 178ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > loadDeliveryQueueEntry > returns the entry for valid JSON 78ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > loadDeliveryQueueEntry > returns null for a nonexistent entry 76ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > loadDeliveryQueueEntries > skips corrupt rows, returns only valid entries 102ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > loadDeliveryQueueEntries > returns empty array when all rows are corrupt 122ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > loadDeliveryQueueEntries > returns all entries when all rows are valid 80ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > counts pending rows across only the selected namespaces 78ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > reads ownership without materializing unrelated queue payloads 76ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > updateDeliveryQueueEntry with corrupt row > throws ENOENT (unrecoverable corrupt JSON) 96ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > upsert then load is identity 79ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > indexes canonical outbound delivery metadata 76ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > indexes canonical routed session delivery metadata 79ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > indexes canonical context-only session delivery metadata 77ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > preserves explicit queue metadata ownership 78ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > indexes ordinary staged outbound commits 78ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > indexes cross-namespace staged outbound commits 73ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > update increments retry count 76ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > delete removes the entry 79ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > complete retains an idempotency tombstone outside pending reads 1068ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > bounds cron completion receipts without pruning pending or other owners 80ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > expires only the bounded producer namespace after its replay window 79ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > expires a lone bounded receipt during its own indexed replay lookup 83ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > preserves a bounded receipt beyond the ordinary thirty-day cleanup window 77ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > rejects invalid bounded completion ownership before acknowledging a send 78ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > atomically reserves one pristine pending platform send across queue owners 75ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > atomically upgrades a legacy live reuse claim to renewable ownership 75ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > recovers an expired pre-provider producer lease without claiming platform delivery 74ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > renews the exact unexpired explicit owner in producer_claimed 77ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > renews the exact unexpired explicit owner in send_attempt_started 74ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > renews the exact unexpired explicit owner in unknown_after_send 74ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > refuses to renew expired, mismatched, and non-explicit owners 78ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > fences a reconciled not-sent retry to its exact platform attempt generation 72ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > rejects stale reconciliation when two platform attempts start in the same millisecond 77ms
+ ✓ |infra| src/infra/delivery-queue-sqlite.test.ts > delivery-queue-sqlite corrupt JSON resilience > valid entry round-trips > never prunes a permanent producer receipt 78ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > rejects mismatched terminal custody before creating state 24ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > expires a bounded failed fence during its exact replay lookup 112ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > bounds failed producer fences without pruning siblings or permanent owners 82ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > groups backfilled bounded count limits by queue and producer prefix during exact lookup 80ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > groups backfilled bounded count limits by queue and producer prefix during global cleanup 74ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > keeps health reads immutable and expires tombstones during maintenance 1076ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > reports no failed queues when retained entries are pending 1049ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > counts failed rows per queue with their oldest failure 1059ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for ordinary failure 113ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for explicit failure 82ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for completion owner before legacy policy failure 76ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for permanent completion owner failure 77ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for bounded legacy failure owner failure 74ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for permanent legacy failure owner failure 75ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for none legacy failure owner failure 78ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for producer claim required failure 75ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for durable completion owner failure 77ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for claimed session failure 79ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for active producer claim failure 76ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for platform send evidence failure 76ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > removes private state for invalid bounded owner failure 79ms
+ ✓ |infra| src/infra/delivery-queue-terminal.test.ts > delivery queue pending terminal transition > does not terminalize a replacement pending owner 80ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > keeps owned settlement and its sibling row atomic after reopen (rollback=false) 178ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > keeps owned settlement and its sibling row atomic after reopen (rollback=true) 98ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > preserves the retry budget when a producer_claimed claim expires before reservation 86ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > preserves the retry budget when a send_attempt_started claim expires before reservation 81ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > preserves the retry budget when a unknown_after_send claim expires before reservation 79ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > reserves unclaimed rows and non-renewable platform attempts without adding a lease 84ms
+ ✓ |infra| src/infra/delivery-queue-sqlite-claim.test.ts > delivery queue SQLite dispatch ownership > atomically promotes dispatch ownership and rejects expired or replaced claims 81ms
+
+ Test Files  5 passed (5)
+      Tests  124 passed (124)
+   Start at  22:48:25
+   Duration  81.66s (tests 93%, transform 5%, setup 1%, import 1%)
+

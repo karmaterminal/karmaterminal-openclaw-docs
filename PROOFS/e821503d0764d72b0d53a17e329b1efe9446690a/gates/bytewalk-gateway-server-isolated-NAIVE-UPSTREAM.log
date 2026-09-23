@@ -1,0 +1,663 @@
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/naive-upstream-check
+
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send recovers a settled failure 36660ms
+   → Cannot find module '/tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send leaves active siblings alone 8754ms
+   → Cannot find module '/tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send reloads a healthy thread 8431ms
+   → Cannot find module '/tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves an idle Incognito sibling 8689ms
+   → Cannot find module '/tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cold resumes an idle persistent sibling 8975ms
+   → Cannot find module '/tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send waits for physical exit before recovery 8685ms
+   → Cannot find module '/tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cancels during physical exit without re… 8825ms
+   → Cannot find module '/tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves its binding when physical exi… 8521ms
+   → Cannot find module '/tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/codex/src/app-server/native-auth.ts
+ × |gateway-server-isolated| src/gateway/server.xai-fallback.test.ts > chat.send preserves xAI rejection priority and recovers statusless failures 32927ms
+   → expected undefined to be 'xai' // Object.is equality
+stderr | src/gateway/server.chat-cli-auth.test.ts > chat.send keeps native account history when a sav… > preserves account selection and session history
+Embedded agent failed before reply: Agent harness runtime "claude-cli" is unavailable. (reason=owner-plugin-not-activatable). Enable or reinstall the plugin that provides this runtime, restart the Gateway, then retry.
+
+ × |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send keeps native account history when a sav… > preserves account selection and session history 12819ms
+   → expected 'error' to be 'ok' // Object.is equality
+stderr | src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token with… > preserves account selection and session history
+Embedded agent failed before reply: Agent harness runtime "claude-cli" is unavailable. (reason=owner-plugin-not-activatable). Enable or reinstall the plugin that provides this runtime, restart the Gateway, then retry.
+
+ × |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token with… > preserves account selection and session history 5670ms
+   → expected 'error' to be 'ok' // Object.is equality
+stderr | src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token sele… > preserves account selection and session history
+Embedded agent failed before reply: Agent harness runtime "claude-cli" is unavailable. (reason=owner-plugin-not-activatable). Enable or reinstall the plugin that provides this runtime, restart the Gateway, then retry.
+
+ × |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token sele… > preserves account selection and session history 5034ms
+   → expected 'error' to be 'ok' // Object.is equality
+stderr | src/gateway/server.chat-cli-auth.test.ts > chat.send honors an explicit empty CLI account or… > preserves account selection and session history
+Embedded agent failed before reply: Agent harness runtime "claude-cli" is unavailable. (reason=owner-plugin-not-activatable). Enable or reinstall the plugin that provides this runtime, restart the Gateway, then retry.
+
+ × |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send honors an explicit empty CLI account or… > preserves account selection and session history 5108ms
+   → expected 'error' to be 'ok' // Object.is equality
+stderr | src/gateway/server.chat-cli-auth.test.ts > chat.send leaves native authentication in charge … > preserves account selection and session history
+Embedded agent failed before reply: Agent harness runtime "claude-cli" is unavailable. (reason=owner-plugin-not-activatable). Enable or reinstall the plugin that provides this runtime, restart the Gateway, then retry.
+
+ × |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send leaves native authentication in charge … > preserves account selection and session history 5386ms
+   → expected 'error' to be 'ok' // Object.is equality
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > persists config health in the isolated Gateway process 2163ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > does not start a Gateway after CLI auth fixture acquisition is cancelled 232ms
+ ↓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send preserves a fresh CLI reply across a pr…
+ ↓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send ends a resumed CLI stall at the normal …
+ ↓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send counts a short process pause against th…
+ ↓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send preserves the total active budget witho…
+ ↓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send keeps the quiet deadline when output pr…
+ ↓ |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods > registered chat.send still allows chat.abort to cancel the a…
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after continuation 10648ms
+stderr | src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after fallback
+Embedded agent failed before reply: Plugin openai is retiring
+
+ × |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after fallback 990ms
+   → expected 'error' to be 'ok' // Object.is equality
+stderr | src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after terminal
+Embedded agent failed before reply: Plugin openai is retiring
+
+ × |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after terminal 1022ms
+   → expected '' to be '⚠️ LLM request failed (provider inter…' // Object.is equality
+stderr | src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after no-fallback
+Embedded agent failed before reply: ⚠️ openai/no-fallback request failed (request timed out). This is usually temporary — try again shortly.
+
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after no-fallback 3466ms
+ ✓ |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after settled-write 3451ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.test.ts > moves an offline device with a result a…, completes a fresh turn, and archives deletion 9684ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.test.ts > recovers persisted abandonment after da…, completes a fresh turn, and archives deletion 7805ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.test.ts > recovers persisted abandonment with a d…, completes a fresh turn, and archives deletion 7987ms
+stderr | src/gateway/server.chat.canonical-publication.test.ts > chat.send preserves canonical sanitized message publication through chat.history and artifacts.download
+[tools] message failed: Current-source media could not be staged.
+⚠️ missing.txt: File not found. Check the path and try again. raw_params={"action":"send","message":"<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nBOOT.md:\nPrivate synthetic instruction.\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>","media":"/tmp/openclaw-canonical-display-7iB4bT/workspace/missing.txt","filename":"proof.txt","contentType":"text/plain"}
+
+ ✓ |gateway-server-isolated| src/gateway/server.chat.canonical-publication.test.ts > chat.send preserves canonical sanitized message publication through chat.history and artifacts.download 17528ms
+stderr | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+Embedded agent failed before reply: LLM request timed out.
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"started-text","status":"error","stopReason":"error","requests":1,"toolResults":0,"content":[{"type":"text","text":"⚠️ LLM request failed (request timed out). This is usually temporary — try again shortly.\n\nPartial answer"}]}
+
+stderr | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+Embedded agent failed before reply: LLM request timed out.
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"sealed-text","status":"error","stopReason":"error","requests":1,"toolResults":0,"content":[{"type":"text","text":"⚠️ LLM request failed (request timed out). This is usually temporary — try again shortly.\n\nPartial answer"}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"started-tool","status":"error","stopReason":"error","requests":4,"toolResults":0,"content":[{"type":"text","text":"The agent run failed before producing a reply."}]}
+
+stderr | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+Embedded agent failed before reply: LLM request timed out.
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"sealed-tool","status":"error","stopReason":"error","requests":1,"toolResults":0,"content":[{"type":"text","text":"⚠️ LLM request failed (request timed out). This is usually temporary — try again shortly."}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"complete-text","status":"ok","stopReason":"stop","requests":1,"toolResults":0,"content":[{"type":"text","text":"COMPLETE_REPLY_MARKER"}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"compatible-text","status":"ok","stopReason":"stop","requests":1,"toolResults":0,"content":[{"type":"text","text":"COMPLETE_REPLY_MARKER"}]}
+
+stdout | src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns
+{"scenario":"compatible-tool","status":"ok","stopReason":"stop","requests":2,"toolResults":1,"content":[{"type":"text","text":"COMPLETE_REPLY_MARKER"}]}
+
+ ✓ |gateway-server-isolated| src/gateway/server.incomplete-stream.test.ts > chat.send reports incomplete streams and executes only completed tool turns 9553ms
+stderr | src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download
+[tools] message failed: message.send buffer has invalid base64 data raw_params={"action":"send","message":"<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nBOOT.md:\nWake up and report.\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>","buffer":"%%%","filename":"proof.txt","contentType":"text/plain"}
+
+stderr | src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download
+[tools] message failed: Media too large: 2048 bytes (limit: 1024 bytes) raw_params={"action":"send","message":"Delivery: Final assistant text is not automatically delivered in this run. Use the `message` tool to send user-visible output.","buffer":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA…
+
+stderr | src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download
+[tools] message failed: Current-source media could not be staged.
+⚠️ private.txt: Delivery failed. Try sending this file again. raw_params={"action":"send","message":"<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\nBOOT.md:\nWake up and report.\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>","media":"/tmp/openclaw-message-buffer-MYqzmC/private.txt","filename":"proof.txt","contentType":"text/plain"}
+
+ ✓ |gateway-server-isolated| src/gateway/server.message-buffer-caption.test.ts > chat.send publishes sanitized message buffers through history and authorized artifacts.download 17935ms
+ ✓ |gateway-server-isolated| src/gateway/server.encrypted-tool-continuation.test.ts > chat.send retains only matching encrypted tool state across real reads and reasoning visibility 11756ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact reports initial transcript read failures as unavailable 1454ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact reports model compaction transcript re-read failures as unavailable 1034ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact maxLines reports transcript preflight read failures as unavailable 1001ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact keeps an empty transcript as a successful no-op (maxLines=undefined) 1020ms
+ ✓ |gateway-server-isolated| src/gateway/server.sessions.compaction-read-errors.test.ts > sessions.compact keeps an empty transcript as a successful no-op (maxLines=50) 1021ms
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[openclaw] tightened permissions on temp dir: /tmp/openclaw-test-home-wz2H5y/.cache/openclaw
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 58ms[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 77ms[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway stop while its process stays alive 4006ms
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 11ms[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive
+[33m[shutdown][39m [36mcompleted cleanly in 65ms[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > releases agent leases for Doctor after the final Gateway restart while its process stays alive 2985ms
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state
+[33m[shutdown][39m [36mcompleted cleanly in 47ms[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > joins admitted agent database resources before releasing their lease and shared state 2004ms
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [36mstarting HTTP server...[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [36mready[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [36magent model: openai/gpt-6-astra (thinking=medium, fast=off)[39m
+[36m[gateway][39m [36mhttp server listening (0 plugins)[39m
+[36m[gateway][39m [36mlog file: /tmp/openclaw/openclaw-2026-09-21.log[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[33m[shutdown][39m [33mfailed in 28ms[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [31mshutdown step failed (gateway close): Plugin runtime still owns resources; inspect cleanup failures before retrying Gateway close. | native agent database close failed[39m
+
+stdout | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[34m[gmail-watcher][39m [36mgmail watcher stopped[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[33m[shutdown][39m [33mfailed in 2ms[39m
+
+stderr | src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease
+[36m[gateway][39m [31mshutdown step failed (gateway close): Plugin runtime still owns resources; inspect cleanup failures before retrying Gateway close. | native agent database close failed[39m
+
+ ✓ |gateway-server-isolated| src/gateway/server-close.agent-databases.test.ts > rejects Gateway closure when an agent handle cannot close and retains its lease 1572ms
+ ✓ |gateway-server-isolated| src/gateway/server.labs-hot-reload.test.ts > applies all Labs switches through config.patch without restarting the Gateway 6009ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > checks the exact configured execution target for {"provider":"fixture","model":"literal"} 182ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > checks the exact configured execution target for {"model":"fixture/literal"} 2ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves an explicit API owner without configured model rows for {"provider":"fixture","model":"literal"} 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves an explicit API owner without configured model rows for {"model":"fixture/literal"} 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { provider: 'fixture', …(1) } with chained aliases=false 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { model: 'fixture/literal' } with chained aliases=false 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { provider: 'fixture', …(1) } with chained aliases=true 0ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > preserves command selection for { model: 'fixture/literal' } with chained aliases=true 0ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > allows an explicitly permitted configured literal without applying its runtime alias 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-plugin-subagent-runtime.overrides.test.ts > plugin subagent initial override policy > rejects a replaced configuration before admitting its prepared override 0ms
+ ✓ |gateway-server-isolated| src/gateway/server.placement-abandonment.lifecycle.test.ts > abandonment fixture joins canceled startup and teardown before admitting another case 22ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves hidden heartbeat tool suppression (false) 4ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves hidden heartbeat tool suppression (true) 0ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves run verbosity until a newer session preference replaces it 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves heartbeat final ACK/alert policy after cleanup (HEARTBEAT_OK) 3ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > preserves heartbeat final ACK/alert policy after cleanup (HEARTBEAT_OK Service outage requires ac…) 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > keeps heartbeat alias suppression separate from source flags (false) 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > keeps heartbeat alias suppression separate from source flags (undefined) 1ms
+ ✓ |gateway-server-isolated| src/gateway/server-chat.retired-projection.test.ts > retired execution event projection > uses the selected agent for newer global-session verbosity 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.cli-watchdog.test.ts > CLI watchdog through registered Gateway methods
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ createWatchdogFixture src/gateway/server.cli-watchdog.test-support.ts:255:69
+    253|     await gateway.server.startupSettled;
+    254|     const backends = resolveRuntimeCliBackends();
+    255|     expect(backends.some((backend) => backend.id === "claude-cli")).to…
+       |                                                                     ^
+    256|     return { state, gateway, backends, token, controllerScript, cleanu…
+    257|   } catch (error) {
+ ❯ src/gateway/server.cli-watchdog.test.ts:102:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send keeps native account history when a sav… > preserves account selection and session history
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token with… > preserves account selection and session history
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send uses a saved canonical paste-token sele… > preserves account selection and session history
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send honors an explicit empty CLI account or… > preserves account selection and session history
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-cli-auth.test.ts > chat.send leaves native authentication in charge … > preserves account selection and session history
+AssertionError: expected 'error' to be 'ok' // Object.is equality
+
+Expected: "ok"
+Received: "error"
+
+ ❯ sendTurn src/gateway/server.chat-cli-auth.test.ts:276:30
+    274|     );
+    275|     signal.throwIfAborted();
+    276|     expect(completed.status).toBe("ok");
+       |                              ^
+    277|     const history = await client.request<{ messages: unknown[] }>("cha…\n    278|       sessionKey: <redacted len=15>"
+ ❯ executeCliAuthCase src/gateway/server.chat-cli-auth.test.ts:288:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after fallback
+AssertionError: expected 'error' to be 'ok' // Object.is equality
+
+Expected: "ok"
+Received: "error"
+
+ ❯ src/gateway/server.chat-recovered-output.test.ts:252:34
+    250|         expect(messageText(deltas.at(-1)?.message)).toBe(prefix);
+    251|       } else {
+    252|         expect(completed.status).toBe("ok");
+       |                                  ^
+    253|         expect(completed.terminalReply?.text).toBe(answer);
+    254|         expect(messageText(history.messages.at(-1))).toBe(answer);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.chat-recovered-output.test.ts > registered chat.send recovered output over Responses HTTP > chat.send retains only the selected output after terminal
+AssertionError: expected '' to be '⚠️ LLM request failed (provider inter…' // Object.is equality
+
+- Expected
++ Received
+
+- ⚠️ LLM request failed (provider internal error). This is usually temporary — try again shortly.
+-
+- The answer is
+
+ ❯ src/gateway/server.chat-recovered-output.test.ts:242:54
+    240|       if (failed) {
+    241|         expect(completed.status).toBe("error");
+    242|         expect(messageText(history.messages.at(-1))).toBe(
+       |                                                      ^
+    243|           `⚠️ LLM request failed (provider internal error). This is us…
+    244|         );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send recovers a settled failure
+Error: Cannot find module '/tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/.source-yL91H8/.import-meta-8970c2c0-2136-459e-b20f-f2bc8159ecdc.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/.source-yL91H8/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/.source-yL91H8/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/.source-yL91H8/.import-meta-52f11903-8ee4-43e0-bd58-b3c3c602362d.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/package-0/node_modules/.source-yL91H8/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-Kx9VMU/state/tmp/plugin-captures/7288411a-f971-40e3-a06a-577b16b888ed/captures/openclaw-plugin-build-BO6orH/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send leaves active siblings alone
+Error: Cannot find module '/tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/.source-NtY6g9/.import-meta-71170308-d12d-4bba-a7a0-3e08e17c2a60.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/.source-NtY6g9/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/.source-NtY6g9/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/.source-NtY6g9/.import-meta-3835fce2-31d2-4709-899d-2e662037eeea.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/package-0/node_modules/.source-NtY6g9/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-PVCOf0/state/tmp/plugin-captures/f6248171-4aca-4420-bbb3-fff1ca6010c0/captures/openclaw-plugin-build-9VJJoT/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send reloads a healthy thread
+Error: Cannot find module '/tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/.source-oNTKQr/.import-meta-2ecb61f5-be5f-400c-8b1b-e121167153bf.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/.source-oNTKQr/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/.source-oNTKQr/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/.source-oNTKQr/.import-meta-7d19a6f0-b725-4445-a162-9e7c64591ad1.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/package-0/node_modules/.source-oNTKQr/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-apGzCk/state/tmp/plugin-captures/43b8f249-8187-4392-84e2-a9169f9c3919/captures/openclaw-plugin-build-zBGOEg/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves an idle Incognito sibling
+Error: Cannot find module '/tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/.source-Ni5KdB/.import-meta-e12b082e-68d4-4e17-9e30-daa991f82d38.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/.source-Ni5KdB/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/.source-Ni5KdB/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/.source-Ni5KdB/.import-meta-a6735022-9739-4123-8ff6-03500359f7eb.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/package-0/node_modules/.source-Ni5KdB/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-qdowks/state/tmp/plugin-captures/2bccdb25-a221-4a71-8921-6cf11b942f96/captures/openclaw-plugin-build-eSPjlE/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cold resumes an idle persistent sibling
+Error: Cannot find module '/tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/.source-fxC8Nq/.import-meta-b50f84f7-872f-487f-a7e1-a4772c35431e.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/.source-fxC8Nq/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/.source-fxC8Nq/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/.source-fxC8Nq/.import-meta-910231e4-d110-4ff6-878a-d4b4f185fb07.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/package-0/node_modules/.source-fxC8Nq/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-xZkEZr/state/tmp/plugin-captures/da801443-2109-4928-8490-5cc4a8648d5d/captures/openclaw-plugin-build-7ylUIW/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send waits for physical exit before recovery
+Error: Cannot find module '/tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/.source-sc9P1Z/.import-meta-9305deaf-5865-480b-a7d3-a00fd21241de.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/.source-sc9P1Z/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/.source-sc9P1Z/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/.source-sc9P1Z/.import-meta-a67b980a-812d-46c8-bbed-dee6e3e151a8.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/package-0/node_modules/.source-sc9P1Z/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-09xMlI/state/tmp/plugin-captures/1271f87a-f4fe-4bfa-99d7-2f3d16dd4452/captures/openclaw-plugin-build-NRaePQ/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send cancels during physical exit without re…
+Error: Cannot find module '/tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/.source-hCPutK/.import-meta-ab3241e3-ccee-48a1-8b01-fd97dee50e5b.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/.source-hCPutK/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/.source-hCPutK/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/.source-hCPutK/.import-meta-8220d1ba-7704-49ba-a968-03fccfcbefc7.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/package-0/node_modules/.source-hCPutK/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-lCG0gE/state/tmp/plugin-captures/1d23d566-cfab-4550-92a6-61b8d6ad38a3/captures/openclaw-plugin-build-NdcKMd/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.codex-failure-recovery.test.ts > chat.send preserves its binding when physical exi…
+Error: Cannot find module '/tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' imported from /tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/codex/src/app-server/native-auth.ts
+ ❯ resolve src/plugins/plugin-sdk-native-resolver.ts:387:11
+    385|       const resolved = aliasTarget
+    386|         ? { shortCircuit: true, url: pathToFileURL(aliasTarget).href }
+    387|         : nextResolve(specifier, context);
+       |           ^
+    388|       if (context.conditions.includes("import") && resolved.url.starts…
+    389|         const filename = fileURLToPath(resolved.url);
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:427:13
+ ❯ src/plugins/plugin-instance-module-loader.ts:364:34
+ ❯ runFrame src/plugins/plugin-instance-invocation.ts:65:23
+ ❯ withPluginCache src/plugins/plugin-cache.ts:264:10
+ ❯ src/plugins/plugin-instance-module-loader.ts:305:15
+ ❯ Object.run src/plugins/plugin-instance-invocation.ts:46:25
+ ❯ PluginInstance.enter src/plugins/plugin-instance.ts:352:25
+ ❯ PluginInstance.run src/plugins/plugin-instance.ts:132:19
+ ❯ resolve src/plugins/plugin-instance-module-loader.ts:304:29
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/.source-V16qh0/.import-meta-fda98699-7e46-47f9-8abd-679de9702871.mjs:29:20
+ ❯ ../../../../../../tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/.source-V16qh0/module-287.js:19:29
+ ❯ ../../../../../../tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/.source-V16qh0/module-287.js:90:5
+ ❯ importModule ../../../../../../tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/.source-V16qh0/.import-meta-7fe9b780-2447-465c-a72a-95477bf62532.mjs:29:7
+ ❯ Object.prepareSyntheticAuth ../../../../../../tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/package-0/node_modules/.source-V16qh0/module-21.js:25:42
+ ❯ prepareSyntheticAuthWithProvider src/plugins/provider-synthetic-auth.ts:155:14
+ ❯ prepareSyntheticAuth src/agents/prepared-model-runtime.synthetic-auth.ts:61:7
+ ❯ prepareAmbientAgentCredentialsForDiscovery src/agents/agent-auth-discovery.ts:145:9
+ ❯ prepare src/agents/prepared-model-runtime.facts.ts:337:32
+ ❯ prepareWorkspaceBuildGroup src/agents/prepared-model-runtime.facts.ts:500:14
+ ❯ buildSnapshotBatch src/agents/prepared-model-runtime.build.ts:247:24
+ ❯ src/agents/prepared-model-runtime.build.ts:504:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_MODULE_NOT_FOUND', url: 'file:///tmp/gateway-native-recovery-PNZuYh/state/tmp/plugin-captures/33101a28-b733-4ba3-93e0-b5642c8c8e44/captures/openclaw-plugin-build-0WJLNY/node_modules/openclaw/dist/plugin-sdk/process-runtime.js' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  |gateway-server-isolated| src/gateway/server.xai-fallback.test.ts > chat.send preserves xAI rejection priority and recovers statusless failures
+AssertionError: expected undefined to be 'xai' // Object.is equality
+
+- Expected:
+"xai"
+
++ Received:
+undefined
+
+ ❯ src/gateway/server.xai-fallback.test.ts:305:35
+    303|         (entry) => entry.provider.id === "xai",
+    304|       );
+    305|       expect(installed?.pluginId).toBe("xai");
+       |                                   ^
+    306|       expect(typeof installed?.provider.classifyFailoverReason).toBe("…
+    307|       for (const selected of scenarios) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+
+ Test Files  5 failed | 11 passed (16)
+      Tests  16 failed | 41 passed | 6 skipped (63)
+   Start at  13:05:04
+   Duration  338.65s (tests 92%, import 5%, transform 3%)
+
+UPSTREAM rc=1 (124=timeout/hang)

@@ -1,0 +1,125 @@
+Plugin "vitest:mocks:interceptor" defines Vite-specific hooks (configureServer) in a plugin returned from applyToEnvironment. These hooks will be ignored.
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > returns truthful one-shot termination confirmation 9ms
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > requires both frozen session identities before deletion 2ms
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > makes one bounded attempt and deletes nothing once cleanup ownership has flipped 71ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > accepts chat.abort only when it confirms the exact run 130ms
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > does not delete after chat.abort confirms the matching run 2ms
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > stops without deleting a durable session when the accepted run already ended 2ms
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > retries abort without deleting a durable session after a gateway error 3ms
+ ✓ |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > stops accepted-run cleanup when its Gateway request owner is retired 2ms
+ × |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > stops cleanup when guarded deletion observes a successor lifecycle 3ms
+   → expected true to be undefined
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > rolls back an ordinary operator spawn after revoked-source preparation failure 2819ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > rolls back an ordinary operator spawn after revoked-source accepted registration failure 3976ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > separates native stop acceptance from caller revocation before interruption 2020ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > separates native stop acceptance from caller revocation after interruption 2049ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > separates native stop acceptance from caller revocation already interrupted 2141ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > separates native stop acceptance from caller revocation blocked drain 2148ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > admits a descendant using the configured child model 3277ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > admits a descendant using the parent session model 2576ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > admits a descendant using the active parent turn model 2531ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is active 2967ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is completed 2989ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is stopped 2035ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is operator-completed 3002ms
+stderr | src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is operator-revoked
+Retained prepared-model fixture after failed test: /tmp/openclaw-test-state-spawn-production-boundary-ZrWjrZ
+
+ × |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is operator-revoked 2452ms
+   → Revoked collector cleanup did not settle: {"executionPending":true,"receiptPresent":false,"receiptStatus":"unknown","receiptErrorCode":"unknown","causeName":"unknown","controllerPresent":false,"executionStatus":"terminal","taskStatus":"failed","queuedLaunchPresent":false,"collectorCleanupPending":true,"collectorKillPending":false,"outcomeStatus":"error","gatewayWarningCount":0,"runtimeWarningCount":0,"sourceHolds":1}
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is operator-stopped 2110ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > fences queued cleanup at the real session deletion boundary: current 2209ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > fences queued cleanup at the real session deletion boundary: replaced-session 1192ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > fences queued cleanup at the real session deletion boundary: replaced-gateway 1165ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > fences queued cleanup at the real session deletion boundary: worker-current 2120ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > fences queued cleanup at the real session deletion boundary: worker-reassigned 1138ms
+ ✓ |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > fences queued cleanup at the real session deletion boundary: worker-reassigned-during-delete 1125ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |agents-spawn-production-boundary| src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts > recursive spawn production boundary > keeps queued collector effects with their original parent when it is operator-revoked
+Error: Revoked collector cleanup did not settle: {"executionPending":true,"receiptPresent":false,"receiptStatus":"unknown","receiptErrorCode":"unknown","causeName":"unknown","controllerPresent":false,"executionStatus":"terminal","taskStatus":"failed","queuedLaunchPresent":false,"collectorCleanupPending":true,"collectorKillPending":false,"outcomeStatus":"error","gatewayWarningCount":0,"runtimeWarningCount":0,"sourceHolds":1}
+ ❯ src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts:682:19
+    680|             });
+    681|           } catch (cause) {
+    682|             throw new Error(
+       |                   ^
+    683|               `Revoked collector cleanup did not settle: ${JSON.string…
+    684|                 ...readBoundExecutionState(bound, childRunId),
+
+Caused by: AssertionError: expected { …(26) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "completionOwnerSessionKey": "<redacted len=46>",
+  "createdActor": {
+    "id": "main",
+    "type": "agent",
+  },
+  "createdAt": 1789988257146,
+  "createdVia": "spawn",
+  "delivery": {
+    "kind": "none",
+  },
+  "fastMode": false,
+  "inheritedToolPolicyVersion": 1,
+  "lifecycleRevision": "688330ba-e035-4ae6-9805-ad1f06181bc5",
+  "model": "test-model",
+  "modelOverride": "test-model",
+  "modelOverrideRouteResolution": "resolved",
+  "modelOverrideSource": "auto",
+  "modelProvider": "custom",
+  "parentSessionKey": "<redacted len=46>",
+  "providerOverride": "custom",
+  "sessionId": "<redacted len=36>",
+  "sessionStartedAt": <redacted len=13>,
+  "spawnDepth": 2,
+  "spawnedBy": "agent:main:subagent:production-boundary-parent",
+  "spawnedWorkspaceDir": "/tmp/openclaw-test-state-spawn-production-boundary-ZrWjrZ/home/.openclaw",
+  "subagentControlScope": "children",
+  "subagentRole": "orchestrator",
+  "swarmCollector": true,
+  "swarmGroupId": "production-boundary-queued",
+  "thinkingLevel": "off",
+  "updatedAt": 1789988257146,
+}
+
+ ❯ src/agents/subagents/spawn/subagent-spawn.production-boundary.test.ts:678:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |agents-support| src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts > subagent spawn cleanup identity > stops cleanup when guarded deletion observes a successor lifecycle
+AssertionError: expected true to be undefined
+
+- Expected:
+undefined
+
++ Received:
+true
+
+ ❯ src/agents/subagents/spawn/subagent-spawn-cleanup.test.ts:212:6
+    210|         callGateway,
+    211|       }),
+    212|     ).resolves.toBeUndefined();
+       |      ^
+    213|
+    214|     expect(callGateway).toHaveBeenCalledTimes(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 28 passed (30)
+   Start at  03:56:51
+   Duration  58.70s (tests 83%, transform 10%, import 6%, worker 1%)
+

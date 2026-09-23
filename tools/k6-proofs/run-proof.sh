@@ -17,15 +17,6 @@ SCENARIOS_DIR="${SCRIPT_DIR}/scenarios"
 SCENARIO="${1:?Usage: ./run-proof.sh <scenario-name> [k6 args]}"
 shift || true
 
-# Resolve scenario file
-SCENARIO_FILE="${SCENARIOS_DIR}/${SCENARIO}.js"
-if [[ ! -f "$SCENARIO_FILE" ]]; then
-  echo "ERROR: Scenario file not found: ${SCENARIO_FILE}"
-  echo "Available scenarios:"
-  ls "${SCENARIOS_DIR}"/*.js 2>/dev/null | xargs -I{} basename {} .js
-  exit 1
-fi
-
 LOCK_FD=""
 if [[ -n "${OPENCLAW_ROW_MANIFEST:-}" ]]; then
   GUARD_VARS="$(node "${SCRIPT_DIR}/scripts/live-run-guard.mjs" --manifest "${OPENCLAW_ROW_MANIFEST}" --shell)"
@@ -38,6 +29,27 @@ if [[ -n "${OPENCLAW_ROW_MANIFEST:-}" ]]; then
       exit 1
     fi
   fi
+fi
+
+# Resolve scenario file. The supplied manifest is the declaration of record for
+# WHICH scenario proves a row. Several rows are proved by the shared
+# static-corpus-row-validator and have no same-named scenario, so resolving by
+# row name alone either runs an unrelated same-named file or reports a runnable
+# row as missing. Name-based resolution stays the fallback, so invocations that
+# pass no manifest are unaffected.
+SCENARIO_FILE="${SCENARIOS_DIR}/${SCENARIO}.js"
+if [[ -n "${K6_PROOF_SCENARIO_FILE:-}" && -f "${SCENARIOS_DIR}/${K6_PROOF_SCENARIO_FILE}" ]]; then
+  DECLARED_SCENARIO_FILE="${SCENARIOS_DIR}/${K6_PROOF_SCENARIO_FILE}"
+  if [[ "$DECLARED_SCENARIO_FILE" != "$SCENARIO_FILE" ]]; then
+    echo "note: ${OPENCLAW_ROW_MANIFEST} declares scenario ${K6_PROOF_SCENARIO_FILE}; using it instead of ${SCENARIO}.js"
+  fi
+  SCENARIO_FILE="$DECLARED_SCENARIO_FILE"
+fi
+if [[ ! -f "$SCENARIO_FILE" ]]; then
+  echo "ERROR: Scenario file not found: ${SCENARIO_FILE}"
+  echo "Available scenarios:"
+  ls "${SCENARIOS_DIR}"/*.js 2>/dev/null | xargs -I{} basename {} .js
+  exit 1
 fi
 
 # Auto-detect seat and SHA. Prefer OPENCLAW_* names used by manifests/workflow,

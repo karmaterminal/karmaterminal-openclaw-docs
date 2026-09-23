@@ -1,0 +1,160 @@
+
+ RUN  v5.0.0 /home/figs/flesh_beast_best_beast/source/WORKTREES/p89-absorb-d8d7d53d
+
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > joins model work before inventory retirement and shared teardown 30ms
+stderr | src/gateway/server-close.test.ts > createGatewayCloseHandler > reports owned queued cleanup failure and honors retained resources (false)
+[swarm] Failed queued launch cleanup: Error: queued engine disposal failed
+
+stderr | src/gateway/server-close.test.ts > createGatewayCloseHandler > reports unowned queued cleanup failure and honors retained resources (false)
+[swarm] Failed queued launch cleanup: Error: queued engine disposal failed
+
+stderr | src/gateway/server-close.test.ts > createGatewayCloseHandler > reports owned queued cleanup failure and honors retained resources (true)
+[swarm] Failed queued launch cleanup: PluginRuntimeCloseRetainedError: Plugin runtime still owns resources; inspect cleanup failures before retrying Gateway close.
+
+stderr | src/gateway/server-close.test.ts > createGatewayCloseHandler > reports unowned queued cleanup failure and honors retained resources (true)
+[swarm] Failed queued launch cleanup: PluginRuntimeCloseRetainedError: Plugin runtime still owns resources; inspect cleanup failures before retrying Gateway close.
+
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports admitted memory cleanup failure while completing registry retirement 597ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > selects only serving Gateway owners while closing custodians drain (open survivor: true) 7ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > selects only serving Gateway owners while closing custodians drain (open survivor: false) 5ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports owned queued cleanup failure and honors retained resources (false) 13ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports unowned queued cleanup failure and honors retained resources (false) 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports owned queued cleanup failure and honors retained resources (true) 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports unowned queued cleanup failure and honors retained resources (true) 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared SQLite through actual shutdown cleanup after grace 141ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared SQLite through actual pre-restart cleanup after grace 83ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared SQLite through actual harness cleanup after grace 114ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared SQLite through actual sdk cleanup after grace 79ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > finishes shared state cleanup after actual SDK disposal rejects (global failure: false) 89ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > finishes shared state cleanup after actual SDK disposal rejects (global failure: true) 78ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > still runs later teardown when cron.stopAndDrain() rejects (no listener strand) 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > distinguishes trusted diagnostic callback failures during Gateway shutdown 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > distinguishes trusted diagnostic admission failures during Gateway shutdown 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > completes a clean shutdown with a ShutdownResult 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > waits for in-flight media cleanup before shared state closes 54ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > waits for in-flight stopPeriodicTasks cleanup before shared state closes 53ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > waits for in-flight skillUsageCleanup cleanup before shared state closes 54ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > joins update discovery before disposing shared runtime resources 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared state when media cleanup times out 53ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > clears the process-root plugin registry after teardown 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > rejects close when an ambient lifecycle owner cannot drain 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.delegate-artifacts.test.ts > delegate artifact gateway maintenance > purges expired artifacts at startup, after restart, and hourly 3259ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.delegate-artifacts.test.ts > delegate artifact gateway maintenance > drains expired artifacts in bounded batches 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.delegate-artifacts.test.ts > delegate artifact gateway maintenance > yields during long artifact cleanup drains 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.delegate-artifacts.test.ts > delegate artifact gateway maintenance > stops artifact cleanup draining during maintenance teardown 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > terminates supervised process trees before Gateway close returns (restart=false, ignores TERM=false) 571ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/gateway/server-maintenance.delegate-artifacts.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/gateway/server-maintenance.delegate-artifacts.test.ts: retiring openclaw.agentDatabaseLifecycle
+[sqlite-test-lifecycle] src/gateway/server-maintenance.delegate-artifacts.test.ts: retiring openclaw.sqliteWorkerBroker
+[sqlite-test-lifecycle] src/gateway/server-maintenance.delegate-artifacts.test.ts: retiring openclaw.sharedStateWorkerOwner
+
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > leaves admission untouched on busy thaw ticks and retries a failed idle pass 3705ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > leaves admission open when thaw active-work inspection fails 5ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > does not run media cleanup before the lifecycle owner activates it 904ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > runs playback cache cleanup at startup and hourly without an attachment ttl 7ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > runs managed outgoing cleanup without enabling the general media ttl 57ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > runs managed worktree cleanup at startup and hourly 10ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > runs setup-outcome cleanup immediately without overlapping minute ticks 5ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > passes owner activity to default managed worktree cleanup 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > updates attachment cleanup policy between sweeps without restarting maintenance 8ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps playback cleanup independent of attachment cleanup failures 60ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > runs managed outgoing cleanup when the general media sweep fails 58ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > broadcasts tick keepalives and checks installation replacement until the timer stops 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > refreshes automatic health snapshots without live channel probes 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps managed outgoing cleanup independent of a hung general media sweep 63ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > skips overlapping playback cache cleanup runs 9ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > does not overlap default outbound cleanup and drains it on shutdown 6ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > skips overlapping managed outgoing cleanup runs 65ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > waits for active media cleanup before stopping its lifecycle 58ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > bounds shutdown when active media cleanup never settles 56ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > retains the managed timeout fence across gateway generations 56ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > retains the queue timeout fence across gateway generations 55ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps stale buffers for active runs that still have abort controllers 5ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > sweeps orphaned stale buffers once the abort controller is gone 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > sweeps orphaned stale agent throttle state once the abort controller is gone 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > clears assistant snapshot scope when aborted runs age out 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > sweeps orphaned raw buffers that never emitted a delta 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps active agent dedupe entries past the normal ttl 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps pending accepted agent dedupe entries until their run expiry 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps pending chat sends through ttl and overflow until their run expiry 5ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/gateway/server-maintenance.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/gateway/server-maintenance.test.ts: retiring openclaw.sharedStateWorkerOwner
+[sqlite-test-lifecycle] src/gateway/server-maintenance.test.ts: retiring openclaw.sqliteWorkerBroker
+[sqlite-test-lifecycle] src/gateway/server-maintenance.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > evicts pending accepted agent dedupe entries with invalid run expiry 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > aborts active runs with invalid expiry timestamps 6ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > recovers a wedged terminal-pending run whose projection clear never ran 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > keeps a fresh terminal-pending run for its async projection owner 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > converts expired stalled terminal persistence into a recovery candidate 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > reaps expired inactive registrations without emitting a timeout abort 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-maintenance.test.ts > startGatewayMaintenanceTimers > evicts an expired non-abortable active run instead of retrying forever 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > terminates supervised process trees before Gateway close returns (restart=true, ignores TERM=true) 5450ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > replaces the process supervisor after a concurrent adapter startup failure 58ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports and joins an in-flight config reload before teardown (trace=false) 56ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > reports and joins an in-flight config reload before teardown (trace=true) 56ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > disposes ACP sessions before plugin services and channel runtimes 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues plugin shutdown when ACP session disposal fails 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > keeps plugin services alive until a slow ACP session disposal settles 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > clears the secrets runtime snapshot only after channels stop (#112681) 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > clears the secrets runtime snapshot even when a channel stop fails 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > clears session suspension timers before plugin services and channels stop 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > emits gateway shutdown and pre-restart hooks 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > emits parseable restart close trace spans when enabled 7ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > emits restart ready child spans without shortening the parent ready span 43ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues shutdown and records a warning when gateway shutdown hook stalls 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > cleans up live runtime children while plugin service cleanup is stalled 15ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared state after final plugin grace when cleanup settles 7ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > retains shared state after final plugin grace when cleanup stalls 6ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > drains the active-session tracker with reason=shutdown on SIGTERM/SIGINT close 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > drains the active-session tracker with reason=restart when restartExpectedMs is set 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > drains pending restart replies before emitting session-end hooks 1ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > records a warning and continues shutdown when the session-end drain reports a timeout 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > skips the session-end drain step when no drain helper is provided 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > waits for pending replies to settle before restart shutdown 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > marks pending reply work after its chat run registration is gone 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > cancels only captured Gateway replies before disposal (marker fails: false) 13ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > cancels only captured Gateway replies before disposal (marker fails: true) 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > aborts active runs when restart reply drain times out 7ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > aborts queued turns before restart shutdown continues 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > cancels remaining runs after ordinary shutdown grace without restart recovery 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > aborts active runs immediately when restart drain budget is exhausted 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > does not abort a finalizing completed run when restart drain expires 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > marks active main sessions for restart recovery before aborting restart-drained runs 4ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > keeps post-terminal caller work in restart drain and recovery 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > marks and quietly cancels terminal runs before persistence settles 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > awaits terminal persistence before deferring restart recovery to its owner 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > bounds terminal persistence waiting and preserves recovery 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > warns on slow restart marker persistence and waits before cleanup 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > marks failed terminal persistence after the run guard is gone 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues restart shutdown when marking active main sessions fails 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues restart shutdown and records a warning when gateway pre-restart hook stalls 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > records subsystem shutdown warnings without aborting later cleanup 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > uses caller-provided channel ids instead of the local channel registry 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > disposes Code Mode runs before agent and bundle runtimes during shutdown 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues listener teardown while agent harness disposal is pending 54ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > starts bundle MCP and LSP runtime disposal concurrently 53ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues independent teardown while bundle-mcp cleanup is pending 7ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues independent teardown while bundle-lsp cleanup is pending 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues independent teardown while embedding-providers cleanup is pending 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > terminates lingering websocket clients when websocket close exceeds the grace window 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > continues shutdown when websocket close hangs without tracked clients 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > records a warning when a websocket client close throws 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > records a warning when HTTP server close fails 2ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > forces lingering HTTP connections closed and records a timeout warning 3ms
+stderr | unknown test
+[sqlite-test-lifecycle] src/gateway/server-close.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] src/gateway/server-close.test.ts: retiring openclaw.agentDatabaseLifecycle
+
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > fails shutdown when http server close still hangs after force close 55ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > attempts every HTTP listener before rejecting a stuck close 54ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > labels warnings for multiple HTTP servers with their index 3ms
+ ✓ |gateway-server (gateway-server-parallel)| src/gateway/server-close.test.ts > createGatewayCloseHandler > ignores unbound http servers during shutdown 4ms
+
+ Test Files  3 passed (3)
+      Tests  123 passed (123)
+   Start at  22:05:39
+   Duration  11.12s (tests 71%, transform 13%, import 10%, worker 5%, setup 1%)
+

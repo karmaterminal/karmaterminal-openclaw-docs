@@ -1,0 +1,78 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "38e9433da46b785a58f1d6a10161c348741af08e",
+  "ship_sha": "38e9433da46b785a58f1d6a10161c348741af08e",
+  "proof_source_sha": "38e9433da46b785a58f1d6a10161c348741af08e",
+  "previous_pr_head_sha": "eee69b3d51c68c76c25c376451c161497e614a2b",
+  "execution_runtime_sha": "38e9433da46b785a58f1d6a10161c348741af08e",
+  "target_exact_execution": true,
+  "target_execution_receipt": "PR-124337/PROOFS/38e9433da46b785a58f1d6a10161c348741af08e/vitest-own-tests.log",
+  "execution_runtime_provenance": {
+    "execution_runtime_sha": "38e9433da46b785a58f1d6a10161c348741af08e",
+    "exact_product_runtime": true,
+    "runtime_source": "detached git worktree at the upstream PR head",
+    "dependency_bytes": "the PR changes zero dependency files, so the worktree reused the sibling checkout's installed workspace node_modules by symlink instead of a fresh pnpm install; dependency bytes are those of a normal install of this lockfile",
+    "materiality": "Evidence is confined to this PR's own bytes. The six-seat fleet composite 1baff536afa549fea75660403c453bbd265352c0 carries a cherry-picked variant with a different file set, so no fleet verdict is credited to this SHA."
+  },
+  "harness_docs_sha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "harness_path": "scripts/run-vitest.mjs",
+  "method": "Fetched pull/124337/head from openclaw/openclaw, created a detached worktree at 38e9433da46b785a58f1d6a10161c348741af08e, and ran the 5 test files this PR touches through the repository's supported vitest lane. No assertion, timeout or baseline was modified.",
+  "proof_run": {
+    "seat": "ronan",
+    "generated": "2026-09-20T15:20:51Z",
+    "upstream_ci": {
+      "FAILURE": 73,
+      "SKIPPED": 98,
+      "SUCCESS": 422,
+      "CANCELLED": 2,
+      "NEUTRAL": 1
+    },
+    "upstream_ci_classification": "infrastructure: sampled annotations are 'The self-hosted runner lost communication with the server' and git-level 'exit code 128'; no product test failure was observed in the sampled set. The shards covering this PR's changed files were lost to that runner event, so upstream CI does not by itself prove these tests green at this head - the local run in vitest-own-tests.log does."
+  },
+  "qualification": "Light proof load agreed for a small PR: the PR's own tests at its own pure head plus the upstream CI receipt. This corpus is NOT measured by the continuation 38-row k6 matrix, which belongs to the repository-root PROOFS/ corpora.",
+  "transpose": {
+    "carried_forward": false,
+    "note": "The earlier corpus at eee69b3d51c68c76c25c376451c161497e614a2b is diagnostic provenance only. Its rows were produced on a different composite and explicitly did not claim exact-target execution; they are not carried forward as proof for this SHA."
+  },
+  "pinned_floor_sha": null,
+  "required_rows": [
+    "OWN-TESTS-AT-PURE-HEAD"
+  ],
+  "dispatch_allocation": {
+    "ronan": [
+      "OWN-TESTS-AT-PURE-HEAD"
+    ]
+  },
+  "rollup": {
+    "total_rows": 1,
+    "pass": 1,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "row": "OWN-TESTS-AT-PURE-HEAD",
+      "title": "The PR's own 5 test files execute green at its exact pure head",
+      "owner": "ronan",
+      "state": "pass",
+      "dir": "PR-124337/PROOFS/38e9433da46b785a58f1d6a10161c348741af08e",
+      "evidence_doc": "PR-124337/PROOFS/38e9433da46b785a58f1d6a10161c348741af08e/README.md",
+      "summary": "35 tests across 3 vitest shards passed at 38e9433da46b; every test file the PR touches was run.",
+      "test_cases_executed": [
+        "5 PR-owned test files",
+        "35 assertions green",
+        "run via scripts/run-vitest.mjs"
+      ],
+      "traces": [],
+      "supporting_docs": [
+        "PR-124337/PROOFS/38e9433da46b785a58f1d6a10161c348741af08e/vitest-own-tests.log",
+        "PR-124337/PROOFS/38e9433da46b785a58f1d6a10161c348741af08e/upstream-ci-receipt.json",
+        "PR-124337/PROOFS/38e9433da46b785a58f1d6a10161c348741af08e/diffstat.txt"
+      ],
+      "target_exact_execution": true
+    }
+  ]
+}

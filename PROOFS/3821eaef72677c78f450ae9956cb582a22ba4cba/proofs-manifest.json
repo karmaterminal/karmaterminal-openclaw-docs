@@ -1,0 +1,1183 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "sha_short": "3821eaef",
+  "capture_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "ship_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "proof_source_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "execution_runtime_sha": "1baff536afa549fea75660403c453bbd265352c0",
+  "execution_runtime_provenance": {
+    "execution_runtime_sha": "1baff536afa549fea75660403c453bbd265352c0",
+    "exact_product_runtime": false,
+    "presentation_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "presentation_is_ancestor_of_runtime": true,
+    "runtime_composite_parents": [
+      "131456cbae",
+      "1edf868b3a",
+      "a6de2d2b78",
+      "1baff536af"
+    ],
+    "runtime_composite_components": [
+      "continuation feature tip 3821eaef72677c78f450ae9956cb582a22ba4cba",
+      "openclaw/openclaw#124337 ingress cancellation through the reply terminal lifecycle",
+      "openclaw/openclaw#121204 stale ambient gateway backlog drop",
+      "local integration repair a6de2d2b78 (drain-level pending-disposition policy)",
+      "local gate repair 1baff536af (discord gateway channel inventory enum)"
+    ],
+    "materiality": "The presented SHA is a git ancestor of the executed composite. The continuation surface is byte-identical between them: git diff over src/auto-reply/continuation/, src/infra/continuation-tracer.ts, src/gateway/ and src/agents/ reports zero changed files, so the delegate/continuation owner code the rows exercise is identical. DISCLOSED CONFOUND: the composite does modify delivery plumbing outside that surface (src/auto-reply/reply/queue/drain.ts, queue/lifecycle.ts, queue/recent-message-ids.ts, reply/dispatch-from-config.prepare-context.ts, src/auto-reply/inbound-debounce.ts, and channel ingress). A delegate return traverses reply-queue delivery, so the return-observation PARTIAL rows are NOT certified composite-free; settling that requires a pure-tip run.",
+    "baseline_corpus_sha": "7cb9d71f622250bedbf565e327bd7d7b9d90b567",
+    "baseline_is_ancestor": false,
+    "baseline_note": "The published board at 7cb9d71f622250bedbf565e327bd7d7b9d90b567 is NOT an ancestor of this presented SHA; it belongs to a different line. This corpus is parallel evidence and does not supersede it. PROOFS/INDEX.json is deliberately NOT repointed by this cycle."
+  },
+  "harness_sha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "corpus": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "build_string": "OpenClaw composite carrier (1baff536) presenting 3821eaef",
+  "generated": "2026-09-20T14:56:23Z",
+  "execution_status": "CANDIDATE_ONLY_NOT_ACCEPTANCE_COMPLETE",
+  "fire_type": "automated-live-suite-candidate-fire",
+  "exact_target_execution": false,
+  "exact_target_mode_b": false,
+  "exact_target_execution_rows": [],
+  "method": "Single-seat automated k6 live-suite fire on ronan via run-proofs.sh --live at docs 45d301cb87c2e57634daf2fb78c7613d6afbc018, 34 artifact dirs = PREFLIGHT + 33 of the 38 required rows. Verdicts are candidate outcomes with no independent manual review; none is promoted or folded. The 5 unfired rows are recorded missing.",
+  "promotion": {
+    "authority": "none",
+    "automatic_authority": false,
+    "promoted_rows": [],
+    "note": "No row was promoted. Candidate verdicts are never folded verdicts."
+  },
+  "seat": "ronan",
+  "dispatch_allocation": {
+    "ronan": [
+      "R-CD-1",
+      "R-CD-2",
+      "R-CD-3",
+      "R-CD-4",
+      "R-CD-CHAINED-DEPTH-2",
+      "R-CD-COLLECTION-ON-COLLAPSE",
+      "R-CD-MODEL-CHAINED-ALT",
+      "R-CD-MODEL-DEFAULT",
+      "R-CD-MODEL-TOKEN",
+      "R-CD-MODEL-TOOL",
+      "R-CD-RETURN-OVERLAP",
+      "R-CD-SILENT",
+      "R-CD-TOKEN",
+      "R-CONFIG-DEFAULTS",
+      "R-CONFIG-INTERSESSION",
+      "R-CW-1",
+      "R-CW-2",
+      "R-CW-3",
+      "R-CW-4",
+      "R-CW-7",
+      "R-CW-DELEGATE-CHILD-LIVE",
+      "R-CW-DELEGATE-SELF-CONTINUATION",
+      "R-CW-DELEGATE-TOKEN",
+      "R-CW-MULTI",
+      "R-CW-MULTI-COLLAPSE",
+      "R-CW-TOKEN",
+      "R-OBS-1",
+      "R-OBS-2",
+      "R-OBS-STATUS",
+      "R-RC-1",
+      "R-RC-2",
+      "R-REGRESSION-TRAP-TESTS",
+      "R-TRACE-REDACTION-1121"
+    ],
+    "unfired": [
+      "R-CD-RETURN-COVENANT-AUTHORITY",
+      "R-CW-5",
+      "R-CW-5A",
+      "R-CW-6",
+      "R-CW-6A"
+    ]
+  },
+  "required_rows": [
+    "R-CD-1",
+    "R-CD-2",
+    "R-CD-3",
+    "R-CD-4",
+    "R-CD-CHAINED-DEPTH-2",
+    "R-CD-COLLECTION-ON-COLLAPSE",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CD-MODEL-DEFAULT",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-MODEL-TOOL",
+    "R-CD-RETURN-OVERLAP",
+    "R-CD-RETURN-COVENANT-AUTHORITY",
+    "R-CD-SILENT",
+    "R-CD-TOKEN",
+    "R-CONFIG-DEFAULTS",
+    "R-CONFIG-INTERSESSION",
+    "R-CW-1",
+    "R-CW-2",
+    "R-CW-3",
+    "R-CW-4",
+    "R-CW-5",
+    "R-CW-5A",
+    "R-CW-6",
+    "R-CW-6A",
+    "R-CW-7",
+    "R-CW-DELEGATE-CHILD-LIVE",
+    "R-CW-DELEGATE-SELF-CONTINUATION",
+    "R-CW-DELEGATE-TOKEN",
+    "R-CW-MULTI",
+    "R-CW-MULTI-COLLAPSE",
+    "R-CW-TOKEN",
+    "R-OBS-1",
+    "R-OBS-2",
+    "R-OBS-STATUS",
+    "R-RC-1",
+    "R-RC-2",
+    "R-REGRESSION-TRAP-TESTS",
+    "R-TRACE-REDACTION-1121"
+  ],
+  "rollup": {
+    "total_rows": 38,
+    "pass": 23,
+    "partial": 9,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 1,
+    "missing": 5
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "title": "Typed continue_delegate() schedule/spawn/return.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-1/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-1/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T141838Z-r-cd-1-743bccb7"
+      ],
+      "traces": [
+        "tempo-trace-1f6fb5787e41.json"
+      ],
+      "private_row_artifact_sha256": "14295b3535f97ca72ab8b7cd701afb327e69da6289eaf9228ce93995ffea09cf"
+    },
+    {
+      "row": "R-CD-2",
+      "title": "continue_delegate(mode='silent-wake') full path.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-2/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-2/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T141917Z-r-cd-2-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "f1f80674a71112003c027b53612311713e8ce80183541e7f632f4c1f88d13008"
+    },
+    {
+      "row": "R-CD-3",
+      "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-3/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-3/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-3/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T142055Z-r-cd-3-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "736b5a93d561661330b669a347a3c3030b79bf706cfc32f11d0b27160b6c0f63"
+    },
+    {
+      "row": "R-CD-4",
+      "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-4/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-4/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-4/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T142116Z-r-cd-4-743bccb7"
+      ],
+      "traces": [
+        "tempo-trace-f1029ffadf49.json"
+      ],
+      "private_row_artifact_sha256": "679542ee9141028137e91a5720ae1e730d635fb7a5b36494ce1baca3823c0b27"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "title": "Depth-2 delegate chain: parent\u2192child\u2192grandchild\u2192return path.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-CHAINED-DEPTH-2/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-CHAINED-DEPTH-2/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T142301Z-r-cd-chained-depth-2-743bccb7"
+      ],
+      "traces": [
+        "tempo-trace-b017722a3b80.json"
+      ],
+      "private_row_artifact_sha256": "93c9f4222f14513b17eeb3313640c28145ca7d8c78c9d844c791a351c4160879"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "title": "Static validator for committed A\u2192B\u2192delayed-C collection-on-collapse proof receipts.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-COLLECTION-ON-COLLAPSE/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-COLLECTION-ON-COLLAPSE/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T142540Z-r-cd-collection-on-collapse-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "af066c32b509a319df985f76d3f18f366eb879cd094ca4807ebbcb23548468a8"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-CHAINED-ALT/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-CHAINED-ALT/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T142547Z-r-cd-model-chained-alt-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "2d67e78de5c905c84ee99808993353658ed07de5a173af0d11aaf57b32081f52"
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-DEFAULT/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-DEFAULT/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T142935Z-r-cd-model-default-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "fd937c2a99663fe73e7bdb797d7b81264fb917a31760fb5faa04760ef67d0d3f"
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOKEN/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOKEN/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143004Z-r-cd-model-token-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "c74cd7423d6758e2f22559922858b1e5d711cf610975d7bf0a5ff073d1140be0"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOOL/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOOL/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOOL/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143026Z-r-cd-model-tool-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "88089ac7b6ed0d0ceda2f0c9de802cdee2d008736cc7773902e9f0e0125a3ed8"
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-OVERLAP/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-OVERLAP/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143054Z-r-cd-return-overlap-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "33be6f4063661721a25001d69ff04f4706bb82d96a626b642156877caaa4226f"
+    },
+    {
+      "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+      "title": "Return-covenant lifecycle authority matrix.",
+      "owner": "unassigned",
+      "state": "missing",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-COVENANT-AUTHORITY/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-COVENANT-AUTHORITY/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-return-covenant-authority.json",
+      "scenario_status": "construct-only",
+      "live_run_classification": "construct-only",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "not-fired",
+      "fired": false,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "MISSING: construct-only. No scenario is wired on docs main for this row and it has never passed in any corpus; see notes for its required-row provenance.",
+      "notes": "Not fired in the 2026-09-20 ronan live-suite cycle.",
+      "supporting_docs": [],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "row": "R-CD-SILENT",
+      "title": "Typed continue_delegate(mode='silent') proof.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-SILENT/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-SILENT/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-SILENT/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143101Z-r-cd-silent-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "ff19cc6bc5caddcda2b43759ecdedefb998ae31bfeff297523411629496279ae"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an explicitly agent-bound isolated raw-final-text parent; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-TOKEN/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [
+        "raw-final-text-origin",
+        "parser-detected",
+        "queue-identity",
+        "child-spawned",
+        "child-completed",
+        "parent-return-event",
+        "tempo-trace-json",
+        "continuation-trace-correlation"
+      ],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-TOKEN/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143418Z-r-cd-token-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "6a4b94680c167b5a3c115453609e4bc6d237b574dd69bda8112de05a9f7ea83a"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-DEFAULTS/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-DEFAULTS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-DEFAULTS/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143421Z-r-config-defaults-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "946184f6040913b24edcce52324133f0fd3d0ad40d4a3bf166e0654d49037d2f"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-INTERSESSION/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-INTERSESSION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-INTERSESSION/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143429Z-r-config-intersession-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "0217f476a9585d4f691df99a22a051995ae167e870667d4419dc93215e943603"
+    },
+    {
+      "row": "R-CW-1",
+      "title": "Typed continue_work() tool-form schedule + wake.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-1/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-1/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143437Z-r-cw-1-743bccb7"
+      ],
+      "traces": [
+        "tempo-trace-e77a8320dd87.json"
+      ],
+      "private_row_artifact_sha256": "ab0ce63e0dbb7f2afccb1c0e1d75454b98232d7866c896faff073f927b54c82e"
+    },
+    {
+      "row": "R-CW-2",
+      "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-2/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-2/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143533Z-r-cw-2-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "42fc9dda6f0131d7a29489263a313827602fafb40f6e6aabcfb40390934c4d24"
+    },
+    {
+      "row": "R-CW-3",
+      "title": "continue_work reason telemetry/redaction partial candidate.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-3/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-3/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-3/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143552Z-r-cw-3-743bccb7"
+      ],
+      "traces": [
+        "tempo-trace-ff69d745d7ca.json"
+      ],
+      "private_row_artifact_sha256": "df6ed16c1a1b011d94f9d4b5430ed0f619c25b26780d6a61083a5d5edbba654c"
+    },
+    {
+      "row": "R-CW-4",
+      "title": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-4/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-4/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-4/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143625Z-r-cw-4-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "d68923d8a122a941d96910de72e16c96933444079457d4f08e3d7be8989e445a"
+    },
+    {
+      "row": "R-CW-5",
+      "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+      "owner": "unassigned",
+      "state": "missing",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-5/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-5/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
+      "scenario_status": "orchestration-required",
+      "live_run_classification": "orchestration-required",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "not-fired",
+      "fired": false,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "MISSING: orchestration-required. Excluded from the k6 live-suite by design; provable only through its documented process-local isolated fixture.",
+      "notes": "Not fired in the 2026-09-20 ronan live-suite cycle.",
+      "supporting_docs": [],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "row": "R-CW-5A",
+      "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
+      "owner": "unassigned",
+      "state": "missing",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-5A/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-5A/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+      "scenario_status": "static-preflight-only",
+      "live_run_classification": "static-preflight-only",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "not-fired",
+      "fired": false,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "MISSING: static-preflight-only. This row validates the COMMITTED artifacts of its live sibling, so it can only go green after that sibling's fixture packet is committed; it is derivative, not an independent blocker.",
+      "notes": "Not fired in the 2026-09-20 ronan live-suite cycle.",
+      "supporting_docs": [],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "row": "R-CW-6",
+      "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+      "owner": "unassigned",
+      "state": "missing",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-6/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-6/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
+      "scenario_status": "orchestration-required",
+      "live_run_classification": "orchestration-required",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "not-fired",
+      "fired": false,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "MISSING: orchestration-required. Excluded from the k6 live-suite by design; provable only through its documented process-local isolated fixture.",
+      "notes": "Not fired in the 2026-09-20 ronan live-suite cycle.",
+      "supporting_docs": [],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "row": "R-CW-6A",
+      "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
+      "owner": "unassigned",
+      "state": "missing",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-6A/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-6A/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
+      "scenario_status": "static-preflight-only",
+      "live_run_classification": "static-preflight-only",
+      "candidate_verdict": "MISSING-candidate",
+      "review_status": "not-fired",
+      "fired": false,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "MISSING: static-preflight-only. This row validates the COMMITTED artifacts of its live sibling, so it can only go green after that sibling's fixture packet is committed; it is derivative, not an independent blocker.",
+      "notes": "Not fired in the 2026-09-20 ronan live-suite cycle.",
+      "supporting_docs": [],
+      "test_cases_executed": [],
+      "traces": []
+    },
+    {
+      "row": "R-CW-7",
+      "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-7/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-7/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-7/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143718Z-r-cw-7-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "f784f99346f4bded6503a95edc5b19fa3f707a4ebaf9d87c614567f584c49d7a"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-CHILD-LIVE/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-CHILD-LIVE/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143726Z-r-cw-delegate-child-live-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "bd98f4267d246d052f396765922cd9d5c8fd6919e5041f9c93b5be0f3090ed95"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "title": "Fires continue_delegate that internally calls continue_work \u2014 proves hop-2 woke inside a delegate child session.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-SELF-CONTINUATION/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-SELF-CONTINUATION/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143733Z-r-cw-delegate-self-continuation-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "7156c210c380a671f7367905031104f3409658732ad5808b5bcf2733f3c04ae5"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "title": "Static validator for committed delegate child bare-token continuation receipts.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-TOKEN/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-TOKEN/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143941Z-r-cw-delegate-token-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "03ce7b627f205da4d5a8f76ccde7202ebc32611fabb73918d2635c028c80e3d4"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143956Z-r-cw-multi-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "bd40d8671eb6fb18bceafe28d2a10934b9e9d55537b25bbbe3e9a198634c40c7"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI-COLLAPSE/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI-COLLAPSE/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T143949Z-r-cw-multi-collapse-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "708ccdaa304ff506af785ab8653fdc9c29e7593cf5d294b66cf59fdb48ad1e1f"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
+      "owner": "automated-candidate-fire",
+      "state": "partial",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-TOKEN/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-TOKEN/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PARTIAL-candidate on an automated candidate fire; effective exit 99.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-TOKEN/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144003Z-r-cw-token-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "6a75611b96c57c281234dedc01355e4c25dcb9be8e8b1636303ff0e9e9dd9fe7"
+    },
+    {
+      "row": "R-OBS-1",
+      "title": "Session-status-card observability via the session_status tool.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS: complete OBS1-STATUS sentinel with build/context/chain/route all visible, on a disclosed refire.",
+      "notes": "DISCLOSED REFIRE. First fire (run 20260920T144241Z-r-obs-1-743bccb7) returned FAIL-candidate: dispatch was accepted but no OBS1-STATUS sentinel arrived within the row's 60s window and all four visibility predicates were false. That first fire was INVALIDATED by an agent-turn stall, not by row behavior: its bounded gateway-journal capture (14:42:41Z-14:43:45Z) contained zero proof-relevant lines, no assistant_output_started milestone exists anywhere in that window, and an '[agent/embedded] Codex parent-local egress workaround is unavailable' warning was logged 2s after dispatch. For comparison a later row in the same suite (R-RC-1) reached assistant_output_started in 11.3s. The row was refired once, alone, into a separate artifact root; it produced the complete sentinel in 22.2s with build=yes context=yes chain=yes route=yes. The prior FAIL is retained here as provenance and is not hidden.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T150148Z-r-obs-1-4596b8c1",
+        "20260920T144241Z-r-obs-1-743bccb7 (first fire, FAIL, invalidated)"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "25591484569bf0fefbe8d5ada3b1d4d5fc41fb3eae3d230ae71df17f15c42b0d",
+      "refired": true
+    },
+    {
+      "row": "R-OBS-2",
+      "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-2/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-2/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144349Z-r-obs-2-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "2962f9204515e50143ec69bc6225178a1d277c0207ec42c6eb191c0d57f9693a"
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-STATUS/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-STATUS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-STATUS/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144356Z-r-obs-status-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "f248b81ce5922f52aaf75b2d000e0a1fd82bd8af383c59e64518d9684ac676c4"
+    },
+    {
+      "row": "R-RC-1",
+      "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-1/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-1/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-1/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144404Z-r-rc-1-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "534429708d689838df620bcee1f0d93920871e08e3f614d98170137247ac5ac7"
+    },
+    {
+      "row": "R-RC-2",
+      "title": "Parent fires continue_delegate to a child that calls request_compaction.",
+      "owner": "automated-candidate-fire",
+      "state": "honest_limit",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-2/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-2/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "HONEST-LIMIT-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [
+        "continuation-trace-correlation",
+        "tempo-trace-json"
+      ],
+      "summary": "HONEST-LIMIT-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-2/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144422Z-r-rc-2-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "893482d9307e808b1c3e4462ac23d1b4c5b6912baf2a31d1e21874939f99a62a"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-REGRESSION-TRAP-TESTS/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-REGRESSION-TRAP-TESTS/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144458Z-r-regression-trap-tests-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "e02106e211c486aa83e5f46e02e3828a3dab067844c89e82761c3ca64d89cb66"
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+      "owner": "automated-candidate-fire",
+      "state": "pass",
+      "dir": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-TRACE-REDACTION-1121/",
+      "evidence_doc": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-TRACE-REDACTION-1121/EVIDENCE.md",
+      "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+      "scenario_status": "runnable",
+      "live_run_classification": "k6-runnable",
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "candidate-only-no-independent-review",
+      "fired": true,
+      "exact_target_execution": false,
+      "exact_target_mode_b": false,
+      "pending_receipts": [],
+      "summary": "PASS-candidate on an automated candidate fire; effective exit 0.",
+      "notes": "Executed on the composite carrier 1baff536afa549fea75660403c453bbd265352c0; presented at 3821eaef72677c78f450ae9956cb582a22ba4cba. Continuation-surface diff between the two is empty. Automatic producer authority was not used and this row is not promoted.",
+      "supporting_docs": [
+        "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-TRACE-REDACTION-1121/PUBLIC-REVIEW.json"
+      ],
+      "test_cases_executed": [
+        "20260920T144506Z-r-trace-redaction-1121-743bccb7"
+      ],
+      "traces": [],
+      "private_row_artifact_sha256": "68ce3674a4171b97a488dc111b53d0f84e198f63863e56e267a876287ca029c6"
+    }
+  ],
+  "notes": "Candidate-only corpus. Not acceptance-complete: 23 pass, 9 partial, 1 honest_limit, 0 fail, 5 missing of 38 required rows. R-OBS-1 rests on a disclosed refire after an invalidated first fire. Raw per-row artifacts are retained privately on the seat and bound here by sha256; only public-safe review documents are published, matching the established corpus shape.",
+  "refires": [
+    {
+      "row": "R-OBS-1",
+      "firstFireRunId": "20260920T144241Z-r-obs-1-743bccb7",
+      "firstFireVerdict": "FAIL-candidate",
+      "refireRunId": "20260920T150148Z-r-obs-1-4596b8c1",
+      "refireVerdict": "PASS-candidate",
+      "reason": "DISCLOSED REFIRE. First fire (run 20260920T144241Z-r-obs-1-743bccb7) returned FAIL-candidate: dispatch was accepted but no OBS1-STATUS sentinel arrived within the row's 60s window and all four visibility predicates were false. That first fire was INVALIDATED by an agent-turn stall, not by row behavior: its bounded gateway-journal capture (14:42:41Z-14:43:45Z) contained zero proof-relevant lines, no assistant_output_started milestone exists anywhere in that window, and an '[agent/embedded] Codex parent-local egress workaround is unavailable' warning was logged 2s after dispatch. For comparison a later row in the same suite (R-RC-1) reached assistant_output_started in 11.3s. The row was refired once, alone, into a separate artifact root; it produced the complete sentinel in 22.2s with build=yes context=yes chain=yes route=yes. The prior FAIL is retained here as provenance and is not hidden."
+    }
+  ]
+}

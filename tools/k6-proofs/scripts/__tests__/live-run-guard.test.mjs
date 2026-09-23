@@ -194,3 +194,84 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
   assert.equal(unknownResume.status, 2);
   assert.match(unknownResume.stderr, /--from row is not runnable/);
 });
+
+// The manifest is the declaration of record for WHICH scenario proves a row.
+// run-proof.sh used to resolve the scenario purely from the row name, so the
+// six rows proved by the shared static-corpus-row-validator either ran an
+// unrelated same-named file or reported a runnable row as unimplemented —
+// R-CD-COLLECTION-ON-COLLAPSE has a same-named scaffold that throws
+// "live-fire design not implemented" while its manifest declares the validator
+// and the row actually passes. The runner now prefers this emitted value, so
+// these cases are the belled rope on that contract.
+function runGuardShell(manifest, extraEnv = {}) {
+  return spawnSync(process.execPath, [script, '--manifest', manifest, '--shell'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    env: { ...validEnv, ...extraEnv },
+  });
+}
+
+function parseShellVar(stdout, name) {
+  const line = stdout.split('\n').find((candidate) => candidate.startsWith(`${name}=`));
+  if (!line) return undefined;
+  return line.slice(name.length + 1).replace(/^'(.*)'$/s, '$1');
+}
+
+test('shell mode publishes the manifest-declared scenario file for validator-backed rows', () => {
+  const result = runGuardShell(join(repoRoot, 'tools/k6-proofs/manifests/r-cw-multi.json'));
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(
+    parseShellVar(result.stdout, 'K6_PROOF_SCENARIO_FILE'),
+    'static-corpus-row-validator.js',
+    'R-CW-MULTI is proved by the shared validator and has no same-named scenario, so the runner cannot resolve it by row name',
+  );
+});
+
+test('shell mode publishes the declared scenario file when it matches the row name', () => {
+  const result = runGuardShell(join(repoRoot, 'tools/k6-proofs/manifests/r-obs-2.json'));
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(parseShellVar(result.stdout, 'K6_PROOF_SCENARIO_FILE'), 'r-obs-2.js');
+});
+
+test('shell mode keeps every emitted value single-quoted so run-proof.sh can eval it', () => {
+  const result = runGuardShell(join(repoRoot, 'tools/k6-proofs/manifests/r-cw-multi.json'));
+  assert.equal(result.status, 0, result.stderr);
+  const emitted = result.stdout.split('\n').filter((line) => line.startsWith('K6_PROOF_'));
+  assert.ok(emitted.length >= 7, `expected the full K6_PROOF_* set, got ${emitted.length}`);
+  for (const line of emitted) {
+    const value = line.slice(line.indexOf('=') + 1);
+    // K6_PROOF_LOCK_REQUIRED is a bare 0/1 flag; every other value is quoted.
+    if (line.startsWith('K6_PROOF_LOCK_REQUIRED=')) {
+      assert.match(value, /^[01]$/);
+      continue;
+    }
+    assert.match(value, /^'.*'$/s, `${line} must be single-quoted for eval safety`);
+  }
+});
+
+test('a manifest with no declared scenario file emits an empty value rather than omitting it', async () => {
+  const fixture = await writeManifestFixture({
+    ...orchestrationRequiredManifest('R-SCENARIO-FILE-ABSENT'),
+    liveRunSafety: {
+      classification: 'construct-only',
+      expectedArtifactClass: 'construct-only',
+      foldRequiresReview: true,
+      requiredReceipts: ['construct-note'],
+      sameSessionConcurrencySafe: true,
+    },
+    expectedReceipts: [{ name: 'construct-note', path: 'note.md' }],
+    scenario: { name: 'absent', status: 'scaffold' },
+  });
+  try {
+    const result = runGuardShell(fixture.file);
+    // construct-only is rejected by the guard, which is the correct outcome;
+    // the point here is that the runner never sees a half-formed variable set.
+    if (result.status === 0) {
+      assert.equal(parseShellVar(result.stdout, 'K6_PROOF_SCENARIO_FILE'), '');
+    } else {
+      assert.equal(result.stdout.includes('K6_PROOF_SCENARIO_FILE'), false);
+    }
+  } finally {
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});

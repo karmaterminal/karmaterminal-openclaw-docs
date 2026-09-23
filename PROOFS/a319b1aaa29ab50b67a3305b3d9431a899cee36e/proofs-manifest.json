@@ -1,0 +1,325 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "presented_sha": "a319b1aaa29ab50b67a3305b3d9431a899cee36e",
+  "presented_sha_short": "a319b1aa",
+  "prior_presented_sha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "upstream_parent_absorbed": "41ee7fb2422bd7a0eea18f744dbfe075c9614db9",
+  "execution_runtime_sha": "1baff536afa549fea75660403c453bbd265352c0",
+  "exact_product_runtime": false,
+  "presented_is_ancestor_of_runtime": false,
+  "runtime_is_ancestor_of_presented": false,
+  "merge_base_presented_runtime": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "execution_status": "STATIC_GATES_ONLY_NO_LIVE_ROWS_AT_THIS_SHA",
+  "generated_at": "2026-09-21T05:21:55Z",
+  "seat": "ronan",
+  "arch": "aarch64",
+  "static_gates": [
+    {
+      "gate": "pnpm tsgo:core",
+      "verdict": "pass",
+      "rc": 0,
+      "receipt": "gates/gate-tsgo-core.log"
+    },
+    {
+      "gate": "pnpm lint (oxlint core+extensions+scripts)",
+      "verdict": "pass",
+      "rc": 0,
+      "receipt": "gates/gate-pnpm-lint.log",
+      "note": "first fully clean lint on this lane"
+    },
+    {
+      "gate": "Gate 2.7 upstream-content-preservation",
+      "verdict": "pass",
+      "receipt": "gates/gate-2.7-classification.tsv",
+      "files_examined": 841,
+      "genuine": 465,
+      "safe_new": 376,
+      "frozen_stale": 0,
+      "mixed_clobber": 0
+    },
+    {
+      "gate": "mergeable against upstream/main",
+      "verdict": "pass",
+      "receipt": "mergeability/ancestry-and-mergeability.log",
+      "merge_tree_rc": 0,
+      "upstream_commits_missing": 0
+    },
+    {
+      "gate": "fast-forward safety gate",
+      "verdict": "pass",
+      "receipt": "mergeability/ancestry-and-mergeability.log",
+      "pure_fast_forward": true,
+      "commits_lost": 0,
+      "commits_added": 484
+    },
+    {
+      "gate": "vitest gateway maintenance + close + delegate-artifacts",
+      "verdict": "pass",
+      "tests": 123,
+      "passed": 123,
+      "receipt": "gates/vitest-gateway-maintenance-close.log"
+    },
+    {
+      "gate": "vitest text_end reconciliation",
+      "verdict": "fail",
+      "tests": 47,
+      "passed": 41,
+      "failed": 6,
+      "receipt": "gates/vitest-text-end-reconciliation.log",
+      "tracked_issue": "karmaterminal/openclaw#1350",
+      "regression_from_absorb": false
+    }
+  ],
+  "divergence_from_runtime": {
+    "files_changed_total": 13956,
+    "production_files_changed_gateway_agents": 1280,
+    "production_files_changed_continuation": 3,
+    "production_files_continuation": [
+      "src/auto-reply/continuation/context-pressure.ts",
+      "src/auto-reply/continuation/post-compaction-staged-dispatch.ts",
+      "src/auto-reply/continuation/system-event-ownership.ts"
+    ]
+  },
+  "rows": [
+    {
+      "row": "R-CD-1",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-1"
+    },
+    {
+      "row": "R-CD-2",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-2"
+    },
+    {
+      "row": "R-CD-3",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-3"
+    },
+    {
+      "row": "R-CD-4",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-4"
+    },
+    {
+      "row": "R-CD-CHAINED-DEPTH-2",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-CHAINED-DEPTH-2"
+    },
+    {
+      "row": "R-CD-COLLECTION-ON-COLLAPSE",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-COLLECTION-ON-COLLAPSE"
+    },
+    {
+      "row": "R-CD-MODEL-CHAINED-ALT",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-CHAINED-ALT"
+    },
+    {
+      "row": "R-CD-MODEL-DEFAULT",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-DEFAULT"
+    },
+    {
+      "row": "R-CD-MODEL-TOKEN",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOKEN"
+    },
+    {
+      "row": "R-CD-MODEL-TOOL",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-MODEL-TOOL"
+    },
+    {
+      "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-COVENANT-AUTHORITY"
+    },
+    {
+      "row": "R-CD-RETURN-OVERLAP",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-RETURN-OVERLAP"
+    },
+    {
+      "row": "R-CD-SILENT",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-SILENT"
+    },
+    {
+      "row": "R-CD-TOKEN",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CD-TOKEN"
+    },
+    {
+      "row": "R-CONFIG-DEFAULTS",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-DEFAULTS"
+    },
+    {
+      "row": "R-CONFIG-INTERSESSION",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CONFIG-INTERSESSION"
+    },
+    {
+      "row": "R-CW-1",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-1"
+    },
+    {
+      "row": "R-CW-2",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-2"
+    },
+    {
+      "row": "R-CW-3",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-3"
+    },
+    {
+      "row": "R-CW-4",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-4"
+    },
+    {
+      "row": "R-CW-5",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-5"
+    },
+    {
+      "row": "R-CW-5A",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-5A"
+    },
+    {
+      "row": "R-CW-6",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-6"
+    },
+    {
+      "row": "R-CW-6A",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-6A"
+    },
+    {
+      "row": "R-CW-7",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-7"
+    },
+    {
+      "row": "R-CW-DELEGATE-CHILD-LIVE",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-CHILD-LIVE"
+    },
+    {
+      "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-SELF-CONTINUATION"
+    },
+    {
+      "row": "R-CW-DELEGATE-TOKEN",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-DELEGATE-TOKEN"
+    },
+    {
+      "row": "R-CW-MULTI",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI"
+    },
+    {
+      "row": "R-CW-MULTI-COLLAPSE",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-MULTI-COLLAPSE"
+    },
+    {
+      "row": "R-CW-TOKEN",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-CW-TOKEN"
+    },
+    {
+      "row": "R-OBS-1",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-1"
+    },
+    {
+      "row": "R-OBS-2",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-2"
+    },
+    {
+      "row": "R-OBS-STATUS",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-OBS-STATUS"
+    },
+    {
+      "row": "R-RC-1",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-1"
+    },
+    {
+      "row": "R-RC-2",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-RC-2"
+    },
+    {
+      "row": "R-REGRESSION-TRAP-TESTS",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-REGRESSION-TRAP-TESTS"
+    },
+    {
+      "row": "R-TRACE-REDACTION-1121",
+      "verdict": "not_fired_at_this_sha",
+      "reason": "fleet runtime and presented SHA are divergent siblings; a live fire on the fleet as deployed would be evidence about 1baff536af, not about this SHA",
+      "prior_evidence": "PROOFS/3821eaef72677c78f450ae9956cb582a22ba4cba/R-TRACE-REDACTION-1121"
+    }
+  ],
+  "rollup": {
+    "total_rows": 38,
+    "pass": 0,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "not_fired_at_this_sha": 38
+  },
+  "unblocked_by": "a figs-gated redeploy onto a runtime that has this SHA as a git ancestor",
+  "supersedes_published_board": false,
+  "published_board": "PROOFS/7cb9d71f622250bedbf565e327bd7d7b9d90b567/"
+}

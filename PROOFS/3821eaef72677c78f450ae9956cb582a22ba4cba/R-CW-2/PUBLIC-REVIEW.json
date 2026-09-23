@@ -1,0 +1,56 @@
+{
+  "schema": "openclaw.k6.public-review.v1",
+  "row": "R-CW-2",
+  "authority": "automated-candidate-fire",
+  "independentReview": false,
+  "canonicalFoldAllowed": false,
+  "finalClassification": "PASS-candidate",
+  "productSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+  "runtimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+  "docsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018",
+  "exactProductRuntime": false,
+  "scenario": [
+    "r-cw-2-immediate-wake-summary.json"
+  ],
+  "observedPredicates": {
+    "row": "R-CW-2",
+    "manifest_loaded": true,
+    "seat": "ronan",
+    "session_created": true,
+    "candidateSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "started": "2026-09-20T14:35:37.118Z",
+    "dispatch_accepted": true,
+    "scheduled_sentinel": true,
+    "immediate_wake_observed": true,
+    "prompt_echo_ignored": true,
+    "dispatch_accepted_at_ms": 1789914937899,
+    "scheduled_result_at_ms": 1789914947941,
+    "wake_delay_ms": 654,
+    "trace_id": null,
+    "ended": "2026-09-20T14:35:48.595Z",
+    "duration_ms": 11477
+  },
+  "pendingReceipts": [],
+  "observability": {
+    "traceStatus": "unknown",
+    "traceId": null,
+    "tempoTraceJson": null,
+    "correlationReceipt": null,
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "evidenceLimitations": [],
+  "identityFingerprints": {
+    "seat": "ronan",
+    "runId": "20260920T143533Z-r-cw-2-743bccb7",
+    "executionRuntimeSha": "1baff536afa549fea75660403c453bbd265352c0",
+    "presentationSha": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+    "harnessDocsSha": "45d301cb87c2e57634daf2fb78c7613d6afbc018"
+  },
+  "privateRowArtifactSha256": "42fc9dda6f0131d7a29489263a313827602fafb40f6e6aabcfb40390934c4d24",
+  "privateRowArtifactFileCount": 20,
+  "privateArtifactLocation": "ronan:project81-k6-proof-artifacts/1baff536afa549fea75660403c453bbd265352c0/R-CW-2/ronan/20260920T143533Z-r-cw-2-743bccb7/"
+}

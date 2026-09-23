@@ -1,0 +1,41 @@
+# ancestry, mergeability and diff-size receipts for 139e3657b1fd5e53166789b8676f18578e209393
+# captured 2026-09-21T11:33:51Z on ronan (aarch64)
+
+$ git rev-parse upstream/main
+c5cddb2da341b05219d8c7b880fe239a255af337
+
+== the absorbed base: what this head actually merged ==
+$ git merge-base upstream/main 139e3657b1fd5e53166789b8676f18578e209393
+715077a3befb5bb1239a8b0ebb52980e957ad316
+
+== WHAT UPSTREAM SEES ON THE PR (merge-base..HEAD) ==
+$ git diff --stat $(git merge-base upstream/main 139e3657b1fd5e53166789b8676f18578e209393) 139e3657b1fd5e53166789b8676f18578e209393 | tail -1
+ 839 files changed, 140919 insertions(+), 4301 deletions(-)
+
+# NB: `git diff upstream/main HEAD` reports a much larger number because it is
+# the symmetric difference, including upstream's newer commits as reversions.
+$ git diff --stat upstream/main 139e3657b1fd5e53166789b8676f18578e209393 | tail -1
+ 2358 files changed, 162069 insertions(+), 69119 deletions(-)
+
+$ git rev-list --count 139e3657b1fd5e53166789b8676f18578e209393..upstream/main   # upstream commits NOT absorbed
+175
+
+$ git merge-tree --write-tree 139e3657b1fd5e53166789b8676f18578e209393 upstream/main >/dev/null; echo $?   # 0 = mergeable
+1
+
+== fast-forward safety gate for this cycle ==
+prior presented SHA: a319b1aaa29ab50b67a3305b3d9431a899cee36e
+$ git merge-base --is-ancestor a319b1aaa2 139e3657b1fd5e53166789b8676f18578e209393; echo $?   # 0 = pure ff
+0
+$ git rev-list --count 139e3657b1fd5e53166789b8676f18578e209393..a319b1aaa2   # commits lost by the ff, MUST be 0
+0
+$ git rev-list --count a319b1aaa2..139e3657b1fd5e53166789b8676f18578e209393   # commits added
+36
+
+== presented vs fleet runtime ==
+$ git merge-base --is-ancestor 139e3657b1fd5e53166789b8676f18578e209393 1baff536af; echo $?
+1
+$ git merge-base --is-ancestor 1baff536af 139e3657b1fd5e53166789b8676f18578e209393; echo $?
+1
+$ git merge-base 139e3657b1fd5e53166789b8676f18578e209393 1baff536af
+3821eaef72677c78f450ae9956cb582a22ba4cba

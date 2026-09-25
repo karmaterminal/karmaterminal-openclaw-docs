@@ -194,6 +194,28 @@ jobs:
           OPENCLAW_SEAT_READINESS_FILE: ${{ runner.temp }}/seat-readiness.json
         run: |
           set -euo pipefail
+          # The receipt is written under RUNNER_TEMP and cleaned up post-job, and
+          # neither script below prints on the failure path, so a rejected gate
+          # left "exit code 2" as its entire record. Report the receipt's verdict
+          # fields on the way out -- outcome and the named checks only, never the
+          # whole receipt, which carries seat detail.
+          report_receipt() {
+            if [ ! -s "$OPENCLAW_SEAT_READINESS_FILE" ]; then
+              echo "seat readiness: no receipt was written"
+              return 0
+            fi
+            node -e '
+              const fs = require("node:fs");
+              try {
+                const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                console.log("seat readiness outcome:", r.outcome ?? "(none)");
+                console.log("seat readiness notes:", JSON.stringify(r.notes ?? []));
+              } catch (err) {
+                console.log("seat readiness: receipt could not be parsed:", err.message);
+              }
+            ' "$OPENCLAW_SEAT_READINESS_FILE" || true
+          }
+          trap report_receipt EXIT
           node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json \
             > "$OPENCLAW_SEAT_READINESS_FILE"
           node tools/k6-proofs/scripts/verify-seat-readiness.mjs \

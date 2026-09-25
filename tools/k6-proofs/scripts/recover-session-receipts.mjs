@@ -36,7 +36,9 @@ function connectFrame(token) {
         mode: 'backend',
       },
       role: 'operator',
-      scopes: ['operator.read', 'session.control'],
+      // See lib/gateway-ws.js: requesting session.control makes the gateway mark this
+      // connection's authority non-current, failing every subsequent method.
+      scopes: ['operator.read', 'operator.write'],
       caps: [],
       commands: [],
       permissions: {},

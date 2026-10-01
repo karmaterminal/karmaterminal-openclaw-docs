@@ -1,0 +1,11 @@
+{
+  "schema": "openclaw.k6.return-covenant-control.v1",
+  "baseFixture": "forbidden-pass.json",
+  "mutations": [
+    {
+      "path": "effects.observed.wakes",
+      "value": 1
+    }
+  ],
+  "expectedFailure": "stale-side-effect"
+}

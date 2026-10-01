@@ -1,0 +1,140 @@
+{
+  "schema": "openclaw.k6.return-covenant-cleanup.v1",
+  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "runId": "rcv-00000000000000000000000000000001",
+  "candidateSha": "1111111111111111111111111111111111111111",
+  "runtimeBuildSha": "1111111111111111111111111111111111111111",
+  "docsHarnessSha": "2222222222222222222222222222222222222222",
+  "runtimeConfigSha256": "4ce6c95d74e8cf1f6f94784073391de3e02432a5b9867ff25fb14d7f5632ed06",
+  "startedAt": "2026-08-28T12:10:00.000Z",
+  "endedAt": "2026-08-28T12:10:01.000Z",
+  "retained": {
+    "delegates": 0,
+    "queueItems": 1,
+    "temporarySessions": 0,
+    "gateways": 0,
+    "fixtureProcesses": 1
+  },
+  "retentionAuthority": {
+    "resourceState": "docs-owned-isolated-durable-store-observation",
+    "gatewayState": "docs-owned-gateway-corroboration",
+    "processState": "trusted-launcher-proc-observation",
+    "caseHandles": "docs-owned-phase-chain-ledger",
+    "candidateCleanup": "untrusted-diagnostic-only"
+  },
+  "candidateCleanupDiagnostic": {
+    "status": "read",
+    "failureCategory": null
+  },
+  "resourceObservation": {
+    "status": "unverified-resource-retention",
+    "evidenceSha256": "8888888888888888888888888888888888888888888888888888888888888888",
+    "responseSha256": null,
+    "observedAt": null,
+    "gatewayPid": null,
+    "gatewayStartFingerprint": null,
+    "gatewaySocketFingerprint": null,
+    "gatewayEndpoint": null
+  },
+  "durableStoreObservation": {
+    "schema": "openclaw.k6.return-covenant-durable-store-chain.v1",
+    "stable": false,
+    "live": {
+      "schema": "openclaw.k6.return-covenant-store-observation.v1",
+      "status": "unverified-resource-retention",
+      "failureReason": "fixture placeholder",
+      "source": "docs-owned-isolated-durable-store-reader",
+      "runtimeAlive": true,
+      "runtimeProcess": {
+        "driverPidFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "gatewayPidFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+        "processGroupFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+        "expectedDriverStartFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+        "expectedGatewayStartFingerprint": "5555555555555555555555555555555555555555555555555555555555555555",
+        "expectedGatewaySocketFingerprint": "6666666666666666666666666666666666666666666666666666666666666666",
+        "expectedGatewayEndpoint": "http://127.0.0.1:18791",
+        "expectedAlive": true,
+        "before": null,
+        "after": null,
+        "quiescence": {
+          "required": true,
+          "stoppedAt": null,
+          "resumedAt": null,
+          "membersStopped": null
+        },
+        "shutdownSettledAt": null,
+        "matched": false
+      },
+      "requestedAt": "2026-08-28T12:09:31.010Z",
+      "snapshotStartedAt": null,
+      "snapshotCompletedAt": null,
+      "observedAt": "2026-08-28T12:09:31.020Z",
+      "identity": {},
+      "resources": {},
+      "sourceBinding": null,
+      "rawSnapshotSha256": null
+    },
+    "final": {
+      "schema": "openclaw.k6.return-covenant-store-observation.v1",
+      "status": "unverified-resource-retention",
+      "failureReason": "fixture placeholder",
+      "source": "docs-owned-isolated-durable-store-reader",
+      "runtimeAlive": false,
+      "runtimeProcess": {
+        "driverPidFingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "gatewayPidFingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+        "processGroupFingerprint": "3333333333333333333333333333333333333333333333333333333333333333",
+        "expectedDriverStartFingerprint": "4444444444444444444444444444444444444444444444444444444444444444",
+        "expectedGatewayStartFingerprint": "5555555555555555555555555555555555555555555555555555555555555555",
+        "expectedGatewaySocketFingerprint": "6666666666666666666666666666666666666666666666666666666666666666",
+        "expectedGatewayEndpoint": "http://127.0.0.1:18791",
+        "expectedAlive": false,
+        "before": null,
+        "after": null,
+        "quiescence": {
+          "required": false,
+          "stoppedAt": null,
+          "resumedAt": null,
+          "membersStopped": null
+        },
+        "shutdownSettledAt": "2026-08-28T12:09:31.490Z",
+        "matched": false
+      },
+      "requestedAt": "2026-08-28T12:09:31.500Z",
+      "snapshotStartedAt": null,
+      "snapshotCompletedAt": null,
+      "observedAt": "2026-08-28T12:09:31.510Z",
+      "identity": {},
+      "resources": {},
+      "sourceBinding": null,
+      "rawSnapshotSha256": null
+    }
+  },
+  "homeRemoved": true,
+  "stateRemoved": false,
+  "configRemoved": true,
+  "fixtureProcessStopped": false,
+  "gatewayProcessStopped": true,
+  "allCaseHandlesClosed": false,
+  "caseHandles": [],
+  "observationSetSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "phaseChainSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "driverAttestationSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "runCleanupReceiptId": "run-cleanup-receipt-failure",
+  "snapshotMatchedCandidateAfterRun": false,
+  "runRootRemoved": false,
+  "driverExitCode": 1,
+  "processGroupEmpty": false,
+  "unexpectedProcessGroupMembers": 1,
+  "gatewayLifecycle": [],
+  "k6": {
+    "version": "k6 v2.0.0",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "pathFingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "isolationFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "launcherIntegrity": {
+    "algorithm": "hmac-sha256-launch-key-v1",
+    "signature": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
+}

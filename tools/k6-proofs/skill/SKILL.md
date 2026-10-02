@@ -79,10 +79,13 @@ Claim the labelled Project-81 issue before doing row work.
 ### 2. Write the Row Manifest
 Copy the closest existing manifest to `tools/k6-proofs/manifests/<row>.json`, for example
 `tools/k6-proofs/manifests/r-cw-2.json` for a typed-tool WebSocket row.
-- `schema` is `openclaw.k6.proof-row-manifest.v1`; the shape is `tools/k6-proofs/row-manifest.schema.json`.
+- `schema` is `openclaw.k6.proof-row-manifest.v1`; the shape and required fields are in
+  `tools/k6-proofs/row-manifest.schema.json`. `review.candidateOnly` and
+  `review.foldRequiresReview` are always `true`.
 - Seat, SHA and session values are `${ENV_VAR:-default}` placeholders. No secrets, ever.
-- `scenario.status` is `runnable` (with `scenario.file`), `scaffold` or `construct-only`; a row
-  whose scenario does not exist yet is `scaffold` or `construct-only`, and
+- `scenario.status` is `runnable`, with `scenario.file` set to the scenario's basename under
+  `tools/k6-proofs/scenarios/`. A row whose scenario does not exist yet is `scaffold` (the planned
+  basename goes in `scenario.expectedFile`) or `construct-only` (no file at all), and
   `liveRunSafety.classification` `k6-runnable` requires `runnable`.
 - A live row fills `liveRunSafety`: `foldRequiresReview` is always `true`, and every
   `requiredReceipts` entry except `seat-readiness` must name an `expectedReceipts` entry.
@@ -99,25 +102,29 @@ existing scenario, not a blank file:
 | typed-tool over WebSocket | `tools/k6-proofs/scenarios/r-cw-2-immediate-wake.js` (manifest `tools/k6-proofs/manifests/r-cw-2.json`) |
 | bracket/token over WebSocket | `tools/k6-proofs/scenarios/r-cw-token-bracket.js` (manifest `tools/k6-proofs/manifests/r-cw-token.json`) |
 | read-only over WebSocket | `tools/k6-proofs/scenarios/r-config-defaults.js` (manifest `tools/k6-proofs/manifests/r-config-defaults.json`) |
-| offline, over committed receipts | no new file: point `scenario.file` at the shared `tools/k6-proofs/scenarios/static-corpus-row-validator.js`, as `tools/k6-proofs/manifests/r-cw-7.json` does |
+| offline, over committed receipts | set `scenario.file` to `static-corpus-row-validator.js` and add a validator for the row to the `validators` map in `tools/k6-proofs/scenarios/static-corpus-row-validator.js`, which fails any row it has no validator for; `tools/k6-proofs/manifests/r-cw-7.json` and `validateRcw7` are the example |
 | cap exhaustion (R-CW-5, R-CW-6) | not a k6 scenario; see Caps-Test Procedure below |
 
-Every scenario keeps these properties:
+Every scenario keeps these properties; the gateway and nonce rules are for live rows:
 - **Manifest-driven.** Load config with `loadManifestFromEnv()` and `validateManifest()` from
   `tools/k6-proofs/lib/manifest-loader.js`; `OPENCLAW_ROW_MANIFEST` selects the manifest.
-- **Gateway over WebSocket.** `k6/ws` with `connectFrame()`, `RequestTracker` and `nonce()` from
-  `tools/k6-proofs/lib/gateway-ws.js`. The target comes from `OPENCLAW_GATEWAY_WS` and the token
-  only from `OPENCLAW_GATEWAY_TOKEN`. Responses are `{ type: "res", id, payload?, error? }`, not `{ result }`.
+- **Gateway over WebSocket (live rows).** `k6/ws` with `connectFrame()`, `RequestTracker` and
+  `nonce()` from `tools/k6-proofs/lib/gateway-ws.js`. The target comes from `OPENCLAW_GATEWAY_WS`
+  and the token only from `OPENCLAW_GATEWAY_TOKEN`. Responses are
+  `{ type: "res", id, payload?, error? }`, not `{ result }`.
 - **Redacted.** Store event payloads only through `redactEvent()`; the post-processor refuses
   evidence that carries raw `events` without `redacted_events`.
-- **Nonce per fire.** A fresh `nonce()` and idempotency key for every fire. Where the row prompts
-  an agent, ignore harness prompt echoes, so a sentinel only counts when the agent produced it.
+- **Nonce per fire (live rows).** A fresh `nonce()` and idempotency key for every fire. Where the
+  row prompts an agent, ignore harness prompt echoes, so a sentinel only counts when the agent
+  produced it.
 - **Single VU, serialized.** `shared-iterations` with one VU and one iteration, a `maxDuration`,
   and, over WebSocket, a socket timeout that closes the connection.
 - **Metrics.** A `proof_failures` Counter with threshold `count==0`, plus a duration Trend named
   after the row (`R-CW-2` → `r_cw_2_duration`). See Custom Metrics Naming below.
-- **Candidate verdicts.** `PASS-candidate`, `PARTIAL-candidate` or `FAIL-candidate`; nothing a
-  scenario writes is a final verdict, and folds go through review.
+- **Candidate verdicts.** `PASS-candidate`, `PARTIAL-candidate` or `FAIL-candidate`, plus
+  `HONEST-LIMIT-candidate` or `construct-only` where the manifest's
+  `liveRunSafety.expectedArtifactClass` declares one. Nothing a scenario writes is a final
+  verdict, and folds go through review.
 
 ### 4. Check It Offline
 From the repository root, with no gateway and no secrets:
@@ -134,37 +141,49 @@ basename to that workflow's `scenario` choices; `check-scenario-alignment.mjs` r
 that has no scenario file.
 
 ### 5. Run It
+Run seat readiness on the firing seat first and keep its receipt for step 6:
+`node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json > /tmp/seat-readiness.json`,
+with the environment listed in `tools/k6-proofs/README.md`, "Seat readiness / version
+preflight". A mismatch there is setup state, not product evidence.
+
+Give `OPENCLAW_ROW_MANIFEST` as an absolute path. The guard reads it from the working directory,
+but `tools/k6-proofs/lib/manifest-loader.js` prefixes a relative value with `../` and k6 opens it
+from `tools/k6-proofs/scenarios/`, so a path written from the repository root is not found.
 ```bash
+# From the repository root
+MANIFEST="$PWD/tools/k6-proofs/manifests/r-cw-2.json"
+
 # Fail-closed guard; run-proof.sh runs it for you when OPENCLAW_ROW_MANIFEST is set
 OPENCLAW_GATEWAY_TOKEN="***" \
 OPENCLAW_SESSION_KEY="<target-session>" \
-  node tools/k6-proofs/scripts/live-run-guard.mjs \
-    --manifest tools/k6-proofs/manifests/<row>.json --json
+  node tools/k6-proofs/scripts/live-run-guard.mjs --manifest "$MANIFEST" --json
 
-# Full runner path from repo root; use a promoted scenario basename
+# Full runner path; use a promoted scenario basename
 OPENCLAW_GATEWAY_TOKEN="***" \
 OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
-OPENCLAW_ROW_MANIFEST="tools/k6-proofs/manifests/r-cd-2.json" \
-  ./tools/k6-proofs/run-proof.sh r-cd-2-silent-wake 2>&1 | tee /tmp/r-cd-2-output.txt
+OPENCLAW_ROW_MANIFEST="$MANIFEST" \
+  ./tools/k6-proofs/run-proof.sh r-cw-2-immediate-wake 2>&1 | tee /tmp/r-cw-2-output.txt
 
 # Custom target/env is passed through k6 as environment
-OPENCLAW_GATEWAY_WS=ws://<gateway-host>:18789 ./tools/k6-proofs/run-proof.sh r-cd-2-silent-wake
+OPENCLAW_GATEWAY_WS=ws://<gateway-host>:18789 ./tools/k6-proofs/run-proof.sh r-cw-2-immediate-wake
 ```
-
-Run seat readiness on the firing seat first (`tools/k6-proofs/README.md`, "Seat readiness /
-version preflight"). A mismatch there is setup state, not product evidence.
 
 ### 6. Commit Evidence
 After a successful run on the target SHA:
 ```bash
 node tools/k6-proofs/scripts/evidence-writer.mjs \
-  --input /tmp/r-cd-2-output.txt \
-  --row R-CD-2 \
+  --input /tmp/r-cw-2-output.txt \
+  --row R-CW-2 \
   --seat <seat> \
   --sha <40-char-sha> \
-  --manifest tools/k6-proofs/manifests/r-cd-2.json
+  --seat-readiness /tmp/seat-readiness.json \
+  --manifest "$MANIFEST"
 # Review the candidate run directory, add public-safe trace/log receipts, then fold intentionally.
 ```
+
+The writer re-verifies the readiness receipt, so run it with the token, SHAs, gateway, unit and
+selected rows the receipt was bound to. It refuses R-CD-2, which
+`tools/k6-proofs/scripts/run-proofs.sh` handles with its own authority context and receipt resolver.
 
 ## Key Patterns
 

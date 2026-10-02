@@ -11,7 +11,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,10 +61,49 @@ test('the CLI fails closed when no YAML parser can run, unless told to allow it'
   const env = { ...process.env, OPENCLAW_PROOFS_REPO_ROOT: '', OPENCLAW_PROOFS_PYTHON: path.join(tmpdir(), 'no-such-python3') };
   const strict = spawnSync(process.execPath, [script], { cwd: repoRoot, env, encoding: 'utf8' });
   assert.equal(strict.status, 1, strict.stdout + strict.stderr);
-  assert.match(strict.stderr, /no YAML parser to check the frontmatter with/);
+  assert.equal(strict.stderr.match(/no YAML parser to check the frontmatter with/g)?.length, 1, strict.stderr);
   const allowed = spawnSync(process.execPath, [script, '--json', '--allow-missing-yaml-parser'], { cwd: repoRoot, env, encoding: 'utf8' });
   assert.equal(allowed.status, 0, allowed.stdout + allowed.stderr);
   assert.match(JSON.parse(allowed.stdout).yamlParser, /^unavailable: /);
+});
+
+test('the CLI runs, rather than exiting 0 unseen, when reached through a symlinked checkout', async () => {
+  const dir = realpathSync(await mkdtemp(path.join(tmpdir(), 'k6-skill-link-')));
+  try {
+    const link = path.join(dir, 'checkout');
+    await symlink(repoRoot, link);
+    const linked = path.join(link, 'tools/k6-proofs/scripts/check-k6-skill.mjs');
+    const env = { ...process.env, OPENCLAW_PROOFS_REPO_ROOT: '' };
+    const usage = spawnSync(process.execPath, [linked, '--bogus'], { cwd: repoRoot, env, encoding: 'utf8' });
+    assert.equal(usage.status, 2, usage.stdout + usage.stderr);
+    assert.match(usage.stderr, /unknown argument --bogus/);
+    const args = hasPyYaml ? [] : ['--allow-missing-yaml-parser'];
+    const run = spawnSync(process.execPath, [linked, ...args], { cwd: repoRoot, env, encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stdout + run.stderr);
+    assert.match(run.stdout, /^k6 skill: k6-proofs \| YAML parser: .* \| ok$/m);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('a Python that cannot run PyYAML counts as no parser, not as invalid YAML', async () => {
+  const dir = realpathSync(await mkdtemp(path.join(tmpdir(), 'k6-skill-python-')));
+  try {
+    const stub = path.join(dir, 'python3');
+    await writeFile(stub, '#!/bin/sh\necho "Python was not found; run without arguments to install" >&2\nexit 49\n');
+    await chmod(stub, 0o755);
+    const parsed = parseWithPyYaml('name: k6-proofs\n', { python: stub });
+    assert.equal(parsed.error, undefined);
+    assert.match(parsed.unavailable, /exited 49 without running PyYAML \(Python was not found/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('a YAML error from PyYAML stays a YAML error', { skip: noYamlParser }, () => {
+  const parsed = parseWithPyYaml('name: [k6-proofs\n');
+  assert.equal(parsed.unavailable, undefined);
+  assert.match(parsed.error, /yaml\.[a-z]+\.[A-Za-z]*Error/);
 });
 
 const DESCRIPTION = 'Author a fixture proof row for the corpus. Use when exercising the checker.';
@@ -103,6 +142,21 @@ test('a well-formed fixture passes, so each failure below comes from its one cha
   });
 });
 
+const PASSES = [
+  ['a short description with no sentence punctuation', both('Author a fixture proof row')],
+  ['paths cut short by a placeholder', (files) => {
+    files.source += 'Copy `tools/k6-proofs/scenarios/r-<row>.js` and `tools/k6-proofs/manifests/<row>.json`.\n';
+  }],
+];
+
+for (const [label, mutate] of PASSES) {
+  test(`the checker accepts ${label}`, async () => {
+    await withFixture(mutate, (root) => {
+      assert.deepEqual(checkSkill({ root, requireYamlParser: hasPyYaml }).errors, []);
+    });
+  });
+}
+
 const FAILURES = [
   ['a skill with no frontmatter', (files) => { files.source = SOURCE_BODY.trimStart(); }, /skill\/SKILL\.md: missing frontmatter: line 1 must be ---/],
   ['an unterminated frontmatter block', (files) => { files.source = `---\nname: k6-proofs\n${SOURCE_BODY}`; }, /unterminated frontmatter/],
@@ -113,7 +167,11 @@ const FAILURES = [
   ['a description over 1024 characters', both(`Author a fixture row. ${'Use it. '.repeat(130)}`.trim()), /description is \d+ characters; the limit is 1024/],
   ['a first sentence past 160 characters', both(`Author ${'a fixture row and '.repeat(10)}more. Use it.`), /finish its first sentence within 160 characters/],
   ['a name with capitals', (files) => { files.source = frontmatter({ name: 'K6-Proofs' }) + SOURCE_BODY; files.pointer = frontmatter({ name: 'K6-Proofs' }) + POINTER_BODY; }, /name "K6-Proofs" must be lowercase/],
+  ['a duplicate key', (files) => { files.source = `---\nname: k6-proofs\ndescription: ${DESCRIPTION}\nname: k6-proofs\n---\n${SOURCE_BODY}`; }, /frontmatter line 4: duplicate key "name"/],
+  ['a name over 64 characters', (files) => { const name = 'k6'.padEnd(65, '-proofs'); files.source = frontmatter({ name }) + SOURCE_BODY; files.pointer = frontmatter({ name }) + POINTER_BODY; }, /name is 65 characters; the limit is 64/],
+  ['a name that differs from the entry directories', (files) => { files.source = frontmatter({ name: 'k6-proof-rows' }) + SOURCE_BODY; files.pointer = frontmatter({ name: 'k6-proof-rows' }) + POINTER_BODY; }, /\.agents\/skills\/k6-proofs: directory name must equal the skill name "k6-proof-rows"/],
   ['a dead repository path', (files) => { files.source += 'Copy `tools/k6-proofs/scenarios/r-cd-2.js`.\n'; }, /names tools\/k6-proofs\/scenarios\/r-cd-2\.js, which does not exist/],
+  ['a placeholder path in a directory that does not exist', (files) => { files.source += 'Copy `tools/k6-proofs/nowhere/<row>.json`.\n'; }, /names tools\/k6-proofs\/nowhere\/, which does not exist/],
   ['a relative link in the source', (files) => { files.source += 'See [the runner](../run-proof.sh).\n'; }, /relative link \.\.\/run-proof\.sh; name the file by its repository path/],
   ['an http link', (files) => { files.source += 'See [the board](http://example.com/board).\n'; }, /must use https:\/\//],
   ['a pointer whose description drifted', (files) => { files.pointer = frontmatter({ description: `${DESCRIPTION} Also more.` }) + POINTER_BODY; }, /frontmatter description differs from tools\/k6-proofs\/skill\/SKILL\.md/],

@@ -33,7 +33,7 @@
 import { existsSync, lstatSync, readFileSync, readlinkSync, realpathSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 export const SKILL_SOURCE = 'tools/k6-proofs/skill/SKILL.md';
@@ -53,6 +53,9 @@ const MARKDOWN_LINK = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/gu;
 // Repository paths written from the root. The lookbehind skips paths inside URLs
 // and `owner/repo:path` references to other repositories.
 const REPO_PATH = /(?<![\w./:@-])(?:\.\/)?(?:tools|PROOFS|RUNBOOKS|\.agents|\.claude|\.github)\/[\w./-]*/gu;
+
+// The exception line PyYAML ends a traceback with, e.g. yaml.parser.ParserError.
+const PYYAML_ERROR = /\byaml\.[a-z]+\.[A-Za-z]*Error\b/u;
 
 const PYYAML_PROGRAM = [
   'import json, sys',
@@ -116,7 +119,13 @@ export function parseWithPyYaml(block, { python = process.env.OPENCLAW_PROOFS_PY
       return { unavailable: `PyYAML is not installed for ${python} (python3 -m pip install pyyaml)` };
     }
     const lines = result.stderr.trim().split('\n');
-    return { error: lines.slice(-3).join(' | ') };
+    // Only a yaml.* exception means the block was parsed and rejected. Anything else
+    // (an OS stub that names no Python, a broken interpreter) never parsed it.
+    const at = lines.findIndex((line) => PYYAML_ERROR.test(line));
+    if (at < 0) {
+      return { unavailable: `${python} exited ${result.status} without running PyYAML (${lines.at(-1) || 'no output'})` };
+    }
+    return { error: lines.slice(at).map((line) => line.trim()).filter(Boolean).join(' | ') };
   }
   return { value: JSON.parse(result.stdout) };
 }
@@ -138,7 +147,8 @@ export function checkFrontmatterValues(values, label) {
       errors.push(`${label}: description is ${description.length} characters; the limit is ${DESCRIPTION_MAX}`);
     }
     const end = SENTENCE_END.exec(description);
-    if (!end || end.index + 1 > SUMMARY_MAX) {
+    const firstSentence = end ? end.index + 1 : description.length;
+    if (firstSentence > SUMMARY_MAX) {
       errors.push(`${label}: description must finish its first sentence within ${SUMMARY_MAX} characters, so a truncated listing still reads as a summary`);
     }
   }
@@ -173,7 +183,11 @@ export function checkReferences({ root, file, text, allowRelativeLinks }) {
     if (!existsSync(path.resolve(directory, relative))) errors.push(`${where}: dead link ${target}`);
   }
   for (const match of text.matchAll(REPO_PATH)) {
-    const reference = match[0].replace(/^\.\//u, '').replace(/[.,;:]+$/u, '');
+    let reference = match[0].replace(/^\.\//u, '').replace(/[.,;:]+$/u, '');
+    // A placeholder (<row>, *, {sha}) ends the match early; check the directory it sits in.
+    if (/[<*{]/u.test(text[match.index + match[0].length] ?? '')) {
+      reference = reference.slice(0, reference.lastIndexOf('/') + 1);
+    }
     if (!existsSync(path.join(root, reference))) {
       errors.push(`${file}:${lineOf(text, match.index)}: names ${reference}, which does not exist`);
     }
@@ -195,7 +209,7 @@ function readSkillFile({ root, file, yaml, errors }) {
   }
   const lineParse = parseSingleLineFrontmatter(split.block);
   errors.push(...lineParse.errors.map((error) => `${file}: ${error}`));
-  if (yaml.required || yaml.available !== false) {
+  if (yaml.available !== false) {
     const parsed = parseWithPyYaml(split.block, { python: yaml.python });
     if (parsed.unavailable) {
       yaml.available = false;
@@ -317,6 +331,24 @@ function main(argv) {
   return result.ok ? 0 : 1;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+/**
+ * True when this module is the process entry point. `import.meta.url` is
+ * realpath-resolved and `process.argv[1]` is not, so compare both forms; a plain
+ * comparison turns a run through a symlinked checkout into a silent exit 0.
+ */
+function invokedAsCli() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  const resolved = path.resolve(entry);
+  let real = resolved;
+  try {
+    real = realpathSync(resolved);
+  } catch {
+    // Keep the unresolved form; it is still comparable.
+  }
+  return import.meta.url === pathToFileURL(real).href || import.meta.url === pathToFileURL(resolved).href;
+}
+
+if (invokedAsCli()) {
   process.exitCode = main(process.argv.slice(2));
 }

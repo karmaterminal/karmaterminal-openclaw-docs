@@ -11,5 +11,6 @@ This is a pointer, not a copy. The k6 proof-row authoring skill lives beside the
 adds to it.
 
 It is a real file rather than a symlink because OpenClaw reads `.agents/skills` and skips a skill
-directory whose real path leaves that root. The frontmatter above must stay identical to the
-source's; `tools/k6-proofs/scripts/check-k6-skill.mjs` fails when the two drift.
+directory whose real path leaves that root, unless `skills.load.allowSymlinkTargets` names it on
+that seat. The frontmatter above must stay identical to the source's;
+`tools/k6-proofs/scripts/check-k6-skill.mjs` fails when the two drift.

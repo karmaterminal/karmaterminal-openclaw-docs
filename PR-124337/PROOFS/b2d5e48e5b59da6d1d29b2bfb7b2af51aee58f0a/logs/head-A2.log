@@ -1,0 +1,11 @@
++13745ms [env] node v26.9.0 tree=<scratch>/rp-124337 phase=A2
++13745ms [env] retryPolicy={"maxAttempts":3,"deadLetterMinAgeMs":0,"baseMs":0,"maxMs":0} queueSettings={"mode":"followup","debounceMs":0,"cap":10,"dropPolicy":"summarize"}
++13746ms [sqlite] at restart: {msg-1 status=pending attempts=0 last_error=null failed_reason=null}
++21615ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++21617ms [reply-queue] enqueueFollowupRun(msg-1) -> true (session idle, cap=10, dropPolicy=summarize)
++21617ms [agent] turn started for message msg-1
++21619ms [agent] adopted msg-1; ingress claim completed
++21619ms [agent] reply delivered for msg-1
++21621ms [sqlite] after restart drain: {msg-1 status=completed attempts=0 last_error=null failed_reason=null}
++21621ms [result] dispatched=["msg-1"] flushErrors=0
++21622ms [verdict] A2: msg-1 redelivered after restart, adopted, completed

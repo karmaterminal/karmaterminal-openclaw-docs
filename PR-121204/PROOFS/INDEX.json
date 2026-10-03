@@ -1,10 +1,10 @@
 {
   "schema": "openclaw.pr121204.proofs.index.v1",
-  "current_sha": "c59f69417fa0672197ce2262466b78e119c52838",
-  "proof_source_sha": "c59f69417fa0672197ce2262466b78e119c52838",
-  "corpus_path": "PR-121204/PROOFS/c59f69417fa0672197ce2262466b78e119c52838/",
-  "manifest_path": "PR-121204/PROOFS/c59f69417fa0672197ce2262466b78e119c52838/proofs-manifest.json",
-  "readme_path": "PR-121204/PROOFS/c59f69417fa0672197ce2262466b78e119c52838/README.md",
+  "current_sha": "c47379fbdea98796de7f1f35314f7d63424368bf",
+  "proof_source_sha": "c47379fbdea98796de7f1f35314f7d63424368bf",
+  "corpus_path": "PR-121204/PROOFS/c47379fbdea98796de7f1f35314f7d63424368bf/",
+  "manifest_path": "PR-121204/PROOFS/c47379fbdea98796de7f1f35314f7d63424368bf/proofs-manifest.json",
+  "readme_path": "PR-121204/PROOFS/c47379fbdea98796de7f1f35314f7d63424368bf/README.md",
   "materiality_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MATERIALITY.md",
   "source_copy_map_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/SOURCE-COPY-MAP.json",
   "mode_b_receipt_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MODE-B-RECEIPT.json",
@@ -19,8 +19,8 @@
     "missing": 0
   },
   "generated_at": "2026-10-03T04:05:10Z",
-  "previous_sha": "bc35b4f86a8a2e88d0f4edc8b18b22a7ccce34cb",
-  "disposition_note": "Repointed to c59f69417f, bc35b4f86a + a canonical-roster/lint/knip commit (5 commits whose first parent is upstream main 23bc4d7bfe at execution): pre-claim disposition seam, generation-fenced fail (P2), gateway channel inventory, stale ambient policy with canonical requireMention resolution (P1). Evidence is a production-module recovery harness (raw MESSAGE_CREATE -> Discord ingress monitor -> durable SQLite queue; then real GatewayPlugin READY/GUILD_CREATE inventory + live policy reader -> drain -> dispatcher seam) on the exact head and on the series parent as control. Not a Discord socket/REST or model run; see METHOD.md. Earlier corpora retained as provenance.",
+  "previous_sha": "c59f69417fa0672197ce2262466b78e119c52838",
+  "disposition_note": "Repointed to c47379fbde: + preflight-shared mention gate (6 commits whose first parent is upstream main 23bc4d7bfe at execution): pre-claim disposition seam, generation-fenced fail (P2), gateway channel inventory, stale ambient policy with canonical requireMention resolution (P1). Evidence is a production-module recovery harness (raw MESSAGE_CREATE -> Discord ingress monitor -> durable SQLite queue; then real GatewayPlugin READY/GUILD_CREATE inventory + live policy reader -> drain -> dispatcher seam) on the exact head and on the series parent as control. Not a Discord socket/REST or model run; see METHOD.md. Earlier corpora retained as provenance.",
   "control_sha": "23bc4d7bfe8626594f4d986814ea15855097cb6b",
   "target_exact_execution": true,
   "generated_by": "frond-gloss (Claude Opus 5.5)"

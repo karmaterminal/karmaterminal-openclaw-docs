@@ -21,7 +21,7 @@
     "honest_limit": 0,
     "missing": 0
   },
-  "disposition_note": "Repointed to the repainted PR head b2d5e48e5b (two commits whose first parent is 363b9d0ae7, upstream main at execution: reply-lifecycle onCancelled consumer + bounded pre-adoption abandonment). Evidence is a production-module boundary harness (channel ingress monitor -> durable SQLite queue -> drain -> reply/followup queue) executed on the exact head and, as control, on that parent; head is budget-free on cancellation and dead-letters genuine abandonment with lane progress, control charges cancellation and never dead-letters. Not a gateway server or real transport (see METHOD.md). Prior corpora retained as provenance.",
+  "disposition_note": "Repointed to the repainted PR head b2d5e48e5b (two commits whose first parent is 363b9d0ae7, upstream main at execution: reply-lifecycle onCancelled consumer + bounded pre-adoption abandonment). Evidence is a production-module boundary harness (channel ingress monitor -> durable SQLite queue -> drain -> reply/followup queue) executed on the exact head and, as control, on that parent; head is budget-free on cancellation and dead-letters genuine abandonment with lane progress, control charges cancellation and had not dead-lettered at 2x maxAttempts when observation stopped. Not a gateway server or real transport (see METHOD.md). Prior corpora retained as provenance.",
   "navigation": "read INDEX.json -> manifest_path -> rows[] -> target-local evidence_doc and supporting_docs",
   "generated": "2026-08-27",
   "generated_by": "frond-gloss (Claude Opus 5.5)",

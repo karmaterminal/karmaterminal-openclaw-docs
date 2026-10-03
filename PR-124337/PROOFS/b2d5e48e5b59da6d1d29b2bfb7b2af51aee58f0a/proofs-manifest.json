@@ -65,11 +65,11 @@
       "title": "Repeated pre-adoption abandonment dead-letters at maxAttempts and the same-lane follower completes",
       "state": "pass",
       "head": {
-        "verdict": "msg-1 failed retry-limit-exceeded/turn-abandoned after 3 attempts; msg-2 completed",
+        "verdict": "msg-1 failed retry-limit-exceeded/turn-abandoned on its 3rd delivery (persisted attempts=2: terminal disposition does not increment); msg-2 completed",
         "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/head-B.log"
       },
       "control": {
-        "verdict": "msg-1 pending attempts=6+, never dead-lettered; msg-2 never dispatched (lane blocked)",
+        "verdict": "msg-1 still pending at attempts=6 (2x maxAttempts) when observation stopped, not dead-lettered within the window; msg-2 not dispatched within the window (lane blocked)",
         "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/control-B.log"
       }
     }

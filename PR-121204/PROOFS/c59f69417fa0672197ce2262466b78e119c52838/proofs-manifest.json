@@ -1,0 +1,54 @@
+{
+  "pr": "openclaw/openclaw#121204",
+  "head": "c59f69417fa0672197ce2262466b78e119c52838",
+  "control": "23bc4d7bfe8626594f4d986814ea15855097cb6b",
+  "harness": {
+    "path": "harness/discord-recovery-proof.mts",
+    "sha256": "7ad9de9a21c04496887a075c767615e357ac4b3bdd40e2b3101049647402a536"
+  },
+  "scenarios": [
+    {
+      "id": "R",
+      "title": "gateway recovery replays 20 stale ambient + old mention + direct-open request, then a fresh mention",
+      "phases": [
+        "R1 outage: admit backlog, drain not running, exit",
+        "R2 recovery: new process, GatewayPlugin READY+GUILD_CREATE, live policy, fresh mention, drain"
+      ],
+      "head": {
+        "log": "logs/head-R.log",
+        "ambient_failed_stale_ambient_backlog": 20,
+        "ambient_dispatched": 0,
+        "dispatch_order": [
+          "old-mention",
+          "open-request",
+          "fresh-mention"
+        ],
+        "fresh_mention_position": 3,
+        "rows_before_fresh_mention": 2,
+        "final_status_counts": {
+          "failed": 20,
+          "completed": 3
+        }
+      },
+      "control": {
+        "log": "logs/control-R.log",
+        "ambient_failed_stale_ambient_backlog": 0,
+        "ambient_dispatched": 20,
+        "dispatch_order_summary": "amb-01, open-request, amb-02..amb-10, old-mention, amb-11..amb-20, fresh-mention",
+        "fresh_mention_position": 23,
+        "rows_before_fresh_mention": 22,
+        "final_status_counts": {
+          "completed": 23
+        }
+      },
+      "verdict": "PASS"
+    }
+  ],
+  "not_run": [
+    {
+      "id": "P2",
+      "reason": "claim->fail->resubmit generation fence covered by unit tests at this head"
+    }
+  ],
+  "previous_proven_sha": "bc35b4f86a8a2e88d0f4edc8b18b22a7ccce34cb"
+}

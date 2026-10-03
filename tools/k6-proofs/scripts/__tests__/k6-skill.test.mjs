@@ -4,8 +4,9 @@
  * tools/k6-proofs/skill/SKILL.md is the single k6 authoring skill. It had no
  * frontmatter, so neither Claude Code nor OpenClaw would load it, and the
  * .agents/skills/k6-proofs wrapper had become a second, drifting copy with dead
- * paths. These tests pin the committed skill to check-k6-skill.mjs, and pin the
- * checker to each failure it exists to catch.
+ * paths. These tests pin the committed skill to check-k6-skill.mjs, pin the
+ * checker to each failure it exists to catch, and hold the skill's run step to
+ * the environment the README binds the seat-readiness receipt to.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -90,7 +91,9 @@ test('a Python that cannot run PyYAML counts as no parser, not as invalid YAML',
   const dir = realpathSync(await mkdtemp(path.join(tmpdir(), 'k6-skill-python-')));
   try {
     const stub = path.join(dir, 'python3');
-    await writeFile(stub, '#!/bin/sh\necho "Python was not found; run without arguments to install" >&2\nexit 49\n');
+    // Read stdin before exiting: an early exit races the checker's write, and on a busy host
+    // the write then fails with EPIPE before the exit status is ever read.
+    await writeFile(stub, '#!/bin/sh\ncat >/dev/null\necho "Python was not found; run without arguments to install" >&2\nexit 49\n');
     await chmod(stub, 0o755);
     const parsed = parseWithPyYaml('name: k6-proofs\n', { python: stub });
     assert.equal(parsed.error, undefined);
@@ -104,6 +107,27 @@ test('a YAML error from PyYAML stays a YAML error', { skip: noYamlParser }, () =
   const parsed = parseWithPyYaml('name: [k6-proofs\n');
   assert.equal(parsed.unavailable, undefined);
   assert.match(parsed.error, /yaml\.[a-z]+\.[A-Za-z]*Error/);
+});
+
+function bashBlockAfter(markdown, heading) {
+  const at = markdown.indexOf(`\n${heading}\n`);
+  assert.notEqual(at, -1, `no heading "${heading}"`);
+  const block = markdown.slice(at).match(/```bash\n([\s\S]*?)```/u);
+  assert.ok(block, `no bash block under "${heading}"`);
+  return block[1];
+}
+
+// evidence-writer.mjs re-checks the receipt against this environment, the token
+// included, so a value set for one command only is gone by step 6.
+test('the run step exports the environment the README binds the readiness receipt to', async () => {
+  const readme = await readFile(path.join(repoRoot, 'tools/k6-proofs/README.md'), 'utf8');
+  const preflight = bashBlockAfter(readme, '### 1. Seat readiness / version preflight');
+  const bound = [...preflight.matchAll(/^(OPENCLAW_\w+)=/gmu)].map((match) => match[1]);
+  assert.ok(bound.includes('OPENCLAW_GATEWAY_TOKEN') && bound.includes('OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH'), preflight);
+  const run = bashBlockAfter(await readFile(path.join(repoRoot, SKILL_SOURCE), 'utf8'), '### 5. Run It');
+  const exported = new Set([...run.matchAll(/^export (OPENCLAW_\w+)=/gmu)].map((match) => match[1]));
+  assert.deepEqual(bound.filter((name) => !exported.has(name)), []);
+  assert.doesNotMatch(run, /^OPENCLAW_\w+=/mu, 'a one-command VAR=value prefix is gone before step 6');
 });
 
 const DESCRIPTION = 'Author a fixture proof row for the corpus. Use when exercising the checker.';

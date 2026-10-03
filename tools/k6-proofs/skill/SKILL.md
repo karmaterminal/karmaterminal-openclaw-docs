@@ -141,49 +141,63 @@ basename to that workflow's `scenario` choices; `check-scenario-alignment.mjs` r
 that has no scenario file.
 
 ### 5. Run It
-Run seat readiness on the firing seat first and keep its receipt for step 6:
-`node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json > /tmp/seat-readiness.json`,
-with the environment listed in `tools/k6-proofs/README.md`, "Seat readiness / version
-preflight". A mismatch there is setup state, not product evidence.
-
-Give `OPENCLAW_ROW_MANIFEST` as an absolute path. The guard reads it from the working directory,
-but `tools/k6-proofs/lib/manifest-loader.js` prefixes a relative value with `../` and k6 opens it
-from `tools/k6-proofs/scenarios/`, so a path written from the repository root is not found.
+Before any command below, export the environment from `tools/k6-proofs/README.md`, "Seat
+readiness / version preflight", and keep that shell through step 6. Every command here reads it:
+the preflight signs its receipt over these values with the token, and the evidence writer accepts
+that receipt only while the same values, the token included, are still set. One-command
+`VAR=value` prefixes drop them between commands, and with `OPENCLAW_GATEWAY_WS` unset most
+scenarios connect to `ws://127.0.0.1:18789`, which need not be the gateway the receipt checked.
 ```bash
-# From the repository root
-MANIFEST="$PWD/tools/k6-proofs/manifests/r-cw-2.json"
+# From the repository root, with the README's placeholders filled in
+export OPENCLAW_GATEWAY_TOKEN="***"
+export OPENCLAW_GATEWAY_WS="ws://127.0.0.1:<isolated-port>"
+export OPENCLAW_GATEWAY_UNIT="<isolated-unit>"
+export OPENCLAW_SEAT_NAME="<seat>"
+export OPENCLAW_SESSION_KEY="<target-session>"
+export OPENCLAW_CANDIDATE_SHA="<40-char-sha>"
+export OPENCLAW_RUNTIME_SHA="<40-char-runtime-sha>"   # what the gateway runs; must equal the candidate
+export OPENCLAW_DOCS_SHA="<40-char-docs-sha>"
+export OPENCLAW_SELECTED_ROWS="R-CW-2"
+export OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH="2"
+export OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH="<expected-depth>"
+export OPENCLAW_ROW_MANIFEST="$PWD/tools/k6-proofs/manifests/r-cw-2.json"
 
-# Fail-closed guard; run-proof.sh runs it for you when OPENCLAW_ROW_MANIFEST is set
-OPENCLAW_GATEWAY_TOKEN="***" \
-OPENCLAW_SESSION_KEY="<target-session>" \
-  node tools/k6-proofs/scripts/live-run-guard.mjs --manifest "$MANIFEST" --json
+# Seat readiness on the firing seat; keep the receipt for step 6
+node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json > /tmp/seat-readiness.json
+
+# Fail-closed guard; run-proof.sh runs it again before k6
+node tools/k6-proofs/scripts/live-run-guard.mjs --manifest "$OPENCLAW_ROW_MANIFEST" --json
 
 # Full runner path; use a promoted scenario basename
-OPENCLAW_GATEWAY_TOKEN="***" \
-OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
-OPENCLAW_ROW_MANIFEST="$MANIFEST" \
-  ./tools/k6-proofs/run-proof.sh r-cw-2-immediate-wake 2>&1 | tee /tmp/r-cw-2-output.txt
-
-# Custom target/env is passed through k6 as environment
-OPENCLAW_GATEWAY_WS=ws://<gateway-host>:18789 ./tools/k6-proofs/run-proof.sh r-cw-2-immediate-wake
+./tools/k6-proofs/run-proof.sh r-cw-2-immediate-wake 2>&1 | tee /tmp/r-cw-2-output.txt
 ```
+A preflight mismatch is setup state, not product evidence.
+
+`OPENCLAW_ROW_MANIFEST` is absolute on purpose. The guard reads it from the working directory, but
+`tools/k6-proofs/lib/manifest-loader.js` prefixes a relative value with `../` and k6 opens it from
+`tools/k6-proofs/scenarios/`, so a path written from the repository root is not found.
 
 ### 6. Commit Evidence
-After a successful run on the target SHA:
+After a successful run on the target SHA, in the same shell:
 ```bash
 node tools/k6-proofs/scripts/evidence-writer.mjs \
   --input /tmp/r-cw-2-output.txt \
   --row R-CW-2 \
-  --seat <seat> \
-  --sha <40-char-sha> \
+  --seat "$OPENCLAW_SEAT_NAME" \
+  --sha "$OPENCLAW_CANDIDATE_SHA" \
   --seat-readiness /tmp/seat-readiness.json \
-  --manifest "$MANIFEST"
+  --manifest "$OPENCLAW_ROW_MANIFEST"
 # Review the candidate run directory, add public-safe trace/log receipts, then fold intentionally.
 ```
 
-The writer re-verifies the readiness receipt, so run it with the token, SHAs, gateway, unit and
-selected rows the receipt was bound to. It refuses R-CD-2, which
-`tools/k6-proofs/scripts/run-proofs.sh` handles with its own authority context and receipt resolver.
+The writer checks the receipt's signature with `OPENCLAW_GATEWAY_TOKEN`, compares its SHAs,
+gateway, unit, selected rows and spawn depths with the values still exported, and compares
+`--seat`, `--sha` and `--row` with its seat, candidate and selected rows; any difference rejects
+the receipt. The `outcome` the writer puts in `row-result.json` comes only from the delegate
+fields `tool_accepted`, `prompt_sent`, `task_created` and `child_spawned`, which R-CW-2 does not
+print, so for R-CW-2 it is `FAIL-candidate` whatever the run did; take that row's verdict from the
+scenario's `VERDICT:` line, as `tools/k6-proofs/scripts/run-proofs.sh` does. The writer refuses
+R-CD-2, which `run-proofs.sh` handles with its own authority context and receipt resolver.
 
 ## Key Patterns
 

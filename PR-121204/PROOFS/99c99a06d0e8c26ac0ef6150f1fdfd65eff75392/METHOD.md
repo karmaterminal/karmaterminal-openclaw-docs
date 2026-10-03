@@ -52,7 +52,7 @@ Everything else on the path (frame inspection, payload codec, SQLite queue, drai
 ## Environment
 
 - Node `v26.9.0` (nvm, `~/.local/bin`), Linux x86-64, `nice -n 10`, each process under `timeout 300`, no network.
-- Head: `<scratch>/rp-121204`, branch `gloss/121204-repaint-r2` @ `c47379fbdea98796de7f1f35314f7d63424368bf`, `git status` clean before and after.
+- Head: `<scratch>/rp-121204`, branch `gloss/121204-repaint-r2` @ `99c99a06d0e8c26ac0ef6150f1fdfd65eff75392`, `git status` clean before and after.
 - Control: `<scratch>/ctl-121204`, detached worktree of `<scratch>/oc1418` @ `23bc4d7bfe8626594f4d986814ea15855097cb6b`, clean. Dependencies hard-linked (`cp -al`) from the head tree for every `node_modules` dir after confirming both trees' `pnpm-lock.yaml` blob is `f2a63c09bcd9bac50eb084959163f545930bdf90`. Removed after the logs were saved.
 - Module resolution: `node --import <tree>/scripts/tsx.mjs`; `openclaw/plugin-sdk/*` specifiers inside `extensions/discord` map to `<tree>/src/plugin-sdk/*.ts` through the tree's `tsconfig.json` paths, so the extension exercised the same tree's core.
 

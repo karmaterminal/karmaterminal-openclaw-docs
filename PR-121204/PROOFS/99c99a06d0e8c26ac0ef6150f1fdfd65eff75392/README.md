@@ -1,14 +1,15 @@
 # PR #121204 exact-head proof corpus
 
-This corpus is bound to the PR head **`c47379fbdea98796de7f1f35314f7d63424368bf`**, six commits on upstream main `23bc4d7bfe8626594f4d986814ea15855097cb6b`:
+This corpus is bound to the PR head **`99c99a06d0e8c26ac0ef6150f1fdfd65eff75392`**, seven commits on upstream main `23bc4d7bfe8626594f4d986814ea15855097cb6b`:
 - `c6ae3d2c56` feat(channels): let a channel settle or hold pending ingress rows before claim
 - `d19a007154` fix(channels): fence pre-claim disposition to the row generation it inspected
 - `c395b445d1` fix(discord): keep a session-scoped channel inventory from gateway dispatches
 - `bc35b4f86a` fix(discord): fail stale ambient gateway backlog before it claims a turn
 - `c59f69417f` fix(discord): read the agent roster canonically and satisfy upstream lint and knip
 - `c47379fbde` fix(discord): decide stale ambient rows with preflight's own mention gate
+- `99c99a06d0` fix(discord): project stale rows through preflight's text resolution
 
-**It executes those exact bytes.** The control is the same harness on `23bc4d7bfe`, the first parent of the six-commit series (upstream main when the proof ran), in a detached worktree with the identical lockfile (`pnpm-lock.yaml` blob `f2a63c09bc` on both sides).
+**It executes those exact bytes.** The control is the same harness on `23bc4d7bfe`, the first parent of the seven-commit series (upstream main when the proof ran), in a detached worktree with the identical lockfile (`pnpm-lock.yaml` blob `f2a63c09bc` on both sides).
 
 This answers ClawSweeper's "Real behavior" ask on revision 15: redacted evidence of stale passive suppression **followed by** fresh mention delivery **and** configured direct-open request delivery, through the production recovery path (durable SQLite queue -> drain -> dispatcher seam), as terminal traces.
 
@@ -16,7 +17,7 @@ This answers ClawSweeper's "Real behavior" ask on revision 15: redacted evidence
 
 Scenario R, two processes over one SQLite state dir. **R1 (outage):** 22 raw `MESSAGE_CREATE` frames are admitted through the production Discord ingress monitor while its drain is not running, then the process exits. 20 are ambient chatter in a mention-gated channel (source timestamps T-60..T-22 min), one is an old `@bot` mention in the same channel (T-41), one is an unaddressed request in a channel configured `requireMention: false` (T-31). **R2 (recovery):** a fresh process registers a real `GatewayPlugin`, feeds it READY and GUILD_CREATE, reads the live policy from a real config, admits one fresh `@bot` mention (T-0) in the gated channel, and starts the drain.
 
-| | Head `c47379fbde` | Control `23bc4d7bfe` (series parent) |
+| | Head `99c99a06d0` | Control `23bc4d7bfe` (series parent) |
 | --- | --- | --- |
 | **Stale ambient rows (20)** | **All 20 `failed`, `failed_reason=stale-ambient-backlog`, `attempts=0`** (never claimed; the `last_error` text is the policy's own message with the row's age and the 900000 ms limit). None reached the dispatcher. [log](logs/head-R.log) | All 20 `completed`: each was claimed and delivered to the dispatcher seam. Same-lane order is FIFO; the direct-open request sits on its own lane and reached the seam 2nd. [log](logs/control-R.log) |
 | **Old mention (T-41, gated channel)** | Dispatched **1st**, `completed`. | Dispatched 12th (behind amb-01..amb-10), `completed`. |
@@ -53,9 +54,11 @@ No credentials, hostnames or real Discord identifiers appear. Guild, channel, bo
 
 ## This head vs the previously proven heads
 
-`c47379fbde` adds one commit on top of `c59f69417f`, which answers ClawSweeper rev 17 and closes the class of "our addressed-check differs from preflight" findings:
+`99c99a06d0` adds round 5 on top of `c47379fbde`. The policy now takes its text from preflight's own `resolveDiscordMessageText` (native `<@id>` rewritten to `@username`; 🩸's finding), and it runs mention patterns only on typed content, as preflight does: embed or component text is never a mention. `message-text.ts` is byte-identical to upstream again. The remaining divergences are conservative supersets (the policy keeps where preflight may drop): bot-author `@everyone`, member-allowlist denials, ACP-bound channels and text-command authorization.
+
+`c47379fbde` added one commit on top of `c59f69417f`, which answers ClawSweeper rev 17 and closes the class of "our addressed-check differs from preflight" findings:
 - **The policy's "addressed?" verdict is now production preflight's own chain.** It uses `resolveGroupThreadMentionFacts` (broadcast participants with unfiltered patterns, the rev-17 case), `resolveInboundMentionDecision` and `resolveDiscordMentionPolicy`, all through the plugin-SDK exports preflight itself uses. The bespoke helpers (`isAddressedToBot`, `matchesConfiguredMentionText`, the raw `<@id>` scan) are deleted, and `message-handler.preflight.ts` / `message-handler.preflight-helpers.ts` are byte-identical to upstream again.
-- **A parity test** (`ingress-stale-policy.preflight-parity.test.ts`) runs the real `preflightDiscordMessage` against the policy over the same frames (12 cases), asserting *policy keeps ⇔ preflight admits*.
+- **A parity test** (`ingress-stale-policy.preflight-parity.test.ts`) runs the real `preflightDiscordMessage` against the policy over the same frames (14 frames, plus a both-verdicts-covered meta test), asserting *policy keeps ⇔ preflight admits*.
 - One verdict changed deliberately to match preflight: a bare `<@id>` in text with no native `mentions[]` entry is not a mention to preflight, so it no longer rescues a stale row.
 
 `c59f69417f` (rev-16 P1) read the agent roster canonically and fixed upstream lint and knip. `bc35b4f86a` is the stale policy.

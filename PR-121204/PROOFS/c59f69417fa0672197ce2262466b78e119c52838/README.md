@@ -4,7 +4,8 @@ This corpus is bound to the PR head **`c59f69417fa0672197ce2262466b78e119c52838`
 - `c6ae3d2c56` feat(channels): let a channel settle or hold pending ingress rows before claim
 - `d19a007154` fix(channels): fence pre-claim disposition to the row generation it inspected
 - `c395b445d1` fix(discord): keep a session-scoped channel inventory from gateway dispatches
-- `c59f69417f` fix(discord): fail stale ambient gateway backlog before it claims a turn
+- `bc35b4f86a` fix(discord): fail stale ambient gateway backlog before it claims a turn
+- `c59f69417f` fix(discord): read the agent roster canonically and satisfy upstream lint and knip
 
 **It executes those exact bytes.** The control is the same harness on `23bc4d7bfe`, the first parent of the five-commit series (upstream main when the proof ran), in a detached worktree with the identical lockfile (`pnpm-lock.yaml` blob `f2a63c09bc` on both sides).
 

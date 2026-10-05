@@ -52,7 +52,7 @@
     {
       "name": "child-model-byte",
       "required": true,
-      "description": "Child provider/model from gateway sessions.describe session metadata. The child self-report is auxiliary and never used for equality (#559)."
+      "description": "Child SERVED provider/model from the row-bound assistant message in the child's own chat.history inside the row run window (after the row anchor, first message carrying the row sentinel; stopReason recorded). sessions.describe model/modelProvider is recorded separately as the persisted SELECTION and alone yields PARTIAL (selection matched; served route unproven). Active fallback or a mixed served window is FAIL (#561/#562 review). The child self-report is auxiliary and never used for equality (#559)."
     },
     {
       "name": "return-payload",
@@ -67,7 +67,7 @@
     {
       "name": "parent-model-byte",
       "required": true,
-      "description": "Parent provider/model from gateway sessions.describe on the parent session after its turn: the inheritance baseline. Optional OPENCLAW_EXPECTED_MODEL pins it; a wrong pin must FAIL (negative control)."
+      "description": "Parent SERVED provider/model: the parent's own chat.history assistant message carrying MODEL-DEFAULT-PARENT-SCHEDULED <nonce> after the dispatch message is the inheritance baseline; the parent sessions.describe selection is recorded alongside. Optional OPENCLAW_EXPECTED_MODEL pins the served baseline; a wrong pin is the negative control (FAIL)."
     }
   ],
   "artifactDestination": {

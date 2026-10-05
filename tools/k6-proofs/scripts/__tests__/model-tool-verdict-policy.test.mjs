@@ -5,11 +5,15 @@ import test from 'node:test';
 const scenarioPath = 'tools/k6-proofs/scenarios/r-cd-model-tool.js';
 const manifestPath = 'tools/k6-proofs/manifests/r-cd-model-tool.json';
 
-test('R-CD-MODEL-TOOL fails authoritative model mismatch instead of using honest limit', async () => {
+test('R-CD-MODEL-TOOL classifies selected vs served identity and never uses honest limit', async () => {
   const scenario = await readFile(scenarioPath, 'utf8');
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 
-  assert.match(scenario, /const authoritativeMismatch =[\s\S]+!evidence\.model_matches/);
+  // #562 review: selection (sessions.describe) and served (chat.history run
+  // window) are separate; classifyModelIdentity owns FAIL / PARTIAL / PASS.
+  assert.match(scenario, /classifyModelIdentity\(\{[\s\S]*baseline: requestedModel,[\s\S]*selected: evidence\.child_selected_model_byte,[\s\S]*served: evidence\.child_served_model_byte/);
+  assert.match(scenario, /servedReceiptFromHistory\(messages, \{ anchor: taskIdentityToken, sentinel: 'MODEL-TOOL-CHILD ' \+ rowNonce \}\)/);
+  assert.match(scenario, /activeFallbackFromSessionMetadata\(child\)/);
   assert.match(scenario, /tracker\.send\(socket, 'sessions\.describe'/);
   // #562: the child key comes from the child observer, not the removed task ledger.
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'tasks\.list'/);
@@ -18,9 +22,8 @@ test('R-CD-MODEL-TOOL fails authoritative model mismatch instead of using honest
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /requestChildMetadata\(socket, delayMs = 1\)/);
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.list'/);
-  assert.match(scenario, /const rawVerdict = authoritativeMismatch\s*\?\s*'FAIL-candidate'\s*:\s*\(complete \? 'PASS-candidate' : 'PARTIAL-candidate'\)/);
-  assert.match(scenario, /failClosedVerdict\(rawVerdict, \{ gate, observer \}\)/);
-  assert.match(scenario, /finalEvidence\?\.child_session_metadata_observed[\s\S]+!finalEvidence\?\.model_matches/);
+  assert.match(scenario, /failClosedVerdict\(identity\.verdict, \{ gate, observer \}\)/);
+  assert.match(scenario, /const verdict = finalEvidence\?\.verdict \|\| 'PARTIAL-candidate'/);
   assert.doesNotMatch(scenario, /HONEST-LIMIT-candidate/);
   assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
   assert.doesNotMatch(JSON.stringify(manifest), /HONEST-LIMIT-candidate/);

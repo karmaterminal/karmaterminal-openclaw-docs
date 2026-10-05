@@ -53,7 +53,7 @@
     {
       "name": "child-model-byte",
       "required": true,
-      "description": "Observed child provider/model byte from authoritative gateway child-session metadata or spawn record; child prose is auxiliary only"
+      "description": "Child SERVED provider/model from the row-bound assistant message in the child's own chat.history inside the row run window (after the row anchor, first message carrying the row sentinel; stopReason recorded). sessions.describe model/modelProvider is recorded separately as the persisted SELECTION and alone yields PARTIAL (selection matched; served route unproven). Active fallback or a mixed served window is FAIL (#561/#562 review). Child prose is auxiliary only."
     },
     {
       "name": "return-payload",
@@ -223,8 +223,8 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "The requested model byte matches authoritative gateway child-session metadata or the spawn record. Child prose is auxiliary and can never carry a PASS.",
-      "partial": "Authoritative child metadata is unavailable, or the optional correlation receipt is missing while everything else holds.",
+      "pass": "The requested model byte equals the run-window-bound SERVED model from the child transcript (chat.history), with the sessions.describe selection recorded alongside. Child prose is auxiliary and can never carry a PASS.",
+      "partial": "Only the persisted selection matched (served route unproven), authoritative child metadata is unavailable, or the optional correlation receipt is missing while everything else holds.",
       "fail": "The child runs on a different model than requested, including silent inheritance of the seat default.",
       "honestLimit": "Not applicable. HONEST-LIMIT remains reserved for R-RC-2 below-threshold request_compaction refusal."
     },

@@ -7,10 +7,12 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import {
+  activeFallbackFromSessionMetadata,
   classifyModelIdentity,
   modelFromSessionMetadata,
   normalizeModel,
   resolveRequestedModel,
+  servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
 export const options = {
@@ -64,8 +66,10 @@ export default function () {
     dispatch_refused: null, prompt_injected: false, subagent_spawn_requested: false,
     subagent_spawn_accepted: false, bracket_token_observed: false, bracket_model_modifier_observed: false,
     hop1_child_session_key: null, child_session_observed: false, child_session_key: null,
-    child_session_metadata_observed: false, child_model_byte: null, child_model_source: null,
-    child_self_reported_model: null, child_session_metadata: null, model_matches: false, return_payload: false,
+    // Selection (sessions.describe) and run-window SERVED model (chat.history) are separate.
+    child_session_metadata_observed: false, child_selected_model_byte: null, child_selected_model_source: null,
+    child_active_fallback: null, child_served_model_byte: null, child_served_receipt: null,
+    child_self_reported_model: null, child_session_metadata: null, model_matches: false, selection_matches: false, return_payload: false,
     hop1_token: hop1Token, delegate_token: delegateToken,
     dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null,
     preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
@@ -97,6 +101,23 @@ export default function () {
         childMetadataAttempts += 1;
         tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
       }, delayMs);
+    }
+    const served = { attempts: 0, inFlight: false, done: false };
+    function requestServed(delayMs) {
+      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= 6) return;
+      served.inFlight = true;
+      socket.setTimeout(() => {
+        served.attempts += 1;
+        if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
+      }, delayMs);
+    }
+    function onServedHistory(messages) {
+      served.inFlight = false;
+      const receipt = servedReceiptFromHistory(messages, { anchor: delegateToken, sentinel: 'MODEL-TOKEN-DELEGATE-DONE ' + rowNonce });
+      evidence.child_served_receipt = receipt;
+      evidence.child_served_model_byte = receipt.served;
+      if (receipt.served || receipt.conflict) { served.done = true; return; }
+      requestServed(2000);
     }
     function observeDelegateChild(socket, payload) {
       const key = childSessionKeyForTokenOnly(payload, delegateToken, hop1Token);
@@ -167,14 +188,22 @@ export default function () {
           if (classified.ok) { evidence.prompt_injected = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — parent agent turn triggered'); }
           else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (observed) { observer.handle(observed, classified); observeDelegateLineage(socket); }
+        if (observed) {
+          const history = observer.handle(observed, classified);
+          if (observed.purpose === 'served-child') {
+            if (history) onServedHistory(history);
+            else { served.inFlight = false; if (!observer.state.refusal) requestServed(2000); }
+          }
+          observeDelegateLineage(socket);
+        }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;
           const child = classified.payload?.session || null;
           if (child && (!child.key || child.key === evidence.child_session_key)) {
             evidence.child_session_metadata_observed = true;
-            evidence.child_model_byte = modelFromSessionMetadata(child);
-            evidence.child_model_source = 'gateway sessions.describe persisted provider/model metadata (delegate child)';
+            evidence.child_selected_model_byte = modelFromSessionMetadata(child);
+            evidence.child_selected_model_source = 'gateway sessions.describe persisted model selection (delegate child; not a served receipt)';
+            evidence.child_active_fallback = activeFallbackFromSessionMetadata(child);
             evidence.child_session_metadata = { key: child.key || null, provider: child.modelProvider || child.provider || null, model: child.model || null, modelSelectionLocked: child.modelSelectionLocked === true };
             console.log('✓ delegate child session metadata observed');
           } else if (!classified.ok) {
@@ -196,12 +225,14 @@ export default function () {
               if (done) {
                 evidence.return_payload = true;
                 evidence.child_self_reported_model = normalizeModel(done[1]);
+                requestServed(500);
                 console.log('✓ MODEL-TOKEN-DELEGATE-DONE return sentinel observed (self-report is auxiliary, not used for equality)');
               }
             }
           }
         }
-        if (evidence.prompt_injected && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.return_payload && evidence.child_session_metadata_observed) { console.log('All required R-CD-MODEL-TOKEN evidence gathered, closing early'); socket.close(); }
+        if (evidence.return_payload && evidence.child_session_key && !served.done) requestServed(500);
+        if (evidence.prompt_injected && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.return_payload && evidence.child_session_metadata_observed && served.done) { console.log('All required R-CD-MODEL-TOKEN evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });
     socket.on('error', (e) => { console.error('ws error: ' + (e && e.error ? e.error() : e)); failures.add(1); });
@@ -210,20 +241,28 @@ export default function () {
   const complete = (!createDisposableSession || evidence.session_created) && evidence.prompt_injected && evidence.subagent_spawn_requested && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.child_session_observed && evidence.return_payload;
   evidence.preflight = gate.result;
   Object.assign(evidence, observer.summary());
-  const identity = classifyModelIdentity({ baseline: evidence.requested_model_byte, observed: evidence.child_model_byte, complete });
+  const identity = classifyModelIdentity({
+    baseline: evidence.requested_model_byte,
+    selected: evidence.child_selected_model_byte,
+    served: evidence.child_served_model_byte,
+    servedConflict: evidence.child_served_receipt?.conflict === true,
+    activeFallback: evidence.child_active_fallback,
+    complete,
+  });
   const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
   evidence.model_matches = identity.modelMatches;
+  evidence.selection_matches = identity.selectionMatches;
   evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
   evidence.verdict_reason = finalVerdict.reason;
   finalEvidence = { ...evidence, verdict: finalVerdict.verdict };
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
-  check(null, { 'prompt injected': () => evidence.prompt_injected, 'subagent spawn requested': () => evidence.subagent_spawn_requested, 'subagent spawn accepted': () => evidence.subagent_spawn_accepted, 'bracket token observed': () => evidence.bracket_token_observed, 'bracket model modifier observed': () => evidence.bracket_model_modifier_observed, 'delegate return observed': () => evidence.return_payload, 'authoritative delegate-child model byte': () => !!evidence.child_model_byte, 'requested model observed': () => evidence.model_matches });
+  check(null, { 'prompt injected': () => evidence.prompt_injected, 'subagent spawn requested': () => evidence.subagent_spawn_requested, 'subagent spawn accepted': () => evidence.subagent_spawn_accepted, 'bracket token observed': () => evidence.bracket_token_observed, 'bracket model modifier observed': () => evidence.bracket_model_modifier_observed, 'delegate return observed': () => evidence.return_payload, 'delegate-child selected model recorded': () => !!evidence.child_selected_model_byte, 'delegate-child served model (run-window bound)': () => !!evidence.child_served_model_byte, 'requested model served': () => evidence.model_matches });
   if (finalVerdict.verdict !== 'PASS-candidate') failures.add(1);
   console.log('\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOKEN] VERDICT: ' + finalVerdict.verdict);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const summary = { row: 'R-CD-MODEL-TOKEN', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: finalEvidence?.verdict || 'PARTIAL-candidate', requestedModel: finalEvidence?.requested_model_byte || null, observedModel: finalEvidence?.child_model_byte || null, observedModelSource: finalEvidence?.child_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_token_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } };
+  const summary = { row: 'R-CD-MODEL-TOKEN', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: finalEvidence?.verdict || 'PARTIAL-candidate', requestedModel: finalEvidence?.requested_model_byte || null, servedModel: finalEvidence?.child_served_model_byte || null, selectedModel: finalEvidence?.child_selected_model_byte || null, selectedModelSource: finalEvidence?.child_selected_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_token_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } };
   return { stdout: '\n[R-CD-MODEL-TOKEN] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-token-summary.json': JSON.stringify(summary, null, 2) };
 }

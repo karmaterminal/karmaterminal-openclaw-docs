@@ -10,6 +10,13 @@ import {
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import {
+  activeFallbackFromSessionMetadata,
+  classifyModelIdentity,
+  modelFromSessionMetadata,
+  normalizeModel,
+  servedReceiptFromHistory,
+} from '../lib/model-identity.mjs';
 
 export const options = {
   scenarios: { r_cd_model_tool: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -31,14 +38,7 @@ const DEFAULTS = {
 const HARNESS_MARKER = '[k6-proof-harness]';
 
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
-function normalizeModel(value) { return String(value || '').trim().replace(/[.,;:]+$/, ''); }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-function modelFromSessionMetadata(session) {
-  const model = normalizeModel(session?.model);
-  const provider = normalizeModel(session?.modelProvider || session?.provider);
-  if (!model) return null;
-  return model.includes('/') ? model : (provider ? `${provider}/${model}` : model);
-}
 let finalEvidence = null;
 
 export default function() {
@@ -76,8 +76,14 @@ export default function() {
     child_session_observed: false,
     child_session_key: null,
     child_session_metadata_observed: false,
-    child_metadata_model_byte: null,
-    child_metadata_model_source: null,
+    // Selection (sessions.describe) and run-window SERVED model (chat.history)
+    // are separate (#561 review).
+    child_selected_model_byte: null,
+    child_selected_model_source: null,
+    child_active_fallback: null,
+    child_served_model_byte: null,
+    child_served_receipt: null,
+    selection_matches: false,
     child_self_reported_model: null,
     child_self_reported_model_source: null,
     child_session_metadata: null,
@@ -109,6 +115,23 @@ export default function() {
         evidence.child_metadata_requested = true;
         tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
       }, delayMs);
+    }
+    const served = { attempts: 0, inFlight: false, done: false };
+    function requestServed(delayMs) {
+      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= 6) return;
+      served.inFlight = true;
+      socket.setTimeout(() => {
+        served.attempts += 1;
+        if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
+      }, delayMs);
+    }
+    function onServedHistory(messages) {
+      served.inFlight = false;
+      const receipt = servedReceiptFromHistory(messages, { anchor: taskIdentityToken, sentinel: 'MODEL-TOOL-CHILD ' + rowNonce });
+      evidence.child_served_receipt = receipt;
+      evidence.child_served_model_byte = receipt.served;
+      if (receipt.served || receipt.conflict) { served.done = true; return; }
+      requestServed(2000);
     }
     function start(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -188,7 +211,11 @@ export default function() {
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
         if (observed) {
-          observer.handle(observed, classified);
+          const history = observer.handle(observed, classified);
+          if (observed.purpose === 'served-child') {
+            if (history) onServedHistory(history);
+            else { served.inFlight = false; if (!observer.state.refusal) requestServed(2000); }
+          }
           // #562: the child's own row names this session in spawnedBy and its own
           // spawn task carries the nonce or the MTOOL token.
           const observedChildSessionKey = observer.boundChild(rowNonce, [taskIdentityToken]).childSessionKey;
@@ -201,23 +228,20 @@ export default function() {
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;
           const child = classified.payload?.session || null;
-          if (child) {
+          // A describe answer only counts for the key it was asked about.
+          if (child && (!child.key || child.key === evidence.child_session_key)) {
             evidence.child_session_observed = true;
             evidence.child_session_metadata_observed = true;
-            evidence.child_metadata_model_byte = modelFromSessionMetadata(child);
-            evidence.child_metadata_model_source = 'gateway sessions.describe persisted provider/model metadata';
+            evidence.child_selected_model_byte = modelFromSessionMetadata(child);
+            evidence.child_selected_model_source = 'gateway sessions.describe persisted model selection (not a served receipt)';
+            evidence.child_active_fallback = activeFallbackFromSessionMetadata(child);
             evidence.child_session_metadata = {
               key: child.key || null,
               provider: child.modelProvider || child.provider || null,
               model: child.model || null,
               modelSelectionLocked: child.modelSelectionLocked === true,
             };
-            evidence.model_matches = evidence.child_metadata_model_byte === requestedModel;
-            if (!evidence.model_matches) {
-              evidence.model_classification_reason =
-                'requested model does not match authoritative child-session metadata';
-            }
-            console.log('✓ child session metadata observed');
+            console.log('✓ child session selection observed');
           } else if (!classified.ok) {
             evidence.model_classification_reason =
               'gateway sessions.describe unavailable while resolving child session metadata';
@@ -250,11 +274,13 @@ export default function() {
               evidence.return_payload = true;
               evidence.child_self_reported_model = normalizeModel(childMatch[1]);
               evidence.child_self_reported_model_source = 'auxiliary child runtime-context self-report (not used for equality)';
+              requestServed(500);
               console.log('✓ MODEL-TOOL-CHILD return payload observed');
             }
           }
         }
-        if (evidence.dispatch_accepted && evidence.child_session_metadata_observed && evidence.return_payload) {
+        if (evidence.return_payload && evidence.child_session_key && !served.done) requestServed(500);
+        if (evidence.dispatch_accepted && evidence.child_session_metadata_observed && evidence.return_payload && served.done) {
           console.log('R-CD-MODEL-TOOL return gathered, closing early');
           socket.close();
         }
@@ -267,26 +293,33 @@ export default function() {
   evidence.preflight = gate.result;
   Object.assign(evidence, observer.summary());
   finalEvidence = evidence;
-  const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_metadata_observed && evidence.child_metadata_model_byte && evidence.return_payload;
+  const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_metadata_observed && evidence.return_payload;
+  const identity = classifyModelIdentity({
+    baseline: requestedModel,
+    selected: evidence.child_selected_model_byte,
+    served: evidence.child_served_model_byte,
+    servedConflict: evidence.child_served_receipt?.conflict === true,
+    activeFallback: evidence.child_active_fallback,
+    complete,
+  });
+  evidence.model_matches = identity.modelMatches;
+  evidence.selection_matches = identity.selectionMatches;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'dispatch accepted': () => evidence.dispatch_accepted,
     'parent scheduled sentinel': () => evidence.parent_scheduled_sentinel,
     'child session observed': () => evidence.child_session_observed,
-    'authoritative child-session model byte': () => !!evidence.child_metadata_model_byte,
+    'child selected model recorded': () => !!evidence.child_selected_model_byte,
+    'child served model (run-window bound)': () => !!evidence.child_served_model_byte,
     'return payload': () => evidence.return_payload,
-    'requested model observed': () => evidence.model_matches,
+    'requested model served': () => evidence.model_matches,
   });
-  const authoritativeMismatch =
-    evidence.child_session_metadata_observed &&
-    !!evidence.child_metadata_model_byte &&
-    !evidence.model_matches;
-  const rawVerdict = authoritativeMismatch
-    ? 'FAIL-candidate'
-    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
-  const finalVerdict = failClosedVerdict(rawVerdict, { gate, observer });
+  // FAIL needs authoritative evidence (served or selection mismatch, active
+  // fallback, mixed served window); selection alone is PARTIAL, never PASS.
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
   const verdict = finalVerdict.verdict;
   evidence.verdict_reason = finalVerdict.reason;
+  evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
   evidence.verdict = verdict;
   if (verdict !== 'PASS-candidate') failures.add(1);
   console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOOL] VERDICT: ' + verdict);
@@ -295,15 +328,8 @@ export default function() {
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
-  const complete = !!(finalEvidence?.dispatch_accepted && finalEvidence?.parent_scheduled_sentinel && finalEvidence?.child_session_metadata_observed && finalEvidence?.child_metadata_model_byte && finalEvidence?.return_payload);
-  const authoritativeMismatch =
-    finalEvidence?.child_session_metadata_observed &&
-    !!finalEvidence?.child_metadata_model_byte &&
-    !finalEvidence?.model_matches;
-  // The default function's fail-closed verdict wins; recompute only when absent.
-  const verdict = finalEvidence?.verdict || (authoritativeMismatch
-    ? 'FAIL-candidate'
-    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate'));
-  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
+  // The default function's fail-closed verdict is the only verdict; without it the row is PARTIAL.
+  const verdict = finalEvidence?.verdict || 'PARTIAL-candidate';
+  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, servedModel: finalEvidence?.child_served_model_byte || null, selectedModel: finalEvidence?.child_selected_model_byte || null, selectedModelSource: finalEvidence?.child_selected_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
   return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
 }

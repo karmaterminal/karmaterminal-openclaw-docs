@@ -18,15 +18,53 @@ test('k6TimeoutMs never hands k6 a non-positive delay', () => {
 
 // Attempt 3 (2026-10-05): requestChildHops(0) -> socket.setTimeout(fn, 0) threw
 // "setTimeout requires a >0 timeout parameter" after hopReadScheduled was set,
-// so no child-hop read ever ran. Guard every scenario.
-test('no scenario passes a literal 0 or an unclamped variable delay to socket.setTimeout', () => {
+// so no child-hop read ever ran. Guard EVERY socket.setTimeout in every
+// scenario: its delay must be a numeric literal >= 1 or go through
+// k6TimeoutMs(...). Balanced-paren scan, so inline arrow callbacks, nested
+// calls and env-derived expressions are all covered (#575 review).
+export function timerDelays(src) {
+  const out = [];
+  let i = 0;
+  while ((i = src.indexOf('socket.setTimeout(', i)) !== -1) {
+    let j = i + 'socket.setTimeout('.length;
+    let depth = 1;
+    let inStr = null;
+    let lastTopComma = -1;
+    for (; j < src.length && depth > 0; j += 1) {
+      const c = src[j];
+      if (inStr) { if (c === '\\') { j += 1; continue; } if (c === inStr) inStr = null; continue; }
+      if (c === '"' || c === "'" || c === '`') { inStr = c; continue; }
+      if (c === '(' || c === '{' || c === '[') depth += 1;
+      else if (c === ')' || c === '}' || c === ']') depth -= 1;
+      else if (c === ',' && depth === 1) lastTopComma = j;
+    }
+    out.push(lastTopComma >= 0 ? src.slice(lastTopComma + 1, j - 1).trim() : '');
+    i = j;
+  }
+  return out;
+}
+
+function unsafeDelays(src) {
+  return timerDelays(src).filter((arg) =>
+    !(/^\d+$/.test(arg) && Number(arg) >= 1) && !/^k6TimeoutMs\(/.test(arg));
+}
+
+test('the timer scan sees inline, nested and env-derived delays', () => {
+  const src = [
+    'socket.setTimeout(() => observer.poll(), delayMs);',
+    'socket.setTimeout(() => { a(); }, Number(__ENV.X || 5000));',
+    'socket.setTimeout(() => f(1, 2), 0);',
+    'socket.setTimeout(() => g(), 250);',
+    'socket.setTimeout(() => h(), k6TimeoutMs(delayMs));',
+  ].join('\n');
+  assert.deepEqual(unsafeDelays(src), ['delayMs', 'Number(__ENV.X || 5000)', '0']);
+});
+
+test('no scenario passes socket.setTimeout an unclamped or zero delay', () => {
   const offenders = [];
   for (const file of readdirSync(scenarios).filter((f) => f.endsWith('.js'))) {
     const src = readFileSync(path.join(scenarios, file), 'utf8');
-    for (const m of src.matchAll(/\},\s*(delayMs|delay|ms)\s*\)\s*;/g)) {
-      offenders.push(`${file}: unclamped "${m[0].trim()}"`);
-    }
-    if (/socket\.setTimeout\(\s*\(\)\s*=>[^;]*?,\s*0\s*\)\s*;/.test(src)) offenders.push(`${file}: literal 0 delay`);
+    for (const arg of unsafeDelays(src)) offenders.push(`${file}: ${arg}`);
   }
   assert.deepEqual(offenders, []);
 });

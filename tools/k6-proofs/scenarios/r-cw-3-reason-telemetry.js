@@ -12,6 +12,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 /**
  * Extract a hex trace ID from a W3C traceparent header string.
  * Format: 00-<32-hex-traceId>-<16-hex-spanId>-<flags>
@@ -77,7 +78,7 @@ export default function () {
         const instruction = `${HARNESS_MARKER} R-CW-3 proof nonce ${rowNonce}. Call continue_work with delaySeconds=${inv.delaySeconds} and the supplied reason. After the continue_work tool result reports scheduled, reply exactly CW3-SCHEDULED ${rowNonce}. On the continuation wake, reply exactly CW3-WOKE ${rowNonce}. Supplied reason: ${JSON.stringify(rawReason)}. Do not mutate files.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      socket.setTimeout(() => socket.close(), Math.max(600000, (inv.delaySeconds + 540) * 1000));
+      socket.setTimeout(() => socket.close(), k6TimeoutMs(Math.max(600000, (inv.delaySeconds + 540) * 1000)));
     }
     socket.on('open', () => { socket.send(connectFrame(token)); if (createDisposableSession) { socket.setTimeout(() => { const disposableKey = `r-cw-3-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-'); tracker.send(socket, 'sessions.create', { key: disposableKey, label: `k6 R-CW-3 ${rowNonce}` }); }, 250); } else socket.setTimeout(() => startProofFlow(socket), 500); });
     socket.on('message', (raw) => {

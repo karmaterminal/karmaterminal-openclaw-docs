@@ -274,7 +274,7 @@ export default function () {
         });
       }, 500);
       for (const delayMs of [10000, 30000, 60000, 90000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
       socket.setTimeout(() => socket.close(), 120000);
     }
@@ -294,7 +294,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

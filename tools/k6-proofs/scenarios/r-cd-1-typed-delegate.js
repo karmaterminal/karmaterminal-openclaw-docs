@@ -30,6 +30,7 @@ import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_cd_1_typed_delegate: {
@@ -188,7 +189,7 @@ export default function () {
 
       // Optional child context (#562): row-bound child via the child observer.
       for (const delayMs of [5000, 15000, 30000, 60000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
 
       socket.setTimeout(() => socket.close(), 120000);
@@ -212,7 +213,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

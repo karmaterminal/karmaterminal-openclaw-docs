@@ -21,6 +21,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_cw_1_tool_schedule_wake: {
@@ -136,7 +137,7 @@ export default function () {
 
       // Extended close — must outlast delaySeconds + agent processing overhead.
       const closeDelta = Math.max((inv.delaySeconds + 75) * 1000, 90000);
-      socket.setTimeout(() => socket.close(), closeDelta);
+      socket.setTimeout(() => socket.close(), k6TimeoutMs(closeDelta));
     }
 
     socket.on('open', () => {

@@ -170,7 +170,7 @@ export default function () {
         evidence.subagent_spawn_requested = true;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: agentInstruction, idempotencyKey: inv.idempotencyKeyPrefix + '-DISPATCH-' + rowNonce });
       }, 500);
-      for (const delayMs of [15000, 30000, 60000, 90000]) socket.setTimeout(() => observer.poll(), delayMs);
+      for (const delayMs of [15000, 30000, 60000, 90000]) socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       socket.setTimeout(() => socket.close(), 180000);
     }
     function afterHello(socket) {
@@ -185,7 +185,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

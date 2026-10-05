@@ -197,7 +197,7 @@ export default function() {
           idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
         });
       }, 500);
-      for (const delayMs of [5000, 15000, 30000, 60000]) socket.setTimeout(() => observer.poll(), delayMs);
+      for (const delayMs of [5000, 15000, 30000, 60000]) socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       socket.setTimeout(() => socket.close(), 180000);
     }
     function afterHello(socket) {
@@ -212,7 +212,7 @@ export default function() {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

@@ -277,7 +277,7 @@ export default function () {
       // Bind the delegate child through the observer (sessions.list spawnedBy +
       // the child's own spawn task), then read its hops from its own transcript.
       for (const delayMs of [5000, 15000, 30000, 60000, 90000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
 
       // Dispatch via sessions.send — triggers agent turn that calls continue_delegate.
@@ -325,7 +325,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

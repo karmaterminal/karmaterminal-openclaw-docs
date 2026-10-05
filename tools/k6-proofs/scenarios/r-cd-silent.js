@@ -5,6 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: { r_cd_silent: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
   thresholds: { proof_failures: ['count==0'], r_cd_silent_duration: ['p(95)<180000'] },
@@ -70,7 +71,7 @@ export default function () {
         const instruction = `${HARNESS_MARKER} R-CD-SILENT proof nonce ${rowNonce}. Call continue_delegate with task=${JSON.stringify(task)}, mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. After the continue_delegate tool result reports scheduled, reply exactly RCDS-SCHEDULED ${rowNonce}. Do not say ${childToken} in your visible reply.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      socket.setTimeout(() => socket.close(), Math.max(180000, (inv.delaySeconds + 150) * 1000));
+      socket.setTimeout(() => socket.close(), k6TimeoutMs(Math.max(180000, (inv.delaySeconds + 150) * 1000)));
     }
 
     socket.on('open', () => {
@@ -107,7 +108,7 @@ export default function () {
           }
           if (!eventStr.includes(HARNESS_MARKER) && eventStr.includes(`RCDS-SCHEDULED ${rowNonce}`)) { evidence.scheduled_sentinel = true; console.log('✓ scheduled sentinel observed'); }
           if (!eventStr.includes(HARNESS_MARKER) && eventStr.includes(childToken) && eventName === 'chat' && String(eventData.sessionKey || '').includes(':subagent:continuation-') && eventStr.includes('final')) {
-            if (!evidence.child_completion_observed) { evidence.child_completion_observed = true; console.log('✓ silent child completion observed on internal stream'); socket.setTimeout(() => sendFollowup(socket), Number(__ENV.OPENCLAW_SILENT_FOLLOWUP_AFTER_CHILD_MS || 5000)); }
+            if (!evidence.child_completion_observed) { evidence.child_completion_observed = true; console.log('✓ silent child completion observed on internal stream'); socket.setTimeout(() => sendFollowup(socket), k6TimeoutMs(Number(__ENV.OPENCLAW_SILENT_FOLLOWUP_AFTER_CHILD_MS || 5000))); }
           }
           if (!eventStr.includes(HARNESS_MARKER) && eventStr.includes(`RCDS-PARENT-OBSERVED ${childToken}`)) { evidence.parent_internal_context_observed = true; console.log('✓ parent reported silent child token from internal context'); }
         }

@@ -31,6 +31,7 @@ import {
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { createHeartbeatAckTracker } from '../lib/wake-turn-receipt.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_cd_chained_depth_2: {
@@ -230,7 +231,7 @@ export default function () {
 
       // Hop identities: poll the child observer at intervals.
       for (const delayMs of [8000, 20000, 40000, 60000, 90000, 120000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
 
       // Extended timeout for depth-2 chain completion.
@@ -255,7 +256,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

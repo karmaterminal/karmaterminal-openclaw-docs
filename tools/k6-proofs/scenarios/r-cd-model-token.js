@@ -5,6 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import {
   classifyModelIdentity,
   modelFromSessionMetadata,
@@ -66,9 +67,13 @@ export default function () {
     child_session_metadata_observed: false, child_model_byte: null, child_model_source: null,
     child_self_reported_model: null, child_session_metadata: null, model_matches: false, return_payload: false,
     hop1_token: hop1Token, delegate_token: delegateToken,
-    dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null, redacted_events: [],
+    dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null,
+    preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-MODEL-TOKEN');
+  // Depth 2: hop-1 names the parent in spawnedBy; the bracket delegate names hop-1.
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey, maxDepth: 2 });
   if (inv.requestedModelRefusal || !hop1Token || !delegateToken) {
     // Refuse before dispatch: nothing is sent and no attempt is spent.
     evidence.dispatch_refused = inv.requestedModelRefusal || 'row task identity tokens could not be rendered';
@@ -95,6 +100,19 @@ export default function () {
     }
     function observeDelegateChild(socket, payload) {
       const key = childSessionKeyForTokenOnly(payload, delegateToken, hop1Token);
+      acceptDelegateChild(socket, key);
+    }
+    // #562: hop-1's own row names the parent and its own spawn task carries the
+    // hop-1 token; the delegate's own row names hop-1 and its own task carries
+    // only the delegate token (hop-1 embeds both, so token-only excludes it).
+    function observeDelegateLineage(socket) {
+      const hop1 = observer.boundChild(hop1Token, [], { spawnedBy: sessionKey });
+      if (!hop1.childSessionKey) return;
+      if (!evidence.hop1_child_session_key) evidence.hop1_child_session_key = hop1.childSessionKey;
+      if (evidence.hop1_child_session_key !== hop1.childSessionKey) return;
+      acceptDelegateChild(socket, observer.boundChildForTokenOnly(delegateToken, hop1Token, { spawnedBy: hop1.childSessionKey }));
+    }
+    function acceptDelegateChild(socket, key) {
       if (!key || evidence.child_session_key) return;
       evidence.child_session_observed = true;
       evidence.child_session_key = key;
@@ -112,23 +130,34 @@ export default function () {
         evidence.subagent_spawn_requested = true;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: agentInstruction, idempotencyKey: inv.idempotencyKeyPrefix + '-DISPATCH-' + rowNonce });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 60000);
+      for (const delayMs of [15000, 30000, 60000, 90000]) socket.setTimeout(() => observer.poll(), delayMs);
       socket.setTimeout(() => socket.close(), 180000);
     }
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = ('r-cd-model-token-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
           tracker.send(socket, 'sessions.create', { key: disposableKey, label: 'k6 R-CD-MODEL-TOKEN ' + rowNonce });
         }, 250);
       } else socket.setTimeout(() => startProofFlow(socket), 500);
+    }
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach((method, params) => tracker.send(socket, method, params));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw); const classified = tracker.classify(msg);
+        const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error('✗ R-CD-MODEL-TOKEN preflight refused before dispatch: ' + gate.result.reason);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
+        const classified = tracker.classify(msg);
         evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: classified.payload ? redactEvent(classified.payload) : null });
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); startProofFlow(socket); }
@@ -138,7 +167,7 @@ export default function () {
           if (classified.ok) { evidence.prompt_injected = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — parent agent turn triggered'); }
           else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') observeDelegateChild(socket, classified.payload);
+        if (observed) { observer.handle(observed, classified); observeDelegateLineage(socket); }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;
           const child = classified.payload?.session || null;
@@ -179,14 +208,18 @@ export default function () {
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   const complete = (!createDisposableSession || evidence.session_created) && evidence.prompt_injected && evidence.subagent_spawn_requested && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.child_session_observed && evidence.return_payload;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   const identity = classifyModelIdentity({ baseline: evidence.requested_model_byte, observed: evidence.child_model_byte, complete });
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
   evidence.model_matches = identity.modelMatches;
-  evidence.model_classification_reason = identity.reason || evidence.model_classification_reason;
-  finalEvidence = { ...evidence, verdict: identity.verdict };
+  evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
+  evidence.verdict_reason = finalVerdict.reason;
+  finalEvidence = { ...evidence, verdict: finalVerdict.verdict };
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, { 'prompt injected': () => evidence.prompt_injected, 'subagent spawn requested': () => evidence.subagent_spawn_requested, 'subagent spawn accepted': () => evidence.subagent_spawn_accepted, 'bracket token observed': () => evidence.bracket_token_observed, 'bracket model modifier observed': () => evidence.bracket_model_modifier_observed, 'delegate return observed': () => evidence.return_payload, 'authoritative delegate-child model byte': () => !!evidence.child_model_byte, 'requested model observed': () => evidence.model_matches });
-  if (identity.verdict !== 'PASS-candidate') failures.add(1);
-  console.log('\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOKEN] VERDICT: ' + identity.verdict);
+  if (finalVerdict.verdict !== 'PASS-candidate') failures.add(1);
+  console.log('\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOKEN] VERDICT: ' + finalVerdict.verdict);
 }
 
 export function handleSummary(data) {

@@ -33,18 +33,22 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.doesNotMatch(source, /INTERRUPTED_RESULT_WRITER[\s\S]{0,700}>\/dev\/null 2>&1 \|\| true/);
 });
 
-test('scenario paginates the public task ledger and binds a structured return', async () => {
+test('scenario traverses the child observer and binds a structured return', async () => {
   const source = await read('scenarios/r-cd-token-bracket-delegate.js');
   const proofFlow = source.indexOf('function startProofFlow()');
   const disposableCheck = source.indexOf('if (!tokenDisposableOriginReady({', proofFlow);
   const proofSend = source.indexOf("tracker.send(socket, 'sessions.send'", proofFlow);
   assert.ok(proofFlow > 0 && disposableCheck > proofFlow && proofSend > disposableCheck);
-  assert.match(source, /tasks\.list/);
-  assert.match(source, /nextCursor/);
-  assert.match(source, /TASK_PAGE_LIMIT = 500/);
+  // #562: the task ledger RPC is gone upstream. Complete child-observer
+  // traversals (every sessions.list page) replace full ledger pagination.
+  assert.doesNotMatch(source, /tracker\.send\(socket, 'tasks\.list'/);
+  assert.match(source, /createChildObserver\(/);
+  assert.match(source, /onRoundComplete/);
+  assert.match(source, /observeTokenSessionLedger\(/);
   assert.match(source, /REQUIRED_STABLE_TASK_SNAPSHOTS = 3/);
-  assert.match(source, /duplicateTaskId/);
   assert.match(source, /task_snapshot_consistent/);
+  assert.match(source, /createPreflightGate\('R-CD-TOKEN'\)/);
+  assert.match(source, /failClosedVerdict\(classifyTokenEvidence\(evidence\), \{ gate, observer \}\)/);
   assert.match(source, /origin_task_unique_count === 1/);
   assert.match(source, /delegate_task_unique_count === 1/);
   assert.match(source, /delegate_requester_matches_origin_child/);

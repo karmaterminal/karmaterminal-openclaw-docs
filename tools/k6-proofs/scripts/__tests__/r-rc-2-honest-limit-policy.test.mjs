@@ -14,7 +14,13 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   const scenario = await readFile(scenarioPath, 'utf8');
 
   assert.match(scenario, /childSessionKeyForRow\([\s\S]*eventData,[\s\S]*rowNonce,[\s\S]*taskIdentityToken/);
-  assert.match(scenario, /childSessionKeyForRow\([\s\S]*classified\.payload,[\s\S]*rowNonce,[\s\S]*\[taskIdentityToken\]/);
+  // #562: the child comes from the child observer (spawnedBy + own spawn task),
+  // never from the removed task-ledger RPC; its history is read via chat.history.
+  assert.match(scenario, /observer\.boundChild\(rowNonce, taskIdentityToken \? \[taskIdentityToken\] : \[\]\)/);
+  assert.match(scenario, /tracker\.send\(socket, 'chat\.history', \{ sessionKey: evidence\.child_session_key/);
+  assert.doesNotMatch(scenario, /tracker\.send\(socket, 'tasks\.list'/);
+  assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.get'/);
+  assert.match(scenario, /failClosedVerdict\(rawVerdict, \{ gate, observer \}\)/);
   assert.match(scenario, /compactTaskIdentityToken\('RRC2', rowNonce\)/);
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /findRequestCompactionReceipt\(messages, \{ rowNonce \}\)/);

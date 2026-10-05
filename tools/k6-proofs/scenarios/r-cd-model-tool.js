@@ -9,6 +9,7 @@ import {
   compactTaskIdentityToken,
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: { r_cd_model_tool: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -82,17 +83,18 @@ export default function() {
     child_session_metadata: null,
     child_metadata_requested: false,
     task_identity_token: taskIdentityToken,
-    task_list_responses: 0,
-    task_records_seen: 0,
-    task_records_with_child_key: 0,
-    task_identity_matches: 0,
     model_matches: false,
     return_payload: false,
     trace_id: null,
     model_classification_reason: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-MODEL-TOOL');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -132,23 +134,34 @@ export default function() {
           idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
         });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 5000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 30000);
+      for (const delayMs of [5000, 15000, 30000, 60000]) socket.setTimeout(() => observer.poll(), delayMs);
       socket.setTimeout(() => socket.close(), 180000);
     }
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const key = ('r-cd-model-tool-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
           tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-TOOL ' + rowNonce });
         }, 250);
       } else socket.setTimeout(() => start(socket), 500);
+    }
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach((method, params) => tracker.send(socket, method, params));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw); const classified = tracker.classify(msg);
+        const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error('✗ R-CD-MODEL-TOOL preflight refused before dispatch: ' + gate.result.reason);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
+        const classified = tracker.classify(msg);
         evidence.redacted_events.push({
           ts: Date.now(),
           kind: classified.kind,
@@ -174,21 +187,11 @@ export default function() {
             console.log('✓ sessions.send accepted — explicit model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = Array.isArray(classified.payload?.tasks) ? classified.payload.tasks : [];
-          evidence.task_list_responses += 1;
-          evidence.task_records_seen += tasks.length;
-          evidence.task_records_with_child_key += tasks.filter(
-            (task) => typeof task?.childSessionKey === 'string',
-          ).length;
-          evidence.task_identity_matches += tasks.filter(
-            (task) => typeof task?.title === 'string' && task.title.includes(taskIdentityToken),
-          ).length;
-          const observedChildSessionKey = childSessionKeyForRow(
-            classified.payload,
-            rowNonce,
-            [taskIdentityToken],
-          );
+        if (observed) {
+          observer.handle(observed, classified);
+          // #562: the child's own row names this session in spawnedBy and its own
+          // spawn task carries the nonce or the MTOOL token.
+          const observedChildSessionKey = observer.boundChild(rowNonce, [taskIdentityToken]).childSessionKey;
           if (observedChildSessionKey && !evidence.child_session_key) {
             evidence.child_session_observed = true;
             evidence.child_session_key = observedChildSessionKey;
@@ -261,6 +264,8 @@ export default function() {
   });
 
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   finalEvidence = evidence;
   const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_metadata_observed && evidence.child_metadata_model_byte && evidence.return_payload;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
@@ -276,9 +281,13 @@ export default function() {
     evidence.child_session_metadata_observed &&
     !!evidence.child_metadata_model_byte &&
     !evidence.model_matches;
-  const verdict = authoritativeMismatch
+  const rawVerdict = authoritativeMismatch
     ? 'FAIL-candidate'
     : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
+  const finalVerdict = failClosedVerdict(rawVerdict, { gate, observer });
+  const verdict = finalVerdict.verdict;
+  evidence.verdict_reason = finalVerdict.reason;
+  evidence.verdict = verdict;
   if (verdict !== 'PASS-candidate') failures.add(1);
   console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOOL] VERDICT: ' + verdict);
 }
@@ -291,9 +300,10 @@ export function handleSummary(data) {
     finalEvidence?.child_session_metadata_observed &&
     !!finalEvidence?.child_metadata_model_byte &&
     !finalEvidence?.model_matches;
-  const verdict = authoritativeMismatch
+  // The default function's fail-closed verdict wins; recompute only when absent.
+  const verdict = finalEvidence?.verdict || (authoritativeMismatch
     ? 'FAIL-candidate'
-    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate');
+    : (complete ? 'PASS-candidate' : 'PARTIAL-candidate'));
   const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, observedModel: finalEvidence?.child_metadata_model_byte || null, observedModelSource: finalEvidence?.child_metadata_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
   return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
 }

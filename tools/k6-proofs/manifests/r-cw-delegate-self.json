@@ -18,9 +18,8 @@
     "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
     "methods": [
       "sessions.create",
-      "sessions.send",
       "sessions.messages.subscribe",
-      "tasks.list"
+      "sessions.send"
     ],
     "status": "runnable",
     "file": "r-cw-delegate-self-continuation.js"

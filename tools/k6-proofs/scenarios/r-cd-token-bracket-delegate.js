@@ -7,15 +7,17 @@ import { connectFrame, nonce, RequestTracker } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   classifyTokenEvidence,
-  createTokenLedger,
-  observeTokenTaskLedger,
+  createTokenSessionLedger,
+  observeTokenSessionLedger,
   parseTokenReturnEvent,
-  rejectTokenTaskLedgerObservation,
-  summarizeTokenLedger,
+  rejectTokenSessionLedgerObservation,
+  summarizeTokenSessionLedger,
   tokenDisposableOriginReady,
-  tokenLedgerHasTerminalTasks,
-  tokenLedgerRuntimeIdentity,
+  tokenPartialReasons,
+  tokenSessionLedgerHasTerminalSessions,
+  tokenSessionLedgerRuntimeIdentity,
 } from '../lib/r-cd-token-contract.js';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -36,7 +38,7 @@ const DEFAULTS = {
 const HARNESS_MARKER = '[k6-proof-harness]';
 const TASK_POLL_MS = Number(__ENV.OPENCLAW_TOKEN_TASK_POLL_MS || 750);
 const SETTLE_MS = Number(__ENV.OPENCLAW_TOKEN_SETTLE_MS || 5000);
-const TASK_PAGE_LIMIT = 500;
+const OBSERVER_PAGE_LIMIT = 100;
 const REQUIRED_STABLE_TASK_SNAPSHOTS = 3;
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function hash(value) { return crypto.sha256(String(value), 'hex').slice(0, 16); }
@@ -76,7 +78,7 @@ export default function () {
     .replace(/\{\{tag\}\}/g, tag);
   const bracket = `[[CONTINUE_DELEGATE: ${delegateTask} +${inv.delaySeconds}s]]`;
   const childTask = `Reply exactly RCDT-HOP1-${tag}, then put this exact terminal bracket on its own final line: ${bracket} Do not call continue_delegate. Put no text after the closing brackets. Do not mutate files.`;
-  const ledger = createTokenLedger({ surfaceClass });
+  const ledger = createTokenSessionLedger({ surfaceClass });
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) {
     const errors = validateManifest(manifest);
@@ -97,17 +99,27 @@ export default function () {
     return_target_session_hash: null, return_source_session_hash: null,
     interrupted: true, terminal_reason: 'observation-window-open',
     dispatch_accepted_at_ms: null, trace_id: null, event_receipt_kinds: [],
+    // Snapshot fields now digest complete child-observer traversals (#562).
     task_snapshot_consistent: false, task_snapshot_stable_count: 0,
     task_snapshot_digest: null,
+    preflight: null, observation_refused: null, verdict_reason: null, partial_reasons: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-TOKEN');
+  let onObserverRound = () => {};
+  // Depth 2: the origin child names the parent in spawnedBy; the bracket
+  // delegate names the origin child.
+  const observer = createChildObserver({
+    rootSessionKey: () => sessionKey,
+    maxDepth: 2,
+    listLimit: OBSERVER_PAGE_LIMIT,
+    onRoundComplete: (digestInput, round) => onObserverRound(digestInput, round),
+  });
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     let taskPollPending = false;
-    let taskSnapshot = [];
-    let taskSnapshotPages = 0;
-    let taskCursorSeen = {};
     let previousTaskSnapshotDigest = null;
+    onObserverRound = (digestInput, round) => consumeObserverRound(digestInput, round);
     let closed = false;
     let settleStartedAt = null;
     let originSubscriptionRequestId = null;
@@ -115,7 +127,7 @@ export default function () {
     const pendingReturnEvents = [];
 
     function tryReturnEvent(eventData) {
-      const identity = tokenLedgerRuntimeIdentity(ledger);
+      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
       if (!identity.originChildSessionKey || !identity.delegateChildSessionKey) return false;
       const receipt = parseTokenReturnEvent(eventData, {
         expectedTargetSessionKey: identity.originChildSessionKey,
@@ -140,7 +152,7 @@ export default function () {
 
     function maybeSubscribeOrigin() {
       if (originSubscriptionRequestId || evidence.origin_subscription_accepted) return;
-      const identity = tokenLedgerRuntimeIdentity(ledger);
+      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
       if (!identity.originChildSessionKey) return;
       originSubscriptionTarget = identity.originChildSessionKey;
       originSubscriptionRequestId = tracker.send(socket, 'sessions.messages.subscribe', {
@@ -149,8 +161,8 @@ export default function () {
     }
 
     function proofComplete() {
-      const summary = summarizeTokenLedger(ledger);
-      return tokenLedgerHasTerminalTasks(ledger) &&
+      const summary = summarizeTokenSessionLedger(ledger);
+      return tokenSessionLedgerHasTerminalSessions(ledger) &&
         summary.origin_task_unique_count === 1 &&
         summary.delegate_task_unique_count === 1 &&
         summary.delegate_requester_matches_origin_child === true &&
@@ -162,7 +174,7 @@ export default function () {
 
     function closeComplete() {
       if (closed) return;
-      const summary = summarizeTokenLedger(ledger);
+      const summary = summarizeTokenSessionLedger(ledger);
       if (summary.origin_task_unique_count > 1 || summary.delegate_task_unique_count > 1 ||
           summary.delegate_parent_mismatch) {
         evidence.interrupted = false;
@@ -181,73 +193,39 @@ export default function () {
       socket.close();
     }
 
-    function requestTaskPage(cursor) {
-      const params = { limit: TASK_PAGE_LIMIT };
-      if (cursor) params.cursor = cursor;
-      tracker.send(socket, 'tasks.list', params);
-    }
-
     function scheduleTaskPoll(delay = TASK_POLL_MS) {
       if (closed || taskPollPending || !evidence.send_accepted) return;
       socket.setTimeout(() => {
         if (closed || taskPollPending) return;
-        taskPollPending = true;
-        taskSnapshot = [];
-        taskSnapshotPages = 0;
-        taskCursorSeen = {};
-        requestTaskPage(null);
+        taskPollPending = observer.poll();
+        if (!taskPollPending && observer.state.refusal) {
+          rejectTokenSessionLedgerObservation(ledger);
+          evidence.terminal_reason = 'child-observation-refused';
+          evidence.interrupted = false;
+          closed = true;
+          socket.close();
+        }
       }, delay);
     }
 
-    function consumeTaskPage(classified) {
-      if (!classified.ok || !Array.isArray(classified.payload?.tasks)) {
-        taskPollPending = false;
-        rejectTokenTaskLedgerObservation(ledger);
-        scheduleTaskPoll();
-        return;
-      }
-      taskSnapshot.push(...classified.payload.tasks);
-      taskSnapshotPages += 1;
-      const nextCursor = String(classified.payload.nextCursor || '').trim();
-      if (nextCursor) {
-        if (taskCursorSeen[nextCursor]) {
-          taskPollPending = false;
-          rejectTokenTaskLedgerObservation(ledger);
-          scheduleTaskPoll();
-          return;
-        }
-        taskCursorSeen[nextCursor] = true;
-        requestTaskPage(nextCursor);
-        return;
-      }
+    // One complete observer traversal (every sessions.list page answered).
+    function consumeObserverRound(digestInput, round) {
       taskPollPending = false;
-      const uniqueTaskIds = {};
-      let duplicateTaskId = false;
-      for (const task of taskSnapshot) {
-        const id = String(task?.taskId || task?.id || '').trim();
-        if (!id) continue;
-        if (uniqueTaskIds[id]) duplicateTaskId = true;
-        uniqueTaskIds[id] = true;
+      if (observer.state.refusal) {
+        rejectTokenSessionLedgerObservation(ledger);
+        return;
       }
-      if (duplicateTaskId) {
+      if (!round || round.valid !== true) {
+        // Old ledger rule kept: a duplicate identity, a failed page or a
+        // pagination loop voids the traversal and resets stability.
         evidence.task_snapshot_consistent = false;
         evidence.task_snapshot_stable_count = 0;
         previousTaskSnapshotDigest = null;
-        rejectTokenTaskLedgerObservation(ledger);
+        rejectTokenSessionLedgerObservation(ledger);
         scheduleTaskPoll();
         return;
       }
-      const taskSnapshotDigest = hash(JSON.stringify(taskSnapshot
-        .map((task) => ({
-          taskId: String(task?.taskId || task?.id || ''),
-          status: String(task?.status || ''),
-          updatedAt: task?.updatedAt ?? null,
-          title: String(task?.title || ''),
-          sessionKey: String(task?.sessionKey || ''),
-          childSessionKey: String(task?.childSessionKey || ''),
-          parentTaskId: String(task?.parentTaskId || ''),
-        }))
-        .sort((left, right) => left.taskId < right.taskId ? -1 : left.taskId > right.taskId ? 1 : 0)));
+      const taskSnapshotDigest = hash(JSON.stringify(digestInput));
       evidence.task_snapshot_stable_count = taskSnapshotDigest === previousTaskSnapshotDigest
         ? evidence.task_snapshot_stable_count + 1
         : 1;
@@ -255,9 +233,9 @@ export default function () {
       evidence.task_snapshot_digest = taskSnapshotDigest;
       evidence.task_snapshot_consistent =
         evidence.task_snapshot_stable_count >= REQUIRED_STABLE_TASK_SNAPSHOTS;
-      observeTokenTaskLedger(ledger, {
-        tasks: taskSnapshot, originTitle, delegateMarker,
-        parentSessionKey: sessionKey, pages: taskSnapshotPages, hash,
+      observeTokenSessionLedger(ledger, {
+        records: observer.records(), originTitle, delegateMarker,
+        parentSessionKey: sessionKey, hash,
       });
       maybeSubscribeOrigin();
       reconcilePendingReturns();
@@ -299,8 +277,7 @@ export default function () {
       }, 180000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello() {
       if (!createDisposableSession) {
         evidence.interrupted = false;
         evidence.terminal_reason = 'pre-dispatch-disposable-creation-not-enabled';
@@ -315,15 +292,50 @@ export default function () {
           label: `k6 R-CD-TOKEN ${tag}`,
         });
       }, 250);
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach((method, params) => tracker.send(socket, method, params));
+      socket.setTimeout(() => {
+        if (gate.timeout(10000)) {
+          evidence.interrupted = false;
+          evidence.terminal_reason = 'pre-dispatch-preflight-refused';
+          closed = true;
+          socket.close();
+        }
+      }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          evidence.interrupted = false;
+          evidence.terminal_reason = 'pre-dispatch-preflight-refused';
+          failures.add(1);
+          closed = true;
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello();
+        const observed = observer.claim(msg);
         const originSubscribeResponse = Boolean(
           originSubscriptionRequestId && msg.type === 'res' && msg.id === originSubscriptionRequestId,
         );
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          if (observer.state.refusal && taskPollPending) {
+            taskPollPending = false;
+            rejectTokenSessionLedgerObservation(ledger);
+            evidence.terminal_reason = 'child-observation-refused';
+            evidence.interrupted = false;
+            closed = true;
+            socket.close();
+          }
+        }
         evidence.event_receipt_kinds.push(
           `${classified.kind}:${classified.method || classified.event || 'other'}`,
         );
@@ -360,9 +372,6 @@ export default function () {
             failures.add(1); evidence.terminal_reason = 'sessions-send-rejected';
           }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          consumeTaskPage(classified);
-        }
         if (classified.kind === 'event' && classified.event === 'session.message') {
           const eventData = classified.data || {};
           if (pendingReturnEvents.length < 20) pendingReturnEvents.push(eventData);
@@ -379,22 +388,30 @@ export default function () {
     });
   });
 
-  Object.assign(evidence, summarizeTokenLedger(ledger));
+  Object.assign(evidence, summarizeTokenSessionLedger(ledger));
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   duration.add(evidence.duration_ms);
-  const verdict = classifyTokenEvidence(evidence);
+  const finalVerdict = failClosedVerdict(classifyTokenEvidence(evidence), { gate, observer });
+  const verdict = finalVerdict.verdict;
+  evidence.verdict_reason = finalVerdict.reason;
+  evidence.partial_reasons = verdict === 'PASS-candidate' ? [] : tokenPartialReasons(evidence);
   check(res, { 'websocket connected': (value) => value && value.status === 101 });
   check(null, {
     'raw final text surface declared': () => evidence.surface_class === 'raw-final-text',
     'disposable session created and distinct': () => evidence.session_created &&
       evidence.disposable_origin_ready,
     'send accepted with run identity': () => evidence.send_accepted && !!evidence.send_run_id_hash,
-    'task ledger fully paginated': () => evidence.task_pagination_exhausted,
-    'task ledger snapshot stable across full traversals': () => evidence.task_snapshot_consistent &&
+    'preflight: every row method advertised': () => gate.result?.ok === true,
+    'child observer not refused': () => !evidence.observation_refused,
+    'child observer traversal complete': () => evidence.task_pagination_exhausted,
+    'child observer snapshot stable across full traversals': () => evidence.task_snapshot_consistent &&
       evidence.task_snapshot_stable_count >= REQUIRED_STABLE_TASK_SNAPSHOTS,
-    'origin task exactly once': () => evidence.origin_task_unique_count === 1,
-    'token delegate task exactly once': () => evidence.delegate_task_unique_count === 1,
+    'origin child exactly once': () => evidence.origin_task_unique_count === 1,
+    'token delegate child exactly once': () => evidence.delegate_task_unique_count === 1,
+    'task identity available': () => !!evidence.origin_task_id_hash && !!evidence.delegate_task_id_hash,
     'delegate owned by origin child': () => evidence.delegate_requester_matches_origin_child,
     'origin child subscription accepted': () => evidence.origin_subscription_accepted,
     'bound delegate return observed': () => evidence.delegate_return_observed,

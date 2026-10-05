@@ -18,10 +18,10 @@
     "description": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
     "methods": [
       "sessions.create",
-      "sessions.send",
       "sessions.messages.subscribe",
-      "sessions.get",
-      "tasks.list"
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cd-4-target-session-key.js"
@@ -73,7 +73,7 @@
     {
       "name": "task-ledger-entry",
       "required": false,
-      "description": "Optional context only; continue_delegate may not appear in generic TaskFlow task ledger"
+      "description": "Optional context only. Re-derived (#562): child identity from the child observer (own row spawnedBy = parent, own spawn task carries the nonce or RCD4 token); child_completed from the bound row status done"
     },
     {
       "name": "trace-id",

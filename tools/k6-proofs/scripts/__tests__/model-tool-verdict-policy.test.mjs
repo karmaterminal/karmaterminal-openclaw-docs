@@ -11,13 +11,15 @@ test('R-CD-MODEL-TOOL fails authoritative model mismatch instead of using honest
 
   assert.match(scenario, /const authoritativeMismatch =[\s\S]+!evidence\.model_matches/);
   assert.match(scenario, /tracker\.send\(socket, 'sessions\.describe'/);
-  assert.match(scenario, /tracker\.send\(socket, 'tasks\.list'/);
-  assert.match(scenario, /childSessionKeyForRow\([\s\S]*classified\.payload,[\s\S]*rowNonce,[\s\S]*\[taskIdentityToken\]/);
+  // #562: the child key comes from the child observer, not the removed task ledger.
+  assert.doesNotMatch(scenario, /tracker\.send\(socket, 'tasks\.list'/);
+  assert.match(scenario, /observer\.boundChild\(rowNonce, \[taskIdentityToken\]\)/);
   assert.match(scenario, /compactTaskIdentityToken\('MTOOL', rowNonce\)/);
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /requestChildMetadata\(socket, delayMs = 1\)/);
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.list'/);
-  assert.match(scenario, /const verdict = authoritativeMismatch\s*\?\s*'FAIL-candidate'\s*:\s*\(complete \? 'PASS-candidate' : 'PARTIAL-candidate'\)/);
+  assert.match(scenario, /const rawVerdict = authoritativeMismatch\s*\?\s*'FAIL-candidate'\s*:\s*\(complete \? 'PASS-candidate' : 'PARTIAL-candidate'\)/);
+  assert.match(scenario, /failClosedVerdict\(rawVerdict, \{ gate, observer \}\)/);
   assert.match(scenario, /finalEvidence\?\.child_session_metadata_observed[\s\S]+!finalEvidence\?\.model_matches/);
   assert.doesNotMatch(scenario, /HONEST-LIMIT-candidate/);
   assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');

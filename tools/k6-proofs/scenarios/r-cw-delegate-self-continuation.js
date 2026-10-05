@@ -26,6 +26,7 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -114,10 +115,13 @@ export default function () {
     parent_return: false,
     dispatch_accepted_at_ms: null,
     trace_id: null,
+    preflight: null,
+    verdict_reason: null,
     redacted_events: [],
   };
 
   const started = Date.now();
+  const gate = createPreflightGate('R-CW-DELEGATE-SELF-CONTINUATION');
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -144,19 +148,14 @@ export default function () {
         });
       }, 500);
 
-      // Poll task ledger at intervals — optional context.
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 5000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 90000);
+      // #562: the old task-ledger poll only copied a traceId into evidence (no
+      // verdict input). Session rows carry no traceId, so nothing replaces it;
+      // trace_id still comes from the sessions.send answer.
 
       socket.setTimeout(() => socket.close(), 120000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
-
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cw-ds-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -168,11 +167,23 @@ export default function () {
       } else {
         socket.setTimeout(() => startProofFlow(socket), 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CW-DELEGATE-SELF-CONTINUATION preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
         const classified = tracker.classify(msg);
 
         evidence.redacted_events.push({
@@ -210,16 +221,6 @@ export default function () {
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
-          }
-        }
-
-        // Optional TaskFlow ledger context — continue_delegate child sessions may surface here.
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
-          for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (!taskStr.includes(rowNonce)) continue;
-            if (task.traceId) evidence.trace_id = task.traceId;
           }
         }
 
@@ -285,6 +286,7 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.preflight = gate.result;
   duration.add(evidence.duration_ms);
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
@@ -308,11 +310,14 @@ export default function () {
     evidence.child_continue_work_accepted &&
     evidence.child_hop_2_woke &&
     evidence.parent_return;
+  const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate });
+  evidence.verdict_reason = finalVerdict.reason;
+  if (finalVerdict.reason) failures.add(1);
 
   console.log(`\n--- R-CW-DELEGATE-SELF-CONTINUATION EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CW-DELEGATE-SELF-CONTINUATION] VERDICT: ${finalVerdict.verdict}`);
 }
 
 export function handleSummary(data) {

@@ -5,6 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import {
   classifyModelIdentity,
   modelFromSessionMetadata,
@@ -70,9 +71,13 @@ export default function () {
     depth_1_scheduled_inner: false, depth_2_child_session_key: null, depth_2_session_metadata_observed: false,
     depth_2_model_byte: null, depth_2_model_source: null, depth_2_self_reported_model: null, depth_2_session_metadata: null,
     depth_1_token: depth1Token, depth_2_token: depth2Token, model_matches: false,
-    return_payload: false, trace_id: null, model_classification_reason: null, redacted_events: [],
+    return_payload: false, trace_id: null, model_classification_reason: null,
+    depth_1_child_session_key: null, preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-MODEL-CHAINED-ALT');
+  // Depth 2: depth-1 names the parent in spawnedBy; depth-2 names depth-1.
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey, maxDepth: 2 });
   if (inv.requestedModelRefusal || !depth1Token || !depth2Token) {
     // Refuse before dispatch: nothing is sent and no attempt is spent.
     evidence.dispatch_refused = inv.requestedModelRefusal || 'row task identity tokens could not be rendered';
@@ -99,7 +104,20 @@ export default function () {
       }, delayMs);
     }
     function observeDepth2Child(socket, payload) {
-      const key = childSessionKeyForTokenOnly(payload, depth2Token, depth1Token);
+      acceptDepth2Child(socket, childSessionKeyForTokenOnly(payload, depth2Token, depth1Token));
+    }
+    // #562: depth-1's own row names the parent and its own spawn task carries
+    // the depth-1 token; depth-2's own row names depth-1 and its own task carries
+    // only the depth-2 token (depth-1 embeds both, so token-only excludes it).
+    function observeDepthLineage(socket) {
+      const depth1 = observer.boundChild(depth1Token, [], { spawnedBy: sessionKey });
+      if (!depth1.childSessionKey) return;
+      if (!evidence.depth_1_child_session_key) evidence.depth_1_child_session_key = depth1.childSessionKey;
+      if (evidence.depth_1_child_session_key !== depth1.childSessionKey) return;
+      evidence.depth_1_child_observed = true;
+      acceptDepth2Child(socket, observer.boundChildForTokenOnly(depth2Token, depth1Token, { spawnedBy: depth1.childSessionKey }));
+    }
+    function acceptDepth2Child(socket, key) {
       if (!key || evidence.depth_2_child_session_key) return;
       evidence.depth_2_child_observed = true;
       evidence.depth_2_child_session_key = key;
@@ -124,25 +142,37 @@ export default function () {
           `After the outer continue_delegate tool result reports scheduled, reply exactly MODEL-CHAINED-PARENT-SCHEDULED ${rowNonce}. No other action.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 20000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 45000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 90000);
+      for (const delayMs of [20000, 45000, 90000, 130000]) socket.setTimeout(() => observer.poll(), delayMs);
       socket.setTimeout(() => socket.close(), 220000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const key = `r-cd-model-chain-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
           tracker.send(socket, 'sessions.create', { key, label: `k6 R-CD-MODEL-CHAINED-ALT ${rowNonce}` });
         }, 250);
       } else socket.setTimeout(() => start(socket), 500);
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach((method, params) => tracker.send(socket, method, params));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw); const classified = tracker.classify(msg);
+        const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error('✗ R-CD-MODEL-CHAINED-ALT preflight refused before dispatch: ' + gate.result.reason);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
+        const classified = tracker.classify(msg);
         evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: classified.payload ? redactEvent(classified.payload) : null });
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); start(socket); }
@@ -152,7 +182,7 @@ export default function () {
           if (classified.ok) { evidence.dispatch_accepted = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — chained model parent turn triggered'); }
           else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') observeDepth2Child(socket, classified.payload);
+        if (observed) { observer.handle(observed, classified); observeDepthLineage(socket); }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           depth2MetadataInFlight = false;
           const child = classified.payload?.session || null;
@@ -190,14 +220,18 @@ export default function () {
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.depth_1_child_observed && evidence.depth_1_scheduled_inner && evidence.depth_2_child_observed && evidence.return_payload;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   const identity = classifyModelIdentity({ baseline: evidence.requested_model_byte, observed: evidence.depth_2_model_byte, complete });
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
   evidence.model_matches = identity.modelMatches;
-  evidence.model_classification_reason = identity.reason || evidence.model_classification_reason;
-  finalEvidence = { ...evidence, verdict: identity.verdict };
+  evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
+  evidence.verdict_reason = finalVerdict.reason;
+  finalEvidence = { ...evidence, verdict: finalVerdict.verdict };
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, { 'dispatch accepted': () => evidence.dispatch_accepted, 'depth-1 child observed': () => evidence.depth_1_child_observed, 'depth-1 scheduled inner': () => evidence.depth_1_scheduled_inner, 'depth-2 child observed': () => evidence.depth_2_child_observed, 'authoritative depth-2 model byte': () => !!evidence.depth_2_model_byte, 'requested model observed': () => evidence.model_matches, 'return payload': () => evidence.return_payload });
-  if (identity.verdict !== 'PASS-candidate') failures.add(1);
-  console.log('\n--- R-CD-MODEL-CHAINED-ALT EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-CHAINED-ALT] VERDICT: ' + identity.verdict);
+  if (finalVerdict.verdict !== 'PASS-candidate') failures.add(1);
+  console.log('\n--- R-CD-MODEL-CHAINED-ALT EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-CHAINED-ALT] VERDICT: ' + finalVerdict.verdict);
 }
 
 export function handleSummary(data) {

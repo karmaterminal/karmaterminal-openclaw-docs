@@ -17,9 +17,11 @@
     "name": "r-cd-model-tool",
     "description": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
     "methods": [
-      "sessions.send",
+      "sessions.create",
       "sessions.messages.subscribe",
-      "tasks.list",
+      "sessions.send",
+      "sessions.list",
+      "chat.history",
       "sessions.describe"
     ],
     "status": "runnable",

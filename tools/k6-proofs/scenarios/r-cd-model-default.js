@@ -10,6 +10,7 @@ import {
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
 import { classifyModelIdentity, modelFromSessionMetadata, normalizeModel } from '../lib/model-identity.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: { r_cd_model_default: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -82,9 +83,14 @@ export default function() {
     return_payload: false,
     trace_id: null,
     model_classification_reason: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-MODEL-DEFAULT');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -118,9 +124,7 @@ export default function() {
           'MODEL-DEFAULT-PARENT-SCHEDULED ' + rowNonce + '. No other action.';
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 5000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 30000);
+      for (const delayMs of [5000, 15000, 30000, 60000]) socket.setTimeout(() => observer.poll(), delayMs);
       socket.setTimeout(() => socket.close(), 180000);
     }
     function observeChildKey(socket, key) {
@@ -129,18 +133,30 @@ export default function() {
       evidence.child_session_key = key;
       describe(socket, 'child', key);
     }
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const key = ('r-cd-model-default-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
           tracker.send(socket, 'sessions.create', { key, label: 'k6 R-CD-MODEL-DEFAULT ' + rowNonce });
         }, 250);
       } else socket.setTimeout(() => start(socket), 500);
+    }
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach((method, params) => tracker.send(socket, method, params));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error('✗ R-CD-MODEL-DEFAULT preflight refused before dispatch: ' + gate.result.reason);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const describeTarget = msg && msg.type === 'res' ? describeFor[msg.id] : undefined;
         const classified = tracker.classify(msg);
         evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: classified.payload ? redactEvent(classified.payload) : null });
@@ -161,8 +177,11 @@ export default function() {
             console.log('✓ sessions.send accepted — default model delegate turn triggered');
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          observeChildKey(socket, childSessionKeyForRow(classified.payload, rowNonce, [taskIdentityToken]));
+        if (observed) {
+          observer.handle(observed, classified);
+          // #562: the child's own row names this session in spawnedBy and its own
+          // spawn task carries the nonce or the MDEF token.
+          observeChildKey(socket, observer.boundChild(rowNonce, [taskIdentityToken]).childSessionKey);
         }
         if (classified.kind === 'response' && classified.method === 'sessions.describe' && describeTarget) {
           const { who, key } = describeTarget;
@@ -223,10 +242,14 @@ export default function() {
 
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.parent_scheduled_sentinel && evidence.child_session_observed && evidence.return_payload;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   const identity = classifyModelIdentity({ baseline: evidence.parent_model_byte, observed: evidence.child_model_byte, expected: expectedModel, complete });
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
   evidence.model_matches = identity.modelMatches;
-  evidence.model_classification_reason = identity.reason || evidence.model_classification_reason;
-  finalEvidence = { ...evidence, verdict: identity.verdict };
+  evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
+  evidence.verdict_reason = finalVerdict.reason;
+  finalEvidence = { ...evidence, verdict: finalVerdict.verdict };
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'dispatch accepted': () => evidence.dispatch_accepted,
@@ -237,8 +260,8 @@ export default function() {
     'child model matches parent': () => evidence.model_matches,
     'return payload': () => evidence.return_payload,
   });
-  if (identity.verdict !== 'PASS-candidate') failures.add(1);
-  console.log('\n--- R-CD-MODEL-DEFAULT EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-DEFAULT] VERDICT: ' + identity.verdict);
+  if (finalVerdict.verdict !== 'PASS-candidate') failures.add(1);
+  console.log('\n--- R-CD-MODEL-DEFAULT EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-DEFAULT] VERDICT: ' + finalVerdict.verdict);
 }
 
 export function handleSummary(data) {

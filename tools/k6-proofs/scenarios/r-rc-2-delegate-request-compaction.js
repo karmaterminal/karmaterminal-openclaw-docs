@@ -23,6 +23,7 @@ import {
   compactTaskIdentityToken,
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -98,10 +99,7 @@ export default function () {
     child_history_requests: 0,
     child_history_available: false,
     task_identity_token: taskIdentityToken,
-    task_list_responses: 0,
-    task_records_seen: 0,
-    task_records_with_child_key: 0,
-    task_identity_matches: 0,
+    child_status: null,
     delegate_child_report_observed: false,
     child_reported_context_threshold: false,
     request_compaction_tool_result_observed: false,
@@ -119,9 +117,14 @@ export default function () {
     reported_context_usage: null,
     reported_threshold: null,
     trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-RC-2');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -170,7 +173,9 @@ export default function () {
         childHistoryPollInFlight = true;
         childHistoryPolls += 1;
         evidence.child_history_requests = childHistoryPolls;
-        tracker.send(socket, 'sessions.get', { key: evidence.child_session_key, limit: 200 });
+        // sessions.get is advertise:false on current builds (core-descriptors.ts:383),
+        // so the preflight cannot verify it; chat.history is the advertised read.
+        tracker.send(socket, 'chat.history', { sessionKey: evidence.child_session_key, limit: 200 });
       }, delayMs);
     }
 
@@ -205,14 +210,13 @@ export default function () {
           idempotencyKey: `R-RC-2-${rowNonce}`,
         });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 10000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
+      for (const delayMs of [10000, 30000, 60000, 90000]) {
+        socket.setTimeout(() => observer.poll(), delayMs);
+      }
       socket.setTimeout(() => socket.close(), 120000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello() {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-rc-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -221,12 +225,39 @@ export default function () {
       } else {
         socket.setTimeout(startProofFlow, 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach((method, params) => tracker.send(socket, method, params));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-RC-2 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello();
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          // The delegated child's own row names this session in spawnedBy and its
+          // own spawn task carries the nonce or the RRC2 task token.
+          const bound = observer.boundChild(rowNonce, taskIdentityToken ? [taskIdentityToken] : []);
+          if (bound.childSessionKey) evidence.child_status = observer.childStatus(bound.childSessionKey);
+          if (bound.childSessionKey && !evidence.child_session_key) {
+            evidence.child_session_observed = true;
+            evidence.child_session_key = bound.childSessionKey;
+            requestChildHistory(250);
+            console.log('✓ nonce-bound delegated child session observed (session row + own spawn task)');
+          }
+        }
         evidence.redacted_events.push({
           ts: Date.now(),
           kind: classified.kind,
@@ -263,30 +294,7 @@ export default function () {
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = Array.isArray(classified.payload?.tasks) ? classified.payload.tasks : [];
-          evidence.task_list_responses += 1;
-          evidence.task_records_seen += tasks.length;
-          evidence.task_records_with_child_key += tasks.filter(
-            (task) => typeof task?.childSessionKey === 'string',
-          ).length;
-          evidence.task_identity_matches += tasks.filter(
-            (task) => typeof task?.title === 'string' && task.title.includes(taskIdentityToken),
-          ).length;
-          const observedChildSessionKey = childSessionKeyForRow(
-            classified.payload,
-            rowNonce,
-            [taskIdentityToken],
-          );
-          if (observedChildSessionKey && !evidence.child_session_key) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            requestChildHistory(250);
-            console.log('✓ nonce-bound delegated child session observed in task ledger');
-          }
-        }
-
-        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+        if (!observed && classified.kind === 'response' && classified.method === 'chat.history') {
           childHistoryPollInFlight = false;
           if (!classified.ok) {
             requestChildHistory(2000);
@@ -412,11 +420,17 @@ export default function () {
     evidence.request_compaction_accepted ||
     evidence.request_compaction_accepted_reported ||
     evidence.post_compaction_path_observed;
-  evidence.verdict = verifiedPostCompactionOutcome
+  const rawVerdict = verifiedPostCompactionOutcome
     ? 'PASS-candidate'
     : (verifiedThresholdOutcome
       ? 'HONEST-LIMIT-candidate'
       : (partialOutcomeEvidence ? 'PARTIAL-candidate' : 'FAIL-candidate'));
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
+  const finalVerdict = failClosedVerdict(rawVerdict, { gate, observer });
+  evidence.verdict = finalVerdict.verdict;
+  evidence.verdict_reason = finalVerdict.reason;
+  if (finalVerdict.reason) failures.add(1);
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 

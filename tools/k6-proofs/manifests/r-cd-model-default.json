@@ -17,8 +17,12 @@
     "name": "r-cd-model-default",
     "description": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
     "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.list",
+      "chat.history",
+      "sessions.describe"
     ],
     "status": "runnable",
     "expectedFile": "r-cd-model-default.js",

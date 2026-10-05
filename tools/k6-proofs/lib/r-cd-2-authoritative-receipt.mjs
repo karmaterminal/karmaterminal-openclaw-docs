@@ -437,7 +437,9 @@ function lifecycleChecks(evidence) {
       evidence?.typed_delegate_success_same_run === true,
     typedDelegateSuccessSameRun: evidence?.typed_delegate_success_same_run === true,
     typedDelegateFailureFree: evidence?.typed_delegate_failed_same_run !== true,
-    replaySafe: evidence?.replay_invalid_observed !== true &&
+    // Safe from replay = the runtime refused to replay the delegate-spawning
+    // send run (replayInvalid:true on its own lifecycle end).
+    replaySafe: evidence?.replay_refused_observed === true &&
       evidence?.failureCategory !== 'delegate-replay-unsafe',
     wakeLifecycle: evidence?.wake_lifecycle_observed === true,
     wakeSessionBound: evidence?.wake_session_bound === true,
@@ -543,7 +545,13 @@ export function rCd2AuthorityChecks(evidence, correlation, identity, signingKey)
 
 function categoryFor(evidence, correlation, diagnostics) {
   if (evidence?.channel_message_observed === true) return 'silent-channel-delivery';
-  if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
+  // Replay allowed is a defect only for a send run that actually spawned the
+  // delegate; without the spawn there is nothing to re-dispatch.
+  if (evidence?.typed_delegate_success_same_run === true &&
+      (evidence?.replay_refused_observed === false ||
+       evidence?.failureCategory === 'delegate-replay-unsafe')) {
+    return 'delegate-replay-unsafe';
+  }
   if (evidence?.typed_delegate_failed_same_run === true ||
       evidence?.failureCategory === 'typed-tool-failure') {
     return 'provider-or-turn-failure';
@@ -613,7 +621,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
         quiet: evidence?.post_wake_quiet === true,
         wakeSessionBound: evidence?.wake_session_bound === true,
         failed: evidence?.dispatch_failure_observed === true,
-        replayDiagnostic: evidence?.replay_invalid_observed === true ||
+        replayDiagnostic: evidence?.replay_refused_observed !== true ||
           evidence?.failureCategory === 'delegate-replay-unsafe',
       }),
       topologyFingerprint: binding({
@@ -661,7 +669,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
       wakeLifecycleObserved: true,
       unboundSessionVerified: true,
       noChannelVerified: true,
-      replayDiagnosticObserved: evidence?.replay_invalid_observed === true ||
+      replayDiagnosticObserved: evidence?.replay_refused_observed !== true ||
         evidence?.failureCategory === 'delegate-replay-unsafe',
       traceFingerprint: fingerprint(correlation.traceId),
       acceptedSendTraceFingerprint: fingerprint(correlation.rowBinding.acceptedSendTraceId),

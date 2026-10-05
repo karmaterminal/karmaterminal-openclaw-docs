@@ -945,6 +945,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       post_wake_quiet: true,
       channel_message_observed: false,
       dispatch_failure_observed: false,
+      replay_refused_observed: true,
       dispatch_accepted_at_ms: 100,
       dispatch_terminal_sentinel_at_ms: 200,
       dispatch_lifecycle_end_at_ms: 300,

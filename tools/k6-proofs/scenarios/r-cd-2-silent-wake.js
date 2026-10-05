@@ -401,12 +401,11 @@ export default function () {
                 // child again, so the runtime refuses that replay. Refusal on the
                 // accepted send run is the expected, safe signal. An end without it
                 // means the runtime would allow re-dispatch: that is the defect.
-                if (eventData.data?.replayInvalid === true) {
-                  evidence.replay_refused_observed = true;
-                } else {
-                  evidence.replay_refused_observed = false;
-                  evidence.failureCategory = 'delegate-replay-unsafe';
-                }
+                // Record only what was observed. The receipt decides the category,
+                // and only when this run actually spawned the delegate: a run where
+                // the model never called the tool is not a product replay defect
+                // (review 🍃 on #576).
+                evidence.replay_refused_observed = eventData.data?.replayInvalid === true;
                 maybeRecordDispatchTerminalSuccess();
               }
             }

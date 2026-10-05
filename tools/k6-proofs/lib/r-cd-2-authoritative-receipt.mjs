@@ -545,7 +545,13 @@ export function rCd2AuthorityChecks(evidence, correlation, identity, signingKey)
 
 function categoryFor(evidence, correlation, diagnostics) {
   if (evidence?.channel_message_observed === true) return 'silent-channel-delivery';
-  if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
+  // Replay allowed is a defect only for a send run that actually spawned the
+  // delegate; without the spawn there is nothing to re-dispatch.
+  if (evidence?.typed_delegate_success_same_run === true &&
+      (evidence?.replay_refused_observed === false ||
+       evidence?.failureCategory === 'delegate-replay-unsafe')) {
+    return 'delegate-replay-unsafe';
+  }
   if (evidence?.typed_delegate_failed_same_run === true ||
       evidence?.failureCategory === 'typed-tool-failure') {
     return 'provider-or-turn-failure';

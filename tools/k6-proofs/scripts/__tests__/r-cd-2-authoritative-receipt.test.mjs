@@ -999,21 +999,39 @@ test('R-CD-2 replay contract: the delegate-spawning send run must end with repla
   assert.equal(unobserved.diagnostics.lifecycle.replaySafe, false);
   assert.notEqual(unobserved.verdict, 'PASS-candidate');
 
-  // An end that would allow replay of the delegate turn is the defect.
-  const allowed = resolve({ replay_refused_observed: false, failureCategory: 'delegate-replay-unsafe' });
+  // An end that would allow replay of a turn that DID spawn the delegate is the defect.
+  const allowed = resolve({ replay_refused_observed: false });
   assert.equal(allowed.diagnostics.lifecycle.replaySafe, false);
   assert.equal(allowed.verdict, 'FAIL-candidate');
   assert.equal(allowed.failureCategory, 'delegate-replay-unsafe');
+
+  // No delegate spawned (model skipped the tool) and no replayInvalid: not a
+  // product replay defect (review 🍃 on #576). It stays non-PASS for its real reason.
+  const noDelegate = resolve({
+    replay_refused_observed: false,
+    typed_delegate_success_same_run: false,
+  });
+  assert.notEqual(noDelegate.failureCategory, 'delegate-replay-unsafe');
+  assert.notEqual(noDelegate.verdict, 'PASS-candidate');
+
+  // 🍃's exact probe at 01a53c2f: no delegate, category already written.
+  const probed = resolve({
+    replay_refused_observed: false,
+    typed_delegate_success_same_run: false,
+    failureCategory: 'delegate-replay-unsafe',
+  });
+  assert.notEqual(probed.failureCategory, 'delegate-replay-unsafe');
 });
 
 test('R-CD-2 scenario reads replay refusal only from the accepted send run\'s own successful end', async () => {
   const fs = await import('node:fs');
   const src = fs.readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
   const success = src.indexOf('evidence.send_run_success_end_observed = true;');
-  const refused = src.indexOf('evidence.replay_refused_observed = true;');
-  const allowed = src.indexOf('evidence.replay_refused_observed = false;');
+  const refused = src.indexOf("evidence.replay_refused_observed = eventData.data?.replayInvalid === true;");
   const sameRunGate = src.lastIndexOf("if (phase === 'end' && eventRunId === acceptedRunId)", success);
   assert.ok(sameRunGate > 0 && success > sameRunGate, 'success branch sits under the accepted-run end gate');
-  assert.ok(refused > success && allowed > refused, 'refusal is recorded inside that success branch');
+  assert.ok(refused > success, 'refusal is recorded inside that success branch');
+  assert.equal(src.includes("evidence.failureCategory = 'delegate-replay-unsafe'"), false,
+    'the scenario records observation only; the receipt assigns the category');
   assert.equal(src.includes('replay_invalid_observed'), false, 'the old inverted flag is gone');
 });

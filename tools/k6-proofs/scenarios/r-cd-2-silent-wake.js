@@ -26,6 +26,7 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 
 export const options = {
   scenarios: {
@@ -166,6 +167,7 @@ export default function () {
     wake_lifecycle_at_ms: null,
     post_wake_quiet_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
+    wake_before_legacy_gate: false,
     post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     child_session: null,
     reason_hash: null,
@@ -384,8 +386,17 @@ export default function () {
             const wakeRunId = evidence.silent_status_record_observed
               ? gatewayWakeRunId(eventData, acceptedRunId, sessionKey)
               : null;
-            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (wakeRunId && elapsed >= evidence.wake_gate_ms) {
+            // docs#564: a distinct wake run is counted from dispatch + delegate
+            // delay (the earliest the delegate can fire); the old fixed gate is
+            // diagnostic only.
+            const wakeWindow = delegateReturnWindow({
+              anchorAtMs: evidence.dispatch_accepted_at_ms,
+              delayMs: Number(invocationCfg().delaySeconds) * 1000,
+              legacyGateMs: evidence.wake_gate_ms,
+              nowMs: Date.now(),
+            });
+            if (wakeRunId && wakeWindow.open) {
+              if (wakeWindow.beforeLegacyGate) evidence.wake_before_legacy_gate = true;
               evidence.parent_wake_observed = true;
               evidence.wake_lifecycle_observed = true;
               evidence.wake_session_bound = true;

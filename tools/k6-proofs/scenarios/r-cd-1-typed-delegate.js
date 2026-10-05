@@ -28,6 +28,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 
 export const options = {
   scenarios: {
@@ -124,6 +125,10 @@ export default function () {
     delegate_mode: null,
     delegate_delay_ms: null,
     delegate_wake_gate_ms: null,
+    // docs#564: the return window opens at scheduled + delay (the earliest a
+    // real return can exist). The old fixed gate is diagnostic only.
+    return_window_opens_at_ms: null,
+    return_before_legacy_wake_gate: false,
     prompt_echoes_ignored: 0,
     trace_id: null,
     preflight: null,
@@ -297,15 +302,21 @@ export default function () {
 
             // Child return sentinel from delegate child arrival.
             const returnSentinel = eventStr.includes(`CD1-DONE ${rowNonce}`) || eventName === 'delegate.return';
-            const returnWindowOpen = evidence.delegate_scheduled_at_ms !== null &&
-              Date.now() >= evidence.delegate_scheduled_at_ms + evidence.delegate_wake_gate_ms;
-            if (returnSentinel && returnWindowOpen) {
+            const returnWindow = delegateReturnWindow({
+              anchorAtMs: evidence.delegate_scheduled_at_ms,
+              delayMs: evidence.delegate_delay_ms,
+              legacyGateMs: evidence.wake_gate_ms,
+              nowMs: Date.now(),
+            });
+            evidence.return_window_opens_at_ms = returnWindow.opensAtMs;
+            if (returnSentinel && returnWindow.open) {
               evidence.parent_return_event = true;
               evidence.parent_return_event_at_ms = Date.now();
+              if (returnWindow.beforeLegacyGate) evidence.return_before_legacy_wake_gate = true;
               console.log(`✓ CD1-DONE/delegate return evidence observed post-dispatch: ${eventName}`);
             } else if (returnSentinel) {
               evidence.prompt_echoes_ignored += 1;
-              console.log('ℹ Ignored delegate return-like event before delayed wake gate');
+              console.log('ℹ Ignored delegate return-like event before the scheduled sentinel + delegate delay');
             }
 
             // Channel message (soft — expected for mode=normal, unlike R-CD-2)

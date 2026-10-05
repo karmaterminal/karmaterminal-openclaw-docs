@@ -158,7 +158,9 @@ export function servedReceiptFromHistory(messages, { anchor, sentinel } = {}) {
  * - servedConflict: the run window served more than one model
  * - activeFallback: describe activeModel* differing from the selection
  * - expected: optional seat pin (OPENCLAW_EXPECTED_MODEL); the baseline must
- *   equal it, which is also the live negative control
+ *   equal it, which is also the live negative control. A wrong pin can only
+ *   FAIL once a baseline exists: for MODEL-DEFAULT that is the parent's
+ *   served model, so without a bound parent served receipt it is PARTIAL.
  * - complete: every non-identity receipt the row requires was gathered
  * PASS needs a served receipt equal to the baseline. FAIL needs authoritative
  * evidence (served or selection mismatch, conflict, active fallback). Missing

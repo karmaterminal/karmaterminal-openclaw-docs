@@ -525,6 +525,10 @@ For R-CD rows the public-safe receipts remain:
   stream.
 - The row-bound child from the child observer, where the row needs one.
 
+For R-CD-1 and R-CD-2 the child is optional context: R-CD-2's verdict comes
+from the row-scoped resolver, which does not read the observer fields, and an
+observer refusal there is recorded in `verdict_reason` only.
+
 This avoids the false-negative filed in #134, where a live delegate fired but the
 scenario failed because it queried the wrong registry surface.
 

@@ -1,3 +1,4 @@
+import { hasExactSentinelText } from './wake-turn-receipt.mjs';
 function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -265,6 +266,19 @@ export function measuredRequestCompactionOutcome(messages, { rowNonce } = {}) {
  * spawn task, before the toolResult, or in a later turn does not count.
  * Returns { kind: 'threshold' | 'accepted' | null, usage, threshold, index }.
  */
+/** End offset of the first word-bounded `<marker> <nonce>` in text, or -1. */
+function exactSentinelEnd(text, marker, nonce) {
+  if (!hasExactSentinelText(text, marker, nonce)) return -1;
+  const sentinel = `${marker} ${nonce}`;
+  for (let at = text.indexOf(sentinel); at >= 0; at = text.indexOf(sentinel, at + 1)) {
+    const end = at + sentinel.length;
+    const before = at === 0 ? '' : text[at - 1];
+    const after = end >= text.length ? '' : text[end];
+    if (!/[A-Za-z0-9_-]/.test(before) && !/[A-Za-z0-9_-]/.test(after)) return end;
+  }
+  return -1;
+}
+
 export function childReportAfterReceipt(messages, { rowNonce } = {}) {
   const items = Array.isArray(messages) ? messages : [];
   const none = { kind: null, usage: null, threshold: null, index: -1 };
@@ -277,20 +291,21 @@ export function childReportAfterReceipt(messages, { rowNonce } = {}) {
     if (result.kind !== 'unrelated' && result.toolCallId === toolCallId) { resultIndex = i; break; }
   }
   if (resultIndex < 0) return none;
-  const thresholdSentinel = `REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce}`;
-  const acceptedSentinel = `REQUEST_COMPACTION_ACCEPTED ${rowNonce}`;
+  // Word-bounded exact sentinels (#568's hasExactSentinelText): a longer nonce
+  // with the same prefix (NONCE-x) never matches NONCE.
   for (let i = resultIndex + 1; i < items.length; i += 1) {
     const role = String(items[i]?.role || '').toLowerCase();
     if (role === 'user') break;
     if (role !== 'assistant') continue;
     const text = plainText(items[i]);
-    if (text.includes(thresholdSentinel)) {
-      const tail = text.slice(text.indexOf(thresholdSentinel) + thresholdSentinel.length);
+    const thresholdAt = exactSentinelEnd(text, 'REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD', rowNonce);
+    if (thresholdAt >= 0) {
+      const tail = text.slice(thresholdAt);
       const usage = tail.match(/CONTEXT[^0-9A-Za-z]+(\d+)/)?.[1];
       const threshold = tail.match(/THRESHOLD[^0-9A-Za-z]+(\d+)/)?.[1];
       return { kind: 'threshold', usage: usage ? Number(usage) : null, threshold: threshold ? Number(threshold) : null, index: i };
     }
-    if (text.includes(acceptedSentinel)) return { kind: 'accepted', usage: null, threshold: null, index: i };
+    if (hasExactSentinelText(text, 'REQUEST_COMPACTION_ACCEPTED', rowNonce)) return { kind: 'accepted', usage: null, threshold: null, index: i };
   }
   return none;
 }

@@ -184,8 +184,10 @@ export function rCd4HistoryObservation({
 }
 
 /**
- * Treat tasks.list as child authority only when one structured task record
- * binds its real childSessionKey to this row nonce.
+ * Legacy record-shaped binding: one structured record binds its real
+ * childSessionKey to this row nonce. The scenario no longer polls the task
+ * ledger (tasks.list was removed upstream, #562); it binds through
+ * child-observer.mjs and maps 'completed' to the child row status 'done'.
  */
 export function rCd4TaskObservation(task, nonce) {
   const taskIdentityToken = rCd4TaskIdentityToken(nonce);

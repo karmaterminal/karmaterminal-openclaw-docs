@@ -18,9 +18,10 @@
     "description": "Terminal [[CONTINUE_DELEGATE:...]] path from an isolated raw-final-text child; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
     "methods": [
       "sessions.create",
+      "sessions.messages.subscribe",
       "sessions.send",
-      "tasks.list",
-      "sessions.messages.subscribe"
+      "sessions.list",
+      "chat.history"
     ],
     "status": "runnable",
     "expectedFile": "r-cd-token-bracket-delegate.js",
@@ -61,7 +62,7 @@
     {
       "name": "queue-identity",
       "required": true,
-      "description": "Exactly one token delegate task identity appears in the authoritative task ledger"
+      "description": "Exactly one token delegate child (own row spawnedBy = origin child, own spawn task carries the delegate marker) through stable child-observer traversals. Task identity (taskId/parentTaskId) has no current surface (#562), so this receipt stays PARTIAL"
     },
     {
       "name": "child-spawned",

@@ -76,7 +76,13 @@ export function createTokenLedger({ surfaceClass }) {
 }
 
 /**
- * Consume one complete tasks.list snapshot (all pages). TaskSummary.title is
+ * LEGACY (#562): the task-ledger RPC (tasks.list) was removed upstream in
+ * openclaw 6652f7eac8. These ledger functions and the tasks_list_* evidence
+ * fields are kept only so retained corpus evidence and the row-scoped resolver
+ * contract still classify; no scenario calls the RPC. Current runs use the
+ * session ledger below.
+ *
+ * Consume one complete task-ledger snapshot (all pages). TaskSummary.title is
  * bounded to 80 characters, so the caller supplies short opaque markers that
  * survive the public gateway projection. The delegate must be owned by the
  * one origin child's session; title text alone is never enough to join it.
@@ -156,6 +162,156 @@ export function summarizeTokenLedger(ledger) {
       Boolean(origin?.childSessionHash) && delegate?.requesterSessionHash === origin.childSessionHash,
     delegate_parent_mismatch: ledger?.delegateParentMismatch === true,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Session-row ledger (#562). The task ledger RPC was removed upstream
+// (openclaw 6652f7eac8). Child identity now comes from the child observer
+// (lib/child-observer.mjs): sessions.list { spawnedBy } rows plus each child's
+// own spawn task from chat.history.
+//
+// Mapping, old task record -> current session evidence:
+//   origin: title === originTitle && sessionKey === parent
+//        -> row.label === originTitle && row.spawnedBy === parent
+//           (sessions_spawn label= is stored on the child entry,
+//            subagent-spawn-session-patch.ts:168; spawnedBy at :99)
+//   delegate: title includes marker && sessionKey === origin child
+//        -> own spawn task includes marker && row.spawnedBy === origin child
+//   runId -> row.lastRunId; status 'completed' -> row.status 'done'
+//   taskId / parentTaskId -> NO current gateway surface. These identities stay
+//   null, so classifyTokenEvidence cannot reach PASS: the receipt is PARTIAL
+//   with task_identity_unavailable_reason, never a weaker substitute.
+// The legacy summary field names are kept so the row-scoped resolver contract
+// (lib/r-cd-token-authoritative-receipt.mjs) reads the mapped values unchanged.
+// ---------------------------------------------------------------------------
+
+export const TOKEN_TASK_IDENTITY_UNAVAILABLE_REASON =
+  'task identity (taskId, parentTaskId) has no gateway surface since TaskFlow was removed upstream (openclaw 6652f7eac8); child session identity is recorded instead';
+
+function rememberSession({ record, seen, hash }) {
+  const key = String(record?.childSessionKey || '').trim();
+  if (!key) return;
+  const runId = record?.lastRunId ? String(record.lastRunId) : null;
+  const requester = record?.spawnedBy ? String(record.spawnedBy) : null;
+  const rowStatus = String(record?.status || '').trim().toLowerCase();
+  seen[key] = {
+    childSessionKey: key,
+    childSessionHash: hash(key),
+    runId,
+    runIdHash: runId ? hash(runId) : null,
+    requesterSessionKey: requester,
+    requesterSessionHash: requester ? hash(requester) : null,
+    rowStatus,
+    // Row status 'done' is the current terminal-success state
+    // (packages/gateway-protocol/src/schema/sessions-row.ts:28-36).
+    status: rowStatus === 'done' ? 'completed' : rowStatus,
+  };
+}
+
+export function createTokenSessionLedger({ surfaceClass }) {
+  return {
+    surfaceClass: normalizedSurface(surfaceClass),
+    originSessions: {},
+    delegateSessions: {},
+    roundsAccepted: 0,
+    roundsRefused: 0,
+  };
+}
+
+/** Consume one complete observer traversal (every sessions.list page answered). */
+export function observeTokenSessionLedger(
+  ledger,
+  { records, originTitle, delegateMarker, parentSessionKey, hash },
+) {
+  if (!ledger || typeof hash !== 'function') return;
+  ledger.roundsAccepted += 1;
+  const list = Array.isArray(records) ? records : [];
+  for (const record of list) {
+    if (String(record?.spawnedBy || '') !== String(parentSessionKey || '')) continue;
+    if (String(record?.label || '').trim() !== originTitle) continue;
+    rememberSession({ record, seen: ledger.originSessions, hash });
+  }
+  const origin = oneTask(ledger.originSessions);
+  if (!origin) return;
+  for (const record of list) {
+    if (String(record?.spawnedBy || '') !== origin.childSessionKey) continue;
+    if (typeof record?.task !== 'string' || !record.task.includes(delegateMarker)) continue;
+    rememberSession({ record, seen: ledger.delegateSessions, hash });
+  }
+}
+
+export function rejectTokenSessionLedgerObservation(ledger) {
+  if (!ledger) return;
+  ledger.roundsRefused += 1;
+}
+
+export function tokenSessionLedgerRuntimeIdentity(ledger) {
+  const origin = oneTask(ledger?.originSessions);
+  const delegate = oneTask(ledger?.delegateSessions);
+  return {
+    originRunId: origin?.runId || null,
+    originChildSessionKey: origin?.childSessionKey || null,
+    delegateRunId: delegate?.runId || null,
+    delegateChildSessionKey: delegate?.childSessionKey || null,
+  };
+}
+
+export function summarizeTokenSessionLedger(ledger) {
+  const origin = oneTask(ledger?.originSessions);
+  const delegate = oneTask(ledger?.delegateSessions);
+  return {
+    surface_class: ledger?.surfaceClass || 'unknown',
+    observation_surface: 'sessions.list spawnedBy + chat.history own spawn task',
+    task_identity_unavailable_reason: TOKEN_TASK_IDENTITY_UNAVAILABLE_REASON,
+    // No legacy task-ledger counters: classifyTokenEvidence requires the legacy
+    // rejection counter to be exactly 0, so its absence also keeps PASS closed.
+    observer_traversals_refused: ledger?.roundsRefused || 0,
+    observer_rounds_accepted: ledger?.roundsAccepted || 0,
+    task_pages_accepted: 0,
+    task_pagination_exhausted: (ledger?.roundsAccepted || 0) > 0 && (ledger?.roundsRefused || 0) === 0,
+    origin_task_unique_count: Object.keys(ledger?.originSessions || {}).length,
+    origin_task_id_hash: null,
+    origin_run_id_hash: origin?.runIdHash || null,
+    origin_requester_session_hash: origin?.requesterSessionHash || null,
+    origin_child_session_hash: origin?.childSessionHash || null,
+    origin_task_status: origin?.status || null,
+    delegate_task_unique_count: Object.keys(ledger?.delegateSessions || {}).length,
+    delegate_task_id_hash: null,
+    delegate_run_id_hash: delegate?.runIdHash || null,
+    delegate_requester_session_hash: delegate?.requesterSessionHash || null,
+    delegate_child_session_hash: delegate?.childSessionHash || null,
+    delegate_parent_task_id_hash: null,
+    delegate_task_status: delegate?.status || null,
+    delegate_requester_matches_origin_child:
+      Boolean(origin?.childSessionHash) && delegate?.requesterSessionHash === origin.childSessionHash,
+    // Lineage is the requester link itself; there is no second parent field to disagree.
+    delegate_parent_mismatch: false,
+  };
+}
+
+export function tokenSessionLedgerHasTerminalSessions(ledger) {
+  const origin = oneTask(ledger?.originSessions);
+  const delegate = oneTask(ledger?.delegateSessions);
+  return Boolean(
+    origin && delegate && TERMINAL_STATUSES.has(origin.status) && TERMINAL_STATUSES.has(delegate.status),
+  );
+}
+
+/** Names of the R-CD-TOKEN receipts still missing, for an explicit PARTIAL reason. */
+export function tokenPartialReasons(evidence) {
+  const reasons = [];
+  if (!evidence?.origin_task_id_hash || !evidence?.delegate_task_id_hash) {
+    reasons.push(evidence?.task_identity_unavailable_reason || 'task identity hashes missing');
+  }
+  if (evidence?.surface_class !== RAW_FINAL_TEXT) reasons.push('seat surface is not raw-final-text');
+  if (evidence?.origin_task_unique_count !== 1) reasons.push('origin child not observed exactly once');
+  if (evidence?.delegate_task_unique_count !== 1) reasons.push('token delegate child not observed exactly once');
+  if (evidence?.origin_task_status !== 'completed') reasons.push('origin child row not done');
+  if (evidence?.delegate_task_status !== 'completed') reasons.push('delegate child row not done');
+  if (evidence?.delegate_return_observed !== true) reasons.push('bound delegate return not observed');
+  if (evidence?.task_snapshot_consistent !== true) reasons.push('observer snapshot not stable across 3 traversals');
+  if (Number(evidence?.observer_traversals_refused || 0) !== 0) reasons.push('observer traversal refused or invalid');
+  return reasons;
 }
 
 function contentText(message) {

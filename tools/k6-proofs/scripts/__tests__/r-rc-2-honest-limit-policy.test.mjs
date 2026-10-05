@@ -14,7 +14,20 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   const scenario = await readFile(scenarioPath, 'utf8');
 
   assert.match(scenario, /childSessionKeyForRow\([\s\S]*eventData,[\s\S]*rowNonce,[\s\S]*taskIdentityToken/);
-  assert.match(scenario, /childSessionKeyForRow\([\s\S]*classified\.payload,[\s\S]*rowNonce,[\s\S]*\[taskIdentityToken\]/);
+  // #562: the child comes from the child observer (spawnedBy + own spawn task),
+  // never from the removed task-ledger RPC; its history is read via chat.history.
+  assert.match(scenario, /observer\.boundChild\(rowNonce, taskIdentityToken \? \[taskIdentityToken\] : \[\]\)/);
+  assert.match(scenario, /tracker\.send\(socket, 'chat\.history', \{ sessionKey: evidence\.child_session_key/);
+  assert.doesNotMatch(scenario, /tracker\.send\(socket, 'tasks\.list'/);
+  assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.get'/);
+  assert.match(scenario, /failClosedVerdict\(outcome\.verdict, \{ gate, observer \}\)/);
+  // Measured-wake shape: HONEST-LIMIT needs a measured receipt after the yield.
+  assert.match(scenario, /measuredRequestCompactionOutcome\(messages, \{ rowNonce \}\)/);
+  assert.match(scenario, /measured\.kind === 'threshold_rejected_measured' && measured\.yieldBound/);
+  const postprocessor = await readFile(postprocessorPath, 'utf8');
+  assert.match(postprocessor, /classifyRrc2Evidence\(summary\?\.evidence\)/);
+  assert.doesNotMatch(postprocessor, /request_compaction_receipt_status === 'accepted'/);
+  assert.doesNotMatch(scenario, /delaySeconds=0/);
   assert.match(scenario, /compactTaskIdentityToken\('RRC2', rowNonce\)/);
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /findRequestCompactionReceipt\(messages, \{ rowNonce \}\)/);
@@ -24,14 +37,14 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   assert.match(scenario, /receipt\.kind === 'threshold_rejected' && receipt\.nonceBound === true/);
   assert.match(scenario, /function maybeCloseCompletedProof\(\)/);
   assert.match(scenario, /hasAuthoritativeThresholdReceipt\(\)[\s\S]+child_reported_context_threshold/);
-  assert.match(scenario, /const verifiedThresholdOutcome =[\s\S]+child_reported_context_threshold/);
-  assert.match(scenario, /verifiedThresholdOutcome[\s\S]+HONEST-LIMIT-candidate/);
-  assert.match(scenario, /const verifiedPostCompactionOutcome =[\s\S]+post_compaction_path_observed/);
-  assert.match(scenario, /verifiedPostCompactionOutcome[\s\S]+PASS-candidate/);
+  // #563 item 1: the final verdict comes from the classifier the manual
+  // postprocessor also uses; its predicates are exercised below.
+  assert.match(scenario, /const outcome = classifyRrc2Evidence\(evidence\)/);
+  assert.match(scenario, /const verifiedThresholdOutcome = outcome\.verdict === 'HONEST-LIMIT-candidate'/);
+  assert.match(scenario, /const verifiedPostCompactionOutcome = outcome\.verdict === 'PASS-candidate'/);
   assert.doesNotMatch(scenario, /childHistoryPolls >=/);
   assert.match(scenario, /childHistoryPollInFlight/);
   assert.match(scenario, /childHistoryPollScheduled \|\| childHistoryPollInFlight/);
-  assert.match(scenario, /const partialOutcomeEvidence =[\s\S]+authoritativeThresholdReceipt[\s\S]+post_compaction_path_observed/);
 
   const reportBranch = scenario.lastIndexOf('REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD');
   const acceptedReportBranch = scenario.indexOf('REQUEST_COMPACTION_ACCEPTED', reportBranch);
@@ -104,6 +117,13 @@ async function postprocessOutcome({
 test('R-RC-2 summary processing cannot promote report-only evidence', async () => {
   const base = {
     row: 'R-RC-2',
+    preflight: { ok: true, missing: [], reason: null, advertised_count: 120 },
+    observation_refused: null,
+    observation_incomplete: null,
+    child_identity_conflict: false,
+    child_yield_bound: true,
+    child_wake_turn_bound: true,
+    request_compaction_context_measured: true,
     parent_dispatch_accepted: true,
     delegate_requested: true,
     child_session_observed: true,
@@ -134,6 +154,17 @@ test('R-RC-2 summary processing cannot promote report-only evidence', async () =
     },
     runId: 'threshold-receipt',
   }), 'HONEST-LIMIT-candidate');
+  // The product's acceptance status is "compaction_requested"
+  // (request-compaction-tool.ts:338-348); "accepted" never occurs and cannot PASS.
+  assert.equal(await postprocessOutcome({
+    evidence: {
+      ...base,
+      post_compaction_path_observed: true,
+      request_compaction_receipt_status: 'compaction_requested',
+      request_compaction_accepted: true,
+    },
+    runId: 'accepted-receipt',
+  }), 'PASS-candidate');
   assert.equal(await postprocessOutcome({
     evidence: {
       ...base,
@@ -141,8 +172,45 @@ test('R-RC-2 summary processing cannot promote report-only evidence', async () =
       request_compaction_receipt_status: 'accepted',
       request_compaction_accepted: true,
     },
-    runId: 'accepted-receipt',
-  }), 'PASS-candidate');
+    runId: 'legacy-accepted-string',
+  }), 'PARTIAL-candidate');
+});
+
+test('#563 item 1: the manual postprocessor fails closed exactly like the scenario', async () => {
+  const honestLimit = {
+    row: 'R-RC-2',
+    preflight: { ok: true, missing: [], reason: null, advertised_count: 120 },
+    observation_refused: null,
+    observation_incomplete: null,
+    child_identity_conflict: false,
+    parent_dispatch_accepted: true,
+    delegate_requested: true,
+    child_session_observed: true,
+    delegate_child_report_observed: true,
+    child_reported_context_threshold: true,
+    request_compaction_tool_result_observed: true,
+    request_compaction_receipt_role: 'toolResult',
+    request_compaction_receipt_tool_name: 'request_compaction',
+    request_compaction_receipt_status: 'rejected',
+    request_compaction_invocation_bound: true,
+    request_compaction_rejected_context_threshold: true,
+    request_compaction_context_measured: true,
+    child_yield_bound: true,
+    child_wake_turn_bound: true,
+    guard: 'context_threshold',
+  };
+  assert.equal(await postprocessOutcome({ evidence: honestLimit, runId: 'clean' }), 'HONEST-LIMIT-candidate');
+  for (const [runId, patch] of [
+    ['refused', { observation_refused: { method: 'sessions.list', code: 'FORBIDDEN', message: 'missing scope: operator.admin' } }],
+    ['incomplete', { observation_incomplete: { method: 'sessions.list', code: 'UNAVAILABLE', message: 'busy' } }],
+    ['preflight', { preflight: { ok: false, missing: ['chat.history'], reason: 'gateway does not advertise: chat.history' } }],
+    ['no-preflight', { preflight: null }],
+    ['conflict', { child_identity_conflict: true }],
+    ['unmeasured', { request_compaction_context_measured: false }],
+    ['no-wake-turn', { child_wake_turn_bound: false }],
+  ]) {
+    assert.equal(await postprocessOutcome({ evidence: { ...honestLimit, ...patch }, runId }), 'PARTIAL-candidate', runId);
+  }
 });
 
 test('summary processing honors partial manifest and scenario ceilings', async () => {

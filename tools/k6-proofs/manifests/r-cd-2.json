@@ -17,11 +17,11 @@
     "name": "r-cd-2-silent-wake",
     "description": "continue_delegate(mode='silent-wake') full path. The dispatch turn closes with an exact post-tool sentinel; the delegate return stays silent while triggering a fresh parent turn without channel output.",
     "methods": [
-      "sessions.send",
       "sessions.create",
-      "sessions.list",
       "sessions.messages.subscribe",
-      "tasks.list"
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cd-2-silent-wake.js"
@@ -243,7 +243,7 @@
     {
       "name": "task-ledger-entry",
       "required": false,
-      "description": "Optional extra context from the generic TaskFlow task ledger; continue_delegate does not reliably write here"
+      "description": "Optional context only. Re-derived (#562) as child_created from the child observer; task_mode has no current surface and is dropped with task_mode_unavailable_reason"
     },
     {
       "name": "child-session-key",

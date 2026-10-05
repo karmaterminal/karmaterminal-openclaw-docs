@@ -25,6 +25,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -147,8 +148,12 @@ export default function () {
     post_wake_quiet_timer_started: false,
     dispatch_failure_observed: false,
     send_run_mismatch: false,
-    task_created: false,
+    // Optional child context (#562). child_created replaces the removed
+    // task-ledger task_created. The delegate return mode has no current
+    // gateway surface (session rows carry no mode), so task_mode stays null.
+    child_created: false,
     task_mode: null,
+    task_mode_unavailable_reason: 'no current gateway surface exposes the delegate return mode (tasks.list removed upstream in 6652f7eac8)',
     // Silent-wake specific
     agent_turn_observed: false,
     parent_wake_observed: false,
@@ -168,8 +173,13 @@ export default function () {
     delegate_mode: null,
     trace_id: null,
     accepted_send_trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
+  const gate = createPreflightGate('R-CD-2');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const started = Date.now();
   let acceptedRunId = null;
@@ -215,18 +225,16 @@ export default function () {
         });
       }, 500);
 
-      // Poll task ledger — check mode field.
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 5000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 30000);
+      // Optional child context (#562): row-bound child via the child observer.
+      for (const delayMs of [5000, 15000, 30000]) {
+        socket.setTimeout(() => observer.poll(), delayMs);
+      }
 
       // Extended wait for silent-wake (child must complete + parent must wake).
       socket.setTimeout(() => socket.close(), 90000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
-
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cd-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -238,12 +246,40 @@ export default function () {
       } else {
         socket.setTimeout(() => startProofFlow(socket), 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CD-2 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          if (!evidence.child_session) {
+            const bound = observer.boundChild(rowNonce);
+            if (bound.childSessionKey) {
+              evidence.child_created = true;
+              evidence.child_session = bound.childSessionKey;
+              console.log('✓ row-bound child observed (optional context)');
+            }
+          }
+        }
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -269,7 +305,7 @@ export default function () {
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'sessions.list') {
+        if (!observed && classified.kind === 'response' && classified.method === 'sessions.list') {
           const sessions = classified.payload?.sessions || classified.payload?.items || [];
           const created = sessions.find((session) => session?.key === sessionKey);
           const bound = Boolean(created?.channelId || created?.channel || created?.deliveryChannel);
@@ -306,22 +342,6 @@ export default function () {
             evidence.failureCategory = 'provider-or-turn-failure';
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
-          }
-        }
-
-        // Optional TaskFlow ledger context. Absence here is not a failure:
-        // continue_delegate uses pending-delegate/subagent surfaces.
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload && classified.payload.tasks || [];
-          for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (taskStr.includes(rowNonce)) {
-              evidence.task_created = true;
-              evidence.child_session = task.sessionKey || task.childSessionKey || null;
-              evidence.task_mode = task.mode || task.returnMode || null;
-              if (task.traceId) evidence.trace_id = task.traceId;
-              console.log(`✓ Task found with nonce — mode: ${evidence.task_mode}`);
-            }
           }
         }
 
@@ -479,6 +499,9 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
+  evidence.verdict_reason = failClosedVerdict('PARTIAL-candidate', { gate, observer }).reason;
   if (evidence.send_run_success_end_observed &&
       (!evidence.dispatch_terminal_sentinel_observed ||
        !evidence.dispatch_terminal_sentinel_same_run_window) &&
@@ -492,8 +515,8 @@ export default function () {
   // 1. Agent turn triggered (sessions.send accepted)
   // 2. Agent produced session.message events (turn ran)
   // 3. No channel delivery (silent mode verified)
-  // Note: task_created via tasks.list is OPTIONAL — continuation tasks
-  // use their own tracking surface, not the generic task ledger.
+  // Note: child_created is OPTIONAL context. A refused preflight or observer
+  // method is recorded in verdict_reason and counted as a failure.
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'agent turn triggered (sessions.send accepted)': () => evidence.send_accepted,
@@ -511,6 +534,7 @@ export default function () {
       !evidence.parent_wake_observed) {
     failures.add(1);
   }
+  if (evidence.verdict_reason) failures.add(1);
   if (evidence.channel_message_observed) {
     failures.add(1);
     console.error('FAIL: silent-wake delegate produced channel output');

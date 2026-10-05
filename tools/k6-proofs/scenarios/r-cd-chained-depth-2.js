@@ -28,6 +28,7 @@ import {
   rCdChainRootReturnCandidate,
   rCdChainRootReturnReceipt,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -123,11 +124,21 @@ export default function () {
     reason_hash: null,
     reason_length: null,
     delegate_mode: null,
+    chain_identity_conflict: false,
+    event_child_candidates: [],
+    child_status: null,
+    grandchild_status: null,
     trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
 
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-CHAINED-DEPTH-2');
+  // Depth 2: the child names the root in spawnedBy; the grandchild names the child.
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey, maxDepth: 2 });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -155,6 +166,30 @@ export default function () {
         if (evidence.max_depth_observed < 2) evidence.max_depth_observed = 2;
       }
       finalizeRootReturnReceipt();
+    }
+
+    // Lineage-bound identities (#562): each hop's own row names its requester in
+    // spawnedBy and its own spawn task carries the chain nonce. The depth-1 task
+    // embeds the depth-2 task, so lineage, not order, separates the two hops.
+    function observeChainLineage() {
+      const child = observer.boundChild(chainNonce, [], { spawnedBy: sessionKey });
+      if (child.ambiguous) evidence.chain_identity_conflict = true;
+      if (!child.childSessionKey) return;
+      if (evidence.child_session && evidence.child_session !== child.childSessionKey) {
+        evidence.chain_identity_conflict = true;
+        return;
+      }
+      if (!evidence.child_session) observeChainSession(child.childSessionKey);
+      evidence.child_status = observer.childStatus(child.childSessionKey);
+      const grandchild = observer.boundChild(chainNonce, [], { spawnedBy: child.childSessionKey });
+      if (grandchild.ambiguous) evidence.chain_identity_conflict = true;
+      if (!grandchild.childSessionKey) return;
+      if (evidence.grandchild_session && evidence.grandchild_session !== grandchild.childSessionKey) {
+        evidence.chain_identity_conflict = true;
+        return;
+      }
+      if (!evidence.grandchild_session) observeChainSession(grandchild.childSessionKey);
+      evidence.grandchild_status = observer.childStatus(grandchild.childSessionKey);
     }
 
     function startProofFlow(socket) {
@@ -185,21 +220,16 @@ export default function () {
         });
       }, 500);
 
-      // Optional context: poll task ledger at intervals.
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 8000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 20000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 40000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 90000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 120000);
+      // Hop identities: poll the child observer at intervals.
+      for (const delayMs of [8000, 20000, 40000, 60000, 90000, 120000]) {
+        socket.setTimeout(() => observer.poll(), delayMs);
+      }
 
       // Extended timeout for depth-2 chain completion.
       socket.setTimeout(() => socket.close(), 150000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
-
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cd-chain-${chainNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -211,12 +241,33 @@ export default function () {
       } else {
         socket.setTimeout(() => startProofFlow(socket), 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CD-CHAINED-DEPTH-2 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          observeChainLineage();
+        }
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -256,27 +307,20 @@ export default function () {
           }
         }
 
-        // Optional TaskFlow ledger context. Absence here is not a failure:
-        // continue_delegate uses pending-delegate/subagent surfaces.
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
-          for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (!taskStr.includes(chainNonce)) continue;
-            observeChainSession(task.sessionKey);
-            observeChainSession(task.childSessionKey);
-            if (task.traceId) evidence.trace_id = task.traceId;
-          }
-        }
-
-        // Chain progression on subscribed session events. These are the primary
-        // public proof surface for continue_delegate chains; task registry rows
-        // are only optional context.
+        // Chain progression on subscribed session events. Event-borne child keys
+        // are still accepted when nonce-bound; the lineage observer above flags
+        // any disagreement as chain_identity_conflict.
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
-          observeChainSession(childSessionKeyForRow(eventData, chainNonce));
+          // #563 item 2: event-borne child keys never bind a hop; they are
+          // checked against the lineage-bound hops at the end of the run.
+          const eventChild = childSessionKeyForRow(eventData, chainNonce);
+          if (eventChild && eventChild !== sessionKey && !evidence.event_child_candidates.includes(eventChild)) {
+            evidence.event_child_candidates.push(eventChild);
+            if (evidence.event_child_candidates.length > 2) evidence.chain_identity_conflict = true;
+          }
           if (eventStr.includes(chainNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) {
               console.log('ℹ Ignoring harness prompt echo event');
@@ -313,6 +357,7 @@ export default function () {
             evidence.grandchild_done_sentinel &&
             evidence.child_session &&
             evidence.grandchild_session &&
+            !evidence.chain_identity_conflict &&
             evidence.root_return_receipt) {
           console.log('Full chain evidence gathered, closing early');
           socket.close();
@@ -330,6 +375,12 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  const lineageHops = [evidence.child_session, evidence.grandchild_session].filter(Boolean);
+  if (evidence.event_child_candidates.some((key) => !lineageHops.includes(key))) {
+    evidence.chain_identity_conflict = true;
+  }
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   chainDuration.add(evidence.duration_ms);
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
@@ -341,11 +392,15 @@ export default function () {
     'nonce-bound grandchild identity observed': () => evidence.grandchild_session !== null,
     'explicit root consumption ack observed': () => evidence.root_return_receipt !== null,
     'max depth >= 2': () => evidence.max_depth_observed >= 2,
+    'no conflicting hop identity': () => !evidence.chain_identity_conflict,
+    'preflight: every row method advertised': () => gate.result?.ok === true,
+    'child observer not refused': () => !evidence.observation_refused,
   });
 
   if (!evidence.parent_dispatch_accepted || !evidence.child_done_sentinel ||
       !evidence.grandchild_done_sentinel || !evidence.child_session ||
-      !evidence.grandchild_session || !evidence.root_return_receipt) {
+      !evidence.grandchild_session || !evidence.root_return_receipt ||
+      evidence.chain_identity_conflict) {
     failures.add(1);
   }
 
@@ -355,12 +410,16 @@ export default function () {
     evidence.grandchild_done_sentinel &&
     evidence.child_session !== null &&
     evidence.grandchild_session !== null &&
-    evidence.root_return_receipt !== null;
+    evidence.root_return_receipt !== null &&
+    !evidence.chain_identity_conflict;
+  const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate, observer });
+  evidence.verdict_reason = finalVerdict.reason;
+  if (finalVerdict.reason) failures.add(1);
 
   console.log(`\n--- R-CD-CHAINED-DEPTH-2 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-CHAINED-DEPTH-2] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CD-CHAINED-DEPTH-2] VERDICT: ${finalVerdict.verdict}`);
   console.log(`  Max depth observed: ${evidence.max_depth_observed}`);
 }
 

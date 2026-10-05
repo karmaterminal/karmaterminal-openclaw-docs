@@ -18,9 +18,10 @@
     "description": "Depth-2 delegate chain: parent→child→grandchild→return path. Three sub-tests: (1) up-tree silent-wake, (2) inter-session return, (3) echo+broadcast via fanoutMode.",
     "methods": [
       "sessions.create",
-      "sessions.send",
       "sessions.messages.subscribe",
-      "tasks.list"
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
     ],
     "subtests": [
       "chain-1-uptree-silent-wake",

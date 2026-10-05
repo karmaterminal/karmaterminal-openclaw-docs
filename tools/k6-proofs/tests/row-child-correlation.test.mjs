@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   childSessionKeyForRow,
+  childSessionKeyForTokenOnly,
   childSessionKeysForRow,
   compactTaskIdentityToken,
   renderRowTaskTemplate,
@@ -154,5 +155,24 @@ test('fails closed when two different child keys are both bound to the row nonce
   assert.deepEqual(
     childSessionKeysForRow(ambiguousEvent, 'R-CD-MODEL-TOOL-new'),
     ['luna-child-a', 'luna-child-b'],
+  );
+});
+
+test('nested hop: the outer child carrying both tokens is not taken for the inner child', () => {
+  const outerTask = 'HOP1:aaaaaaaaaaaaaaaa reply then emit [[CONTINUE_DELEGATE: INNER:bbbbbbbbbbbbbbbb task | model=x/y]]';
+  const innerTask = 'INNER:bbbbbbbbbbbbbbbb task';
+  const tasksList = {
+    tasks: [
+      { childSessionKey: 'outer-child', title: outerTask },
+      { childSessionKey: 'inner-child', title: innerTask },
+    ],
+  };
+  assert.equal(
+    childSessionKeyForTokenOnly(tasksList, 'INNER:bbbbbbbbbbbbbbbb', 'HOP1:aaaaaaaaaaaaaaaa'),
+    'inner-child',
+  );
+  assert.equal(
+    childSessionKeyForTokenOnly({ tasks: [tasksList.tasks[0]] }, 'INNER:bbbbbbbbbbbbbbbb', 'HOP1:aaaaaaaaaaaaaaaa'),
+    null,
   );
 });

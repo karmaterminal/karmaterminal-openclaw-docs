@@ -13,22 +13,24 @@
     "name": "r-rc-2-delegate-request-compaction",
     "description": "Parent fires continue_delegate to a child that calls request_compaction. Accepts actual compaction path or structured below-threshold rejection as environmental honest limit.",
     "methods": [
-      "sessions.send",
+      "sessions.create",
       "sessions.messages.subscribe",
-      "tasks.list",
-      "sessions.get",
+      "sessions.send",
+      "sessions.list",
+      "chat.history",
       "continue_delegate",
       "request_compaction-threshold-guard"
     ],
     "status": "runnable",
     "file": "r-rc-2-delegate-request-compaction.js",
-    "notes": "Does not lower thresholds or mutate config. Default public/disposable outcome is expected to be REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD."
+    "notes": "Does not lower thresholds or mutate config. Measured-wake shape (#562): the child yields with continue_work on turn 1 and calls request_compaction on the wake turn, because a delegated child's first turn always reads unknown context usage (openclaw 41b8d69b90 request-compaction-tool.ts:211-217; turn-end persistence session-store.ts:168-182). HONEST-LIMIT needs a measured below-threshold receipt; an unknown-context receipt stays PARTIAL. Delegate delay is 1s so the delegate emits dispatch and fire spans."
   },
   "invocation": {
     "tool": "continue_delegate",
     "mode": "normal",
-    "delaySeconds": 0,
-    "promptTemplate": "RRC2:{{nonceSuffix16}} R-RC-2 child nonce {{nonce}}: call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction is accepted, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
+    "delaySeconds": 1,
+    "shape": "measured-wake",
+    "promptTemplate": "RRC2:{{nonceSuffix16}} R-RC-2 child nonce {{nonce}}. Turn 1: reply exactly RRC2-CHILD-READY {{nonce}}, then call continue_work exactly once with delaySeconds=5 and reason=\"R-RC-2 measured wake nonce {{nonce}}\", and end the turn without calling request_compaction. Turn 2 (the continue_work wake): call request_compaction with reason=\"R-RC-2 delegated request_compaction nonce {{nonce}}\". If request_compaction rejects because context is below threshold, reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD {{nonce}} CONTEXT <contextUsage> THRESHOLD <threshold>. If request_compaction reports compaction requested, reply exactly REQUEST_COMPACTION_ACCEPTED {{nonce}}. If you later resume post-compaction, reply exactly REQUEST_COMPACTION_POST_COMPACTION {{nonce}}. Do not mutate files or config."
   },
   "expectedReceipts": [
     {

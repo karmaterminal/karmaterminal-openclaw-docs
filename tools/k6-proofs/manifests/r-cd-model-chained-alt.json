@@ -17,8 +17,12 @@
     "name": "r-cd-model-chained-alt",
     "description": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
     "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.list",
+      "chat.history",
+      "sessions.describe"
     ],
     "status": "runnable",
     "notes": "Nested model override row; fire sequentially and avoid concurrent continuation rows in the same session.",
@@ -30,8 +34,8 @@
     "forms": [
       "typed-tool-depth1-spawns-depth2-model-override"
     ],
-    "model": "${OPENCLAW_ALT_MODEL:-gpt}",
-    "promptTemplate": "Proof nonce {{nonce}} depth-1: schedule one depth-2 continue_delegate with model=${OPENCLAW_ALT_MODEL:-gpt}; depth-2 reports current time, observed model/provider, and nonce. Do not mutate files.",
+    "model": "${OPENCLAW_ALT_MODEL:-}",
+    "promptTemplate": "Proof nonce {{nonce}} depth-1: schedule one depth-2 continue_delegate with model=${OPENCLAW_ALT_MODEL:-}; depth-2 reports current time, observed model/provider, and nonce. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-MODEL-CHAINED-ALT"
   },
   "expectedReceipts": [
@@ -48,7 +52,7 @@
     {
       "name": "child-model-byte",
       "required": true,
-      "description": "Observed child runtime model/provider byte from status/session metadata or child self-report backed by session metadata"
+      "description": "Depth-2 child SERVED provider/model from the row-bound assistant message in the child's own chat.history inside the row run window (after the row anchor, first message carrying the row sentinel; stopReason recorded). sessions.describe model/modelProvider is recorded separately as the persisted SELECTION and alone yields PARTIAL (selection matched; served route unproven). Active fallback or a mixed served window is FAIL (#561/#562 review)."
     },
     {
       "name": "return-payload",

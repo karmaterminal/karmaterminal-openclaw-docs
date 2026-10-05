@@ -5,7 +5,8 @@
  * agent turn. Verifies:
  *   1. Gateway accepts the dispatch (sessions.send accepted)
  *   2. Parent return/completion event observed on session stream (post-dispatch)
- *   3. Optional task-ledger context (when available)
+ *   3. Optional child context: the row-bound child from the child observer
+ *      (sessions.list spawnedBy + the child's own spawn task; #562)
  *
  * Unlike R-CD-2 (silent-wake), mode=normal allows a channel message from
  * the delegate return. This scenario tracks it as soft evidence (not a
@@ -26,6 +27,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -109,7 +111,7 @@ export default function () {
     delegate_scheduled_sentinel: false,
     parent_return_event: false,
     // Soft receipts
-    task_ledger_entry_optional: false,
+    child_record_observed_optional: false,
     child_session_key: null,
     channel_message_observed: false,
     dispatch_accepted_at_ms: null,
@@ -124,10 +126,15 @@ export default function () {
     delegate_wake_gate_ms: null,
     prompt_echoes_ignored: 0,
     trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
 
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-1');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -174,18 +181,15 @@ export default function () {
         });
       }, 500);
 
-      // Poll task ledger — optional context only.
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 5000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
+      // Optional child context (#562): row-bound child via the child observer.
+      for (const delayMs of [5000, 15000, 30000, 60000]) {
+        socket.setTimeout(() => observer.poll(), delayMs);
+      }
 
       socket.setTimeout(() => socket.close(), 120000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
-
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cd-1-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -197,12 +201,30 @@ export default function () {
       } else {
         socket.setTimeout(() => startProofFlow(socket), 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CD-1 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) observer.handle(observed, classified);
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -242,20 +264,14 @@ export default function () {
           }
         }
 
-        // Task ledger — optional context only.
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
-          for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (taskStr.includes(rowNonce)) {
-              evidence.task_ledger_entry_optional = true;
-              const possibleChild = task.sessionKey || task.childSessionKey || null;
-              if (possibleChild && possibleChild !== sessionKey) {
-                evidence.child_session_key = possibleChild;
-              }
-              if (task.traceId) evidence.trace_id = task.traceId;
-              console.log(`ℹ Optional task ledger context with nonce: ${possibleChild || 'unknown'} state=${task.state || 'unknown'}`);
-            }
+        // Optional child context — the child's own row names this session in
+        // spawnedBy and its own spawn task carries the row nonce.
+        if (observed && !evidence.child_session_key) {
+          const bound = observer.boundChild(rowNonce);
+          if (bound.childSessionKey) {
+            evidence.child_record_observed_optional = true;
+            evidence.child_session_key = bound.childSessionKey;
+            console.log(`ℹ Optional row-bound child observed: status=${observer.childStatus(bound.childSessionKey) || 'unknown'}`);
           }
         }
 
@@ -314,6 +330,8 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   duration.add(evidence.duration_ms);
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
@@ -321,7 +339,8 @@ export default function () {
     'tool-invoke-accepted (sessions.send)': () => evidence.tool_invoke_accepted,
     'delegate scheduled sentinel observed post-dispatch': () => evidence.delegate_scheduled_sentinel,
     'parent-return-event observed post-dispatch': () => evidence.parent_return_event,
-    'task-ledger-entry optional context': () => true,
+    'preflight: every row method advertised': () => gate.result?.ok === true,
+    'child observer not refused': () => !evidence.observation_refused,
   });
 
   if (!evidence.tool_invoke_accepted || !evidence.delegate_scheduled_sentinel || !evidence.parent_return_event) {
@@ -330,11 +349,14 @@ export default function () {
 
   const passed = (!createDisposableSession || evidence.session_created) &&
     evidence.tool_invoke_accepted && evidence.delegate_scheduled_sentinel && evidence.parent_return_event;
+  const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate, observer });
+  evidence.verdict_reason = finalVerdict.reason;
+  if (finalVerdict.reason) failures.add(1);
 
   console.log(`\n--- R-CD-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-1] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CD-1] VERDICT: ${finalVerdict.verdict}`);
 }
 
 export function handleSummary(data) {

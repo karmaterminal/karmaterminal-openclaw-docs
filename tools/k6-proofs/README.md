@@ -482,21 +482,52 @@ The `RequestTracker` class maps request IDs to method names for reliable respons
 
 ### Continuation observability surfaces
 
-`continue_delegate` proof rows must not require a `tasks.list` row as the primary
-spawn receipt. The generic `tasks.list` method reads the TaskFlow / scheduled-task
-registry; `continue_delegate` uses the pending-delegate queue and then the
-subagent/session run surfaces. A delegate can fire successfully while never writing
-a nonce-correlated record to `tasks.list`.
+The task-ledger RPC `tasks.list` no longer exists: upstream openclaw `6652f7eac8`
+("remove Tasks and TaskFlow runtime", #159179) deleted it. On current builds an
+unknown method is authorized before handler lookup and defaults to
+`operator.admin`, so a read+write proof connection receives
+`FORBIDDEN missing scope: operator.admin`. Rows that polled it recorded "child not
+observed" whatever the product did (#562). No scenario calls it any more.
 
-For R-CD rows, prefer these public-safe receipts instead:
+Rows observe delegate children through `lib/child-observer.mjs`:
+
+- `sessions.list { spawnedBy: <requester> }` (operator.read) lists the requester's
+  children; each row carries `spawnedBy`, `status`, `endedAt`, `lastRunId`.
+- `chat.history { sessionKey: <child> }` (operator.read) returns the child's own
+  transcript. Offset 0 is the newest page, so the observer follows `nextOffset`
+  back to the page with `hasMore: false` (bounded; a hit cap, a non-advancing
+  cursor or a page without `hasMore` fails closed). The transcript's first user
+  message must carry `[Subagent Task]`; the task text after it is the binding
+  record. Reads that land before the spawn message is persisted are retried
+  (bounded, recorded in evidence).
+- A child binds to a row only when its own row names the expected requester in
+  `spawnedBy` **and** its own spawn task carries the row nonce or task token.
+  Ambiguity binds nothing. Completion is the bound row's `status: "done"`.
+  Nonce-bound child keys seen on subscribed events never bind on their own;
+  they cross-check the observer binding (`reconcileChildIdentity`), and any
+  disagreement or ambiguity is a child-identity conflict that makes the row
+  PARTIAL.
+- A `FORBIDDEN` or unknown-method answer to any observer call is recorded as
+  `observation_refused: {method, code, message}` and makes the row PARTIAL. It is
+  never read as "child not observed".
+- Preflight: before dispatch each row checks every method it calls
+  (`ROW_METHODS` in `lib/child-observer.mjs`, mirrored in the manifest
+  `scenario.methods`) against hello-ok `features.methods`. A missing method
+  refuses the row before anything is sent. `advertise:false` methods such as
+  `sessions.get` cannot pass this check, so rows read history via `chat.history`.
+
+For R-CD rows the public-safe receipts remain:
 
 - `sessions.send` or `tools.invoke` accepted the dispatch request.
 - `sessions.messages.subscribe` emitted `session.message` / agent events for the
   dispatching or target session.
 - Nonce-correlated parent/target return events appeared on the subscribed session
   stream.
-- `tasks.list` may be kept as optional extra context only; a missing task-ledger
-  row is not a delegate failure by itself.
+- The row-bound child from the child observer, where the row needs one.
+
+For R-CD-1 and R-CD-2 the child is optional context: R-CD-2's verdict comes
+from the row-scoped resolver, which does not read the observer fields, and an
+observer refusal there is recorded in `verdict_reason` only.
 
 This avoids the false-negative filed in #134, where a live delegate fired but the
 scenario failed because it queried the wrong registry surface.

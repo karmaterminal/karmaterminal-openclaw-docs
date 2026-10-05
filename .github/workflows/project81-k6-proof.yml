@@ -79,7 +79,7 @@ on:
         default: ""
         type: string
       openclaw_alt_model:
-        description: "Optional model override for model-override rows"
+        description: "provider/model override for R-CD-MODEL-TOOL/TOKEN/CHAINED-ALT; TOKEN and CHAINED-ALT refuse before dispatch when unset or a bare alias (docs#559)"
         required: false
         default: ""
         type: string

@@ -23,7 +23,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import { createSilentWakeBinder, eventRunId, gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
@@ -186,6 +186,7 @@ export default function () {
   const started = Date.now();
   let acceptedRunId = null;
   let dispatchLifecycleActive = false;
+  let wakeBinder = null;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -199,6 +200,28 @@ export default function () {
       }
       evidence.terminal_success_same_run = true;
       evidence.terminal_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
+    }
+
+    function recordBoundWake(socket, bound) {
+      if (evidence.wake_lifecycle_observed) return;
+      if (bound.beforeLegacyGate) evidence.wake_before_legacy_gate = true;
+      evidence.parent_wake_observed = true;
+      evidence.wake_lifecycle_observed = true;
+      evidence.wake_session_bound = true;
+      evidence.wake_lifecycle_at_ms = bound.atMs;
+      evidence.wake_completion_record_bound = true;
+      evidence.wake_run_fingerprint = crypto.sha256(String(bound.runId), 'hex').slice(0, 16);
+      if (!evidence.post_wake_quiet_timer_started) {
+        evidence.post_wake_quiet_timer_started = true;
+        socket.setTimeout(() => {
+          if (!evidence.channel_message_observed) {
+            evidence.post_wake_quiet = true;
+            evidence.post_wake_quiet_at_ms = Date.now();
+          }
+          socket.close();
+        }, evidence.post_wake_quiet_ms);
+      }
+      console.log('✓ delayed parent wake run bound to its own notify:false completion record');
     }
 
     function startProofFlow(socket) {
@@ -383,9 +406,10 @@ export default function () {
             // The deployed gateway gives agent lifecycle events a top-level
             // runId.  A later, distinct lifecycle start in this subscribed
             // parent session is the only authoritative silent-wake receipt.
-            const wakeRunId = evidence.silent_status_record_observed
-              ? gatewayWakeRunId(eventData, acceptedRunId, sessionKey)
-              : null;
+            // A distinct, session-bound run start inside the return window is a
+            // wake CANDIDATE; it binds only when that same run writes the
+            // notify:false/done completion record (see createSilentWakeBinder).
+            const startRunId = gatewayWakeRunId(eventData, acceptedRunId, sessionKey);
             // docs#564: a distinct wake run is counted from dispatch + delegate
             // delay (the earliest the delegate can fire); the old fixed gate is
             // diagnostic only.
@@ -395,24 +419,13 @@ export default function () {
               legacyGateMs: evidence.wake_gate_ms,
               nowMs: Date.now(),
             });
-            if (wakeRunId && wakeWindow.open) {
-              if (wakeWindow.beforeLegacyGate) evidence.wake_before_legacy_gate = true;
-              evidence.parent_wake_observed = true;
-              evidence.wake_lifecycle_observed = true;
-              evidence.wake_session_bound = true;
-              evidence.wake_lifecycle_at_ms = Date.now();
-              evidence.wake_run_fingerprint = crypto.sha256(String(wakeRunId), 'hex').slice(0, 16);
-              if (!evidence.post_wake_quiet_timer_started) {
-                evidence.post_wake_quiet_timer_started = true;
-                socket.setTimeout(() => {
-                  if (!evidence.channel_message_observed) {
-                    evidence.post_wake_quiet = true;
-                    evidence.post_wake_quiet_at_ms = Date.now();
-                  }
-                  socket.close();
-                }, evidence.post_wake_quiet_ms);
-              }
-              console.log('✓ delayed parent lifecycle wake observed');
+            if (startRunId && wakeWindow.open) {
+              if (!wakeBinder) wakeBinder = createSilentWakeBinder({ acceptedRunId });
+              const bound = wakeBinder.noteStart(startRunId, {
+                beforeLegacyGate: wakeWindow.beforeLegacyGate,
+                atMs: Date.now(),
+              });
+              if (bound) recordBoundWake(socket, bound);
             }
           }
 
@@ -448,6 +461,11 @@ export default function () {
           if (eventStr.includes(rowNonce) && eventStr.includes('"notify":false') &&
               eventStr.includes('"outcome":"done"')) {
             evidence.silent_status_record_observed = true;
+            if (acceptedRunId) {
+              if (!wakeBinder) wakeBinder = createSilentWakeBinder({ acceptedRunId });
+              const bound = wakeBinder.noteCompletionRecord(eventRunId(eventData));
+              if (bound) recordBoundWake(socket, bound);
+            }
             if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
               evidence.typed_delegate_attempted_same_run = true;
               evidence.typed_delegate_success_same_run = true;

@@ -54,3 +54,42 @@ export function gatewayWakeRunId(value, acceptedRunId, expectedSessionKey) {
     ? runId
     : null;
 }
+
+// R-CD-2 silent-wake binding. The parent's wake turn writes the
+// { notify:false, outcome:"done" } completion record itself (heartbeat_respond
+// inside the woken run), so the record necessarily arrives AFTER that run's
+// lifecycle start. Gating the start on an already-seen record made the wake
+// receipt unobtainable. Instead remember every session-bound, in-window start
+// of a run other than the dispatch run, and bind when the completion record
+// arrives from that same run (either order is accepted).
+export function createSilentWakeBinder({ acceptedRunId }) {
+  const starts = new Map();
+  const records = new Set();
+  let bound = null;
+  const bind = (runId) => {
+    if (bound || !starts.has(runId) || !records.has(runId)) return null;
+    bound = { runId, ...starts.get(runId) };
+    return bound;
+  };
+  return {
+    noteStart(runId, meta = {}) {
+      if (!runId || runId === acceptedRunId || starts.has(runId)) return null;
+      starts.set(runId, meta);
+      return bind(runId);
+    },
+    noteCompletionRecord(runId) {
+      if (!runId || runId === acceptedRunId) return null;
+      records.add(runId);
+      return bind(runId);
+    },
+    bound: () => bound,
+  };
+}
+
+// Run identity of a transcript/agent event: the envelope runId, else the
+// transcript row's own __openclaw.runId (session.message carries it there).
+export function eventRunId(eventData) {
+  return gatewayLifecycleRunId(eventData) ||
+    (typeof eventData?.message?.__openclaw?.runId === 'string' && eventData.message.__openclaw.runId) ||
+    null;
+}

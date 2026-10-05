@@ -28,6 +28,7 @@ import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sen
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_cd_2_silent_wake: {
@@ -219,7 +220,7 @@ export default function () {
             evidence.post_wake_quiet_at_ms = Date.now();
           }
           socket.close();
-        }, evidence.post_wake_quiet_ms);
+        }, k6TimeoutMs(evidence.post_wake_quiet_ms));
       }
       console.log('✓ delayed parent wake run bound to its own notify:false completion record');
     }
@@ -252,7 +253,7 @@ export default function () {
 
       // Optional child context (#562): row-bound child via the child observer.
       for (const delayMs of [5000, 15000, 30000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
 
       // Extended wait for silent-wake (child must complete + parent must wake).
@@ -277,7 +278,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

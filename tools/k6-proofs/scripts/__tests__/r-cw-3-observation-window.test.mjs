@@ -13,7 +13,7 @@ test('R-CW-3 observation window tolerates delayed continuation delivery', async 
   assert.match(source, /r_cw_3_duration:\s*\['p\(95\)<600000'\]/, 'duration threshold should match the 10m observation window');
   assert.match(
     source,
-    /socket\.setTimeout\(\(\) => socket\.close\(\), Math\.max\(600000, \(inv\.delaySeconds \+ 540\) \* 1000\)\)/,
+    /socket\.setTimeout\(\(\) => socket\.close\(\), k6TimeoutMs\(Math\.max\(600000, \(inv\.delaySeconds \+ 540\) \* 1000\)\)\)/,
     'websocket observer should remain open long enough to catch delayed wake receipts',
   );
 });

@@ -43,6 +43,7 @@ import {
 } from '../lib/row-child-correlation.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_rc_2_delegate_request_compaction: {
@@ -233,7 +234,7 @@ export default function () {
         // sessions.get is advertise:false on current builds (core-descriptors.ts:383),
         // so the preflight cannot verify it; chat.history is the advertised read.
         tracker.send(socket, 'chat.history', { sessionKey: evidence.child_session_key, limit: 200 });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function startProofFlow() {
@@ -273,7 +274,7 @@ export default function () {
         });
       }, 500);
       for (const delayMs of [10000, 30000, 60000, 90000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
       socket.setTimeout(() => socket.close(), 120000);
     }
@@ -293,7 +294,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

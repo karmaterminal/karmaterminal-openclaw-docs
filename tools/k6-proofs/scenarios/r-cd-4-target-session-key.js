@@ -29,6 +29,7 @@ import {
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import { createHeartbeatAckTracker, messageRunId } from '../lib/wake-turn-receipt.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = {
   scenarios: {
@@ -236,7 +237,7 @@ export default function () {
         // Re-read until a receipt binds or the observation window closes.
         evidence.return_history_requests += 1;
         tracker.send(socket, 'chat.history', { sessionKey: targetSessionKey, limit: 200 });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function finishReturnHistoryPoll() {
@@ -280,9 +281,9 @@ export default function () {
         idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
       });
       for (const delayMs of [8000, 25000, 50000, 70000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
-      socket.setTimeout(() => socket.close(), R_CD_4_OBSERVATION_WINDOW_MS);
+      socket.setTimeout(() => socket.close(), k6TimeoutMs(R_CD_4_OBSERVATION_WINDOW_MS));
     }
 
     function startProofFlow(socket) {
@@ -347,7 +348,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

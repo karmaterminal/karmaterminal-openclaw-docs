@@ -15,6 +15,7 @@ import {
   servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: { r_cd_model_chained_alt: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '240s' } },
   thresholds: { proof_failures: ['count==0'], r_cd_model_chained_alt_duration: ['p(95)<220000'] },
@@ -108,7 +109,7 @@ export default function () {
         depth2MetadataInFlight = true;
         depth2MetadataAttempts += 1;
         tracker.send(socket, 'sessions.describe', { key: evidence.depth_2_child_session_key });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     const served = { attempts: 0, inFlight: false, done: false };
     function requestServed(delayMs) {
@@ -118,7 +119,7 @@ export default function () {
         served.attempts += 1;
         evidence.depth_2_served_history_attempts = served.attempts;
         if (!observer.refreshHistory(evidence.depth_2_child_session_key, 100, 'served-child')) served.inFlight = false;
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     function onServedHistory(messages) {
       served.inFlight = false;
@@ -176,7 +177,7 @@ export default function () {
           `After the outer continue_delegate tool result reports scheduled, reply exactly MODEL-CHAINED-PARENT-SCHEDULED ${rowNonce}. No other action.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      for (const delayMs of [20000, 45000, 90000, 130000]) socket.setTimeout(() => observer.poll(), delayMs);
+      for (const delayMs of [20000, 45000, 90000, 130000]) socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       socket.setTimeout(() => socket.close(), 220000);
     }
 
@@ -193,7 +194,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

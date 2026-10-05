@@ -19,6 +19,7 @@ import {
 } from '../lib/r-cd-token-contract.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_cd_token_bracket_delegate: {
@@ -205,7 +206,7 @@ export default function () {
           closed = true;
           socket.close();
         }
-      }, delay);
+      }, k6TimeoutMs(delay));
     }
 
     // One complete observer traversal (every sessions.list page answered).
@@ -298,7 +299,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => {
         if (gate.timeout(10000)) {

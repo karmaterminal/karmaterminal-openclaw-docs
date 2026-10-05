@@ -19,6 +19,7 @@ import {
   servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: { r_cd_model_tool: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
   thresholds: { proof_failures: ['count==0'], r_cd_model_tool_duration: ['p(95)<180000'] },
@@ -136,7 +137,7 @@ export default function() {
         childMetadataAttempts += 1;
         evidence.child_metadata_requested = true;
         tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     // #563 item 2: only the observer binding binds; event candidates cross-check.
     function resolveChild(socket) {
@@ -162,7 +163,7 @@ export default function() {
         served.attempts += 1;
         evidence.child_served_history_attempts = served.attempts;
         if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     function onServedHistory(messages) {
       served.inFlight = false;
@@ -196,7 +197,7 @@ export default function() {
           idempotencyKey: idPrefix + '-DISPATCH-' + rowNonce,
         });
       }, 500);
-      for (const delayMs of [5000, 15000, 30000, 60000]) socket.setTimeout(() => observer.poll(), delayMs);
+      for (const delayMs of [5000, 15000, 30000, 60000]) socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       socket.setTimeout(() => socket.close(), 180000);
     }
     function afterHello(socket) {
@@ -211,7 +212,7 @@ export default function() {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

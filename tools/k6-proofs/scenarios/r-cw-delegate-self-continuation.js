@@ -40,6 +40,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
 import { childMintedToken, cwDelegateSelfHops, parentReturnReceipt } from '../lib/cw-delegate-self-receipt.mjs';
 
@@ -185,7 +186,7 @@ export default function () {
         parentHistoryScheduled = false;
         evidence.parent_return_history_reads += 1;
         parentHistoryRequestId = tracker.send(socket, 'chat.history', { sessionKey, limit: 200 });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function onParentHistory(classified) {
@@ -233,7 +234,7 @@ export default function () {
           hopReadInFlight = true;
           evidence.child_hop_history_reads += 1;
         }
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function onChildHops(messages) {
@@ -276,7 +277,7 @@ export default function () {
       // Bind the delegate child through the observer (sessions.list spawnedBy +
       // the child's own spawn task), then read its hops from its own transcript.
       for (const delayMs of [5000, 15000, 30000, 60000, 90000]) {
-        socket.setTimeout(() => observer.poll(), delayMs);
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
       }
 
       // Dispatch via sessions.send — triggers agent turn that calls continue_delegate.
@@ -324,7 +325,7 @@ export default function () {
       socket.send(connectFrame(token));
       observer.attach(
         (method, params) => tracker.send(socket, method, params),
-        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
       );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });

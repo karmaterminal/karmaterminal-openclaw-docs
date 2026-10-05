@@ -465,4 +465,51 @@ test('R-CD-TOKEN traversal: pagination follows nextOffset; duplicates or a refus
   assert.equal(rounds[2].round.valid, false);
   assert.equal(h.observer.state.refusal, null, 'a non-refusal error is recorded as an error, not a refusal');
   assert.equal(h.observer.summary().observation_errors[0].code, 'UNAVAILABLE');
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
+});
+
+// --- #563 review item 4: non-refusal observer errors fail closed ------------
+
+test('item 4: a non-refusal sessions.list error makes the row PARTIAL with the error named', () => {
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { ok: false, error: { code: 'UNAVAILABLE', message: 'session store busy' } });
+  assert.equal(h.observer.state.refusal, null);
+  assert.deepEqual(h.observer.incomplete(), { method: 'sessions.list', code: 'UNAVAILABLE', message: 'session store busy' });
+  assert.deepEqual(h.observer.summary().observation_incomplete, { method: 'sessions.list', code: 'UNAVAILABLE', message: 'session store busy' });
+  const verdict = failClosedVerdict('FAIL-candidate', { observer: h.observer });
+  assert.equal(verdict.verdict, 'PARTIAL-candidate', 'an observer error never ends FAIL');
+  assert.match(verdict.reason, /observation incomplete: sessions\.list UNAVAILABLE session store busy/);
+});
+
+test('item 4: hasMore without a usable nextOffset is a truncated traversal, not a complete one', () => {
+  const rounds = [];
+  const h = harness({ rootSessionKey: PARENT, onRoundComplete: (input, round) => rounds.push(round) });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:p1', PARENT)], { hasMore: true }) });
+  assert.equal(rounds[0].valid, false);
+  assert.equal(h.observer.incomplete().code, 'PAGINATION_TRUNCATED');
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
+});
+
+test('item 4: an invalid traversal (duplicate child) alone fails closed', () => {
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:d', PARENT), sessionRow('agent:main:subagent:d', PARENT)]) });
+  assert.equal(h.observer.incomplete().code, 'INVALID_TRAVERSAL');
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
+});
+
+test('item 4: keepProvenFail keeps an authoritative FAIL and records the observer problem', () => {
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { ok: false, error: { code: 'UNAVAILABLE', message: 'later poll failed' } });
+  const kept = failClosedVerdict('FAIL-candidate', { observer: h.observer, keepProvenFail: true });
+  assert.equal(kept.verdict, 'FAIL-candidate');
+  assert.match(kept.observerReason, /observation incomplete/);
+  // It never upgrades anything else, and a preflight refusal still wins.
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer, keepProvenFail: true }).verdict, 'PARTIAL-candidate');
+  const gate = createPreflightGate('R-CD-MODEL-TOOL');
+  gate.observe(helloOk(['sessions.send']));
+  assert.equal(failClosedVerdict('FAIL-candidate', { gate, observer: h.observer, keepProvenFail: true }).verdict, 'PARTIAL-candidate');
 });

@@ -145,10 +145,17 @@ export function createPreflightGate(rowId) {
 
 /**
  * Final fail-closed gate for a row verdict. A refused preflight (nothing was
- * dispatched) or a refused observer method means the row cannot claim either
- * outcome, so the verdict is PARTIAL with the reason, whatever it was before.
+ * dispatched), a refused observer method, or an incomplete observation (any
+ * observer error that is not a refusal: timeout, UNAVAILABLE, a failed or
+ * truncated page, an invalid traversal) means the row cannot claim either
+ * outcome, so the verdict is PARTIAL with the reason named.
+ *
+ * keepProvenFail: the caller asserts its FAIL rests on authoritative evidence
+ * gathered independently of the failed observation (e.g. a served-model
+ * mismatch on an already-bound child). That FAIL is kept, with the observer
+ * problem recorded as observerReason. A preflight refusal always wins.
  */
-export function failClosedVerdict(verdict, { gate = null, observer = null } = {}) {
+export function failClosedVerdict(verdict, { gate = null, observer = null, keepProvenFail = false } = {}) {
   if (gate && gate.result && gate.result.ok !== true) {
     return { verdict: 'PARTIAL-candidate', reason: `preflight refused before dispatch: ${gate.result.reason}` };
   }
@@ -156,6 +163,9 @@ export function failClosedVerdict(verdict, { gate = null, observer = null } = {}
     return { verdict: 'PARTIAL-candidate', reason: 'preflight never completed; nothing was dispatched' };
   }
   const observerReason = observer ? observer.failClosedReason() : null;
+  if (observerReason && keepProvenFail && verdict === 'FAIL-candidate') {
+    return { verdict, reason: null, observerReason };
+  }
   if (observerReason) return { verdict: 'PARTIAL-candidate', reason: observerReason };
   return { verdict, reason: null };
 }
@@ -389,6 +399,11 @@ export function createChildObserver({
         const nextOffset = Number(payload.nextOffset);
         if (payload.hasMore === true && Number.isFinite(nextOffset) && nextOffset > 0) {
           requestList(meta.requester, meta.depth, nextOffset, meta.round);
+        } else if (payload.hasMore === true) {
+          // More rows exist but no usable cursor: a later page could hold the
+          // match, so the traversal is truncated, not complete.
+          if (meta.round === round) roundInvalid = true;
+          state.errors.push({ method: 'sessions.list', code: 'PAGINATION_TRUNCATED', message: `hasMore without a usable nextOffset (${String(payload.nextOffset)})` });
         }
         finishListForRound(meta);
         return null;
@@ -472,10 +487,24 @@ export function createChildObserver({
         .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
     },
 
+    /** The first unrecovered non-refusal observer error, or null. */
+    incomplete() {
+      const error = state.errors.find((e) => e.recovered !== true);
+      if (error) return { method: error.method, code: error.code, message: error.message };
+      if (state.counters.rounds_invalid > 0) {
+        return { method: 'sessions.list', code: 'INVALID_TRAVERSAL', message: `${state.counters.rounds_invalid} traversal(s) incomplete or inconsistent` };
+      }
+      return null;
+    },
+
     /** Reason the row cannot claim anything from the observer, or null. */
     failClosedReason() {
       if (state.refusal) {
         return `observation refused: ${state.refusal.method} ${state.refusal.code || ''} ${state.refusal.message}`.replace(/\s+/g, ' ').trim();
+      }
+      const incomplete = observer.incomplete();
+      if (incomplete) {
+        return `observation incomplete: ${incomplete.method} ${incomplete.code || ''} ${incomplete.message}`.replace(/\s+/g, ' ').trim();
       }
       return null;
     },
@@ -483,6 +512,7 @@ export function createChildObserver({
     summary() {
       return {
         observation_refused: state.refusal,
+        observation_incomplete: observer.incomplete(),
         observation_errors: state.errors.slice(0, 10),
         observer_list_responses: state.counters.list_responses,
         observer_rows_seen: state.counters.rows_seen,

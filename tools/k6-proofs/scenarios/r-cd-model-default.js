@@ -305,7 +305,10 @@ export default function() {
     expected: expectedModel,
     complete,
   });
-  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
+  // A served/selection mismatch on a bound child is authoritative; an unrelated
+  // later observer error does not erase it (it is recorded as observer_reason).
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  evidence.observer_reason = finalVerdict.observerReason || null;
   evidence.model_matches = identity.modelMatches;
   evidence.selection_matches = identity.selectionMatches;
   evidence.model_classification_reason = finalVerdict.reason ||

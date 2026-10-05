@@ -316,7 +316,8 @@ export default function() {
   });
   // FAIL needs authoritative evidence (served or selection mismatch, active
   // fallback, mixed served window); selection alone is PARTIAL, never PASS.
-  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer });
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  evidence.observer_reason = finalVerdict.observerReason || null;
   const verdict = finalVerdict.verdict;
   evidence.verdict_reason = finalVerdict.reason;
   evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;

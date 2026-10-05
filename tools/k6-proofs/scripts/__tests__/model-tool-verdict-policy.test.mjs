@@ -22,7 +22,7 @@ test('R-CD-MODEL-TOOL classifies selected vs served identity and never uses hone
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /requestChildMetadata\(socket, delayMs = 1\)/);
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.list'/);
-  assert.match(scenario, /failClosedVerdict\(identity\.verdict, \{ gate, observer \}\)/);
+  assert.match(scenario, /failClosedVerdict\(identity\.verdict, \{ gate, observer, keepProvenFail: true \}\)/);
   assert.match(scenario, /const verdict = finalEvidence\?\.verdict \|\| 'PARTIAL-candidate'/);
   assert.doesNotMatch(scenario, /HONEST-LIMIT-candidate/);
   assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');

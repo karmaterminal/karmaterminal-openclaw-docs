@@ -30,7 +30,7 @@ function usage() {
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
   [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000] \\
-  [--settle-ms <defaults-to-poll-ms>]`);
+  [--settle-ms <defaults-to-poll-ms>] [--service-name <otel service.name>]`);
 }
 
 function parseArgs(argv, env = process.env) {
@@ -45,10 +45,13 @@ function parseArgs(argv, env = process.env) {
     timeoutMs: 180000,
     pollMs: 2000,
     settleMs: null,
+    // Isolated proof gateways may export under their own service.name; the
+    // seat-name convention below only holds for a prince's live gateway.
+    serviceName: env.OPENCLAW_PROOFS_SERVICE_NAME || null,
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id', '--service-name'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -497,7 +500,9 @@ async function main() {
 
   const contract = traceContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
-  const serviceName = `${prince}-prince`;
+  const serviceName = args.serviceName
+    ? escapeTraceqlString(args.serviceName)
+    : `${prince}-prince`;
   const query = contract.kind === 'continuation'
     ? (() => {
         const modeClause = contract.mode === undefined

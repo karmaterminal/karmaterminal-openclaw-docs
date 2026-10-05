@@ -1992,3 +1992,137 @@ test('bracket-token topology rejects a typed tool origin and duplicate dispatch 
     });
   }
 });
+
+test('searches an isolated gateway service.name when one is supplied, and fails closed without it', async (t) => {
+  const isolatedService = 'emeric-proof-41b8d69b';
+  const traceId = '33333333333333333333333333333333';
+  const run = async (extraArgs, extraEnv = {}) => {
+    const fixture = await fixtureDir({ includeNonce: false });
+    const queries = [];
+    const server = await listen((request, response) => {
+      const url = new URL(request.url, 'http://localhost');
+      response.setHeader('content-type', 'application/json');
+      if (url.pathname === '/api/search') {
+        const q = url.searchParams.get('q') || '';
+        queries.push(q);
+        // Only the isolated gateway's service holds the trace.
+        const hit = q.includes(`resource.service.name="${isolatedService}"`);
+        response.end(JSON.stringify({ traces: hit ? [{ traceID: traceId }] : [] }));
+        return;
+      }
+      response.end(JSON.stringify(traceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+      })));
+    });
+    try {
+      const result = await execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'emeric-isolated-proof',
+        '--tempo-url', server.url,
+        '--timeout-ms', '60',
+        '--poll-ms', '10',
+        ...extraArgs,
+      ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: '', ...extraEnv } })
+        .then(({ stdout }) => ({ ok: true, out: JSON.parse(stdout) }))
+        .catch((error) => ({ ok: false, stderr: String(error.stderr || error.message) }));
+      let receipt = null;
+      if (result.ok) receipt = JSON.parse(await readFile(path.join(fixture.dir, result.out.receiptFile), 'utf8'));
+      return { ...result, receipt, queries };
+    } finally {
+      await server.close();
+      await rm(fixture.dir, { recursive: true, force: true });
+    }
+  };
+
+  await t.test('seat convention alone searches <prince>-prince and finds nothing', async () => {
+    const r = await run([]);
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /no Tempo trace matched/);
+    assert.ok(r.queries.length > 0);
+    assert.ok(r.queries.every((q) => q.includes('resource.service.name="emeric-prince"')));
+  });
+
+  await t.test('--service-name targets the isolated service and records it', async () => {
+    const r = await run(['--service-name', isolatedService]);
+    assert.equal(r.ok, true, r.stderr);
+    assert.equal(r.out.traceId, traceId);
+    assert.ok(r.queries.every((q) => q.includes(`resource.service.name="${isolatedService}"`)));
+    assert.match(r.receipt.query, new RegExp(`resource\\.service\\.name="${isolatedService}"`));
+  });
+
+  await t.test('OPENCLAW_PROOFS_SERVICE_NAME is honoured the same way', async () => {
+    const r = await run([], { OPENCLAW_PROOFS_SERVICE_NAME: isolatedService });
+    assert.equal(r.ok, true, r.stderr);
+    assert.match(r.receipt.query, new RegExp(`resource\\.service\\.name="${isolatedService}"`));
+  });
+
+  await t.test('rejects an unsafe service name instead of interpolating it', async () => {
+    const r = await run(['--service-name', 'x" || true || "']);
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /unsafe TraceQL value/);
+    assert.equal(r.queries.length, 0);
+  });
+});
+
+test('accepts a Tempo search trace id rendered without its leading zero', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const fullId = '0516ee694eaee724a813fac7eae0b55d';
+  const searchRendered = fullId.replace(/^0+/, ''); // what Tempo /api/search returns
+  assert.equal(searchRendered.length, 31);
+  let fetchedPath = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      response.end(JSON.stringify({ traces: [{ traceID: searchRendered }] }));
+      return;
+    }
+    fetchedPath = url.pathname;
+    response.end(JSON.stringify(traceFixture({
+      traceId: fullId,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    assert.equal(result.traceId, fullId);
+    assert.equal(fetchedPath, `/api/traces/${fullId}`);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('still rejects a search trace id that is not hex', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify({ traces: [{ traceID: 'not-a-trace-id' }] }));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath, '--seat', 'cael-prince',
+        '--tempo-url', server.url, '--timeout-ms', '50', '--poll-ms', '10',
+      ]),
+      (error) => /search trace id/.test(String(error.stderr)),
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});

@@ -92,3 +92,15 @@ export function childSessionKeyForRow(eventData, rowNonce, additionalTokens = []
   const matches = childSessionKeysForRow(eventData, rowNonce, additionalTokens);
   return matches?.length === 1 ? matches[0] : null;
 }
+
+/**
+ * The one child bound to `includeToken` but not to `excludeToken`, or null.
+ * Nested-hop rows embed the inner task (and its token) inside the outer task,
+ * so the outer child matches both tokens; only the inner child matches one.
+ */
+export function childSessionKeyForTokenOnly(eventData, includeToken, excludeToken) {
+  if (!includeToken || !excludeToken) return null;
+  const excluded = new Set(childSessionKeysForRow(eventData, excludeToken));
+  const matches = childSessionKeysForRow(eventData, includeToken).filter((key) => !excluded.has(key));
+  return matches.length === 1 ? matches[0] : null;
+}

@@ -32,6 +32,13 @@ test('R-CD-MODEL-TOOL classifies selected vs served identity and never uses hone
     /reply exactly MODEL-TOOL-CHILD \{\{nonce\}\} MODEL <provider\/model>/,
   );
   assert.doesNotMatch(manifest.invocation.promptTemplate, /openai\/gpt-5\.6-luna/);
+  // #563 item 5: no built-in default model; unset or alias refuses before dispatch.
+  assert.doesNotMatch(scenario, /gpt-5\.6-luna/);
+  assert.doesNotMatch(JSON.stringify(manifest.invocation), /gpt-5\.6-luna/);
+  assert.equal(manifest.invocation.model, '${OPENCLAW_ALT_MODEL:-}');
+  assert.match(scenario, /resolveRequestedModel\(__ENV\.OPENCLAW_ALT_MODEL, inv\.model\)/);
+  const refusal = scenario.indexOf('if (requested.refusal');
+  assert.ok(refusal > 0 && refusal < scenario.indexOf('ws.connect('), 'refusal happens before any socket is opened');
   assert.match(
     scenario,
     /reply exactly MODEL-TOOL-CHILD \{\{nonce\}\} MODEL <provider\/model>/,

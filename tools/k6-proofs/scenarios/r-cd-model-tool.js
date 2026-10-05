@@ -15,6 +15,7 @@ import {
   classifyModelIdentity,
   modelFromSessionMetadata,
   normalizeModel,
+  resolveRequestedModel,
   servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
@@ -31,7 +32,6 @@ const DEFAULTS = {
   seat: 'cael-dgx',
   delaySeconds: 1,
   idempotencyKeyPrefix: 'R-CD-MODEL-TOOL',
-  requestedModel: 'openai/gpt-5.6-luna',
   promptTemplate:
     'MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly MODEL-TOOL-CHILD {{nonce}} MODEL <provider/model>, replacing <provider/model> with the current model identity from runtime context. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.',
 };
@@ -54,7 +54,10 @@ export default function() {
   const inv = manifest?.invocation || {};
   const taskIdentityToken = compactTaskIdentityToken('MTOOL', rowNonce);
   const childTask = renderRowTaskTemplate(inv.promptTemplate || DEFAULTS.promptTemplate, rowNonce);
-  const requestedModel = normalizeModel(__ENV.OPENCLAW_ALT_MODEL || inv.model || DEFAULTS.requestedModel);
+  // #563 item 5: no built-in default. Unset or a bare alias refuses before
+  // dispatch (aliases resolve per seat and cannot be compared byte-for-byte).
+  const requested = resolveRequestedModel(__ENV.OPENCLAW_ALT_MODEL, inv.model);
+  const requestedModel = requested.model;
   const delaySeconds = Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds);
   const idPrefix = inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix;
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
@@ -72,6 +75,7 @@ export default function() {
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     started: new Date().toISOString(),
     requested_model_byte: requestedModel,
+    dispatch_refused: null,
     requested_model_source: 'continue_delegate.model parameter',
     dispatch_accepted: false,
     parent_scheduled_sentinel: false,
@@ -107,6 +111,19 @@ export default function() {
   const gate = createPreflightGate('R-CD-MODEL-TOOL');
   const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
+  if (requested.refusal || !taskIdentityToken || !childTask) {
+    // Refuse before dispatch: nothing is sent and no attempt is spent.
+    evidence.dispatch_refused = requested.refusal || 'row task identity could not be rendered';
+    evidence.model_classification_reason = evidence.dispatch_refused;
+    evidence.verdict_reason = 'refused before dispatch: ' + evidence.dispatch_refused;
+    evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
+    evidence.verdict = 'PARTIAL-candidate';
+    finalEvidence = evidence;
+    failures.add(1);
+    console.error('✗ R-CD-MODEL-TOOL refused before dispatch: ' + evidence.dispatch_refused);
+    console.log('\n--- R-CD-MODEL-TOOL EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOOL] VERDICT: PARTIAL-candidate');
+    return;
+  }
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     let childMetadataAttempts = 0;
@@ -354,6 +371,6 @@ export function handleSummary(data) {
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
   // The default function's fail-closed verdict is the only verdict; without it the row is PARTIAL.
   const verdict = finalEvidence?.verdict || 'PARTIAL-candidate';
-  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, servedModel: finalEvidence?.child_served_model_byte || null, selectedModel: finalEvidence?.child_selected_model_byte || null, selectedModelSource: finalEvidence?.child_selected_model_source || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
+  const summary = { row: 'R-CD-MODEL-TOOL', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict, requestedModel: finalEvidence?.requested_model_byte || __ENV.OPENCLAW_ALT_MODEL || null, servedModel: finalEvidence?.child_served_model_byte || null, selectedModel: finalEvidence?.child_selected_model_byte || null, selectedModelSource: finalEvidence?.child_selected_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_tool_duration?.values || null, failures: failuresCount } };
   return { stdout: '\n[R-CD-MODEL-TOOL] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-tool-summary.json': JSON.stringify(summary, null, 2) };
 }

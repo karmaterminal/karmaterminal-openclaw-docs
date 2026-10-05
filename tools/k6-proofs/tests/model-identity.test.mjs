@@ -211,3 +211,11 @@ test('served receipt: a fallback inside the window is a conflict; an errored sen
   assert.equal(errored.served, null);
   assert.equal(errored.errorMessage, 'provider 500');
 });
+
+test('#563 item 5: MODEL-TOOL inputs: unset and alias refuse, a full provider/model passes', () => {
+  assert.match(resolveRequestedModel(undefined, '').refusal, /no override model configured/);
+  // The manifest placeholder resolves to '' when OPENCLAW_ALT_MODEL is unset.
+  assert.match(resolveRequestedModel('', '').refusal, /no override model configured/);
+  assert.match(resolveRequestedModel('luna').refusal, /not a provider\/model/);
+  assert.deepEqual(resolveRequestedModel(undefined, 'openai/gpt-5.6-luna'), { model: 'openai/gpt-5.6-luna', refusal: null });
+});

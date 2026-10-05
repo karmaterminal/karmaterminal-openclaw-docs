@@ -29,6 +29,7 @@ import {
   rCdChainRootReturnReceipt,
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createHeartbeatAckTracker } from '../lib/wake-turn-receipt.mjs';
 
 export const options = {
   scenarios: {
@@ -115,6 +116,8 @@ export default function () {
     grandchild_done_sentinel: false,
     chain_return_received: false,
     root_return_candidate: null,
+    root_return_source: null,
+    dispatch_run_id: null,
     root_return_receipt: null,
     dispatch_accepted_at_ms: null,
     // Depth tracking
@@ -192,7 +195,12 @@ export default function () {
       evidence.grandchild_status = observer.childStatus(grandchild.childSessionKey);
     }
 
+    // #567: the root is woken by the silent-wake return as a heartbeat turn and
+    // may answer through heartbeat_respond. Created once the root key is final.
+    let rootHeartbeat = null;
+
     function startProofFlow(socket) {
+      rootHeartbeat = createHeartbeatAckTracker({ sessionKey, marker: 'ROOT-CHAIN-ACK', nonce: chainNonce });
       // Subscribe to parent session events — primary proof surface for chain progression.
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
 
@@ -299,6 +307,8 @@ export default function () {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            // The dispatch turn cannot be the woken turn.
+            evidence.dispatch_run_id = typeof classified.payload?.runId === 'string' ? classified.payload.runId : null;
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered for depth-2 chain');
           } else {
@@ -340,9 +350,13 @@ export default function () {
                   eventData,
                   rootSessionKey: sessionKey,
                   nonce: chainNonce,
-                });
+                }) || (eventName === 'session.message' && rootHeartbeat ? rootHeartbeat.observe(eventData, {
+                  windowOpen: true,
+                  excludeRunIds: [evidence.dispatch_run_id],
+                }) : null);
                 if (rootReturnCandidate) {
                   evidence.root_return_candidate = rootReturnCandidate;
+                  evidence.root_return_source = rootReturnCandidate.source || 'assistant-text';
                   finalizeRootReturnReceipt();
                   console.log('✓ explicit nonce-bound root consumption ack observed');
                 }

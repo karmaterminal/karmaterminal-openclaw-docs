@@ -525,6 +525,17 @@ For R-CD rows the public-safe receipts remain:
   stream.
 - The row-bound child from the child observer, where the row needs one.
 
+Wake-turn answers (#567): a continuation return woken in a recipient session runs
+as a heartbeat turn, and current builds answer it through the `heartbeat_respond`
+tool instead of assistant text. The wake's user row and the delivered return text
+are hidden from `chat.history` and `session.message`. R-CD-4 (target ack) and
+R-CD-CHAINED-DEPTH-2 (root ack) therefore also accept a `heartbeat_respond` call
+plus its accepted toolResult (same toolCallId, same run) whose `notificationText`
+or `summary` carries the exact sentinel, in the expected session, after the row's
+anchor (priming reply / dispatch) and outside the anchor run
+(`lib/wake-turn-receipt.mjs`). In the parent, any such ack is still a parent
+landing (negative control).
+
 For R-CD-1 and R-CD-2 the child is optional context: R-CD-2's verdict comes
 from the row-scoped resolver, which does not read the observer fields, and an
 observer refusal there is recorded in `verdict_reason` only.

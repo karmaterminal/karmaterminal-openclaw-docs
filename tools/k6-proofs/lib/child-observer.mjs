@@ -57,7 +57,7 @@ export const ROW_METHODS = Object.freeze({
   'R-CD-MODEL-TOKEN': Object.freeze([...BASE, ...OBSERVER_METHODS, 'sessions.describe']),
   'R-CD-MODEL-CHAINED-ALT': Object.freeze([...BASE, ...OBSERVER_METHODS, 'sessions.describe']),
   'R-CD-TOKEN': Object.freeze([...BASE, ...OBSERVER_METHODS]),
-  'R-CW-DELEGATE-SELF-CONTINUATION': Object.freeze([...BASE]),
+  'R-CW-DELEGATE-SELF-CONTINUATION': Object.freeze([...BASE, ...OBSERVER_METHODS]),
   'R-RC-2': Object.freeze([...BASE, ...OBSERVER_METHODS]),
 });
 

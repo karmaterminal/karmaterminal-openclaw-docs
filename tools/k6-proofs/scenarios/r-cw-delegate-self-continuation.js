@@ -8,10 +8,15 @@
  *
  * Verifies:
  *   1. Parent dispatch accepted (continue_delegate fires via sessions.send agent turn)
- *   2. Child continue_work scheduled result is observed post-dispatch
- *   3. Child's hop-2 wakes (DONE + nonce in return)
- *   4. Parent receives delegate return event post-dispatch
- *   5. Child lifecycle event is tracked as corroborating context when present
+ *   2. The delegate child is bound through the child observer (own row
+ *      spawnedBy = parent, own spawn task carries the nonce; fail closed)
+ *   3. From the CHILD's own chat.history, in order: the nonce-bound
+ *      continue_work call, its "scheduled" result and CHILD-CW-SCHEDULED in
+ *      that turn; then a "[continuation:wake]" turn carrying the nonce and
+ *      CHILD-HOP2-DONE in it. The child writes these in its own turns, so the
+ *      parent subscription cannot see them.
+ *   4. Parent receives delegate return event post-dispatch (unchanged; hop-2
+ *      output is not required to reach the parent)
  *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
  * disposable parent session — proof does not touch the live #sprites/main
@@ -26,7 +31,9 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
+import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
+import { cwDelegateSelfHops } from '../lib/cw-delegate-self-receipt.mjs';
 
 export const options = {
   scenarios: {
@@ -58,6 +65,9 @@ const DEFAULTS = {
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_DELEGATE_EVIDENCE_DELAY_MS || 1500);
+// Child transcript re-reads until both hops bind; bounded and recorded.
+const CHILD_HOP_HISTORY_MAX_READS = 40;
+const CHILD_HOP_HISTORY_INTERVAL_MS = 3000;
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -113,6 +123,17 @@ export default function () {
     child_continue_work_accepted: false,
     child_hop_2_woke: false,
     parent_return: false,
+    child_session_key: null,
+    child_status: null,
+    event_child_candidates: [],
+    child_identity_conflict: false,
+    child_identity_reason: null,
+    child_hop_history_reads: 0,
+    child_hops: null,
+    // Diagnostic only: the parent stream is not where the child writes its hops.
+    parent_stream_cw_scheduled_seen: false,
+    parent_stream_hop2_seen: false,
+    observation_refused: null,
     dispatch_accepted_at_ms: null,
     trace_id: null,
     preflight: null,
@@ -122,13 +143,76 @@ export default function () {
 
   const started = Date.now();
   const gate = createPreflightGate('R-CW-DELEGATE-SELF-CONTINUATION');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let hopReadInFlight = false;
+    let hopReadScheduled = false;
+
+    // Only the observer binding binds; parent-event candidates cross-check it.
+    function resolveChild() {
+      const identity = reconcileChildIdentity({
+        observerBinding: observer.boundChild(rowNonce),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) { evidence.child_identity_conflict = true; return; }
+      const key = identity.childSessionKey;
+      if (!key || evidence.child_identity_conflict) return;
+      if (evidence.child_session_key && evidence.child_session_key !== key) { evidence.child_identity_conflict = true; return; }
+      evidence.child_status = observer.childStatus(key);
+      if (evidence.child_session_key) return;
+      evidence.child_session_key = key;
+      evidence.child_spawned = true;
+      console.log('✓ delegate child bound (own spawnedBy + own spawn task nonce)');
+      requestChildHops(0);
+    }
+
+    function requestChildHops(delayMs) {
+      if (!evidence.child_session_key || hopReadInFlight || hopReadScheduled) return;
+      if (evidence.child_hop_2_woke || evidence.child_hop_history_reads >= CHILD_HOP_HISTORY_MAX_READS) return;
+      hopReadScheduled = true;
+      socket.setTimeout(() => {
+        hopReadScheduled = false;
+        if (observer.refreshHistory(evidence.child_session_key, 200, 'cw-hops')) {
+          hopReadInFlight = true;
+          evidence.child_hop_history_reads += 1;
+        }
+      }, delayMs);
+    }
+
+    function onChildHops(messages) {
+      hopReadInFlight = false;
+      const hops = cwDelegateSelfHops(messages, { rowNonce });
+      evidence.child_hops = {
+        yield_index: hops.yieldIndex,
+        scheduled_result_index: hops.scheduledResultIndex,
+        scheduled_sentinel_index: hops.scheduledSentinelIndex,
+        wake_index: hops.wakeIndex,
+        hop2_index: hops.hop2Index,
+        reason: hops.reason,
+      };
+      if (hops.childContinueWorkAccepted && !evidence.child_continue_work_accepted) {
+        evidence.child_continue_work_accepted = true;
+        console.log('✓ child turn 1: continue_work scheduled + CHILD-CW-SCHEDULED (child transcript)');
+      }
+      if (hops.childHop2Woke && !evidence.child_hop_2_woke) {
+        evidence.child_hop_2_woke = true;
+        console.log('✓ child wake turn: CHILD-HOP2-DONE after [continuation:wake] (child transcript)');
+      }
+      if (!evidence.child_hop_2_woke) requestChildHops(CHILD_HOP_HISTORY_INTERVAL_MS);
+    }
 
     function startProofFlow(socket) {
       // Subscribe to parent session events — primary surface for chain progression.
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
+
+      // Bind the delegate child through the observer (sessions.list spawnedBy +
+      // the child's own spawn task), then read its hops from its own transcript.
+      for (const delayMs of [5000, 15000, 30000, 60000, 90000]) {
+        socket.setTimeout(() => observer.poll(), delayMs);
+      }
 
       // Dispatch via sessions.send — triggers agent turn that calls continue_delegate.
       // The delegate's task instructs the child to fire its own continue_work.
@@ -171,6 +255,10 @@ export default function () {
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
@@ -184,7 +272,16 @@ export default function () {
           return;
         }
         if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          const history = observer.handle(observed, classified);
+          if (observed.purpose === 'cw-hops') {
+            if (history) onChildHops(history);
+            else { hopReadInFlight = false; if (!observer.state.refusal) requestChildHops(CHILD_HOP_HISTORY_INTERVAL_MS); }
+          }
+          resolveChild();
+        }
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -228,30 +325,23 @@ export default function () {
         if (classified.kind === 'event') {
           const eventStr = JSON.stringify(classified.data || {});
           const eventName = classified.event || '';
+          // Event-borne child keys only cross-check the observer binding.
+          for (const key of childSessionKeysForRow(classified.data || {}, rowNonce)) {
+            if (key !== sessionKey && !evidence.event_child_candidates.includes(key)) {
+              evidence.event_child_candidates.push(key);
+              resolveChild();
+            }
+          }
 
           if (eventStr.includes(rowNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) {
               console.log('ℹ Ignoring harness prompt echo event');
             } else if (evidence.delegate_accepted && evidence.dispatch_accepted_at_ms &&
               (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-              // Child spawned: only count concrete delegate lifecycle signals.
-              if (eventName === 'delegate.started' || eventName === 'delegate.return' ||
-                eventStr.includes('"childSessionKey"')) {
-                evidence.child_spawned = true;
-                console.log('✓ Delegate lifecycle/child-session signal observed post-dispatch');
-              }
-
-              // Child fired continue_work and emitted explicit sentinel only after scheduled tool result.
-              if (eventStr.includes(`CHILD-CW-SCHEDULED ${rowNonce}`)) {
-                evidence.child_continue_work_accepted = true;
-                console.log('✓ CHILD-CW-SCHEDULED sentinel observed post-dispatch');
-              }
-
-              // Child hop-2 woke: explicit sentinel from the continuation wake turn.
-              if (eventStr.includes(`CHILD-HOP2-DONE ${rowNonce}`)) {
-                evidence.child_hop_2_woke = true;
-                console.log('✓ CHILD-HOP2-DONE sentinel observed post-dispatch');
-              }
+              // The child writes its hop sentinels in its own turns; seeing them
+              // on the parent stream is diagnostic only, never the receipt.
+              if (eventStr.includes(`CHILD-CW-SCHEDULED ${rowNonce}`)) evidence.parent_stream_cw_scheduled_seen = true;
+              if (eventStr.includes(`CHILD-HOP2-DONE ${rowNonce}`)) evidence.parent_stream_hop2_seen = true;
 
               // Parent return from delegate
               if (eventName === 'delegate.return' ||
@@ -287,6 +377,7 @@ export default function () {
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
   evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   duration.add(evidence.duration_ms);
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
@@ -295,7 +386,8 @@ export default function () {
     'child continue_work scheduled post-dispatch': () => evidence.child_continue_work_accepted,
     'child hop-2 woke (required)': () => evidence.child_hop_2_woke,
     'parent return received': () => evidence.parent_return,
-    'child lifecycle signal (corroborative)': () => true,
+    'delegate child bound via the observer': () => evidence.child_spawned,
+    'no child identity conflict': () => !evidence.child_identity_conflict,
   });
 
   if (!evidence.delegate_accepted ||
@@ -307,10 +399,16 @@ export default function () {
 
   const passed = (!createDisposableSession || evidence.session_created) &&
     evidence.delegate_accepted &&
+    evidence.child_spawned &&
+    !evidence.child_identity_conflict &&
     evidence.child_continue_work_accepted &&
     evidence.child_hop_2_woke &&
     evidence.parent_return;
-  const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate });
+  const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate, observer });
+  if (evidence.child_identity_conflict && !finalVerdict.reason) {
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
   evidence.verdict_reason = finalVerdict.reason;
   if (finalVerdict.reason) failures.add(1);
 

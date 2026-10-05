@@ -19,7 +19,9 @@
     "methods": [
       "sessions.create",
       "sessions.messages.subscribe",
-      "sessions.send"
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cw-delegate-self-continuation.js"
@@ -33,9 +35,9 @@
   },
   "expectedReceipts": [
     { "name": "delegate-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered)" },
-    { "name": "child-spawned", "required": false, "description": "Corroborative only: concrete delegate lifecycle/child-session signal (not arbitrary nonce event)" },
-    { "name": "child-continue-work-accepted", "required": true, "description": "Post-dispatch non-harness CHILD-CW-SCHEDULED sentinel emitted after child continue_work tool result reports scheduled" },
-    { "name": "child-hop-2-woke", "required": true, "description": "Child's hop-2 turn executed and emitted CHILD-HOP2-DONE sentinel" },
+    { "name": "child-spawned", "required": false, "description": "Delegate child bound through the child observer: own row spawnedBy = parent and own spawn task carries the nonce, unique; event-path child keys only cross-check (fail closed). The child transcript receipts below need this binding." },
+    { "name": "child-continue-work-accepted", "required": true, "description": "From the CHILD's own chat.history: exactly one nonce-bound continue_work call, its toolResult status \"scheduled\" (continue-work-tool.ts:86-95), and CHILD-CW-SCHEDULED <nonce> in the same turn. The parent stream cannot see child turns." },
+    { "name": "child-hop-2-woke", "required": true, "description": "From the CHILD's own chat.history: a [continuation:wake] user turn carrying the nonce after the yield (work-dispatch-execution.ts:197-215), and CHILD-HOP2-DONE <nonce> in that wake turn." },
     { "name": "parent-return", "required": true, "description": "Delegate return event observed post-dispatch on parent session" }
   ],
   "artifactDestination": {

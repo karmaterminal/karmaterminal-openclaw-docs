@@ -19,6 +19,7 @@ export const R_CD_2_COLLECTOR_SCHEMA =
 
 const FAILURE_CATEGORIES = new Set([
   'missing-send-run-lifecycle',
+  'delegate-not-spawned',
   'send-run-mismatch',
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
@@ -565,6 +566,18 @@ function categoryFor(evidence, correlation, diagnostics) {
     return 'missing-terminal-sentinel';
   }
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
+  // A proven non-attempt (same definition as the terminal-sentinel branch
+  // above): the accepted send run ended successfully but never attempted the
+  // delegate, i.e. the model skipped the tool. Name it rather than reporting a
+  // generic lifecycle gap. Non-conclusive, so PARTIAL. Unknown attempt state
+  // (e.g. the send never accepted) stays missing-send-run-lifecycle.
+  if (evidence?.send_accepted === true &&
+      evidence?.terminal_success_same_run === true &&
+      evidence?.typed_delegate_attempted_same_run === false &&
+      evidence?.typed_delegate_success_same_run !== true &&
+      evidence?.typed_delegate_failed_same_run !== true) {
+    return 'delegate-not-spawned';
+  }
   if (!diagnostics.lifecycleComplete) {
     const fingerprintsProveMismatch =
       hex(evidence?.send_run_fingerprint, 16) &&
@@ -762,7 +775,7 @@ function failureDiagnosticsAgree(receipt) {
   ];
   if (leaves.every(Boolean)) return false;
   const lifecycleCategories = new Set([
-    'missing-send-run-lifecycle', 'send-run-mismatch',
+    'missing-send-run-lifecycle', 'delegate-not-spawned', 'send-run-mismatch',
     'provider-or-turn-failure', 'delegate-replay-unsafe',
     'silent-channel-delivery', 'missing-terminal-sentinel',
   ]);

@@ -20,6 +20,9 @@ function toolResult(id, name, payload) {
   return { role: 'toolResult', toolCallId: id, toolName: name, content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }], isError: false, timestamp: 3 };
 }
 function say(text) { return { role: 'assistant', content: [{ type: 'text', text }], stopReason: 'stop' }; }
+function wake(reason) {
+  return { role: 'user', content: [{ type: 'text', text: `[continuation:wake] Turn 2/200. The agent elected to continue working. Prior reason: ${JSON.stringify(reason)} [provenance] Chain: c hop 2/200` }] };
+}
 const spawnTask = { role: 'user', content: [{ type: 'text', text: `[Subagent Task]\n\nRRC2:1791234567890-rr R-RC-2 child nonce ${NONCE}.` }] };
 
 const MEASURED_REJECTION = {
@@ -41,7 +44,9 @@ function measuredWake(resultPayload) {
     say(`RRC2-CHILD-READY ${NONCE}`),
     toolCall('cw-1', 'continue_work', { delaySeconds: 5, reason: `R-RC-2 measured wake nonce ${NONCE}` }),
     toolResult('cw-1', 'continue_work', { status: 'scheduled' }),
-    { role: 'user', content: '[continuation wake]' },
+    say('yielding'),
+    // The wake turn body (work-dispatch-execution.ts:197-215) quotes the prior reason.
+    wake(`R-RC-2 measured wake nonce ${NONCE}`),
     toolCall('rc-1', 'request_compaction', { reason: `R-RC-2 delegated request_compaction nonce ${NONCE}` }),
     toolResult('rc-1', 'request_compaction', resultPayload),
     say(`REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${NONCE} CONTEXT 12 THRESHOLD 70`),
@@ -107,4 +112,43 @@ test('accepted compaction reports status compaction_requested and is recognised'
 test('a measured usage at or above threshold with a rejection is invalid, not HONEST-LIMIT', () => {
   const outcome = measuredRequestCompactionOutcome(measuredWake({ ...MEASURED_REJECTION, contextUsage: 75 }), { rowNonce: NONCE });
   assert.equal(outcome.kind, 'invalid');
+});
+
+// --- #563 review item 6 -----------------------------------------------------
+
+test('item 6: yield and request_compaction in the same turn (no wake turn) is not yield-bound', () => {
+  const sameTurn = [
+    spawnTask,
+    say(`RRC2-CHILD-READY ${NONCE}`),
+    toolCall('cw-1', 'continue_work', { delaySeconds: 5, reason: `R-RC-2 measured wake nonce ${NONCE}` }),
+    toolResult('cw-1', 'continue_work', { status: 'scheduled' }),
+    toolCall('rc-1', 'request_compaction', { reason: `R-RC-2 delegated request_compaction nonce ${NONCE}` }),
+    toolResult('rc-1', 'request_compaction', MEASURED_REJECTION),
+  ];
+  const outcome = measuredRequestCompactionOutcome(sameTurn, { rowNonce: NONCE });
+  assert.equal(outcome.yieldCallObserved, true);
+  assert.equal(outcome.wakeTurnBound, false);
+  assert.equal(outcome.yieldBound, false);
+});
+
+test('item 6: a wake turn for another nonce, or one after the request, does not bind', () => {
+  const otherWake = measuredWake(MEASURED_REJECTION);
+  otherWake[5] = wake('R-RC-2 measured wake nonce R-RC-2-other');
+  assert.equal(measuredRequestCompactionOutcome(otherWake, { rowNonce: NONCE }).wakeTurnBound, false);
+  const late = [
+    spawnTask,
+    toolCall('cw-1', 'continue_work', { reason: `R-RC-2 measured wake nonce ${NONCE}` }),
+    toolCall('rc-1', 'request_compaction', { reason: `R-RC-2 delegated request_compaction nonce ${NONCE}` }),
+    toolResult('rc-1', 'request_compaction', MEASURED_REJECTION),
+    wake(`R-RC-2 measured wake nonce ${NONCE}`),
+  ];
+  assert.equal(measuredRequestCompactionOutcome(late, { rowNonce: NONCE }).wakeTurnBound, false);
+});
+
+test('item 6: contextUsage without threshold (or the reverse) is invalid, not context_unknown', () => {
+  const { threshold, ...noThreshold } = MEASURED_REJECTION;
+  assert.equal(measuredRequestCompactionOutcome(measuredWake(noThreshold), { rowNonce: NONCE }).kind, 'invalid');
+  const { contextUsage, ...noUsage } = MEASURED_REJECTION;
+  assert.equal(measuredRequestCompactionOutcome(measuredWake(noUsage), { rowNonce: NONCE }).kind, 'invalid');
+  assert.equal(measuredRequestCompactionOutcome(measuredWake(UNKNOWN_REJECTION), { rowNonce: NONCE }).kind, 'context_unknown');
 });

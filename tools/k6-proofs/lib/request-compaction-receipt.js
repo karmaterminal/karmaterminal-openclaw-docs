@@ -168,13 +168,42 @@ export function continueWorkYieldForNonce(messages, rowNonce) {
   return { index: calls[0].index, toolCallId: calls[0].id };
 }
 
+function plainText(message) {
+  const content = message?.content;
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content.filter((part) => part && part.type === 'text' && typeof part.text === 'string')
+    .map((part) => part.text).join('\n');
+}
+
+/**
+ * The continue_work wake turn: a user-role message after the yield whose text
+ * is the gateway's wake prompt ("[continuation:wake] ... Prior reason:
+ * \"<reason>\"", openclaw 41b8d69b90 work-dispatch-execution.ts:197-215, sent
+ * as the turn Body at :365-372) and carries the row nonce through the quoted
+ * reason. Returns its index, or -1.
+ */
+export function wakeTurnIndexAfter(messages, afterIndex, rowNonce) {
+  const items = Array.isArray(messages) ? messages : [];
+  for (let i = afterIndex + 1; i < items.length; i += 1) {
+    const m = items[i];
+    if (String(m?.role || '').toLowerCase() !== 'user') continue;
+    const text = plainText(m);
+    if (text.startsWith('[continuation:wake]') && text.includes(rowNonce)) return i;
+  }
+  return -1;
+}
+
 /**
  * Classify the R-RC-2 child receipt for both turns.
  * kinds: missing | invalid | context_unknown | threshold_rejected_measured |
  *        accepted | other
- * yieldBound: the nonce-bound continue_work call precedes the nonce-bound
- * request_compaction call in the same child transcript (same session, same
- * chain: the wake runs on the child session, work-dispatch-execution.ts:540-545).
+ * yieldBound: the nonce-bound continue_work call, then a nonce-bound wake turn
+ * (#563 review item 6: a real turn boundary, not just call order), then the
+ * nonce-bound request_compaction call, all in the same child transcript (the
+ * wake runs on the child session, work-dispatch-execution.ts:540-545).
+ * contextUsage and threshold must both be numbers to count as measured; one
+ * without the other is invalid, not unknown.
  */
 export function measuredRequestCompactionOutcome(messages, { rowNonce } = {}) {
   const items = Array.isArray(messages) ? messages : [];
@@ -183,15 +212,28 @@ export function measuredRequestCompactionOutcome(messages, { rowNonce } = {}) {
     ? toolCallsFor(items, 'request_compaction').find((call) => call.id === toolCallId)?.index ?? -1
     : -1;
   const yieldCall = continueWorkYieldForNonce(items, rowNonce);
-  const yieldBound = Boolean(yieldCall && callIndex >= 0 && yieldCall.index < callIndex);
+  const wakeIndex = yieldCall ? wakeTurnIndexAfter(items, yieldCall.index, rowNonce) : -1;
+  const wakeTurnBound = Boolean(yieldCall && wakeIndex > yieldCall.index && callIndex > wakeIndex);
+  const yieldBound = wakeTurnBound;
   const found = findRequestCompactionReceipt(items, { rowNonce });
-  const base = { yieldBound, toolCallId: toolCallId || null, receipt: found.receipt || null, nonceBound: found.nonceBound === true };
+  const base = {
+    yieldBound,
+    yieldCallObserved: Boolean(yieldCall),
+    wakeTurnBound,
+    toolCallId: toolCallId || null,
+    receipt: found.receipt || null,
+    nonceBound: found.nonceBound === true,
+  };
   if (found.kind === 'missing') return { ...base, kind: 'missing', measured: false };
   if (found.kind === 'invalid') return { ...base, kind: 'invalid', measured: false };
   const receipt = found.receipt || {};
-  const measured = typeof receipt.contextUsage === 'number' && Number.isFinite(receipt.contextUsage) &&
-    typeof receipt.threshold === 'number' && Number.isFinite(receipt.threshold);
+  const hasUsage = typeof receipt.contextUsage === 'number' && Number.isFinite(receipt.contextUsage);
+  const hasThreshold = typeof receipt.threshold === 'number' && Number.isFinite(receipt.threshold);
+  const measured = hasUsage && hasThreshold;
+  const partialFields = 'contextUsage' in receipt || 'threshold' in receipt;
   if (receipt.status === 'rejected' && receipt.guard === 'context_threshold') {
+    // The unknown branch carries neither field (request-compaction-tool.ts:211-217).
+    if (!measured && partialFields) return { ...base, kind: 'invalid', measured: false };
     if (!measured) return { ...base, kind: 'context_unknown', measured: false };
     return receipt.contextUsage < receipt.threshold
       ? { ...base, kind: 'threshold_rejected_measured', measured: true }

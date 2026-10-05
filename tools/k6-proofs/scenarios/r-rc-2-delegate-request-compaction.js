@@ -123,6 +123,8 @@ export default function () {
     delegate_delay_seconds: null,
     child_ready_sentinel_observed: false,
     child_yield_bound: false,
+    child_yield_call_observed: false,
+    child_wake_turn_bound: false,
     request_compaction_outcome_kind: null,
     request_compaction_context_measured: false,
     request_compaction_context_unknown: false,
@@ -358,6 +360,8 @@ export default function () {
             const receipt = findRequestCompactionReceipt(messages, { rowNonce });
             const measured = measuredRequestCompactionOutcome(messages, { rowNonce });
             evidence.child_yield_bound = measured.yieldBound;
+            evidence.child_yield_call_observed = measured.yieldCallObserved;
+            evidence.child_wake_turn_bound = measured.wakeTurnBound;
             evidence.request_compaction_outcome_kind = measured.kind;
             evidence.request_compaction_context_measured = measured.measured === true;
             evidence.request_compaction_context_unknown = measured.kind === 'context_unknown';
@@ -505,7 +509,7 @@ export default function () {
     (evidence.request_compaction_context_unknown
       ? 'request_compaction answered context unknown (no measured contextUsage); HONEST-LIMIT needs a measured below-threshold receipt'
       : (evidence.request_compaction_tool_result_observed && !evidence.child_yield_bound
-        ? 'request_compaction receipt is not preceded by the nonce-bound continue_work yield'
+        ? 'request_compaction receipt is not preceded by the nonce-bound continue_work yield and its wake turn'
         : null));
   if (finalVerdict.reason) failures.add(1);
   finalEvidence = evidence;

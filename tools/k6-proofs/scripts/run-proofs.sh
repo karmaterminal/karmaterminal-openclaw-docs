@@ -1246,6 +1246,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           .request_compaction_rejected_context_threshold == true and
           .request_compaction_context_measured == true and
           .child_yield_bound == true and
+          .child_wake_turn_bound == true and
           .guard == "context_threshold"
         )
       ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then
@@ -1271,6 +1272,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           (.request_compaction_receipt_status == "accepted" or .request_compaction_receipt_status == "compaction_requested") and
           .request_compaction_invocation_bound == true and
           .child_yield_bound == true and
+          .child_wake_turn_bound == true and
           .request_compaction_accepted == true
         )
       ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then

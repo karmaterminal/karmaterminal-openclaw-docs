@@ -79,3 +79,22 @@ export function createSameRunDelegateTracker({ acceptedRunId, nonce }) {
     },
   };
 }
+
+/**
+ * The single authority for the same-run delegate evidence fields. A scheduled
+ * result proves the delegate spawned on the send run and clears a duplicate
+ * call's failure; a failure applies only when nothing has succeeded.
+ */
+export function applySameRunDelegateOutcome(evidence, outcome) {
+  if (outcome === 'scheduled') {
+    evidence.typed_delegate_attempted_same_run = true;
+    evidence.typed_delegate_success_same_run = true;
+    evidence.typed_delegate_failed_same_run = false;
+    evidence.typed_delegate_failure_category = null;
+  } else if (outcome === 'failed' && evidence.typed_delegate_success_same_run !== true) {
+    evidence.typed_delegate_attempted_same_run = true;
+    evidence.typed_delegate_failed_same_run = true;
+    evidence.typed_delegate_failure_category = 'tool-result-not-scheduled';
+  }
+  return evidence;
+}

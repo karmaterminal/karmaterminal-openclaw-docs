@@ -24,7 +24,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createSilentWakeBinder, eventRunId, gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
-import { createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mjs';
+import { applySameRunDelegateOutcome, createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mjs';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
@@ -194,20 +194,7 @@ export default function () {
   // carries the accepted run id; keep them (bounded) and replay them once the
   // tracker exists, so an early toolCall is not missed (review 🍃 on #578).
   const pendingDelegateEvents = [];
-  function applyDelegateOutcome(outcome) {
-    if (outcome === 'scheduled') {
-      // A scheduled result proves the delegate was spawned on the send run; a
-      // failed duplicate call does not undo that.
-      evidence.typed_delegate_attempted_same_run = true;
-      evidence.typed_delegate_success_same_run = true;
-      evidence.typed_delegate_failed_same_run = false;
-      evidence.typed_delegate_failure_category = null;
-    } else if (outcome === 'failed' && evidence.typed_delegate_success_same_run !== true) {
-      evidence.typed_delegate_attempted_same_run = true;
-      evidence.typed_delegate_failed_same_run = true;
-      evidence.typed_delegate_failure_category = 'tool-result-not-scheduled';
-    }
-  }
+  const applyDelegateOutcome = (outcome) => applySameRunDelegateOutcome(evidence, outcome);
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -517,23 +504,19 @@ export default function () {
             console.log('ℹ internal continue_status notify:false receipt observed');
           }
 
+          // Diagnostic only. The same-run delegate outcome has a single authority:
+          // the call/result tracker above (applyDelegateOutcome). This substring
+          // scan used to set dispatch_failure_observed and a conclusive
+          // provider-or-turn-failure on its own, so a scheduled call plus a
+          // rejected duplicate could FAIL with self-contradictory evidence
+          // (review 🍃 on #578). It no longer writes any outcome field.
           if (eventStr.includes(rowNonce) && eventStr.includes('continue_delegate') &&
               acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
-            evidence.typed_delegate_attempted_same_run = true;
-            const failed = eventStr.includes('codex_dynamic_tool_error') ||
+            const failureText = eventStr.includes('codex_dynamic_tool_error') ||
               eventStr.includes('"outcome":"blocked"') ||
               eventStr.includes('"status":"error"') ||
               eventStr.includes('"status":"rejected"');
-            if (failed) {
-              evidence.typed_delegate_failed_same_run = true;
-              evidence.typed_delegate_failure_category = eventStr.includes('codex_dynamic_tool_error')
-                ? 'codex_dynamic_tool_error'
-                : eventStr.includes('"outcome":"blocked"')
-                  ? 'blocked'
-                  : 'provider-or-turn-failure';
-              evidence.dispatch_failure_observed = true;
-              evidence.failureCategory = 'provider-or-turn-failure';
-            }
+            if (failureText) evidence.delegate_failure_text_seen_same_run = true;
           }
 
           // Negative check: only an explicit outbound-delivery-shaped event counts.

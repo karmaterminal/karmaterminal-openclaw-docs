@@ -108,3 +108,37 @@ test('the live runtime success terminal (no status, aborted:false) succeeds', ()
     assert.equal(gatewayLifecycleSucceeded({ ...live, data }), false, JSON.stringify(data));
   }
 });
+
+test('R-CD-2 wake binds a session-bound start to the completion record of the SAME run, in live order', async () => {
+  const { createSilentWakeBinder, eventRunId } = await import('../../lib/gateway-lifecycle.js');
+  // Live order (isolated 14d31a81b1, preview run 2026-10-05): wake run 7db15a55
+  // starts at 05:33:18.061; its heartbeat_respond { notify:false, outcome:"done" }
+  // is written at 05:33:30.152, after the start.
+  const binder = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  assert.equal(binder.noteStart('7db15a55-wake', { atMs: 1 }), null);
+  assert.deepEqual(binder.noteCompletionRecord('7db15a55-wake'), { runId: '7db15a55-wake', atMs: 1 });
+
+  const reversed = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  assert.equal(reversed.noteCompletionRecord('w'), null);
+  assert.equal(reversed.noteStart('w', {}).runId, 'w');
+
+  const negatives = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  negatives.noteStart('R-CD-2-send', {});
+  assert.equal(negatives.noteCompletionRecord('R-CD-2-send'), null, 'the dispatch run never binds');
+  negatives.noteStart('wake-a', {});
+  assert.equal(negatives.noteCompletionRecord('other-run'), null, 'a record from another run never binds');
+  assert.equal(negatives.noteCompletionRecord(null), null, 'a record without run identity never binds');
+  assert.equal(negatives.bound(), null);
+
+  assert.equal(eventRunId({ runId: 'env' }), 'env');
+  assert.equal(eventRunId({ message: { __openclaw: { runId: 'row' } } }), 'row');
+  assert.equal(eventRunId({ data: { runId: 'nested' } }), null);
+});
+
+test('R-CD-2 scenario no longer gates the wake start on an already-seen completion record', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
+  assert.equal(src.includes('const wakeRunId = evidence.silent_status_record_observed'), false);
+  assert.match(src, /noteCompletionRecord\(eventRunId\(eventData\)\)/);
+  assert.match(src, /noteStart\(startRunId/);
+});

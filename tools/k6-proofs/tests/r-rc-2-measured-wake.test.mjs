@@ -241,3 +241,22 @@ test('child report: the measured receipt plus the child-transcript report reache
   assert.equal(classifyForReport(evidence).verdict, 'HONEST-LIMIT-candidate');
   assert.equal(classifyForReport({ ...evidence, delegate_child_report_observed: false, child_reported_context_threshold: false }).verdict, 'PARTIAL-candidate', 'the live re-run state: receipt but no visible report');
 });
+
+test('child report: a longer nonce with the same prefix (NONCE-x) does not match NONCE', () => {
+  for (const sentinel of [
+    `REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${NONCE}-x CONTEXT 12 THRESHOLD 70`,
+    `REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${NONCE}x CONTEXT 12 THRESHOLD 70`,
+    `REQUEST_COMPACTION_ACCEPTED ${NONCE}-x`,
+  ]) {
+    const msgs = measuredWake(MEASURED_REJECTION);
+    msgs[msgs.length - 1] = say(sentinel);
+    assert.equal(childReportAfterReceipt(msgs, { rowNonce: NONCE }).kind, null, sentinel);
+  }
+  // The exact sentinel followed by punctuation or end of text still matches.
+  const msgs = measuredWake(MEASURED_REJECTION);
+  msgs[msgs.length - 1] = say(`Done. REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${NONCE}, CONTEXT 12 THRESHOLD 70`);
+  assert.equal(childReportAfterReceipt(msgs, { rowNonce: NONCE }).usage, 12);
+  const accepted = measuredWake(MEASURED_REJECTION);
+  accepted[accepted.length - 1] = say(`REQUEST_COMPACTION_ACCEPTED ${NONCE}`);
+  assert.equal(childReportAfterReceipt(accepted, { rowNonce: NONCE }).kind, 'accepted');
+});

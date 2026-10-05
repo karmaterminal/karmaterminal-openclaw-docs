@@ -31,6 +31,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   RC2_ACCEPTED_STATUSES,
+  classifyRrc2Evidence,
   findRequestCompactionReceipt,
   measuredRequestCompactionOutcome,
 } from '../lib/request-compaction-receipt.js';
@@ -456,62 +457,16 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
-  const authoritativeThresholdReceipt =
-    evidence.child_session_observed &&
-    evidence.request_compaction_tool_result_observed &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound &&
-    evidence.request_compaction_rejected_context_threshold &&
-    evidence.request_compaction_context_measured &&
-    evidence.child_yield_bound &&
-    evidence.guard === 'context_threshold';
-  const authoritativeAcceptedReceipt =
-    evidence.child_session_observed &&
-    evidence.request_compaction_tool_result_observed &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    RC2_ACCEPTED_STATUSES.includes(evidence.request_compaction_receipt_status) &&
-    evidence.request_compaction_invocation_bound &&
-    evidence.child_yield_bound &&
-    evidence.request_compaction_accepted;
-  const verifiedThresholdOutcome =
-    authoritativeThresholdReceipt &&
-    evidence.delegate_child_report_observed &&
-    evidence.child_reported_context_threshold;
-  const verifiedPostCompactionOutcome =
-    authoritativeAcceptedReceipt &&
-    evidence.delegate_child_report_observed &&
-    evidence.post_compaction_path_observed;
-  const partialOutcomeEvidence =
-    authoritativeThresholdReceipt ||
-    authoritativeAcceptedReceipt ||
-    evidence.delegate_child_report_observed ||
-    evidence.child_reported_context_threshold ||
-    evidence.request_compaction_accepted ||
-    evidence.request_compaction_accepted_reported ||
-    evidence.post_compaction_path_observed;
-  const rawVerdict = verifiedPostCompactionOutcome
-    ? 'PASS-candidate'
-    : (verifiedThresholdOutcome
-      ? 'HONEST-LIMIT-candidate'
-      : (partialOutcomeEvidence ? 'PARTIAL-candidate' : 'FAIL-candidate'));
   evidence.preflight = gate.result;
   Object.assign(evidence, observer.summary());
-  const finalVerdict = failClosedVerdict(rawVerdict, { gate, observer });
-  if (evidence.child_identity_conflict && !finalVerdict.reason) {
-    finalVerdict.verdict = 'PARTIAL-candidate';
-    finalVerdict.reason = `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
-  }
+  // One classifier for the scenario and the manual postprocessor (#563 item 1).
+  const outcome = classifyRrc2Evidence(evidence);
+  const verifiedThresholdOutcome = outcome.verdict === 'HONEST-LIMIT-candidate';
+  const verifiedPostCompactionOutcome = outcome.verdict === 'PASS-candidate';
+  const finalVerdict = failClosedVerdict(outcome.verdict, { gate, observer });
   evidence.verdict = finalVerdict.verdict;
-  evidence.verdict_reason = finalVerdict.reason ||
-    (evidence.request_compaction_context_unknown
-      ? 'request_compaction answered context unknown (no measured contextUsage); HONEST-LIMIT needs a measured below-threshold receipt'
-      : (evidence.request_compaction_tool_result_observed && !evidence.child_yield_bound
-        ? 'request_compaction receipt is not preceded by the nonce-bound continue_work yield and its wake turn'
-        : null));
-  if (finalVerdict.reason) failures.add(1);
+  evidence.verdict_reason = finalVerdict.reason || outcome.reason;
+  if (finalVerdict.verdict === 'PARTIAL-candidate' && finalVerdict.reason) failures.add(1);
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 

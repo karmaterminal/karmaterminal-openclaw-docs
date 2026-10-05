@@ -27,7 +27,11 @@ test('runner gates exact build and surface identity before token dispatch', asyn
   assert.match(source, /\.request_compaction_receipt_tool_name == "request_compaction"/);
   assert.match(source, /\.request_compaction_invocation_bound == true/);
   assert.match(source, /\.request_compaction_rejected_context_threshold == true/);
-  assert.match(source, /\.request_compaction_receipt_status == "accepted"/);
+  // #563 item 1: the product reports "compaction_requested" (request-compaction-tool.ts:338-348).
+  assert.match(source, /\.request_compaction_receipt_status == "compaction_requested"/);
+  assert.doesNotMatch(source, /\.request_compaction_receipt_status == "accepted"/);
+  assert.match(source, /\.child_wake_turn_bound == true/);
+  assert.match(source, /\.request_compaction_context_measured == true/);
   assert.match(source, /\.post_compaction_path_observed == true/);
   assert.match(source, /R-RC-2 PASS-candidate requires a nonce-bound accepted request_compaction toolResult/);
   assert.doesNotMatch(source, /INTERRUPTED_RESULT_WRITER[\s\S]{0,700}>\/dev\/null 2>&1 \|\| true/);

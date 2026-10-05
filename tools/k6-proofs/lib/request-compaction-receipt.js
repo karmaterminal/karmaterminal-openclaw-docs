@@ -141,7 +141,13 @@ export function findRequestCompactionReceipt(messages, { rowNonce, toolCallId } 
 // sanitize.ts:441-460), so the receipt is parsed from content text.
 // ---------------------------------------------------------------------------
 
-export const RC2_ACCEPTED_STATUSES = Object.freeze(['compaction_requested', 'accepted']);
+// Exact status strings at openclaw 41b8d69b90 request-compaction-tool.ts:
+// rejections return status "rejected" (:211-229, also rate_limit :236-247);
+// acceptance returns status "compaction_requested" (:338-348). There is no
+// "accepted" status, so it is not accepted here (#563 review item 1).
+export const RC2_REJECTED_STATUS = 'rejected';
+export const RC2_ACCEPTED_STATUS = 'compaction_requested';
+export const RC2_ACCEPTED_STATUSES = Object.freeze([RC2_ACCEPTED_STATUS]);
 
 function toolCallsFor(messages, toolName) {
   const calls = [];
@@ -241,4 +247,65 @@ export function measuredRequestCompactionOutcome(messages, { rowNonce } = {}) {
   }
   if (RC2_ACCEPTED_STATUSES.includes(receipt.status)) return { ...base, kind: 'accepted', measured };
   return { ...base, kind: 'other', measured };
+}
+
+/**
+ * The one R-RC-2 verdict, shared by the scenario and the manual
+ * postprocessor (scripts/postprocess-k6-summary.mjs) so the two cannot drift
+ * (#563 review item 1). Fail closed first: a preflight that did not pass, a
+ * refused or incomplete observation, or a child-identity conflict is PARTIAL
+ * with the reason named, never HONEST-LIMIT, PASS or FAIL.
+ */
+export function classifyRrc2Evidence(evidence) {
+  const e = evidence || {};
+  if (e.row !== undefined && e.row !== 'R-RC-2') {
+    return { verdict: 'PARTIAL-candidate', reason: `not R-RC-2 evidence (${e.row})` };
+  }
+  if (!e.preflight || e.preflight.ok !== true) {
+    return { verdict: 'PARTIAL-candidate', reason: `preflight did not pass: ${e.preflight?.reason || 'no preflight result'}` };
+  }
+  if (e.observation_refused) {
+    const r = e.observation_refused;
+    return { verdict: 'PARTIAL-candidate', reason: `observation refused: ${r.method} ${r.code || ''} ${r.message || ''}`.replace(/\s+/g, ' ').trim() };
+  }
+  if (e.observation_incomplete) {
+    const r = e.observation_incomplete;
+    return { verdict: 'PARTIAL-candidate', reason: `observation incomplete: ${r.method} ${r.code || ''} ${r.message || ''}`.replace(/\s+/g, ' ').trim() };
+  }
+  if (e.child_identity_conflict === true) {
+    return { verdict: 'PARTIAL-candidate', reason: `child identity conflict: ${e.child_identity_reason || 'observer and event path disagree'}` };
+  }
+  const receiptBase = e.child_session_observed === true &&
+    e.request_compaction_tool_result_observed === true &&
+    e.request_compaction_receipt_role === 'toolResult' &&
+    e.request_compaction_receipt_tool_name === 'request_compaction' &&
+    e.request_compaction_invocation_bound === true &&
+    e.child_yield_bound === true &&
+    e.child_wake_turn_bound === true;
+  const thresholdReceipt = receiptBase &&
+    e.request_compaction_receipt_status === RC2_REJECTED_STATUS &&
+    e.request_compaction_rejected_context_threshold === true &&
+    e.request_compaction_context_measured === true &&
+    e.guard === 'context_threshold';
+  const acceptedReceipt = receiptBase &&
+    e.request_compaction_receipt_status === RC2_ACCEPTED_STATUS &&
+    e.request_compaction_accepted === true;
+  const dispatched = e.parent_dispatch_accepted === true && e.delegate_requested === true;
+  const verifiedThreshold = dispatched && thresholdReceipt &&
+    e.delegate_child_report_observed === true && e.child_reported_context_threshold === true;
+  const verifiedPostCompaction = dispatched && acceptedReceipt &&
+    e.delegate_child_report_observed === true && e.post_compaction_path_observed === true;
+  if (verifiedPostCompaction) return { verdict: 'PASS-candidate', reason: null, thresholdReceipt, acceptedReceipt };
+  if (verifiedThreshold) return { verdict: 'HONEST-LIMIT-candidate', reason: null, thresholdReceipt, acceptedReceipt };
+  const partialEvidence = thresholdReceipt || acceptedReceipt ||
+    e.delegate_child_report_observed === true || e.child_reported_context_threshold === true ||
+    e.request_compaction_accepted === true || e.request_compaction_accepted_reported === true ||
+    e.post_compaction_path_observed === true || e.request_compaction_context_unknown === true;
+  let reason = null;
+  if (e.request_compaction_context_unknown === true) {
+    reason = 'request_compaction answered context unknown (no measured contextUsage); HONEST-LIMIT needs a measured below-threshold receipt';
+  } else if (e.request_compaction_tool_result_observed === true && e.child_wake_turn_bound !== true) {
+    reason = 'request_compaction receipt is not preceded by the nonce-bound continue_work yield and its wake turn';
+  }
+  return { verdict: partialEvidence ? 'PARTIAL-candidate' : 'FAIL-candidate', reason, thresholdReceipt, acceptedReceipt };
 }

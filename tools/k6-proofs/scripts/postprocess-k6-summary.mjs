@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { isRcd2AuthorityRequired } from '../lib/r-cd-2-authority-context.mjs';
+import { classifyRrc2Evidence } from '../lib/request-compaction-receipt.js';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/postprocess-k6-summary.mjs \\
@@ -117,45 +118,18 @@ function receiptStatusFromName(name, summary) {
   }
 }
 
-function verifiedRrc2ThresholdEvidence(evidence) {
-  return evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.child_reported_context_threshold === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_rejected_context_threshold === true &&
-    evidence.guard === 'context_threshold';
-}
-
-function verifiedRrc2AcceptedEvidence(evidence) {
-  return evidence?.row === 'R-RC-2' &&
-    evidence.parent_dispatch_accepted === true &&
-    evidence.delegate_requested === true &&
-    evidence.child_session_observed === true &&
-    evidence.delegate_child_report_observed === true &&
-    evidence.post_compaction_path_observed === true &&
-    evidence.request_compaction_tool_result_observed === true &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'accepted' &&
-    evidence.request_compaction_invocation_bound === true &&
-    evidence.request_compaction_accepted === true;
-}
-
 function outcomeFromSummary(summary, expectedArtifactClass, rowId) {
   // Some rows deliberately validate only a static contract.  A green k6
   // summary must not upgrade that contract into a candidate behavioral PASS.
   if (expectedArtifactClass === 'construct-only') return 'construct-only';
   if (rowId === 'R-RC-2') {
-    if (verifiedRrc2AcceptedEvidence(summary?.evidence)) return 'PASS-candidate';
-    if (verifiedRrc2ThresholdEvidence(summary?.evidence)) return 'HONEST-LIMIT-candidate';
-    return 'PARTIAL-candidate';
+    // Same classifier as the scenario (#563 review item 1): it fails closed on
+    // the preflight, refused/incomplete observation and child-identity
+    // conflict, and uses the product's exact statuses ("rejected",
+    // "compaction_requested"). The manual path never reports FAIL for R-RC-2;
+    // missing evidence stays PARTIAL.
+    const { verdict } = classifyRrc2Evidence(summary?.evidence);
+    return verdict === 'FAIL-candidate' ? 'PARTIAL-candidate' : verdict;
   }
   if (summary?.verdict === 'FAIL-candidate') return 'FAIL-candidate';
   if (

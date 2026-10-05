@@ -1269,7 +1269,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           .request_compaction_tool_result_observed == true and
           .request_compaction_receipt_role == "toolResult" and
           .request_compaction_receipt_tool_name == "request_compaction" and
-          (.request_compaction_receipt_status == "accepted" or .request_compaction_receipt_status == "compaction_requested") and
+          .request_compaction_receipt_status == "compaction_requested" and
           .request_compaction_invocation_bound == true and
           .child_yield_bound == true and
           .child_wake_turn_bound == true and

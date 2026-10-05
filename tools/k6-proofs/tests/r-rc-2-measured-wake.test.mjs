@@ -152,3 +152,40 @@ test('item 6: contextUsage without threshold (or the reverse) is invalid, not co
   assert.equal(measuredRequestCompactionOutcome(measuredWake(noUsage), { rowNonce: NONCE }).kind, 'invalid');
   assert.equal(measuredRequestCompactionOutcome(measuredWake(UNKNOWN_REJECTION), { rowNonce: NONCE }).kind, 'context_unknown');
 });
+
+// --- #563 review items 1 and 4: one classifier, fail closed ------------------
+
+import { classifyRrc2Evidence } from '../lib/request-compaction-receipt.js';
+
+const CLEAN = {
+  row: 'R-RC-2',
+  preflight: { ok: true, missing: [], reason: null },
+  observation_refused: null,
+  observation_incomplete: null,
+  child_identity_conflict: false,
+  parent_dispatch_accepted: true,
+  delegate_requested: true,
+  child_session_observed: true,
+  delegate_child_report_observed: true,
+  request_compaction_tool_result_observed: true,
+  request_compaction_receipt_role: 'toolResult',
+  request_compaction_receipt_tool_name: 'request_compaction',
+  request_compaction_invocation_bound: true,
+  child_yield_bound: true,
+  child_wake_turn_bound: true,
+};
+
+test('items 1/4: classifyRrc2Evidence uses the product status strings', () => {
+  assert.equal(classifyRrc2Evidence({ ...CLEAN, child_reported_context_threshold: true, request_compaction_receipt_status: 'rejected', request_compaction_rejected_context_threshold: true, request_compaction_context_measured: true, guard: 'context_threshold' }).verdict, 'HONEST-LIMIT-candidate');
+  assert.equal(classifyRrc2Evidence({ ...CLEAN, post_compaction_path_observed: true, request_compaction_receipt_status: 'compaction_requested', request_compaction_accepted: true }).verdict, 'PASS-candidate');
+  assert.equal(classifyRrc2Evidence({ ...CLEAN, post_compaction_path_observed: true, request_compaction_receipt_status: 'accepted', request_compaction_accepted: true }).verdict, 'PARTIAL-candidate');
+});
+
+test('item 4: R-RC-2 never ends FAIL from an observer error', () => {
+  const nothing = { row: 'R-RC-2', preflight: { ok: true }, parent_dispatch_accepted: true, delegate_requested: true };
+  assert.equal(classifyRrc2Evidence(nothing).verdict, 'FAIL-candidate', 'a clean observation with no outcome is FAIL');
+  const broken = { ...nothing, observation_incomplete: { method: 'sessions.list', code: 'UNAVAILABLE', message: 'busy' } };
+  const r = classifyRrc2Evidence(broken);
+  assert.equal(r.verdict, 'PARTIAL-candidate');
+  assert.match(r.reason, /observation incomplete: sessions\.list UNAVAILABLE busy/);
+});

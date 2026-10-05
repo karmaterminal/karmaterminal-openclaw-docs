@@ -19,9 +19,20 @@ export function gatewayLifecyclePhase(value) {
   return phase === 'start' || phase === 'end' ? phase : null;
 }
 
+// A successful runtime terminal carries no `status` at all: the live event at
+// openclaw 41b8d69b90 / 14d31a81b1 is { phase: "end", aborted: false,
+// stopReason: "stop", executionSettled: true, ... } (codex harness
+// buildCodexLifecycleTerminalMeta returns undefined on success; failures set
+// status "timed_out" or "cancelled"). Success therefore requires an explicit
+// aborted:false, no error, and either no status or the legacy "ok".
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
-  const status = value.data?.status;
+  const data = value.data;
+  // A yielded end is paused (continue_work), not terminal success; the gateway
+  // emitter defaults aborted:false, so the yield marker must be checked itself.
+  if (data.aborted === true || data.error !== undefined || data.yielded === true) return false;
+  const status = data.status;
+  if (status === undefined) return data.aborted === false;
   return typeof status === 'string' && status.toLowerCase() === 'ok';
 }
 

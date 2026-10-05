@@ -81,3 +81,30 @@ test('terminal lifecycle success does not fall back to a top-level status', asyn
     });
   }
 });
+
+test('the live runtime success terminal (no status, aborted:false) succeeds', () => {
+  // Captured from the isolated 14d31a81b1 gateway, 2026-10-05 (lifecycle-probe).
+  const live = {
+    runId: 'lifecycle-probe-1791177834970',
+    sessionKey: 'agent:main:proof-disposable',
+    stream: 'lifecycle',
+    data: {
+      phase: 'end', endedAt: 1791177843706, startedAt: 1791177835336, stopReason: 'stop',
+      aborted: false, livenessState: 'working', replayInvalid: false,
+      terminalReply: { disposition: 'visible', text: 'LIFECYCLE-PROBE' }, executionSettled: true,
+    },
+  };
+  assert.equal(gatewayLifecycleSucceeded(live), true);
+  for (const data of [
+    { ...live.data, aborted: true },
+    { ...live.data, aborted: undefined },
+    { ...live.data, error: 'provider failed' },
+    { ...live.data, status: 'timed_out', aborted: true, stopReason: 'timeout' },
+    { ...live.data, status: 'cancelled', aborted: true },
+    { ...live.data, status: 'future-terminal-status' },
+    { ...live.data, phase: 'error' },
+    { ...live.data, yielded: true, stopReason: 'end_turn', livenessState: 'paused' },
+  ]) {
+    assert.equal(gatewayLifecycleSucceeded({ ...live, data }), false, JSON.stringify(data));
+  }
+});

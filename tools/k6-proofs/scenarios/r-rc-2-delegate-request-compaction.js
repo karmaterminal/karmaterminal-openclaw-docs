@@ -39,7 +39,7 @@ import {
   compactTaskIdentityToken,
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
-import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -116,6 +116,9 @@ export default function () {
     child_history_available: false,
     task_identity_token: taskIdentityToken,
     child_status: null,
+    event_child_candidates: [],
+    child_identity_conflict: false,
+    child_identity_reason: null,
     rc2_shape: 'measured-wake',
     delegate_delay_seconds: null,
     child_ready_sentinel_observed: false,
@@ -189,6 +192,30 @@ export default function () {
         evidence.delegate_child_report_observed &&
         evidence.post_compaction_path_observed;
       if (thresholdComplete || acceptedComplete) socket.close();
+    }
+
+    // #563 item 2: the observer binding is the only source that binds; event
+    // candidates cross-check it and any disagreement fails closed.
+    function resolveChildIdentity() {
+      const identity = reconcileChildIdentity({
+        observerBinding: observer.boundChild(rowNonce, taskIdentityToken ? [taskIdentityToken] : []),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) {
+        evidence.child_identity_conflict = true;
+        return;
+      }
+      if (!identity.childSessionKey || evidence.child_identity_conflict) return;
+      evidence.child_status = observer.childStatus(identity.childSessionKey);
+      if (!evidence.child_session_key) {
+        evidence.child_session_observed = true;
+        evidence.child_session_key = identity.childSessionKey;
+        requestChildHistory(250);
+        console.log('✓ nonce-bound delegated child session observed (session row + own spawn task)');
+      } else if (evidence.child_session_key !== identity.childSessionKey) {
+        evidence.child_identity_conflict = true;
+      }
     }
 
     function requestChildHistory(delayMs) {
@@ -283,14 +310,7 @@ export default function () {
           observer.handle(observed, classified);
           // The delegated child's own row names this session in spawnedBy and its
           // own spawn task carries the nonce or the RRC2 task token.
-          const bound = observer.boundChild(rowNonce, taskIdentityToken ? [taskIdentityToken] : []);
-          if (bound.childSessionKey) evidence.child_status = observer.childStatus(bound.childSessionKey);
-          if (bound.childSessionKey && !evidence.child_session_key) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = bound.childSessionKey;
-            requestChildHistory(250);
-            console.log('✓ nonce-bound delegated child session observed (session row + own spawn task)');
-          }
+          resolveChildIdentity();
         }
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -383,16 +403,14 @@ export default function () {
 
         if (classified.kind === 'event') {
           const eventData = classified.data || {};
-          const observedChildSessionKey = childSessionKeyForRow(
+          const eventChildSessionKey = childSessionKeyForRow(
             eventData,
             rowNonce,
             taskIdentityToken ? [taskIdentityToken] : [],
           );
-          if (observedChildSessionKey && !evidence.child_session_key) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            requestChildHistory(250);
-            console.log('✓ nonce-bound delegated child session observed');
+          if (eventChildSessionKey && !evidence.event_child_candidates.includes(eventChildSessionKey)) {
+            evidence.event_child_candidates.push(eventChildSessionKey);
+            resolveChildIdentity();
           }
           const text = eventText(classified);
           if (!text.includes(rowNonce)) return;
@@ -478,6 +496,10 @@ export default function () {
   evidence.preflight = gate.result;
   Object.assign(evidence, observer.summary());
   const finalVerdict = failClosedVerdict(rawVerdict, { gate, observer });
+  if (evidence.child_identity_conflict && !finalVerdict.reason) {
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
   evidence.verdict = finalVerdict.verdict;
   evidence.verdict_reason = finalVerdict.reason ||
     (evidence.request_compaction_context_unknown

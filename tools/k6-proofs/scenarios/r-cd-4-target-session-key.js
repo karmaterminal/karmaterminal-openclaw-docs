@@ -27,7 +27,7 @@ import {
   rCd4TaskPrompt,
 } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
-import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -139,6 +139,8 @@ export default function () {
     reason_length: null,
     delegate_mode: null,
     child_status: null,
+    event_child_candidates: [],
+    child_identity_reason: null,
     return_history_requests: 0,
     trace_id: null,
     preflight: null,
@@ -300,9 +302,24 @@ export default function () {
       }
     }
 
+    // #563 item 2: only the observer binding (own spawnedBy + own spawn task)
+    // binds; nonce-bound event candidates cross-check it. Ambiguity or
+    // disagreement marks the identity ambiguous and binds nothing.
     function observeBoundChild() {
       const bound = observer.boundChild(rowNonce, taskIdentityToken ? [taskIdentityToken] : []);
-      for (const candidate of bound.candidates) {
+      const identity = reconcileChildIdentity({ observerBinding: bound, eventCandidates: evidence.event_child_candidates });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) {
+        evidence.child_session_candidates = [...new Set([
+          ...evidence.child_session_candidates, ...bound.candidates, ...evidence.event_child_candidates,
+        ])];
+        evidence.child_session_ambiguous = true;
+        evidence.child_session = null;
+        evidence.child_completed = false;
+        finalizeReturnReceipts();
+        return;
+      }
+      for (const candidate of identity.childSessionKey ? [identity.childSessionKey] : []) {
         if (!observeChildSessionKey(candidate)) continue;
         evidence.child_status = observer.childStatus(candidate);
         // Old ledger predicate: task status 'completed'. Current equivalent:
@@ -441,8 +458,9 @@ export default function () {
             taskIdentityToken ? [taskIdentityToken] : [],
           );
           for (const observedChild of observedChildren) {
-            observeChildSessionKey(observedChild);
+            if (!evidence.event_child_candidates.includes(observedChild)) evidence.event_child_candidates.push(observedChild);
           }
+          if (observedChildren.length) observeBoundChild();
 
           if (eventName === 'agent' && evidence.tool_accepted) {
             evidence.agent_turn_observed = true;

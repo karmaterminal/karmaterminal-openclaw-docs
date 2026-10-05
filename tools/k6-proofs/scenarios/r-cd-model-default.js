@@ -16,7 +16,7 @@ import {
   normalizeModel,
   servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
-import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: { r_cd_model_default: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -95,6 +95,9 @@ export default function() {
     child_self_reported_model: null,
     child_session_metadata: null,
     task_identity_token: taskIdentityToken,
+    event_child_candidates: [],
+    child_identity_conflict: false,
+    child_identity_reason: null,
     model_matches: false,
     selection_matches: false,
     return_payload: false,
@@ -172,8 +175,18 @@ export default function() {
       if (receipt.served || receipt.conflict) { state.done = true; return; }
       requestServed(who, 2000);
     }
-    function observeChildKey(socket, key) {
-      if (!key || evidence.child_session_key) return;
+    // #563 item 2: only the observer binding binds; event candidates cross-check.
+    function resolveChild(socket) {
+      const identity = reconcileChildIdentity({
+        observerBinding: observer.boundChild(rowNonce, [taskIdentityToken]),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) { evidence.child_identity_conflict = true; return; }
+      const key = identity.childSessionKey;
+      if (!key || evidence.child_identity_conflict) return;
+      if (evidence.child_session_key && evidence.child_session_key !== key) { evidence.child_identity_conflict = true; return; }
+      if (evidence.child_session_key) return;
       evidence.child_session_observed = true;
       evidence.child_session_key = key;
       describe(socket, 'child', key);
@@ -234,7 +247,7 @@ export default function() {
           }
           // #562: the child's own row names this session in spawnedBy and its own
           // spawn task carries the nonce or the MDEF token.
-          observeChildKey(socket, observer.boundChild(rowNonce, [taskIdentityToken]).childSessionKey);
+          resolveChild(socket);
         }
         if (classified.kind === 'response' && classified.method === 'sessions.describe' && describeTarget) {
           const { who, key } = describeTarget;
@@ -269,7 +282,11 @@ export default function() {
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          observeChildKey(socket, childSessionKeyForRow(eventData, rowNonce, taskIdentityToken ? [taskIdentityToken] : []));
+          const eventChild = childSessionKeyForRow(eventData, rowNonce, taskIdentityToken ? [taskIdentityToken] : []);
+          if (eventChild && !evidence.event_child_candidates.includes(eventChild)) {
+            evidence.event_child_candidates.push(eventChild);
+            resolveChild(socket);
+          }
           if (eventStr.includes(rowNonce) && !eventStr.includes(HARNESS_MARKER)) {
             if (eventStr.includes('MODEL-DEFAULT-PARENT-SCHEDULED ' + rowNonce) && !evidence.parent_scheduled_sentinel) {
               evidence.parent_scheduled_sentinel = true;
@@ -314,6 +331,11 @@ export default function() {
   // A served/selection mismatch on a bound child is authoritative; an unrelated
   // later observer error does not erase it (it is recorded as observer_reason).
   const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  if (evidence.child_identity_conflict) {
+    // A conflicting child identity means no FAIL or PASS is about a proven child.
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = finalVerdict.reason || `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
   evidence.observer_reason = finalVerdict.observerReason || null;
   evidence.model_matches = identity.modelMatches;
   evidence.selection_matches = identity.selectionMatches;

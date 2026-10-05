@@ -9,7 +9,7 @@ import {
   compactTaskIdentityToken,
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
-import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 import {
   activeFallbackFromSessionMetadata,
   classifyModelIdentity,
@@ -91,6 +91,9 @@ export default function() {
     child_session_metadata: null,
     child_metadata_requested: false,
     task_identity_token: taskIdentityToken,
+    event_child_candidates: [],
+    child_identity_conflict: false,
+    child_identity_reason: null,
     model_matches: false,
     return_payload: false,
     trace_id: null,
@@ -117,6 +120,22 @@ export default function() {
         evidence.child_metadata_requested = true;
         tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
       }, delayMs);
+    }
+    // #563 item 2: only the observer binding binds; event candidates cross-check.
+    function resolveChild(socket) {
+      const identity = reconcileChildIdentity({
+        observerBinding: observer.boundChild(rowNonce, [taskIdentityToken]),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) { evidence.child_identity_conflict = true; return; }
+      const key = identity.childSessionKey;
+      if (!key || evidence.child_identity_conflict) return;
+      if (evidence.child_session_key && evidence.child_session_key !== key) { evidence.child_identity_conflict = true; return; }
+      if (evidence.child_session_key) return;
+      evidence.child_session_observed = true;
+      evidence.child_session_key = key;
+      requestChildMetadata(socket);
     }
     const served = { attempts: 0, inFlight: false, done: false };
     function requestServed(delayMs) {
@@ -224,12 +243,7 @@ export default function() {
           }
           // #562: the child's own row names this session in spawnedBy and its own
           // spawn task carries the nonce or the MTOOL token.
-          const observedChildSessionKey = observer.boundChild(rowNonce, [taskIdentityToken]).childSessionKey;
-          if (observedChildSessionKey && !evidence.child_session_key) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            requestChildMetadata(socket);
-          }
+          resolveChild(socket);
         }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;
@@ -259,15 +273,14 @@ export default function() {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
           const eventBelongsToRow = eventStr.includes(rowNonce);
-          const observedChildSessionKey = childSessionKeyForRow(
+          const eventChild = childSessionKeyForRow(
             eventData,
             rowNonce,
             taskIdentityToken ? [taskIdentityToken] : [],
           );
-          if (observedChildSessionKey) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            requestChildMetadata(socket);
+          if (eventChild && !evidence.event_child_candidates.includes(eventChild)) {
+            evidence.event_child_candidates.push(eventChild);
+            resolveChild(socket);
           }
           if (eventBelongsToRow && !eventStr.includes(HARNESS_MARKER)) {
             if (eventStr.includes('MODEL-TOOL-PARENT-SCHEDULED')) {
@@ -276,7 +289,6 @@ export default function() {
             }
             const childMatch = eventStr.match(new RegExp('MODEL-TOOL-CHILD\\s+' + escapeRegex(rowNonce) + '\\s+MODEL\\s+([A-Za-z0-9_.\\/-]+)'));
             if (childMatch) {
-              evidence.child_session_observed = true;
               evidence.return_payload = true;
               evidence.child_self_reported_model = normalizeModel(childMatch[1]);
               evidence.child_self_reported_model_source = 'auxiliary child runtime-context self-report (not used for equality)';
@@ -323,6 +335,11 @@ export default function() {
   // FAIL needs authoritative evidence (served or selection mismatch, active
   // fallback, mixed served window); selection alone is PARTIAL, never PASS.
   const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  if (evidence.child_identity_conflict) {
+    // A conflicting child identity means no FAIL or PASS is about a proven child.
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = finalVerdict.reason || `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
   evidence.observer_reason = finalVerdict.observerReason || null;
   const verdict = finalVerdict.verdict;
   evidence.verdict_reason = finalVerdict.reason;

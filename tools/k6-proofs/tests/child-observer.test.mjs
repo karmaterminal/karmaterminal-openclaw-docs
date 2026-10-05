@@ -18,6 +18,7 @@ import {
   createPreflightGate,
   failClosedVerdict,
   observationRefusal,
+  reconcileChildIdentity,
   preflightMethods,
   subagentTaskText,
 } from '../lib/child-observer.mjs';
@@ -637,4 +638,56 @@ test('item 7: paging unavailable (no hasMore) or a non-advancing cursor fails cl
   h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:b', hasMore: true, nextOffset: 0, messages: [] } });
   assert.ok(h.observer.state.errors.some((e) => e.code === 'HISTORY_PAGING_TRUNCATED'));
   assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
+});
+
+// --- #563 review item 2: event path never bypasses lineage or ambiguity -----
+
+test('item 2: an event-path candidate alone binds nothing', () => {
+  const r = reconcileChildIdentity({ observerBinding: { childSessionKey: null, ambiguous: false }, eventCandidates: ['agent:main:subagent:evt'] });
+  assert.equal(r.childSessionKey, null);
+  assert.equal(r.conflict, false);
+  assert.match(r.reason, /awaits observer lineage binding/);
+});
+
+test('item 2: observer ambiguity is not masked by an event naming one of the children', () => {
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:a', PARENT), sessionRow('agent:main:subagent:b', PARENT)]) });
+  for (const key of ['agent:main:subagent:a', 'agent:main:subagent:b']) {
+    h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: key, messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+  }
+  const r = reconcileChildIdentity({ observerBinding: h.observer.boundChild(NONCE), eventCandidates: ['agent:main:subagent:a'] });
+  assert.equal(r.childSessionKey, null);
+  assert.equal(r.conflict, true);
+});
+
+test('item 2: event and observer disagreeing, or two event children, is a conflict', () => {
+  assert.equal(reconcileChildIdentity({ observerBinding: 'agent:main:subagent:obs', eventCandidates: ['agent:main:subagent:evt'] }).conflict, true);
+  assert.equal(reconcileChildIdentity({ observerBinding: 'agent:main:subagent:obs', eventCandidates: ['agent:main:subagent:obs', 'agent:main:subagent:evt'] }).conflict, true);
+  const agree = reconcileChildIdentity({ observerBinding: { childSessionKey: 'agent:main:subagent:obs', ambiguous: false }, eventCandidates: ['agent:main:subagent:obs'] });
+  assert.deepEqual(agree, { childSessionKey: 'agent:main:subagent:obs', conflict: false, reason: null });
+  assert.equal(reconcileChildIdentity({ observerBinding: 'agent:main:subagent:obs' }).childSessionKey, 'agent:main:subagent:obs');
+});
+
+test('item 2: event-path child keys reach only the cross-check in every bound-child row', () => {
+  const rows = {
+    'r-rc-2-delegate-request-compaction.js': /event_child_candidates\.push\(eventChildSessionKey\)/,
+    'r-cd-model-default.js': /event_child_candidates\.push\(eventChild\)/,
+    'r-cd-model-tool.js': /event_child_candidates\.push\(eventChild\)/,
+    'r-cd-model-token.js': /noteEventCandidate\(evidence\.event_child_candidates, childSessionKeyForTokenOnly\(eventData, delegateToken, hop1Token\)\)/,
+    'r-cd-model-chained-alt.js': /event_depth_2_candidates\.push\(eventDepth2\)/,
+    'r-cd-4-target-session-key.js': /event_child_candidates\.push\(observedChild\)/,
+    'r-cd-chained-depth-2.js': /event_child_candidates\.push\(eventChild\)/,
+  };
+  for (const [file, eventPush] of Object.entries(rows)) {
+    const source = readFileSync(path.join(root, 'scenarios', file), 'utf8');
+    assert.match(source, eventPush, `${file} records event candidates`);
+    if (file !== 'r-cd-chained-depth-2.js') assert.match(source, /reconcileChildIdentity\(/, `${file} reconciles`);
+    assert.match(source, /child_identity_conflict|child_session_ambiguous = true|chain_identity_conflict/, `${file} fails closed on conflict`);
+    // No event-derived key is assigned as the bound child directly.
+    assert.doesNotMatch(source, /child_session_key = observedChildSessionKey/, file);
+    assert.doesNotMatch(source, /hop1_child_session_key = eventData\.childSessionKey/, file);
+    assert.doesNotMatch(source, /if \(eventData\.childSessionKey\) evidence\.depth_1_child_observed = true/, file);
+    assert.doesNotMatch(source, /observeChainSession\(childSessionKeyForRow\(eventData/, file);
+  }
 });

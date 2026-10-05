@@ -5,7 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
-import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 import {
   activeFallbackFromSessionMetadata,
   classifyModelIdentity,
@@ -68,6 +68,7 @@ export default function () {
     dispatch_refused: null, prompt_injected: false, subagent_spawn_requested: false,
     subagent_spawn_accepted: false, bracket_token_observed: false, bracket_model_modifier_observed: false,
     hop1_child_session_key: null, child_session_observed: false, child_session_key: null,
+    event_hop1_candidates: [], event_child_candidates: [], child_identity_conflict: false, child_identity_reason: null,
     // Selection (sessions.describe) and run-window SERVED model (chat.history) are separate.
     child_session_metadata_observed: false, child_selected_model_byte: null, child_selected_model_source: null,
     child_active_fallback: null, child_served_model_byte: null, child_served_receipt: null,
@@ -122,24 +123,38 @@ export default function () {
       if (receipt.served || receipt.conflict) { served.done = true; return; }
       requestServed(2000);
     }
-    function observeDelegateChild(socket, payload) {
-      const key = childSessionKeyForTokenOnly(payload, delegateToken, hop1Token);
-      acceptDelegateChild(socket, key);
+    function noteEventCandidate(list, key) {
+      if (key && !list.includes(key)) list.push(key);
     }
-    // #562: hop-1's own row names the parent and its own spawn task carries the
-    // hop-1 token; the delegate's own row names hop-1 and its own task carries
-    // only the delegate token (hop-1 embeds both, so token-only excludes it).
+    function markConflict(reason) {
+      evidence.child_identity_conflict = true;
+      evidence.child_identity_reason = reason;
+    }
+    // #562 / #563 item 2: hop-1's own row names the parent and its own spawn
+    // task carries the hop-1 token; the delegate's own row names hop-1 and its
+    // own task carries only the delegate token (hop-1 embeds both, so token-only
+    // excludes it). Only these observer bindings bind; event-path candidates
+    // cross-check them and any disagreement or ambiguity fails closed.
     function observeDelegateLineage(socket) {
-      const hop1 = observer.boundChild(hop1Token, [], { spawnedBy: sessionKey });
+      if (evidence.child_identity_conflict) return;
+      const hop1 = reconcileChildIdentity({
+        observerBinding: observer.boundChild(hop1Token, [], { spawnedBy: sessionKey }),
+        eventCandidates: evidence.event_hop1_candidates,
+      });
+      if (hop1.conflict) return markConflict(`hop-1: ${hop1.reason}`);
       if (!hop1.childSessionKey) return;
-      if (!evidence.hop1_child_session_key) evidence.hop1_child_session_key = hop1.childSessionKey;
-      if (evidence.hop1_child_session_key !== hop1.childSessionKey) return;
-      acceptDelegateChild(socket, observer.boundChildForTokenOnly(delegateToken, hop1Token, { spawnedBy: hop1.childSessionKey }));
-    }
-    function acceptDelegateChild(socket, key) {
-      if (!key || evidence.child_session_key) return;
+      if (evidence.hop1_child_session_key && evidence.hop1_child_session_key !== hop1.childSessionKey) return markConflict('hop-1 identity changed');
+      evidence.hop1_child_session_key = hop1.childSessionKey;
+      const delegate = reconcileChildIdentity({
+        observerBinding: observer.boundChildTokenOnly(delegateToken, hop1Token, { spawnedBy: hop1.childSessionKey }),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      if (delegate.conflict) return markConflict(`delegate: ${delegate.reason}`);
+      if (!delegate.childSessionKey) return;
+      if (evidence.child_session_key && evidence.child_session_key !== delegate.childSessionKey) return markConflict('delegate identity changed');
+      if (evidence.child_session_key) return;
       evidence.child_session_observed = true;
-      evidence.child_session_key = key;
+      evidence.child_session_key = delegate.childSessionKey;
       requestChildMetadata(socket);
     }
     function startProofFlow(socket) {
@@ -219,8 +234,9 @@ export default function () {
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          if (eventData.childSessionKey && !evidence.hop1_child_session_key && eventStr.includes(hop1Token)) evidence.hop1_child_session_key = eventData.childSessionKey;
-          observeDelegateChild(socket, eventData);
+          if (eventData.childSessionKey && eventStr.includes(hop1Token)) noteEventCandidate(evidence.event_hop1_candidates, eventData.childSessionKey);
+          noteEventCandidate(evidence.event_child_candidates, childSessionKeyForTokenOnly(eventData, delegateToken, hop1Token));
+          observeDelegateLineage(socket);
           if (eventStr.includes(rowNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) console.log('ℹ Ignoring harness prompt echo event');
             else if (evidence.prompt_injected && evidence.dispatch_accepted_at_ms && (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
@@ -258,6 +274,11 @@ export default function () {
   // A served/selection mismatch on a bound child is authoritative; an unrelated
   // later observer error does not erase it (it is recorded as observer_reason).
   const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  if (evidence.child_identity_conflict) {
+    // A conflicting child identity means no FAIL or PASS is about a proven child.
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = finalVerdict.reason || `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
   evidence.observer_reason = finalVerdict.observerReason || null;
   evidence.model_matches = identity.modelMatches;
   evidence.selection_matches = identity.selectionMatches;

@@ -503,6 +503,10 @@ Rows observe delegate children through `lib/child-observer.mjs`:
 - A child binds to a row only when its own row names the expected requester in
   `spawnedBy` **and** its own spawn task carries the row nonce or task token.
   Ambiguity binds nothing. Completion is the bound row's `status: "done"`.
+  Nonce-bound child keys seen on subscribed events never bind on their own;
+  they cross-check the observer binding (`reconcileChildIdentity`), and any
+  disagreement or ambiguity is a child-identity conflict that makes the row
+  PARTIAL.
 - A `FORBIDDEN` or unknown-method answer to any observer call is recorded as
   `observation_refused: {method, code, message}` and makes the row PARTIAL. It is
   never read as "child not observed".

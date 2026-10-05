@@ -125,6 +125,7 @@ export default function () {
     reason_length: null,
     delegate_mode: null,
     chain_identity_conflict: false,
+    event_child_candidates: [],
     child_status: null,
     grandchild_status: null,
     trace_id: null,
@@ -313,7 +314,13 @@ export default function () {
           const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
-          observeChainSession(childSessionKeyForRow(eventData, chainNonce));
+          // #563 item 2: event-borne child keys never bind a hop; they are
+          // checked against the lineage-bound hops at the end of the run.
+          const eventChild = childSessionKeyForRow(eventData, chainNonce);
+          if (eventChild && eventChild !== sessionKey && !evidence.event_child_candidates.includes(eventChild)) {
+            evidence.event_child_candidates.push(eventChild);
+            if (evidence.event_child_candidates.length > 2) evidence.chain_identity_conflict = true;
+          }
           if (eventStr.includes(chainNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) {
               console.log('ℹ Ignoring harness prompt echo event');
@@ -368,6 +375,10 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  const lineageHops = [evidence.child_session, evidence.grandchild_session].filter(Boolean);
+  if (evidence.event_child_candidates.some((key) => !lineageHops.includes(key))) {
+    evidence.chain_identity_conflict = true;
+  }
   evidence.preflight = gate.result;
   Object.assign(evidence, observer.summary());
   chainDuration.add(evidence.duration_ms);

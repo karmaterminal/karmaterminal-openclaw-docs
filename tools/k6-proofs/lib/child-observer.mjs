@@ -537,6 +537,15 @@ export function createChildObserver({
       );
     },
 
+    /** Same as boundChildForTokenOnly, with ambiguity reported instead of hidden. */
+    boundChildTokenOnly(includeToken, excludeToken, { spawnedBy = null, depth = null } = {}) {
+      if (!includeToken || !excludeToken) return { childSessionKey: null, ambiguous: false, candidates: [] };
+      const recs = { tasks: observer.bindingRecords({ spawnedBy, depth }) };
+      const excluded = new Set(childSessionKeysForRow(recs, excludeToken));
+      const keys = childSessionKeysForRow(recs, includeToken).filter((k) => !excluded.has(k));
+      return { childSessionKey: keys.length === 1 ? keys[0] : null, ambiguous: keys.length > 1, candidates: keys };
+    },
+
     childStatus(childSessionKey) {
       return records[childSessionKey]?.status || null;
     },
@@ -612,4 +621,41 @@ export function createChildObserver({
     },
   };
   return observer;
+}
+
+/**
+ * One child identity from two sources (#563 review item 2). The observer
+ * binding (own row spawnedBy = requester + own spawn task carries the row
+ * token, unique) is the only source that can bind. Event-path candidates
+ * (nonce-bound records seen on subscribed events) are cross-checks: alone
+ * they bind nothing, and any disagreement with the observer, or more than one
+ * of them, is a conflict that must fail the row closed.
+ *
+ * observerBinding: { childSessionKey, ambiguous } from boundChild(), or a bare
+ * key / null (boundChildForTokenOnly).
+ */
+export function reconcileChildIdentity({ observerBinding = null, eventCandidates = [] } = {}) {
+  const binding = typeof observerBinding === 'string' || observerBinding === null
+    ? { childSessionKey: observerBinding, ambiguous: false }
+    : observerBinding;
+  const events = [...new Set((Array.isArray(eventCandidates) ? eventCandidates : [])
+    .filter((v) => typeof v === 'string' && v.length > 0))];
+  if (binding.ambiguous) {
+    return { childSessionKey: null, conflict: true, reason: 'more than one child is bound to the row (observer)' };
+  }
+  if (events.length > 1) {
+    return { childSessionKey: null, conflict: true, reason: `event path names ${events.length} different children` };
+  }
+  const key = typeof binding.childSessionKey === 'string' && binding.childSessionKey ? binding.childSessionKey : null;
+  if (!key) {
+    return {
+      childSessionKey: null,
+      conflict: false,
+      reason: events.length ? 'event-path candidate awaits observer lineage binding' : null,
+    };
+  }
+  if (events.length === 1 && events[0] !== key) {
+    return { childSessionKey: null, conflict: true, reason: 'event path and observer name different children' };
+  }
+  return { childSessionKey: key, conflict: false, reason: null };
 }

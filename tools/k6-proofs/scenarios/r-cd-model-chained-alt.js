@@ -5,7 +5,7 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
-import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 import {
   activeFallbackFromSessionMetadata,
   classifyModelIdentity,
@@ -79,7 +79,7 @@ export default function () {
     depth_2_self_reported_model: null, depth_2_session_metadata: null, selection_matches: false,
     depth_1_token: depth1Token, depth_2_token: depth2Token, model_matches: false,
     return_payload: false, trace_id: null, model_classification_reason: null,
-    depth_1_child_session_key: null, preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
+    depth_1_child_session_key: null, event_depth_2_candidates: [], child_identity_conflict: false, child_identity_reason: null, preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
   const gate = createPreflightGate('R-CD-MODEL-CHAINED-ALT');
@@ -128,24 +128,33 @@ export default function () {
       if (receipt.served || receipt.conflict) { served.done = true; return; }
       requestServed(2000);
     }
-    function observeDepth2Child(socket, payload) {
-      acceptDepth2Child(socket, childSessionKeyForTokenOnly(payload, depth2Token, depth1Token));
+    function markConflict(reason) {
+      evidence.child_identity_conflict = true;
+      evidence.child_identity_reason = reason;
     }
-    // #562: depth-1's own row names the parent and its own spawn task carries
-    // the depth-1 token; depth-2's own row names depth-1 and its own task carries
-    // only the depth-2 token (depth-1 embeds both, so token-only excludes it).
+    // #562 / #563 item 2: depth-1's own row names the parent and its own spawn
+    // task carries the depth-1 token; depth-2's own row names depth-1 and its
+    // own task carries only the depth-2 token (depth-1 embeds both, so
+    // token-only excludes it). Only these observer bindings bind; event-path
+    // candidates cross-check, and disagreement or ambiguity fails closed.
     function observeDepthLineage(socket) {
+      if (evidence.child_identity_conflict) return;
       const depth1 = observer.boundChild(depth1Token, [], { spawnedBy: sessionKey });
+      if (depth1.ambiguous) return markConflict('depth-1: more than one child is bound to the row (observer)');
       if (!depth1.childSessionKey) return;
-      if (!evidence.depth_1_child_session_key) evidence.depth_1_child_session_key = depth1.childSessionKey;
-      if (evidence.depth_1_child_session_key !== depth1.childSessionKey) return;
+      if (evidence.depth_1_child_session_key && evidence.depth_1_child_session_key !== depth1.childSessionKey) return markConflict('depth-1 identity changed');
+      evidence.depth_1_child_session_key = depth1.childSessionKey;
       evidence.depth_1_child_observed = true;
-      acceptDepth2Child(socket, observer.boundChildForTokenOnly(depth2Token, depth1Token, { spawnedBy: depth1.childSessionKey }));
-    }
-    function acceptDepth2Child(socket, key) {
-      if (!key || evidence.depth_2_child_session_key) return;
+      const depth2 = reconcileChildIdentity({
+        observerBinding: observer.boundChildTokenOnly(depth2Token, depth1Token, { spawnedBy: depth1.childSessionKey }),
+        eventCandidates: evidence.event_depth_2_candidates,
+      });
+      if (depth2.conflict) return markConflict(`depth-2: ${depth2.reason}`);
+      if (!depth2.childSessionKey) return;
+      if (evidence.depth_2_child_session_key && evidence.depth_2_child_session_key !== depth2.childSessionKey) return markConflict('depth-2 identity changed');
+      if (evidence.depth_2_child_session_key) return;
       evidence.depth_2_child_observed = true;
-      evidence.depth_2_child_session_key = key;
+      evidence.depth_2_child_session_key = depth2.childSessionKey;
       requestDepth2Metadata(socket);
     }
     function start(socket) {
@@ -235,8 +244,10 @@ export default function () {
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          if (eventData.childSessionKey) evidence.depth_1_child_observed = true;
-          observeDepth2Child(socket, eventData);
+          // A bare childSessionKey on an event no longer counts as depth-1 identity.
+          const eventDepth2 = childSessionKeyForTokenOnly(eventData, depth2Token, depth1Token);
+          if (eventDepth2 && !evidence.event_depth_2_candidates.includes(eventDepth2)) evidence.event_depth_2_candidates.push(eventDepth2);
+          observeDepthLineage(socket);
           if (eventStr.includes(rowNonce) && !eventStr.includes(HARNESS_MARKER) && evidence.dispatch_accepted && evidence.dispatch_accepted_at_ms) {
             if ((Date.now() - (evidence.dispatch_accepted_at_ms || Date.now())) < POST_DISPATCH_EVIDENCE_GATE_MS) return;
             if (eventStr.includes('MODEL-CHAINED-PARENT-SCHEDULED')) console.log('✓ parent scheduled sentinel observed');
@@ -271,6 +282,11 @@ export default function () {
   // A served/selection mismatch on a bound child is authoritative; an unrelated
   // later observer error does not erase it (it is recorded as observer_reason).
   const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  if (evidence.child_identity_conflict) {
+    // A conflicting child identity means no FAIL or PASS is about a proven child.
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = finalVerdict.reason || `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
   evidence.observer_reason = finalVerdict.observerReason || null;
   evidence.model_matches = identity.modelMatches;
   evidence.selection_matches = identity.selectionMatches;

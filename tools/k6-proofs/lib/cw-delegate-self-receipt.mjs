@@ -16,7 +16,7 @@
 // (chat-display-projection.sanitize.ts:431-463), so the result is parsed from text.
 
 import { continueWorkYieldForNonce, wakeTurnIndexAfter } from './request-compaction-receipt.js';
-import { hasExactSentinelText } from './wake-turn-receipt.mjs';
+import { hasExactSentinelText, heartbeatAckFromHistory } from './wake-turn-receipt.mjs';
 
 function role(message) {
   return String(message?.role || '').toLowerCase();
@@ -88,4 +88,108 @@ export function cwDelegateSelfHops(messages, { rowNonce } = {}) {
   if (out.hop2Index < 0) return { ...out, reason: 'CHILD-HOP2-DONE not in the wake turn' };
   out.childHop2Woke = true;
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Parent-return binding (#570 review).
+//
+// The return a mode="normal" delegate delivers to its requester is the
+// subagent announce of the child's spawned run: the registry runs the announce
+// flow when that run's lifecycle cleans up
+// (subagents/registry/subagent-registry-lifecycle-announce-cleanup.ts:560) and
+// delivers it to the parent as an inter-session `agent` call
+// (subagents/announce/subagent-announce-direct-delivery.ts:384-413). That call
+// is a normal parent run, not a heartbeat, so the parent answers in assistant
+// text; the delivered user row itself is hidden as a completion report
+// (chat-display-projection.history.ts:350-354, input-provenance.ts:145-156).
+// The child's continue_work wake is driven by work-dispatch-execution.ts
+// :364-388 outside the subagent registry, so it delivers no second return:
+// only turn-1 output reaches the parent (matches the live journal). The
+// binding token is therefore minted by the child in TURN 1 and must be
+// reproduced by the parent.
+//
+// Three receipts stay separate:
+//   hop 2 ran                         -> cwDelegateSelfHops (child transcript)
+//   the child's return reached parent -> parentReturnReceipt (this section)
+//   hop-2 OUTPUT reached the parent   -> not claimed by this row (no second
+//                                        delivery exists to bind)
+// ---------------------------------------------------------------------------
+
+export const CHILD_TOKEN_PATTERN = /^[a-z0-9]{12}$/;
+
+function runIdOf(message) {
+  const id = message?.__openclaw?.runId;
+  return typeof id === 'string' && id ? id : null;
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * The token the child minted in its turn-1 reply
+ * "CHILD-CW-SCHEDULED <nonce> TOKEN <12 lowercase letters/digits>", read from
+ * the child's own transcript at the bound turn-1 sentinel. A token that occurs
+ * in any text the harness sent (dispatch instruction, delegate task) or in the
+ * child's spawn task is not child-minted and is refused.
+ */
+export function childMintedToken(messages, { rowNonce, harnessTexts = [] } = {}) {
+  const list = Array.isArray(messages) ? messages : [];
+  const hops = cwDelegateSelfHops(list, { rowNonce });
+  if (!hops.childContinueWorkAccepted) return { token: null, index: -1, timestamp: null, reason: hops.reason || 'turn-1 receipt not bound' };
+  const message = list[hops.scheduledSentinelIndex];
+  const match = plainText(message).match(new RegExp(
+    `(?:^|[^A-Za-z0-9_-])CHILD-CW-SCHEDULED\\s+${escapeRegex(rowNonce)}\\s+TOKEN\\s+([A-Za-z0-9]+)(?=$|[^A-Za-z0-9_-])`,
+  ));
+  const token = match ? match[1] : null;
+  if (!token || !CHILD_TOKEN_PATTERN.test(token)) {
+    return { token: null, index: hops.scheduledSentinelIndex, timestamp: null, reason: 'turn-1 reply carries no 12-character lowercase TOKEN' };
+  }
+  const spawnTask = list.find((m) => role(m) === 'user');
+  const sent = [...harnessTexts, plainText(spawnTask)].filter((t) => typeof t === 'string');
+  if (sent.some((t) => t.toLowerCase().includes(token))) {
+    return { token: null, index: hops.scheduledSentinelIndex, timestamp: null, reason: 'token appears in harness-sent or task text' };
+  }
+  const timestamp = Number.isFinite(Number(message?.timestamp)) ? Number(message.timestamp) : null;
+  return { token, index: hops.scheduledSentinelIndex, timestamp, reason: null };
+}
+
+/**
+ * The parent's reproduction of the child token, bound to the parent session's
+ * own transcript (chat.history):
+ *   assistant text with the exact "PARENT-RETURN <nonce> TOKEN <token>", or a
+ *   heartbeat_respond ack carrying it (heartbeatAckFromHistory, #568);
+ *   in a run other than the dispatch run (dispatchRunId required);
+ *   after the last row of the dispatch run in the parent transcript;
+ *   not earlier than the child's token message (gateway timestamps, same clock).
+ * The k6 clock (dispatch_accepted_at_ms) is not compared with gateway
+ * timestamps; "after dispatch" is bound by transcript order instead.
+ */
+export function parentReturnReceipt(messages, { rowNonce, token, dispatchRunId, tokenTimestamp = null } = {}) {
+  const list = Array.isArray(messages) ? messages : [];
+  const none = (reason) => ({ bound: false, source: null, index: -1, runId: null, reason });
+  if (!rowNonce || !token) return none('no child-minted token to look for');
+  if (!dispatchRunId) return none('dispatch run id unknown; the parent window cannot be bound');
+  let lastDispatchIndex = -1;
+  list.forEach((m, i) => { if (runIdOf(m) === dispatchRunId) lastDispatchIndex = i; });
+  if (lastDispatchIndex < 0) return none('dispatch run not found in the parent transcript');
+  const sentinel = `${rowNonce} TOKEN ${token}`;
+  const afterToken = (m) => tokenTimestamp === null || !Number.isFinite(Number(m?.timestamp)) || Number(m.timestamp) >= tokenTimestamp;
+  for (let i = lastDispatchIndex + 1; i < list.length; i += 1) {
+    const m = list[i];
+    if (role(m) !== 'assistant') continue;
+    const runId = runIdOf(m);
+    if (!runId || runId === dispatchRunId) continue;
+    if (!afterToken(m)) continue;
+    if (hasExactSentinelText(plainText(m), 'PARENT-RETURN', sentinel)) {
+      return { bound: true, source: 'assistant-text', index: i, runId, reason: null };
+    }
+  }
+  const heartbeat = heartbeatAckFromHistory(list, {
+    marker: 'PARENT-RETURN', nonce: sentinel, afterIndex: lastDispatchIndex, excludeRunIds: [dispatchRunId], requireRunId: true,
+  });
+  if (heartbeat && afterToken(list[heartbeat.index])) {
+    return { bound: true, source: 'heartbeat_respond', index: heartbeat.index, runId: heartbeat.runId, reason: null };
+  }
+  return none('no parent reply reproduces the child token after the dispatch run');
 }

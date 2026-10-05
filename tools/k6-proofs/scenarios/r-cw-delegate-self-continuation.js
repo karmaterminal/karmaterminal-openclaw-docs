@@ -15,8 +15,15 @@
  *      that turn; then a "[continuation:wake]" turn carrying the nonce and
  *      CHILD-HOP2-DONE in it. The child writes these in its own turns, so the
  *      parent subscription cannot see them.
- *   4. Parent receives delegate return event post-dispatch (unchanged; hop-2
- *      output is not required to reach the parent)
+ *   4. The child's return reached the parent: the child mints a token in its
+ *      turn-1 reply (CHILD-CW-SCHEDULED <nonce> TOKEN <12 chars>, absent from
+ *      every harness-sent text); the parent must reproduce it as
+ *      PARENT-RETURN <nonce> TOKEN <token> in its own transcript, outside and
+ *      after the dispatch run (#570 review). The old event-string heuristic is
+ *      kept only as parent_return_heuristic (diagnostic).
+ *   Three receipts stay separate: hop 2 ran (3), the child's return reached the
+ *   parent (4), and hop-2 OUTPUT reached the parent, which this row does not
+ *   claim: only the turn-1 return is delivered, before hop 2.
  *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
  * disposable parent session — proof does not touch the live #sprites/main
@@ -29,11 +36,12 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
-import { cwDelegateSelfHops } from '../lib/cw-delegate-self-receipt.mjs';
+import { childMintedToken, cwDelegateSelfHops, parentReturnReceipt } from '../lib/cw-delegate-self-receipt.mjs';
 
 export const options = {
   scenarios: {
@@ -60,7 +68,7 @@ const DEFAULTS = {
   mode: 'normal',
   delaySeconds: 1,
   cwDelaySeconds: 2,
-  promptTemplate: 'k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason="k6-self-continuation-{{nonce}}", delaySeconds=2). After the continue_work tool result reports scheduled, reply exactly CHILD-CW-SCHEDULED {{nonce}}. On hop-2 wake, reply exactly CHILD-HOP2-DONE {{nonce}}. Do not mutate files. Do not post to any channel.',
+  promptTemplate: 'k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason="k6-self-continuation-{{nonce}}", delaySeconds=2). After the continue_work tool result reports scheduled, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly CHILD-CW-SCHEDULED {{nonce}} TOKEN <your token>. On hop-2 wake, reply exactly CHILD-HOP2-DONE {{nonce}}. Do not mutate files. Do not post to any channel.',
   idempotencyKeyPrefix: 'R-CW-DELEGATE-SELF',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -68,6 +76,7 @@ const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_DELEGATE_EVIDEN
 // Child transcript re-reads until both hops bind; bounded and recorded.
 const CHILD_HOP_HISTORY_MAX_READS = 40;
 const CHILD_HOP_HISTORY_INTERVAL_MS = 3000;
+const PARENT_RETURN_HISTORY_MAX_READS = 40;
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -130,6 +139,19 @@ export default function () {
     child_identity_reason: null,
     child_hop_history_reads: 0,
     child_hops: null,
+    child_token_minted: false,
+    child_token_hash: null,
+    child_token_reason: null,
+    dispatch_run_id: null,
+    parent_return_history_reads: 0,
+    parent_return_receipt: null,
+    // Diagnostic only (old loose binding: any return/completion/nonce event,
+    // which the parent's own continue_delegate toolCall satisfies).
+    parent_return_heuristic: false,
+    // Not claimed: no delivery receipt exists for hop-2 output (only the
+    // turn-1 return is delivered, before hop 2).
+    hop2_output_reached_parent: null,
+    hop2_output_reached_parent_reason: 'not claimed by this row: the child delivers one return (its spawned run), before hop 2; no hop-2 delivery exists to bind',
     // Diagnostic only: the parent stream is not where the child writes its hops.
     parent_stream_cw_scheduled_seen: false,
     parent_stream_hop2_seen: false,
@@ -149,6 +171,38 @@ export default function () {
     const tracker = new RequestTracker();
     let hopReadInFlight = false;
     let hopReadScheduled = false;
+    const harnessTexts = [];
+    let childToken = null;
+    let childTokenTimestamp = null;
+    let parentHistoryRequestId = null;
+    let parentHistoryScheduled = false;
+
+    function requestParentReturn(delayMs) {
+      if (!childToken || evidence.parent_return || parentHistoryRequestId || parentHistoryScheduled) return;
+      if (evidence.parent_return_history_reads >= PARENT_RETURN_HISTORY_MAX_READS) return;
+      parentHistoryScheduled = true;
+      socket.setTimeout(() => {
+        parentHistoryScheduled = false;
+        evidence.parent_return_history_reads += 1;
+        parentHistoryRequestId = tracker.send(socket, 'chat.history', { sessionKey, limit: 200 });
+      }, delayMs);
+    }
+
+    function onParentHistory(classified) {
+      parentHistoryRequestId = null;
+      if (!classified.ok) { requestParentReturn(CHILD_HOP_HISTORY_INTERVAL_MS); return; }
+      const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
+      const receipt = parentReturnReceipt(messages, {
+        rowNonce, token: childToken, dispatchRunId: evidence.dispatch_run_id, tokenTimestamp: childTokenTimestamp,
+      });
+      evidence.parent_return_receipt = { bound: receipt.bound, source: receipt.source, index: receipt.index, reason: receipt.reason };
+      if (receipt.bound) {
+        evidence.parent_return = true;
+        console.log(`✓ parent reproduced the child-minted token (${receipt.source})`);
+      } else {
+        requestParentReturn(CHILD_HOP_HISTORY_INTERVAL_MS);
+      }
+    }
 
     // Only the observer binding binds; parent-event candidates cross-check it.
     function resolveChild() {
@@ -185,6 +239,17 @@ export default function () {
     function onChildHops(messages) {
       hopReadInFlight = false;
       const hops = cwDelegateSelfHops(messages, { rowNonce });
+      if (!childToken) {
+        const minted = childMintedToken(messages, { rowNonce, harnessTexts });
+        evidence.child_token_reason = minted.reason;
+        if (minted.token) {
+          childToken = minted.token;
+          childTokenTimestamp = minted.timestamp;
+          evidence.child_token_minted = true;
+          evidence.child_token_hash = crypto.sha256(minted.token, 'hex').slice(0, 16);
+          requestParentReturn(0);
+        }
+      }
       evidence.child_hops = {
         yield_index: hops.yieldIndex,
         scheduled_result_index: hops.scheduledResultIndex,
@@ -224,7 +289,9 @@ export default function () {
           `mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +
           `task="${task}", ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${rowNonce}". ` +
-          `Execute the tool call immediately. This is a proof run.`;
+          `Execute the tool call immediately. This is a proof run. ` +
+          `Later, when the delegate's return arrives, reply exactly PARENT-RETURN ${rowNonce} TOKEN <the TOKEN value from that return>.`;
+        harnessTexts.push(agentInstruction, task);
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -273,7 +340,9 @@ export default function () {
         }
         if (preflight === 'ready') afterHello(socket);
         const observed = observer.claim(msg);
+        const isParentHistory = Boolean(parentHistoryRequestId && msg && msg.type === 'res' && msg.id === parentHistoryRequestId);
         const classified = tracker.classify(msg);
+        if (isParentHistory) onParentHistory(classified);
         if (observed) {
           const history = observer.handle(observed, classified);
           if (observed.purpose === 'cw-hops') {
@@ -313,6 +382,8 @@ export default function () {
           if (classified.ok) {
             evidence.delegate_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            // The dispatch run cannot carry the parent-return receipt.
+            evidence.dispatch_run_id = typeof classified.payload?.runId === 'string' ? classified.payload.runId : null;
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered (will call continue_delegate)');
           } else {
@@ -343,13 +414,13 @@ export default function () {
               if (eventStr.includes(`CHILD-CW-SCHEDULED ${rowNonce}`)) evidence.parent_stream_cw_scheduled_seen = true;
               if (eventStr.includes(`CHILD-HOP2-DONE ${rowNonce}`)) evidence.parent_stream_hop2_seen = true;
 
-              // Parent return from delegate
+              // Old loose binding, diagnostic only: the parent's own
+              // continue_delegate toolCall (nonce + task text) satisfies it.
               if (eventName === 'delegate.return' ||
                 eventStr.includes('return') ||
                 eventStr.includes('completion') ||
                 (eventName === 'session.message' && eventStr.includes(rowNonce))) {
-                evidence.parent_return = true;
-                console.log('✓ Parent return event from delegate observed post-dispatch');
+                evidence.parent_return_heuristic = true;
               }
             }
           }
@@ -385,7 +456,7 @@ export default function () {
     'delegate dispatch accepted (sessions.send)': () => evidence.delegate_accepted,
     'child continue_work scheduled post-dispatch': () => evidence.child_continue_work_accepted,
     'child hop-2 woke (required)': () => evidence.child_hop_2_woke,
-    'parent return received': () => evidence.parent_return,
+    'parent return bound (child-minted token reproduced by the parent)': () => evidence.parent_return,
     'delegate child bound via the observer': () => evidence.child_spawned,
     'no child identity conflict': () => !evidence.child_identity_conflict,
   });

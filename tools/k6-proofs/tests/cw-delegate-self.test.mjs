@@ -117,3 +117,98 @@ test('scenario wiring: observer binding, child-transcript hops, parent stream di
   assert.ok(ROW_METHODS['R-CW-DELEGATE-SELF-CONTINUATION'].includes('chat.history'));
   assert.ok(ROW_METHODS['R-CW-DELEGATE-SELF-CONTINUATION'].includes('sessions.list'));
 });
+
+// --- #570 review: parent-return is a real binding ---------------------------
+import { childMintedToken, parentReturnReceipt } from '../lib/cw-delegate-self-receipt.mjs';
+
+const TOKEN = 'q7m2x9k4p1z8';
+const DISPATCH_RUN = 'run-dispatch';
+const TASK = `k6 proof R-CW-DELEGATE-SELF nonce ${NONCE}: ... reply exactly CHILD-CW-SCHEDULED ${NONCE} TOKEN <your token>. On hop-2 wake, reply exactly CHILD-HOP2-DONE ${NONCE}.`;
+const INSTRUCTION = `[k6-proof-harness] Call continue_delegate with: mode="normal", delaySeconds=1, task="${TASK}". Later, when the delegate's return arrives, reply exactly PARENT-RETURN ${NONCE} TOKEN <the TOKEN value from that return>.`;
+
+function stamped(message, runId, timestamp) { return { ...message, timestamp, __openclaw: { runId } }; }
+
+function childWithToken(token = TOKEN, ts = 1000) {
+  const t = liveChild();
+  t[3] = text('assistant', `CHILD-CW-SCHEDULED ${NONCE} TOKEN ${token}`, { stopReason: 'stop', timestamp: ts });
+  return t;
+}
+
+// Parent transcript at the cut: the dispatch run (harness user row, the
+// continue_delegate toolCall carrying the nonce and task text, its result, the
+// reply), then the hidden completion-report row is not in chat.history, then
+// the parent's reply to the delivered return in its own run.
+function parentTranscript({ reply = `PARENT-RETURN ${NONCE} TOKEN ${TOKEN}`, replyRun = 'run-return', replyTs = 2000 } = {}) {
+  const rows = [
+    stamped(text('user', INSTRUCTION), DISPATCH_RUN, 100),
+    stamped(call('cd-1', 'continue_delegate', { mode: 'normal', delaySeconds: 1, task: TASK }), DISPATCH_RUN, 110),
+    stamped(result('cd-1', 'continue_delegate', { status: 'scheduled' }), DISPATCH_RUN, 120),
+    stamped(text('assistant', 'Delegated.'), DISPATCH_RUN, 130),
+  ];
+  if (reply !== null) rows.push(stamped(text('assistant', reply), replyRun, replyTs));
+  return rows;
+}
+
+test('#570: the parent dispatch alone (its own continue_delegate toolCall) no longer satisfies parent-return', () => {
+  const r = parentReturnReceipt(parentTranscript({ reply: null }), { rowNonce: NONCE, token: TOKEN, dispatchRunId: DISPATCH_RUN });
+  assert.equal(r.bound, false);
+  // ...even when the harness asked for PARENT-RETURN in the instruction (user row, dispatch run).
+  const minted = childMintedToken(childWithToken(), { rowNonce: NONCE, harnessTexts: [INSTRUCTION, TASK] });
+  assert.equal(minted.token, TOKEN);
+});
+
+test('#570: the child-minted token reproduced by the parent outside the dispatch run binds', () => {
+  const minted = childMintedToken(childWithToken(), { rowNonce: NONCE, harnessTexts: [INSTRUCTION, TASK] });
+  const r = parentReturnReceipt(parentTranscript(), { rowNonce: NONCE, token: minted.token, dispatchRunId: DISPATCH_RUN, tokenTimestamp: minted.timestamp });
+  assert.deepEqual([r.bound, r.source, r.runId], [true, 'assistant-text', 'run-return']);
+});
+
+test('#570: a heartbeat_respond reproduction also binds, with the same window', () => {
+  const rows = parentTranscript({ reply: null });
+  const args = { outcome: 'done', notify: false, summary: 'return consumed', notificationText: `PARENT-RETURN ${NONCE} TOKEN ${TOKEN}` };
+  rows.push(stamped(call('hb-1', 'heartbeat_respond', args), 'run-wake', 2000));
+  rows.push(stamped(result('hb-1', 'heartbeat_respond', { status: 'accepted', ...args }), 'run-wake', 2001));
+  const r = parentReturnReceipt(rows, { rowNonce: NONCE, token: TOKEN, dispatchRunId: DISPATCH_RUN, tokenTimestamp: 1000 });
+  assert.deepEqual([r.bound, r.source], [true, 'heartbeat_respond']);
+});
+
+test('#570 negatives: token in harness or task text, wrong shape, or quoted only in the spawn task', () => {
+  assert.equal(childMintedToken(childWithToken(), { rowNonce: NONCE, harnessTexts: [`${INSTRUCTION} ${TOKEN}`] }).token, null);
+  assert.match(childMintedToken(childWithToken(), { rowNonce: NONCE, harnessTexts: [`task mentions ${TOKEN.toUpperCase()}`] }).reason, /harness-sent or task text/);
+  const inSpawn = childWithToken();
+  inSpawn[0] = text('user', `[Subagent Task]\n\n${TASK} ${TOKEN}`);
+  assert.equal(childMintedToken(inSpawn, { rowNonce: NONCE }).token, null);
+  for (const bad of ['short', 'q7m2x9k4p1z8x', 'Q7M2X9K4P1Z8']) {
+    assert.equal(childMintedToken(childWithToken(bad), { rowNonce: NONCE }).token, null, bad);
+  }
+  // Token claimed in the wake turn only (not turn 1) is not minted.
+  const lateOnly = liveChild();
+  lateOnly[5] = text('assistant', `CHILD-HOP2-DONE ${NONCE} CHILD-CW-SCHEDULED ${NONCE} TOKEN ${TOKEN}`);
+  assert.equal(childMintedToken(lateOnly, { rowNonce: NONCE }).token, null);
+});
+
+test('#570 negatives: inside the dispatch run, before the dispatch run ends, before the token, another nonce or token', () => {
+  const opts = { rowNonce: NONCE, token: TOKEN, dispatchRunId: DISPATCH_RUN, tokenTimestamp: 1000 };
+  assert.equal(parentReturnReceipt(parentTranscript({ replyRun: DISPATCH_RUN }), opts).bound, false, 'inside the dispatch run');
+  const early = parentTranscript({ reply: null });
+  early.splice(1, 0, stamped(text('assistant', `PARENT-RETURN ${NONCE} TOKEN ${TOKEN}`), 'run-other', 105));
+  assert.equal(parentReturnReceipt(early, opts).bound, false, 'before the dispatch run ended');
+  assert.equal(parentReturnReceipt(parentTranscript({ replyTs: 900 }), opts).bound, false, 'before the child minted the token');
+  assert.equal(parentReturnReceipt(parentTranscript({ reply: `PARENT-RETURN R-CW-DS-other TOKEN ${TOKEN}` }), opts).bound, false, 'another nonce');
+  assert.equal(parentReturnReceipt(parentTranscript({ reply: `PARENT-RETURN ${NONCE} TOKEN aaaaaaaaaaaa` }), opts).bound, false, 'another token');
+  assert.equal(parentReturnReceipt(parentTranscript({ reply: `PARENT-RETURN ${NONCE} TOKEN ${TOKEN}x` }), opts).bound, false, 'longer token');
+  assert.equal(parentReturnReceipt(parentTranscript({ replyRun: null }), opts).bound, false, 'no run id');
+  assert.match(parentReturnReceipt(parentTranscript(), { ...opts, dispatchRunId: null }).reason, /dispatch run id unknown/);
+  assert.match(parentReturnReceipt(parentTranscript(), { ...opts, dispatchRunId: 'run-missing' }).reason, /dispatch run not found/);
+});
+
+test('#570 wiring: parent-return comes only from the token binding; heuristic is diagnostic; hop-2 output not claimed (red before)', () => {
+  const source = readFileSync(path.join(root, 'scenarios', 'r-cw-delegate-self-continuation.js'), 'utf8');
+  assert.match(source, /parentReturnReceipt\(messages, \{\s*rowNonce, token: childToken, dispatchRunId: evidence\.dispatch_run_id/);
+  assert.match(source, /childMintedToken\(messages, \{ rowNonce, harnessTexts \}\)/);
+  assert.match(source, /evidence\.parent_return_heuristic = true;/);
+  // The only assignment of the required receipt is the bound token path.
+  assert.equal((source.match(/evidence\.parent_return = true/g) || []).length, 1);
+  assert.match(source, /if \(receipt\.bound\) \{\s*evidence\.parent_return = true;/);
+  assert.match(source, /hop2_output_reached_parent: null/);
+});

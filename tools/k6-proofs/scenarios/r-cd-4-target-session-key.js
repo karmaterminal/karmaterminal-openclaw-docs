@@ -139,6 +139,7 @@ export default function () {
     reason_length: null,
     delegate_mode: null,
     child_status: null,
+    return_history_requests: 0,
     trace_id: null,
     preflight: null,
     observation_refused: null,
@@ -221,6 +222,8 @@ export default function () {
         returnHistoryPollScheduled = false;
         returnHistoryPollInFlight = true;
         returnHistoryPhase = 'target';
+        // Re-read until a receipt binds or the observation window closes.
+        evidence.return_history_requests += 1;
         tracker.send(socket, 'chat.history', { sessionKey: targetSessionKey, limit: 200 });
       }, delayMs);
     }
@@ -314,7 +317,10 @@ export default function () {
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      observer.attach((method, params) => tracker.send(socket, method, params));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 

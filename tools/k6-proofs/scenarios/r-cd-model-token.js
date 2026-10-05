@@ -27,6 +27,8 @@ const manifest = loadManifestFromEnv();
 // model the seat did not have and the row still reported the echoed alias.
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 1, idempotencyKeyPrefix: 'R-CD-MODEL-TOKEN', taskNamePrefix: 'r-cd-model-token' };
 const HARNESS_MARKER = '[k6-proof-harness]';
+// Re-read the served transcript until the sentinel binds; bounded and recorded.
+const SERVED_HISTORY_MAX_ATTEMPTS = 15;
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_TOKEN_EVIDENCE_DELAY_MS || 1500);
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -104,10 +106,11 @@ export default function () {
     }
     const served = { attempts: 0, inFlight: false, done: false };
     function requestServed(delayMs) {
-      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= 6) return;
+      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= SERVED_HISTORY_MAX_ATTEMPTS) return;
       served.inFlight = true;
       socket.setTimeout(() => {
         served.attempts += 1;
+        evidence.child_served_history_attempts = served.attempts;
         if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
       }, delayMs);
     }
@@ -164,7 +167,10 @@ export default function () {
     }
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      observer.attach((method, params) => tracker.send(socket, method, params));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {

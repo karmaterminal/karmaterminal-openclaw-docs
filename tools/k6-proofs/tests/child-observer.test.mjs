@@ -513,3 +513,52 @@ test('item 4: keepProvenFail keeps an authoritative FAIL and records the observe
   gate.observe(helloOk(['sessions.send']));
   assert.equal(failClosedVerdict('FAIL-candidate', { gate, observer: h.observer, keepProvenFail: true }).verdict, 'PARTIAL-candidate');
 });
+
+// --- #563 review item 3: history race --------------------------------------
+
+test('item 3: a transcript read that lands before the spawn message is retried until bound', () => {
+  const timers = [];
+  const h = harness({ rootSessionKey: PARENT, schedule: (ms, fn) => timers.push({ ms, fn }), maxHistoryAttempts: 4 });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:race', PARENT)]) });
+  // First read: the spawn message is not persisted yet.
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:race', messages: [] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, null);
+  assert.equal(timers.length, 1, 'one bounded retry is scheduled');
+  assert.equal(timers[0].ms, 2000);
+  timers.shift().fn();
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:race', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, 'agent:main:subagent:race');
+  assert.equal(h.observer.summary().observer_history_retries, 1);
+  assert.equal(h.observer.record('agent:main:subagent:race').historyAttempts, 2);
+});
+
+test('item 3: a failed transcript read that later succeeds is recovered, not an incomplete observation', () => {
+  const timers = [];
+  const h = harness({ rootSessionKey: PARENT, schedule: (ms, fn) => timers.push(fn) });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:flaky', PARENT)]) });
+  h.answer(h.take('chat.history'), { ok: false, error: { code: 'UNAVAILABLE', message: 'transcript busy' } });
+  assert.equal(h.observer.incomplete().code, 'UNAVAILABLE');
+  timers.shift()();
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:flaky', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+  assert.equal(h.observer.incomplete(), null);
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, 'agent:main:subagent:flaky');
+});
+
+test('item 3: retries are bounded; an exhausted unbound child fails closed', () => {
+  const timers = [];
+  const h = harness({ rootSessionKey: PARENT, schedule: (ms, fn) => timers.push(fn), maxHistoryAttempts: 2 });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:never', PARENT)]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:never', messages: [] } });
+  timers.shift()();
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:never', messages: [] } });
+  assert.equal(timers.length, 0, 'no retry beyond the cap');
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:never', PARENT)]) });
+  assert.equal(h.sent.filter((r) => r.method === 'chat.history').length, 2, 'a later poll does not exceed the cap');
+  assert.deepEqual(h.observer.summary().observer_history_unbound, [{ attempts: 2, exhausted: true }]);
+  assert.equal(h.observer.incomplete().code, 'HISTORY_UNBOUND');
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
+});

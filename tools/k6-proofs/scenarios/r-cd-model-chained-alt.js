@@ -31,6 +31,8 @@ const DEFAULTS = {
   idempotencyKeyPrefix: 'R-CD-MODEL-CHAINED-ALT',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
+// Re-read the served transcript until the sentinel binds; bounded and recorded.
+const SERVED_HISTORY_MAX_ATTEMPTS = 15;
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_DELEGATE_EVIDENCE_DELAY_MS || 1500);
 
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
@@ -110,10 +112,11 @@ export default function () {
     }
     const served = { attempts: 0, inFlight: false, done: false };
     function requestServed(delayMs) {
-      if (!evidence.depth_2_child_session_key || served.done || served.inFlight || served.attempts >= 6) return;
+      if (!evidence.depth_2_child_session_key || served.done || served.inFlight || served.attempts >= SERVED_HISTORY_MAX_ATTEMPTS) return;
       served.inFlight = true;
       socket.setTimeout(() => {
         served.attempts += 1;
+        evidence.depth_2_served_history_attempts = served.attempts;
         if (!observer.refreshHistory(evidence.depth_2_child_session_key, 100, 'served-child')) served.inFlight = false;
       }, delayMs);
     }
@@ -179,7 +182,10 @@ export default function () {
 
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      observer.attach((method, params) => tracker.send(socket, method, params));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 

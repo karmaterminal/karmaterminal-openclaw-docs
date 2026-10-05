@@ -37,6 +37,8 @@ const DEFAULTS = {
     'MDEF:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly MODEL-DEFAULT-CHILD {{nonce}} MODEL <provider/model>, replacing <provider/model> with the current model identity from runtime context. Do not mutate files. Do not post to any channel.',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
+// Re-read the served transcript until the sentinel binds; bounded and recorded.
+const SERVED_HISTORY_MAX_ATTEMPTS = 15;
 
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -151,10 +153,11 @@ export default function() {
     function requestServed(who, delayMs) {
       const state = served[who];
       const key = who === 'parent' ? sessionKey : evidence.child_session_key;
-      if (!key || state.done || state.inFlight || state.attempts >= 6) return;
+      if (!key || state.done || state.inFlight || state.attempts >= SERVED_HISTORY_MAX_ATTEMPTS) return;
       state.inFlight = true;
       socket.setTimeout(() => {
         state.attempts += 1;
+        evidence[who + '_served_history_attempts'] = state.attempts;
         if (!observer.refreshHistory(key, 100, 'served-' + who)) state.inFlight = false;
       }, delayMs);
     }
@@ -185,7 +188,10 @@ export default function() {
     }
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      observer.attach((method, params) => tracker.send(socket, method, params));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {

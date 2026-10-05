@@ -243,6 +243,12 @@ export function createChildObserver({
   listLimit = 100,
   historyLimit = 20,
   onRoundComplete = null,
+  // Re-read a child's transcript until its spawn task is bound: chat.history
+  // can answer before the spawn message is persisted. schedule(delayMs, fn)
+  // is the scenario's socket.setTimeout; without it retries ride on poll().
+  schedule = null,
+  historyRetryMs = 2000,
+  maxHistoryAttempts = 8,
 } = {}) {
   const pending = {};
   const records = {};
@@ -257,7 +263,7 @@ export function createChildObserver({
   const state = {
     refusal: null,
     errors: [],
-    counters: { list_responses: 0, rows_seen: 0, history_responses: 0, rounds_completed: 0, rounds_invalid: 0 },
+    counters: { list_responses: 0, rows_seen: 0, history_responses: 0, history_retries: 0, rounds_completed: 0, rounds_invalid: 0 },
   };
 
   function root() {
@@ -289,10 +295,20 @@ export function createChildObserver({
   }
 
   function requestHistory(record) {
+    if (record.task !== null || record.historyInFlight || record.historyAttempts >= maxHistoryAttempts) return;
+    if (record.historyAttempts > 0) state.counters.history_retries += 1;
     record.historyRequested = true;
-    sendTracked('chat.history', { sessionKey: record.childSessionKey, limit: historyLimit }, {
+    record.historyInFlight = true;
+    record.historyAttempts += 1;
+    const id = sendTracked('chat.history', { sessionKey: record.childSessionKey, limit: historyLimit }, {
       childSessionKey: record.childSessionKey,
     });
+    if (!id) record.historyInFlight = false;
+  }
+
+  function retryHistory(record) {
+    if (record.task !== null || record.historyAttempts >= maxHistoryAttempts) return;
+    if (typeof schedule === 'function') schedule(historyRetryMs, () => requestHistory(record));
   }
 
   function finishListForRound(meta) {
@@ -328,6 +344,8 @@ export function createChildObserver({
       depth: meta.depth + 1,
       task: null,
       historyRequested: false,
+      historyInFlight: false,
+      historyAttempts: 0,
     };
     record.label = str(row.label);
     record.status = str(row.status);
@@ -335,7 +353,7 @@ export function createChildObserver({
     record.lastRunId = str(row.lastRunId);
     record.parentSessionKey = str(row.parentSessionKey);
     records[key] = record;
-    if (!record.historyRequested && record.task === null) requestHistory(record);
+    if (record.task === null) requestHistory(record);
     if (record.depth < maxDepth && requesterDepth[key] === undefined) {
       requesterDepth[key] = record.depth;
     }
@@ -343,7 +361,10 @@ export function createChildObserver({
 
   const observer = {
     state,
-    attach(sendFn) { send = sendFn; },
+    attach(sendFn, scheduleFn = null) {
+      send = sendFn;
+      if (typeof scheduleFn === 'function') schedule = scheduleFn;
+    },
 
     /** Start one traversal: list children of the root and of every known requester. */
     poll() {
@@ -389,6 +410,11 @@ export function createChildObserver({
           if (meta.round === round) roundInvalid = true;
           finishListForRound(meta);
         }
+        if (meta.method === 'chat.history' && !meta.purpose && records[meta.childSessionKey]) {
+          state.errors[state.errors.length - 1].childSessionKey = meta.childSessionKey;
+          records[meta.childSessionKey].historyInFlight = false;
+          retryHistory(records[meta.childSessionKey]);
+        }
         return null;
       }
       const payload = classified.payload || {};
@@ -412,7 +438,18 @@ export function createChildObserver({
         state.counters.history_responses += 1;
         const messages = Array.isArray(payload.messages) ? payload.messages : [];
         const record = records[meta.childSessionKey];
-        if (record && record.task === null) record.task = subagentTaskText(messages);
+        if (record && !meta.purpose) {
+          record.historyInFlight = false;
+          if (record.task === null) record.task = subagentTaskText(messages);
+          if (record.task !== null) {
+            // A transcript read that failed earlier and has now succeeded is recovered.
+            for (const e of state.errors) {
+              if (e.method === 'chat.history' && e.childSessionKey === record.childSessionKey) e.recovered = true;
+            }
+          } else {
+            retryHistory(record);
+          }
+        }
         return meta.purpose ? messages : null;
       }
       return null;
@@ -491,6 +528,12 @@ export function createChildObserver({
     incomplete() {
       const error = state.errors.find((e) => e.recovered !== true);
       if (error) return { method: error.method, code: error.code, message: error.message };
+      const exhausted = Object.values(records).find((r) => r.task === null && r.historyAttempts >= maxHistoryAttempts && !r.historyInFlight);
+      if (exhausted) {
+        // A child of this lineage whose spawn task could never be read might be
+        // the match or a duplicate: binding cannot be claimed either way.
+        return { method: 'chat.history', code: 'HISTORY_UNBOUND', message: `spawn task unread after ${exhausted.historyAttempts} attempts` };
+      }
       if (state.counters.rounds_invalid > 0) {
         return { method: 'sessions.list', code: 'INVALID_TRAVERSAL', message: `${state.counters.rounds_invalid} traversal(s) incomplete or inconsistent` };
       }
@@ -517,6 +560,10 @@ export function createChildObserver({
         observer_list_responses: state.counters.list_responses,
         observer_rows_seen: state.counters.rows_seen,
         observer_history_responses: state.counters.history_responses,
+        observer_history_retries: state.counters.history_retries,
+        observer_history_unbound: Object.values(records)
+          .filter((r) => r.task === null)
+          .map((r) => ({ attempts: r.historyAttempts, exhausted: r.historyAttempts >= maxHistoryAttempts })),
         observer_rounds_completed: state.counters.rounds_completed,
         observer_rounds_invalid: state.counters.rounds_invalid,
         observer_children_recorded: Object.keys(records).length,

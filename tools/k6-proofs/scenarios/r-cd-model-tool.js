@@ -36,6 +36,8 @@ const DEFAULTS = {
     'MTOOL:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly MODEL-TOOL-CHILD {{nonce}} MODEL <provider/model>, replacing <provider/model> with the current model identity from runtime context. The requested model is intentionally omitted from the child task to prevent echo-based false PASS. Do not mutate files. Do not post to any channel.',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
+// Re-read the served transcript until the sentinel binds; bounded and recorded.
+const SERVED_HISTORY_MAX_ATTEMPTS = 15;
 
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -118,10 +120,11 @@ export default function() {
     }
     const served = { attempts: 0, inFlight: false, done: false };
     function requestServed(delayMs) {
-      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= 6) return;
+      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= SERVED_HISTORY_MAX_ATTEMPTS) return;
       served.inFlight = true;
       socket.setTimeout(() => {
         served.attempts += 1;
+        evidence.child_served_history_attempts = served.attempts;
         if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
       }, delayMs);
     }
@@ -170,7 +173,10 @@ export default function() {
     }
     socket.on('open', () => {
       socket.send(connectFrame(token));
-      observer.attach((method, params) => tracker.send(socket, method, params));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
       socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {

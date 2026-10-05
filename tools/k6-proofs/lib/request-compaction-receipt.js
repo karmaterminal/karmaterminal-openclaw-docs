@@ -250,6 +250,52 @@ export function measuredRequestCompactionOutcome(messages, { rowNonce } = {}) {
 }
 
 /**
+ * The child's own report sentinel, read from the CHILD's transcript.
+ *
+ * The parent cannot observe it: at openclaw 41b8d69b90 the delivered-return row
+ * is hidden from the parent's chat.history and session.message projections
+ * (chat-display-projection.history.ts:329-334), so the parent-subscription path
+ * never sees the child's reply. The re-run on emeric (2026-10-05) had the
+ * measured receipt (context_usage 5 vs threshold 70) and still ended PARTIAL on
+ * delegate_child_report_observed:false.
+ *
+ * Bound: an assistant message AFTER the nonce-bound request_compaction
+ * toolResult and before the next user message (the same wake turn), whose
+ * plain text carries the exact sentinel for this row's nonce. A sentinel in the
+ * spawn task, before the toolResult, or in a later turn does not count.
+ * Returns { kind: 'threshold' | 'accepted' | null, usage, threshold, index }.
+ */
+export function childReportAfterReceipt(messages, { rowNonce } = {}) {
+  const items = Array.isArray(messages) ? messages : [];
+  const none = { kind: null, usage: null, threshold: null, index: -1 };
+  if (typeof rowNonce !== 'string' || !rowNonce) return none;
+  const toolCallId = requestCompactionToolCallIdForNonce(items, rowNonce);
+  if (!toolCallId) return none;
+  let resultIndex = -1;
+  for (let i = 0; i < items.length; i += 1) {
+    const result = classifyRequestCompactionReceipt(items[i]);
+    if (result.kind !== 'unrelated' && result.toolCallId === toolCallId) { resultIndex = i; break; }
+  }
+  if (resultIndex < 0) return none;
+  const thresholdSentinel = `REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce}`;
+  const acceptedSentinel = `REQUEST_COMPACTION_ACCEPTED ${rowNonce}`;
+  for (let i = resultIndex + 1; i < items.length; i += 1) {
+    const role = String(items[i]?.role || '').toLowerCase();
+    if (role === 'user') break;
+    if (role !== 'assistant') continue;
+    const text = plainText(items[i]);
+    if (text.includes(thresholdSentinel)) {
+      const tail = text.slice(text.indexOf(thresholdSentinel) + thresholdSentinel.length);
+      const usage = tail.match(/CONTEXT[^0-9A-Za-z]+(\d+)/)?.[1];
+      const threshold = tail.match(/THRESHOLD[^0-9A-Za-z]+(\d+)/)?.[1];
+      return { kind: 'threshold', usage: usage ? Number(usage) : null, threshold: threshold ? Number(threshold) : null, index: i };
+    }
+    if (text.includes(acceptedSentinel)) return { kind: 'accepted', usage: null, threshold: null, index: i };
+  }
+  return none;
+}
+
+/**
  * The one R-RC-2 verdict, shared by the scenario and the manual
  * postprocessor (scripts/postprocess-k6-summary.mjs) so the two cannot drift
  * (#563 review item 1). Fail closed first: a preflight that did not pass, a

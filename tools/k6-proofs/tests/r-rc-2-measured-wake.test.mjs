@@ -189,3 +189,55 @@ test('item 4: R-RC-2 never ends FAIL from an observer error', () => {
   assert.equal(r.verdict, 'PARTIAL-candidate');
   assert.match(r.reason, /observation incomplete: sessions\.list UNAVAILABLE busy/);
 });
+
+// --- child report read from the child's own transcript ----------------------
+// The delivered return is hidden from the parent's projections at 41b8d69b90
+// (chat-display-projection.history.ts:329-334). Re-run on emeric 2026-10-05:
+// measured receipt present, row PARTIAL on delegate_child_report_observed:false.
+import { childReportAfterReceipt, classifyRrc2Evidence as classifyForReport } from '../lib/request-compaction-receipt.js';
+
+test('child report: the sentinel after the bound toolResult in the same wake turn is the report', () => {
+  const r = childReportAfterReceipt(measuredWake(MEASURED_REJECTION), { rowNonce: NONCE });
+  assert.equal(r.kind, 'threshold');
+  assert.equal(r.usage, 12);
+  assert.equal(r.threshold, 70);
+});
+
+test('child report: a sentinel before the toolResult does not count', () => {
+  const msgs = measuredWake(MEASURED_REJECTION);
+  const report = msgs.pop();
+  msgs.splice(msgs.length - 1, 0, report); // sentinel now precedes the toolResult
+  assert.equal(childReportAfterReceipt(msgs, { rowNonce: NONCE }).kind, null);
+});
+
+test('child report: a sentinel in a later turn (after a user message) does not count', () => {
+  const msgs = measuredWake(MEASURED_REJECTION);
+  const report = msgs.pop();
+  msgs.push({ role: 'user', content: [{ type: 'text', text: 'later turn' }] }, report);
+  assert.equal(childReportAfterReceipt(msgs, { rowNonce: NONCE }).kind, null);
+});
+
+test('child report: another nonce, or the spawn task text, does not count', () => {
+  assert.equal(childReportAfterReceipt(measuredWake(MEASURED_REJECTION), { rowNonce: 'R-RC-2-other' }).kind, null);
+  const msgs = measuredWake(MEASURED_REJECTION).slice(0, -1);
+  msgs[0] = { role: 'user', content: [{ type: 'text', text: `[Subagent Task] reply exactly REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${NONCE} CONTEXT 1 THRESHOLD 70` }] };
+  assert.equal(childReportAfterReceipt(msgs, { rowNonce: NONCE }).kind, null);
+});
+
+test('child report: the measured receipt plus the child-transcript report reaches HONEST-LIMIT', () => {
+  const msgs = measuredWake(MEASURED_REJECTION);
+  const outcome = measuredRequestCompactionOutcome(msgs, { rowNonce: NONCE });
+  const report = childReportAfterReceipt(msgs, { rowNonce: NONCE });
+  const evidence = {
+    row: 'R-RC-2', preflight: { ok: true }, parent_dispatch_accepted: true, delegate_requested: true,
+    child_session_observed: true, request_compaction_tool_result_observed: true,
+    request_compaction_receipt_role: 'toolResult', request_compaction_receipt_tool_name: 'request_compaction',
+    request_compaction_invocation_bound: outcome.nonceBound, child_yield_bound: outcome.yieldBound,
+    child_wake_turn_bound: outcome.wakeTurnBound, request_compaction_receipt_status: 'rejected',
+    request_compaction_rejected_context_threshold: outcome.kind === 'threshold_rejected_measured',
+    request_compaction_context_measured: outcome.measured, guard: 'context_threshold',
+    delegate_child_report_observed: report.kind === 'threshold', child_reported_context_threshold: report.kind === 'threshold',
+  };
+  assert.equal(classifyForReport(evidence).verdict, 'HONEST-LIMIT-candidate');
+  assert.equal(classifyForReport({ ...evidence, delegate_child_report_observed: false, child_reported_context_threshold: false }).verdict, 'PARTIAL-candidate', 'the live re-run state: receipt but no visible report');
+});

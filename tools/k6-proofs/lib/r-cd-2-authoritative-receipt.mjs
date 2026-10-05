@@ -5,6 +5,7 @@ import {
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
 import { canonicalJson } from './canonical-json.mjs';
+import { proofsServiceName } from './proofs-service-name.mjs';
 
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
@@ -199,6 +200,7 @@ export function validateRcd2AcquisitionReceipt(
   signingKey,
   expectedIdentity,
   evidence,
+  { serviceNameOverride = typeof process === 'undefined' ? undefined : process.env.OPENCLAW_PROOFS_SERVICE_NAME } = {},
 ) {
   const query = receipt?.query;
   const nonce = receipt?.nonce;
@@ -212,7 +214,7 @@ export function validateRcd2AcquisitionReceipt(
   const delegate = receipt?.delegate;
   const rowBinding = receipt?.rowBinding;
   const expectedQuery = reason && expectedIdentity
-    ? `{ resource.service.name="${expectedIdentity.seat.split('-')[0]}-prince" && ` +
+    ? `{ resource.service.name="${proofsServiceName({ seat: expectedIdentity.seat, override: serviceNameOverride })}" && ` +
       `name="continuation.delegate.dispatch" && .reason.hash="${reason.hash}" && ` +
       `.reason.length=${reason.length} && .delegate.mode="silent-wake" }`
     : null;

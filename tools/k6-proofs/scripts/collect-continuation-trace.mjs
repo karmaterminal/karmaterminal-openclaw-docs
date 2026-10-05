@@ -19,6 +19,7 @@ import {
   sealRcd2AcquisitionReceipt,
 } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { escapeTraceqlString, proofsServiceName } from '../lib/proofs-service-name.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 const CORRELATION_WINDOW_PADDING_SECONDS = 60;
@@ -65,11 +66,6 @@ function parseArgs(argv, env = process.env) {
   return out;
 }
 
-function escapeTraceqlString(value) {
-  const text = String(value ?? '');
-  if (!/^[A-Za-z0-9._:/-]+$/.test(text)) throw new Error(`unsafe TraceQL value: ${text}`);
-  return text;
-}
 
 function safeHex(value, length, label) {
   const text = String(value ?? '').toLowerCase();
@@ -508,10 +504,7 @@ async function main() {
   }
 
   const contract = traceContract(manifest, evidence);
-  const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
-  const serviceName = args.serviceName
-    ? escapeTraceqlString(args.serviceName)
-    : `${prince}-prince`;
+  const serviceName = proofsServiceName({ seat: args.seat, override: args.serviceName });
   const query = contract.kind === 'continuation'
     ? (() => {
         const modeClause = contract.mode === undefined

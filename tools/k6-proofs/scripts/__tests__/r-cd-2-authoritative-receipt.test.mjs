@@ -959,3 +959,26 @@ test('every production R-CD-2 receipt consumer binds or rejects complete run ide
     );
   }
 });
+
+test('R-CD-2 acquisition receipt from an isolated gateway validates under the same service-name override the collector used', () => {
+  // Live failure (isolated 14d31a81b1, docs 3915d027): the collector queried
+  // service "emeric-proof-rerun-14d31a81" (OPENCLAW_PROOFS_SERVICE_NAME, #560)
+  // while the validator hard-coded "<prince>-prince" -> invalid-shape:query-window.
+  const rowEvidence = evidence();
+  const query = `{ resource.service.name="ronan-proof-rerun-14d31a81" && name="continuation.delegate.dispatch" && .reason.hash="${rowEvidence.reason_hash}" && .reason.length=${rowEvidence.reason_length} && .delegate.mode="silent-wake" }`;
+  const isolated = correlation({ query, querySha256: createHash('sha256').update(query).digest('hex') });
+  const validate = (opts) => validateRcd2AcquisitionReceipt(isolated, signingKey, authorityIdentity, rowEvidence, opts).valid;
+  assert.equal(validate({ serviceNameOverride: 'ronan-proof-rerun-14d31a81' }), true);
+  assert.equal(validate({ serviceNameOverride: undefined }), false, 'default <prince>-prince must not accept an isolated query');
+  assert.equal(validate({ serviceNameOverride: 'ronan-proof-rerun-other' }), false, 'a different override must not accept it');
+  assert.equal(
+    validateRcd2AcquisitionReceipt(correlation(), signingKey, authorityIdentity, rowEvidence, { serviceNameOverride: undefined }).valid,
+    true,
+    'the default fleet receipt still validates',
+  );
+  assert.equal(
+    validateRcd2AcquisitionReceipt(correlation(), signingKey, authorityIdentity, rowEvidence, { serviceNameOverride: 'ronan-proof-rerun-14d31a81' }).valid,
+    false,
+    'a fleet receipt does not validate under an isolated override',
+  );
+});

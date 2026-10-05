@@ -766,3 +766,63 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('R-CD-2 identity reconciliation ignores a gateway runId inside a redacted event payload', async () => {
+  // Observed live 2026-10-05: gateway events carry their own agent runId
+  // ("R-CD-2-R-CD-2-<nonce>"), which differs from the harness run directory id.
+  const fixture = await writeRcd2Bundle(path.resolve('.'), {
+    evidenceOverrides: {
+      redacted_events: [
+        { ts: 1, kind: 'event', event: 'agent', data: { runId: 'R-CD-2-R-CD-2-1791174207176-2kqwmave', stream: 'lifecycle' } },
+      ],
+    },
+  });
+  try {
+    await invoke({
+      manifestPath: fixture.manifestPath,
+      candidateDir: fixture.runDir,
+      selectedDocsRef: RCD2_BASE.docsRef,
+      signingKey: RCD2_SIGNING_KEY,
+    });
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('R-CD-2 identity reconciliation still rejects an identity claim on the event entry itself', async () => {
+  await assert.rejects(
+    writeRcd2Bundle(path.resolve('.'), {
+      evidenceOverrides: { redacted_events: [{ ts: 1, kind: 'event', runId: 'forged-run-id' }] },
+    }).then(async (fixture) => {
+      try {
+        await invoke({
+          manifestPath: fixture.manifestPath,
+          candidateDir: fixture.runDir,
+          selectedDocsRef: RCD2_BASE.docsRef,
+          signingKey: RCD2_SIGNING_KEY,
+        });
+      } finally {
+        await fixture.cleanup();
+      }
+    }),
+    /R-CD-2 authority identity mismatch/,
+  );
+});
+
+test('R-CD-2 identity reconciliation still rejects a top-level evidence runId mismatch', async () => {
+  await assert.rejects(
+    writeRcd2Bundle(path.resolve('.'), { evidenceOverrides: { runId: 'forged-run-id' } }).then(async (fixture) => {
+      try {
+        await invoke({
+          manifestPath: fixture.manifestPath,
+          candidateDir: fixture.runDir,
+          selectedDocsRef: RCD2_BASE.docsRef,
+          signingKey: RCD2_SIGNING_KEY,
+        });
+      } finally {
+        await fixture.cleanup();
+      }
+    }),
+    /R-CD-2 authority identity mismatch/,
+  );
+});

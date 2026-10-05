@@ -276,6 +276,7 @@ export async function writeRcd2Bundle(repoRoot, {
   summaryVerdict = 'PARTIAL-candidate',
   manifestMarker = 'selected',
   scenarioMarker = 'selected',
+  evidenceOverrides = {},
 } = {}) {
   const workspace = await testWorkspace(repoRoot, 'rcd2-authority-consumer');
   const selected = { ...BASE, ...selectedIdentity };
@@ -311,11 +312,12 @@ export async function writeRcd2Bundle(repoRoot, {
     runId: claimed.runId,
     ...harness,
   };
-  const evidence = privateEvidence(
-    verdict === 'FAIL-candidate'
+  const evidence = privateEvidence({
+    ...(verdict === 'FAIL-candidate'
       ? { dispatch_failure_observed: true, failureCategory: 'provider-or-turn-failure' }
-      : {},
-  );
+      : {}),
+    ...evidenceOverrides,
+  });
   const authorityIdentity = rCd2AuthorityIdentity(metadata, claimed.runId);
   const tempoSnapshotBody = `${JSON.stringify({
     schema: 'openclaw.k6.public-tempo-trace.v1',

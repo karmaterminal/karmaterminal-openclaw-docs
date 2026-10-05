@@ -103,6 +103,7 @@ test('the live runtime success terminal (no status, aborted:false) succeeds', ()
     { ...live.data, status: 'cancelled', aborted: true },
     { ...live.data, status: 'future-terminal-status' },
     { ...live.data, phase: 'error' },
+    { ...live.data, yielded: true, stopReason: 'end_turn', livenessState: 'paused' },
   ]) {
     assert.equal(gatewayLifecycleSucceeded({ ...live, data }), false, JSON.stringify(data));
   }

@@ -28,7 +28,9 @@ export function gatewayLifecyclePhase(value) {
 export function gatewayLifecycleSucceeded(value) {
   if (gatewayLifecyclePhase(value) !== 'end') return false;
   const data = value.data;
-  if (data.aborted === true || data.error !== undefined) return false;
+  // A yielded end is paused (continue_work), not terminal success; the gateway
+  // emitter defaults aborted:false, so the yield marker must be checked itself.
+  if (data.aborted === true || data.error !== undefined || data.yielded === true) return false;
   const status = data.status;
   if (status === undefined) return data.aborted === false;
   return typeof status === 'string' && status.toLowerCase() === 'ok';

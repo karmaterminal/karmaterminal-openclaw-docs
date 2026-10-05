@@ -15,6 +15,7 @@ import {
   servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: { r_cd_model_token: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
   thresholds: { proof_failures: ['count==0'], r_cd_model_token_duration: ['p(95)<180000'] },
@@ -103,7 +104,7 @@ export default function () {
         childMetadataRequestInFlight = true;
         childMetadataAttempts += 1;
         tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     const served = { attempts: 0, inFlight: false, done: false };
     function requestServed(delayMs) {
@@ -113,7 +114,7 @@ export default function () {
         served.attempts += 1;
         evidence.child_served_history_attempts = served.attempts;
         if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     function onServedHistory(messages) {
       served.inFlight = false;

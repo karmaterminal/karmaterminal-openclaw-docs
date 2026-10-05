@@ -18,6 +18,7 @@ import {
 } from '../lib/model-identity.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: { r_cd_model_default: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
   thresholds: { proof_failures: ['count==0'], r_cd_model_default_duration: ['p(95)<180000'] },
@@ -125,7 +126,7 @@ export default function() {
         inFlight[who] = true;
         attempts[who] += 1;
         describeFor[tracker.send(socket, 'sessions.describe', { key })] = { who, key };
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     function start(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -162,7 +163,7 @@ export default function() {
         state.attempts += 1;
         evidence[who + '_served_history_attempts'] = state.attempts;
         if (!observer.refreshHistory(key, 100, 'served-' + who)) state.inFlight = false;
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
     function onServedHistory(who, messages) {
       const state = served[who];

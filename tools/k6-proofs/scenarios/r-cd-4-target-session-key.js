@@ -29,6 +29,7 @@ import {
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import { createHeartbeatAckTracker, messageRunId } from '../lib/wake-turn-receipt.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = {
   scenarios: {
@@ -236,7 +237,7 @@ export default function () {
         // Re-read until a receipt binds or the observation window closes.
         evidence.return_history_requests += 1;
         tracker.send(socket, 'chat.history', { sessionKey: targetSessionKey, limit: 200 });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function finishReturnHistoryPoll() {

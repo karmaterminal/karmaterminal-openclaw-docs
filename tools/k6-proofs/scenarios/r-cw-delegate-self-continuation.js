@@ -40,6 +40,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 import { childSessionKeysForRow } from '../lib/row-child-correlation.mjs';
 import { childMintedToken, cwDelegateSelfHops, parentReturnReceipt } from '../lib/cw-delegate-self-receipt.mjs';
 
@@ -185,7 +186,7 @@ export default function () {
         parentHistoryScheduled = false;
         evidence.parent_return_history_reads += 1;
         parentHistoryRequestId = tracker.send(socket, 'chat.history', { sessionKey, limit: 200 });
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function onParentHistory(classified) {
@@ -233,7 +234,7 @@ export default function () {
           hopReadInFlight = true;
           evidence.child_hop_history_reads += 1;
         }
-      }, delayMs);
+      }, k6TimeoutMs(delayMs));
     }
 
     function onChildHops(messages) {

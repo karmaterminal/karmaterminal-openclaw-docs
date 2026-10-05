@@ -87,6 +87,15 @@ function idHex(value, bytes, label) {
   return safeHex(decoded.toString('hex'), bytes * 2, label);
 }
 
+function searchTraceId(candidate) {
+  // Tempo's search API renders trace IDs without leading zeros (a trace whose
+  // id starts 0x05… comes back 31 hex characters long), while /api/traces and
+  // the spans carry the full 32. Restore the fixed width before validating.
+  const raw = String(candidate?.traceID || candidate?.traceId || candidate?.trace_id || '');
+  const padded = /^[0-9a-f]{1,31}$/i.test(raw) ? raw.padStart(32, '0') : raw;
+  return safeHex(padded, 32, 'search trace id');
+}
+
 function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
 }
@@ -541,7 +550,7 @@ async function main() {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
     if (candidates.length === 1) {
-      traceId = safeHex(candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id, 32, 'search trace id');
+      traceId = searchTraceId(candidates[0]);
       trace = await fetchTrace(args.tempoUrl, traceId);
       try {
         topology = contract.kind === 'continuation'
@@ -588,11 +597,7 @@ async function main() {
           : 'trace correlation candidate set changed during stabilization: no traces matched',
       );
     }
-    const stableTraceId = safeHex(
-      candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
-      32,
-      'search trace id',
-    );
+    const stableTraceId = searchTraceId(candidates[0]);
     if (stableTraceId !== provisionalTraceId) {
       throw new Error('trace correlation candidate set changed during stabilization');
     }
@@ -607,11 +612,7 @@ async function main() {
         : 'final trace correlation query found no matching Tempo trace',
     );
   }
-  traceId = safeHex(
-    candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
-    32,
-    'search trace id',
-  );
+  traceId = searchTraceId(candidates[0]);
   if (traceId !== provisionalTraceId) {
     throw new Error('trace correlation candidate set changed before finality');
   }

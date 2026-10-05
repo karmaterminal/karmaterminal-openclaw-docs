@@ -2067,3 +2067,62 @@ test('searches an isolated gateway service.name when one is supplied, and fails 
     assert.equal(r.queries.length, 0);
   });
 });
+
+test('accepts a Tempo search trace id rendered without its leading zero', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const fullId = '0516ee694eaee724a813fac7eae0b55d';
+  const searchRendered = fullId.replace(/^0+/, ''); // what Tempo /api/search returns
+  assert.equal(searchRendered.length, 31);
+  let fetchedPath = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      response.end(JSON.stringify({ traces: [{ traceID: searchRendered }] }));
+      return;
+    }
+    fetchedPath = url.pathname;
+    response.end(JSON.stringify(traceFixture({
+      traceId: fullId,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    assert.equal(result.traceId, fullId);
+    assert.equal(fetchedPath, `/api/traces/${fullId}`);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('still rejects a search trace id that is not hex', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify({ traces: [{ traceID: 'not-a-trace-id' }] }));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath, '--seat', 'cael-prince',
+        '--tempo-url', server.url, '--timeout-ms', '50', '--poll-ms', '10',
+      ]),
+      (error) => /search trace id/.test(String(error.stderr)),
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});

@@ -21,6 +21,11 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'tasks\.list'/);
   assert.doesNotMatch(scenario, /tracker\.send\(socket, 'sessions\.get'/);
   assert.match(scenario, /failClosedVerdict\(rawVerdict, \{ gate, observer \}\)/);
+  // Measured-wake shape: HONEST-LIMIT needs a measured receipt after the yield.
+  assert.match(scenario, /measuredRequestCompactionOutcome\(messages, \{ rowNonce \}\)/);
+  assert.match(scenario, /measured\.kind === 'threshold_rejected_measured' && measured\.yieldBound/);
+  assert.match(scenario, /const authoritativeThresholdReceipt =[\s\S]+request_compaction_context_measured[\s\S]+child_yield_bound/);
+  assert.doesNotMatch(scenario, /delaySeconds=0/);
   assert.match(scenario, /compactTaskIdentityToken\('RRC2', rowNonce\)/);
   assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate, rowNonce\)/);
   assert.match(scenario, /findRequestCompactionReceipt\(messages, \{ rowNonce \}\)/);

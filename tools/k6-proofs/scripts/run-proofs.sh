@@ -1244,10 +1244,12 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           .request_compaction_receipt_status == "rejected" and
           .request_compaction_invocation_bound == true and
           .request_compaction_rejected_context_threshold == true and
+          .request_compaction_context_measured == true and
+          .child_yield_bound == true and
           .guard == "context_threshold"
         )
       ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then
-        VERDICT_POLICY_REASON="R-RC-2 HONEST-LIMIT-candidate requires a nonce-bound request_compaction toolResult rejected by context_threshold; incomplete evidence is preserved as PARTIAL-candidate"
+        VERDICT_POLICY_REASON="R-RC-2 HONEST-LIMIT-candidate requires a nonce-bound, measured (contextUsage present) request_compaction toolResult rejected by context_threshold after the nonce-bound continue_work yield; incomplete evidence is preserved as PARTIAL-candidate"
       fi
       if [[ -n "$VERDICT_POLICY_REASON" ]]; then
         SUMMARY_VERDICT="PARTIAL-candidate"
@@ -1266,8 +1268,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           .request_compaction_tool_result_observed == true and
           .request_compaction_receipt_role == "toolResult" and
           .request_compaction_receipt_tool_name == "request_compaction" and
-          .request_compaction_receipt_status == "accepted" and
+          (.request_compaction_receipt_status == "accepted" or .request_compaction_receipt_status == "compaction_requested") and
           .request_compaction_invocation_bound == true and
+          .child_yield_bound == true and
           .request_compaction_accepted == true
         )
       ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then

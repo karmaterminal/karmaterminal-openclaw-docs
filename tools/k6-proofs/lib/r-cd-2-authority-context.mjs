@@ -547,6 +547,8 @@ function reconcileFlatClaim(value, selected, label) {
   claim(value.scenarioSha256, selected.scenarioSha256, `${label} scenarioSha256`);
 }
 
+const GATEWAY_EVENT_ENTRY = Symbol('gateway event entry');
+
 function reconcileNestedClaims(value, selected, label, carrier = '', root = true) {
   if (!value || typeof value !== 'object') return;
   if (!Array.isArray(value)) {
@@ -582,7 +584,15 @@ function reconcileNestedClaims(value, selected, label, carrier = '', root = true
   }
   for (const [key, entry] of Object.entries(value)) {
     if (entry && typeof entry === 'object') {
-      reconcileNestedClaims(entry, selected, `${label}.${key}`, key, false);
+      // `redacted_events[i].data` is a redacted gateway event payload: product
+      // data, not a harness identity claim. Its `runId` is the gateway's agent
+      // run id (e.g. "R-CD-2-<nonce>"), which legitimately differs from the
+      // harness run directory id, so it must not be reconciled as one.
+      if (key === 'data' && carrier === GATEWAY_EVENT_ENTRY) continue;
+      const nextCarrier = carrier === 'redacted_events' && Array.isArray(value)
+        ? GATEWAY_EVENT_ENTRY
+        : key;
+      reconcileNestedClaims(entry, selected, `${label}.${key}`, nextCarrier, false);
     }
   }
 }

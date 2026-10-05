@@ -17,8 +17,12 @@
     "name": "r-cd-model-token",
     "description": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
     "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.list",
+      "chat.history",
+      "sessions.describe"
     ],
     "status": "runnable",
     "notes": "Requires a seat/session surface where final bracket text is scanned; message-body seats remain PARTIAL by declared seat class.",
@@ -50,7 +54,7 @@
     {
       "name": "child-model-byte",
       "required": true,
-      "description": "Observed child runtime model/provider byte from status/session metadata or child self-report backed by session metadata"
+      "description": "Token delegate child SERVED provider/model from the row-bound assistant message in the child's own chat.history inside the row run window (after the row anchor, first message carrying the row sentinel; stopReason recorded). sessions.describe model/modelProvider is recorded separately as the persisted SELECTION and alone yields PARTIAL (selection matched; served route unproven). Active fallback or a mixed served window is FAIL (#561/#562 review)."
     },
     {
       "name": "return-payload",

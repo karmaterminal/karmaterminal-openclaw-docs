@@ -1,6 +1,18 @@
 /**
  * Scenario: R-RC-2 — delegate child request_compaction threshold-aware proof.
  *
+ * Measured-wake shape (#562 review): a delegated child's first turn reads a
+ * session snapshot with no turn-end token total, so request_compaction there
+ * always returns the "unknown" branch (openclaw 41b8d69b90
+ * request-compaction-tool.ts:211-217). The child therefore yields first:
+ *   turn 1: reply RRC2-CHILD-READY <nonce>, call continue_work (reason carries
+ *           the nonce), end the turn (usage persisted at turn end);
+ *   turn 2: the continue_work wake calls request_compaction, which now carries
+ *           a measured contextUsage and threshold.
+ * Both turns are bound to the row nonce in the child's own transcript, in
+ * order. An "unknown" receipt is recorded as context_unknown and stays PARTIAL.
+ * The earlier first-turn shape is dropped (it could only reach "unknown").
+ *
  * Parent session asks the agent to fire continue_delegate(mode="normal") with a
  * child task that calls request_compaction. The accepted outcomes are:
  *   - child reports REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD when runtime
@@ -17,12 +29,18 @@ import crypto from 'k6/crypto';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { findRequestCompactionReceipt } from '../lib/request-compaction-receipt.js';
+import {
+  RC2_ACCEPTED_STATUSES,
+  classifyRrc2Evidence,
+  findRequestCompactionReceipt,
+  measuredRequestCompactionOutcome,
+} from '../lib/request-compaction-receipt.js';
 import {
   childSessionKeyForRow,
   compactTaskIdentityToken,
   renderRowTaskTemplate,
 } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -98,10 +116,19 @@ export default function () {
     child_history_requests: 0,
     child_history_available: false,
     task_identity_token: taskIdentityToken,
-    task_list_responses: 0,
-    task_records_seen: 0,
-    task_records_with_child_key: 0,
-    task_identity_matches: 0,
+    child_status: null,
+    event_child_candidates: [],
+    child_identity_conflict: false,
+    child_identity_reason: null,
+    rc2_shape: 'measured-wake',
+    delegate_delay_seconds: null,
+    child_ready_sentinel_observed: false,
+    child_yield_bound: false,
+    child_yield_call_observed: false,
+    child_wake_turn_bound: false,
+    request_compaction_outcome_kind: null,
+    request_compaction_context_measured: false,
+    request_compaction_context_unknown: false,
     delegate_child_report_observed: false,
     child_reported_context_threshold: false,
     request_compaction_tool_result_observed: false,
@@ -119,9 +146,14 @@ export default function () {
     reported_context_usage: null,
     reported_threshold: null,
     trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-RC-2');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -137,6 +169,8 @@ export default function () {
         evidence.request_compaction_receipt_status === 'rejected' &&
         evidence.request_compaction_invocation_bound &&
         evidence.request_compaction_rejected_context_threshold &&
+        evidence.request_compaction_context_measured &&
+        evidence.child_yield_bound &&
         evidence.guard === 'context_threshold';
     }
 
@@ -145,8 +179,9 @@ export default function () {
         evidence.request_compaction_tool_result_observed &&
         evidence.request_compaction_receipt_role === 'toolResult' &&
         evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-        evidence.request_compaction_receipt_status === 'accepted' &&
+        RC2_ACCEPTED_STATUSES.includes(evidence.request_compaction_receipt_status) &&
         evidence.request_compaction_invocation_bound &&
+        evidence.child_yield_bound &&
         evidence.request_compaction_accepted;
     }
 
@@ -162,6 +197,30 @@ export default function () {
       if (thresholdComplete || acceptedComplete) socket.close();
     }
 
+    // #563 item 2: the observer binding is the only source that binds; event
+    // candidates cross-check it and any disagreement fails closed.
+    function resolveChildIdentity() {
+      const identity = reconcileChildIdentity({
+        observerBinding: observer.boundChild(rowNonce, taskIdentityToken ? [taskIdentityToken] : []),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) {
+        evidence.child_identity_conflict = true;
+        return;
+      }
+      if (!identity.childSessionKey || evidence.child_identity_conflict) return;
+      evidence.child_status = observer.childStatus(identity.childSessionKey);
+      if (!evidence.child_session_key) {
+        evidence.child_session_observed = true;
+        evidence.child_session_key = identity.childSessionKey;
+        requestChildHistory(250);
+        console.log('✓ nonce-bound delegated child session observed (session row + own spawn task)');
+      } else if (evidence.child_session_key !== identity.childSessionKey) {
+        evidence.child_identity_conflict = true;
+      }
+    }
+
     function requestChildHistory(delayMs) {
       if (!evidence.child_session_key || childHistoryPollScheduled || childHistoryPollInFlight) return;
       childHistoryPollScheduled = true;
@@ -170,7 +229,9 @@ export default function () {
         childHistoryPollInFlight = true;
         childHistoryPolls += 1;
         evidence.child_history_requests = childHistoryPolls;
-        tracker.send(socket, 'sessions.get', { key: evidence.child_session_key, limit: 200 });
+        // sessions.get is advertise:false on current builds (core-descriptors.ts:383),
+        // so the preflight cannot verify it; chat.history is the advertised read.
+        tracker.send(socket, 'chat.history', { sessionKey: evidence.child_session_key, limit: 200 });
       }, delayMs);
     }
 
@@ -194,9 +255,14 @@ export default function () {
         evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
         evidence.reason_length = childTask.length;
         evidence.delegate_mode = inv.mode || 'normal';
+        // A positive delay takes the timer path, so the delegate emits both
+        // continuation.delegate.dispatch and continuation.delegate.fire
+        // (delegate-dispatch.ts:358-359, 383-407); delay 0 emits dispatch only.
+        const delegateDelaySeconds = Number(inv.delaySeconds ?? 1);
+        evidence.delegate_delay_seconds = delegateDelaySeconds;
         const instruction =
           `${HARNESS_MARKER} R-RC-2 nonce ${rowNonce}. ` +
-          `Call continue_delegate with mode="normal", delaySeconds=0, task="${childTask}". ` +
+          `Call continue_delegate with mode="normal", delaySeconds=${delegateDelaySeconds}, task="${childTask}". ` +
           `No other action.`;
         evidence.delegate_requested = true;
         tracker.send(socket, 'sessions.send', {
@@ -205,14 +271,13 @@ export default function () {
           idempotencyKey: `R-RC-2-${rowNonce}`,
         });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 10000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 60000);
+      for (const delayMs of [10000, 30000, 60000, 90000]) {
+        socket.setTimeout(() => observer.poll(), delayMs);
+      }
       socket.setTimeout(() => socket.close(), 120000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello() {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-rc-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -221,12 +286,35 @@ export default function () {
       } else {
         socket.setTimeout(startProofFlow, 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-RC-2 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello();
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          // The delegated child's own row names this session in spawnedBy and its
+          // own spawn task carries the nonce or the RRC2 task token.
+          resolveChildIdentity();
+        }
         evidence.redacted_events.push({
           ts: Date.now(),
           kind: classified.kind,
@@ -263,30 +351,7 @@ export default function () {
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = Array.isArray(classified.payload?.tasks) ? classified.payload.tasks : [];
-          evidence.task_list_responses += 1;
-          evidence.task_records_seen += tasks.length;
-          evidence.task_records_with_child_key += tasks.filter(
-            (task) => typeof task?.childSessionKey === 'string',
-          ).length;
-          evidence.task_identity_matches += tasks.filter(
-            (task) => typeof task?.title === 'string' && task.title.includes(taskIdentityToken),
-          ).length;
-          const observedChildSessionKey = childSessionKeyForRow(
-            classified.payload,
-            rowNonce,
-            [taskIdentityToken],
-          );
-          if (observedChildSessionKey && !evidence.child_session_key) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            requestChildHistory(250);
-            console.log('✓ nonce-bound delegated child session observed in task ledger');
-          }
-        }
-
-        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+        if (!observed && classified.kind === 'response' && classified.method === 'chat.history') {
           childHistoryPollInFlight = false;
           if (!classified.ok) {
             requestChildHistory(2000);
@@ -294,6 +359,15 @@ export default function () {
             const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
             evidence.child_history_available = true;
             const receipt = findRequestCompactionReceipt(messages, { rowNonce });
+            const measured = measuredRequestCompactionOutcome(messages, { rowNonce });
+            evidence.child_yield_bound = measured.yieldBound;
+            evidence.child_yield_call_observed = measured.yieldCallObserved;
+            evidence.child_wake_turn_bound = measured.wakeTurnBound;
+            evidence.request_compaction_outcome_kind = measured.kind;
+            evidence.request_compaction_context_measured = measured.measured === true;
+            evidence.request_compaction_context_unknown = measured.kind === 'context_unknown';
+            evidence.child_ready_sentinel_observed = messages.some((message) => message?.role === 'assistant' &&
+              JSON.stringify(message.content || '').includes(`RRC2-CHILD-READY ${rowNonce}`));
             if (receipt.kind !== 'missing') {
               evidence.request_compaction_tool_result_observed = true;
               evidence.request_compaction_receipt_role = 'toolResult';
@@ -308,14 +382,20 @@ export default function () {
                 ? receipt.receipt.threshold
                 : null;
             }
-            if (receipt.kind === 'threshold_rejected' && receipt.nonceBound === true) {
+            if (receipt.kind === 'threshold_rejected' && receipt.nonceBound === true &&
+                measured.kind === 'threshold_rejected_measured' && measured.yieldBound) {
               evidence.request_compaction_rejected_context_threshold = true;
-              console.log('✓ nonce-bound request_compaction toolResult rejected by context_threshold');
+              console.log('✓ nonce-bound request_compaction toolResult rejected by context_threshold (measured, after the yield)');
               maybeCloseCompletedProof();
+            } else if (receipt.kind === 'threshold_rejected' && receipt.nonceBound === true &&
+                measured.kind === 'context_unknown') {
+              // The unknown branch is a final answer for that call, never HONEST-LIMIT.
+              console.log('ℹ request_compaction answered context unknown; not a measured threshold receipt');
             } else if (
               receipt.kind === 'non_threshold_result' &&
               receipt.nonceBound === true &&
-              receipt.receipt?.status === 'accepted'
+              RC2_ACCEPTED_STATUSES.includes(receipt.receipt?.status) &&
+              measured.yieldBound
             ) {
               evidence.request_compaction_accepted = true;
               console.log('✓ nonce-bound request_compaction accepted toolResult observed');
@@ -328,16 +408,14 @@ export default function () {
 
         if (classified.kind === 'event') {
           const eventData = classified.data || {};
-          const observedChildSessionKey = childSessionKeyForRow(
+          const eventChildSessionKey = childSessionKeyForRow(
             eventData,
             rowNonce,
             taskIdentityToken ? [taskIdentityToken] : [],
           );
-          if (observedChildSessionKey && !evidence.child_session_key) {
-            evidence.child_session_observed = true;
-            evidence.child_session_key = observedChildSessionKey;
-            requestChildHistory(250);
-            console.log('✓ nonce-bound delegated child session observed');
+          if (eventChildSessionKey && !evidence.event_child_candidates.includes(eventChildSessionKey)) {
+            evidence.event_child_candidates.push(eventChildSessionKey);
+            resolveChildIdentity();
           }
           const text = eventText(classified);
           if (!text.includes(rowNonce)) return;
@@ -379,44 +457,16 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
-  const authoritativeThresholdReceipt =
-    evidence.child_session_observed &&
-    evidence.request_compaction_tool_result_observed &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'rejected' &&
-    evidence.request_compaction_invocation_bound &&
-    evidence.request_compaction_rejected_context_threshold &&
-    evidence.guard === 'context_threshold';
-  const authoritativeAcceptedReceipt =
-    evidence.child_session_observed &&
-    evidence.request_compaction_tool_result_observed &&
-    evidence.request_compaction_receipt_role === 'toolResult' &&
-    evidence.request_compaction_receipt_tool_name === 'request_compaction' &&
-    evidence.request_compaction_receipt_status === 'accepted' &&
-    evidence.request_compaction_invocation_bound &&
-    evidence.request_compaction_accepted;
-  const verifiedThresholdOutcome =
-    authoritativeThresholdReceipt &&
-    evidence.delegate_child_report_observed &&
-    evidence.child_reported_context_threshold;
-  const verifiedPostCompactionOutcome =
-    authoritativeAcceptedReceipt &&
-    evidence.delegate_child_report_observed &&
-    evidence.post_compaction_path_observed;
-  const partialOutcomeEvidence =
-    authoritativeThresholdReceipt ||
-    authoritativeAcceptedReceipt ||
-    evidence.delegate_child_report_observed ||
-    evidence.child_reported_context_threshold ||
-    evidence.request_compaction_accepted ||
-    evidence.request_compaction_accepted_reported ||
-    evidence.post_compaction_path_observed;
-  evidence.verdict = verifiedPostCompactionOutcome
-    ? 'PASS-candidate'
-    : (verifiedThresholdOutcome
-      ? 'HONEST-LIMIT-candidate'
-      : (partialOutcomeEvidence ? 'PARTIAL-candidate' : 'FAIL-candidate'));
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
+  // One classifier for the scenario and the manual postprocessor (#563 item 1).
+  const outcome = classifyRrc2Evidence(evidence);
+  const verifiedThresholdOutcome = outcome.verdict === 'HONEST-LIMIT-candidate';
+  const verifiedPostCompactionOutcome = outcome.verdict === 'PASS-candidate';
+  const finalVerdict = failClosedVerdict(outcome.verdict, { gate, observer });
+  evidence.verdict = finalVerdict.verdict;
+  evidence.verdict_reason = finalVerdict.reason || outcome.reason;
+  if (finalVerdict.verdict === 'PARTIAL-candidate' && finalVerdict.reason) failures.add(1);
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 

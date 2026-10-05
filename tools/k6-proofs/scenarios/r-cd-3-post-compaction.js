@@ -15,6 +15,7 @@ import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 
 export const options = {
   scenarios: {
@@ -88,9 +89,12 @@ export default function () {
     context_usage: null,
     threshold: null,
     trace_id: null,
+    preflight: null,
+    verdict_reason: null,
     redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-3');
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -116,14 +120,12 @@ export default function () {
           idempotencyKey: `R-CD-3-${rowNonce}`,
         });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 10000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 20 }), 70000);
+      // #562: the old task-ledger poll here was log-only (no evidence field,
+      // no verdict input). The ledger RPC is gone upstream; nothing replaces it.
       socket.setTimeout(() => socket.close(), 150000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello() {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cd-3-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -132,11 +134,23 @@ export default function () {
       } else {
         socket.setTimeout(startProofFlow, 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CD-3 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello();
         const classified = tracker.classify(msg);
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -170,13 +184,6 @@ export default function () {
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
-          }
-        }
-
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const taskStr = JSON.stringify(classified.payload || {});
-          if (taskStr.includes(rowNonce) && (taskStr.includes('post-compaction') || taskStr.includes('R-CD-3'))) {
-            console.log('✓ task ledger contains R-CD-3 nonce context');
           }
         }
 
@@ -215,9 +222,13 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
-  evidence.verdict = evidence.lifeboat_return_observed
+  evidence.preflight = gate.result;
+  const rawVerdict = evidence.lifeboat_return_observed
     ? 'PASS-candidate'
     : (evidence.threshold_refusal_observed || evidence.compaction_accepted ? 'PARTIAL-candidate' : 'FAIL-candidate');
+  const finalVerdict = failClosedVerdict(rawVerdict, { gate });
+  evidence.verdict = finalVerdict.verdict;
+  evidence.verdict_reason = finalVerdict.reason;
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 

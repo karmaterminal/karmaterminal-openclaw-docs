@@ -15,12 +15,13 @@
   },
   "scenario": {
     "name": "r-cd-1-typed-delegate",
-    "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
+    "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes the row-bound child (child observer) and parent return.",
     "methods": [
       "sessions.create",
-      "sessions.send",
       "sessions.messages.subscribe",
-      "tasks.list"
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cd-1-typed-delegate.js"
@@ -41,7 +42,7 @@
     {
       "name": "task-ledger-entry",
       "required": false,
-      "description": "Optional context only: generic task ledger row with nonce correlation (may be absent for continue_delegate)"
+      "description": "Optional context only. Re-derived (#562): the task ledger RPC was removed upstream; this receipt is the row-bound child from the child observer (own row spawnedBy = parent, own spawn task carries the nonce), evidence child_record_observed_optional"
     },
     {
       "name": "child-session-key",
@@ -75,7 +76,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Typed tool path. PASS-candidate when dispatch is accepted, CD1-DELEGATE-SCHEDULED is emitted after the tool result, and CD1-DONE/delegate.return is observed post-dispatch. task-ledger-entry is optional context only because continue_delegate often uses pending-delegate/subagent surfaces rather than generic tasks.list."
+    "notes": "Typed tool path. PASS-candidate when dispatch is accepted, CD1-DELEGATE-SCHEDULED is emitted after the tool result, and CD1-DONE/delegate.return is observed post-dispatch. task-ledger-entry is optional context only; since #562 it is re-derived from the child observer because the task-ledger RPC (tasks.list) was removed upstream."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",

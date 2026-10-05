@@ -30,7 +30,7 @@ function usage() {
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
   [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000] \\
-  [--settle-ms <defaults-to-poll-ms>]`);
+  [--settle-ms <defaults-to-poll-ms>] [--service-name <otel service.name>]`);
 }
 
 function parseArgs(argv, env = process.env) {
@@ -45,10 +45,13 @@ function parseArgs(argv, env = process.env) {
     timeoutMs: 180000,
     pollMs: 2000,
     settleMs: null,
+    // Isolated proof gateways may export under their own service.name; the
+    // seat-name convention below only holds for a prince's live gateway.
+    serviceName: env.OPENCLAW_PROOFS_SERVICE_NAME || null,
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id', '--service-name'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -82,6 +85,15 @@ function idHex(value, bytes, label) {
   const decoded = Buffer.from(text, 'base64');
   if (decoded.length !== bytes) throw new Error(`invalid ${label} byte length`);
   return safeHex(decoded.toString('hex'), bytes * 2, label);
+}
+
+function searchTraceId(candidate) {
+  // Tempo's search API renders trace IDs without leading zeros (a trace whose
+  // id starts 0x05… comes back 31 hex characters long), while /api/traces and
+  // the spans carry the full 32. Restore the fixed width before validating.
+  const raw = String(candidate?.traceID || candidate?.traceId || candidate?.trace_id || '');
+  const padded = /^[0-9a-f]{1,31}$/i.test(raw) ? raw.padStart(32, '0') : raw;
+  return safeHex(padded, 32, 'search trace id');
 }
 
 function attributes(span) {
@@ -497,7 +509,9 @@ async function main() {
 
   const contract = traceContract(manifest, evidence);
   const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
-  const serviceName = `${prince}-prince`;
+  const serviceName = args.serviceName
+    ? escapeTraceqlString(args.serviceName)
+    : `${prince}-prince`;
   const query = contract.kind === 'continuation'
     ? (() => {
         const modeClause = contract.mode === undefined
@@ -536,7 +550,7 @@ async function main() {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
     if (candidates.length === 1) {
-      traceId = safeHex(candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id, 32, 'search trace id');
+      traceId = searchTraceId(candidates[0]);
       trace = await fetchTrace(args.tempoUrl, traceId);
       try {
         topology = contract.kind === 'continuation'
@@ -583,11 +597,7 @@ async function main() {
           : 'trace correlation candidate set changed during stabilization: no traces matched',
       );
     }
-    const stableTraceId = safeHex(
-      candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
-      32,
-      'search trace id',
-    );
+    const stableTraceId = searchTraceId(candidates[0]);
     if (stableTraceId !== provisionalTraceId) {
       throw new Error('trace correlation candidate set changed during stabilization');
     }
@@ -602,11 +612,7 @@ async function main() {
         : 'final trace correlation query found no matching Tempo trace',
     );
   }
-  traceId = safeHex(
-    candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
-    32,
-    'search trace id',
-  );
+  traceId = searchTraceId(candidates[0]);
   if (traceId !== provisionalTraceId) {
     throw new Error('trace correlation candidate set changed before finality');
   }

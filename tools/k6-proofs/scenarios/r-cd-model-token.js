@@ -5,11 +5,14 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 import {
+  activeFallbackFromSessionMetadata,
   classifyModelIdentity,
   modelFromSessionMetadata,
   normalizeModel,
   resolveRequestedModel,
+  servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
 export const options = {
@@ -24,6 +27,8 @@ const manifest = loadManifestFromEnv();
 // model the seat did not have and the row still reported the echoed alias.
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 1, idempotencyKeyPrefix: 'R-CD-MODEL-TOKEN', taskNamePrefix: 'r-cd-model-token' };
 const HARNESS_MARKER = '[k6-proof-harness]';
+// Re-read the served transcript until the sentinel binds; bounded and recorded.
+const SERVED_HISTORY_MAX_ATTEMPTS = 15;
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_TOKEN_EVIDENCE_DELAY_MS || 1500);
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function escapeRegex(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -63,12 +68,19 @@ export default function () {
     dispatch_refused: null, prompt_injected: false, subagent_spawn_requested: false,
     subagent_spawn_accepted: false, bracket_token_observed: false, bracket_model_modifier_observed: false,
     hop1_child_session_key: null, child_session_observed: false, child_session_key: null,
-    child_session_metadata_observed: false, child_model_byte: null, child_model_source: null,
-    child_self_reported_model: null, child_session_metadata: null, model_matches: false, return_payload: false,
+    event_hop1_candidates: [], event_child_candidates: [], child_identity_conflict: false, child_identity_reason: null,
+    // Selection (sessions.describe) and run-window SERVED model (chat.history) are separate.
+    child_session_metadata_observed: false, child_selected_model_byte: null, child_selected_model_source: null,
+    child_active_fallback: null, child_served_model_byte: null, child_served_receipt: null,
+    child_self_reported_model: null, child_session_metadata: null, model_matches: false, selection_matches: false, return_payload: false,
     hop1_token: hop1Token, delegate_token: delegateToken,
-    dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null, redacted_events: [],
+    dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null,
+    preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-MODEL-TOKEN');
+  // Depth 2: hop-1 names the parent in spawnedBy; the bracket delegate names hop-1.
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey, maxDepth: 2 });
   if (inv.requestedModelRefusal || !hop1Token || !delegateToken) {
     // Refuse before dispatch: nothing is sent and no attempt is spent.
     evidence.dispatch_refused = inv.requestedModelRefusal || 'row task identity tokens could not be rendered';
@@ -93,11 +105,56 @@ export default function () {
         tracker.send(socket, 'sessions.describe', { key: evidence.child_session_key });
       }, delayMs);
     }
-    function observeDelegateChild(socket, payload) {
-      const key = childSessionKeyForTokenOnly(payload, delegateToken, hop1Token);
-      if (!key || evidence.child_session_key) return;
+    const served = { attempts: 0, inFlight: false, done: false };
+    function requestServed(delayMs) {
+      if (!evidence.child_session_key || served.done || served.inFlight || served.attempts >= SERVED_HISTORY_MAX_ATTEMPTS) return;
+      served.inFlight = true;
+      socket.setTimeout(() => {
+        served.attempts += 1;
+        evidence.child_served_history_attempts = served.attempts;
+        if (!observer.refreshHistory(evidence.child_session_key, 100, 'served-child')) served.inFlight = false;
+      }, delayMs);
+    }
+    function onServedHistory(messages) {
+      served.inFlight = false;
+      const receipt = servedReceiptFromHistory(messages, { anchor: delegateToken, sentinel: 'MODEL-TOKEN-DELEGATE-DONE ' + rowNonce });
+      evidence.child_served_receipt = receipt;
+      evidence.child_served_model_byte = receipt.served;
+      if (receipt.served || receipt.conflict) { served.done = true; return; }
+      requestServed(2000);
+    }
+    function noteEventCandidate(list, key) {
+      if (key && !list.includes(key)) list.push(key);
+    }
+    function markConflict(reason) {
+      evidence.child_identity_conflict = true;
+      evidence.child_identity_reason = reason;
+    }
+    // #562 / #563 item 2: hop-1's own row names the parent and its own spawn
+    // task carries the hop-1 token; the delegate's own row names hop-1 and its
+    // own task carries only the delegate token (hop-1 embeds both, so token-only
+    // excludes it). Only these observer bindings bind; event-path candidates
+    // cross-check them and any disagreement or ambiguity fails closed.
+    function observeDelegateLineage(socket) {
+      if (evidence.child_identity_conflict) return;
+      const hop1 = reconcileChildIdentity({
+        observerBinding: observer.boundChild(hop1Token, [], { spawnedBy: sessionKey }),
+        eventCandidates: evidence.event_hop1_candidates,
+      });
+      if (hop1.conflict) return markConflict(`hop-1: ${hop1.reason}`);
+      if (!hop1.childSessionKey) return;
+      if (evidence.hop1_child_session_key && evidence.hop1_child_session_key !== hop1.childSessionKey) return markConflict('hop-1 identity changed');
+      evidence.hop1_child_session_key = hop1.childSessionKey;
+      const delegate = reconcileChildIdentity({
+        observerBinding: observer.boundChildTokenOnly(delegateToken, hop1Token, { spawnedBy: hop1.childSessionKey }),
+        eventCandidates: evidence.event_child_candidates,
+      });
+      if (delegate.conflict) return markConflict(`delegate: ${delegate.reason}`);
+      if (!delegate.childSessionKey) return;
+      if (evidence.child_session_key && evidence.child_session_key !== delegate.childSessionKey) return markConflict('delegate identity changed');
+      if (evidence.child_session_key) return;
       evidence.child_session_observed = true;
-      evidence.child_session_key = key;
+      evidence.child_session_key = delegate.childSessionKey;
       requestChildMetadata(socket);
     }
     function startProofFlow(socket) {
@@ -112,23 +169,37 @@ export default function () {
         evidence.subagent_spawn_requested = true;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: agentInstruction, idempotencyKey: inv.idempotencyKeyPrefix + '-DISPATCH-' + rowNonce });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 30000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 60000);
+      for (const delayMs of [15000, 30000, 60000, 90000]) socket.setTimeout(() => observer.poll(), delayMs);
       socket.setTimeout(() => socket.close(), 180000);
     }
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = ('r-cd-model-token-' + rowNonce).toLowerCase().replace(/[^a-z0-9-]/g, '-');
           tracker.send(socket, 'sessions.create', { key: disposableKey, label: 'k6 R-CD-MODEL-TOKEN ' + rowNonce });
         }, 250);
       } else socket.setTimeout(() => startProofFlow(socket), 500);
+    }
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw); const classified = tracker.classify(msg);
+        const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error('✗ R-CD-MODEL-TOKEN preflight refused before dispatch: ' + gate.result.reason);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
+        const classified = tracker.classify(msg);
         evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: classified.payload ? redactEvent(classified.payload) : null });
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); startProofFlow(socket); }
@@ -138,14 +209,22 @@ export default function () {
           if (classified.ok) { evidence.prompt_injected = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — parent agent turn triggered'); }
           else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') observeDelegateChild(socket, classified.payload);
+        if (observed) {
+          const history = observer.handle(observed, classified);
+          if (observed.purpose === 'served-child') {
+            if (history) onServedHistory(history);
+            else { served.inFlight = false; if (!observer.state.refusal) requestServed(2000); }
+          }
+          observeDelegateLineage(socket);
+        }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;
           const child = classified.payload?.session || null;
           if (child && (!child.key || child.key === evidence.child_session_key)) {
             evidence.child_session_metadata_observed = true;
-            evidence.child_model_byte = modelFromSessionMetadata(child);
-            evidence.child_model_source = 'gateway sessions.describe persisted provider/model metadata (delegate child)';
+            evidence.child_selected_model_byte = modelFromSessionMetadata(child);
+            evidence.child_selected_model_source = 'gateway sessions.describe persisted model selection (delegate child; not a served receipt)';
+            evidence.child_active_fallback = activeFallbackFromSessionMetadata(child);
             evidence.child_session_metadata = { key: child.key || null, provider: child.modelProvider || child.provider || null, model: child.model || null, modelSelectionLocked: child.modelSelectionLocked === true };
             console.log('✓ delegate child session metadata observed');
           } else if (!classified.ok) {
@@ -155,8 +234,9 @@ export default function () {
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          if (eventData.childSessionKey && !evidence.hop1_child_session_key && eventStr.includes(hop1Token)) evidence.hop1_child_session_key = eventData.childSessionKey;
-          observeDelegateChild(socket, eventData);
+          if (eventData.childSessionKey && eventStr.includes(hop1Token)) noteEventCandidate(evidence.event_hop1_candidates, eventData.childSessionKey);
+          noteEventCandidate(evidence.event_child_candidates, childSessionKeyForTokenOnly(eventData, delegateToken, hop1Token));
+          observeDelegateLineage(socket);
           if (eventStr.includes(rowNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) console.log('ℹ Ignoring harness prompt echo event');
             else if (evidence.prompt_injected && evidence.dispatch_accepted_at_ms && (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
@@ -167,30 +247,52 @@ export default function () {
               if (done) {
                 evidence.return_payload = true;
                 evidence.child_self_reported_model = normalizeModel(done[1]);
+                requestServed(500);
                 console.log('✓ MODEL-TOKEN-DELEGATE-DONE return sentinel observed (self-report is auxiliary, not used for equality)');
               }
             }
           }
         }
-        if (evidence.prompt_injected && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.return_payload && evidence.child_session_metadata_observed) { console.log('All required R-CD-MODEL-TOKEN evidence gathered, closing early'); socket.close(); }
+        if (evidence.return_payload && evidence.child_session_key && !served.done) requestServed(500);
+        if (evidence.prompt_injected && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.return_payload && evidence.child_session_metadata_observed && served.done) { console.log('All required R-CD-MODEL-TOKEN evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });
     socket.on('error', (e) => { console.error('ws error: ' + (e && e.error ? e.error() : e)); failures.add(1); });
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   const complete = (!createDisposableSession || evidence.session_created) && evidence.prompt_injected && evidence.subagent_spawn_requested && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.child_session_observed && evidence.return_payload;
-  const identity = classifyModelIdentity({ baseline: evidence.requested_model_byte, observed: evidence.child_model_byte, complete });
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
+  const identity = classifyModelIdentity({
+    baseline: evidence.requested_model_byte,
+    selected: evidence.child_selected_model_byte,
+    served: evidence.child_served_model_byte,
+    servedConflict: evidence.child_served_receipt?.conflict === true,
+    activeFallback: evidence.child_active_fallback,
+    complete,
+  });
+  // A served/selection mismatch on a bound child is authoritative; an unrelated
+  // later observer error does not erase it (it is recorded as observer_reason).
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  if (evidence.child_identity_conflict) {
+    // A conflicting child identity means no FAIL or PASS is about a proven child.
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = finalVerdict.reason || `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
+  evidence.observer_reason = finalVerdict.observerReason || null;
   evidence.model_matches = identity.modelMatches;
-  evidence.model_classification_reason = identity.reason || evidence.model_classification_reason;
-  finalEvidence = { ...evidence, verdict: identity.verdict };
+  evidence.selection_matches = identity.selectionMatches;
+  evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
+  evidence.verdict_reason = finalVerdict.reason;
+  finalEvidence = { ...evidence, verdict: finalVerdict.verdict };
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
-  check(null, { 'prompt injected': () => evidence.prompt_injected, 'subagent spawn requested': () => evidence.subagent_spawn_requested, 'subagent spawn accepted': () => evidence.subagent_spawn_accepted, 'bracket token observed': () => evidence.bracket_token_observed, 'bracket model modifier observed': () => evidence.bracket_model_modifier_observed, 'delegate return observed': () => evidence.return_payload, 'authoritative delegate-child model byte': () => !!evidence.child_model_byte, 'requested model observed': () => evidence.model_matches });
-  if (identity.verdict !== 'PASS-candidate') failures.add(1);
-  console.log('\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOKEN] VERDICT: ' + identity.verdict);
+  check(null, { 'prompt injected': () => evidence.prompt_injected, 'subagent spawn requested': () => evidence.subagent_spawn_requested, 'subagent spawn accepted': () => evidence.subagent_spawn_accepted, 'bracket token observed': () => evidence.bracket_token_observed, 'bracket model modifier observed': () => evidence.bracket_model_modifier_observed, 'delegate return observed': () => evidence.return_payload, 'delegate-child selected model recorded': () => !!evidence.child_selected_model_byte, 'delegate-child served model (run-window bound)': () => !!evidence.child_served_model_byte, 'requested model served': () => evidence.model_matches });
+  if (finalVerdict.verdict !== 'PASS-candidate') failures.add(1);
+  console.log('\n--- R-CD-MODEL-TOKEN EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-TOKEN] VERDICT: ' + finalVerdict.verdict);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const summary = { row: 'R-CD-MODEL-TOKEN', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: finalEvidence?.verdict || 'PARTIAL-candidate', requestedModel: finalEvidence?.requested_model_byte || null, observedModel: finalEvidence?.child_model_byte || null, observedModelSource: finalEvidence?.child_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_token_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } };
+  const summary = { row: 'R-CD-MODEL-TOKEN', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: finalEvidence?.verdict || 'PARTIAL-candidate', requestedModel: finalEvidence?.requested_model_byte || null, servedModel: finalEvidence?.child_served_model_byte || null, selectedModel: finalEvidence?.child_selected_model_byte || null, selectedModelSource: finalEvidence?.child_selected_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.child_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_token_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } };
   return { stdout: '\n[R-CD-MODEL-TOKEN] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-token-summary.json': JSON.stringify(summary, null, 2) };
 }

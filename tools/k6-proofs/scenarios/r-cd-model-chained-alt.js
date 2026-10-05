@@ -5,11 +5,14 @@ import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 import {
+  activeFallbackFromSessionMetadata,
   classifyModelIdentity,
   modelFromSessionMetadata,
   normalizeModel,
   resolveRequestedModel,
+  servedReceiptFromHistory,
 } from '../lib/model-identity.mjs';
 
 export const options = {
@@ -28,6 +31,8 @@ const DEFAULTS = {
   idempotencyKeyPrefix: 'R-CD-MODEL-CHAINED-ALT',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
+// Re-read the served transcript until the sentinel binds; bounded and recorded.
+const SERVED_HISTORY_MAX_ATTEMPTS = 15;
 const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_DELEGATE_EVIDENCE_DELAY_MS || 1500);
 
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
@@ -68,11 +73,18 @@ export default function () {
     started: new Date().toISOString(), requested_model_byte: inv.requestedModel, requested_model_source: 'depth-1 continue_delegate model parameter',
     dispatch_refused: null, dispatch_accepted: false, dispatch_accepted_at_ms: null, depth_1_child_observed: false, depth_2_child_observed: false,
     depth_1_scheduled_inner: false, depth_2_child_session_key: null, depth_2_session_metadata_observed: false,
-    depth_2_model_byte: null, depth_2_model_source: null, depth_2_self_reported_model: null, depth_2_session_metadata: null,
+    // Selection (sessions.describe) and run-window SERVED model (chat.history) are separate.
+    depth_2_selected_model_byte: null, depth_2_selected_model_source: null, depth_2_active_fallback: null,
+    depth_2_served_model_byte: null, depth_2_served_receipt: null,
+    depth_2_self_reported_model: null, depth_2_session_metadata: null, selection_matches: false,
     depth_1_token: depth1Token, depth_2_token: depth2Token, model_matches: false,
-    return_payload: false, trace_id: null, model_classification_reason: null, redacted_events: [],
+    return_payload: false, trace_id: null, model_classification_reason: null,
+    depth_1_child_session_key: null, event_depth_2_candidates: [], child_identity_conflict: false, child_identity_reason: null, preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-MODEL-CHAINED-ALT');
+  // Depth 2: depth-1 names the parent in spawnedBy; depth-2 names depth-1.
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey, maxDepth: 2 });
   if (inv.requestedModelRefusal || !depth1Token || !depth2Token) {
     // Refuse before dispatch: nothing is sent and no attempt is spent.
     evidence.dispatch_refused = inv.requestedModelRefusal || 'row task identity tokens could not be rendered';
@@ -98,11 +110,51 @@ export default function () {
         tracker.send(socket, 'sessions.describe', { key: evidence.depth_2_child_session_key });
       }, delayMs);
     }
-    function observeDepth2Child(socket, payload) {
-      const key = childSessionKeyForTokenOnly(payload, depth2Token, depth1Token);
-      if (!key || evidence.depth_2_child_session_key) return;
+    const served = { attempts: 0, inFlight: false, done: false };
+    function requestServed(delayMs) {
+      if (!evidence.depth_2_child_session_key || served.done || served.inFlight || served.attempts >= SERVED_HISTORY_MAX_ATTEMPTS) return;
+      served.inFlight = true;
+      socket.setTimeout(() => {
+        served.attempts += 1;
+        evidence.depth_2_served_history_attempts = served.attempts;
+        if (!observer.refreshHistory(evidence.depth_2_child_session_key, 100, 'served-child')) served.inFlight = false;
+      }, delayMs);
+    }
+    function onServedHistory(messages) {
+      served.inFlight = false;
+      const receipt = servedReceiptFromHistory(messages, { anchor: depth2Token, sentinel: 'MODEL-CHAINED-DEPTH2 ' + rowNonce });
+      evidence.depth_2_served_receipt = receipt;
+      evidence.depth_2_served_model_byte = receipt.served;
+      if (receipt.served || receipt.conflict) { served.done = true; return; }
+      requestServed(2000);
+    }
+    function markConflict(reason) {
+      evidence.child_identity_conflict = true;
+      evidence.child_identity_reason = reason;
+    }
+    // #562 / #563 item 2: depth-1's own row names the parent and its own spawn
+    // task carries the depth-1 token; depth-2's own row names depth-1 and its
+    // own task carries only the depth-2 token (depth-1 embeds both, so
+    // token-only excludes it). Only these observer bindings bind; event-path
+    // candidates cross-check, and disagreement or ambiguity fails closed.
+    function observeDepthLineage(socket) {
+      if (evidence.child_identity_conflict) return;
+      const depth1 = observer.boundChild(depth1Token, [], { spawnedBy: sessionKey });
+      if (depth1.ambiguous) return markConflict('depth-1: more than one child is bound to the row (observer)');
+      if (!depth1.childSessionKey) return;
+      if (evidence.depth_1_child_session_key && evidence.depth_1_child_session_key !== depth1.childSessionKey) return markConflict('depth-1 identity changed');
+      evidence.depth_1_child_session_key = depth1.childSessionKey;
+      evidence.depth_1_child_observed = true;
+      const depth2 = reconcileChildIdentity({
+        observerBinding: observer.boundChildTokenOnly(depth2Token, depth1Token, { spawnedBy: depth1.childSessionKey }),
+        eventCandidates: evidence.event_depth_2_candidates,
+      });
+      if (depth2.conflict) return markConflict(`depth-2: ${depth2.reason}`);
+      if (!depth2.childSessionKey) return;
+      if (evidence.depth_2_child_session_key && evidence.depth_2_child_session_key !== depth2.childSessionKey) return markConflict('depth-2 identity changed');
+      if (evidence.depth_2_child_session_key) return;
       evidence.depth_2_child_observed = true;
-      evidence.depth_2_child_session_key = key;
+      evidence.depth_2_child_session_key = depth2.childSessionKey;
       requestDepth2Metadata(socket);
     }
     function start(socket) {
@@ -124,25 +176,40 @@ export default function () {
           `After the outer continue_delegate tool result reports scheduled, reply exactly MODEL-CHAINED-PARENT-SCHEDULED ${rowNonce}. No other action.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 20000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 45000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 50 }), 90000);
+      for (const delayMs of [20000, 45000, 90000, 130000]) socket.setTimeout(() => observer.poll(), delayMs);
       socket.setTimeout(() => socket.close(), 220000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const key = `r-cd-model-chain-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
           tracker.send(socket, 'sessions.create', { key, label: `k6 R-CD-MODEL-CHAINED-ALT ${rowNonce}` });
         }, 250);
       } else socket.setTimeout(() => start(socket), 500);
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, delayMs),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
-        const msg = JSON.parse(raw); const classified = tracker.classify(msg);
+        const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error('✗ R-CD-MODEL-CHAINED-ALT preflight refused before dispatch: ' + gate.result.reason);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
+        const classified = tracker.classify(msg);
         evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: classified.payload ? redactEvent(classified.payload) : null });
         if (classified.kind === 'response' && classified.method === 'sessions.create') {
           if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); start(socket); }
@@ -152,14 +219,22 @@ export default function () {
           if (classified.ok) { evidence.dispatch_accepted = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — chained model parent turn triggered'); }
           else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'response' && classified.method === 'tasks.list') observeDepth2Child(socket, classified.payload);
+        if (observed) {
+          const history = observer.handle(observed, classified);
+          if (observed.purpose === 'served-child') {
+            if (history) onServedHistory(history);
+            else { served.inFlight = false; if (!observer.state.refusal) requestServed(2000); }
+          }
+          observeDepthLineage(socket);
+        }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           depth2MetadataInFlight = false;
           const child = classified.payload?.session || null;
           if (child && (!child.key || child.key === evidence.depth_2_child_session_key)) {
             evidence.depth_2_session_metadata_observed = true;
-            evidence.depth_2_model_byte = modelFromSessionMetadata(child);
-            evidence.depth_2_model_source = 'gateway sessions.describe persisted provider/model metadata (depth-2 child)';
+            evidence.depth_2_selected_model_byte = modelFromSessionMetadata(child);
+            evidence.depth_2_selected_model_source = 'gateway sessions.describe persisted model selection (depth-2 child; not a served receipt)';
+            evidence.depth_2_active_fallback = activeFallbackFromSessionMetadata(child);
             evidence.depth_2_session_metadata = { key: child.key || null, provider: child.modelProvider || child.provider || null, model: child.model || null, modelSelectionLocked: child.modelSelectionLocked === true };
             console.log('✓ depth-2 child session metadata observed');
           } else if (!classified.ok) {
@@ -169,8 +244,10 @@ export default function () {
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
           if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          if (eventData.childSessionKey) evidence.depth_1_child_observed = true;
-          observeDepth2Child(socket, eventData);
+          // A bare childSessionKey on an event no longer counts as depth-1 identity.
+          const eventDepth2 = childSessionKeyForTokenOnly(eventData, depth2Token, depth1Token);
+          if (eventDepth2 && !evidence.event_depth_2_candidates.includes(eventDepth2)) evidence.event_depth_2_candidates.push(eventDepth2);
+          observeDepthLineage(socket);
           if (eventStr.includes(rowNonce) && !eventStr.includes(HARNESS_MARKER) && evidence.dispatch_accepted && evidence.dispatch_accepted_at_ms) {
             if ((Date.now() - (evidence.dispatch_accepted_at_ms || Date.now())) < POST_DISPATCH_EVIDENCE_GATE_MS) return;
             if (eventStr.includes('MODEL-CHAINED-PARENT-SCHEDULED')) console.log('✓ parent scheduled sentinel observed');
@@ -179,29 +256,51 @@ export default function () {
             if (depth2Return) {
               evidence.return_payload = true;
               evidence.depth_2_self_reported_model = normalizeModel(depth2Return[1]);
+              requestServed(500);
               console.log('✓ depth-2 return observed (self-report is auxiliary, not used for equality)');
             }
           }
         }
-        if (evidence.dispatch_accepted && evidence.depth_1_child_observed && evidence.depth_1_scheduled_inner && evidence.depth_2_session_metadata_observed && evidence.return_payload) { console.log('All required R-CD-MODEL-CHAINED-ALT evidence gathered, closing early'); socket.close(); }
+        if (evidence.return_payload && evidence.depth_2_child_session_key && !served.done) requestServed(500);
+        if (evidence.dispatch_accepted && evidence.depth_1_child_observed && evidence.depth_1_scheduled_inner && evidence.depth_2_session_metadata_observed && evidence.return_payload && served.done) { console.log('All required R-CD-MODEL-CHAINED-ALT evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });
     socket.on('error', (e) => { console.error('ws error: ' + (e && e.error ? e.error() : e)); failures.add(1); });
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
   const complete = (!createDisposableSession || evidence.session_created) && evidence.dispatch_accepted && evidence.depth_1_child_observed && evidence.depth_1_scheduled_inner && evidence.depth_2_child_observed && evidence.return_payload;
-  const identity = classifyModelIdentity({ baseline: evidence.requested_model_byte, observed: evidence.depth_2_model_byte, complete });
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
+  const identity = classifyModelIdentity({
+    baseline: evidence.requested_model_byte,
+    selected: evidence.depth_2_selected_model_byte,
+    served: evidence.depth_2_served_model_byte,
+    servedConflict: evidence.depth_2_served_receipt?.conflict === true,
+    activeFallback: evidence.depth_2_active_fallback,
+    complete,
+  });
+  // A served/selection mismatch on a bound child is authoritative; an unrelated
+  // later observer error does not erase it (it is recorded as observer_reason).
+  const finalVerdict = failClosedVerdict(identity.verdict, { gate, observer, keepProvenFail: true });
+  if (evidence.child_identity_conflict) {
+    // A conflicting child identity means no FAIL or PASS is about a proven child.
+    finalVerdict.verdict = 'PARTIAL-candidate';
+    finalVerdict.reason = finalVerdict.reason || `child identity conflict: ${evidence.child_identity_reason || 'observer and event path disagree'}`;
+  }
+  evidence.observer_reason = finalVerdict.observerReason || null;
   evidence.model_matches = identity.modelMatches;
-  evidence.model_classification_reason = identity.reason || evidence.model_classification_reason;
-  finalEvidence = { ...evidence, verdict: identity.verdict };
+  evidence.selection_matches = identity.selectionMatches;
+  evidence.model_classification_reason = finalVerdict.reason || identity.reason || evidence.model_classification_reason;
+  evidence.verdict_reason = finalVerdict.reason;
+  finalEvidence = { ...evidence, verdict: finalVerdict.verdict };
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
-  check(null, { 'dispatch accepted': () => evidence.dispatch_accepted, 'depth-1 child observed': () => evidence.depth_1_child_observed, 'depth-1 scheduled inner': () => evidence.depth_1_scheduled_inner, 'depth-2 child observed': () => evidence.depth_2_child_observed, 'authoritative depth-2 model byte': () => !!evidence.depth_2_model_byte, 'requested model observed': () => evidence.model_matches, 'return payload': () => evidence.return_payload });
-  if (identity.verdict !== 'PASS-candidate') failures.add(1);
-  console.log('\n--- R-CD-MODEL-CHAINED-ALT EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-CHAINED-ALT] VERDICT: ' + identity.verdict);
+  check(null, { 'dispatch accepted': () => evidence.dispatch_accepted, 'depth-1 child observed': () => evidence.depth_1_child_observed, 'depth-1 scheduled inner': () => evidence.depth_1_scheduled_inner, 'depth-2 child observed': () => evidence.depth_2_child_observed, 'depth-2 selected model recorded': () => !!evidence.depth_2_selected_model_byte, 'depth-2 served model (run-window bound)': () => !!evidence.depth_2_served_model_byte, 'requested model served': () => evidence.model_matches, 'return payload': () => evidence.return_payload });
+  if (finalVerdict.verdict !== 'PASS-candidate') failures.add(1);
+  console.log('\n--- R-CD-MODEL-CHAINED-ALT EVIDENCE SUMMARY ---'); console.log(JSON.stringify(evidence, null, 2)); console.log('--- END EVIDENCE ---'); console.log('\n[R-CD-MODEL-CHAINED-ALT] VERDICT: ' + finalVerdict.verdict);
 }
 
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
-  const summary = { row: 'R-CD-MODEL-CHAINED-ALT', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: finalEvidence?.verdict || 'PARTIAL-candidate', requestedModel: finalEvidence?.requested_model_byte || null, observedModel: finalEvidence?.depth_2_model_byte || null, observedModelSource: finalEvidence?.depth_2_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.depth_2_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_chained_alt_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } };
+  const summary = { row: 'R-CD-MODEL-CHAINED-ALT', sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx', timestamp, verdict: finalEvidence?.verdict || 'PARTIAL-candidate', requestedModel: finalEvidence?.requested_model_byte || null, servedModel: finalEvidence?.depth_2_served_model_byte || null, selectedModel: finalEvidence?.depth_2_selected_model_byte || null, selectedModelSource: finalEvidence?.depth_2_selected_model_source || null, dispatchRefused: finalEvidence?.dispatch_refused || null, auxiliarySelfReport: finalEvidence?.depth_2_self_reported_model || null, classificationReason: finalEvidence?.model_classification_reason || null, metrics: { duration_ms: data.metrics.r_cd_model_chained_alt_duration?.values || null, failures: data.metrics.proof_failures?.values?.count || 0 } };
   return { stdout: '\n[R-CD-MODEL-CHAINED-ALT] Summary: ' + summary.verdict + ' | SHA: ' + summary.sha + ' | Seat: ' + summary.seat + '\n', 'r-cd-model-chained-alt-summary.json': JSON.stringify(summary, null, 2) };
 }

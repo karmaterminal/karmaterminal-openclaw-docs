@@ -17,8 +17,9 @@
     "name": "r-cd-3-post-compaction",
     "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
     "methods": [
-      "sessions.send",
+      "sessions.create",
       "sessions.messages.subscribe",
+      "sessions.send",
       "request_compaction-threshold-guard"
     ],
     "status": "runnable",

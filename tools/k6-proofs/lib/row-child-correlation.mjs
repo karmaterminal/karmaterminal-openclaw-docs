@@ -1,5 +1,8 @@
-// Spawn events expose row text as task/text; tasks.list exposes it as title.
-// Routing keys identify sessions and must never supply row-nonce authority.
+// Records expose row text as task/text/title: spawn-shaped events use task/text,
+// the child observer (child-observer.mjs) supplies the child's own spawn task as
+// task, and legacy task-ledger records (tasks.list, removed upstream in openclaw
+// 6652f7eac8, #562) used title. Routing keys identify sessions and must never
+// supply row-nonce authority.
 const DIRECT_ROW_IDENTITY_FIELDS = ['task', 'text', 'title'];
 const TASK_RECORD_FIELDS = ['task'];
 const TASK_RECORD_COLLECTION_FIELDS = ['tasks', 'records'];

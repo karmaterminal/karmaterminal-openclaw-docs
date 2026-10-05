@@ -206,18 +206,20 @@ export function messageText(message) {
 }
 
 /**
- * The spawn task from the child's own transcript: the first user message, cut
- * after "[Subagent Task]" when the marker is present. Later messages never
- * supply binding text.
+ * The spawn task from the child's own transcript. `messages` must be the
+ * transcript from its true start (the observer pages chat.history back to the
+ * oldest page before calling this). Only the FIRST user message counts, and it
+ * must carry "[Subagent Task]"; the text after the marker is returned. A later
+ * user or wake message carrying the nonce is never taken as the spawn task.
  */
 export function subagentTaskText(messages) {
   const list = Array.isArray(messages) ? messages : [];
   const first = list.find((m) => m && String(m.role || '').toLowerCase() === 'user');
   if (!first) return null;
   const text = messageText(first);
-  if (!text) return null;
-  const at = text.indexOf(SUBAGENT_TASK_MARKER);
-  return at >= 0 ? text.slice(at + SUBAGENT_TASK_MARKER.length).trim() : text;
+  const at = text ? text.indexOf(SUBAGENT_TASK_MARKER) : -1;
+  if (at < 0) return null;
+  return text.slice(at + SUBAGENT_TASK_MARKER.length).trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -241,7 +243,12 @@ export function createChildObserver({
   rootSessionKey,
   maxDepth = 1,
   listLimit = 100,
-  historyLimit = 20,
+  historyLimit = 50,
+  // chat.history offset 0 is the NEWEST page; nextOffset walks to older pages
+  // and hasMore === false marks the oldest one (openclaw 41b8d69b90
+  // chat-history-response-page.ts:91-112; chat-history-handler.cli-import
+  // .test.ts:465-470). Binding reads back to the oldest page, bounded here.
+  maxHistoryPages = 10,
   onRoundComplete = null,
   // Re-read a child's transcript until its spawn task is bound: chat.history
   // can answer before the spawn message is persisted. schedule(delayMs, fn)
@@ -300,10 +307,22 @@ export function createChildObserver({
     record.historyRequested = true;
     record.historyInFlight = true;
     record.historyAttempts += 1;
-    const id = sendTracked('chat.history', { sessionKey: record.childSessionKey, limit: historyLimit }, {
+    record.historyPages = [];
+    requestHistoryPage(record, 0);
+  }
+
+  function requestHistoryPage(record, offset) {
+    const id = sendTracked('chat.history', { sessionKey: record.childSessionKey, limit: historyLimit, offset }, {
       childSessionKey: record.childSessionKey,
+      offset,
     });
     if (!id) record.historyInFlight = false;
+  }
+
+  function historyPagingFailure(record, code, message) {
+    record.historyInFlight = false;
+    record.historyPagingFailed = { code, message };
+    state.errors.push({ method: 'chat.history', code, message, childSessionKey: record.childSessionKey, paging: true });
   }
 
   function retryHistory(record) {
@@ -346,6 +365,8 @@ export function createChildObserver({
       historyRequested: false,
       historyInFlight: false,
       historyAttempts: 0,
+      historyPages: [],
+      historyPagingFailed: null,
     };
     record.label = str(row.label);
     record.status = str(row.status);
@@ -353,7 +374,7 @@ export function createChildObserver({
     record.lastRunId = str(row.lastRunId);
     record.parentSessionKey = str(row.parentSessionKey);
     records[key] = record;
-    if (record.task === null) requestHistory(record);
+    if (record.task === null && !record.historyPagingFailed) requestHistory(record);
     if (record.depth < maxDepth && requesterDepth[key] === undefined) {
       requesterDepth[key] = record.depth;
     }
@@ -439,8 +460,28 @@ export function createChildObserver({
         const messages = Array.isArray(payload.messages) ? payload.messages : [];
         const record = records[meta.childSessionKey];
         if (record && !meta.purpose) {
+          record.historyPages.push(messages);
+          if (payload.hasMore === true) {
+            const nextOffset = Number(payload.nextOffset);
+            if (!Number.isFinite(nextOffset) || nextOffset <= Number(meta.offset || 0)) {
+              historyPagingFailure(record, 'HISTORY_PAGING_TRUNCATED', `hasMore without a usable older nextOffset (${String(payload.nextOffset)})`);
+            } else if (record.historyPages.length >= maxHistoryPages) {
+              historyPagingFailure(record, 'HISTORY_PAGING_CAP', `oldest page not reached within ${maxHistoryPages} pages`);
+            } else {
+              requestHistoryPage(record, nextOffset);
+            }
+            return null;
+          }
+          if (payload.hasMore !== false) {
+            // Without pagination fields there is no proof this page starts the transcript.
+            historyPagingFailure(record, 'HISTORY_PAGING_UNAVAILABLE', 'chat.history answered without hasMore; the first user message cannot be proven');
+            return null;
+          }
           record.historyInFlight = false;
-          if (record.task === null) record.task = subagentTaskText(messages);
+          // Pages arrive newest first; each page is oldest-to-newest inside.
+          const transcript = record.historyPages.slice().reverse().flat();
+          record.historyPagesRead = record.historyPages.length;
+          if (record.task === null) record.task = subagentTaskText(transcript);
           if (record.task !== null) {
             // A transcript read that failed earlier and has now succeeded is recovered.
             for (const e of state.errors) {
@@ -563,7 +604,7 @@ export function createChildObserver({
         observer_history_retries: state.counters.history_retries,
         observer_history_unbound: Object.values(records)
           .filter((r) => r.task === null)
-          .map((r) => ({ attempts: r.historyAttempts, exhausted: r.historyAttempts >= maxHistoryAttempts })),
+          .map((r) => ({ attempts: r.historyAttempts, exhausted: r.historyAttempts >= maxHistoryAttempts, paging: r.historyPagingFailed })),
         observer_rounds_completed: state.counters.rounds_completed,
         observer_rounds_invalid: state.counters.rounds_invalid,
         observer_children_recorded: Object.keys(records).length,

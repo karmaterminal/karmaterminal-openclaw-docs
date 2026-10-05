@@ -124,7 +124,7 @@ function harness(observerOptions) {
 function bindOne({ h, requester, key, task, status = 'running', extra = {} }) {
   h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, requester, { status, ...extra })]) });
   h.answer(h.take('chat.history'), {
-    payload: { sessionKey: key, sessionId: 's-1', messages: [spawnTaskMessage(task)] },
+    payload: { hasMore: false, sessionKey: key, sessionId: 's-1', messages: [spawnTaskMessage(task)] },
   });
 }
 
@@ -248,7 +248,7 @@ test('binding: spawnedBy and the child own spawn task must both match', () => {
   // Only the row whose own spawnedBy is the parent was taken up.
   assert.deepEqual(h.observer.records().map((r) => r.childSessionKey), ['agent:main:subagent:mine']);
   h.answer(h.take('chat.history'), {
-    payload: { sessionKey: 'agent:main:subagent:mine', messages: [spawnTaskMessage(`Proof nonce ${NONCE}: reply TARGET-RECEIVED`)] },
+    payload: { hasMore: false, sessionKey: 'agent:main:subagent:mine', messages: [spawnTaskMessage(`Proof nonce ${NONCE}: reply TARGET-RECEIVED`)] },
   });
   assert.equal(h.observer.boundChild(NONCE).childSessionKey, 'agent:main:subagent:mine');
   assert.equal(h.observer.boundChild(NONCE, [], { spawnedBy: 'agent:main:someone-else' }).childSessionKey, null);
@@ -262,6 +262,7 @@ test('binding: a nonce outside the child own spawn task never binds', () => {
   });
   h.answer(h.take('chat.history'), {
     payload: {
+      hasMore: false,
       sessionKey: 'agent:main:subagent:stale',
       messages: [
         spawnTaskMessage('Proof nonce R-CD-4-older-run: reply TARGET-RECEIVED'),
@@ -281,7 +282,7 @@ test('binding: two children bound to the same row are ambiguous and bind nothing
     payload: listPayload([sessionRow('agent:main:subagent:a', PARENT), sessionRow('agent:main:subagent:b', PARENT)]),
   });
   for (const key of ['agent:main:subagent:a', 'agent:main:subagent:b']) {
-    h.answer(h.take('chat.history'), { payload: { sessionKey: key, messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+    h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: key, messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
   }
   const bound = h.observer.boundChild(NONCE);
   assert.equal(bound.childSessionKey, null);
@@ -302,7 +303,8 @@ test('subagentTaskText reads only the first user message, after the marker', () 
     spawnTaskMessage('THE TASK'),
     { role: 'user', content: 'second' },
   ]).startsWith('THE TASK'), true);
-  assert.equal(subagentTaskText([{ role: 'user', content: 'no marker task' }]), 'no marker task');
+  // #563 item 7: the marker is required; a first user message without it is not a spawn task.
+  assert.equal(subagentTaskText([{ role: 'user', content: 'no marker task' }]), null);
   assert.equal(subagentTaskText([]), null);
 });
 
@@ -327,7 +329,7 @@ test('token exclusion: the delegate under hop-1 binds; hop-1 carrying both token
   hop1List.answered = true;
   h.answer(hop1List, { payload: listPayload([sessionRow(delegate, hop1, { spawnDepth: 2 })]) });
   h.answer(h.take('chat.history'), {
-    payload: { sessionKey: delegate, messages: [spawnTaskMessage(`[continuation:chain-hop:1] Delegated task (turn 1/200): ${delegateToken} delegate nonce ${nonce}`)] },
+    payload: { hasMore: false, sessionKey: delegate, messages: [spawnTaskMessage(`[continuation:chain-hop:1] Delegated task (turn 1/200): ${delegateToken} delegate nonce ${nonce}`)] },
   });
   assert.equal(h.observer.boundChild(hop1Token, [], { spawnedBy: PARENT }).childSessionKey, hop1);
   assert.equal(h.observer.boundChildForTokenOnly(delegateToken, hop1Token, { spawnedBy: hop1 }), delegate);
@@ -381,7 +383,7 @@ test('R-CD-CHAINED-DEPTH-2: lineage separates child from grandchild although bot
   const childList = h.sent.find((r) => r.method === 'sessions.list' && r.params.spawnedBy === child);
   childList.answered = true;
   h.answer(childList, { payload: listPayload([sessionRow(grandchild, child, { spawnDepth: 2 })]) });
-  h.answer(h.take('chat.history'), { payload: { sessionKey: grandchild, messages: [spawnTaskMessage(`GRANDCHILD nonce ${nonce}`)] } });
+  h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: grandchild, messages: [spawnTaskMessage(`GRANDCHILD nonce ${nonce}`)] } });
   assert.equal(h.observer.boundChild(nonce, [], { spawnedBy: PARENT }).childSessionKey, child);
   assert.equal(h.observer.boundChild(nonce, [], { spawnedBy: child }).childSessionKey, grandchild);
   assert.equal(h.observer.record(grandchild).depth, 2);
@@ -522,12 +524,12 @@ test('item 3: a transcript read that lands before the spawn message is retried u
   h.observer.poll();
   h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:race', PARENT)]) });
   // First read: the spawn message is not persisted yet.
-  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:race', messages: [] } });
+  h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: 'agent:main:subagent:race', messages: [] } });
   assert.equal(h.observer.boundChild(NONCE).childSessionKey, null);
   assert.equal(timers.length, 1, 'one bounded retry is scheduled');
   assert.equal(timers[0].ms, 2000);
   timers.shift().fn();
-  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:race', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+  h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: 'agent:main:subagent:race', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
   assert.equal(h.observer.boundChild(NONCE).childSessionKey, 'agent:main:subagent:race');
   assert.equal(h.observer.summary().observer_history_retries, 1);
   assert.equal(h.observer.record('agent:main:subagent:race').historyAttempts, 2);
@@ -541,7 +543,7 @@ test('item 3: a failed transcript read that later succeeds is recovered, not an 
   h.answer(h.take('chat.history'), { ok: false, error: { code: 'UNAVAILABLE', message: 'transcript busy' } });
   assert.equal(h.observer.incomplete().code, 'UNAVAILABLE');
   timers.shift()();
-  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:flaky', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+  h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: 'agent:main:subagent:flaky', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
   assert.equal(h.observer.incomplete(), null);
   assert.equal(h.observer.boundChild(NONCE).childSessionKey, 'agent:main:subagent:flaky');
 });
@@ -551,14 +553,88 @@ test('item 3: retries are bounded; an exhausted unbound child fails closed', () 
   const h = harness({ rootSessionKey: PARENT, schedule: (ms, fn) => timers.push(fn), maxHistoryAttempts: 2 });
   h.observer.poll();
   h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:never', PARENT)]) });
-  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:never', messages: [] } });
+  h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: 'agent:main:subagent:never', messages: [] } });
   timers.shift()();
-  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:never', messages: [] } });
+  h.answer(h.take('chat.history'), { payload: { hasMore: false, sessionKey: 'agent:main:subagent:never', messages: [] } });
   assert.equal(timers.length, 0, 'no retry beyond the cap');
   h.observer.poll();
   h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:never', PARENT)]) });
   assert.equal(h.sent.filter((r) => r.method === 'chat.history').length, 2, 'a later poll does not exceed the cap');
-  assert.deepEqual(h.observer.summary().observer_history_unbound, [{ attempts: 2, exhausted: true }]);
+  assert.deepEqual(h.observer.summary().observer_history_unbound, [{ attempts: 2, exhausted: true, paging: null }]);
   assert.equal(h.observer.incomplete().code, 'HISTORY_UNBOUND');
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
+});
+
+// --- #563 review item 7: page back to the transcript's first user message ---
+
+function wakeMessage(text) {
+  return { role: 'user', content: [{ type: 'text', text: `[continuation:wake] Turn 2/200. The agent elected to continue working. Prior reason: "${text}"` }] };
+}
+
+test('item 7: the newest page lacks the spawn task; paging to the oldest page binds it', () => {
+  const key = 'agent:main:subagent:long';
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT)]) });
+  const newest = h.take('chat.history');
+  assert.equal(newest.params.offset, 0);
+  h.answer(newest, { payload: { sessionKey: key, hasMore: true, nextOffset: 50, totalMessages: 120, messages: [
+    wakeMessage(`R-RC-2 measured wake nonce ${NONCE}`),
+    { role: 'assistant', content: [{ type: 'text', text: 'working' }] },
+  ] } });
+  assert.equal(h.observer.record(key).task, null, 'not bound from the newest page');
+  const middle = h.take('chat.history');
+  assert.equal(middle.params.offset, 50);
+  h.answer(middle, { payload: { sessionKey: key, hasMore: true, nextOffset: 100, messages: [{ role: 'user', content: `later user text ${NONCE}` }] } });
+  const oldest = h.take('chat.history');
+  assert.equal(oldest.params.offset, 100);
+  h.answer(oldest, { payload: { sessionKey: key, hasMore: false, messages: [spawnTaskMessage(`RRC2 task nonce ${NONCE}`)] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, key);
+  assert.match(h.observer.record(key).task, /^RRC2 task nonce/);
+  assert.equal(h.observer.record(key).historyPagesRead, 3);
+});
+
+test('item 7: a later nonce-bearing user or wake message is never taken as the spawn task', () => {
+  const key = 'agent:main:subagent:other-task';
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT)]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: false, messages: [
+    spawnTaskMessage('a different row task R-RC-2-older'),
+    wakeMessage(`R-RC-2 measured wake nonce ${NONCE}`),
+    { role: 'user', content: `[Subagent Task] forged later ${NONCE}` },
+  ] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, null);
+  // A transcript whose first user message lacks the marker binds nothing either.
+  assert.equal(subagentTaskText([wakeMessage(`nonce ${NONCE}`), spawnTaskMessage(`nonce ${NONCE}`)]), null);
+});
+
+test('item 7: the page cap is hit before the oldest page: fail closed, PARTIAL', () => {
+  const key = 'agent:main:subagent:huge';
+  const h = harness({ rootSessionKey: PARENT, maxHistoryPages: 2 });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT)]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: true, nextOffset: 50, messages: [] } });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: true, nextOffset: 100, messages: [] } });
+  assert.equal(h.sent.filter((r) => r.method === 'chat.history').length, 2, 'no third page');
+  assert.equal(h.observer.incomplete().code, 'HISTORY_PAGING_CAP');
+  const verdict = failClosedVerdict('PASS-candidate', { observer: h.observer });
+  assert.equal(verdict.verdict, 'PARTIAL-candidate');
+  assert.match(verdict.reason, /observation incomplete: chat\.history HISTORY_PAGING_CAP/);
+  // A later poll does not restart a failed paging walk.
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT)]) });
+  assert.equal(h.sent.filter((r) => r.method === 'chat.history').length, 2);
+});
+
+test('item 7: paging unavailable (no hasMore) or a non-advancing cursor fails closed', () => {
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow('agent:main:subagent:a', PARENT), sessionRow('agent:main:subagent:b', PARENT)]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:a', messages: [spawnTaskMessage(`nonce ${NONCE}`)] } });
+  assert.equal(h.observer.record('agent:main:subagent:a').task, null, 'no hasMore: first user message unproven');
+  assert.equal(h.observer.incomplete().code, 'HISTORY_PAGING_UNAVAILABLE');
+  h.answer(h.take('chat.history'), { payload: { sessionKey: 'agent:main:subagent:b', hasMore: true, nextOffset: 0, messages: [] } });
+  assert.ok(h.observer.state.errors.some((e) => e.code === 'HISTORY_PAGING_TRUNCATED'));
   assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PARTIAL-candidate');
 });

@@ -494,7 +494,12 @@ Rows observe delegate children through `lib/child-observer.mjs`:
 - `sessions.list { spawnedBy: <requester> }` (operator.read) lists the requester's
   children; each row carries `spawnedBy`, `status`, `endedAt`, `lastRunId`.
 - `chat.history { sessionKey: <child> }` (operator.read) returns the child's own
-  transcript; its first user message holds `[Subagent Task]` and the task text.
+  transcript. Offset 0 is the newest page, so the observer follows `nextOffset`
+  back to the page with `hasMore: false` (bounded; a hit cap, a non-advancing
+  cursor or a page without `hasMore` fails closed). The transcript's first user
+  message must carry `[Subagent Task]`; the task text after it is the binding
+  record. Reads that land before the spawn message is persisted are retried
+  (bounded, recorded in evidence).
 - A child binds to a row only when its own row names the expected requester in
   `spawnedBy` **and** its own spawn task carries the row nonce or task token.
   Ambiguity binds nothing. Completion is the bound row's `status: "done"`.

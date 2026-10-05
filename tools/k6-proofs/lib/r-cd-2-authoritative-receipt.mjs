@@ -775,7 +775,7 @@ function failureDiagnosticsAgree(receipt) {
   ];
   if (leaves.every(Boolean)) return false;
   const lifecycleCategories = new Set([
-    'missing-send-run-lifecycle', 'send-run-mismatch',
+    'missing-send-run-lifecycle', 'delegate-not-spawned', 'send-run-mismatch',
     'provider-or-turn-failure', 'delegate-replay-unsafe',
     'silent-channel-delivery', 'missing-terminal-sentinel',
   ]);

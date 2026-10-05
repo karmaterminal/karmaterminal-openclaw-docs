@@ -1014,6 +1014,9 @@ test('R-CD-2 replay contract: the delegate-spawning send run must end with repla
   });
   assert.equal(noDelegate.failureCategory, 'delegate-not-spawned');
   assert.equal(noDelegate.verdict, 'PARTIAL-candidate');
+  // Round trip (review 🍃 on #577): the resolver's own validator must accept
+  // what it emits; a no-delegate run has a complete topology.
+  assert.equal(validateRcd2AuthoritativeReceipt(noDelegate, signingKey).valid, true);
 
   // 🍃's exact probe at 01a53c2f: no delegate, category already written.
   const probed = resolve({
@@ -1028,6 +1031,11 @@ test('R-CD-2 replay contract: the delegate-spawning send run must end with repla
   assert.equal(unknownAttempt.failureCategory, 'missing-send-run-lifecycle');
   assert.equal(probed.failureCategory, 'delegate-not-spawned');
   assert.equal(probed.verdict, 'PARTIAL-candidate');
+  assert.equal(validateRcd2AuthoritativeReceipt(probed, signingKey).valid, true);
+  // Every receipt this contract test resolves must round-trip through validation.
+  for (const receipt of [refused, unobserved, allowed]) {
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, receipt.failureCategory);
+  }
 });
 
 test('R-CD-2 scenario reads replay refusal only from the accepted send run\'s own successful end', async () => {

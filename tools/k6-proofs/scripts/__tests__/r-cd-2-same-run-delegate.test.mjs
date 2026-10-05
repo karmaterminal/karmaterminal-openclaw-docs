@@ -58,5 +58,12 @@ test('a namespaced tool name (openclaw__continue_delegate) also counts; exec doe
 test('R-CD-2 scenario derives same-run delegate success from the tracker', () => {
   const src = readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
   assert.match(src, /createSameRunDelegateTracker\(\{ acceptedRunId, nonce: rowNonce \}\)/);
-  assert.match(src, /delegateOutcome === 'scheduled'[\s\S]{0,200}typed_delegate_success_same_run = true/);
+  assert.match(src, /outcome === 'scheduled'[\s\S]{0,400}typed_delegate_success_same_run = true[\s\S]{0,80}typed_delegate_failed_same_run = false/);
+  // A failed duplicate never overrides a proven scheduled result.
+  assert.match(src, /outcome === 'failed' && evidence\.typed_delegate_success_same_run !== true/);
+  // Early session.message events are buffered before the accepted run id and replayed.
+  const block = src.indexOf("if (eventName === 'session.message') {");
+  const gated = src.indexOf("if (eventName === 'session.message' && evidence.send_accepted) {");
+  assert.ok(block > 0 && block < gated, 'delegate tracking runs outside the send_accepted gate');
+  assert.match(src, /pendingDelegateEvents\.splice\(0\)\) applyDelegateOutcome\(sameRunDelegate\.observe\(pending\)\)/);
 });

@@ -190,6 +190,24 @@ export default function () {
   let dispatchLifecycleActive = false;
   let wakeBinder = null;
   let sameRunDelegate = null;
+  // session.message events can arrive before the sessions.send response that
+  // carries the accepted run id; keep them (bounded) and replay them once the
+  // tracker exists, so an early toolCall is not missed (review 🍃 on #578).
+  const pendingDelegateEvents = [];
+  function applyDelegateOutcome(outcome) {
+    if (outcome === 'scheduled') {
+      // A scheduled result proves the delegate was spawned on the send run; a
+      // failed duplicate call does not undo that.
+      evidence.typed_delegate_attempted_same_run = true;
+      evidence.typed_delegate_success_same_run = true;
+      evidence.typed_delegate_failed_same_run = false;
+      evidence.typed_delegate_failure_category = null;
+    } else if (outcome === 'failed' && evidence.typed_delegate_success_same_run !== true) {
+      evidence.typed_delegate_attempted_same_run = true;
+      evidence.typed_delegate_failed_same_run = true;
+      evidence.typed_delegate_failure_category = 'tool-result-not-scheduled';
+    }
+  }
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -354,7 +372,10 @@ export default function () {
             evidence.send_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
             acceptedRunId = lifecycleRunId(classified.payload);
-            if (acceptedRunId) sameRunDelegate = createSameRunDelegateTracker({ acceptedRunId, nonce: rowNonce });
+            if (acceptedRunId) {
+              sameRunDelegate = createSameRunDelegateTracker({ acceptedRunId, nonce: rowNonce });
+              for (const pending of pendingDelegateEvents.splice(0)) applyDelegateOutcome(sameRunDelegate.observe(pending));
+            }
             if (acceptedRunId) {
               evidence.send_run_captured = true;
               evidence.send_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
@@ -442,19 +463,19 @@ export default function () {
           // session.message events immediately after sessions.send are the dispatching
           // agent turn, not the silent-wake return.  The delegate delay is clamped
           // by the gateway, so only count a parent wake after the minimum delay.
-          if (eventName === 'session.message' && evidence.send_accepted) {
-            // Same-run delegate success comes from the send run's own
-            // continue_delegate call + "scheduled" result (the notify:false record
-            // is written by the wake run, docs #572).
-            const delegateOutcome = sameRunDelegate ? sameRunDelegate.observe(eventData) : null;
-            if (delegateOutcome === 'scheduled') {
-              evidence.typed_delegate_attempted_same_run = true;
-              evidence.typed_delegate_success_same_run = true;
-            } else if (delegateOutcome === 'failed') {
-              evidence.typed_delegate_attempted_same_run = true;
-              evidence.typed_delegate_failed_same_run = true;
-              evidence.typed_delegate_failure_category = 'tool-result-not-scheduled';
+          // Same-run delegate success comes from the send run's own
+          // continue_delegate call + "scheduled" result (the notify:false record
+          // is written by the wake run, docs #572). Runs before send_accepted too:
+          // early events are buffered until the accepted run id is known.
+          if (eventName === 'session.message') {
+            if (sameRunDelegate) {
+              applyDelegateOutcome(sameRunDelegate.observe(eventData));
+            } else if (pendingDelegateEvents.length < 200) {
+              pendingDelegateEvents.push(eventData);
             }
+          }
+
+          if (eventName === 'session.message' && evidence.send_accepted) {
             // session.message is never a wake START receipt: only a lifecycle
             // envelope can start a wake. Its row-level __openclaw.runId is used
             // solely to tie the notify:false/done completion record to an

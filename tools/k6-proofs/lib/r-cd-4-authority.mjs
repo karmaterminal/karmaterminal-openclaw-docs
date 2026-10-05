@@ -1,4 +1,5 @@
 import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
+import { heartbeatAckFromHistory, messageRunId } from './wake-turn-receipt.mjs';
 
 export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
 export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
@@ -152,6 +153,55 @@ export function rCd4SessionMessageObservation({
   };
 }
 
+/**
+ * Index and run of the target's priming reply (assistant TARGET-READY <nonce>)
+ * in a transcript page, or index -1. The woken turn must come after it and in
+ * another run: the return delivery row itself is hidden from readers
+ * (#567; chat-display-projection.history.ts:329-334, 366).
+ */
+export function rCd4PrimingAnchor(messages, { targetSessionKey, nonce }) {
+  const list = Array.isArray(messages) ? messages : [];
+  let anchor = { index: -1, runId: null };
+  list.forEach((message, index) => {
+    if (rCd4TargetReadyCandidate({
+      eventName: 'session.message',
+      eventData: { sessionKey: targetSessionKey, message },
+      targetSessionKey,
+      nonce,
+    })) {
+      anchor = { index, runId: messageRunId(message) };
+    }
+  });
+  return anchor;
+}
+
+/**
+ * Heartbeat-path acknowledgement (#567). A continuation return wakes the
+ * recipient as a heartbeat turn, answered through heartbeat_respond. For the
+ * target it counts only after the priming reply and outside the priming run;
+ * in the parent ANY nonce-bound heartbeat ack is a parent landing (the
+ * negative control stays at least as strict as before).
+ */
+export function rCd4HeartbeatHistoryObservation({ messages, sessionKey, targetSessionKey, parentSessionKey, nonce }) {
+  if (sessionKey === targetSessionKey) {
+    const anchor = rCd4PrimingAnchor(messages, { targetSessionKey, nonce });
+    if (anchor.index < 0) return { targetCandidate: null, parentCandidate: null };
+    return {
+      targetCandidate: heartbeatAckFromHistory(messages, {
+        sessionKey, marker: 'TARGET-ACK', nonce, afterIndex: anchor.index, excludeRunIds: [anchor.runId],
+      }),
+      parentCandidate: null,
+    };
+  }
+  if (sessionKey === parentSessionKey) {
+    return {
+      targetCandidate: null,
+      parentCandidate: heartbeatAckFromHistory(messages, { sessionKey, marker: 'TARGET-ACK', nonce }),
+    };
+  }
+  return { targetCandidate: null, parentCandidate: null };
+}
+
 export function rCd4HistoryObservation({
   messages,
   sessionKey,
@@ -166,6 +216,9 @@ export function rCd4HistoryObservation({
     parentCandidate: null,
     genericWakeObserved: false,
   };
+  const heartbeat = rCd4HeartbeatHistoryObservation({ messages, sessionKey, targetSessionKey, parentSessionKey, nonce });
+  result.targetCandidate = heartbeat.targetCandidate;
+  result.parentCandidate = heartbeat.parentCandidate;
   for (const message of Array.isArray(messages) ? messages : []) {
     const observation = rCd4SessionMessageObservation({
       eventName: 'session.message',

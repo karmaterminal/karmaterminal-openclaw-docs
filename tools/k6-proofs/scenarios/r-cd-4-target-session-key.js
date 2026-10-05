@@ -27,6 +27,7 @@ import {
   rCd4TaskPrompt,
 } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
+import { createHeartbeatAckTracker, messageRunId } from '../lib/wake-turn-receipt.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
 
 export const options = {
@@ -116,6 +117,9 @@ export default function () {
     parent_session_created: false,
     target_session_created: false,
     target_primed: false,
+    target_priming_run_id: null,
+    target_return_source: null,
+    parent_return_source: null,
     created_parent_session_key: null,
     created_target_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
@@ -162,6 +166,9 @@ export default function () {
     let returnHistoryPollScheduled = false;
     let returnHistoryPollInFlight = false;
     let returnHistoryPhase = null;
+    // Created once the parent and target keys are final (startProofFlow).
+    let heartbeatTarget = null;
+    let heartbeatParent = null;
     let parentDispatchStarted = false;
     let sendPhase = null;
 
@@ -207,11 +214,13 @@ export default function () {
     function applyReturnObservation(observation, source) {
       if (observation.targetCandidate) {
         evidence.target_return_candidate = observation.targetCandidate;
+        evidence.target_return_source = observation.targetCandidate.source || 'assistant-text';
         evidence.agent_turn_observed = true;
         console.log(`✓ nonce-bound TARGET-RECEIVED candidate landed in target session (${source})`);
       }
       if (observation.parentCandidate) {
         evidence.parent_return_candidate = observation.parentCandidate;
+        evidence.parent_return_source = observation.parentCandidate.source || 'assistant-text';
         console.warn(`✗ nonce-bound TARGET-RECEIVED candidate landed in parent session (${source})`);
       }
       finalizeReturnReceipts();
@@ -277,6 +286,8 @@ export default function () {
     }
 
     function startProofFlow(socket) {
+      heartbeatTarget = createHeartbeatAckTracker({ sessionKey: targetSessionKey, marker: 'TARGET-ACK', nonce: rowNonce });
+      heartbeatParent = createHeartbeatAckTracker({ sessionKey, marker: 'TARGET-ACK', nonce: rowNonce });
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       tracker.send(socket, 'sessions.messages.subscribe', { key: targetSessionKey });
 
@@ -448,6 +459,8 @@ export default function () {
             });
             if (ready) {
               evidence.target_primed = true;
+              // The woken turn must be a different run than this priming turn.
+              evidence.target_priming_run_id = messageRunId(eventData.message, eventData);
               console.log('✓ target session primed for continuation consumption acknowledgement');
               socket.setTimeout(() => dispatchParent(socket), 100);
             }
@@ -477,6 +490,17 @@ export default function () {
               elapsedMs: elapsed,
               wakeGateMs: evidence.wake_gate_ms,
             });
+            // #567: a continuation return wakes the target as a heartbeat turn,
+            // answered through heartbeat_respond. Bound to the target session,
+            // after priming and dispatch, outside the priming run; in the parent
+            // any nonce-bound heartbeat ack is a parent landing.
+            const targetHeartbeat = heartbeatTarget ? heartbeatTarget.observe(eventData, {
+              windowOpen: evidence.target_primed && evidence.tool_accepted,
+              excludeRunIds: [evidence.target_priming_run_id],
+            }) : null;
+            const parentHeartbeat = heartbeatParent ? heartbeatParent.observe(eventData, { windowOpen: evidence.tool_accepted }) : null;
+            if (targetHeartbeat && !observation.targetCandidate) observation.targetCandidate = targetHeartbeat;
+            if (parentHeartbeat && !observation.parentCandidate) observation.parentCandidate = parentHeartbeat;
             applyReturnObservation(observation, 'session.message');
 
             if (!observation.targetCandidate && !observation.parentCandidate) {

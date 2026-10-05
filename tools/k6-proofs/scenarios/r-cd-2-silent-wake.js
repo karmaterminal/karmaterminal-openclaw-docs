@@ -433,9 +433,10 @@ export default function () {
           // agent turn, not the silent-wake return.  The delegate delay is clamped
           // by the gateway, so only count a parent wake after the minimum delay.
           if (eventName === 'session.message' && evidence.send_accepted) {
-            // session.message carries transcript content but no documented
-            // lifecycle run identity. It is diagnostic only, never a wake
-            // receipt; otherwise a delayed unrelated message could certify.
+            // session.message is never a wake START receipt: only a lifecycle
+            // envelope can start a wake. Its row-level __openclaw.runId is used
+            // solely to tie the notify:false/done completion record to an
+            // already-observed lifecycle wake run (createSilentWakeBinder).
             evidence.agent_turn_observed = true;
             if (observesRcd2DispatchTerminalSentinel(
               eventData,

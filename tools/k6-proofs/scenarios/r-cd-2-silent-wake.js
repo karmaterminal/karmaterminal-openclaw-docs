@@ -24,6 +24,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createSilentWakeBinder, eventRunId, gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import { applySameRunDelegateOutcome, createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mjs';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
@@ -188,6 +189,12 @@ export default function () {
   let acceptedRunId = null;
   let dispatchLifecycleActive = false;
   let wakeBinder = null;
+  let sameRunDelegate = null;
+  // session.message events can arrive before the sessions.send response that
+  // carries the accepted run id; keep them (bounded) and replay them once the
+  // tracker exists, so an early toolCall is not missed (review 🍃 on #578).
+  const pendingDelegateEvents = [];
+  const applyDelegateOutcome = (outcome) => applySameRunDelegateOutcome(evidence, outcome);
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -353,6 +360,10 @@ export default function () {
             evidence.dispatch_accepted_at_ms = Date.now();
             acceptedRunId = lifecycleRunId(classified.payload);
             if (acceptedRunId) {
+              sameRunDelegate = createSameRunDelegateTracker({ acceptedRunId, nonce: rowNonce });
+              for (const pending of pendingDelegateEvents.splice(0)) applyDelegateOutcome(sameRunDelegate.observe(pending));
+            }
+            if (acceptedRunId) {
               evidence.send_run_captured = true;
               evidence.send_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
             } else {
@@ -439,6 +450,18 @@ export default function () {
           // session.message events immediately after sessions.send are the dispatching
           // agent turn, not the silent-wake return.  The delegate delay is clamped
           // by the gateway, so only count a parent wake after the minimum delay.
+          // Same-run delegate success comes from the send run's own
+          // continue_delegate call + "scheduled" result (the notify:false record
+          // is written by the wake run, docs #572). Runs before send_accepted too:
+          // early events are buffered until the accepted run id is known.
+          if (eventName === 'session.message') {
+            if (sameRunDelegate) {
+              applyDelegateOutcome(sameRunDelegate.observe(eventData));
+            } else if (pendingDelegateEvents.length < 200) {
+              pendingDelegateEvents.push(eventData);
+            }
+          }
+
           if (eventName === 'session.message' && evidence.send_accepted) {
             // session.message is never a wake START receipt: only a lifecycle
             // envelope can start a wake. Its row-level __openclaw.runId is used
@@ -474,30 +497,26 @@ export default function () {
               const bound = wakeBinder.noteCompletionRecord(eventRunId(eventData));
               if (bound) recordBoundWake(socket, bound);
             }
-            if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
-              evidence.typed_delegate_attempted_same_run = true;
-              evidence.typed_delegate_success_same_run = true;
-            }
+            // This record binds the wake's completion only. It never sets delegate
+            // success: that comes solely from the send run's nonce-bound
+            // continue_delegate call paired with its "scheduled" result
+            // (applySameRunDelegateOutcome; review 🌻 on #578).
             console.log('ℹ internal continue_status notify:false receipt observed');
           }
 
+          // Diagnostic only. The same-run delegate outcome has a single authority:
+          // the call/result tracker above (applyDelegateOutcome). This substring
+          // scan used to set dispatch_failure_observed and a conclusive
+          // provider-or-turn-failure on its own, so a scheduled call plus a
+          // rejected duplicate could FAIL with self-contradictory evidence
+          // (review 🍃 on #578). It no longer writes any outcome field.
           if (eventStr.includes(rowNonce) && eventStr.includes('continue_delegate') &&
               acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
-            evidence.typed_delegate_attempted_same_run = true;
-            const failed = eventStr.includes('codex_dynamic_tool_error') ||
+            const failureText = eventStr.includes('codex_dynamic_tool_error') ||
               eventStr.includes('"outcome":"blocked"') ||
               eventStr.includes('"status":"error"') ||
               eventStr.includes('"status":"rejected"');
-            if (failed) {
-              evidence.typed_delegate_failed_same_run = true;
-              evidence.typed_delegate_failure_category = eventStr.includes('codex_dynamic_tool_error')
-                ? 'codex_dynamic_tool_error'
-                : eventStr.includes('"outcome":"blocked"')
-                  ? 'blocked'
-                  : 'provider-or-turn-failure';
-              evidence.dispatch_failure_observed = true;
-              evidence.failureCategory = 'provider-or-turn-failure';
-            }
+            if (failureText) evidence.delegate_failure_text_seen_same_run = true;
           }
 
           // Negative check: only an explicit outbound-delivery-shaped event counts.

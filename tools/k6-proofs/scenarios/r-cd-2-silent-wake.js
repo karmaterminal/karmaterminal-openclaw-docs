@@ -24,6 +24,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createSilentWakeBinder, eventRunId, gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import { createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mjs';
 import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
@@ -188,6 +189,7 @@ export default function () {
   let acceptedRunId = null;
   let dispatchLifecycleActive = false;
   let wakeBinder = null;
+  let sameRunDelegate = null;
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -352,6 +354,7 @@ export default function () {
             evidence.send_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
             acceptedRunId = lifecycleRunId(classified.payload);
+            if (acceptedRunId) sameRunDelegate = createSameRunDelegateTracker({ acceptedRunId, nonce: rowNonce });
             if (acceptedRunId) {
               evidence.send_run_captured = true;
               evidence.send_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
@@ -440,6 +443,18 @@ export default function () {
           // agent turn, not the silent-wake return.  The delegate delay is clamped
           // by the gateway, so only count a parent wake after the minimum delay.
           if (eventName === 'session.message' && evidence.send_accepted) {
+            // Same-run delegate success comes from the send run's own
+            // continue_delegate call + "scheduled" result (the notify:false record
+            // is written by the wake run, docs #572).
+            const delegateOutcome = sameRunDelegate ? sameRunDelegate.observe(eventData) : null;
+            if (delegateOutcome === 'scheduled') {
+              evidence.typed_delegate_attempted_same_run = true;
+              evidence.typed_delegate_success_same_run = true;
+            } else if (delegateOutcome === 'failed') {
+              evidence.typed_delegate_attempted_same_run = true;
+              evidence.typed_delegate_failed_same_run = true;
+              evidence.typed_delegate_failure_category = 'tool-result-not-scheduled';
+            }
             // session.message is never a wake START receipt: only a lifecycle
             // envelope can start a wake. Its row-level __openclaw.runId is used
             // solely to tie the notify:false/done completion record to an

@@ -31,6 +31,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   RC2_ACCEPTED_STATUSES,
+  childReportAfterReceipt,
   classifyRrc2Evidence,
   findRequestCompactionReceipt,
   measuredRequestCompactionOutcome,
@@ -368,6 +369,21 @@ export default function () {
             evidence.request_compaction_context_unknown = measured.kind === 'context_unknown';
             evidence.child_ready_sentinel_observed = messages.some((message) => message?.role === 'assistant' &&
               JSON.stringify(message.content || '').includes(`RRC2-CHILD-READY ${rowNonce}`));
+            // The child's report is read from its own transcript: the delivered
+            // return is hidden from the parent's projections, so the parent
+            // subscription below can never see it on current builds.
+            const report = childReportAfterReceipt(messages, { rowNonce });
+            if (report.kind === 'threshold') {
+              evidence.delegate_child_report_observed = true;
+              evidence.child_reported_context_threshold = true;
+              evidence.child_report_source = 'child chat.history, same wake turn after the bound toolResult';
+              evidence.reported_context_usage = report.usage;
+              evidence.reported_threshold = report.threshold;
+            } else if (report.kind === 'accepted') {
+              evidence.delegate_child_report_observed = true;
+              evidence.request_compaction_accepted_reported = true;
+              evidence.child_report_source = 'child chat.history, same wake turn after the bound toolResult';
+            }
             if (receipt.kind !== 'missing') {
               evidence.request_compaction_tool_result_observed = true;
               evidence.request_compaction_receipt_role = 'toolResult';

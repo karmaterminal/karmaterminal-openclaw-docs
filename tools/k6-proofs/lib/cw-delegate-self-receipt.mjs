@@ -150,9 +150,13 @@ export function childMintedToken(messages, { rowNonce, harnessTexts = [] } = {})
   if (sent.some((t) => t.toLowerCase().includes(token))) {
     return { token: null, index: hops.scheduledSentinelIndex, timestamp: null, reason: 'token appears in harness-sent or task text' };
   }
-  const timestamp = Number.isFinite(Number(message?.timestamp)) ? Number(message.timestamp) : null;
+  const timestamp = isTimestamp(message?.timestamp) ? message.timestamp : null;
   return { token, index: hops.scheduledSentinelIndex, timestamp, reason: null };
 }
+
+// A real gateway timestamp: a finite number. Number(null) is 0, so null, ""
+// and other coercible values must not pass as time zero.
+function isTimestamp(value) { return typeof value === 'number' && Number.isFinite(value); }
 
 /**
  * The parent's reproduction of the child token, bound to the parent session's
@@ -162,6 +166,8 @@ export function childMintedToken(messages, { rowNonce, harnessTexts = [] } = {})
  *   in a run other than the dispatch run (dispatchRunId required);
  *   after the last row of the dispatch run in the parent transcript;
  *   not earlier than the child's token message (gateway timestamps, same clock).
+ *   Fails closed when either timestamp is missing (#570 review, 🌊): the ordering
+ *   is a promise, not a best effort.
  * The k6 clock (dispatch_accepted_at_ms) is not compared with gateway
  * timestamps; "after dispatch" is bound by transcript order instead.
  */
@@ -174,7 +180,12 @@ export function parentReturnReceipt(messages, { rowNonce, token, dispatchRunId, 
   list.forEach((m, i) => { if (runIdOf(m) === dispatchRunId) lastDispatchIndex = i; });
   if (lastDispatchIndex < 0) return none('dispatch run not found in the parent transcript');
   const sentinel = `${rowNonce} TOKEN ${token}`;
-  const afterToken = (m) => tokenTimestamp === null || !Number.isFinite(Number(m?.timestamp)) || Number(m.timestamp) >= tokenTimestamp;
+  if (!isTimestamp(tokenTimestamp)) return none('child token message has no timestamp; ordering after the token cannot be proven');
+  let untimed = false;
+  const afterToken = (m) => {
+    if (!isTimestamp(m?.timestamp)) { untimed = true; return false; }
+    return m.timestamp >= tokenTimestamp;
+  };
   for (let i = lastDispatchIndex + 1; i < list.length; i += 1) {
     const m = list[i];
     if (role(m) !== 'assistant') continue;
@@ -191,5 +202,7 @@ export function parentReturnReceipt(messages, { rowNonce, token, dispatchRunId, 
   if (heartbeat && afterToken(list[heartbeat.index])) {
     return { bound: true, source: 'heartbeat_respond', index: heartbeat.index, runId: heartbeat.runId, reason: null };
   }
-  return none('no parent reply reproduces the child token after the dispatch run');
+  return none(untimed
+    ? 'a parent reply has no timestamp; ordering after the child token cannot be proven'
+    : 'no parent reply reproduces the child token after the dispatch run');
 }

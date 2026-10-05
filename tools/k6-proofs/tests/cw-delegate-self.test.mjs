@@ -212,3 +212,16 @@ test('#570 wiring: parent-return comes only from the token binding; heuristic is
   assert.match(source, /if \(receipt\.bound\) \{\s*evidence\.parent_return = true;/);
   assert.match(source, /hop2_output_reached_parent: null/);
 });
+
+test('#570 review (🌊): ordering after the child token fails closed when a timestamp is missing', () => {
+  const base = { rowNonce: NONCE, token: TOKEN, dispatchRunId: DISPATCH_RUN };
+  const noTokenTs = parentReturnReceipt(parentTranscript(), { ...base, tokenTimestamp: null });
+  assert.equal(noTokenTs.bound, false);
+  assert.match(noTokenTs.reason, /child token message has no timestamp/);
+  const untimedReply = parentReturnReceipt(parentTranscript({ replyTs: null }), { ...base, tokenTimestamp: 1000 });
+  assert.equal(untimedReply.bound, false);
+  assert.match(untimedReply.reason, /parent reply has no timestamp/);
+  assert.equal(parentReturnReceipt(parentTranscript({ replyTs: 999 }), { ...base, tokenTimestamp: 1000 }).bound, false, 'before the token');
+  assert.equal(parentReturnReceipt(parentTranscript(), { ...base, tokenTimestamp: '1000' }).bound, false, 'a string token timestamp is not a timestamp');
+  assert.equal(parentReturnReceipt(parentTranscript(), { ...base, tokenTimestamp: 1000 }).bound, true, 'timed and ordered still binds');
+});

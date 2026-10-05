@@ -95,3 +95,24 @@ test('the tracker is the single authority: a scheduled call plus a rejected dupl
   assert.equal(ev.typed_delegate_failed_same_run, false);
   assert.equal(ev.dispatch_failure_observed, undefined);
 });
+
+test('the notify:false/done completion record alone can never set same-run delegate success', () => {
+  // Review 🌻 on #578: the record branch still wrote typed_delegate_* on the
+  // accepted run, bypassing the nonce-bound call/result pairing.
+  const src = readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
+  const start = src.indexOf("eventStr.includes('\"notify\":false')");
+  const end = src.indexOf("console.log('ℹ internal continue_status notify:false receipt observed');", start);
+  assert.ok(start > 0 && end > start, 'completion-record branch located');
+  const branch = src.slice(start, end);
+  for (const field of ['typed_delegate_success_same_run', 'typed_delegate_attempted_same_run', 'typed_delegate_failed_same_run']) {
+    assert.equal(branch.includes(`evidence.${field} =`), false, `the record branch must not write ${field}`);
+  }
+  // Every write of the success flag in the scenario goes through the lib authority.
+  const writes = src.match(/evidence\.typed_delegate_success_same_run\s*=/g) || [];
+  assert.equal(writes.length, 0, 'no direct success writes remain in the scenario');
+  // Positive: only a paired scheduled result on the accepted run sets success.
+  const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
+  t.observe(call('p1'));
+  const ev = applySameRunDelegateOutcome({}, t.observe(result('p1')));
+  assert.equal(ev.typed_delegate_success_same_run, true);
+});

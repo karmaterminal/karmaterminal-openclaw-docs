@@ -497,10 +497,10 @@ export default function () {
               const bound = wakeBinder.noteCompletionRecord(eventRunId(eventData));
               if (bound) recordBoundWake(socket, bound);
             }
-            if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
-              evidence.typed_delegate_attempted_same_run = true;
-              evidence.typed_delegate_success_same_run = true;
-            }
+            // This record binds the wake's completion only. It never sets delegate
+            // success: that comes solely from the send run's nonce-bound
+            // continue_delegate call paired with its "scheduled" result
+            // (applySameRunDelegateOutcome; review 🌻 on #578).
             console.log('ℹ internal continue_status notify:false receipt observed');
           }
 

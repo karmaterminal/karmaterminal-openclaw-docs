@@ -100,7 +100,7 @@ export function privateEvidence(overrides = {}) {
     typed_delegate_attempted_same_run: true,
     typed_delegate_success_same_run: true,
     typed_delegate_failed_same_run: false,
-    replay_invalid_observed: false,
+    replay_refused_observed: true,
     wake_lifecycle_observed: true,
     wake_session_bound: true,
     post_wake_quiet: true,

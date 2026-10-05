@@ -88,7 +88,7 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
     dispatch_terminal_sentinel_observed: true,
     dispatch_terminal_sentinel_same_run_window: true,
     wake_lifecycle_observed: true, wake_session_bound: true, post_wake_quiet: true, channel_message_observed: false,
-    dispatch_failure_observed: false, send_run_fingerprint: 'a'.repeat(16),
+    dispatch_failure_observed: false, replay_refused_observed: true, send_run_fingerprint: 'a'.repeat(16),
     terminal_run_fingerprint: 'a'.repeat(16), wake_run_fingerprint: 'f'.repeat(16),
     row_nonce_fingerprint: nonceFingerprint, accepted_send_trace_id: traceId,
   };

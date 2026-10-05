@@ -63,6 +63,7 @@ function evidence(overrides = {}) {
     terminal_success_same_run: true, typed_delegate_success_same_run: true,
     wake_lifecycle_observed: true, wake_session_bound: true, post_wake_quiet: true,
     channel_message_observed: false, dispatch_failure_observed: false,
+    replay_refused_observed: true,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: wakeRun,
     row_nonce_fingerprint: rowNonceFingerprint,
     reason_hash: createHash('sha256').update(reason).digest('hex').slice(0, 16),
@@ -618,7 +619,7 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
       typed_delegate_failure_category: 'codex_dynamic_tool_error',
     }, 'provider-or-turn-failure'],
     ['replaySafe', {
-      replay_invalid_observed: true,
+      replay_refused_observed: false,
       failureCategory: 'delegate-replay-unsafe',
     }, 'delegate-replay-unsafe'],
     ['wakeLifecycle', { wake_lifecycle_observed: false }, 'missing-send-run-lifecycle'],
@@ -981,4 +982,38 @@ test('R-CD-2 acquisition receipt from an isolated gateway validates under the sa
     false,
     'a fleet receipt does not validate under an isolated override',
   );
+});
+
+test('R-CD-2 replay contract: the delegate-spawning send run must end with replay refused (🩸, 2026-10-05)', () => {
+  // Current product: an accepted spawn marks the turn replayInvalid, because
+  // replaying it could dispatch the child again. That refusal is the safe signal.
+  const resolve = (overrides) => resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(overrides), correlation: correlation(), signingKey,
+  });
+  const refused = resolve({ replay_refused_observed: true });
+  assert.equal(refused.diagnostics.lifecycle.replaySafe, true);
+  assert.equal(refused.verdict, 'PASS-candidate', JSON.stringify(refused.diagnostics));
+
+  // Fail closed: no refusal observed (field missing) is never replay-safe.
+  const unobserved = resolve({ replay_refused_observed: undefined });
+  assert.equal(unobserved.diagnostics.lifecycle.replaySafe, false);
+  assert.notEqual(unobserved.verdict, 'PASS-candidate');
+
+  // An end that would allow replay of the delegate turn is the defect.
+  const allowed = resolve({ replay_refused_observed: false, failureCategory: 'delegate-replay-unsafe' });
+  assert.equal(allowed.diagnostics.lifecycle.replaySafe, false);
+  assert.equal(allowed.verdict, 'FAIL-candidate');
+  assert.equal(allowed.failureCategory, 'delegate-replay-unsafe');
+});
+
+test('R-CD-2 scenario reads replay refusal only from the accepted send run\'s own successful end', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
+  const success = src.indexOf('evidence.send_run_success_end_observed = true;');
+  const refused = src.indexOf('evidence.replay_refused_observed = true;');
+  const allowed = src.indexOf('evidence.replay_refused_observed = false;');
+  const sameRunGate = src.lastIndexOf("if (phase === 'end' && eventRunId === acceptedRunId)", success);
+  assert.ok(sameRunGate > 0 && success > sameRunGate, 'success branch sits under the accepted-run end gate');
+  assert.ok(refused > success && allowed > refused, 'refusal is recorded inside that success branch');
+  assert.equal(src.includes('replay_invalid_observed'), false, 'the old inverted flag is gone');
 });

@@ -396,8 +396,15 @@ export default function () {
                 evidence.failureCategory = 'provider-or-turn-failure';
               } else {
                 evidence.send_run_success_end_observed = true;
+                // Product contract (🩸, 2026-10-05): a turn that spawned a delegate
+                // ends with replayInvalid:true, because replaying it could dispatch the
+                // child again, so the runtime refuses that replay. Refusal on the
+                // accepted send run is the expected, safe signal. An end without it
+                // means the runtime would allow re-dispatch: that is the defect.
                 if (eventData.data?.replayInvalid === true) {
-                  evidence.replay_invalid_observed = true;
+                  evidence.replay_refused_observed = true;
+                } else {
+                  evidence.replay_refused_observed = false;
                   evidence.failureCategory = 'delegate-replay-unsafe';
                 }
                 maybeRecordDispatchTerminalSuccess();

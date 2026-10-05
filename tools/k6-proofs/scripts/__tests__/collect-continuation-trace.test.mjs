@@ -2046,8 +2046,24 @@ test('searches an isolated gateway service.name when one is supplied, and fails 
     assert.ok(r.queries.every((q) => q.includes('resource.service.name="emeric-prince"')));
   });
 
-  await t.test('--service-name targets the isolated service and records it', async () => {
+  await t.test('a CLI-only --service-name fails closed: the R-CD-2 validator reads only the env var', async () => {
+    // Review (🌻, #573): a flag-only override produced a receipt the validator
+    // rejects as invalid-shape:query-window. Refuse it before any query runs.
     const r = await run(['--service-name', isolatedService]);
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /--service-name emeric-proof-41b8d69b must equal OPENCLAW_PROOFS_SERVICE_NAME \(unset\)/);
+    assert.equal(r.queries.length, 0);
+  });
+
+  await t.test('--service-name differing from OPENCLAW_PROOFS_SERVICE_NAME fails closed', async () => {
+    const r = await run(['--service-name', isolatedService], { OPENCLAW_PROOFS_SERVICE_NAME: 'emeric-proof-other' });
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /must equal OPENCLAW_PROOFS_SERVICE_NAME \(emeric-proof-other\)/);
+    assert.equal(r.queries.length, 0);
+  });
+
+  await t.test('--service-name equal to OPENCLAW_PROOFS_SERVICE_NAME targets the isolated service and records it', async () => {
+    const r = await run(['--service-name', isolatedService], { OPENCLAW_PROOFS_SERVICE_NAME: isolatedService });
     assert.equal(r.ok, true, r.stderr);
     assert.equal(r.out.traceId, traceId);
     assert.ok(r.queries.every((q) => q.includes(`resource.service.name="${isolatedService}"`)));
@@ -2061,7 +2077,10 @@ test('searches an isolated gateway service.name when one is supplied, and fails 
   });
 
   await t.test('rejects an unsafe service name instead of interpolating it', async () => {
-    const r = await run(['--service-name', 'x" || true || "']);
+    // Supplied through the env var too, so it passes the CLI/env equality check
+    // and reaches the TraceQL escape guard this case exists to prove.
+    const unsafe = 'x" || true || "';
+    const r = await run(['--service-name', unsafe], { OPENCLAW_PROOFS_SERVICE_NAME: unsafe });
     assert.equal(r.ok, false);
     assert.match(r.stderr, /unsafe TraceQL value/);
     assert.equal(r.queries.length, 0);
@@ -2120,6 +2139,62 @@ test('still rejects a search trace id that is not hex', async () => {
         '--tempo-url', server.url, '--timeout-ms', '50', '--poll-ms', '10',
       ]),
       (error) => /search trace id/.test(String(error.stderr)),
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 isolated-gateway receipt validates end to end: collector env name -> validator', async () => {
+  // Collector-to-validator path (review 🌻, #573): the receipt the collector
+  // writes under OPENCLAW_PROOFS_SERVICE_NAME must validate when the validator
+  // reads the same env, and must not validate under the fleet default.
+  const isolatedService = 'cael-proof-rerun-test';
+  const rowNonce = 'R-CD-2-isolated-e2e';
+  const traceId = '4'.repeat(32);
+  const runFingerprint = 'a'.repeat(16);
+  const nonceFingerprint = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
+  const fixture = await fixtureDir({
+    rowId: 'R-CD-2',
+    delegateMode: 'silent-wake',
+    nonceOverride: rowNonce,
+    extraEvidence: {
+      send_run_fingerprint: runFingerprint,
+      terminal_run_fingerprint: runFingerprint,
+      wake_run_fingerprint: 'f'.repeat(16),
+      row_nonce_fingerprint: nonceFingerprint,
+      accepted_send_trace_id: traceId,
+      dispatch_accepted_at_ms: 100,
+    },
+  });
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      const hit = (url.searchParams.get('q') || '').includes(`resource.service.name="${isolatedService}"`);
+      response.end(JSON.stringify({ traces: hit ? [{ traceID: traceId }] : [] }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength, mode: 'silent-wake' })));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: isolatedService } });
+    const result = JSON.parse(stdout);
+    const correlation = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const evidence = JSON.parse(await readFile(path.join(fixture.dir, 'evidence.jsonl'), 'utf8'));
+    const identity = correlation.authorityIdentity;
+    assert.deepEqual(
+      validateRcd2AcquisitionReceipt(correlation, rCd2SigningKey, identity, evidence, { serviceNameOverride: isolatedService }),
+      { valid: true },
+    );
+    assert.equal(
+      validateRcd2AcquisitionReceipt(correlation, rCd2SigningKey, identity, evidence, { serviceNameOverride: undefined }).valid,
+      false,
+      'the fleet default must not accept an isolated-gateway receipt',
     );
   } finally {
     await server.close();

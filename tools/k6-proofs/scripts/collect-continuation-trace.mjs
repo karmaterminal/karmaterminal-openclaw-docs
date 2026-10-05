@@ -60,6 +60,17 @@ function parseArgs(argv, env = process.env) {
     out[arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
     i += 1;
   }
+  // One source of truth for the service name: the R-CD-2 acquisition-receipt
+  // validator reads OPENCLAW_PROOFS_SERVICE_NAME (lib/proofs-service-name.mjs).
+  // A --service-name that differs from it (including with the env unset) would
+  // produce a receipt the validator rejects as invalid-shape:query-window, so
+  // refuse it here rather than emit a receipt that can never validate.
+  if ((out.serviceName || null) !== (env.OPENCLAW_PROOFS_SERVICE_NAME || null)) {
+    throw new Error(
+      `--service-name ${out.serviceName} must equal OPENCLAW_PROOFS_SERVICE_NAME ` +
+      `(${env.OPENCLAW_PROOFS_SERVICE_NAME || 'unset'}); set the env var, which both the collector and the validator read`,
+    );
+  }
   out.timeoutMs = Number(out.timeoutMs);
   out.pollMs = Number(out.pollMs);
   out.settleMs = out.settleMs == null ? out.pollMs : Number(out.settleMs);

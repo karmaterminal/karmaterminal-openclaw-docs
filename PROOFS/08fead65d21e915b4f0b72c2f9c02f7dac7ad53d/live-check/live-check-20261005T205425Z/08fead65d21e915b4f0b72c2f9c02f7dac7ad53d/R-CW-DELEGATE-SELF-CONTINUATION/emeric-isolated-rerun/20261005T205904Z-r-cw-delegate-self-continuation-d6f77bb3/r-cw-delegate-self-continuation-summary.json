@@ -1,0 +1,18 @@
+{
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "sha": "08fead65d21e915b4f0b72c2f9c02f7dac7ad53d",
+  "seat": "emeric-isolated-rerun",
+  "timestamp": "2026-10-05T20:59:52.793Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 45399,
+      "avg": 45399,
+      "min": 45399,
+      "med": 45399,
+      "max": 45399,
+      "p(90)": 45399
+    },
+    "failures": 0
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "08fead65d21e915b4f0b72c2f9c02f7dac7ad53d",
+    "docsRef": "74532401b108a5ccacbb7f98f7c7c05a2187323a"
+  },
+  "harness": {
+    "docsRef": "74532401b108a5ccacbb7f98f7c7c05a2187323a",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
+    "manifestSha256": "9c9576d2704a6e7e7d145beb3275d1f054779bf81f98bbf484f01467600e92a1",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js",
+    "scenarioSha256": "182750500ba5cf22dc87c8736640036dc9bef318031ce000446045ea614cd7ab",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261005T205436Z-r-cd-silent-d6f77bb3",
+    "rowId": "R-CD-SILENT",
+    "seat": "emeric-isolated-rerun",
+    "scenario": "r-cd-silent",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "unknown",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-silent-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

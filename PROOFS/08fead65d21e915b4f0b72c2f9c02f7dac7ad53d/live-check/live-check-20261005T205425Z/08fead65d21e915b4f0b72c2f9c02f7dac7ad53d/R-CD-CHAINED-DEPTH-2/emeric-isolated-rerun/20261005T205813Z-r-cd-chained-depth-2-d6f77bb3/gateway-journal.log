@@ -1,0 +1,27 @@
+2026-10-05T13:58:25.077707-07:00 emeric node[2775995]: 2026-10-05T13:58:25.077-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-05T13:58:25.078682-07:00 emeric node[2775995]: 2026-10-05T13:58:25.078-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-05T13:58:25.079580-07:00 emeric node[2775995]: 2026-10-05T13:58:25.079-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-05T13:58:25.080440-07:00 emeric node[2775995]: 2026-10-05T13:58:25.080-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-05T13:58:25.095110-07:00 emeric node[2775995]: 2026-10-05T13:58:25.094-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3902ms fireAt=1791233908995 session=<redacted-session-key>
+2026-10-05T13:58:29.002715-07:00 emeric node[2775995]: 2026-10-05T13:58:29.002-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-10-05T13:58:29.017301-07:00 emeric node[2775995]: 2026-10-05T13:58:29.017-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-05T13:58:29.076449-07:00 emeric node[2775995]: 2026-10-05T13:58:29.076-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=<redacted-session-key> task=<redacted-payload>
+2026-10-05T13:58:41.436484-07:00 emeric node[2775995]: 2026-10-05T13:58:41.436-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-05T13:58:41.438073-07:00 emeric node[2775995]: 2026-10-05T13:58:41.437-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-05T13:58:41.442544-07:00 emeric node[2775995]: 2026-10-05T13:58:41.442-07:00 CHILD-DONE <redacted-nonce> CHILD-DELEGATE-SCHEDULED
+2026-10-05T13:58:41.443120-07:00 emeric node[2775995]: 2026-10-05T13:58:41.443-07:00 [agents/agent-command] [agent] run continuation:01a10ddc-4d7b-7c10-b43e-0b693fc06f64:1 ended with stopReason=stop
+2026-10-05T13:58:41.457448-07:00 emeric node[2775995]: 2026-10-05T13:58:41.457-07:00 [sessions/state-events] failed to record session state event: Error: Subagent terminal signal owner changed before commit
+2026-10-05T13:58:41.516671-07:00 emeric node[2775995]: 2026-10-05T13:58:41.516-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-05T13:58:41.569644-07:00 emeric node[2775995]: 2026-10-05T13:58:41.569-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent-wake session=<redacted-session-key> task=<redacted-payload>
+2026-10-05T13:58:46.391794-07:00 emeric node[2775995]: 2026-10-05T13:58:46.391-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-05T13:58:46.392902-07:00 emeric node[2775995]: 2026-10-05T13:58:46.392-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-05T13:58:46.396653-07:00 emeric node[2775995]: 2026-10-05T13:58:46.396-07:00 GRANDCHILD-DONE <redacted-nonce>
+2026-10-05T13:58:46.397228-07:00 emeric node[2775995]: 2026-10-05T13:58:46.397-07:00 [agents/agent-command] [agent] run continuation:01a10ddc-84ae-7416-b307-4a575d7ca996:1 ended with stopReason=stop
+2026-10-05T13:58:46.408810-07:00 emeric node[2775995]: 2026-10-05T13:58:46.408-07:00 [sessions/state-events] failed to record session state event: Error: Subagent terminal signal owner changed before commit
+2026-10-05T13:58:46.465661-07:00 emeric node[2775995]: 2026-10-05T13:58:46.465-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>
+2026-10-05T13:58:51.206738-07:00 emeric node[2775995]: 2026-10-05T13:58:51.206-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-05T13:58:51.207633-07:00 emeric node[2775995]: 2026-10-05T13:58:51.207-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-05T13:58:51.211263-07:00 emeric node[2775995]: 2026-10-05T13:58:51.211-07:00 CHILD-DONE <redacted-nonce> CHILD-DELEGATE-SCHEDULED
+2026-10-05T13:58:51.211918-07:00 emeric node[2775995]: 2026-10-05T13:58:51.211-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key>:continuation:01a10ddc-4d7b-7c10-b43e-0b693fc06f64:1:wake ended with stopReason=stop
+2026-10-05T13:58:51.224282-07:00 emeric node[2775995]: 2026-10-05T13:58:51.224-07:00 [sessions/state-events] failed to record session state event: Error: Subagent terminal signal owner changed before commit
+2026-10-05T13:58:51.280889-07:00 emeric node[2775995]: 2026-10-05T13:58:51.280-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>

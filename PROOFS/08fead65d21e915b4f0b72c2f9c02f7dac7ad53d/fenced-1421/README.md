@@ -1,0 +1,3 @@
+# #1421 fenced table — pending source consolidation
+
+No complete, durable consolidated table exists at this staging point. The source owner is compiling every fenced group, per-seat `RECEIPT.txt` path and classification under `karmaterminal/frond-scribe` branch `scribe/20261004/proof-receipts-41b8d69b90`, `proof-receipts/cut-08fead65d2/fenced-1421/`. Raw paths are per-seat `~/ci-fenced-08fead65/{seat,seat-*-umask022,cmp-plugins-*,baseline-gsi}/results/…` on ronan, cael, emeric and elliott. Do not infer success from an active shard or from a guard-killed attempt. Import the committed table and terminal storage-state/core-tooling-10 receipts, then review against the exact cut before claiming coverage or Gate 5 disposition.

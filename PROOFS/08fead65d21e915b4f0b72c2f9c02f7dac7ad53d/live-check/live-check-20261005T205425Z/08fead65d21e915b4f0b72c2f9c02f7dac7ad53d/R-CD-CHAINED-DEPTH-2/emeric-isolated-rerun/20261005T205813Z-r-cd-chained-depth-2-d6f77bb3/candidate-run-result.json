@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "08fead65d21e915b4f0b72c2f9c02f7dac7ad53d",
+    "docsRef": "74532401b108a5ccacbb7f98f7c7c05a2187323a"
+  },
+  "harness": {
+    "docsRef": "74532401b108a5ccacbb7f98f7c7c05a2187323a",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+    "manifestSha256": "94f74dfdce864fdf01fbd8f3f32bf647b37d2bc7830bc703340b16813eece692",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-chained-depth-2.js",
+    "scenarioSha256": "8cdbdddbb6c17eccaa7e043447b05beca37dcfedf5f30ada56ef2f1d548ba21e",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261005T205813Z-r-cd-chained-depth-2-d6f77bb3",
+    "rowId": "R-CD-CHAINED-DEPTH-2",
+    "seat": "emeric-isolated-rerun",
+    "scenario": "r-cd-chained-depth-2",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-chained-depth-2-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-0caeb8f8841e.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "sha": "08fead65d21e915b4f0b72c2f9c02f7dac7ad53d",
+  "seat": "emeric-isolated-rerun",
+  "timestamp": "2026-10-05T20:59:00.082Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 44227,
+      "avg": 44227,
+      "min": 44227,
+      "med": 44227,
+      "max": 44227,
+      "p(90)": 44227
+    },
+    "failures": 0
+  }
+}

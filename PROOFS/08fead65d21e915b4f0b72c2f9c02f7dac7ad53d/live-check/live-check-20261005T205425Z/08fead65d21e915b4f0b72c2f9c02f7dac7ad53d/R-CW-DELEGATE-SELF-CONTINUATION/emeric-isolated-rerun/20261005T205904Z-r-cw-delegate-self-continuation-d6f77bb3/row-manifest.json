@@ -1,0 +1,73 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "issue": 118,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-delegate-self-continuation",
+    "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
+    ],
+    "status": "runnable",
+    "file": "r-cw-delegate-self-continuation.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "promptTemplate": "k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason=\"k6-self-continuation-{{nonce}}\", delaySeconds=2). After the continue_work tool result reports scheduled, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly CHILD-CW-SCHEDULED {{nonce}} TOKEN <your token>. On hop-2 wake, reply exactly CHILD-HOP2-DONE {{nonce}}. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
+  },
+  "expectedReceipts": [
+    { "name": "delegate-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered)" },
+    { "name": "child-spawned", "required": false, "description": "Delegate child bound through the child observer: own row spawnedBy = parent and own spawn task carries the nonce, unique; event-path child keys only cross-check (fail closed). The child transcript receipts below need this binding." },
+    { "name": "child-continue-work-accepted", "required": true, "description": "From the CHILD's own chat.history: exactly one nonce-bound continue_work call, its toolResult status \"scheduled\" (continue-work-tool.ts:86-95), and CHILD-CW-SCHEDULED <nonce> in the same turn. The parent stream cannot see child turns." },
+    { "name": "child-hop-2-woke", "required": true, "description": "From the CHILD's own chat.history: a [continuation:wake] user turn carrying the nonce after the yield (work-dispatch-execution.ts:197-215), and CHILD-HOP2-DONE <nonce> in that wake turn." },
+    { "name": "parent-return", "required": true, "description": "The child's return reached the parent: the parent reproduces, in its own transcript, the token the child minted in its turn-1 reply (CHILD-CW-SCHEDULED <nonce> TOKEN <12 chars>, absent from every harness-sent text) as PARENT-RETURN <nonce> TOKEN <token> (assistant text or heartbeat_respond), in a run other than the dispatch run, after the dispatch run and not before the child minted it. Does not claim that hop-2 OUTPUT reached the parent: only the turn-1 return is delivered." }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation: detector must ignore [k6-proof-harness] prompt-echo events and count only post-dispatch evidence. PASS-candidate now requires delegate-accepted + child-continue-work-accepted + child-hop-2-woke + parent-return. child-spawned is corroborative only unless a concrete lifecycle signal is available."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "delegate-accepted",
+      "child-continue-work-accepted",
+      "child-hop-2-woke",
+      "parent-return"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts. PASS requires explicit post-dispatch CHILD-CW-SCHEDULED, CHILD-HOP2-DONE, and parent-return evidence; otherwise fold as PARTIAL-candidate. Since #570 the row requires two of three separate receipts: hop 2 ran (child transcript) and the child's return reached the parent (child-minted token reproduced by the parent); it does not claim that hop-2 OUTPUT reached the parent (only the turn-1 return is delivered, before hop 2). Retained PASS receipts from before #570 (2026-07-17 to 2026-08-25) are historically non-discriminating: their parent-stream substring checks could be satisfied by the parent's own continue_delegate task text (plausible, not proven); they are not re-classified as FAIL."
+  }
+}

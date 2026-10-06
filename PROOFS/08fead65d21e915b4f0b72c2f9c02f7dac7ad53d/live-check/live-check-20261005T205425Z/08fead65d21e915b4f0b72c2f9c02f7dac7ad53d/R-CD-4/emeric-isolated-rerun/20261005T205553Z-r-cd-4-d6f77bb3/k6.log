@@ -1,0 +1,322 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-4-target-session-key.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cd_4_target_session: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-10-05T13:55:56-07:00" level=info msg="✓ disposable parent session created: <redacted-session-key>" source=console
+time="2026-10-05T13:55:56-07:00" level=info msg="✓ disposable target session created: <redacted-session-key>" source=console
+time="2026-10-05T13:55:57-07:00" level=info msg="✓ target priming turn accepted" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:00-07:00" level=info msg="✓ target session primed for continuation consumption acknowledgement" source=console
+time="2026-10-05T13:56:00-07:00" level=info msg="✓ sessions.send accepted — agent turn triggered for R-CD-4 (targetSessionKey)" source=console
+time="2026-10-05T13:56:00-07:00" level=info msg="✓ initial pre-gate session.message event observed (dispatching agent turn)" source=console
+time="2026-10-05T13:56:01-07:00" level=info msg="✓ initial pre-gate session.message event observed (dispatching agent turn)" source=console
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m08.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:04-07:00" level=info msg="✓ initial pre-gate session.message event observed (dispatching agent turn)" source=console
+time="2026-10-05T13:56:04-07:00" level=info msg="✓ initial pre-gate session.message event observed (dispatching agent turn)" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m09.0s/2m0s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m10.0s/2m0s  0/1 shared iters
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m11.0s/2m0s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m12.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:08-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-10-05T13:56:08-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-10-05T13:56:08-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-10-05T13:56:08-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m13.0s/2m0s  0/1 shared iters
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m14.0s/2m0s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m15.0s/2m0s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m16.0s/2m0s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m17.0s/2m0s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m18.0s/2m0s  0/1 shared iters
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m19.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:16-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m20.0s/2m0s  0/1 shared iters
+
+running (0m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m21.0s/2m0s  0/1 shared iters
+
+running (0m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m22.0s/2m0s  0/1 shared iters
+
+running (0m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m23.0s/2m0s  0/1 shared iters
+
+running (0m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m24.0s/2m0s  0/1 shared iters
+
+running (0m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m25.0s/2m0s  0/1 shared iters
+
+running (0m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m26.0s/2m0s  0/1 shared iters
+
+running (0m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m27.0s/2m0s  0/1 shared iters
+
+running (0m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m28.0s/2m0s  0/1 shared iters
+
+running (0m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m29.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:25-07:00" level=info msg="✓ Child run completed (session row status done)" source=console
+
+running (0m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m30.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:27-07:00" level=info msg="✓ generic post-gate session.message event observed" source=console
+time="2026-10-05T13:56:27-07:00" level=info msg="✓ nonce-bound TARGET-RECEIVED candidate landed in target session (session.message)" source=console
+
+running (0m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m31.0s/2m0s  0/1 shared iters
+time="2026-10-05T13:56:28-07:00" level=info msg="✓ nonce-bound TARGET-RECEIVED candidate landed in target session (chat.history)" source=console
+
+running (0m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m32.0s/2m0s  0/1 shared iters
+
+running (0m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m33.0s/2m0s  0/1 shared iters
+
+running (0m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m34.0s/2m0s  0/1 shared iters
+
+running (0m35.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m35.0s/2m0s  0/1 shared iters
+
+running (0m36.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m36.0s/2m0s  0/1 shared iters
+
+running (0m37.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m37.0s/2m0s  0/1 shared iters
+
+running (0m38.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m38.0s/2m0s  0/1 shared iters
+
+running (0m39.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m39.0s/2m0s  0/1 shared iters
+
+running (0m40.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m40.0s/2m0s  0/1 shared iters
+
+running (0m41.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m41.0s/2m0s  0/1 shared iters
+
+running (0m42.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m42.0s/2m0s  0/1 shared iters
+
+running (0m43.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m43.0s/2m0s  0/1 shared iters
+
+running (0m44.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m44.0s/2m0s  0/1 shared iters
+
+running (0m45.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m45.0s/2m0s  0/1 shared iters
+
+running (0m46.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m46.0s/2m0s  0/1 shared iters
+
+running (0m47.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m47.0s/2m0s  0/1 shared iters
+
+running (0m48.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m48.0s/2m0s  0/1 shared iters
+
+running (0m49.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m49.0s/2m0s  0/1 shared iters
+
+running (0m50.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m50.0s/2m0s  0/1 shared iters
+
+running (0m51.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m51.0s/2m0s  0/1 shared iters
+
+running (0m52.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m52.0s/2m0s  0/1 shared iters
+
+running (0m53.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m53.0s/2m0s  0/1 shared iters
+
+running (0m54.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m54.0s/2m0s  0/1 shared iters
+
+running (0m55.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m55.0s/2m0s  0/1 shared iters
+
+running (0m56.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m56.0s/2m0s  0/1 shared iters
+
+running (0m57.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m57.0s/2m0s  0/1 shared iters
+
+running (0m58.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m58.0s/2m0s  0/1 shared iters
+
+running (0m59.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  0m59.0s/2m0s  0/1 shared iters
+
+running (1m00.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m00.0s/2m0s  0/1 shared iters
+
+running (1m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m01.0s/2m0s  0/1 shared iters
+
+running (1m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m02.0s/2m0s  0/1 shared iters
+
+running (1m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m03.0s/2m0s  0/1 shared iters
+
+running (1m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m04.0s/2m0s  0/1 shared iters
+
+running (1m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m05.0s/2m0s  0/1 shared iters
+
+running (1m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m06.0s/2m0s  0/1 shared iters
+
+running (1m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m07.0s/2m0s  0/1 shared iters
+
+running (1m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m08.0s/2m0s  0/1 shared iters
+
+running (1m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m09.0s/2m0s  0/1 shared iters
+
+running (1m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m10.0s/2m0s  0/1 shared iters
+
+running (1m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m11.0s/2m0s  0/1 shared iters
+
+running (1m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m12.0s/2m0s  0/1 shared iters
+
+running (1m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m13.0s/2m0s  0/1 shared iters
+
+running (1m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m14.0s/2m0s  0/1 shared iters
+
+running (1m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m15.0s/2m0s  0/1 shared iters
+
+running (1m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m16.0s/2m0s  0/1 shared iters
+
+running (1m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m17.0s/2m0s  0/1 shared iters
+
+running (1m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m18.0s/2m0s  0/1 shared iters
+
+running (1m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m19.0s/2m0s  0/1 shared iters
+
+running (1m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m20.0s/2m0s  0/1 shared iters
+
+running (1m21.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m21.0s/2m0s  0/1 shared iters
+
+running (1m22.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m22.0s/2m0s  0/1 shared iters
+
+running (1m23.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m23.0s/2m0s  0/1 shared iters
+
+running (1m24.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m24.0s/2m0s  0/1 shared iters
+
+running (1m25.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m25.0s/2m0s  0/1 shared iters
+
+running (1m26.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m26.0s/2m0s  0/1 shared iters
+
+running (1m27.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m27.0s/2m0s  0/1 shared iters
+
+running (1m28.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m28.0s/2m0s  0/1 shared iters
+
+running (1m29.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m29.0s/2m0s  0/1 shared iters
+
+running (1m30.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m30.0s/2m0s  0/1 shared iters
+
+running (1m31.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m31.0s/2m0s  0/1 shared iters
+
+running (1m32.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m32.0s/2m0s  0/1 shared iters
+
+running (1m33.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m33.0s/2m0s  0/1 shared iters
+
+running (1m34.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_4_target_session   [   0% ] 1 VUs  1m34.0s/2m0s  0/1 shared iters
+PUBLIC_EVIDENCE {"row":"R-CD-4","manifest_loaded":true,"task_identity_token":"RCD4:3756337-4rhbhtnv","seat":"emeric-isolated-rerun","parent_session_created":true,"target_session_created":true,"target_primed":true,"target_return_source":"heartbeat_respond","parent_return_source":null,"candidateSha":"08fead65d21e915b4f0b72c2f9c02f7dac7ad53d","started":"2026-10-05T20:55:56.337Z","tool_accepted":true,"agent_turn_observed":true,"child_completed":true,"child_session_candidates":["<redacted-session-key>"],"child_session_ambiguous":false,"child_session_invalid":false,"return_in_target":true,"return_in_parent":false,"target_return_candidate":{"eventName":"session.message","marker":"TARGET-ACK <redacted-nonce>","role":"toolResult","source":"heartbeat_respond","toolCallId":"call_JAnTGwUZqOazwCdYPULyd40G","field":"notificationText","outcome":"done","notify":true,"index":3},"parent_return_candidate":null,"target_return_receipt":{"eventName":"session.message","marker":"TARGET-ACK <redacted-nonce>","role":"toolResult","source":"heartbeat_respond","toolCallId":"call_JAnTGwUZqOazwCdYPULyd40G","field":"notificationText","outcome":"done","notify":true,"index":3},"parent_return_receipt":null,"dispatch_accepted_at_ms":1791233760758,"wake_gate_ms":5000,"reason_hash":"d7eda49824ed6d72","reason_length":127,"delegate_mode":"silent-wake","child_status":"done","event_child_candidates":[],"child_identity_reason":null,"return_history_requests":14,"trace_id":null,"preflight":{"ok":true,"missing":[],"reason":null,"advertised_count":515},"observation_refused":null,"verdict_reason":null,"ended":"2026-10-05T20:57:30.750Z","duration_ms":94413,"observation_incomplete":null,"observation_errors":[],"observer_list_responses":4,"observer_rows_seen":3,"observer_history_responses":1,"observer_history_retries":0,"observer_history_unbound":[],"observer_rounds_completed":4,"observer_rounds_invalid":0,"observer_children_recorded":1}
+time="2026-10-05T13:57:30-07:00" level=info msg="\n[R-CD-4] VERDICT: PASS-candidate" source=console
+
+[R-CD-4] Summary: PASS-candidate | SHA: 08fead65d21e915b4f0b72c2f9c02f7dac7ad53d | Seat: emeric-isolated-rerun
+
+running (1m34.4s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_4_target_session ✓ [ 100% ] 1 VUs  1m34.4s/2m0s  1/1 shared iters

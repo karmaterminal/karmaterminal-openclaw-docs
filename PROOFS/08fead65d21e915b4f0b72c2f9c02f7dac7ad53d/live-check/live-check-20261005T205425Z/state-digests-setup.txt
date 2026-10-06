@@ -1,0 +1,2 @@
+schema 20 43c5b9b3da7193dd81bdebdc194cf1760c855026cfde5a895aba3ee251e1c100 proof-gw/rerun-08fead65/state/state/openclaw.sqlite
+schema 25 7af29c331b99065b93a09a478375d16924a7f9144be129ac962a5b0aec224955 proof-gw/rerun-08fead65/state/agents/main/agent/openclaw-agent.sqlite

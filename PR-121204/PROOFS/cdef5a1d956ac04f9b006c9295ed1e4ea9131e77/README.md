@@ -41,13 +41,13 @@ Plus one **fresh `@mention`** delivered live after reconnect.
 | reply to bot, canonical nested target | completed; preflight `effectiveWasMentioned=true` (reply-to-bot); turn #2 | same |
 | reply, nested target needs re-fetch | completed; preflight fetched `GET /channels/<gated>/messages/bot-answer-2` (REST returns the bot) and `effectiveWasMentioned=true`; turn #3 | same |
 | raw `<@bot>`, `mentions: []` | completed; preflight hydrated it with `GET /channels/<gated>/messages/raw-hydrate`, `wasMentioned=true`; turn #4 | same |
-| fresh `@mention` | completed **#5 of 5** claims; turn #5 | completed **#25 of 25** claims; turn #5 |
+| fresh `@mention` | completion position **5 of 5** rows (by SQLite completion time); turn #5 | completion position **25 of 25** rows; turn #5 |
 | production preflight runs | 5 (all mention-gate passes) | 25 (5 passes + 20 `drop: no-mention`) |
 | final SQLite | `{"failed:stale-ambient-backlog":20,"completed":5}` | `{"completed":25}` |
 
 Logs: [head](logs/head-recovery.log), [control](logs/control-recovery.log).
 
-**Limit on wall-clock time.** Fresh-mention turn latency was 4.6 s (head) and 4.7 s (control) after its frame. Against a loopback mock, each ambient preflight skip costs only milliseconds, and most of the 4.6 s is the drain's first pass after startup. So this run shows the backlog removed from the lane: 20 claims and 20 preflight runs avoided, and the fresh mention 5th instead of 25th. It does not show a latency number for production Discord.
+**Limit on wall-clock time.** Fresh-mention turn latency was 4.6 s (head) and 4.7 s (control) after its frame. Against a loopback mock, each ambient preflight skip costs only milliseconds, and most of the 4.6 s is the drain's first pass after startup. So this run shows the backlog removed from the lane: 5 rows reach claim and preflight at head versus 25 at control (20 claims and 20 preflight runs avoided), and the fresh mention completes 5th instead of 25th. Positions come from SQLite completion timestamps; completion order is not necessarily claim order (METHOD.md). It does not show a latency number for production Discord.
 
 ### Scenario C: mention-pattern config edit mid-recovery
 
@@ -88,3 +88,5 @@ All 20 processes (10 scenario x tree runs, phases A and B) exited 0.
 - `logs/<side>-<scenario>.log`: phases A and B, with `$HOME` and the hostname replaced.
 
 Snowflakes are synthetic and relabelled (`<guild>`, `<gated>`, `<bot>`, `<human>`, message names). The token is a placeholder and is redacted from the IDENTIFY line.
+
+**Scope of scenario C.** The edit-commit run publishes the config edit from the `queue.fail` wrapper, before the fail's transaction opens. It shows the guard refusing the commit end to end. It does not separately exercise the guard turning false *between* transaction open and commit; the same-head unit test `ingress-queue.generation.test.ts` (guard true at open, false at commit) covers that narrower boundary.

@@ -72,15 +72,15 @@ ClawSweeper revision 22 asked for this case.
 
 - **Setup:**
   - The config has a name-keyed direct-open entry: `guilds[<guild>].channels.concierge.requireMention = false`.
-  - 20 stale ambient rows sit in the gated channel `general`.
+  - 20 stale ambient rows sit in the channel `general`. Because the guild's channel map is name-keyed and `general` is not listed, preflight refuses its messages with `drop: channelConfig.allowed===false`. That is a channel-allowlist drop, not the mention gate used in recovery and C.
 - **The injected event:** after the stale policy returns `fail(amb-01)` and before the fail commits, Discord sends `CHANNEL_UPDATE` renaming `general` to `concierge`. The frame travels over the WebSocket and the production `GatewayPlugin` applies it to its inventory before the write is sent.
 - **What the new mapping means:** the channel is now direct-open, so every one of those rows is work.
 
 | | head `2d997a0bcd` | `cdef5a1d95` (before the channel-facts fence) | control `ca43d19197` |
 | --- | --- | --- | --- |
 | `amb-01` | **`fail(amb-01, guard) -> not committed`**, `pending disposition invalidated before commit`. Re-decided next pass, kept, preflight `shouldRequireMention=false`, turn | **`fail(amb-01, guard) -> committed`**: failed `stale-ambient-backlog` although the new mapping accepts it | no pre-claim fail exists, so the rename trigger never fired |
-| `amb-02..20` | completed, 19 turns | completed, 19 turns (decided after the rename) | preflight-skipped as gated (no rename happened) |
-| final | 20 completed, 20 turns, 0 failed | 1 failed, 19 completed | 20 completed, 0 turns |
+| `amb-02..20` | completed, 19 turns | completed, 19 turns (decided after the rename) | preflight drop `channelConfig.allowed===false` x20 (no rename happened) |
+| final | 20 completed, 20 turns, 0 failed | 1 failed, 19 completed | 20 completed (all preflight-dropped), 0 turns |
 
 Logs: `logs/{head,prefix-cdef,control}-rename-commit.log`.
 

@@ -64,7 +64,7 @@ Each scenario runs as **two processes** over one state dir.
 7. **Channel rename injection (`rename-commit`).**
    - The run config carries a name-keyed direct-open entry, `guilds[<guild>].channels.concierge.requireMention = false`. No channel has that name at startup, and the live policy reader is seeded with that entry as resolved, which is the shape startup REST resolution leaves intact.
    - The queue `fail` wrapper (item 5) handles the first pre-claim fail as follows, before delegating to the real `fail`:
-     - the mock renames the gated channel to `concierge` (so later REST `GET /channels/:id` answers agree);
+     - the mock renames `general` (unlisted in the name-keyed channel map, so preflight drops it as `channelConfig.allowed===false`) to `concierge` (so later REST `GET /channels/:id` answers agree);
      - it sends `CHANNEL_UPDATE` over the WebSocket;
      - it waits until the production `GatewayPlugin`'s inventory shows the new name.
    - The rename is therefore applied to the session inventory after the stale policy returned its verdict and before the fail's write reaches the state worker.

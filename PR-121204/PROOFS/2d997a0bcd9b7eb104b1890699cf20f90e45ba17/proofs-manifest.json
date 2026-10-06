@@ -105,7 +105,7 @@
     },
     {
       "id": "rename-commit",
-      "title": "CHANNEL_UPDATE renames the gated channel into a configured requireMention:false name after the verdict, before the fail commits (ClawSweeper rev22)",
+      "title": "CHANNEL_UPDATE renames the unlisted channel general (preflight: channelConfig.allowed===false) into a configured requireMention:false name after the verdict, before the fail commits (ClawSweeper rev22)",
       "head": {
         "log": "logs/head-rename-commit.log",
         "amb_01": "fail(guard) -> not committed; re-decided, kept, turn run",
@@ -125,7 +125,7 @@
       },
       "control": {
         "log": "logs/control-rename-commit.log",
-        "note": "no pre-claim fail exists, so the rename trigger never fires (renamed=false)",
+        "note": "no pre-claim fail exists, so the rename trigger never fires (renamed=false); all 20 claimed and dropped by preflight as channelConfig.allowed===false (channel-allowlist drop, not the mention gate)",
         "final_status_counts": {
           "completed": 20
         },

@@ -1,0 +1,9 @@
+== b51feb98eb node v24.17.0 00:00:46
+install rc=0
+src/gateway/server.chat-cli-auth.test.ts rc=1  Test Files 1 failed (1)  Tests 1 failed | 5 passed (6) 
+src/gateway/server.cli-watchdog.test.ts rc=1  Test Files 1 failed (1)  Tests 1 failed | 5 passed (6) 
+== 08fead65d2 node v24.17.0 00:05:13
+install rc=0
+src/gateway/server.chat-cli-auth.test.ts rc=1  Test Files 1 failed (1)  Tests 1 failed | 5 passed (6) 
+src/gateway/server.cli-watchdog.test.ts rc=1  Test Files 1 failed (1)  Tests 1 failed | 5 passed (6) 
+done 00:09:14

@@ -1,0 +1,5 @@
+2026-10-06T00:12:29Z HANG-KILL agentic-commands-runtime: test_lines stuck at 408 for 20m
+2026-10-06T00:12:29Z HANG-KILL core-tooling-15: test_lines stuck at 3195 for 20m
+2026-10-06T00:12:29Z HANG-KILL core-unit-fast-2: test_lines stuck at 8700 for 20m
+2026-10-06T00:17:29Z HANG-KILL agentic-plugin-sdk: test_lines stuck at 1265 for 20m
+2026-10-06T00:19:30Z HANG-KILL supplemental-core-bundled: test_lines stuck at 97 for 20m

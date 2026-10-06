@@ -1,0 +1,7 @@
+plugins b51feb98eb rc=1  Test Files 1 failed (1)  Tests 1 failed | 14 passed (15) 
+plugins 08fead65d2 rc=1  Test Files 1 failed (1)  Tests 1 failed | 14 passed (15) 
+cli-process b51feb98eb rc=1  Test Files 1 failed (1)  Tests 2 failed | 7 passed (9) 
+cli-process 08fead65d2 rc=1  Test Files 1 failed (1)  Tests 2 failed | 7 passed (9) 
+ct10 b51feb98eb rc=0  Test Files 1 passed (1)  Tests 12 passed (12)  Test Files 1 passed (1)  Tests 12 passed (12) 
+ct10 08fead65d2 rc=0  Test Files 1 passed (1)  Tests 12 passed (12)  Test Files 1 passed (1)  Tests 12 passed (12) 
+done 00:41:06

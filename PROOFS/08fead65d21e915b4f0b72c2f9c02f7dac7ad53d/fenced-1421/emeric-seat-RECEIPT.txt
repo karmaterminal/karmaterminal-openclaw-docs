@@ -1,0 +1,11 @@
+fenced-shard execution receipt (#1421 gate, pure cut)
+seat: emeric
+product SHA: 08fead65d21e915b4f0b72c2f9c02f7dac7ad53d
+bootstrap tools SHA (runner actually executing): 0b079a08a62cc932a8f0e35aaecba6e023260255
+deviation: scheduling-only vs 0507f50303 (runner.sh byte-identical); plus 🕯 --no-opt shim (RECEIPT-shim.txt)
+NOTE: fenced-seat.sh header comment still says 0507f50303; stale text
+shards: checks-node-agentic-control-plane-runtime-server, checks-node-core-tooling-10, checks-node-agentic-gateway-core-runtime, checks-node-agentic-control-plane-runtime-config, checks-node-agentic-cli-process, checks-node-extension-qa
+started: node v24.17.0 seat=emeric host=emeric start=2026-10-05T23:07:26Z
+unit: ci-fenced-08fead65 c455b7f1a21741b6bdd6d9f51dfb8cbc
+2026-10-05T23:52:28Z guard replaced: dir-age 60m -> progress-aware (test_lines unchanged 20m)
+2026-10-06T00:26:23Z progress guard STOPPED: it killed running shards on a lagging heartbeat signal (frond-scribe error)

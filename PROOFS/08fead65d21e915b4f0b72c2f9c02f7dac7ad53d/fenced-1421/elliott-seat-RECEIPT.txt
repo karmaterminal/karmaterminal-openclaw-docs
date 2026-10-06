@@ -1,0 +1,12 @@
+fenced-shard execution receipt (#1421 gate, pure cut)
+seat: elliott
+product SHA: 08fead65d21e915b4f0b72c2f9c02f7dac7ad53d
+bootstrap tools SHA (runner actually executing): 0b079a08a62cc932a8f0e35aaecba6e023260255
+deviation: scheduling-only vs Mode-B run 37333667018's 0507f50303 — openclaw-local-ci-runner.sh byte-identical; only openclaw-local-ci-run-batch.sh differs (#1638 reaping/build lock/heartbeat)
+NOTE: fenced-seat.sh header comment still says 0507f50303; it is stale text, not the executing runner (see line above)
+node: v24.17.0 (sha256-verified official tarball), first on PATH for build and tests
+shards: checks-node-agentic-agents-core-models, checks-node-core-runtime-infra-process, checks-node-agentic-gateway-server-isolated, checks-node-agentic-gateway-methods, checks-node-extension-telegram, checks-node-agentic-plugins
+started: node v24.17.0 seat=elliott host=elliott start=2026-10-05T22:57:24Z
+unit: ci-fenced-08fead65 e0604d9ec0b144888011e2f023b949b5
+2026-10-05T23:52:26Z guard replaced: dir-age 60m -> progress-aware (test_lines unchanged 20m)
+2026-10-06T00:26:22Z progress guard STOPPED: it killed running shards on a lagging heartbeat signal (frond-scribe error)

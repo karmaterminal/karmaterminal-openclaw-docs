@@ -1,0 +1,4 @@
+🕯 grant 1556804153790173296: run-local --no-opt shim first on PATH (build+tests). /usr/bin/node is v26.7.0 (not the target), so the shim execs the sha-verified 24.17.0 binary.
+shim path: /home/figs/ci-fenced-08fead65/seat/shim/node  sha256: 8c9239cb0bfeeec74c20c01a670d111c89fbc8ef41d358ee68148395180cca02
+shim bytes: #!/bin/sh|exec /home/figs/ci-fenced-08fead65/seat/node24/bin/node --no-opt "$@"|
+node --version via shim: v24.17.0  execArgv check: --no-opt present

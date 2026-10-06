@@ -1,0 +1,4 @@
+2026-10-06T00:12:29Z HANG-KILL agentic-control-plane-runtime-config: test_lines stuck at 275 for 20m
+2026-10-06T00:12:29Z HANG-KILL agentic-control-plane-runtime-server: test_lines stuck at 3045 for 20m
+2026-10-06T00:12:29Z HANG-KILL agentic-gateway-core-runtime: test_lines stuck at 172 for 20m
+2026-10-06T00:12:29Z HANG-KILL core-tooling-10: test_lines stuck at 2939 for 20m

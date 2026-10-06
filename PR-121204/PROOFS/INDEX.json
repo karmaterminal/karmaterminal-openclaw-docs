@@ -1,10 +1,10 @@
 {
   "schema": "openclaw.pr121204.proofs.index.v1",
-  "current_sha": "cdef5a1d956ac04f9b006c9295ed1e4ea9131e77",
-  "proof_source_sha": "cdef5a1d956ac04f9b006c9295ed1e4ea9131e77",
-  "corpus_path": "PR-121204/PROOFS/cdef5a1d956ac04f9b006c9295ed1e4ea9131e77/",
-  "manifest_path": "PR-121204/PROOFS/cdef5a1d956ac04f9b006c9295ed1e4ea9131e77/proofs-manifest.json",
-  "readme_path": "PR-121204/PROOFS/cdef5a1d956ac04f9b006c9295ed1e4ea9131e77/README.md",
+  "current_sha": "2d997a0bcd9b7eb104b1890699cf20f90e45ba17",
+  "proof_source_sha": "2d997a0bcd9b7eb104b1890699cf20f90e45ba17",
+  "corpus_path": "PR-121204/PROOFS/2d997a0bcd9b7eb104b1890699cf20f90e45ba17/",
+  "manifest_path": "PR-121204/PROOFS/2d997a0bcd9b7eb104b1890699cf20f90e45ba17/proofs-manifest.json",
+  "readme_path": "PR-121204/PROOFS/2d997a0bcd9b7eb104b1890699cf20f90e45ba17/README.md",
   "materiality_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MATERIALITY.md",
   "source_copy_map_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/SOURCE-COPY-MAP.json",
   "mode_b_receipt_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MODE-B-RECEIPT.json",
@@ -18,9 +18,9 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "generated_at": "2026-10-06T10:37:11Z",
-  "previous_sha": "99c99a06d0e8c26ac0ef6150f1fdfd65eff75392",
-  "disposition_note": "Repointed to cdef5a1d95 (rebased onto upstream ca43d19197; adds hydration-dependent and reply-target-refetch claimability, unprojectable-row handling, supersede-safe disposition fences, config freshness, and a commit-time validity guard on queue.fail). Evidence is a real-transport recovery harness: production Discord client + GatewayPlugin over loopback WebSocket/HTTP to a local mock Discord, production preflight in path, durable SQLite queue and drain; control at the merge base; scenario C also at fbef5fda32 and 08d7a0292c. No live Discord or model run; see METHOD.md. Earlier corpora retained as provenance.",
+  "generated_at": "2026-10-06T11:19:15Z",
+  "previous_sha": "cdef5a1d956ac04f9b006c9295ed1e4ea9131e77",
+  "disposition_note": "Repointed to 2d997a0bcd (cdef5a1d95 plus the rev22 channel-facts fence: a stale-ambient fail verdict is revalidated against the channel's type/name/parent/guild and the gateway session at the fail commit grant; an invalidated row stays pending). Same real-transport harness as cdef5a1d95, every scenario re-run at the new head, plus scenario D (CHANNEL_UPDATE rename into a requireMention:false name between verdict and commit) at head, cdef5a1d95 and control. No live Discord or model run; see METHOD.md. Earlier corpora retained as provenance.",
   "control_sha": "ca43d19197888f3d42237b4425f08a473779266f",
   "target_exact_execution": true,
   "generated_by": "frond-gloss (Claude Opus 5.5)"

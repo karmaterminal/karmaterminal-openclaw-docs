@@ -1,0 +1,66 @@
+Gate 2 — feature-byte preservation check
+  PR_HEAD:   9eb655afa7
+  CANDIDATE: 08fead65d2
+  UPSTREAM:  b51feb98eb
+  BASE:      6d65c8b7f2
+  CORES:     /home/figs/flesh_beast_best_beast/source/openclaw-bootstrap/tools/drift-cure-gate.primitive-cores.txt
+
+  FAIL: src/agents/openclaw-tools.ts (blob 8e9358cf18b9aa51aec4e20965f95d34b6cf55a8 → c88d22962dce724223477abf57a2c501fdf3cd8b; 33324 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/openclaw-tools.ts' with conflicts. U src/agents/openclaw-tools.ts )
+  PASS: src/agents/tools/continue-work-tool.ts
+  PASS: src/agents/tools/continue-work-tool.test.ts
+  PASS: src/agents/tools/continue-work-tool.boundary.test.ts
+  FAIL: src/agents/tools/continue-delegate-tool.ts (blob 7c4b6a2bee7a31b5b35afb3ab010ea5dffd9d470 → 2ca8f55458c399571e91427522c8aee0a293ea9a; 15840 bytes diff; candidate changed but upstream has no delta for this path)
+  FAIL: src/agents/tools/continue-delegate-tool.test.ts (blob d4841e12bfacac353b6bd318680a6274d5685232 → 092ffb4ef0849e1803597f1554eb4b32c6ccffd2; 19394 bytes diff; candidate changed but upstream has no delta for this path)
+  FAIL: src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts (blob b9c461b015fb5aa5abde2de044905c2ecf6f9c99 → 94a6d524b3d387e2c43d14005bd6fbd7ad729294; 6097 bytes diff; candidate changed but upstream has no delta for this path)
+  FAIL: src/agents/tools/request-compaction-tool.ts (blob 4fdade0df265997568cc572b67ce0e815fbc276f → 76bec2c79a2308d7f3172e87d495ca397f188335; 722 bytes diff; candidate changed but upstream has no delta for this path)
+  FAIL: src/agents/tools/request-compaction-tool.test.ts (blob c3f7023dd39eda1f02aec47159c58083618d33e1 → 5c56e04e8f1f8c9e0eb54db369e4865db4848557; 1223 bytes diff; candidate changed but upstream has no delta for this path)
+  FAIL: src/agents/tools/request-compaction-tool.callsite-threading.test.ts (blob c566f78227262e811d4250818710c582fb7fa77c → c0141e7bea74b439e77e9f28f265b80d2f9d148f; 1792 bytes diff; candidate changed but upstream has no delta for this path)
+  PASS: src/agents/tools/request-compaction-tool.classifier-emission.test.ts
+  PASS: src/agents/tools/request-compaction-tool.volitional-threading.test.ts
+  FAIL: src/agents/tools/continuation-tools-registration.test.ts (blob e1b61e71f80167e32e20b3a90dbc115f09e41d57 → 05b2580ec39cbef5a5e5d81c003d9a34e57d5e4a; 591 bytes diff; candidate changed but upstream has no delta for this path)
+  FAIL: src/agents/embedded-agent-runner/compact-reasons.test.ts (blob b30739d70905a77cf58a044341a0b46e9d5867a4 → 6ee9cda6109d1dfceffbbe37a41911cf66a6ede1; 3718 bytes diff; projected blob 873112db33064ff5584124687a11f84761522ccb does not match candidate)
+  FAIL: src/agents/embedded-agent-runner/compact-reasons.ts (blob fe33711fe61529c0477bcacbe8b70d791c06333b → 3ccba754756b23bf23890062b456b006efcd074f; 4552 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/embedded-agent-runner/compact-reasons.ts' with conflicts. U src/agents/embedded-agent-runner/compact-reasons.ts )
+  FAIL: src/agents/embedded-agent-runner/compact.hooks.harness.ts (blob 77dc46780c6a15b9ee4b80333770e8da3bdddb8a → 5f84df33ade870b3a3f339bcd94cca825ab5ec26; 17763 bytes diff; projected blob 39bbc6bc8ff23ec44e3d1fa2cf0550d5f539d11e does not match candidate)
+  FAIL: src/agents/embedded-agent-runner/compact.hooks.test.ts (blob 9a38a8bc62f16dbe46ae64b6711119531b6dbdfb → 559e86342f0cafeee3a980e4eb8844bbc8959c7a; 324112 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/embedded-agent-runner/compact.hooks.test.ts' with conflicts. U src/agents/embedded-agent-runner/compact.hooks.test.ts )
+  FAIL: src/agents/embedded-agent-runner/compact.ts (blob 07c578993240ab6016d2bcc17f5ec94a7ae0c31b → 01b622c04ec8ae038c4f15bd225ec9366514c229; 11737 bytes diff; projected blob 50471cc50cae7a084ea05a6544151e9a47749ecc does not match candidate)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/compact.types.ts (exact projected blob d6bc0aae626932d458ad44af9bedefc3e81e982a)
+  PASS: src/agents/embedded-agent-runner/run.continuation-opts-forward.test.ts
+  FAIL: src/agents/embedded-agent-runner/run.overflow-compaction.harness.ts (blob a755db4b0251ac6a3a5020b65f84c432e2873cfa → 2425ea8fe2078d288df6357160f8f66f9aae0b3b; 14718 bytes diff; projected blob 9feb038ff76d0b6fe5fb4b60bb2a751b1a5b0460 does not match candidate)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run.overflow-compaction.loop.test.ts (exact projected blob 0389c7a856292f539c04db58faa681c90be6060d)
+  PASS: src/agents/embedded-agent-runner/run.ts
+  PASS-TOMBSTONE: src/agents/embedded-agent-runner/run/assistant-failover.ts
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/attempt-tool-construction-plan.ts (exact projected blob b7f44d25b58cf2c1922c440f4c49964fe314df61)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/attempt.ts (exact projected blob f7ab1b45b324f09479eb05f6479b730fab240cf5)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/failover-policy.ts (exact projected blob 90cb7db0ce228ae572488c18ff626bfde8150362)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/run/params.ts (exact projected blob db1e0dca3bc53adc5aec71efe15acb456db48426)
+  PASS-UPSTREAM: src/agents/embedded-agent-runner/system-prompt.ts (exact projected blob ee567998a4688ba00962922dab26ca53e3c3a4dd)
+  PASS-UPSTREAM: src/cli/program/preaction.ts (exact projected blob cd420abf4bfef935019ebe4915db0c7f7816e840)
+  PASS-TOMBSTONE: ui/src/ui/usage-helpers.ts
+  PASS-UPSTREAM: ui/src/pages/usage/helpers.ts (exact projected blob a98b36a8d16a256010438ac5bcc1e779231bd9c4)
+  PASS-TOMBSTONE: ui/src/ui/controllers/config.ts
+  PASS-TOMBSTONE: ui/src/lib/config/index.ts
+  PASS-UPSTREAM: ui/src/lib/config/config-draft-model.ts (exact projected blob 597e497f6ad9efdc1a6925334891c0a902dda506)
+  PASS-UPSTREAM: ui/src/lib/config/config-gateway-operations.ts (exact projected blob 641cc1b6ab267436e228e0ae4a7c20a5e14efe1d)
+  PASS-UPSTREAM: ui/src/lib/config/config-state-model.ts (exact projected blob e3fa4c7b488f66431c5c1a47839f83ddcc0a2f1f)
+  PASS-UPSTREAM: ui/src/lib/config/config-write-coordinator.ts (exact projected blob e346300958687c0349bb5633b6986e83fbda7cec)
+  PASS-UPSTREAM: ui/src/lib/config/runtime-config-capability.ts (exact projected blob 72e0d11dabace4ce07da06df58696dbc7edb328a)
+  PASS-UPSTREAM: apps/macos/Sources/OpenClaw/NodeMode/MacNodeRuntime.swift (exact projected blob df306655faba1726c89bd53f8fd3b30e227b3262)
+
+Summary: 40 primitive-core invariants; 14 FAIL; 15 exact-upstream; 4 tombstone; 0 empty-pattern
+Gate 2 FAIL — 14 feature-core file(s) are neither byte-identical nor exact upstream projections.
+
+Failed files:
+  - src/agents/openclaw-tools.ts
+  - src/agents/tools/continue-delegate-tool.ts
+  - src/agents/tools/continue-delegate-tool.test.ts
+  - src/agents/tools/continue-delegate-tool.crosssession-gate.test.ts
+  - src/agents/tools/request-compaction-tool.ts
+  - src/agents/tools/request-compaction-tool.test.ts
+  - src/agents/tools/request-compaction-tool.callsite-threading.test.ts
+  - src/agents/tools/continuation-tools-registration.test.ts
+  - src/agents/embedded-agent-runner/compact-reasons.test.ts
+  - src/agents/embedded-agent-runner/compact-reasons.ts
+  - src/agents/embedded-agent-runner/compact.hooks.harness.ts
+  - src/agents/embedded-agent-runner/compact.hooks.test.ts
+  - src/agents/embedded-agent-runner/compact.ts
+  - src/agents/embedded-agent-runner/run.overflow-compaction.harness.ts

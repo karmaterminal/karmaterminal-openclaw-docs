@@ -1,0 +1,9 @@
+{
+  "schema": "openclaw.k6.return-covenant-observation-set-control.v1",
+  "remove": "allowed-ordinary-reset:bracket-token",
+  "duplicate": "forbidden-delete-recreate:typed-tool",
+  "expectedFailures": [
+    "observation-missing",
+    "observation-duplicate"
+  ]
+}

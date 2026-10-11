@@ -1,0 +1,28 @@
+head/recovery + 23424ms [verdict] A: 24/24 rows pending
+head/recovery + 23500ms [verdict] B: ambient 20: failed(stale-ambient-backlog)=20 completed(preflight-skipped)=0 turns=0; old-mention=completed/turn=true reply-canonical=completed/turn=true reply-refetch=completed/turn=true raw-hydrate=completed/turn=true fresh-mention=completed/turn=true; fresh-mention turn #5 of 5, completed #5 of 5 claims
+control/recovery + 23208ms [verdict] A: 24/24 rows pending
+control/recovery + 27599ms [verdict] B: ambient 20: failed(stale-ambient-backlog)=0 completed(preflight-skipped)=20 turns=0; old-mention=completed/turn=true reply-canonical=completed/turn=true reply-refetch=completed/turn=true raw-hydrate=completed/turn=true fresh-mention=completed/turn=true; fresh-mention turn #5 of 5, completed #25 of 25 claims
+head/edit-decide + 23418ms [verdict] A: 23/23 rows pending
+head/edit-decide + 29681ms [verdict] B(edit-decide): edit published=true; helper-1=completed/turn=true helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+control/edit-decide + 23167ms [verdict] A: 23/23 rows pending
+control/edit-decide + 30583ms [verdict] B(edit-decide): edit published=true; helper-1=completed/turn=false helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=0/20 turns=0
+prefix-fbef/edit-decide + 27165ms [verdict] A: 23/23 rows pending
+prefix-fbef/edit-decide + 26916ms [verdict] B(edit-decide): edit published=true; helper-1=failed:stale-ambient-backlog/turn=false helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+prefix-08d7/edit-decide + 27182ms [verdict] A: 23/23 rows pending
+prefix-08d7/edit-decide + 25105ms [verdict] B(edit-decide): edit published=true; helper-1=completed/turn=true helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+head/edit-commit + 28842ms [verdict] A: 23/23 rows pending
+head/edit-commit + 23514ms [verdict] B(edit-commit): edit published=true; helper-1=completed/turn=true helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+control/edit-commit + 28424ms [verdict] A: 23/23 rows pending
+control/edit-commit + 23787ms [verdict] B(edit-commit): edit published=false; helper-1=completed/turn=false helper-2=completed/turn=false helper-3=completed/turn=false; ambient failed(stale-ambient-backlog)=0/20 turns=0
+prefix-fbef/edit-commit + 27423ms [verdict] A: 23/23 rows pending
+prefix-fbef/edit-commit + 23619ms [verdict] B(edit-commit): edit published=true; helper-1=failed:stale-ambient-backlog/turn=false helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+prefix-08d7/edit-commit + 23614ms [verdict] A: 23/23 rows pending
+prefix-08d7/edit-commit + 23565ms [verdict] B(edit-commit): edit published=true; helper-1=failed:stale-ambient-backlog/turn=false helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+head/rename-commit + 26899ms [verdict] A: 20/20 rows pending
+head/rename-commit + 23618ms [verdict] B(rename-commit): renamed=true; ambient 20: failed(stale-ambient-backlog)=0 completed=20 turns=20; amb-01=completed/turn=true
+prefix-cdef/rename-commit + 30685ms [verdict] A: 20/20 rows pending
+prefix-cdef/rename-commit + 23632ms [verdict] B(rename-commit): renamed=true; ambient 20: failed(stale-ambient-backlog)=1 completed=19 turns=19; amb-01=failed:stale-ambient-backlog/turn=false
+control/rename-commit + 27924ms [verdict] A: 20/20 rows pending
+control/rename-commit + 23574ms [verdict] B(rename-commit): renamed=false; ambient 20: failed(stale-ambient-backlog)=0 completed=20 turns=0; amb-01=completed/turn=false
+     13 ### phase A exit=0
+     13 ### phase B exit=0

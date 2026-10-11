@@ -1,0 +1,109 @@
+{
+  "pr": "openclaw/openclaw#121204",
+  "head": "cdef5a1d956ac04f9b006c9295ed1e4ea9131e77",
+  "control": "ca43d19197888f3d42237b4425f08a473779266f",
+  "intermediate_heads": [
+    "fbef5fda32fd284fb6dc8b19f20c6f778c77bf09",
+    "08d7a0292cac17ad21a24ce1ff173b8ee31d6342"
+  ],
+  "transport": "real: production Discord client and GatewayPlugin over loopback WebSocket/HTTP to a local mock Discord; production preflightDiscordMessage in path",
+  "harness": {
+    "recovery-proof.mts": {
+      "path": "harness/recovery-proof.mts",
+      "sha256": "b197703065ea94a6c33f4f5274031e0567708faf478ff2b88e9fefe7f2b17e42"
+    },
+    "mock-discord.mts": {
+      "path": "harness/mock-discord.mts",
+      "sha256": "f7b374a96076de09d36b239763d7ec4fb9c889d5b93151d80c52688e4f2e866f"
+    },
+    "run-all.sh": {
+      "path": "harness/run-all.sh",
+      "sha256": "54079e3b465a222200c2c87357ec07656f75fe10728e8a633cf742a28900a792"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "recovery",
+      "title": "outage backlog (20 stale ambient, old mention, canonical reply, reply needing re-fetch where REST returns the bot, raw <@bot> needing hydration) then a fresh mention after reconnect",
+      "head": {
+        "log": "logs/head-recovery.log",
+        "ambient_failed_stale_ambient_backlog": 20,
+        "ambient_claimed": 0,
+        "addressed_admitted": [
+          "old-mention",
+          "reply-canonical",
+          "reply-refetch",
+          "raw-hydrate",
+          "fresh-mention"
+        ],
+        "fresh_mention_completed_position": "5 of 5",
+        "preflight_runs": 5,
+        "final_status_counts": {
+          "failed": 20,
+          "completed": 5
+        }
+      },
+      "control": {
+        "log": "logs/control-recovery.log",
+        "ambient_failed_stale_ambient_backlog": 0,
+        "ambient_claimed_and_preflight_skipped": 20,
+        "addressed_admitted": [
+          "old-mention",
+          "reply-canonical",
+          "reply-refetch",
+          "raw-hydrate",
+          "fresh-mention"
+        ],
+        "fresh_mention_completed_position": "25 of 25",
+        "preflight_runs": 25,
+        "final_status_counts": {
+          "completed": 25
+        }
+      },
+      "limit": "fresh-mention latency 4.6 s (head) vs 4.7 s (control) against a local mock; this shows the backlog no longer occupies the lane, not a speed-up"
+    },
+    {
+      "id": "edit-decide",
+      "title": "mention-pattern config edit lands while the stale policy decides (helper-1 becomes addressed)",
+      "head": {
+        "log": "logs/head-edit-decide.log",
+        "helper_1": "completed, turn run"
+      },
+      "08d7a0292c": {
+        "log": "logs/prefix-08d7-edit-decide.log",
+        "helper_1": "completed, turn run"
+      },
+      "fbef5fda32": {
+        "log": "logs/prefix-fbef-edit-decide.log",
+        "helper_1": "failed stale-ambient-backlog"
+      },
+      "control": {
+        "log": "logs/control-edit-decide.log",
+        "helper_1": "preflight skipped under the old config (no pre-claim fail exists)"
+      }
+    },
+    {
+      "id": "edit-commit",
+      "title": "mention-pattern config edit lands after the verdict, before the fail commits",
+      "head": {
+        "log": "logs/head-edit-commit.log",
+        "helper_1": "completed, turn run (fail not committed)"
+      },
+      "08d7a0292c": {
+        "log": "logs/prefix-08d7-edit-commit.log",
+        "helper_1": "failed stale-ambient-backlog"
+      },
+      "fbef5fda32": {
+        "log": "logs/prefix-fbef-edit-commit.log",
+        "helper_1": "failed stale-ambient-backlog"
+      },
+      "control": {
+        "log": "logs/control-edit-commit.log",
+        "note": "no pre-claim fail exists, so the edit trigger never fires (edit published=false)"
+      }
+    }
+  ],
+  "stand_ins": "see METHOD.md: mock Discord; agent turn after preflight via production testing.processDiscordMessage hook (adopts, no model call); outage via testing.createIngressMonitor start() no-op; runtime from createRuntimeChannel(); logging wrappers on queue.fail; stack-detected edit trigger; native commands/voice/thread bindings/ACP omitted",
+  "generated_at": "2026-10-06T10:37:11Z",
+  "generated_by": "frond-gloss (Claude Opus 5.5)"
+}

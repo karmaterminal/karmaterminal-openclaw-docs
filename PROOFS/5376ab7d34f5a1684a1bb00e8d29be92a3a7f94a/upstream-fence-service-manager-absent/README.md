@@ -9,12 +9,24 @@
 | Run | 2026-10-11, `node:24.17.0-bookworm`, aarch64, uid 1000, PID 1 not a service manager |
 
 The product tree is `git archive` of the exact head (`inputs.sha256`). "Fix reverted" swaps in the
-control's fence source byte-for-byte while keeping the head's tests. `proof.sh` is the exact script.
+control's fence source byte-for-byte while keeping the head's tests.
+
+Scripts: `proof.sh` produced `B-systemctl-offline-full-prep.log`. `A-no-systemctl.log` and
+`B-systemctl-offline.log` came from the earlier `proof-earlier-A.sh`. It differs only at line 60,
+which wrapped step 8 in `/usr/bin/time`. That binary is not in the image, so **container A's step 8
+exited 127 and built nothing; it is not evidence**. `B-systemctl-offline.log` ran without
+`FULL_PREP`, so it never reached line 60.
+
+Step 7's trailing `no dist` comes from `ls dist | head -3 || echo "no dist"` under `pipefail`.
+In A (log lines 306–309) it follows three listed `dist` files: `head` closed the pipe, which is a
+pipefail artifact, and `dist` **did** exist. In B (full-prep log line 190) nothing is listed before
+it, so `dist` was absent. Step 8's `dist entries: 8559` is the count that matters.
 
 ## Containers
 
-- **A — no `systemctl` at all** (`A-no-systemctl.log`). The control does **not** refuse here
-  (`FENCE_RESULT {"refuse":false}`, test preparation builds). The defect is not this shape.
+- **A — no `systemctl` at all** (`A-no-systemctl.log`). The control does **not** refuse here: its
+  step 5 gives `FENCE_RESULT {"refuse":false}`, and step 7 runs main's test preparation to a full
+  build (exit 0). The defect does not take this shape. Step 8 is void (see Scripts above).
 - **B — `systemd` package installed, no running manager** (`systemctl --user is-system-running`
   → `offline`). This matches CI/container runner images. `B-systemctl-offline.log`,
   `B-systemctl-offline-full-prep.log`.
@@ -37,4 +49,4 @@ The four step-3 failures are the new cases (a) proceed-when-proven-absent and (d
 failed / live unresolvable-wrapper (the live one fails on the missing unit name). Cases (b) and (c)
 pin refusals main already makes and pass on both sides.
 
-Units 1–4 behave identically in container A; steps 5–9 are what distinguish A from B.
+Units 1–4 behave identically in container A. Steps 5 and 7 are what distinguish A from B.

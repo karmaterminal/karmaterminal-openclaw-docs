@@ -15,7 +15,7 @@ Nothing in the PR's own production code beyond conflict resolution. The head is 
   - the ingress queue kernel adopts upstream's `CLEARED_CLAIM_COLUMNS` / `executeMutation` and keeps `nextUpdatedAt` and the generation fence;
   - the drain adopts upstream's `laneKeyFor`;
   - the Discord message handler spreads upstream's params and adds `readPolicy`.
-- `41277c50d2`, test-only: two core test fixture expectations updated for strictly-forward `updatedAt` (`ingress-drain.watchdog.test.ts`, `ingress-queue.test.ts`). The [`41277c50d2` corpus](../41277c50d231bb848eec5ed56645fc7f08ea70d9/README.md) ran here, with control `b3c7dc2af7`.
+- `41277c50d2`, test-only: two core test fixture expectations updated for strictly-forward `updatedAt` (`ingress-drain.watchdog.test.ts`, `ingress-queue.test.ts`). The [`41277c50d2` corpus](../41277c50d231bb848eec5ed56645fc7f08ea70d9/README.md) ran here, with control `042db1e706`.
 - `edcbb5aec7`, a merge of upstream main `b3c7dc2af7` (35 commits). Its only conflict is one line in `test/vitest/vitest.extension-database-workers-paths.mjs`, where upstream added the minimax speech tests at the line this PR adds the stale-backlog test; both stay. Among the PR's files, the 35 upstream commits touch only the two vitest path lists.
 
 Gate receipt at `edcbb5aec7`, on the same host as these runs: install, `tsgo` x4, and 35/35 selected tests passed. `pnpm check` fails three ratchets: line-cap growth, a max-lines suppression, and an assertion without a SAFETY comment. The same three failed on upstream main `042db1e706` in the previous gate, and none names a file the PR touches.

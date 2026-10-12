@@ -57,7 +57,7 @@
           "completed": 25
         }
       },
-      "limit": "fresh-mention latency 6.7 s (head, 6536 ms) vs 6.6 s (control, 6436 ms) in this run (4.6 s vs 6.7 s in the 2d997a0bcd run); head was not faster here. Against a local mock this shows the backlog no longer occupies the lane, not a speed-up; timing is not a contract"
+      "limit": "fresh-mention latency 6.5 s (head, 6536 ms) vs 6.4 s (control, 6436 ms) in this run (6.7 s vs 6.6 s in the 41277c50d2 run; 4.6 s vs 6.7 s in the 2d997a0bcd run); head was not faster here. Against a local mock this shows the backlog no longer occupies the lane, not a speed-up; timing is not a contract"
     },
     {
       "id": "edit-decide",
@@ -127,16 +127,32 @@
   },
   "previous_head": "2d997a0bcd9b7eb104b1890699cf20f90e45ba17",
   "back_merge": {
-    "commit": "ce67be7d4f83091ea4bf30d7010a3f8dd6c8fa74",
-    "parents": [
-      "7dfac7ca16e3bb0ad4b4477f68ac4d473984cb30",
-      "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0"
-    ],
-    "followups": [
+    "commits": [
+      {
+        "sha": "ce67be7d4f83091ea4bf30d7010a3f8dd6c8fa74",
+        "kind": "merge",
+        "parents": [
+          "7dfac7ca16e3bb0ad4b4477f68ac4d473984cb30",
+          "042db1e7064930a08c534c4487864d7bfb8c5287"
+        ],
+        "note": "first back-merge of upstream main; conflicts resolved onto upstream's queue kernel, drain and Discord handler"
+      },
+      {
+        "sha": "41277c50d231bb848eec5ed56645fc7f08ea70d9",
+        "kind": "test-only",
+        "parents": [
+          "ce67be7d4f83091ea4bf30d7010a3f8dd6c8fa74"
+        ],
+        "note": "two core test fixture expectations for strictly-forward updatedAt"
+      },
       {
         "sha": "edcbb5aec765100f0e34f729b952d3dec128a892",
-        "kind": "test-only",
-        "note": "two core test fixture expectations for strictly-forward updatedAt"
+        "kind": "merge",
+        "parents": [
+          "41277c50d231bb848eec5ed56645fc7f08ea70d9",
+          "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0"
+        ],
+        "note": "second back-merge of upstream main (35 commits); sole conflict one line in test/vitest/vitest.extension-database-workers-paths.mjs, both entries kept"
       }
     ]
   },

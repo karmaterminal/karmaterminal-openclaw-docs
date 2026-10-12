@@ -118,7 +118,7 @@ All 16 processes (8 scenario x tree runs, phases A and B) exited 0.
 
 - `harness/recovery-proof.mts`, sha256 `a1ab2b3a35735328644a5187809a870650c3aeb3b2396683c2ef234c27101f17` (same bytes as the `2d997a0bcd` corpus)
 - `harness/mock-discord.mts`, sha256 `f7b374a96076de09d36b239763d7ec4fb9c889d5b93151d80c52688e4f2e866f` (same bytes)
-- `harness/proof-rerun.sh`, sha256 `2fc7b5f8d622502762d22f6491cb41530e5ee44f100de36762fa7b184d2877a7`
+- `harness/proof-rerun.sh`, sha256 `2c20b0c1c53d2b48755d96a59aab16054876fab438897ddbf57c2b7738327b30`
 - `logs/<side>-<scenario>.log`: phases A and B, with `$HOME` and the hostname replaced and ANSI colour codes stripped.
 
 Snowflakes are synthetic and relabelled (`<guild>`, `<gated>`, `<bot>`, `<human>`, message names). The token is a placeholder and is redacted from the IDENTIFY line.

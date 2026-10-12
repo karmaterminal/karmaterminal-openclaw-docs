@@ -82,7 +82,7 @@ Each scenario runs as **two processes** over one state dir.
 
 | side | tree | sha |
 | --- | --- | --- |
-| head | PR head: the second back-merge `edcbb5aec7` plus four commits for ClawSweeper on `a8eafa8d71` (lint guard, policy parity, full frame validation, tests) | `a05aa8f59632ed315dc2d376a0c42cc6f9a3ba5e` |
+| head | safe-branch candidate `gloss/121204-backmerge-20261011`: the second back-merge `edcbb5aec7` plus eight commits (lint guard, policy parity, frame validation, shared stored-frame boundary, tests). Upstream #121204 still pointed at `a8eafa8d71` when this ran | `f9ffb032bc2987c256fc51f1f58e7f566aab1371` |
 | control | upstream main (second parent of the back-merge `edcbb5aec7`; unchanged) | `b3c7dc2af7ddb61a71afd169788d846dc37ae2a0` |
 
 The intermediate heads (`fbef5fda32`, `08d7a0292c`, `cdef5a1d95`) were not re-run; their runs are in the `2d997a0bcd` corpus.
@@ -92,10 +92,10 @@ Both trees were checked out in turn in one worktree (`git checkout --detach -f <
 ## Commands
 
 ```bash
-bash harness/proof-rerun.sh   # checkout + install, then every scenario on head, then on control
+SCRATCH=<dir> bash harness/proof-rerun.sh   # checkout + install, then every scenario on head, then on control
 ```
 
-`proof-rerun.sh` replaces `run-all.sh` for this rerun. Its paths (`~/…/scratch`, `gate25-F`) are the runner's scratch directory and single worktree; adjust them to reproduce. It also runs the PR #124337 boundary harness in the same pass; that part does not touch this corpus. For each side it runs phase A then phase B of each scenario as:
+`proof-rerun.sh` replaces `run-all.sh` for this rerun and runs only this PR's harness. `SCRATCH` is the runner's scratch directory, holding `openclaw/`, the single worktree `gate25-F/` and `proof-121204/harness/`. It exits 1 unless every install and every phase exits 0. For each side it runs phase A then phase B of each scenario as:
 
 ```bash
 cd <tree> && nice -n 15 timeout 300 \

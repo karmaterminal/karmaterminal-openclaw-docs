@@ -1,0 +1,191 @@
+### control / edit-commit / tree b3c7dc2af7ddb61a71afd169788d846dc37ae2a0
+### phase A
++    88ms [env] node v26.9.0 phase=A scenario=edit-commit
++    88ms [env] tree sha=b3c7dc2af7ddb61a71afd169788d846dc37ae2a0 dirty=0
++    88ms [env] tree has ingress-stale-policy.ts=false
++    88ms [env] DISCORD_API_URL=http://127.0.0.1:34453/api/v10 (loopback mock) state=<run>/state
++    88ms [clock] T=2026-10-12T23:09:23.441Z now=T+0s
++ 24458ms [discord-rest] GET /api/v10/gateway/bot -> 200
++ 24470ms [startup] fetch-bot-identity:start
++ 24473ms [discord-gateway] client connected /?v=10&encoding=json
++ 24474ms [discord-rest] GET /api/v10/users/%40me -> 200
++ 24474ms [discord-gateway] IDENTIFY intents=46601 token=<redacted>
++ 24474ms [discord-gateway] -> READY (guild <guild> unavailable)
++ 24474ms [discord-gateway] -> GUILD_CREATE <guild> (1 channels)
++ 24475ms [startup] fetch-bot-identity:done botUserId=<bot> botUserName=proofbot
++ 24476ms [drain] start() suppressed: drain wedged for the outage
++ 24477ms [startup] composition up: botUserId=<bot> (from GET /users/@me)
++ 24478ms [discord-gateway] client op 3
++ 24496ms [gateway] registered=true connected=true hydrating(<guild>)=undefined inventory[<gated>]=null
++ 24496ms [discord-gateway] -> MESSAGE_CREATE helper-1 sentAt=T-62min mentions=0
++ 24496ms [discord-gateway] -> MESSAGE_CREATE amb-01 sentAt=T-60min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-02 sentAt=T-58min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-03 sentAt=T-56min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-04 sentAt=T-54min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-05 sentAt=T-52min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-06 sentAt=T-50min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-07 sentAt=T-48min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-08 sentAt=T-46min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE helper-2 sentAt=T-45min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-09 sentAt=T-44min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-10 sentAt=T-42min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-11 sentAt=T-40min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-12 sentAt=T-38min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-13 sentAt=T-36min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-14 sentAt=T-34min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-15 sentAt=T-32min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-16 sentAt=T-30min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE helper-3 sentAt=T-29min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-17 sentAt=T-28min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-18 sentAt=T-26min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-19 sentAt=T-24min mentions=0
++ 24497ms [discord-gateway] -> MESSAGE_CREATE amb-20 sentAt=T-22min mentions=0
++ 30137ms [sqlite] end of A (outage): durable backlog admitted over the gateway, drain wedged: 23 rows {"pending":23}
++ 30137ms [sqlite]   {helper-1 status=pending attempts=0 failed_reason=null last_error=null}
++ 30137ms [sqlite]   {amb-01 status=pending attempts=0 failed_reason=null last_error=null}
++ 30137ms [sqlite]   {amb-02 status=pending attempts=0 failed_reason=null last_error=null}
++ 30137ms [sqlite]   {amb-03 status=pending attempts=0 failed_reason=null last_error=null}
++ 30137ms [sqlite]   {amb-04 status=pending attempts=0 failed_reason=null last_error=null}
++ 30137ms [sqlite]   {amb-05 status=pending attempts=0 failed_reason=null last_error=null}
++ 30137ms [sqlite]   {amb-06 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-07 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-08 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {helper-2 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-09 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-10 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-11 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-12 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-13 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-14 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-15 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-16 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {helper-3 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-17 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-18 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-19 status=pending attempts=0 failed_reason=null last_error=null}
++ 30138ms [sqlite]   {amb-20 status=pending attempts=0 failed_reason=null last_error=null}
++ 30139ms [verdict] A: 23/23 rows pending
+### phase A exit=0
+### phase B
++    73ms [env] node v26.9.0 phase=B scenario=edit-commit
++    74ms [env] tree sha=b3c7dc2af7ddb61a71afd169788d846dc37ae2a0 dirty=0
++    74ms [env] tree has ingress-stale-policy.ts=false
++    74ms [env] DISCORD_API_URL=http://127.0.0.1:46741/api/v10 (loopback mock) state=<run>/state
++    74ms [clock] T=2026-10-12T23:09:23.441Z now=T+31s
++ 27893ms [discord-rest] GET /api/v10/gateway/bot -> 200
++ 28063ms [startup] fetch-bot-identity:start
++ 28081ms [discord-gateway] client connected /?v=10&encoding=json
++ 28082ms [discord-rest] GET /api/v10/users/%40me -> 200
++ 28083ms [discord-gateway] IDENTIFY intents=46601 token=<redacted>
++ 28083ms [discord-gateway] -> READY (guild <guild> unavailable)
++ 28083ms [discord-gateway] -> GUILD_CREATE <guild> (1 channels)
++ 28084ms [startup] fetch-bot-identity:done botUserId=<bot> botUserName=proofbot
++ 28086ms [startup] composition up: botUserId=<bot> (from GET /users/@me)
++ 28091ms [discord-gateway] client op 3
++ 28107ms [gateway] registered=true connected=true hydrating(<guild>)=undefined inventory[<gated>]=null
++ 28116ms [sqlite] at recovery start (rows persisted by phase A): 23 rows {"pending":23}
++ 28116ms [sqlite]   {helper-1 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-01 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-02 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-03 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-04 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-05 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-06 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-07 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-08 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {helper-2 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-09 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-10 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-11 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-12 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-13 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-14 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-15 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-16 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {helper-3 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-17 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-18 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-19 status=pending attempts=0 failed_reason=null last_error=null}
++ 28116ms [sqlite]   {amb-20 status=pending attempts=0 failed_reason=null last_error=null}
++ 28221ms [queue] rows=23 open=23 failed=0 completed=0 turns=0
++ 35499ms [discord-rest] GET /api/v10/channels/<gated> -> 200
++ 35998ms [queue] rows=23 open=17 failed=0 completed=6 turns=0
++ 36099ms [queue] rows=23 open=6 failed=0 completed=17 turns=0
++ 36200ms [queue] rows=23 open=0 failed=0 completed=23 turns=0
++ 36201ms [sqlite] end of B (edit-commit): 23 rows {"completed":23}
++ 36201ms [sqlite]   {helper-1 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-01 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-02 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-03 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-04 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-05 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-06 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-07 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-08 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {helper-2 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-09 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-10 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-11 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-12 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-13 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-14 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-15 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-16 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {helper-3 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-17 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-18 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-19 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [sqlite]   {amb-20 status=completed attempts=0 failed_reason=null last_error=null}
++ 36201ms [result] turn order: (none)
++ 36201ms [result] REST message fetches by preflight: (none)
++ 36203ms [preflight] 2026-10-12T23:10:29.843Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.844Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.876Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.876Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.891Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.891Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.905Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.905Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.919Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.919Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.951Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.951Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.962Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.962Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.971Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.971Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.981Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.981Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.988Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.988Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:29.997Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:29.997Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.008Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.008Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.020Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.020Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.030Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.030Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.041Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.041Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.051Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.051Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.061Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.061Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.073Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.073Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.083Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.084Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.095Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.095Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.105Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.106Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.117Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.117Z [discord-preflight] drop: no-mention
++ 36203ms [preflight] 2026-10-12T23:10:30.129Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=true wasMentioned=false
++ 36203ms [preflight] 2026-10-12T23:10:30.129Z [discord-preflight] drop: no-mention
++ 36203ms [result] production preflight decisions: mention-gate pass=0 drop:no-mention=23
++ 36203ms [result] completion order (SQLite): helper-1 -> helper-2 -> amb-01 -> amb-02 -> amb-03 -> amb-04 -> amb-05 -> amb-06 -> amb-07 -> amb-08 -> helper-3 -> amb-09 -> amb-10 -> amb-11 -> amb-12 -> amb-13 -> amb-14 -> amb-15 -> amb-16 -> amb-17 -> amb-18 -> amb-19 -> amb-20
++ 36203ms [result] fresh-mention: completed #0 of 23; turn never
++ 36203ms [verdict] B(edit-commit): edit published=false; helper-1=completed/turn=false helper-2=completed/turn=false helper-3=completed/turn=false; ambient failed(stale-ambient-backlog)=0/20 turns=0
+### phase B exit=0

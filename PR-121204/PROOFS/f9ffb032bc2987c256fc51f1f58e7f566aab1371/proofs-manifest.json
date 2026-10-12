@@ -1,6 +1,6 @@
 {
   "pr": "openclaw/openclaw#121204",
-  "head": "a05aa8f59632ed315dc2d376a0c42cc6f9a3ba5e",
+  "head": "f9ffb032bc2987c256fc51f1f58e7f566aab1371",
   "control": "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0",
   "transport": "real: production Discord client and GatewayPlugin over loopback WebSocket/HTTP to a local mock Discord; production preflightDiscordMessage in path",
   "harness": {
@@ -14,8 +14,8 @@
     },
     "proof-rerun.sh": {
       "path": "harness/proof-rerun.sh",
-      "sha256": "ed7989f892427d2c1b3717a90af9f2c8644da694a3d551087ea1ae038b81cec3",
-      "note": "replaces run-all.sh for this rerun"
+      "sha256": "e5b9b661f54c22280b508cb26a07768ef7e033d70cf4f8bafa085d8982551da3",
+      "note": "replaces run-all.sh for this rerun; runs only the PR #121204 harness; exits 1 unless every install and phase exits 0; replay with SCRATCH=<dir>"
     }
   },
   "scenarios": [
@@ -57,7 +57,7 @@
           "completed": 25
         }
       },
-      "limit": "fresh-mention latency 6.5 s (head, 6466 ms) vs 7.3 s (control, 7255 ms) in this run (6.5 s vs 6.4 s in the edcbb5aec7 run; 6.7 s vs 6.6 s in the 41277c50d2 run; 4.6 s vs 6.7 s in the 2d997a0bcd run). Run-to-run variation is larger than the head/control gap; against a local mock this shows the backlog no longer occupies the lane, not a speed-up; timing is not a contract"
+      "limit": "fresh-mention latency 6.1 s (head, 6137 ms) vs 6.7 s (control, 6706 ms) in this run (6.5 s vs 7.3 s in the a05aa8f596 run; 6.5 s vs 6.4 s in the edcbb5aec7 run; 6.7 s vs 6.6 s in the 41277c50d2 run; 4.6 s vs 6.7 s in the 2d997a0bcd run). Run-to-run variation is larger than the head/control gap; against a local mock this shows the backlog no longer occupies the lane, not a speed-up; timing is not a contract"
     },
     {
       "id": "edit-decide",
@@ -119,7 +119,7 @@
     }
   ],
   "stand_ins": "see METHOD.md: mock Discord; agent turn after preflight via production testing.processDiscordMessage hook (adopts, no model call); outage via testing.createIngressMonitor start() no-op; runtime from createRuntimeChannel(); logging wrappers on queue.fail; stack-detected edit and rename triggers (rename sent as a real CHANNEL_UPDATE over the WebSocket); native commands/voice/thread bindings/ACP omitted",
-  "generated_at": "2026-10-12T22:31:08Z",
+  "generated_at": "2026-10-12T23:13:15Z",
   "generated_by": "frond-gloss (Claude Opus 5.5)",
   "processes": {
     "total": 16,
@@ -185,6 +185,38 @@
           "f908ece8734a29745858e9fbf8caaa93147b6f95"
         ],
         "note": "oxfmt import order in the stale-backlog test"
+      },
+      {
+        "sha": "2b52673944bfaf209d1bdd70b1f3713c7ab40687",
+        "kind": "fix",
+        "parents": [
+          "a05aa8f59632ed315dc2d376a0c42cc6f9a3ba5e"
+        ],
+        "note": "the predicate validates the message reference's required channel_id (\ud83d\udd6f's review)"
+      },
+      {
+        "sha": "1a33c937265fbfbefeb5afd60efe01cb8b10d50c",
+        "kind": "refactor",
+        "parents": [
+          "2b52673944bfaf209d1bdd70b1f3713c7ab40687"
+        ],
+        "note": "the predicate's type claims only the fields the policy reads (\ud83c\udf0a's review)"
+      },
+      {
+        "sha": "2701bb9be029620fb04684893b40539f28d4ad46",
+        "kind": "refactor",
+        "parents": [
+          "1a33c937265fbfbefeb5afd60efe01cb8b10d50c"
+        ],
+        "note": "one stored-frame boundary (ingress-stored-message.ts) shared by the claim-time codec and the stale policy (\ud83c\udf0a's review); no behaviour change"
+      },
+      {
+        "sha": "f9ffb032bc2987c256fc51f1f58e7f566aab1371",
+        "kind": "style",
+        "parents": [
+          "2701bb9be029620fb04684893b40539f28d4ad46"
+        ],
+        "note": "oxfmt import order in the stale policy"
       }
     ]
   },
@@ -204,5 +236,6 @@
     "taskset": null,
     "timeout_s": 300,
     "pnpm_lock_blob": "cdac8854c528e1d54b4c4d08d613997c6b284c1b"
-  }
+  },
+  "head_identity": "safe-branch candidate gloss/121204-backmerge-20261011 at f9ffb032bc2987c256fc51f1f58e7f566aab1371; upstream openclaw/openclaw#121204 pointed at a8eafa8d713a0fbce004ac883d7388d5c2556bd5 when this ran"
 }

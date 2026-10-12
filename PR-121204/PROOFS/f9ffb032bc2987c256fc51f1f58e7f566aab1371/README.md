@@ -1,8 +1,8 @@
 # PR #121204 real-transport recovery proof
 
-This answers ClawSweeper revision 21's request for "current-source recovery evidence using a real transport client and production preflight, preserving fresh mentions and addressed replies". It uses an isolated mock Discord. This corpus re-runs the same harness, unchanged, at the PR head after the repairs for ClawSweeper's review of `a8eafa8d71`. Those repairs change the stale policy's production code (see below), so the [`edcbb5aec7` corpus](../edcbb5aec765100f0e34f729b952d3dec128a892/README.md) no longer stands for this head.
+This answers ClawSweeper revision 21's request for "current-source recovery evidence using a real transport client and production preflight, preserving fresh mentions and addressed replies". It uses an isolated mock Discord. This corpus re-runs the same harness, unchanged, at the safe-branch candidate that carries the repairs for ClawSweeper's review of `a8eafa8d71`. Those repairs change the stale policy's production code (see below), so the [`edcbb5aec7` corpus](../edcbb5aec765100f0e34f729b952d3dec128a892/README.md) does not stand for it.
 
-- **Head:** `a05aa8f59632ed315dc2d376a0c42cc6f9a3ba5e`, the PR tip: the second back-merge `edcbb5aec7` plus four commits.
+- **Head:** `f9ffb032bc2987c256fc51f1f58e7f566aab1371`, the tip of the safe branch `gloss/121204-backmerge-20261011`: the second back-merge `edcbb5aec7` plus eight commits. When this corpus was made, upstream #121204 still pointed at `a8eafa8d71` (the first of the eight); it is fast-forwarded to `f9ffb032bc` only after this corpus and the code are reviewed.
 - **Control:** `b3c7dc2af7ddb61a71afd169788d846dc37ae2a0`, upstream main and the second back-merge's second parent.
 - **Intermediate heads:** not re-run. The `fbef5fda32`, `08d7a0292c` and `cdef5a1d95` runs, which isolate what each of the last three pre-merge commits adds, are in the [`2d997a0bcd` corpus](../2d997a0bcd9b7eb104b1890699cf20f90e45ba17/README.md).
 
@@ -10,17 +10,20 @@ Both trees were checked out in turn in one clean detached worktree, each with `p
 
 ## What changed since edcbb5aec7
 
-Four commits, all in the Discord stale policy and its tests:
+Eight commits, all in the Discord stale policy, the codec's stored-frame boundary and their tests:
 - `a8eafa8d71`: the stored frame reaches the `Message` constructor through a type predicate instead of the chained `as unknown as APIMessage` cast that `lint:no-chained-type-assertions` rejected.
 - `6f029b3c58`, for ClawSweeper's two findings on `a8eafa8d71`:
   - **[P1]** An ordinary channel no longer inherits its category's channel entry. Preflight passes a parent only for threads, so a direct-open wildcard outranks a gated category; the policy now resolves the channel config the same way. The real-preflight parity matrix gains that row.
   - **[P2]** The predicate validates every field `APIMessage` requires, the element shapes of `author`, `mentions`, `mention_roles`, `attachments` and `embeds`, and the nested reply target. Anything less stays with the claim-time codec.
 - `f908ece873`, test-only: ClawSweeper's incomplete-frame examples stay claimable, and the same frame complete is stale backlog.
 - `a05aa8f596`, oxfmt import order in one test.
+- `2b52673944` (🕯's review): the predicate also validates the message reference, whose `channel_id` `APIMessageReference` requires; `{}` and a reference without `channel_id` are negative controls.
+- `1a33c93726` and `2701bb9be0` (🌊's review): the predicate's type claims only the fields the policy reads (`StalePolicyFrame`), and the one `APIMessage` assertion moves to `ingress-stored-message.ts` as `asStoredDiscordMessage`, which the claim-time codec's decode and the stale policy both call. Preflight and the policy read the same stored object through it. No behaviour change.
+- `f9ffb032bc`, oxfmt import order.
 
 The harness frames are full gateway MESSAGE_CREATE objects (users with `discriminator`, `global_name` and `avatar`; `tts`, `pinned`, `edited_timestamp`), so the stricter predicate reads them, and every scenario still exercises the pre-claim policy. No scenario uses a category entry.
 
-Gate receipt at `a05aa8f596`, on the same host as these runs: install, `tsgo:extensions` and `tsgo:extensions:test`, `lint:no-chained-type-assertions` and `lint:no-widen-then-assert` (0 errors), oxfmt and oxlint on the changed files, and the five stale-policy suites passed. Reverting only the P1 line turns the new parity row and the category case red; restoring the `a8eafa8d71` predicate turns the incomplete-frame test red.
+Gate receipt at `f9ffb032bc`, on the same host as these runs: install, `tsgo:extensions` and `tsgo:extensions:test`, `lint:no-chained-type-assertions`, `lint:no-widen-then-assert` and `check:import-cycles` (0 findings), oxfmt and oxlint on the changed files, `ingress.test.ts` (the codec) and the five stale-policy suites passed. Revert checks: reverting only the P1 line (at `6f029b3c58`) turns the new parity row and the category case red; restoring the `a8eafa8d71` predicate (at `f908ece873`) turns the incomplete-frame test red; restoring the `a05aa8f596` predicate (at `f9ffb032bc`) turns the message-reference controls red.
 
 ## What runs
 
@@ -50,7 +53,7 @@ The backlog, all in one mention-gated channel and all older than 15 minutes:
 
 Plus one **fresh `@mention`** delivered live after reconnect.
 
-| | Head `a05aa8f596` | Control `b3c7dc2af7` |
+| | Head `f9ffb032bc` | Control `b3c7dc2af7` |
 | --- | --- | --- |
 | 20 stale ambient rows | **all `failed`, `stale-ambient-backlog`, `attempts=0`**, failed by the pre-claim pass (`[queue] fail(amb-NN, reason=stale-ambient-backlog, guard) -> committed` x20). None was claimed and none reached preflight. | all claimed, each run through production preflight (`drop: no-mention` x20), then `completed` |
 | old `@mention` | completed; preflight `wasMentioned=true`; turn #1 | completed; turn #1 |
@@ -63,7 +66,7 @@ Plus one **fresh `@mention`** delivered live after reconnect.
 
 Logs: [head](logs/head-recovery.log), [control](logs/control-recovery.log).
 
-**Limit on wall-clock time.** Fresh-mention turn latency was 6.5 s at head (`turn 6466ms after the gateway delivered it`) and 7.3 s at control (`7255ms`). In the `edcbb5aec7` run it was 6.5 s and 6.4 s; in the `41277c50d2` run, 6.7 s and 6.6 s; in the `2d997a0bcd` run, 4.6 s at head and 6.7 s at control. Run-to-run variation is larger than the head/control gap. Against a loopback mock each ambient preflight skip costs only milliseconds, and most of the latency is the drain's first pass after startup, which varies between hosts and runs. Timing is not a contract. What this run shows is the backlog removed from the lane: 5 rows reach claim and preflight at head versus 25 at control (20 claims and 20 preflight runs avoided), and the fresh mention completes 5th instead of 25th. Positions come from SQLite completion timestamps; completion order is not necessarily claim order (METHOD.md). It does not show a latency number for production Discord.
+**Limit on wall-clock time.** Fresh-mention turn latency was 6.1 s at head (`turn 6137ms after the gateway delivered it`) and 6.7 s at control (`6706ms`). In the `a05aa8f596` run (docs#584's first corpus) it was 6.5 s and 7.3 s; in the `edcbb5aec7` run it was 6.5 s and 6.4 s; in the `41277c50d2` run, 6.7 s and 6.6 s; in the `2d997a0bcd` run, 4.6 s at head and 6.7 s at control. Run-to-run variation is larger than the head/control gap. Against a loopback mock each ambient preflight skip costs only milliseconds, and most of the latency is the drain's first pass after startup, which varies between hosts and runs. Timing is not a contract. What this run shows is the backlog removed from the lane: 5 rows reach claim and preflight at head versus 25 at control (20 claims and 20 preflight runs avoided), and the fresh mention completes 5th instead of 25th. Positions come from SQLite completion timestamps; completion order is not necessarily claim order (METHOD.md). It does not show a latency number for production Discord.
 
 ### Scenario C: mention-pattern config edit mid-recovery
 
@@ -71,7 +74,7 @@ The backlog is 3 stale `"helper, can you take a look at the build?"` rows plus 2
 - **edit-decide:** after the stale policy took its policy snapshot, before its verdict.
 - **edit-commit:** after the policy returned `fail(helper-1)`, before the queue commits the fail. This is 🌊's interleaving.
 
-| | head `a05aa8f596` | control `b3c7dc2af7` |
+| | head `f9ffb032bc` | control `b3c7dc2af7` |
 | --- | --- | --- |
 | edit-decide: `helper-1` | **completed, turn**. No fail was attempted for it (no `[queue] fail(helper-1…)` line) | completed, preflight-skipped (no pre-claim pass; preflight read the pre-edit config) |
 | edit-commit: `helper-1` | **completed, turn**. `fail(helper-1, reason=stale-ambient-backlog, guard) -> not committed`, `pending disposition invalidated before commit for event helper-1` | completed, preflight-skipped (no pre-claim fail exists, so the edit trigger never fired: `edit published=false`) |
@@ -94,7 +97,7 @@ ClawSweeper revision 22 asked for this case.
 - **The injected event:** after the stale policy returns `fail(amb-01)` and before the fail commits, Discord sends `CHANNEL_UPDATE` renaming `general` to `concierge`. The frame travels over the WebSocket and the production `GatewayPlugin` applies it to its inventory before the write is sent.
 - **What the new mapping means:** the channel is now direct-open, so every one of those rows is work.
 
-| | head `a05aa8f596` | control `b3c7dc2af7` |
+| | head `f9ffb032bc` | control `b3c7dc2af7` |
 | --- | --- | --- |
 | `amb-01` | **`fail(amb-01, reason=stale-ambient-backlog, guard) -> not committed`**, `pending disposition invalidated before commit for event amb-01`. Re-decided next pass, kept, preflight `shouldRequireMention=false`, turn | no pre-claim fail exists, so the rename trigger never fired (`renamed=false`) |
 | `amb-02..20` | completed, 19 turns | preflight drop `channelConfig.allowed===false` x20 (no rename happened) |
@@ -105,10 +108,10 @@ Logs: `logs/{head,control}-rename-commit.log`. The `cdef5a1d95` comparison (1 fa
 ## Run it
 
 ```bash
-bash harness/proof-rerun.sh
+SCRATCH=<dir> bash harness/proof-rerun.sh
 ```
 
-`proof-rerun.sh` replaces `run-all.sh` for this rerun. It checks out each tree in turn in one detached worktree (`git checkout --detach -f`, `git clean`, `pnpm install --frozen-lockfile`), runs head then control, and also runs the PR #124337 harness in the same pass. Paths in it are relative to the runner's scratch directory; see METHOD.md.
+`proof-rerun.sh` replaces `run-all.sh` for this rerun and runs only this PR's harness. It checks out each tree in turn in one detached worktree (`git checkout --detach -f`, `git clean`, `pnpm install --frozen-lockfile`), runs head then control, and exits 1 (printing `proofs-FAILED`) unless every install and every phase exits 0. `SCRATCH` names the directory holding the openclaw clone (`openclaw/`), the worktree (`gate25-F/`) and the harness (`proof-121204/harness/`); see METHOD.md.
 
 Prerequisites: a clone of openclaw with both SHAs fetched, and Node 26.
 
@@ -120,7 +123,7 @@ All 16 processes (8 scenario x tree runs, phases A and B) exited 0.
 
 - `harness/recovery-proof.mts`, sha256 `a1ab2b3a35735328644a5187809a870650c3aeb3b2396683c2ef234c27101f17` (same bytes as the `2d997a0bcd` corpus)
 - `harness/mock-discord.mts`, sha256 `f7b374a96076de09d36b239763d7ec4fb9c889d5b93151d80c52688e4f2e866f` (same bytes)
-- `harness/proof-rerun.sh`, sha256 `ed7989f892427d2c1b3717a90af9f2c8644da694a3d551087ea1ae038b81cec3`
+- `harness/proof-rerun.sh`, sha256 `e5b9b661f54c22280b508cb26a07768ef7e033d70cf4f8bafa085d8982551da3`
 - `logs/<side>-<scenario>.log`: phases A and B, with `$HOME` and the hostname replaced and ANSI colour codes stripped.
 
 Snowflakes are synthetic and relabelled (`<guild>`, `<gated>`, `<bot>`, `<human>`, message names). The token is a placeholder and is redacted from the IDENTIFY line.

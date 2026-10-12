@@ -1,10 +1,10 @@
 {
   "schema": "openclaw.pr121204.proofs.index.v1",
-  "current_sha": "f9ffb032bc2987c256fc51f1f58e7f566aab1371",
-  "proof_source_sha": "f9ffb032bc2987c256fc51f1f58e7f566aab1371",
-  "corpus_path": "PR-121204/PROOFS/f9ffb032bc2987c256fc51f1f58e7f566aab1371/",
-  "manifest_path": "PR-121204/PROOFS/f9ffb032bc2987c256fc51f1f58e7f566aab1371/proofs-manifest.json",
-  "readme_path": "PR-121204/PROOFS/f9ffb032bc2987c256fc51f1f58e7f566aab1371/README.md",
+  "current_sha": "3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6",
+  "proof_source_sha": "3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6",
+  "corpus_path": "PR-121204/PROOFS/3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6/",
+  "manifest_path": "PR-121204/PROOFS/3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6/proofs-manifest.json",
+  "readme_path": "PR-121204/PROOFS/3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6/README.md",
   "materiality_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MATERIALITY.md",
   "source_copy_map_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/SOURCE-COPY-MAP.json",
   "mode_b_receipt_path": "PR-121204/PROOFS/ba0f670a0959a9eeeb0b28ace59d3838079998b7/MODE-B-RECEIPT.json",
@@ -18,9 +18,9 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "generated_at": "2026-10-12T23:13:15Z",
+  "generated_at": "2026-10-12T23:59:51Z",
   "previous_sha": "edcbb5aec765100f0e34f729b952d3dec128a892",
-  "disposition_note": "Repointed to f9ffb032bc, the safe-branch candidate (upstream #121204 still at a8eafa8d71 when this ran): eight commits on edcbb5aec7 for ClawSweeper's review of a8eafa8d71 and the frond's reviews (type guard; no category inheritance for ordinary channels, matching preflight; required-field and message-reference validation; one stored-frame boundary shared with the claim-time codec; tests). Same recovery harness bytes and control b3c7dc2af7; every scenario verdict and SQLite count matches edcbb5aec7.",
+  "disposition_note": "Repointed to 3d237ac8d5, the safe-branch candidate (upstream #121204 at f9ffb032bc when this ran): ten commits on edcbb5aec7 for ClawSweeper's review of a8eafa8d71 and the frond's reviews (type guard; no category inheritance for ordinary channels, matching preflight; required-field and message-reference validation; one stored-frame boundary shared with the claim-time codec; tests; assertion-safety SAFETY placement and baseline). Same recovery harness bytes and control b3c7dc2af7; every scenario verdict and SQLite count matches edcbb5aec7.",
   "control_sha": "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0",
   "target_exact_execution": true,
   "generated_by": "frond-gloss (Claude Opus 5.5)"

@@ -82,7 +82,7 @@ Each scenario runs as **two processes** over one state dir.
 
 | side | tree | sha |
 | --- | --- | --- |
-| head | safe-branch candidate `gloss/121204-backmerge-20261011`: the second back-merge `edcbb5aec7` plus eight commits (lint guard, policy parity, frame validation, shared stored-frame boundary, tests). Upstream #121204 still pointed at `a8eafa8d71` when this ran | `f9ffb032bc2987c256fc51f1f58e7f566aab1371` |
+| head | safe-branch candidate `gloss/121204-backmerge-20261011`: the second back-merge `edcbb5aec7` plus ten commits (lint guard, policy parity, frame validation, shared stored-frame boundary, tests, assertion-safety baseline). Upstream #121204 pointed at `f9ffb032bc` when this ran | `3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6` |
 | control | upstream main (second parent of the back-merge `edcbb5aec7`; unchanged) | `b3c7dc2af7ddb61a71afd169788d846dc37ae2a0` |
 
 The intermediate heads (`fbef5fda32`, `08d7a0292c`, `cdef5a1d95`) were not re-run; their runs are in the `2d997a0bcd` corpus.

@@ -1,0 +1,177 @@
+### head / edit-decide / tree 3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6
+### phase A
++    70ms [env] node v26.9.0 phase=A scenario=edit-decide
++    70ms [env] tree sha=3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6 dirty=0
++    70ms [env] tree has ingress-stale-policy.ts=true
++    70ms [env] DISCORD_API_URL=http://127.0.0.1:42801/api/v10 (loopback mock) state=<run>/state
++    71ms [clock] T=2026-10-12T23:50:18.728Z now=T+0s
++ 26046ms [discord-rest] GET /api/v10/gateway/bot -> 200
++ 26061ms [startup] fetch-bot-identity:start
++ 26064ms [discord-gateway] client connected /?v=10&encoding=json
++ 26066ms [discord-rest] GET /api/v10/users/%40me -> 200
++ 26066ms [discord-gateway] IDENTIFY intents=46601 token=<redacted>
++ 26066ms [discord-gateway] -> READY (guild <guild> unavailable)
++ 26066ms [discord-gateway] -> GUILD_CREATE <guild> (1 channels)
++ 26068ms [startup] fetch-bot-identity:done botUserId=<bot> botUserName=proofbot
++ 26069ms [drain] start() suppressed: drain wedged for the outage
++ 26069ms [startup] composition up: botUserId=<bot> (from GET /users/@me)
++ 26071ms [discord-gateway] client op 3
++ 26089ms [gateway] registered=true connected=true hydrating(<guild>)=false inventory[<gated>]={"type":0,"name":"general","guildId":"<guild>"}
++ 26090ms [discord-gateway] -> MESSAGE_CREATE helper-1 sentAt=T-62min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-01 sentAt=T-60min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-02 sentAt=T-58min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-03 sentAt=T-56min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-04 sentAt=T-54min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-05 sentAt=T-52min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-06 sentAt=T-50min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-07 sentAt=T-48min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-08 sentAt=T-46min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE helper-2 sentAt=T-45min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-09 sentAt=T-44min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-10 sentAt=T-42min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-11 sentAt=T-40min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-12 sentAt=T-38min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-13 sentAt=T-36min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-14 sentAt=T-34min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-15 sentAt=T-32min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-16 sentAt=T-30min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE helper-3 sentAt=T-29min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-17 sentAt=T-28min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-18 sentAt=T-26min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-19 sentAt=T-24min mentions=0
++ 26090ms [discord-gateway] -> MESSAGE_CREATE amb-20 sentAt=T-22min mentions=0
++ 33024ms [sqlite] end of A (outage): durable backlog admitted over the gateway, drain wedged: 23 rows {"pending":23}
++ 33025ms [sqlite]   {helper-1 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-01 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-02 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-03 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-04 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-05 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-06 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-07 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-08 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {helper-2 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-09 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-10 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-11 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-12 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-13 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-14 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-15 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-16 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {helper-3 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-17 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-18 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-19 status=pending attempts=0 failed_reason=null last_error=null}
++ 33025ms [sqlite]   {amb-20 status=pending attempts=0 failed_reason=null last_error=null}
++ 33027ms [verdict] A: 23/23 rows pending
+### phase A exit=0
+### phase B
++    84ms [env] node v26.9.0 phase=B scenario=edit-decide
++    85ms [env] tree sha=3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6 dirty=0
++    85ms [env] tree has ingress-stale-policy.ts=true
++    85ms [env] DISCORD_API_URL=http://127.0.0.1:35947/api/v10 (loopback mock) state=<run>/state
++    85ms [clock] T=2026-10-12T23:50:18.728Z now=T+33s
++ 24268ms [discord-rest] GET /api/v10/gateway/bot -> 200
++ 24283ms [startup] fetch-bot-identity:start
++ 24287ms [discord-gateway] client connected /?v=10&encoding=json
++ 24289ms [discord-rest] GET /api/v10/users/%40me -> 200
++ 24289ms [discord-gateway] IDENTIFY intents=46601 token=<redacted>
++ 24289ms [discord-gateway] -> READY (guild <guild> unavailable)
++ 24289ms [discord-gateway] -> GUILD_CREATE <guild> (1 channels)
++ 24291ms [startup] fetch-bot-identity:done botUserId=<bot> botUserName=proofbot
++ 24293ms [startup] composition up: botUserId=<bot> (from GET /users/@me)
++ 24298ms [discord-gateway] client op 3
++ 24316ms [gateway] registered=true connected=true hydrating(<guild>)=false inventory[<gated>]={"type":0,"name":"general","guildId":"<guild>"}
++ 24318ms [sqlite] at recovery start (rows persisted by phase A): 23 rows {"pending":23}
++ 24318ms [sqlite]   {helper-1 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-01 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-02 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-03 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-04 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-05 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-06 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-07 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-08 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {helper-2 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-09 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-10 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-11 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-12 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-13 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-14 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-15 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-16 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {helper-3 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-17 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-18 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-19 status=pending attempts=0 failed_reason=null last_error=null}
++ 24318ms [sqlite]   {amb-20 status=pending attempts=0 failed_reason=null last_error=null}
++ 24421ms [queue] rows=23 open=23 failed=0 completed=0 turns=0
++ 30000ms [config] EDIT published after the stale policy read its snapshot, before its verdict: messages.groupChat.mentionPatterns=["\\bhelper\\b"]
++ 30017ms [queue] fail(amb-01, reason=stale-ambient-backlog, guard) -> committed
++ 30021ms [queue] fail(amb-02, reason=stale-ambient-backlog, guard) -> committed
++ 30025ms [queue] fail(amb-03, reason=stale-ambient-backlog, guard) -> committed
++ 30028ms [queue] fail(amb-04, reason=stale-ambient-backlog, guard) -> committed
++ 30031ms [queue] fail(amb-05, reason=stale-ambient-backlog, guard) -> committed
++ 30034ms [queue] fail(amb-06, reason=stale-ambient-backlog, guard) -> committed
++ 30037ms [queue] fail(amb-07, reason=stale-ambient-backlog, guard) -> committed
++ 30038ms [queue] fail(amb-08, reason=stale-ambient-backlog, guard) -> committed
++ 30040ms [queue] fail(amb-09, reason=stale-ambient-backlog, guard) -> committed
++ 30041ms [queue] rows=23 open=14 failed=9 completed=0 turns=0
++ 30042ms [queue] fail(amb-10, reason=stale-ambient-backlog, guard) -> committed
++ 30045ms [queue] fail(amb-11, reason=stale-ambient-backlog, guard) -> committed
++ 30047ms [queue] fail(amb-12, reason=stale-ambient-backlog, guard) -> committed
++ 30049ms [queue] fail(amb-13, reason=stale-ambient-backlog, guard) -> committed
++ 30051ms [queue] fail(amb-14, reason=stale-ambient-backlog, guard) -> committed
++ 30052ms [queue] fail(amb-15, reason=stale-ambient-backlog, guard) -> committed
++ 30053ms [queue] fail(amb-16, reason=stale-ambient-backlog, guard) -> committed
++ 30061ms [queue] fail(amb-17, reason=stale-ambient-backlog, guard) -> committed
++ 30064ms [queue] fail(amb-18, reason=stale-ambient-backlog, guard) -> committed
++ 30066ms [queue] fail(amb-19, reason=stale-ambient-backlog, guard) -> committed
++ 30069ms [queue] fail(amb-20, reason=stale-ambient-backlog, guard) -> committed
++ 30153ms [queue] rows=23 open=3 failed=20 completed=0 turns=0
++ 30155ms [discord-rest] GET /api/v10/channels/<gated> -> 200
++ 30558ms [turn] #1 helper-1 admitted by production preflight (wasMentioned=true effectiveWasMentioned=true inboundEventKind=user_request sender=<human-2>)
++ 30560ms [queue] rows=23 open=3 failed=20 completed=0 turns=1
++ 30563ms [discord-rest] GET /api/v10/guilds/<guild> -> 200
++ 30565ms [turn] #1 helper-1 adopted (stand-in turn; no model)
++ 30578ms [turn] #2 helper-2 admitted by production preflight (wasMentioned=true effectiveWasMentioned=true inboundEventKind=user_request sender=<human-2>)
++ 30584ms [turn] #2 helper-2 adopted (stand-in turn; no model)
++ 30598ms [turn] #3 helper-3 admitted by production preflight (wasMentioned=true effectiveWasMentioned=true inboundEventKind=user_request sender=<human-2>)
++ 30601ms [turn] #3 helper-3 adopted (stand-in turn; no model)
++ 30662ms [queue] rows=23 open=0 failed=20 completed=3 turns=3
++ 30663ms [sqlite] end of B (edit-decide): 23 rows {"completed":3,"failed:stale-ambient-backlog":20}
++ 30663ms [sqlite]   {helper-1 status=completed attempts=0 failed_reason=null last_error=null}
++ 30663ms [sqlite]   {amb-01 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-01 on channel:<gated> is 3663385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-02 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-02 on channel:<gated> is 3543385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-03 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-03 on channel:<gated> is 3423385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-04 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-04 on channel:<gated> is 3303385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-05 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-05 on channel:<gated> is 3183385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-06 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-06 on channel:<gated> is 3063385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-07 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-07 on channel:<gated> is 2943385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-08 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-08 on channel:<gated> is 2823385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {helper-2 status=completed attempts=0 failed_reason=null last_error=null}
++ 30663ms [sqlite]   {amb-09 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-09 on channel:<gated> is 2703385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-10 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-10 on channel:<gated> is 2583385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-11 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-11 on channel:<gated> is 2463385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-12 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-12 on channel:<gated> is 2343385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-13 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-13 on channel:<gated> is 2223385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-14 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-14 on channel:<gated> is 2103385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-15 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-15 on channel:<gated> is 1983385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-16 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-16 on channel:<gated> is 1863385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {helper-3 status=completed attempts=0 failed_reason=null last_error=null}
++ 30663ms [sqlite]   {amb-17 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-17 on channel:<gated> is 1743385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-18 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-18 on channel:<gated> is 1623385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30663ms [sqlite]   {amb-19 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-19 on channel:<gated> is 1503385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30664ms [sqlite]   {amb-20 status=failed attempts=0 failed_reason=stale-ambient-backlog last_error="Discord ambient message amb-20 on channel:<gated> is 1383385ms old (limit 900000ms); suppressing stale backlog before dispatch."}
++ 30664ms [result] turn order: helper-1 -> helper-2 -> helper-3
++ 30664ms [result] REST message fetches by preflight: (none)
++ 30664ms [preflight] 2026-10-12T23:51:22.667Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=false wasMentioned=true
++ 30664ms [preflight] 2026-10-12T23:51:22.694Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=false wasMentioned=true
++ 30664ms [preflight] 2026-10-12T23:51:22.714Z [discord-preflight] shouldRequireMention=true baseRequireMention=true boundThreadSession=false mentionDecision.shouldSkip=false wasMentioned=true
++ 30664ms [result] production preflight decisions: mention-gate pass=3 drop:no-mention=0
++ 30664ms [result] completion order (SQLite): helper-1 -> helper-2 -> helper-3
++ 30664ms [result] fresh-mention: completed #0 of 3; turn never
++ 30664ms [verdict] B(edit-decide): edit published=true; helper-1=completed/turn=true helper-2=completed/turn=true helper-3=completed/turn=true; ambient failed(stale-ambient-backlog)=20/20 turns=0
+### phase B exit=0

@@ -1,0 +1,13 @@
+### head / A2 / tree ee2f6dfdf651a8bd4416edb435335c5393190c5e
++12794ms [env] node v26.9.0 tree=<home>/i_have_a_pet_human/scratch/gate25-F phase=A2
++12794ms [env] retryPolicy={"maxAttempts":3,"deadLetterMinAgeMs":0,"baseMs":0,"maxMs":0} queueSettings={"mode":"followup","debounceMs":0,"cap":10,"dropPolicy":"summarize"}
++12795ms [sqlite] at restart: {msg-1 status=pending attempts=0 last_error=null failed_reason=null}
++18876ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++18879ms [reply-queue] enqueueFollowupRun(msg-1) -> true (session idle, cap=10, dropPolicy=summarize)
++18880ms [agent] turn started for message msg-1
++18884ms [agent] adopted msg-1; ingress claim completed
++18884ms [agent] reply delivered for msg-1
++18890ms [sqlite] after restart drain: {msg-1 status=completed attempts=0 last_error=null failed_reason=null}
++18890ms [result] dispatched=["msg-1"] flushErrors=0
++18893ms [verdict] A2: msg-1 redelivered after restart, adopted, completed
+### exit=0

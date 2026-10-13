@@ -18,10 +18,12 @@
     "honest_limit": 1,
     "missing": 0
   },
-  "generated_at": "2026-10-12T23:59:51Z",
+  "generated_at": "2026-10-13T20:30:56Z",
   "previous_sha": "edcbb5aec765100f0e34f729b952d3dec128a892",
   "disposition_note": "Repointed to 3d237ac8d5, the safe-branch candidate (upstream #121204 at f9ffb032bc when this ran): ten commits on edcbb5aec7 for ClawSweeper's review of a8eafa8d71 and the frond's reviews (type guard; no category inheritance for ordinary channels, matching preflight; required-field and message-reference validation; one stored-frame boundary shared with the claim-time codec; tests; assertion-safety SAFETY placement and baseline). Same recovery harness bytes and control b3c7dc2af7; every scenario verdict and SQLite count matches edcbb5aec7.",
   "control_sha": "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0",
   "target_exact_execution": true,
-  "generated_by": "frond-gloss (Claude Opus 5.5)"
+  "generated_by": "frond-gloss (Claude Opus 5.5)",
+  "upgrade_proof_path": "PR-121204/PROOFS/3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6/UPGRADE-v2026.10.3/README.md",
+  "upgrade_proof_note": "v2026.10.3 (59cb44796b) writes the durable rows (pending, released with prior attempts, dead-lettered, dead-owner claim); head 3d237ac8d5 drains the same state dir: every row loads, ambient stale rows fail pre-claim, the stable dead-letter is untouched, the dead-owner claim is recovered, addressed rows complete; schema identical, no migration. Control: stable drains a copy."
 }

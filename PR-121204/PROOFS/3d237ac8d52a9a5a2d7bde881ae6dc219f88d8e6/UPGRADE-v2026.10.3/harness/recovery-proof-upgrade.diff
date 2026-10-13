@@ -1,0 +1,14 @@
+362a363,373
+> // Upgrade proof only: v2026.10.3's createDiscordMonitorClient takes its gateway factories
+> // as parameters; later trees build them inside and ignore these. Pass them when the tree has them.
+> const optionalMod = (rel: string) => mod(rel).catch(() => undefined);
+> const legacyGatewayFactories = {
+>   createGatewayPlugin: (await optionalMod("extensions/discord/src/monitor/gateway-plugin.ts"))
+>     ?.createDiscordGatewayPlugin,
+>   createGatewaySupervisor: (await optionalMod("extensions/discord/src/monitor/gateway-supervisor.ts"))
+>     ?.createDiscordGatewaySupervisor,
+>   createAutoPresenceController: (await optionalMod("extensions/discord/src/monitor/auto-presence.ts"))
+>     ?.createDiscordAutoPresenceController,
+> };
+565a577
+>     ...legacyGatewayFactories,

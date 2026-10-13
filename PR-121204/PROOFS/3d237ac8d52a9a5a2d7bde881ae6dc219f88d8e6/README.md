@@ -115,6 +115,12 @@ SCRATCH=<dir> bash harness/proof-rerun.sh
 
 `proof-rerun.sh` replaces `run-all.sh` for this rerun and runs only this PR's harness. It checks out each tree in turn in one detached worktree (`git checkout --detach -f`, `git clean`, `pnpm install --frozen-lockfile`), runs head then control, and exits 1 (printing `proofs-FAILED`) unless every install and every phase exits 0. `SCRATCH` names the directory holding the openclaw clone (`openclaw/`), the worktree (`gate25-F/`) and the harness (`proof-121204/harness/`); see METHOD.md.
 
+Layout under `$SCRATCH`, as the executed run used it:
+- **inputs:** `openclaw/` (a clone with both SHAs fetched), `gate25-F/` (one worktree of that clone, where each tree is checked out and installed) and `proof-121204/harness/` (holding this corpus's `recovery-proof.mts` and `mock-discord.mts`; the runner reads `H1` from there);
+- **outputs:** `proof-121204g/runs/<side>-<scenario>/` (per-run HOME and state) and `proof-121204g/logs/<side>-<scenario>.log`. This corpus's `logs/` is a copy of that `logs/` directory. A replay writes to the same `proof-121204g/` paths, so start it with no `proof-121204g/` present, or move the old one aside.
+
+The published script is the executed script with line 5 (`S0=…`) changed to read `SCRATCH`; `diff` of the two shows that line only.
+
 Prerequisites: a clone of openclaw with both SHAs fetched, and Node 26.
 
 Every process runs under `nice -n 15` and `timeout 300`, with no CPU pinning. There is no network beyond 127.0.0.1. Every run has its own HOME, state, config and log file.

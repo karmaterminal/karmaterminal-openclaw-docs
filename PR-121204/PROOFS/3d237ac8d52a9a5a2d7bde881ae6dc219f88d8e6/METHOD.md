@@ -95,7 +95,13 @@ Both trees were checked out in turn in one worktree (`git checkout --detach -f <
 SCRATCH=<dir> bash harness/proof-rerun.sh   # checkout + install, then every scenario on head, then on control
 ```
 
-`proof-rerun.sh` replaces `run-all.sh` for this rerun and runs only this PR's harness. `SCRATCH` is the runner's scratch directory, holding `openclaw/`, the single worktree `gate25-F/` and `proof-121204/harness/`. It exits 1 unless every install and every phase exits 0. For each side it runs phase A then phase B of each scenario as:
+`proof-rerun.sh` replaces `run-all.sh` for this rerun and runs only this PR's harness. `SCRATCH` is the runner's scratch directory, holding `openclaw/`, the single worktree `gate25-F/` and `proof-121204/harness/`. It exits 1 unless every install and every phase exits 0.
+
+Layout under `$SCRATCH`, as the executed run used it:
+- **inputs:** `openclaw/` (a clone with both SHAs fetched), `gate25-F/` (one worktree of that clone, where each tree is checked out and installed) and `proof-121204/harness/` (holding this corpus's `recovery-proof.mts` and `mock-discord.mts`; the runner reads `H1` from there);
+- **outputs:** `proof-121204g/runs/<side>-<scenario>/` (per-run HOME and state) and `proof-121204g/logs/<side>-<scenario>.log`. This corpus's `logs/` is a copy of that `logs/` directory. A replay writes to the same `proof-121204g/` paths, so start it with no `proof-121204g/` present, or move the old one aside.
+
+The published script is the executed script with line 5 (`S0=…`) changed to read `SCRATCH`; `diff` of the two shows that line only. For each side it runs phase A then phase B of each scenario as:
 
 ```bash
 cd <tree> && nice -n 15 timeout 300 \

@@ -1,0 +1,257 @@
+{
+  "pr": "openclaw/openclaw#121204",
+  "head": "3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6",
+  "control": "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0",
+  "transport": "real: production Discord client and GatewayPlugin over loopback WebSocket/HTTP to a local mock Discord; production preflightDiscordMessage in path",
+  "harness": {
+    "recovery-proof.mts": {
+      "path": "harness/recovery-proof.mts",
+      "sha256": "a1ab2b3a35735328644a5187809a870650c3aeb3b2396683c2ef234c27101f17"
+    },
+    "mock-discord.mts": {
+      "path": "harness/mock-discord.mts",
+      "sha256": "f7b374a96076de09d36b239763d7ec4fb9c889d5b93151d80c52688e4f2e866f"
+    },
+    "proof-rerun.sh": {
+      "path": "harness/proof-rerun.sh",
+      "sha256": "49e18f781e35879b3cebaf9d6d79ae4c5c5e60d0e597577e656547ef9c31a26c",
+      "note": "replaces run-all.sh for this rerun; runs only the PR #121204 harness; exits 1 unless every install and phase exits 0; replay with SCRATCH=<dir>"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "recovery",
+      "title": "outage backlog (20 stale ambient, old mention, canonical reply, reply needing re-fetch where REST returns the bot, raw <@bot> needing hydration) then a fresh mention after reconnect",
+      "head": {
+        "log": "logs/head-recovery.log",
+        "ambient_failed_stale_ambient_backlog": 20,
+        "ambient_claimed": 0,
+        "addressed_admitted": [
+          "old-mention",
+          "reply-canonical",
+          "reply-refetch",
+          "raw-hydrate",
+          "fresh-mention"
+        ],
+        "fresh_mention_completed_position": "5 of 5",
+        "preflight_runs": 5,
+        "final_status_counts": {
+          "failed": 20,
+          "completed": 5
+        }
+      },
+      "control": {
+        "log": "logs/control-recovery.log",
+        "ambient_failed_stale_ambient_backlog": 0,
+        "ambient_claimed_and_preflight_skipped": 20,
+        "addressed_admitted": [
+          "old-mention",
+          "reply-canonical",
+          "reply-refetch",
+          "raw-hydrate",
+          "fresh-mention"
+        ],
+        "fresh_mention_completed_position": "25 of 25",
+        "preflight_runs": 25,
+        "final_status_counts": {
+          "completed": 25
+        }
+      },
+      "limit": "fresh-mention latency 6.3 s (head, 6253 ms) vs 6.3 s (control, 6312 ms) in this run (6.1 s vs 6.7 s in the f9ffb032bc run; 6.5 s vs 7.3 s in the a05aa8f596 run; 6.5 s vs 6.4 s in the edcbb5aec7 run; 6.7 s vs 6.6 s in the 41277c50d2 run; 4.6 s vs 6.7 s in the 2d997a0bcd run). Run-to-run variation is larger than the head/control gap; against a local mock this shows the backlog no longer occupies the lane, not a speed-up; timing is not a contract"
+    },
+    {
+      "id": "edit-decide",
+      "title": "mention-pattern config edit lands while the stale policy decides (helper-1 becomes addressed)",
+      "head": {
+        "log": "logs/head-edit-decide.log",
+        "helper_1": "completed, turn run (no fail attempted)",
+        "final_status_counts": {
+          "completed": 3,
+          "failed": 20
+        }
+      },
+      "control": {
+        "log": "logs/control-edit-decide.log",
+        "helper_1": "preflight skipped under the old config (no pre-claim fail exists)",
+        "final_status_counts": {
+          "completed": 23
+        }
+      }
+    },
+    {
+      "id": "edit-commit",
+      "title": "mention-pattern config edit lands after the verdict, before the fail commits",
+      "head": {
+        "log": "logs/head-edit-commit.log",
+        "helper_1": "completed, turn run (fail(helper-1, guard) -> not committed; pending disposition invalidated before commit)",
+        "final_status_counts": {
+          "completed": 3,
+          "failed": 20
+        }
+      },
+      "control": {
+        "log": "logs/control-edit-commit.log",
+        "note": "no pre-claim fail exists, so the edit trigger never fires (edit published=false)",
+        "final_status_counts": {
+          "completed": 23
+        }
+      }
+    },
+    {
+      "id": "rename-commit",
+      "title": "CHANNEL_UPDATE renames the unlisted channel general (preflight: channelConfig.allowed===false) into a configured requireMention:false name after the verdict, before the fail commits (ClawSweeper rev22)",
+      "head": {
+        "log": "logs/head-rename-commit.log",
+        "amb_01": "fail(guard) -> not committed; re-decided, kept, turn run",
+        "final_status_counts": {
+          "completed": 20
+        },
+        "turns": 20
+      },
+      "control": {
+        "log": "logs/control-rename-commit.log",
+        "note": "no pre-claim fail exists, so the rename trigger never fires (renamed=false); all 20 claimed and dropped by preflight as channelConfig.allowed===false (channel-allowlist drop, not the mention gate)",
+        "final_status_counts": {
+          "completed": 20
+        },
+        "turns": 0
+      }
+    }
+  ],
+  "stand_ins": "see METHOD.md: mock Discord; agent turn after preflight via production testing.processDiscordMessage hook (adopts, no model call); outage via testing.createIngressMonitor start() no-op; runtime from createRuntimeChannel(); logging wrappers on queue.fail; stack-detected edit and rename triggers (rename sent as a real CHANNEL_UPDATE over the WebSocket); native commands/voice/thread bindings/ACP omitted",
+  "generated_at": "2026-10-12T23:59:51Z",
+  "generated_by": "frond-gloss (Claude Opus 5.5)",
+  "processes": {
+    "total": 16,
+    "exit_0": 16
+  },
+  "previous_head": "edcbb5aec765100f0e34f729b952d3dec128a892",
+  "back_merge": {
+    "commits": [
+      {
+        "sha": "ce67be7d4f83091ea4bf30d7010a3f8dd6c8fa74",
+        "kind": "merge",
+        "parents": [
+          "7dfac7ca16e3bb0ad4b4477f68ac4d473984cb30",
+          "042db1e7064930a08c534c4487864d7bfb8c5287"
+        ],
+        "note": "first back-merge of upstream main; conflicts resolved onto upstream's queue kernel, drain and Discord handler"
+      },
+      {
+        "sha": "41277c50d231bb848eec5ed56645fc7f08ea70d9",
+        "kind": "test-only",
+        "parents": [
+          "ce67be7d4f83091ea4bf30d7010a3f8dd6c8fa74"
+        ],
+        "note": "two core test fixture expectations for strictly-forward updatedAt"
+      },
+      {
+        "sha": "edcbb5aec765100f0e34f729b952d3dec128a892",
+        "kind": "merge",
+        "parents": [
+          "41277c50d231bb848eec5ed56645fc7f08ea70d9",
+          "b3c7dc2af7ddb61a71afd169788d846dc37ae2a0"
+        ],
+        "note": "second back-merge of upstream main (35 commits); sole conflict one line in test/vitest/vitest.extension-database-workers-paths.mjs, both entries kept"
+      },
+      {
+        "sha": "a8eafa8d713a0fbce004ac883d7388d5c2556bd5",
+        "kind": "fix",
+        "parents": [
+          "edcbb5aec765100f0e34f729b952d3dec128a892"
+        ],
+        "note": "type guard replaces the chained `as unknown as APIMessage` cast (lint:no-chained-type-assertions)"
+      },
+      {
+        "sha": "6f029b3c58a67404ef08e60f99bf38caa7b6d409",
+        "kind": "fix",
+        "parents": [
+          "a8eafa8d713a0fbce004ac883d7388d5c2556bd5"
+        ],
+        "note": "ClawSweeper on a8eafa8d: no category inheritance for ordinary channels (preflight parity, P1); the guard validates every field APIMessage requires (P2); fixtures completed to the gateway shape"
+      },
+      {
+        "sha": "f908ece8734a29745858e9fbf8caaa93147b6f95",
+        "kind": "test-only",
+        "parents": [
+          "6f029b3c58a67404ef08e60f99bf38caa7b6d409"
+        ],
+        "note": "incomplete stored frames stay claimable (P2 examples)"
+      },
+      {
+        "sha": "a05aa8f59632ed315dc2d376a0c42cc6f9a3ba5e",
+        "kind": "style",
+        "parents": [
+          "f908ece8734a29745858e9fbf8caaa93147b6f95"
+        ],
+        "note": "oxfmt import order in the stale-backlog test"
+      },
+      {
+        "sha": "2b52673944bfaf209d1bdd70b1f3713c7ab40687",
+        "kind": "fix",
+        "parents": [
+          "a05aa8f59632ed315dc2d376a0c42cc6f9a3ba5e"
+        ],
+        "note": "the predicate validates the message reference's required channel_id (\ud83d\udd6f's review)"
+      },
+      {
+        "sha": "1a33c937265fbfbefeb5afd60efe01cb8b10d50c",
+        "kind": "refactor",
+        "parents": [
+          "2b52673944bfaf209d1bdd70b1f3713c7ab40687"
+        ],
+        "note": "the predicate's type claims only the fields the policy reads (\ud83c\udf0a's review)"
+      },
+      {
+        "sha": "2701bb9be029620fb04684893b40539f28d4ad46",
+        "kind": "refactor",
+        "parents": [
+          "1a33c937265fbfbefeb5afd60efe01cb8b10d50c"
+        ],
+        "note": "one stored-frame boundary (ingress-stored-message.ts) shared by the claim-time codec and the stale policy (\ud83c\udf0a's review); no behaviour change"
+      },
+      {
+        "sha": "f9ffb032bc2987c256fc51f1f58e7f566aab1371",
+        "kind": "style",
+        "parents": [
+          "2701bb9be029620fb04684893b40539f28d4ad46"
+        ],
+        "note": "oxfmt import order in the stale policy"
+      },
+      {
+        "sha": "1699740f30fadd23497d78fd4c45a7755bbc31f4",
+        "kind": "fix",
+        "parents": [
+          "f9ffb032bc2987c256fc51f1f58e7f566aab1371"
+        ],
+        "note": "SAFETY line directly above the shared stored-frame assertion (check:assertion-safety)"
+      },
+      {
+        "sha": "3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6",
+        "kind": "chore",
+        "parents": [
+          "1699740f30fadd23497d78fd4c45a7755bbc31f4"
+        ],
+        "note": "assertion-safety baseline: extensions/discord/src/monitor/ingress.ts 6 -> 5"
+      }
+    ]
+  },
+  "intermediate_heads_not_rerun": {
+    "shas": [
+      "fbef5fda32fd284fb6dc8b19f20c6f778c77bf09",
+      "08d7a0292cac17ad21a24ce1ff173b8ee31d6342",
+      "cdef5a1d956ac04f9b006c9295ed1e4ea9131e77"
+    ],
+    "see": "PR-121204/PROOFS/2d997a0bcd9b7eb104b1890699cf20f90e45ba17/"
+  },
+  "run": {
+    "date": "2026-10-12",
+    "node": "v26.9.0",
+    "platform": "linux aarch64, 20 cores",
+    "nice": 15,
+    "taskset": null,
+    "timeout_s": 300,
+    "pnpm_lock_blob": "cdac8854c528e1d54b4c4d08d613997c6b284c1b"
+  },
+  "head_identity": "safe-branch candidate gloss/121204-backmerge-20261011 at 3d237ac8d52a9a5a2d7bde881ae6dc219f88d8e6; upstream openclaw/openclaw#121204 pointed at f9ffb032bc2987c256fc51f1f58e7f566aab1371 when this ran"
+}

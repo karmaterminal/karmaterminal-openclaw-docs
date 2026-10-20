@@ -103,9 +103,21 @@ export function historyObservations(rollups) {
   for (const rollup of rollups) {
     if (rollup?.schema !== ROLLUP_SCHEMA || rollup.fired !== true) continue;
     for (const entry of rollup.rows ?? []) {
-      if (entry.cls === 'missing') continue;
       const list = byRow.get(entry.row) ?? [];
-      list.push({
+      // Only the immediately previous rollup is downloaded. Carry its last
+      // same-row PASS forward so consecutive non-PASS runs do not erase it.
+      if (entry.lastPass?.sha && entry.lastPass?.at) {
+        list.push({
+          source: entry.lastPass.source ?? 'baseline',
+          sha: entry.lastPass.sha,
+          at: entry.lastPass.at,
+          cls: 'pass',
+          fireType: entry.lastPass.fireType ?? null,
+          carried: entry.lastPass.carried ?? null,
+          ref: entry.lastPass.ref ?? null,
+        });
+      }
+      if (entry.cls !== 'missing') list.push({
         source: 'baseline',
         sha: rollup.sha,
         at: rollup.generatedAt,
@@ -288,16 +300,17 @@ export function renderAlert(rollup) {
 }
 
 /** Artifact name; the watchdog and deploy-check key on it. */
-export function artifactName({ seat, sha, fired, runId }) {
+export function artifactName({ seat, sha, trigger, fired, runId }) {
   if (!SEAT.test(seat ?? '')) throw new Error('invalid seat');
+  if (!['nightly', 'deploy', 'manual'].includes(trigger)) throw new Error('invalid trigger');
   const tag = SHA.test(sha ?? '') ? sha.slice(0, 12) : 'nosha';
-  return `${ARTIFACT_PREFIX}-${seat}-${tag}-${fired ? 'fired' : 'nofire'}-${runId}`;
+  return `${ARTIFACT_PREFIX}-${seat}-${tag}-${trigger}-${fired ? 'fired' : 'nofire'}-${runId}`;
 }
 
 export function parseArtifactName(name) {
-  const match = /^k6-baseline-([a-z0-9][a-z0-9-]*?)-([0-9a-f]{12}|nosha)-(fired|nofire)-(\d+)$/u.exec(name ?? '');
+  const match = /^k6-baseline-([a-z0-9][a-z0-9-]*?)-([0-9a-f]{12}|nosha)-(nightly|deploy|manual)-(fired|nofire)-(\d+)$/u.exec(name ?? '');
   if (!match) return null;
-  return { seat: match[1], shaPrefix: match[2], fired: match[3] === 'fired', runId: match[4] };
+  return { seat: match[1], shaPrefix: match[2], trigger: match[3], fired: match[4] === 'fired', runId: match[5] };
 }
 
 /**
@@ -337,7 +350,7 @@ export function watchdog({ seats, artifacts, nightlyCron, now, graceMinutes = 0 
     const recent = artifacts
       .filter((artifact) => new Date(artifact.created_at) >= since)
       .map((artifact) => parseArtifactName(artifact.name))
-      .filter((parsed) => parsed && parsed.seat === seat);
+      .filter((parsed) => parsed && parsed.seat === seat && parsed.trigger === 'nightly');
     if (recent.some((parsed) => parsed.fired)) fired.push(seat);
     else missed.push({ seat, reason: recent.length > 0 ? 'ran-but-did-not-fire' : 'no-baseline-published' });
   }

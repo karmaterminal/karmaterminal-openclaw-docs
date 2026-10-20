@@ -107,18 +107,36 @@ test('the previous baseline outranks older corpus history, and the newest result
   assert.equal(result.rows.find((r) => r.row === 'R-RC-2').cls, 'missing');
 });
 
+test('the last same-row PASS survives consecutive partial baselines', () => {
+  const prior = {
+    schema: ROLLUP_SCHEMA, fired: true, sha: SHA, trigger: 'nightly',
+    generatedAt: '2026-10-19T03:00:00Z', runUrl: 'u',
+    rows: [{ row: 'R-CD-1', cls: 'partial', lastPass: {
+      sha: OLD, at: '2026-09-20T00:00:00Z', source: 'corpus',
+      carried: true, fireType: 'carried', ref: `PROOFS/${OLD}/proofs-manifest.json`,
+    } }],
+  };
+  const result = rollup({
+    history: historyObservations([prior]),
+    results: [{ row: 'R-CD-1', verdict: 'PARTIAL-candidate', endedAt: '2026-10-20T02:30:00Z' }],
+  });
+  assert.equal(result.rows[0].previous.cls, 'partial');
+  assert.equal(result.rows[0].lastPass.sha, OLD);
+  assert.equal(result.rows[0].lastPass.carried, true);
+});
+
 test('artifact names carry seat, SHA and fire status and round-trip', () => {
-  const name = artifactName({ seat: 'ronan-dgx', sha: SHA, fired: true, runId: 99 });
-  assert.equal(name, `k6-baseline-ronan-dgx-${SHA.slice(0, 12)}-fired-99`);
-  assert.deepEqual(parseArtifactName(name), { seat: 'ronan-dgx', shaPrefix: SHA.slice(0, 12), fired: true, runId: '99' });
+  const name = artifactName({ seat: 'ronan-dgx', sha: SHA, trigger: 'nightly', fired: true, runId: 99 });
+  assert.equal(name, `k6-baseline-ronan-dgx-${SHA.slice(0, 12)}-nightly-fired-99`);
+  assert.deepEqual(parseArtifactName(name), { seat: 'ronan-dgx', shaPrefix: SHA.slice(0, 12), trigger: 'nightly', fired: true, runId: '99' });
   assert.equal(parseArtifactName(`k6-baseline-proof-ronan-99`), null, 'proof artifacts are not baselines');
-  assert.equal(artifactName({ seat: 'ronan', sha: '', fired: false, runId: 1 }), 'k6-baseline-ronan-nosha-nofire-1');
+  assert.equal(artifactName({ seat: 'ronan', sha: '', trigger: 'deploy', fired: false, runId: 1 }), 'k6-baseline-ronan-nosha-deploy-nofire-1');
 });
 
 test('deploy-check fires once per seat for a deployed SHA with no baseline', () => {
   const artifacts = [
-    { name: artifactName({ seat: 'ronan', sha: SHA, fired: false, runId: 1 }), expired: false },
-    { name: artifactName({ seat: 'cael', sha: OLD.replace(/a/gu, '0'), fired: true, runId: 2 }), expired: false },
+    { name: artifactName({ seat: 'ronan', sha: SHA, trigger: 'deploy', fired: false, runId: 1 }), expired: false },
+    { name: artifactName({ seat: 'cael', sha: OLD.replace(/a/gu, '0'), trigger: 'nightly', fired: true, runId: 2 }), expired: false },
   ];
   assert.equal(deployCheck({ seat: 'ronan', sha: SHA, artifacts }).fire, false);
   assert.equal(deployCheck({ seat: 'cael', sha: SHA, artifacts }).fire, true);
@@ -133,9 +151,11 @@ test('watchdog: a seat without a fired baseline since the nightly is a missed fi
   assert.equal(lastDailyOccurrence(cron, new Date('2026-10-20T01:00:00Z')).toISOString(), '2026-10-19T02:17:00.000Z');
   assert.throws(() => lastDailyOccurrence('*/5 * * * *', now));
   const artifacts = [
-    { name: artifactName({ seat: 'ronan', sha: SHA, fired: true, runId: 5 }), created_at: '2026-10-20T03:05:00Z' },
-    { name: artifactName({ seat: 'cael', sha: SHA, fired: false, runId: 5 }), created_at: '2026-10-20T02:30:00Z' },
-    { name: artifactName({ seat: 'silas', sha: SHA, fired: true, runId: 4 }), created_at: '2026-10-19T03:00:00Z' },
+    { name: artifactName({ seat: 'ronan', sha: SHA, trigger: 'nightly', fired: true, runId: 5 }), created_at: '2026-10-20T03:05:00Z' },
+    { name: artifactName({ seat: 'cael', sha: SHA, trigger: 'nightly', fired: false, runId: 5 }), created_at: '2026-10-20T02:30:00Z' },
+    { name: artifactName({ seat: 'silas', sha: SHA, trigger: 'nightly', fired: true, runId: 4 }), created_at: '2026-10-19T03:00:00Z' },
+    { name: artifactName({ seat: 'cael', sha: SHA, trigger: 'deploy', fired: true, runId: 6 }), created_at: '2026-10-20T04:00:00Z' },
+    { name: artifactName({ seat: 'k6-missed-fire-probe', sha: SHA, trigger: 'manual', fired: true, runId: 7 }), created_at: '2026-10-20T04:00:00Z' },
   ];
   const result = watchdog({ seats: ['ronan', 'cael', 'silas', 'k6-missed-fire-probe'], artifacts, nightlyCron: cron, now, graceMinutes: 10 });
   assert.deepEqual(result.fired, ['ronan']);
@@ -165,7 +185,7 @@ test('rollup CLI folds a synthetic run root into public-safe outputs', () => {
       '--out', out, '--repo-root', repoRoot, '--blocked-at', ''], { encoding: 'utf8', env });
     assert.equal(res.status, 0, res.stderr);
     assert.match(res.stdout, /^fired=true$/mu);
-    assert.match(res.stdout, new RegExp(`^artifact_name=k6-baseline-ronan-${SHA.slice(0, 12)}-fired-7$`, 'mu'));
+    assert.match(res.stdout, new RegExp(`^artifact_name=k6-baseline-ronan-${SHA.slice(0, 12)}-nightly-fired-7$`, 'mu'));
     const written = JSON.parse(readFileSync(path.join(out, 'rollup.json'), 'utf8'));
     assert.equal(written.denominator, 34);
     assert.equal(written.counts.pass, 1);

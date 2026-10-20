@@ -81,7 +81,9 @@ Every seat job does the following, in order:
    or carried corpus PASS is labelled `carried`.
 7. **Publish** the rollup as one comment on `vars.K6_BASELINE_ISSUE`, plus the
    job summary. Upload it as the artifact
-   `k6-baseline-<seat>-<sha12>-<fired|nofire>-<run>`.
+   `k6-baseline-<seat>-<sha12>-<nightly|deploy|manual>-<fired|nofire>-<run>`.
+   The watchdog counts only `nightly` artifacts, so a deploy-check or manual
+   run cannot conceal a missed unattended nightly.
 8. **Alert** in #sprites (`secrets.WEBHOOK_SCRIBE_NOTIFY`, the same webhook
    openclaw-local-ci uses) **only** when the run did not fire, or when a row
    regressed. A regression means that row's last observation was acceptable

@@ -164,7 +164,7 @@ function rollupCommand(options) {
     fired: rollup.fired,
     alert: rollup.alert,
     regressions: rollup.regressions.join(',') || 'none',
-    artifact_name: artifactName({ seat: options.seat, sha: options.sha, fired: rollup.fired, runId: options.runId }),
+    artifact_name: artifactName({ seat: options.seat, sha: options.sha, trigger: options.trigger, fired: rollup.fired, runId: options.runId }),
   });
   return 0;
 }

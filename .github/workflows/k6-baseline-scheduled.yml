@@ -147,7 +147,7 @@ jobs:
             fs.writeFileSync(`${process.env.RUNNER_TEMP}/k6-baseline-artifacts.json`, JSON.stringify(baselines));
             const prefix = `k6-baseline-${process.env.SEAT}-`;
             const previous = baselines
-              .filter((a) => !a.expired && a.name.startsWith(prefix) && /-fired-\d+$/.test(a.name) && a.run_id !== context.runId)
+              .filter((a) => !a.expired && a.name.startsWith(prefix) && /-(?:nightly|deploy|manual)-fired-\d+$/.test(a.name) && a.run_id !== context.runId)
               .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0];
             core.setOutput('previous_name', previous?.name ?? '');
             core.setOutput('previous_run_id', previous?.run_id ? String(previous.run_id) : '');

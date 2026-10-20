@@ -557,6 +557,8 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 `live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.
 
+**34 is the honest denominator.** `R-CW-5`, `R-CW-5A`, `R-CW-6` and `R-CW-6A` are orchestration-only. They are fixture-driven and not fired by `live-suite`, so the 38-row continuation matrix reported as 34/38 is not a shortfall. The construct-only rows (`R-CD-RETURN-COVENANT-AUTHORITY` and four `R-OBS-*` rows) have no scenario and sit outside both counts. The scheduled baseline states this on every rollup ([`docs/SCHEDULED-BASELINE.md`](docs/SCHEDULED-BASELINE.md)).
+
 | Row | Scenario | Surface | Expected outcome |
 |-----|----------|---------|------------------|
 | preflight | `preflight` | websocket/read-only | PASS-candidate; readiness helper requiring row review |
@@ -683,6 +685,10 @@ before `fixture-result.json` can say `PASS-candidate`. See
 [`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
+
+## Scheduled exact-build baseline
+
+[`k6-baseline-scheduled.yml`](../../.github/workflows/k6-baseline-scheduled.yml) fires `live-suite` nightly on each configured seat. It also fires within 30 minutes of a deploy that changes a seat's `dist/build-info.json` commit. Each run targets an isolated gateway started from that seat's exact deployed dist, never the live gateway. It publishes a pass/partial/fail/missing rollup with each row's last same-row PASS. It alerts in #sprites only on a regression or a run that did not fire, and an ARC watchdog alerts when a seat missed its nightly entirely. The recipe, setup, access assumptions and limits are in [`docs/SCHEDULED-BASELINE.md`](docs/SCHEDULED-BASELINE.md).
 
 ## Guardrails
 

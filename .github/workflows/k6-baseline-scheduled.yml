@@ -1,0 +1,420 @@
+name: k6-baseline-scheduled
+run-name: k6-baseline ${{ github.event_name == 'schedule' && github.event.schedule || inputs.mode }}
+
+# Scheduled continuation proof baseline (#587). Continuation must never again
+# go weeks without a live proof, so this fires the live suite on its own:
+#
+#   nightly       every seat in vars.K6_BASELINE_SEATS runs rows=live-suite
+#                 against the build it is actually deployed on
+#   deploy-check  every 30 minutes each seat compares its dist/build-info.json
+#                 commit with the baselines already published; a deployed SHA
+#                 with no baseline yet fires the same run
+#   watchdog      after the nightly window, a job on ARC (not on the seats it
+#                 watches) alerts for every seat that did not publish a fired
+#                 baseline. A run that does not fire is itself a failure.
+#
+# Each seat job runs on that seat's own self-hosted runner and proves an
+# isolated gateway started from the seat's installed dist: no channels, no live
+# seat state, fresh agent:main:main, ephemeral token, torn down afterwards
+# (tools/k6-proofs/scripts/isolated-gateway.mjs). The live gateway is never a
+# target. Never rent hosted runners: every job here is self-hosted or ARC.
+#
+# Setup, access assumptions and the forced missed-fire check:
+# tools/k6-proofs/docs/SCHEDULED-BASELINE.md
+
+on:
+  schedule:
+    # Keep in step with env.NIGHTLY_CRON (the watchdog's window) and the
+    # job conditions below; a contract test checks all three.
+    - cron: "17 2 * * *"
+    - cron: "7,37 * * * *"
+    - cron: "41 6 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "nightly fires now; deploy-check fires only for an unproved deployed SHA; watchdog checks the last nightly window"
+        required: true
+        default: nightly
+        type: choice
+        options: [nightly, deploy-check, watchdog]
+      seats_json:
+        description: 'Override vars.K6_BASELINE_SEATS, e.g. ["ronan"]. A seat with no runner proves the missed-fire alert (see docs).'
+        required: false
+        default: ""
+        type: string
+
+permissions: {}
+
+env:
+  NIGHTLY_CRON: "17 2 * * *"
+
+jobs:
+  baseline:
+    name: baseline (${{ matrix.seat }})
+    # The deploy-check poll stays quiet until seats are configured; the nightly
+    # does not, so an unarmed baseline is red rather than silent.
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *' && vars.K6_BASELINE_SEATS != '') ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode != 'watchdog')
+    strategy:
+      fail-fast: false
+      matrix:
+        seat: ${{ fromJSON(inputs.seats_json || vars.K6_BASELINE_SEATS || '[]') }}
+    runs-on: [self-hosted, "${{ matrix.seat }}"]
+    # One gateway per seat: one queue per seat and trigger here, and
+    # isolated-gateway.mjs waits for any other isolated baseline on the host.
+    concurrency:
+      group: k6-baseline-${{ matrix.seat }}-${{ (github.event.schedule == '7,37 * * * *' || inputs.mode == 'deploy-check') && 'deploy' || 'nightly' }}
+      cancel-in-progress: false
+    timeout-minutes: 150
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+    env:
+      SEAT: ${{ matrix.seat }}
+      TRIGGER: ${{ (github.event.schedule == '7,37 * * * *' || inputs.mode == 'deploy-check') && 'deploy' || (github.event_name == 'workflow_dispatch' && 'manual' || 'nightly') }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      DOCS_REF: ${{ github.sha }}
+      OPENCLAW_DOCS_SHA: ${{ github.sha }}
+      OPENCLAW_PROOFS_DOCS_REF: ${{ github.sha }}
+      OPENCLAW_PROOFS_DOCS_REPOSITORY: ${{ github.repository }}
+      OPENCLAW_SEAT_NAME: ${{ matrix.seat }}
+      OPENCLAW_CREATE_DISPOSABLE_SESSION: "true"
+      OPENCLAW_CREATE_DISPOSABLE_SESSIONS: "true"
+      PROFILE_PATH: ${{ vars.K6_BASELINE_PROFILE_PATH }}
+      INSTALL_DIR: ${{ vars.K6_BASELINE_INSTALL_DIR }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout proof catalog
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Resolve deployed build
+        id: build
+        run: |
+          set -euo pipefail
+          # Outside the checkout: run-proofs.sh refuses a dirty harness tree.
+          # ISO_PRIVATE holds the isolated token and paths and is never uploaded.
+          K6_PROOF_OUT_DIR="$RUNNER_TEMP/k6-baseline-out/proof"
+          BASELINE_OUT="$RUNNER_TEMP/k6-baseline-out/baseline"
+          ISO_PRIVATE="$RUNNER_TEMP/k6-baseline-private"
+          {
+            echo "K6_PROOF_OUT_DIR=$K6_PROOF_OUT_DIR"
+            echo "BASELINE_OUT=$BASELINE_OUT"
+            echo "ISO_PRIVATE=$ISO_PRIVATE"
+            # The runner service has no user session env (as in bootstrap's
+            # deploy-gateway.yml); systemd-run/journalctl --user need the bus.
+            [[ -n "${XDG_RUNTIME_DIR:-}" ]] || echo "XDG_RUNTIME_DIR=/run/user/$(id -u)"
+            [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]] || echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus"
+          } >> "$GITHUB_ENV"
+          rm -rf "$RUNNER_TEMP/k6-baseline-out" "$ISO_PRIVATE"
+          mkdir -p "$K6_PROOF_OUT_DIR" "$BASELINE_OUT"
+          node -e 'if (Number(process.versions.node.split(".")[0]) < 22) { console.error("node >= 22 is required (global WebSocket)"); process.exit(1); }'
+          args=()
+          if [[ -n "${INSTALL_DIR:-}" ]]; then args+=(--install-dir "$INSTALL_DIR"); fi
+          # The SHA under test is the seat's dist/build-info.json commit: what the
+          # fleet actually runs, never a branch tip.
+          rc=0
+          node tools/k6-proofs/scripts/isolated-gateway.mjs resolve-build "${args[@]}" \
+            > "$BASELINE_OUT/deployed-build.json" || rc=$?
+          cat "$BASELINE_OUT/deployed-build.json"
+          sha="$(jq -r '.commit // ""' "$BASELINE_OUT/deployed-build.json")"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "ok=$([[ "$rc" -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      # A listing failure must not cost the nightly its fire; deploy-check then
+      # has no listing and fails visibly instead of refiring.
+      - name: List published baselines
+        id: published
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          SHA: ${{ steps.build.outputs.sha }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, per_page: 100,
+            });
+            const baselines = artifacts
+              .filter((a) => a.name.startsWith('k6-baseline-'))
+              .map((a) => ({ name: a.name, expired: a.expired, created_at: a.created_at, run_id: a.workflow_run?.id ?? null }));
+            fs.writeFileSync(`${process.env.RUNNER_TEMP}/k6-baseline-artifacts.json`, JSON.stringify(baselines));
+            const prefix = `k6-baseline-${process.env.SEAT}-`;
+            const previous = baselines
+              .filter((a) => !a.expired && a.name.startsWith(prefix) && /-fired-\d+$/.test(a.name) && a.run_id !== context.runId)
+              .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0];
+            core.setOutput('previous_name', previous?.name ?? '');
+            core.setOutput('previous_run_id', previous?.run_id ? String(previous.run_id) : '');
+
+      - name: Decide whether to fire
+        id: decide
+        env:
+          SHA: ${{ steps.build.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$TRIGGER" != "deploy" ]]; then
+            echo "fire=true" >> "$GITHUB_OUTPUT"
+            echo "reason=$TRIGGER" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ -z "$SHA" ]]; then
+            # Not a deploy we can name. The nightly fires (and fails closed) on
+            # it; refiring here every 30 minutes would only repeat that alert.
+            echo "fire=false" >> "$GITHUB_OUTPUT"
+            echo "reason=deployed-sha-unreadable" >> "$GITHUB_OUTPUT"
+            echo "::warning::deployed build-info is unreadable; leaving it to the nightly"
+            exit 0
+          fi
+          node tools/k6-proofs/scripts/scheduled-baseline.mjs deploy-check \
+            --seat "$SEAT" --sha "$SHA" --artifacts "$RUNNER_TEMP/k6-baseline-artifacts.json"
+
+      - name: Validate catalog and resolve live-suite rows
+        id: rows
+        if: ${{ steps.decide.outputs.fire == 'true' && steps.build.outputs.ok == 'true' }}
+        run: |
+          set -euo pipefail
+          node tools/k6-proofs/scripts/check-manifest-scenarios.mjs --repo-root "$GITHUB_WORKSPACE"
+          node tools/k6-proofs/scripts/check-scenario-alignment.mjs --repo-root "$GITHUB_WORKSPACE"
+          node tools/k6-proofs/scripts/check-proof-row-manifests.mjs --repo-root "$GITHUB_WORKSPACE"
+          rows="$(node tools/k6-proofs/scripts/list-runnable-rows.mjs --live-suite)"
+          test -n "$rows"
+          echo "rows=$rows" >> "$GITHUB_OUTPUT"
+          echo "Resolved $(tr ',' '\n' <<<"$rows" | wc -l) live-suite rows"
+
+      - name: Check seat prerequisites
+        id: prereq
+        if: ${{ steps.rows.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          if ! command -v k6 >/dev/null && [[ -x "$HOME/bin/k6" ]]; then
+            echo "$HOME/bin" >> "$GITHUB_PATH"
+            export PATH="$HOME/bin:$PATH"
+          fi
+          expected="$(jq -r '.k6.expectedVersion' tools/k6-proofs/seat-readiness.policy.json)"
+          actual="$(k6 version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || true)"
+          [[ "$actual" == "$expected" ]] || { echo "::error::k6 $expected required, found '${actual:-none}'"; exit 1; }
+          for tool in jq systemd-run systemctl journalctl; do
+            command -v "$tool" >/dev/null || { echo "::error::$tool is required on the seat"; exit 1; }
+          done
+          systemctl --user show-environment >/dev/null || { echo "::error::no systemd --user manager reachable from the runner"; exit 1; }
+          # diagnostics-otel dist presence is checked by resolve-build; the
+          # isolated config enables it and up verifies it through config.get.
+          jq -e '.otelDistPresent == true' "$BASELINE_OUT/deployed-build.json" >/dev/null
+
+      - name: Start isolated gateway on the deployed build
+        id: iso
+        if: ${{ steps.prereq.outcome == 'success' }}
+        env:
+          SHA: ${{ steps.build.outputs.sha }}
+        run: |
+          set -euo pipefail
+          profile="${PROFILE_PATH:-$HOME/.config/openclaw-k6-baseline/profile.json}"
+          args=(--seat "$SEAT" --run-id "${{ github.run_id }}-${{ github.run_attempt }}"
+                --profile "$profile" --out "$BASELINE_OUT/isolated" --private-dir "$ISO_PRIVATE"
+                --expected-sha "$SHA")
+          if [[ -n "${INSTALL_DIR:-}" ]]; then args+=(--install-dir "$INSTALL_DIR"); fi
+          node tools/k6-proofs/scripts/isolated-gateway.mjs up "${args[@]}"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run live suite against the isolated gateway
+        id: suite
+        if: ${{ steps.iso.outputs.ready == 'true' }}
+        continue-on-error: true
+        env:
+          ROWS: ${{ steps.rows.outputs.rows }}
+        run: |
+          set -euo pipefail
+          set -a
+          # shellcheck disable=SC1091
+          . "$ISO_PRIVATE/isolated-gateway.env"
+          set +a
+          echo "::add-mask::$OPENCLAW_GATEWAY_TOKEN"
+          cd tools/k6-proofs
+          ./scripts/run-proofs.sh --live --docs-ref "$DOCS_REF" "$ROWS" "$OPENCLAW_CANDIDATE_SHA"
+
+      - name: Tear down isolated gateway
+        id: teardown
+        if: ${{ always() && steps.decide.outputs.fire == 'true' }}
+        run: |
+          set -euo pipefail
+          rc=0
+          node tools/k6-proofs/scripts/isolated-gateway.mjs down --private-dir "$ISO_PRIVATE" --out "$BASELINE_OUT/isolated" || rc=$?
+          echo "clean=$([[ "$rc" -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize review debt
+        if: ${{ always() && steps.suite.outcome != 'skipped' && steps.decide.outputs.fire == 'true' }}
+        run: |
+          set -euo pipefail
+          cd tools/k6-proofs
+          node scripts/summarize-review-debt.mjs --run-root "$K6_PROOF_OUT_DIR" | tee "$BASELINE_OUT/review-debt.txt" || true
+
+      - name: Download previous baseline rollup
+        if: ${{ always() && steps.decide.outputs.fire == 'true' && steps.published.outputs.previous_name != '' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.published.outputs.previous_name }}
+          run-id: ${{ steps.published.outputs.previous_run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/k6-baseline-history
+
+      - name: Roll up verdicts against last same-row PASS
+        id: rollup
+        if: ${{ always() && steps.decide.outputs.fire == 'true' }}
+        env:
+          SHA: ${{ steps.build.outputs.sha }}
+          BLOCKED_AT: >-
+            ${{ steps.build.outputs.ok != 'true' && 'resolve-build'
+            || steps.rows.outcome != 'success' && 'catalog'
+            || steps.prereq.outcome != 'success' && 'seat-prerequisites'
+            || steps.iso.outcome != 'success' && 'isolated-gateway'
+            || '' }}
+        run: |
+          set -euo pipefail
+          history=()
+          if [[ -f "$RUNNER_TEMP/k6-baseline-history/rollup.json" ]]; then
+            history=(--history "$RUNNER_TEMP/k6-baseline-history/rollup.json")
+          fi
+          node tools/k6-proofs/scripts/scheduled-baseline.mjs rollup \
+            --run-root "$K6_PROOF_OUT_DIR" --sha "$SHA" --seat "$SEAT" --docs-ref "$DOCS_REF" \
+            --trigger "$TRIGGER" --run-url "$RUN_URL" --run-id "${{ github.run_id }}" \
+            --isolated-gateway "$BASELINE_OUT/isolated/isolated-gateway.json" \
+            --deployed-build "$BASELINE_OUT/deployed-build.json" --blocked-at "$BLOCKED_AT" \
+            --out "$BASELINE_OUT" "${history[@]}"
+          cat "$BASELINE_OUT/rollup.md" >> "$GITHUB_STEP_SUMMARY"
+
+      # The watchdog keys on this artifact's name: seat, SHA and fired/nofire.
+      - name: Upload baseline rollup
+        if: ${{ always() && steps.rollup.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.rollup.outputs.artifact_name }}
+          path: ${{ env.BASELINE_OUT }}/**
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload proof artifacts
+        if: ${{ always() && steps.suite.outcome != 'skipped' && steps.decide.outputs.fire == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-baseline-proof-${{ matrix.seat }}-${{ github.run_id }}
+          path: ${{ env.K6_PROOF_OUT_DIR }}/**
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish rollup comment
+        id: publish
+        if: ${{ always() && steps.rollup.outcome == 'success' && vars.K6_BASELINE_ISSUE != '' }}
+        uses: actions/github-script@v7
+        env:
+          ISSUE: ${{ vars.K6_BASELINE_ISSUE }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const body = fs.readFileSync(`${process.env.BASELINE_OUT}/rollup.md`, 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: Number(process.env.ISSUE), body,
+            });
+
+      - name: Alert on regression or missed fire
+        id: alert
+        if: ${{ always() && steps.rollup.outputs.alert == 'true' }}
+        uses: actions/github-script@v7
+        env:
+          WEBHOOK: ${{ secrets.WEBHOOK_SCRIBE_NOTIFY }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const content = fs.readFileSync(`${process.env.BASELINE_OUT}/alert.txt`, 'utf8').trim();
+            if (!process.env.WEBHOOK) { core.setFailed(`alert needed but WEBHOOK_SCRIBE_NOTIFY is not set: ${content}`); return; }
+            const res = await fetch(process.env.WEBHOOK, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }),
+            });
+            if (!res.ok) core.setFailed(`Discord alert failed: HTTP ${res.status}`);
+
+      - name: Fail closed
+        if: ${{ always() && steps.decide.outputs.fire == 'true' }}
+        env:
+          FIRED: ${{ steps.rollup.outputs.fired }}
+          REGRESSIONS: ${{ steps.rollup.outputs.regressions }}
+          CLEAN: ${{ steps.teardown.outputs.clean }}
+          ISSUE: ${{ vars.K6_BASELINE_ISSUE }}
+          PUBLISHED: ${{ steps.publish.outcome }}
+        run: |
+          set -euo pipefail
+          errors=()
+          [[ "$FIRED" == "true" ]] || errors+=("baseline did not fire")
+          [[ "${REGRESSIONS:-none}" == "none" ]] || errors+=("regressed from last PASS: $REGRESSIONS")
+          [[ "$CLEAN" == "true" ]] || errors+=("isolated gateway teardown was not clean")
+          [[ -n "$ISSUE" ]] || errors+=("vars.K6_BASELINE_ISSUE is not set; the rollup was not published")
+          [[ -z "$ISSUE" || "$PUBLISHED" == "success" ]] || errors+=("rollup comment was not published")
+          for e in "${errors[@]}"; do echo "::error::$e"; done
+          [[ ${#errors[@]} -eq 0 ]]
+
+  watchdog:
+    name: missed-fire watchdog
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '41 6 * * *') ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode == 'watchdog')
+    # ARC, so that a seat being down cannot also take its own alarm down.
+    runs-on: ${{ fromJSON(vars.K6_BASELINE_WATCHDOG_RUNS_ON || '["oc-4cpu-16gb"]') }}
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout baseline tooling
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: tools/k6-proofs/lib
+
+      - name: Check every seat fired since the last nightly
+        id: check
+        uses: actions/github-script@v7
+        env:
+          SEATS: ${{ inputs.seats_json || vars.K6_BASELINE_SEATS || '[]' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const { watchdog, renderWatchdogAlert } = await import(
+              `${process.env.GITHUB_WORKSPACE}/tools/k6-proofs/lib/scheduled-baseline.mjs`);
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, per_page: 100,
+            });
+            // Grace covers a nightly that started on time but queued briefly.
+            const result = watchdog({
+              seats: JSON.parse(process.env.SEATS),
+              artifacts: artifacts.filter((a) => a.name.startsWith('k6-baseline-')),
+              nightlyCron: process.env.NIGHTLY_CRON,
+              now: new Date(),
+              graceMinutes: 10,
+            });
+            core.summary.addCodeBlock(JSON.stringify(result, null, 2), 'json');
+            await core.summary.write();
+            core.setOutput('alert', String(result.alert));
+            core.setOutput('message', result.alert ? renderWatchdogAlert(result, process.env.RUN_URL) : '');
+
+      - name: Alert in #sprites
+        if: ${{ steps.check.outputs.alert == 'true' }}
+        uses: actions/github-script@v7
+        env:
+          WEBHOOK: ${{ secrets.WEBHOOK_SCRIBE_NOTIFY }}
+          MESSAGE: ${{ steps.check.outputs.message }}
+        with:
+          script: |
+            core.error(process.env.MESSAGE);
+            if (!process.env.WEBHOOK) { core.setFailed('missed fire, and WEBHOOK_SCRIBE_NOTIFY is not set'); return; }
+            const res = await fetch(process.env.WEBHOOK, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ content: process.env.MESSAGE }),
+            });
+            if (!res.ok) { core.setFailed(`Discord alert failed: HTTP ${res.status}`); return; }
+            core.setFailed('a seat missed its nightly baseline fire');

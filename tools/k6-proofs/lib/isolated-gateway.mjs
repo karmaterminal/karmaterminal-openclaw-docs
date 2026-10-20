@@ -33,6 +33,32 @@ export const DEFAULT_INSTALL_DIR_CANDIDATES = Object.freeze([
 // The live gateway service on every seat. Teardown proves it was not touched.
 export const LIVE_GATEWAY_UNIT = 'openclaw-gateway.service';
 
+/**
+ * The seat job's own budget (workflow timeout-minutes) and the transient unit's
+ * finite backstop. RuntimeMaxSec must outlast a normal suite — a shorter one
+ * would stop the gateway mid-run and turn a healthy night into a partial — but
+ * must stay finite so a job that dies before teardown cannot leave the gateway
+ * running forever. The grace is small enough that an orphan is gone well inside
+ * the next run's peer wait (one hour), so it cannot block the following fire.
+ * A contract test keeps these in step with the workflow.
+ */
+export const JOB_TIMEOUT_MINUTES = 150;
+export const RUNTIME_GRACE_SEC = 900;
+export const DEFAULT_RUNTIME_MAX_SEC = JOB_TIMEOUT_MINUTES * 60 + RUNTIME_GRACE_SEC;
+
+/**
+ * Environment the isolated unit sets for itself. Nothing else may define these:
+ * a provider EnvironmentFile that did would point the gateway at the seat's live
+ * config, state or HOME, or replace its ephemeral token.
+ */
+export const ISOLATION_ENV_KEYS = Object.freeze([
+  'HOME',
+  'OPENCLAW_CONFIG_PATH',
+  'OPENCLAW_STATE_DIR',
+  'OPENCLAW_GATEWAY_TOKEN',
+  'OPENCLAW_GATEWAY_PORT',
+]);
+
 // Channel credentials a user manager may have imported. They are stripped from
 // the isolated unit so no channel can connect even if config were wrong.
 // UnsetEnvironment= is applied after EnvironmentFile=, so nothing the isolated
@@ -72,8 +98,11 @@ export function evaluateBuildInfo(buildInfo, { packageDistCount = null, otelDist
   // hello.server.buildId is read from build-info.buildId (src/version.ts); the
   // default buildId embeds commit[0:12]. Readiness binds the runtime SHA by that
   // prefix, so a build whose buildId lacks it can never prove its identity.
-  const buildId = typeof buildInfo?.buildId === 'string' ? buildInfo.buildId : null;
-  if (SHA.test(commit) && buildId !== null && !buildId.includes(commit.slice(0, 12))) {
+  // An absent buildId is the same dead end — refuse it here rather than after a
+  // gateway has been started and failed `runtime-sha-not-observed`.
+  const buildId = typeof buildInfo?.buildId === 'string' && buildInfo.buildId !== '' ? buildInfo.buildId : null;
+  if (buildId === null) notes.push('build-info-buildid-missing');
+  else if (SHA.test(commit) && !buildId.includes(commit.slice(0, 12))) {
     notes.push('build-info-buildid-lacks-commit');
   }
   if (packageDistCount !== null && packageDistCount < 1) notes.push('package-dists-missing');
@@ -252,19 +281,60 @@ export function environmentFile(vars) {
 }
 
 /**
+ * Keys an EnvironmentFile= would define, by systemd's own syntax: KEY=VALUE
+ * lines, `#`/`;` comments, an optional `export` prefix. Line continuations are
+ * not followed, so a continued value that looks like an assignment is reported
+ * as a key too: this feeds a refusal, and over-refusing a credentials file is
+ * the safe direction.
+ */
+export function environmentFileKeys(text) {
+  const keys = [];
+  for (const line of String(text ?? '').split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed === '' || trimmed.startsWith('#') || trimmed.startsWith(';')) continue;
+    const match = /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/u.exec(trimmed);
+    if (match) keys.push(match[1]);
+  }
+  return [...new Set(keys)];
+}
+
+/**
+ * Keys in a seat's provider EnvironmentFile that the isolated unit must own.
+ * UnsetEnvironment= already strips the channel credentials after every
+ * EnvironmentFile=, but a file that carries them has no business near this
+ * gateway either, so both sets are refused by name before anything starts.
+ */
+export function environmentFileConflicts(text) {
+  const keys = new Set(environmentFileKeys(text));
+  return {
+    isolation: ISOLATION_ENV_KEYS.filter((key) => keys.has(key)),
+    channels: CHANNEL_ENV_DENYLIST.filter((key) => keys.has(key)),
+  };
+}
+
+/**
  * The systemd-run argv. RuntimeMaxSec is the backstop: even when the job dies
  * before teardown, systemd stops the isolated gateway on its own.
+ *
+ * The seat's optional provider EnvironmentFile comes first and the isolated
+ * env file last, because systemd lets a later EnvironmentFile= override an
+ * earlier one. The isolated HOME, config path, state dir, token and port are
+ * therefore authoritative whatever the provider file says — and `up` refuses a
+ * provider file that names them at all (environmentFileConflicts).
  */
-export function systemdRunArgs({ unit, envFile, extraEnvFile, rootDir, node, entry, port, runtimeMaxSec }) {
+export function systemdRunArgs({ unit, envFile, extraEnvFile, rootDir, node, entry, port, runtimeMaxSec = DEFAULT_RUNTIME_MAX_SEC }) {
+  if (!Number.isInteger(runtimeMaxSec) || runtimeMaxSec <= JOB_TIMEOUT_MINUTES * 60) {
+    throw new Error(`runtimeMaxSec must outlast the ${JOB_TIMEOUT_MINUTES}-minute job budget`);
+  }
   const args = [
     '--user',
     `--unit=${unit}`,
     '--collect',
     '--quiet',
-    `--property=EnvironmentFile=${envFile}`,
   ];
   if (extraEnvFile) args.push(`--property=EnvironmentFile=${extraEnvFile}`);
   args.push(
+    `--property=EnvironmentFile=${envFile}`,
     `--property=UnsetEnvironment=${CHANNEL_ENV_DENYLIST.join(' ')}`,
     `--property=WorkingDirectory=${rootDir}`,
     `--property=RuntimeMaxSec=${runtimeMaxSec}`,

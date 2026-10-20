@@ -61,6 +61,51 @@ test('teardown, rollup, publication and the fail-closed gate run even after fail
   }
 });
 
+test('the seat job budget is the one the isolated unit backstop is derived from', async () => {
+  const source = await readFile(workflowPath, 'utf8');
+  const { JOB_TIMEOUT_MINUTES } = await import('../../lib/isolated-gateway.mjs');
+  const budgets = [...source.matchAll(/^ {4}timeout-minutes: (\d+)$/gmu)].map((m) => Number(m[1]));
+  assert.equal(budgets[0], JOB_TIMEOUT_MINUTES, 'seat job budget matches JOB_TIMEOUT_MINUTES');
+  // The isolated unit's RuntimeMaxSec is not written in the workflow at all;
+  // systemdRunArgs derives it, so the two can never drift apart by hand.
+  assert.doesNotMatch(source, /RuntimeMaxSec|--runtime-max-sec/u);
+});
+
+test('the last-PASS history the gate needs is named, and a gap is red', async () => {
+  const source = await readFile(workflowPath, 'utf8');
+  // Exact-seat selection goes through the parsed artifact name, never a string
+  // prefix: seat labels nest (`cael` inside `cael-dgx`).
+  const listing = step(source, 'List published baselines');
+  assert.match(listing, /selectPreviousBaseline\(\{/u);
+  assert.match(listing, /continue-on-error: true/u, 'a listing failure must not cost the nightly its fire');
+  assert.doesNotMatch(listing, /startsWith\(prefix\)/u);
+
+  // Without a run id, download-artifact would look inside this run instead.
+  const download = step(source, 'Download previous baseline rollup');
+  assert.match(download, /steps\.published\.outputs\.previous_name != ''/u);
+  assert.match(download, /steps\.published\.outputs\.previous_run_id != ''/u);
+
+  const rollup = step(source, 'Roll up verdicts against last same-row PASS');
+  assert.match(rollup, /LISTING_STATUS: \$\{\{ steps\.published\.outcome \}\}/u);
+  assert.match(rollup, /HISTORY_EXPECTED: \$\{\{ steps\.published\.outputs\.previous_name \}\}/u);
+  assert.match(rollup, /--history-expected "\$HISTORY_EXPECTED" --listing-status "\$LISTING_STATUS"/u);
+
+  const gate = step(source, 'Fail closed');
+  assert.match(gate, /HISTORY_COMPLETE: \$\{\{ steps\.rollup\.outputs\.history_complete \}\}/u);
+  assert.match(gate, /HISTORY_GAPS: \$\{\{ steps\.rollup\.outputs\.history_gaps \}\}/u);
+  assert.ok(gate.includes('last-PASS history incomplete'), 'an unread history is red, not green');
+});
+
+test('every upload carries the run attempt, so a re-run cannot lose its receipts', async () => {
+  const source = await readFile(workflowPath, 'utf8');
+  // upload-artifact@v4 refuses a name a previous attempt already published.
+  assert.match(step(source, 'Roll up verdicts against last same-row PASS'), /--run-attempt "\$\{\{ github\.run_attempt \}\}"/u);
+  assert.match(step(source, 'Upload baseline rollup'), /name: \$\{\{ steps\.rollup\.outputs\.artifact_name \}\}/u);
+  assert.match(step(source, 'Upload proof artifacts'), /name: k6-baseline-proof-\$\{\{ matrix\.seat \}\}-\$\{\{ github\.run_id \}\}-r\$\{\{ github\.run_attempt \}\}/u);
+  // The isolated unit name is already per-attempt, so two attempts never share one.
+  assert.match(step(source, 'Start isolated gateway on the deployed build'), /--run-id "\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}"/u);
+});
+
 test('alerts go out only on regression or missed fire, and a missing webhook is a failure', async () => {
   const source = await readFile(workflowPath, 'utf8');
   assert.match(step(source, 'Alert on regression or missed fire'), /if: \$\{\{ always\(\) && steps\.rollup\.outputs\.alert == 'true' \}\}/u);

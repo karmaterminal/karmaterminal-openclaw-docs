@@ -3,7 +3,10 @@
  * CLI for the scheduled exact-build baseline (#587).
  *
  *   rollup        fold one run's run-result.json files into the verdict rollup
- *                 (pass/partial/fail/missing, each with its last same-row PASS)
+ *                 (pass/partial/fail/missing, each with its last same-row PASS).
+ *                 --history-expected NAME and --listing-status STATUS tell it
+ *                 whether the previous baseline it should have weighed arrived;
+ *                 a gap is reported and red, never silently green.
  *   deploy-check  decide whether a deployed SHA still needs a baseline fire
  *   watchdog      report seats whose nightly fire is missing
  *
@@ -155,6 +158,14 @@ function rollupCommand(options) {
     isolatedGateway: readJsonOrNull(options.isolatedGateway),
     deployedBuild: readJsonOrNull(options.deployedBuild),
     blockedAt: options.blockedAt || null,
+    // A previous baseline that was listed but could not be read here means the
+    // last-PASS gate ran blind; the rollup must fail closed rather than call
+    // that "no regression".
+    historyAvailability: {
+      expectedName: options.historyExpected || null,
+      loaded: history.length > 0,
+      listing: options.listingStatus || 'success',
+    },
   });
   mkdirSync(options.out, { recursive: true });
   writeFileSync(path.join(options.out, 'rollup.json'), `${JSON.stringify(rollup, null, 2)}\n`);
@@ -164,7 +175,16 @@ function rollupCommand(options) {
     fired: rollup.fired,
     alert: rollup.alert,
     regressions: rollup.regressions.join(',') || 'none',
-    artifact_name: artifactName({ seat: options.seat, sha: options.sha, trigger: options.trigger, fired: rollup.fired, runId: options.runId }),
+    history_complete: rollup.historyComplete,
+    history_gaps: rollup.historyGaps.join(',') || 'none',
+    artifact_name: artifactName({
+      seat: options.seat,
+      sha: options.sha,
+      trigger: options.trigger,
+      fired: rollup.fired,
+      runId: options.runId,
+      runAttempt: options.runAttempt ?? 1,
+    }),
   });
   return 0;
 }
@@ -172,7 +192,12 @@ function rollupCommand(options) {
 function deployCheckCommand(options) {
   const artifacts = parseArtifactListing(readFileSync(options.artifacts, 'utf8'));
   const decision = deployCheck({ seat: options.seat, sha: options.sha, artifacts });
-  setOutputs({ fire: decision.fire, reason: decision.reason });
+  setOutputs({
+    fire: decision.fire,
+    reason: decision.reason,
+    attempts: decision.attempts,
+    nofire_attempts: decision.noFireAttempts,
+  });
   return 0;
 }
 

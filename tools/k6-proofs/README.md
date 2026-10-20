@@ -688,7 +688,7 @@ Future manifests may again be `scaffold`, `construct-only`, or `orchestration-re
 
 ## Scheduled exact-build baseline
 
-[`k6-baseline-scheduled.yml`](../../.github/workflows/k6-baseline-scheduled.yml) fires `live-suite` nightly on each configured seat. It also fires within 30 minutes of a deploy that changes a seat's `dist/build-info.json` commit. Each run targets an isolated gateway started from that seat's exact deployed dist, never the live gateway. It publishes a pass/partial/fail/missing rollup with each row's last same-row PASS. It alerts in #sprites only on a regression or a run that did not fire, and an ARC watchdog alerts when a seat missed its nightly entirely. The recipe, setup, access assumptions and limits are in [`docs/SCHEDULED-BASELINE.md`](docs/SCHEDULED-BASELINE.md).
+[`k6-baseline-scheduled.yml`](../../.github/workflows/k6-baseline-scheduled.yml) fires `live-suite` nightly on each configured seat. It also fires within 30 minutes of a deploy that changes a seat's `dist/build-info.json` commit. Each run targets an isolated gateway started from that seat's exact deployed dist, never the live gateway. It publishes a pass/partial/fail/missing rollup with each row's last same-row PASS, naming which `PROOFS` corpora it weighed and which it skipped, and refusing to anchor a regression claim on a PASS its own manifest documents as non-discriminating. It alerts in #sprites only on a regression, a run that did not fire, or a run whose last-PASS history could not be read, and an ARC watchdog alerts when a seat missed its nightly entirely. The recipe, setup, access assumptions and limits are in [`docs/SCHEDULED-BASELINE.md`](docs/SCHEDULED-BASELINE.md).
 
 ## Guardrails
 

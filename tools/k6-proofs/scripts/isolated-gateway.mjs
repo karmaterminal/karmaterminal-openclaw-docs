@@ -38,11 +38,13 @@ import { inspectTarget, gatewayUrlFingerprint } from './target-readiness.mjs';
 import {
   BUILD_SCHEMA,
   DEFAULT_INSTALL_DIR_CANDIDATES,
+  DEFAULT_RUNTIME_MAX_SEC,
   LIVE_GATEWAY_UNIT,
   RECEIPT_SCHEMA,
   TEARDOWN_SCHEMA,
   configDigest,
   environmentFile,
+  environmentFileConflicts,
   evaluateBuildInfo,
   evaluateIsolation,
   expandHome,
@@ -229,7 +231,7 @@ export async function up(options, deps = realDeps) {
     privateDir,
     installDir,
     expectedSha,
-    runtimeMaxSec = 7200,
+    runtimeMaxSec = DEFAULT_RUNTIME_MAX_SEC,
     healthTimeoutMs = 120000,
     peerWaitMs = 60 * 60 * 1000,
     node = process.execPath,
@@ -246,6 +248,7 @@ export async function up(options, deps = realDeps) {
     sessionKey: SESSION_KEY,
     build: null,
     config: null,
+    providerEnvFile: null,
     isolation: null,
     liveGatewayObserved: null,
     notes,
@@ -283,6 +286,41 @@ export async function up(options, deps = realDeps) {
   if (profileErrors.length > 0) {
     notes.push(...profileErrors);
     return finish(2);
+  }
+
+  // The seat's optional provider EnvironmentFile is read by systemd before the
+  // isolated one, so it cannot override the isolated HOME, config path, state
+  // dir, token or port. It must not even name them: a file that does is a
+  // misconfiguration that would aim this gateway at live seat state, and it is
+  // refused here, before any unit exists.
+  const extraEnvFile = profile.environmentFile ? expandHome(profile.environmentFile, deps.home) : null;
+  if (extraEnvFile) {
+    let conflicts = null;
+    try {
+      const stat = statSync(extraEnvFile);
+      if (!stat.isFile()) {
+        notes.push('provider-env-file-not-regular-file');
+        return finish(2);
+      }
+      if ((stat.mode & 0o077) !== 0) {
+        notes.push('provider-env-file-readable-by-group-or-world');
+        return finish(2);
+      }
+      conflicts = environmentFileConflicts(readFileSync(extraEnvFile, 'utf8'));
+    } catch {
+      notes.push('provider-env-file-unreadable');
+      return finish(2);
+    }
+    receipt.providerEnvFile = {
+      present: true,
+      isolationKeys: conflicts.isolation,
+      channelKeys: conflicts.channels,
+    };
+    if (conflicts.isolation.length > 0) notes.push(`provider-env-file-sets-isolation-env:${conflicts.isolation.join(',')}`);
+    if (conflicts.channels.length > 0) notes.push(`provider-env-file-sets-channel-env:${conflicts.channels.join(',')}`);
+    if (conflicts.isolation.length > 0 || conflicts.channels.length > 0) return finish(2);
+  } else {
+    receipt.providerEnvFile = { present: false, isolationKeys: [], channelKeys: [] };
   }
 
   const unit = unitName({ seat, runId });
@@ -365,7 +403,7 @@ export async function up(options, deps = realDeps) {
   const start = deps.exec('systemd-run', systemdRunArgs({
     unit,
     envFile: paths.envFile,
-    extraEnvFile: profile.environmentFile ? expandHome(profile.environmentFile, deps.home) : null,
+    extraEnvFile,
     rootDir: root,
     node,
     entry: path.join(build.privateInstallDir, 'openclaw.mjs'),

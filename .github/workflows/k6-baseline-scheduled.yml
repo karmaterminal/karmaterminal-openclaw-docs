@@ -128,13 +128,13 @@ jobs:
           echo "ok=$([[ "$rc" -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
       # A listing failure must not cost the nightly its fire; deploy-check then
-      # has no listing and fails visibly instead of refiring.
+      # has no listing and fails visibly instead of refiring. The rollup is told
+      # that the listing failed, so a lost last-PASS lineage is never read as
+      # "no regression".
       - name: List published baselines
         id: published
         continue-on-error: true
         uses: actions/github-script@v7
-        env:
-          SHA: ${{ steps.build.outputs.sha }}
         with:
           script: |
             const fs = require('node:fs');
@@ -144,13 +144,19 @@ jobs:
             const baselines = artifacts
               .filter((a) => a.name.startsWith('k6-baseline-'))
               .map((a) => ({ name: a.name, expired: a.expired, created_at: a.created_at, run_id: a.workflow_run?.id ?? null }));
+            // Written before the selection below, so that a fault in the
+            // selection costs only the regression anchor (reported as a history
+            // gap), never the deploy-check's own fire decision.
             fs.writeFileSync(`${process.env.RUNNER_TEMP}/k6-baseline-artifacts.json`, JSON.stringify(baselines));
-            const prefix = `k6-baseline-${process.env.SEAT}-`;
-            const previous = baselines
-              .filter((a) => !a.expired && a.name.startsWith(prefix) && /-(?:nightly|deploy|manual)-fired-\d+$/.test(a.name) && a.run_id !== context.runId)
-              .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0];
+            // Exact-seat match through the parsed name: seat labels nest, so a
+            // string prefix would let `cael` inherit `cael-dgx`'s history.
+            const { selectPreviousBaseline } = await import(
+              `${process.env.GITHUB_WORKSPACE}/tools/k6-proofs/lib/scheduled-baseline.mjs`);
+            const previous = selectPreviousBaseline({
+              artifacts: baselines, seat: process.env.SEAT, excludeRunId: context.runId,
+            });
             core.setOutput('previous_name', previous?.name ?? '');
-            core.setOutput('previous_run_id', previous?.run_id ? String(previous.run_id) : '');
+            core.setOutput('previous_run_id', previous?.runId ? String(previous.runId) : '');
 
       - name: Decide whether to fire
         id: decide
@@ -254,8 +260,14 @@ jobs:
           cd tools/k6-proofs
           node scripts/summarize-review-debt.mjs --run-root "$K6_PROOF_OUT_DIR" | tee "$BASELINE_OUT/review-debt.txt" || true
 
+      # Both outputs are required: without the run id, download-artifact would
+      # look inside this run instead. A named baseline that does not arrive here
+      # is reported as a history gap by the rollup, never passed over.
       - name: Download previous baseline rollup
-        if: ${{ always() && steps.decide.outputs.fire == 'true' && steps.published.outputs.previous_name != '' }}
+        if: >-
+          ${{ always() && steps.decide.outputs.fire == 'true'
+          && steps.published.outputs.previous_name != ''
+          && steps.published.outputs.previous_run_id != '' }}
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
@@ -269,6 +281,13 @@ jobs:
         if: ${{ always() && steps.decide.outputs.fire == 'true' }}
         env:
           SHA: ${{ steps.build.outputs.sha }}
+          # The regression gate is only as good as the history behind it, so the
+          # rollup is told what it should have weighed: the listing's own outcome
+          # (skipped or failed is not "success"), and the previous baseline the
+          # listing named. A named baseline that did not arrive here is a gate
+          # that did not run, and the rollup fails closed instead of green.
+          LISTING_STATUS: ${{ steps.published.outcome }}
+          HISTORY_EXPECTED: ${{ steps.published.outputs.previous_name }}
           BLOCKED_AT: >-
             ${{ steps.build.outputs.ok != 'true' && 'resolve-build'
             || steps.rows.outcome != 'success' && 'catalog'
@@ -284,12 +303,16 @@ jobs:
           node tools/k6-proofs/scripts/scheduled-baseline.mjs rollup \
             --run-root "$K6_PROOF_OUT_DIR" --sha "$SHA" --seat "$SEAT" --docs-ref "$DOCS_REF" \
             --trigger "$TRIGGER" --run-url "$RUN_URL" --run-id "${{ github.run_id }}" \
+            --run-attempt "${{ github.run_attempt }}" \
             --isolated-gateway "$BASELINE_OUT/isolated/isolated-gateway.json" \
             --deployed-build "$BASELINE_OUT/deployed-build.json" --blocked-at "$BLOCKED_AT" \
+            --history-expected "$HISTORY_EXPECTED" --listing-status "$LISTING_STATUS" \
             --out "$BASELINE_OUT" "${history[@]}"
           cat "$BASELINE_OUT/rollup.md" >> "$GITHUB_STEP_SUMMARY"
 
-      # The watchdog keys on this artifact's name: seat, SHA and fired/nofire.
+      # The watchdog keys on this artifact's name: seat, SHA, fired/nofire and
+      # the run attempt (upload-artifact@v4 refuses a name a previous attempt
+      # already published, which would otherwise lose every re-run's rollup).
       - name: Upload baseline rollup
         if: ${{ always() && steps.rollup.outcome == 'success' }}
         uses: actions/upload-artifact@v4
@@ -303,7 +326,7 @@ jobs:
         if: ${{ always() && steps.suite.outcome != 'skipped' && steps.decide.outputs.fire == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: k6-baseline-proof-${{ matrix.seat }}-${{ github.run_id }}
+          name: k6-baseline-proof-${{ matrix.seat }}-${{ github.run_id }}-r${{ github.run_attempt }}
           path: ${{ env.K6_PROOF_OUT_DIR }}/**
           if-no-files-found: warn
           retention-days: 30
@@ -344,6 +367,8 @@ jobs:
         env:
           FIRED: ${{ steps.rollup.outputs.fired }}
           REGRESSIONS: ${{ steps.rollup.outputs.regressions }}
+          HISTORY_COMPLETE: ${{ steps.rollup.outputs.history_complete }}
+          HISTORY_GAPS: ${{ steps.rollup.outputs.history_gaps }}
           CLEAN: ${{ steps.teardown.outputs.clean }}
           ISSUE: ${{ vars.K6_BASELINE_ISSUE }}
           PUBLISHED: ${{ steps.publish.outcome }}
@@ -352,6 +377,9 @@ jobs:
           errors=()
           [[ "$FIRED" == "true" ]] || errors+=("baseline did not fire")
           [[ "${REGRESSIONS:-none}" == "none" ]] || errors+=("regressed from last PASS: $REGRESSIONS")
+          # A green "no regression" that never read this seat's last PASS is a
+          # claim the run cannot make. Unknown is red, not green.
+          [[ "$HISTORY_COMPLETE" == "true" ]] || errors+=("last-PASS history incomplete: ${HISTORY_GAPS:-unknown}")
           [[ "$CLEAN" == "true" ]] || errors+=("isolated gateway teardown was not clean")
           [[ -n "$ISSUE" ]] || errors+=("vars.K6_BASELINE_ISSUE is not set; the rollup was not published")
           [[ -z "$ISSUE" || "$PUBLISHED" == "success" ]] || errors+=("rollup comment was not published")

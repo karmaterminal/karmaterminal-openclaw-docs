@@ -30,7 +30,10 @@ Every seat job does the following, in order:
    That commit is both the candidate and the runtime SHA. A branch tip is never
    used. The step refuses a build:
    - with a non-40-hex commit;
-   - whose `buildId` lacks `commit[0:12]` (readiness could never observe the SHA);
+   - with no `buildId` at all, or whose `buildId` lacks `commit[0:12]`. Readiness
+     binds the runtime SHA through `hello.server.buildId`, so either way this
+     build could only ever end in `runtime-sha-not-observed` *after* a gateway
+     had been started. It is refused before anything runs.
    - with no `packages/*/dist`;
    - with no `extensions/diagnostics-otel/dist`.
 2. **Bring up an isolated gateway** (`isolated-gateway.mjs up`). It starts a
@@ -45,8 +48,23 @@ Every seat job does the following, in order:
    - `diagnostics.otel` and `plugins.entries.diagnostics-otel` enabled, with
      service name `<seat>-k6-isolated` (exported as `OPENCLAW_PROOFS_SERVICE_NAME`
      for trace lookup);
-   - `RuntimeMaxSec=7200` as a backstop, so systemd stops the gateway even if
-     the job dies before teardown.
+   - a finite `RuntimeMaxSec` backstop, so systemd stops the gateway even if the
+     job dies before teardown. It is derived, never written twice: the seat job's
+     `timeout-minutes` (150) plus a 15-minute grace, so
+     `JOB_TIMEOUT_MINUTES * 60 + RUNTIME_GRACE_SEC` = **10500s**. A shorter
+     backstop would stop the gateway mid-suite and turn a healthy night into a
+     partial; `systemdRunArgs` throws on anything that does not outlast the job
+     budget, and a contract test keeps the two numbers in step. The grace is well
+     inside the next run's one-hour peer wait, so an orphan cannot block the
+     following fire.
+   - the seat's optional provider `environmentFile` **first** and the isolated
+     env file **last**. systemd lets a later `EnvironmentFile=` override an
+     earlier one, so the isolated `HOME`, config path, state dir, token and port
+     win whatever the provider file says. `up` also refuses a provider file that
+     so much as names any of those keys, or any channel credential, or that is
+     readable by group or world — before any unit exists
+     (`provider-env-file-sets-isolation-env:...`). `UnsetEnvironment=` is still
+     applied after every `EnvironmentFile=`.
 
    The unit waits for any other `openclaw-k6-iso-<seat>-*` unit to finish
    first, which keeps it to one gateway per seat at the host.
@@ -75,23 +93,30 @@ Every seat job does the following, in order:
 
    Anything else marks the run DIRTY, and the job fails.
 6. **Roll up** each of the 34 rows as pass / partial / fail / missing /
-   honest-limit, each with its previous observation and its **last same-row
-   PASS**. The sources are, newest first, the previous fired baseline for this
-   seat (its artifact) and every `PROOFS/*/proofs-manifest.json`. A transposed
-   or carried corpus PASS is labelled `carried`.
+   honest-limit, each with its previous observation, its regression **anchor**
+   and its **last same-row PASS**. The sources are, newest first, the previous
+   fired baseline for this seat (its artifact) and every
+   `PROOFS/*/proofs-manifest.json`. See *Reading the history honestly* below.
 7. **Publish** the rollup as one comment on `vars.K6_BASELINE_ISSUE`, plus the
    job summary. Upload it as the artifact
-   `k6-baseline-<seat>-<sha12>-<nightly|deploy|manual>-<fired|nofire>-<run>`.
-   The watchdog counts only `nightly` artifacts, so a deploy-check or manual
-   run cannot conceal a missed unattended nightly.
+   `k6-baseline-<seat>-<sha12>-<nightly|deploy|manual>-<fired|nofire>-<run>-r<attempt>`.
+   The attempt is part of the name because `upload-artifact@v4` refuses a name a
+   previous attempt of the same run already published, which would otherwise
+   lose the rollup of every re-run. The watchdog and the deploy-check parse the
+   name, and still read a pre-attempt name as attempt 1. The watchdog counts only
+   `nightly` artifacts, so a deploy-check or manual run cannot conceal a missed
+   unattended nightly.
 8. **Alert** in #sprites (`secrets.WEBHOOK_SCRIBE_NOTIFY`, the same webhook
-   openclaw-local-ci uses) **only** when the run did not fire, or when a row
-   regressed. A regression means that row's last observation was acceptable
+   openclaw-local-ci uses) **only** when the run did not fire or a row
+   regressed. A missing history is red in the job and rollup, but is not
+   reported as a row regression. A
+   regression means that row's newest *anchoring* observation was acceptable
    (PASS, or the R-RC-2 honest limit) and this one is not. A row that was
    already failing is listed but does not re-alert every night.
 9. **Fail closed.** The job is red in any of these cases:
    - it did not fire;
    - a row regressed;
+   - **the last-PASS history it needed was not read** (`historyComplete: false`);
    - teardown was dirty;
    - the rollup was not published;
    - an alert was needed but could not be sent.
@@ -99,6 +124,46 @@ Every seat job does the following, in order:
 A run that fires no row is a failure in its own right. Its rollup names the
 earliest stage that stopped it, for example `resolve-build:...`,
 `blocked-at:seat-prerequisites` or `isolated-gateway-not-ready:...`.
+
+## Reading the history honestly
+
+The regression gate is a claim about the past, so the rollup states exactly how
+much past it actually read. Four rules:
+
+- **An unread history is not a green one.** The artifact-listing step is
+  `continue-on-error`, so a listing failure cannot cost the nightly its fire.
+  But the rollup is told the listing's outcome and the name of the previous
+  baseline it should have weighed. A listing that failed or was skipped, or a
+  named baseline that never arrived, is recorded in `historyGaps`
+  (`artifact-listing-failure`, `previous-baseline-not-loaded:<name>`) and
+  fails the job. "No regression" is never printed for a gate that did not
+  run.
+- **Exact seat matching.** The previous baseline is selected through the parsed
+  artifact name, never a string prefix: seat labels nest, and `cael` must never
+  inherit `cael-dgx`'s lineage. Only an unexpired `fired` artifact for exactly
+  this seat counts, and never one from this run.
+- **Deterministic corpus dates.** Corpus `generated` values are free-form
+  (`2026-09-20`, `2026-09-20 (re-fired)`, an instant, or absent). `Date.parse()`
+  resolves the noted forms in the *runner's* local zone, so the same corpus
+  could order differently on two machines. Only an ISO instant with an offset
+  and a bare `YYYY-MM-DD` day are accepted; a day is pinned to UTC midnight and
+  loses to any instant later that day. Anything else is **skipped**, and
+  `corpusProvenance.skipped` names every skipped corpus and why
+  (`generated-absent`, `generated-unparseable`, `rows-not-a-list`,
+  `no-row-states`). The rollup never implies it weighed all of `PROOFS`.
+  A PASS whose corpus records no `fire_type` is reported as *provenance
+  unknown*, never as `fresh`.
+- **A documented non-discriminating PASS cannot anchor a 2.x claim.**
+  `R-CW-DELEGATE-SELF-CONTINUATION`'s own manifest records that its retained
+  PASS receipts from before #570 are historically non-discriminating: the
+  parent-return evidence was a parent-stream substring check that the parent's
+  own `continue_delegate` task text could satisfy. Those PASSes are kept as
+  history and are **not** re-classified as FAIL, but the current gate will not
+  anchor on them. `NON_DISCRIMINATING_PASS_EPOCHS` holds one explicit row with
+  the #570 merge commit's date (`57478ad4`, 2026-10-05T05:31:56Z); it is not a
+  blanket re-reading of the corpus. A row whose only observation is inside such
+  an epoch is reported as `⚠️ no discriminating anchor` rather than as green,
+  and a test pins the constant against the manifest note it copies.
 
 ## Honest denominator
 
@@ -150,7 +215,11 @@ existing `OPENCLAW_GATEWAY_TOKEN` secret.
    It holds the model, an `altModel` for the model-override rows, the
    providers, continuation limits, `maxSpawnDepth` ≥ 2, and the OTLP endpoint.
    It must not contain `channels`. Put provider keys in `environmentFile` (also
-   0600) and reference them as `${VAR}`.
+   0600, and not readable by group or world) and reference them as `${VAR}`.
+   That file may define provider credentials **only**. `up` refuses it if it
+   names `HOME`, `OPENCLAW_CONFIG_PATH`, `OPENCLAW_STATE_DIR`,
+   `OPENCLAW_GATEWAY_TOKEN`, `OPENCLAW_GATEWAY_PORT` or any channel credential,
+   because such a file would aim this gateway at live seat state.
 
 Try it by hand on a seat before arming. This touches nothing live:
 
@@ -184,9 +253,14 @@ node tools/k6-proofs/scripts/isolated-gateway.mjs down --private-dir /tmp/iso-pr
   would need a token with `actions: write` on this repository. The bootstrap
   maintainers would have to add both. The poll needs neither, and its
   detection latency is at most 30 minutes plus queue time.
-- **A deploy-check attempt is not retried.** If the attempt for a SHA does not
-  fire, the next poll does not refire it, so a broken seat cannot alert every
-  30 minutes. The nightly retries it.
+- **A deploy-check attempt is retried, up to three times.** An attempt that did
+  not fire proved nothing — transient contention on the seat ends in a `nofire`
+  artifact — so the next poll refires it (`retry-after-nofire:<n>`). After
+  `MAX_NOFIRE_ATTEMPTS` (3) no-fire attempts for one seat and SHA the poll goes
+  quiet (`nofire-attempts-exhausted:3`), so a seat that is simply broken cannot
+  alert every 30 minutes; the nightly still retries it once a day. A `fired`
+  baseline for the SHA ends the polling regardless
+  (`already-fired-for-deployed-sha`).
 - **The watchdog's own runner can fail silently.** If ARC is down or GitHub
   stops scheduling, nothing here alerts. GitHub disables schedules after 60
   days without repository activity. The external dead-man's switch for that

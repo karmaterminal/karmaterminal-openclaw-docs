@@ -5,6 +5,8 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
+  MAX_NOFIRE_ATTEMPTS,
+  NON_DISCRIMINATING_PASS_EPOCHS,
   ROLLUP_SCHEMA,
   artifactName,
   buildRollup,
@@ -13,7 +15,10 @@ import {
   historyObservations,
   lastDailyOccurrence,
   parseArtifactName,
+  parseCorpusDate,
+  renderAlert,
   renderRollupMarkdown,
+  selectPreviousBaseline,
   watchdog,
 } from '../../lib/scheduled-baseline.mjs';
 import { loadCatalog } from '../scheduled-baseline.mjs';
@@ -28,7 +33,7 @@ function rollup(overrides = {}) {
   return buildRollup({
     catalog,
     results: [],
-    corpus: new Map(),
+    corpus: corpusObservations([]),
     history: new Map(),
     sha: SHA,
     seat: 'ronan',
@@ -123,25 +128,214 @@ test('the last same-row PASS survives consecutive partial baselines', () => {
   assert.equal(result.rows[0].previous.cls, 'partial');
   assert.equal(result.rows[0].lastPass.sha, OLD);
   assert.equal(result.rows[0].lastPass.carried, true);
+  assert.equal(result.rows[0].lastPass.provenance, 'carried');
 });
 
-test('artifact names carry seat, SHA and fire status and round-trip', () => {
+test('corpus dates are read the same way on every runner, or not at all', () => {
+  // Date.parse() resolves "2026-09-20 (re-fired)" through V8's legacy path in
+  // the runner's local zone, so two machines could order the same corpus
+  // differently. Only these two shapes are accepted.
+  assert.deepEqual(parseCorpusDate('2026-09-20T04:30:00Z'), { at: '2026-09-20T04:30:00.000Z', precision: 'instant', reason: null });
+  assert.deepEqual(parseCorpusDate('2026-09-20T04:30:00.250+02:00'), { at: '2026-09-20T02:30:00.250Z', precision: 'instant', reason: null });
+  assert.deepEqual(parseCorpusDate('2026-09-20 04:30:00Z'), { at: '2026-09-20T04:30:00.000Z', precision: 'instant', reason: null });
+  // A bare day is pinned to UTC midnight, so it loses to any instant that day.
+  assert.deepEqual(parseCorpusDate('2026-09-20'), { at: '2026-09-20T00:00:00.000Z', precision: 'day', reason: null });
+  assert.deepEqual(parseCorpusDate('2026-09-20 (re-fired from x)'), { at: '2026-09-20T00:00:00.000Z', precision: 'day', reason: null });
+  assert.deepEqual(parseCorpusDate('  2026-09-20  '), { at: '2026-09-20T00:00:00.000Z', precision: 'day', reason: null });
+  for (const value of [undefined, null, '', '   ', 42, {}]) {
+    assert.deepEqual(parseCorpusDate(value), { at: null, precision: null, reason: 'generated-absent' }, JSON.stringify(value));
+  }
+  for (const value of ['Sep 20 2026', '2026-09-20T04:30:00', '2026-09-20 04:30:00', '20/09/2026', '2026-13-45']) {
+    assert.deepEqual(parseCorpusDate(value), { at: null, precision: null, reason: 'generated-unparseable' }, value);
+  }
+  // A local-time instant is refused rather than silently read as local.
+  assert.equal(parseCorpusDate('2026-09-20T04:30:00').at, null);
+});
+
+test('the rollup says which corpora it weighed and which it skipped, and why', () => {
+  const corpus = corpusObservations([
+    { sha: 'a'.repeat(40), manifest: { generated: '2026-09-20T00:00:00Z', rows: [{ row: 'R-CD-1', state: 'pass' }] } },
+    { sha: 'b'.repeat(40), manifest: { rows: [{ row: 'R-CD-1', state: 'pass' }] } },
+    { sha: 'c'.repeat(40), manifest: { generated: 'Sep 20 2026', rows: [{ row: 'R-CD-1', state: 'pass' }] } },
+    { sha: 'd'.repeat(40), manifest: { generated: '2026-09-21', rows: {} } },
+    { sha: 'e'.repeat(40), manifest: { generated: '2026-09-22', rows: [{ row: 'R-CD-1', state: 'in-flight' }, { state: 'pass' }] } },
+  ]);
+  assert.deepEqual(corpus.included, [{ sha: 'a'.repeat(40), at: '2026-09-20T00:00:00.000Z', precision: 'instant', rows: 1 }]);
+  assert.deepEqual(corpus.skipped, [
+    { sha: 'b'.repeat(40), reason: 'generated-absent' },
+    { sha: 'c'.repeat(40), reason: 'generated-unparseable' },
+    { sha: 'd'.repeat(40), reason: 'rows-not-a-list' },
+    { sha: 'e'.repeat(40), reason: 'no-row-states' },
+  ]);
+  const result = rollup({ corpus, results: [{ row: 'R-CD-1', verdict: 'PASS-candidate', endedAt: '1' }] });
+  assert.deepEqual(result.corpusProvenance, { included: 1, rows: 1, skipped: corpus.skipped });
+  const markdown = renderRollupMarkdown(result);
+  assert.match(markdown, /History weighed 1 PROOFS corpora \(1 row observations\); \*\*4 skipped\*\*/u);
+  assert.match(markdown, /generated-absent/u);
+  // A corpus with no `fire_type` is "provenance unknown", never "fresh".
+  assert.equal(result.rows.find((r) => r.row === 'R-CD-1').lastPass.provenance, 'unknown');
+  assert.match(markdown, /provenance unknown/u);
+});
+
+test('a documented non-discriminating PASS is kept as history but cannot anchor a 2.x regression claim', () => {
+  const row = 'R-CW-DELEGATE-SELF-CONTINUATION';
+  const epoch = NON_DISCRIMINATING_PASS_EPOCHS[row];
+  assert.ok(epoch, 'the epoch is declared for exactly this row');
+  const live = { live: [row], orchestrationOnly: [], constructOnly: [] };
+  const old = corpusObservations([
+    { sha: OLD, manifest: { generated: '2026-08-25T00:00:00Z', fire_type: 'fresh-fire', rows: [{ row, state: 'pass' }] } },
+  ]);
+  const stale = rollup({
+    catalog: live,
+    corpus: old,
+    results: [{ row, verdict: 'PARTIAL-candidate', endedAt: '1' }],
+  });
+  const entry = stale.rows[0];
+  assert.deepEqual(stale.regressions, [], 'a pre-#570 PASS cannot make this a regression');
+  assert.equal(entry.anchor, null, 'there is no observation that could anchor the claim');
+  assert.equal(entry.previous.nonDiscriminating, true, 'but the PASS is still shown as history');
+  assert.equal(entry.lastPass.sha, OLD);
+  assert.equal(entry.lastPass.nonDiscriminating, true);
+  assert.equal(entry.lastPass.nonDiscriminatingReason, epoch.reason);
+  const markdown = renderRollupMarkdown(stale);
+  assert.match(markdown, /no discriminating anchor/u);
+  assert.match(markdown, new RegExp(`non-discriminating: ${epoch.reason}`, 'u'));
+  assert.deepEqual(stale.nonDiscriminatingEpochs[row], { ...epoch });
+
+  // A PASS from after the epoch anchors normally.
+  const fresh = rollup({
+    catalog: live,
+    corpus: corpusObservations([
+      { sha: 'f'.repeat(40), manifest: { generated: '2026-10-06T00:00:00Z', fire_type: 'fresh-fire', rows: [{ row, state: 'pass' }] } },
+    ]),
+    results: [{ row, verdict: 'PARTIAL-candidate', endedAt: '1' }],
+  });
+  assert.deepEqual(fresh.regressions, [row]);
+  assert.equal(fresh.rows[0].anchor.nonDiscriminating, false);
+  assert.equal(fresh.rows[0].lastPass.nonDiscriminating, false);
+  // Only this row is treated this way: the epoch is one documented row, not a
+  // blanket re-reading of the corpus.
+  assert.deepEqual(Object.keys(NON_DISCRIMINATING_PASS_EPOCHS), [row]);
+});
+
+test('the non-discriminating epoch still matches what the row manifest documents', () => {
+  // The constant is a copy of a claim the manifest owns; if the manifest's
+  // note were removed or rewritten, the constant must be revisited, not kept.
+  const epoch = NON_DISCRIMINATING_PASS_EPOCHS['R-CW-DELEGATE-SELF-CONTINUATION'];
+  const manifest = JSON.parse(readFileSync(path.join(repoRoot, epoch.ref), 'utf8'));
+  assert.equal(manifest.rowId, 'R-CW-DELEGATE-SELF-CONTINUATION');
+  assert.match(manifest.liveRunSafety.notes, /Retained PASS receipts from before #570 .* are historically non-discriminating/u);
+  assert.match(manifest.liveRunSafety.notes, /parent-stream substring checks could be satisfied by the parent's own continue_delegate task text/u);
+  assert.match(manifest.liveRunSafety.notes, /not re-classified as FAIL/u);
+  // `before` is the #570 merge commit's own commit date, in UTC.
+  const merged = spawnSync('git', ['show', '-s', '--format=%cI', '57478ad454c7249e86dfee4dd1c1b344bcdeff40'], { cwd: repoRoot, encoding: 'utf8' });
+  if (merged.status === 0 && merged.stdout.trim()) {
+    assert.equal(new Date(merged.stdout.trim()).toISOString(), epoch.before, 'epoch is the #570 merge commit');
+  }
+});
+
+test('a last-PASS gate that could not read its history is red, not green', () => {
+  const fired = [{ row: 'R-CD-1', verdict: 'PASS-candidate', endedAt: '1' }];
+  const complete = rollup({ results: fired, historyAvailability: { expectedName: 'k6-baseline-ronan-x', loaded: true, listing: 'success' } });
+  assert.deepEqual([complete.historyComplete, complete.historyGaps, complete.alert], [true, [], false]);
+
+  // The listing step is continue-on-error so a listing failure cannot cost the
+  // nightly its fire — but the run must not then claim "no regression".
+  const noListing = rollup({ results: fired, historyAvailability: { expectedName: '', loaded: false, listing: 'failure' } });
+  assert.deepEqual(noListing.historyGaps, ['artifact-listing-failure']);
+  assert.deepEqual([noListing.fired, noListing.historyComplete, noListing.alert], [true, false, false]);
+  assert.match(renderRollupMarkdown(noListing), /Last-PASS history is incomplete/u);
+  assert.match(renderRollupMarkdown(noListing), /HISTORY INCOMPLETE/u);
+
+  // A previous baseline that was named but never arrived is the same gap.
+  const notLoaded = rollup({ results: fired, historyAvailability: { expectedName: 'k6-baseline-ronan-abc-nightly-fired-5-r1', loaded: false, listing: 'success' } });
+  assert.deepEqual(notLoaded.historyGaps, ['previous-baseline-not-loaded:k6-baseline-ronan-abc-nightly-fired-5-r1']);
+  assert.equal(notLoaded.alert, false);
+  assert.match(renderRollupMarkdown(notLoaded), /treat "no regression" as unknown, not as green/u);
+
+  // A skipped listing step (an earlier step failed hard) is not success either.
+  assert.deepEqual(rollup({ results: fired, historyAvailability: { expectedName: '', loaded: false, listing: 'skipped' } }).historyGaps, ['artifact-listing-skipped']);
+  // A first-ever baseline for a seat has no previous artifact and no gap.
+  assert.deepEqual(rollup({ results: fired, historyAvailability: { expectedName: '', loaded: false, listing: 'success' } }).historyGaps, []);
+  // Both an unfired run and a regression keep their own alert text.
+  const both = rollup({ historyAvailability: { expectedName: 'n', loaded: false, listing: 'failure' } });
+  assert.match(renderAlert(both), /did not fire/u);
+});
+
+test('artifact names carry seat, SHA, fire status and run attempt, and round-trip', () => {
   const name = artifactName({ seat: 'ronan-dgx', sha: SHA, trigger: 'nightly', fired: true, runId: 99 });
-  assert.equal(name, `k6-baseline-ronan-dgx-${SHA.slice(0, 12)}-nightly-fired-99`);
-  assert.deepEqual(parseArtifactName(name), { seat: 'ronan-dgx', shaPrefix: SHA.slice(0, 12), trigger: 'nightly', fired: true, runId: '99' });
+  assert.equal(name, `k6-baseline-ronan-dgx-${SHA.slice(0, 12)}-nightly-fired-99-r1`);
+  assert.deepEqual(parseArtifactName(name), { seat: 'ronan-dgx', shaPrefix: SHA.slice(0, 12), trigger: 'nightly', fired: true, runId: '99', runAttempt: '1' });
   assert.equal(parseArtifactName(`k6-baseline-proof-ronan-99`), null, 'proof artifacts are not baselines');
-  assert.equal(artifactName({ seat: 'ronan', sha: '', trigger: 'deploy', fired: false, runId: 1 }), 'k6-baseline-ronan-nosha-deploy-nofire-1');
+  assert.equal(parseArtifactName(`k6-baseline-proof-ronan-99-r2`), null, 'nor are re-run proof artifacts');
+  assert.equal(artifactName({ seat: 'ronan', sha: '', trigger: 'deploy', fired: false, runId: 1 }), 'k6-baseline-ronan-nosha-deploy-nofire-1-r1');
+  for (const bad of [{ runId: '' }, { runId: 'abc' }, { runId: undefined }, { runAttempt: '' }, { runAttempt: 'x' }, { runAttempt: null }]) {
+    assert.throws(() => artifactName({ seat: 'ronan', sha: SHA, trigger: 'nightly', fired: true, runId: 1, ...bad }), JSON.stringify(bad));
+  }
 });
 
-test('deploy-check fires once per seat for a deployed SHA with no baseline', () => {
+test('a re-run publishes its own artifact, and pre-attempt names still parse as attempt 1', () => {
+  // upload-artifact@v4 refuses a name a previous attempt of the same run
+  // published, so attempt 2 must not collide with attempt 1.
+  const first = artifactName({ seat: 'ronan', sha: SHA, trigger: 'nightly', fired: false, runId: 7, runAttempt: 1 });
+  const second = artifactName({ seat: 'ronan', sha: SHA, trigger: 'nightly', fired: true, runId: 7, runAttempt: 2 });
+  assert.notEqual(first, second);
+  assert.equal(parseArtifactName(second).runAttempt, '2');
+  // Names published before the attempt suffix existed must stay readable by
+  // the watchdog and the deploy-check.
+  const legacy = `k6-baseline-ronan-${SHA.slice(0, 12)}-nightly-fired-7`;
+  assert.deepEqual(parseArtifactName(legacy), { seat: 'ronan', shaPrefix: SHA.slice(0, 12), trigger: 'nightly', fired: true, runId: '7', runAttempt: '1' });
+  const now = new Date('2026-10-20T06:41:00Z');
+  const watched = watchdog({
+    seats: ['ronan'],
+    artifacts: [{ name: legacy, created_at: '2026-10-20T03:00:00Z' }],
+    nightlyCron: '17 2 * * *',
+    now,
+  });
+  assert.deepEqual([watched.fired, watched.alert], [['ronan'], false], 'the attempt suffix does not break the watchdog');
+  assert.equal(deployCheck({ seat: 'ronan', sha: SHA, artifacts: [{ name: legacy, expired: false }] }).fire, false);
+});
+
+test('deploy-check retries a seat that did not fire, then goes quiet for the nightly', () => {
+  const nofire = (runAttempt) => ({ name: artifactName({ seat: 'ronan', sha: SHA, trigger: 'deploy', fired: false, runId: runAttempt, runAttempt }), expired: false });
+  const fired = { name: artifactName({ seat: 'ronan', sha: SHA, trigger: 'nightly', fired: true, runId: 9 }), expired: false };
+  const other = { name: artifactName({ seat: 'cael', sha: OLD.replace(/a/gu, '0'), trigger: 'nightly', fired: true, runId: 2 }), expired: false };
+
+  // Nothing attempted for this SHA on this seat: fire.
+  assert.deepEqual(deployCheck({ seat: 'cael', sha: SHA, artifacts: [other] }), { fire: true, reason: 'deployed-sha-not-yet-proved', attempts: 0, noFireAttempts: 0 });
+  // An attempt that did not fire proved nothing, so the next poll retries it.
+  assert.deepEqual(deployCheck({ seat: 'ronan', sha: SHA, artifacts: [nofire(1), other] }), { fire: true, reason: 'retry-after-nofire:1', attempts: 1, noFireAttempts: 1 });
+  assert.deepEqual(deployCheck({ seat: 'ronan', sha: SHA, artifacts: [nofire(1), nofire(2)] }), { fire: true, reason: 'retry-after-nofire:2', attempts: 2, noFireAttempts: 2 });
+  // A seat that is simply broken must not alert every 30 minutes forever.
+  const exhausted = deployCheck({ seat: 'ronan', sha: SHA, artifacts: [nofire(1), nofire(2), nofire(3)] });
+  assert.deepEqual(exhausted, { fire: false, reason: 'nofire-attempts-exhausted:3', attempts: 3, noFireAttempts: 3 });
+  assert.equal(MAX_NOFIRE_ATTEMPTS, 3);
+  assert.equal(deployCheck({ seat: 'ronan', sha: SHA, artifacts: [nofire(1)], maxNoFireAttempts: 1 }).fire, false);
+  // A fired baseline for this SHA ends the polling whatever came before it.
+  assert.deepEqual(deployCheck({ seat: 'ronan', sha: SHA, artifacts: [nofire(1), nofire(2), nofire(3), fired] }), { fire: false, reason: 'already-fired-for-deployed-sha', attempts: 4, noFireAttempts: 3 });
+  // Expired artifacts are no longer evidence; an unnameable SHA is not polled.
+  assert.equal(deployCheck({ seat: 'ronan', sha: SHA, artifacts: [nofire(1), nofire(2), nofire(3)].map((a) => ({ ...a, expired: true })) }).fire, true);
+  assert.deepEqual(deployCheck({ seat: 'ronan', sha: 'main', artifacts: [] }), { fire: false, reason: 'deployed-sha-invalid', attempts: 0, noFireAttempts: 0 });
+});
+
+test('a seat never inherits another seat whose name it prefixes', () => {
+  // `cael` is a string prefix of `cael-dgx`: a prefix match would hand cael
+  // cael-dgx's last-PASS lineage, and call a regression on the wrong machine.
   const artifacts = [
-    { name: artifactName({ seat: 'ronan', sha: SHA, trigger: 'deploy', fired: false, runId: 1 }), expired: false },
-    { name: artifactName({ seat: 'cael', sha: OLD.replace(/a/gu, '0'), trigger: 'nightly', fired: true, runId: 2 }), expired: false },
+    { name: artifactName({ seat: 'cael-dgx', sha: SHA, trigger: 'nightly', fired: true, runId: 10 }), expired: false, created_at: '2026-10-20T03:00:00Z', run_id: 10 },
+    { name: artifactName({ seat: 'cael', sha: OLD, trigger: 'nightly', fired: true, runId: 8 }), expired: false, created_at: '2026-10-18T03:00:00Z', run_id: 8 },
+    { name: artifactName({ seat: 'cael', sha: SHA, trigger: 'deploy', fired: false, runId: 11 }), expired: false, created_at: '2026-10-20T04:00:00Z', run_id: 11 },
+    { name: artifactName({ seat: 'cael', sha: SHA, trigger: 'nightly', fired: true, runId: 12 }), expired: true, created_at: '2026-10-20T05:00:00Z', run_id: 12 },
+    { name: 'k6-baseline-proof-cael-77-r1', expired: false, created_at: '2026-10-20T06:00:00Z', run_id: 77 },
   ];
-  assert.equal(deployCheck({ seat: 'ronan', sha: SHA, artifacts }).fire, false);
-  assert.equal(deployCheck({ seat: 'cael', sha: SHA, artifacts }).fire, true);
-  assert.equal(deployCheck({ seat: 'ronan', sha: SHA, artifacts: artifacts.map((a) => ({ ...a, expired: true })) }).fire, true);
-  assert.equal(deployCheck({ seat: 'ronan', sha: 'main', artifacts }).fire, false);
+  assert.equal(selectPreviousBaseline({ artifacts, seat: 'cael' }).runId, 8, 'exact seat, fired, unexpired');
+  assert.equal(selectPreviousBaseline({ artifacts, seat: 'cael-dgx' }).runId, 10);
+  assert.equal(selectPreviousBaseline({ artifacts, seat: 'cael', excludeRunId: 8 }), null, 'this run is never its own history');
+  assert.equal(selectPreviousBaseline({ artifacts, seat: 'ronan' }), null);
+  assert.equal(selectPreviousBaseline({ artifacts: [], seat: 'cael' }), null);
+  assert.equal(selectPreviousBaseline({ artifacts: undefined, seat: 'cael' }), null);
+  const chosen = selectPreviousBaseline({ artifacts, seat: 'cael' });
+  assert.deepEqual([chosen.name, chosen.createdAt], [artifacts[1].name, '2026-10-18T03:00:00Z']);
 });
 
 test('watchdog: a seat without a fired baseline since the nightly is a missed fire', () => {
@@ -180,17 +374,38 @@ test('rollup CLI folds a synthetic run root into public-safe outputs', () => {
     const out = path.join(dir, 'baseline');
     const env = { ...process.env };
     delete env.GITHUB_OUTPUT;
-    const res = spawnSync(process.execPath, [cli, 'rollup', '--run-root', runRoot, '--sha', SHA, '--seat', 'ronan',
+    const run = (extra = []) => spawnSync(process.execPath, [cli, 'rollup', '--run-root', runRoot, '--sha', SHA, '--seat', 'ronan',
       '--docs-ref', 'b'.repeat(40), '--trigger', 'nightly', '--run-url', 'https://example.invalid/r/7', '--run-id', '7',
-      '--out', out, '--repo-root', repoRoot, '--blocked-at', ''], { encoding: 'utf8', env });
+      '--out', out, '--repo-root', repoRoot, '--blocked-at', '', ...extra], { encoding: 'utf8', env });
+    const res = run(['--listing-status', 'success', '--history-expected', '']);
     assert.equal(res.status, 0, res.stderr);
     assert.match(res.stdout, /^fired=true$/mu);
-    assert.match(res.stdout, new RegExp(`^artifact_name=k6-baseline-ronan-${SHA.slice(0, 12)}-nightly-fired-7$`, 'mu'));
+    assert.match(res.stdout, /^history_complete=true$/mu);
+    assert.match(res.stdout, /^history_gaps=none$/mu);
+    assert.match(res.stdout, new RegExp(`^artifact_name=k6-baseline-ronan-${SHA.slice(0, 12)}-nightly-fired-7-r1$`, 'mu'));
     const written = JSON.parse(readFileSync(path.join(out, 'rollup.json'), 'utf8'));
     assert.equal(written.denominator, 34);
     assert.equal(written.counts.pass, 1);
     assert.equal(written.counts.missing, 33);
     assert.match(readFileSync(path.join(out, 'rollup.md'), 'utf8'), /Denominator \*\*34\*\* live-suite rows/u);
+
+    // A re-run publishes under its own name instead of colliding with attempt 1.
+    assert.match(run(['--run-attempt', '3']).stdout, new RegExp(`^artifact_name=k6-baseline-ronan-${SHA.slice(0, 12)}-nightly-fired-7-r3$`, 'mu'));
+
+    // A named previous baseline that never arrived is a red history gap, not
+    // a #sprites alert: issue #587 reserves those for regressions/non-fires.
+    const blind = run(['--listing-status', 'success', '--history-expected', 'k6-baseline-ronan-abc-nightly-fired-5-r1']);
+    assert.equal(blind.status, 0, blind.stderr);
+    assert.match(blind.stdout, /^history_complete=false$/mu);
+    assert.match(blind.stdout, /^history_gaps=previous-baseline-not-loaded:k6-baseline-ronan-abc-nightly-fired-5-r1$/mu);
+    // This synthetic corpus also has row regressions, so its alert remains
+    // true for those rows—not for the separate history gap.
+    assert.match(blind.stdout, /^alert=true$/mu);
+    assert.match(readFileSync(path.join(out, 'rollup.md'), 'utf8'), /Last-PASS history is incomplete/u);
+
+    // So is a listing step that failed or never ran.
+    const unlisted = run(['--listing-status', 'failure']);
+    assert.match(unlisted.stdout, /^history_gaps=artifact-listing-failure$/mu);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

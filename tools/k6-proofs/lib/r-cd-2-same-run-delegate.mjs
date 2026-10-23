@@ -13,69 +13,92 @@
 
 import { messageRunId } from './wake-turn-receipt.mjs';
 
-const TOOL = 'continue_delegate';
+const DELEGATE = 'continue_delegate';
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
-
-function toolNameMatches(name) {
-  return typeof name === 'string' && (name === TOOL || name.endsWith(`__${TOOL}`));
-}
-
-function argsRecord(args) {
-  if (isRecord(args)) return args;
-  if (typeof args === 'string') {
-    try { const parsed = JSON.parse(args); return isRecord(parsed) ? parsed : {}; } catch { return {}; }
+function record(value) {
+  if (isRecord(value)) return value;
+  if (typeof value === 'string') {
+    try { const parsed = JSON.parse(value); return isRecord(parsed) ? parsed : {}; } catch { /* text */ }
   }
   return {};
 }
-
-function resultStatus(message) {
-  const parts = Array.isArray(message.content) ? message.content
-    : typeof message.content === 'string' ? [{ type: 'text', text: message.content }] : [];
-  for (const part of parts) {
-    if (!isRecord(part) || part.type !== 'text' || typeof part.text !== 'string') continue;
-    const text = part.text.trim();
-    if (!text.startsWith('{')) continue;
-    try {
-      const parsed = JSON.parse(text);
-      if (isRecord(parsed) && typeof parsed.status === 'string') return parsed.status;
-    } catch { /* not JSON */ }
+function parts(message) {
+  return Array.isArray(message.content) ? message.content : [];
+}
+function resultObject(message) {
+  for (const part of parts(message)) {
+    if (part?.type !== 'text') continue;
+    const parsed = record(part.text);
+    if (Object.keys(parsed).length) return parsed;
   }
-  if (isRecord(message.details) && typeof message.details.status === 'string') return message.details.status;
+  return record(message.details);
+}
+function toolId(entry) {
+  return entry?.id || entry?.toolId || entry?.name || entry?.toolName;
+}
+function isTool(name, suffix) {
+  return typeof name === 'string' && (name === suffix || name.endsWith(`__${suffix}`));
+}
+function discoveredId(value) {
+  const queue = [value];
+  while (queue.length) {
+    const item = queue.shift();
+    if (!isRecord(item)) continue;
+    if (isTool(item.name || item.toolName, DELEGATE)) return toolId(item);
+    for (const child of Object.values(item)) {
+      if (Array.isArray(child)) queue.push(...child);
+      else if (isRecord(child)) queue.push(child);
+    }
+  }
   return null;
 }
 
-/**
- * Tracks the accepted send run's continue_delegate call and result.
- * observe(eventData) returns 'scheduled' when a nonce-bound call's result on the
- * same run reports status "scheduled", 'failed' when that result is an error or
- * another status, otherwise null.
- */
+/** Only deferred discovery followed by tool_call on the accepted run counts. */
 export function createSameRunDelegateTracker({ acceptedRunId, nonce }) {
-  const calls = new Set();
+  const searches = new Set();
+  const discovered = new Set();
+  const invokes = new Map();
   return {
     observe(eventData) {
       if (!acceptedRunId || !nonce || !isRecord(eventData)) return null;
       const message = eventData.message;
-      if (!isRecord(message)) return null;
-      if (messageRunId(message, eventData) !== acceptedRunId) return null;
+      if (!isRecord(message) || messageRunId(message, eventData) !== acceptedRunId) return null;
       const role = String(message.role || '').toLowerCase();
-      if (role === 'assistant' && Array.isArray(message.content)) {
-        for (const part of message.content) {
-          if (!isRecord(part) || part.type !== 'toolCall' || typeof part.id !== 'string') continue;
-          if (!toolNameMatches(part.name || part.toolName)) continue;
-          const task = argsRecord(part.arguments).task;
-          if (typeof task === 'string' && task.includes(nonce)) calls.add(part.id);
+      if (role === 'assistant') {
+        for (const part of parts(message)) {
+          if (part?.type !== 'toolCall' || typeof part.id !== 'string') continue;
+          if (isTool(part.name || part.toolName, 'tool_search')) {
+            const args = record(part.arguments);
+            if (JSON.stringify(args).includes(DELEGATE)) searches.add(part.id);
+          } else if (isTool(part.name || part.toolName, 'tool_call')) {
+            const args = record(part.arguments);
+            const selected = args.toolId || args.id || args.name || args.toolName;
+            const nested = record(args.args || args.arguments || args.input);
+            if (discovered.has(selected) && nested.mode === 'silent-wake' &&
+                typeof nested.task === 'string' && nested.task.includes(nonce)) invokes.set(part.id, selected);
+          }
         }
         return null;
       }
-      if (role === 'toolresult' && typeof message.toolCallId === 'string' && calls.has(message.toolCallId)) {
-        if (message.isError === true) return 'failed';
-        return resultStatus(message) === 'scheduled' ? 'scheduled' : 'failed';
+      if (role !== 'toolresult' || typeof message.toolCallId !== 'string') return null;
+      if (searches.has(message.toolCallId) && isTool(message.toolName, 'tool_search') && message.isError !== true) {
+        const id = discoveredId(resultObject(message));
+        if (id) discovered.add(id);
+        return null;
       }
-      return null;
+      if (!invokes.has(message.toolCallId) || !isTool(message.toolName, 'tool_call')) return null;
+      if (message.isError === true) return 'failed';
+      const outer = resultObject(message);
+      const target = record(outer.result || outer.output || outer);
+      const details = record(target.details);
+      const invokedTool = record(outer.tool);
+      if (invokedTool.id !== invokes.get(message.toolCallId) ||
+          !isTool(invokedTool.name, DELEGATE) || outer.isError === true ||
+          target.isError === true || details.isError === true) return 'failed';
+      return details.status === 'scheduled' ? 'scheduled' : 'failed';
     },
   };
 }

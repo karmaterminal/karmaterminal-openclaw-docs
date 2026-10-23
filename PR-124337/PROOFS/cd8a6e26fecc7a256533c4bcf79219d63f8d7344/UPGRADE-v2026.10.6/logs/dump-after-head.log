@@ -1,0 +1,11 @@
+### dump-after-head / tree cd8a6e26fecc7a256533c4bcf79219d63f8d7344
+[after-head] columns: queue_name,event_id,channel_id,account_id,status,lane_key,payload_json,metadata_json,received_at,updated_at,claim_token,claim_owner,claimed_at,attempts,last_attempt_at,last_error,failed_reason,failed_at,completed_at,completed_metadata_json
+[after-head] {"event_id":"ev-abandoned-over","status":"failed","attempts":6,"last_error":"turn-abandoned","last_attempt_at":1792787260348,"failed_reason":"retry-limit-exceeded","failed_at":1792787329458,"completed_at":null,"claimed_at":null,"claim_owner":null,"received_at":1792787195502,"updated_at":1792787329458}
+[after-head] {"event_id":"ev-abandoned-under","status":"completed","attempts":2,"last_error":null,"last_attempt_at":null,"failed_reason":null,"failed_at":null,"completed_at":1792787329515,"claimed_at":null,"claim_owner":null,"received_at":1792787195503,"updated_at":1792787329515}
+[after-head] {"event_id":"ev-cancel","status":"completed","attempts":2,"last_error":null,"last_attempt_at":null,"failed_reason":null,"failed_at":null,"completed_at":1792787329517,"claimed_at":null,"claim_owner":null,"received_at":1792787212070,"updated_at":1792787329517}
+[after-head] {"event_id":"ev-dead","status":"failed","attempts":0,"last_error":"seeded by the stable tree","last_attempt_at":null,"failed_reason":"stable-era-dead-letter","failed_at":1792787266460,"completed_at":null,"claimed_at":null,"claim_owner":null,"received_at":1792787212071,"updated_at":1792787266460}
+[after-head] {"event_id":"ev-owner","status":"completed","attempts":1,"last_error":null,"last_attempt_at":null,"failed_reason":null,"failed_at":null,"completed_at":1792787329468,"claimed_at":null,"claim_owner":null,"received_at":1792787212072,"updated_at":1792787329468}
+[after-head] {"event_id":"ev-pending","status":"completed","attempts":0,"last_error":null,"last_attempt_at":null,"failed_reason":null,"failed_at":null,"completed_at":1792787329455,"claimed_at":null,"claim_owner":null,"received_at":1792787212068,"updated_at":1792787329455}
+[after-head] {"event_id":"ev-released","status":"completed","attempts":2,"last_error":null,"last_attempt_at":null,"failed_reason":null,"failed_at":null,"completed_at":1792787329459,"claimed_at":null,"claim_owner":null,"received_at":1792787212069,"updated_at":1792787329459}
+[after-head] total=7
+### exit=0

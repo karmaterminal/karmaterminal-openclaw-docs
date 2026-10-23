@@ -25,6 +25,17 @@ test('deferred search, discovered ID, nested nonce/mode, and scheduled result bi
   assert.equal(t.observe(scheduled()), 'scheduled');
 });
 
+test('single-query array search results bind from text and details without batched wrapping', () => {
+  const hit = [{ id: 'deferred_42', name: 'continue_delegate' }];
+  for (const searchResult of [result('search1', 'tool_search', hit), { message: { role: 'toolResult', toolCallId: 'search1', toolName: 'tool_search', ...meta(), content: [], details: hit } }]) {
+    const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
+    t.observe(search());
+    assert.equal(t.observe(searchResult), null);
+    t.observe(invoke());
+    assert.equal(t.observe(scheduled()), 'scheduled');
+  }
+});
+
 test('direct call, exec sentinel, search alone, terminal text, and undiscovered ID never execute', () => {
   for (const event of [
     call('direct', 'continue_delegate', { task: nonce, mode: 'silent-wake' }),

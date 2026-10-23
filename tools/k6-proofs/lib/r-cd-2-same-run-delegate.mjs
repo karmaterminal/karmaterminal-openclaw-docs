@@ -25,16 +25,26 @@ function record(value) {
   }
   return {};
 }
+function payload(value) {
+  if (Array.isArray(value) || isRecord(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed) || isRecord(parsed)) return parsed;
+    } catch { /* text */ }
+  }
+  return {};
+}
 function parts(message) {
   return Array.isArray(message.content) ? message.content : [];
 }
 function resultObject(message) {
   for (const part of parts(message)) {
     if (part?.type !== 'text') continue;
-    const parsed = record(part.text);
+    const parsed = payload(part.text);
     if (Object.keys(parsed).length) return parsed;
   }
-  return record(message.details);
+  return payload(message.details);
 }
 function toolId(entry) {
   return entry?.id || entry?.toolId || entry?.name || entry?.toolName;
@@ -46,6 +56,7 @@ function discoveredId(value) {
   const queue = [value];
   while (queue.length) {
     const item = queue.shift();
+    if (Array.isArray(item)) { queue.push(...item); continue; }
     if (!isRecord(item)) continue;
     if (isTool(item.name || item.toolName, DELEGATE)) return toolId(item);
     for (const child of Object.values(item)) {
@@ -91,7 +102,7 @@ export function createSameRunDelegateTracker({ acceptedRunId, nonce }) {
       }
       if (!invokes.has(message.toolCallId) || !isTool(message.toolName, 'tool_call')) return null;
       if (message.isError === true) return 'failed';
-      const outer = resultObject(message);
+      const outer = record(resultObject(message));
       const target = record(outer.result || outer.output || outer);
       const details = record(target.details);
       const invokedTool = record(outer.tool);

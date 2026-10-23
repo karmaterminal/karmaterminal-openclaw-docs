@@ -248,8 +248,8 @@ export default function () {
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
         const agentInstruction =
-          `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
-          `After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
+          `[k6-proof-harness] Use deferred tool_search to discover continue_delegate, then tool_call using that discovered ID with task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. Do not call continue_delegate directly or use exec. ` +
+          `After the nested tool_call result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
           'Do not call another tool or send any channel message.';
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,

@@ -4,55 +4,62 @@ import { readFileSync } from 'node:fs';
 import { applySameRunDelegateOutcome, createSameRunDelegateTracker } from '../../lib/r-cd-2-same-run-delegate.mjs';
 
 const nonce = 'R-CD-2-1791186854000-abcd1234';
-const run = 'R-CD-2-R-CD-2-1791186854000-abcd1234';
+const run = `R-CD-2-${nonce}`;
 const meta = (runId = run) => ({ __openclaw: { runId } });
-// Shapes as seen in the live parent transcripts (isolated 14d31a81b1, 2026-10-05).
-const call = (id, task = `Proof nonce ${nonce}: reply with DONE and the nonce only.`, runId = run, name = 'continue_delegate') => ({
-  sessionKey: 'agent:main:r-cd-2', message: { role: 'assistant', ...meta(runId),
-    content: [{ type: 'toolCall', id, name, arguments: { mode: 'silent-wake', delaySeconds: 1, task } }] },
-});
-const result = (toolCallId, text = '{\n  "status": "scheduled",\n  "mode": "silent-wake",\n  "delaySeconds": 5\n}', extra = {}, runId = run) => ({
-  sessionKey: 'agent:main:r-cd-2', message: { role: 'toolResult', toolCallId, toolName: 'continue_delegate',
-    content: [{ type: 'text', text }], ...meta(runId), ...extra },
-});
+const call = (id, name, args, runId = run) => ({ message: { role: 'assistant', ...meta(runId),
+  content: [{ type: 'toolCall', id, name, arguments: args }] } });
+const result = (id, name, payload, extra = {}, runId = run) => ({ message: {
+  role: 'toolResult', toolCallId: id, toolName: name, ...meta(runId), ...extra,
+  content: [{ type: 'text', text: JSON.stringify(payload) }],
+} });
+const search = () => call('search1', 'tool_search', { query: 'continue_delegate' });
+const found = () => result('search1', 'tool_search', { results: [{ query: 'continue_delegate', candidates: [{ id: 'deferred_42', name: 'continue_delegate' }] }] });
+const invoke = (id = 'invoke1', args = { id: 'deferred_42', args: { task: `Proof nonce ${nonce}`, mode: 'silent-wake' } }) => call(id, 'tool_call', args);
+const scheduled = (id = 'invoke1', payload = { tool: { id: 'deferred_42', name: 'continue_delegate' }, result: { details: { status: 'scheduled' } } }, extra = {}) => result(id, 'tool_call', payload, extra);
 
-test('a nonce-bound continue_delegate call and its scheduled result on the send run is same-run success', () => {
+test('deferred search, discovered ID, nested nonce/mode, and scheduled result bind on accepted run', () => {
   const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  assert.equal(t.observe(call('call_1')), null);
-  assert.equal(t.observe(result('call_1')), 'scheduled');
+  assert.equal(t.observe(search()), null);
+  assert.equal(t.observe(found()), null);
+  assert.equal(t.observe(invoke()), null);
+  assert.equal(t.observe(scheduled()), 'scheduled');
 });
 
-test('error or non-scheduled results on the paired call are failures', () => {
+test('single-query array search results bind from text and details without batched wrapping', () => {
+  const hit = [{ id: 'deferred_42', name: 'continue_delegate' }];
+  for (const searchResult of [result('search1', 'tool_search', hit), { message: { role: 'toolResult', toolCallId: 'search1', toolName: 'tool_search', ...meta(), content: [], details: hit } }]) {
+    const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
+    t.observe(search());
+    assert.equal(t.observe(searchResult), null);
+    t.observe(invoke());
+    assert.equal(t.observe(scheduled()), 'scheduled');
+  }
+});
+
+test('direct call, exec sentinel, search alone, terminal text, and undiscovered ID never execute', () => {
+  for (const event of [
+    call('direct', 'continue_delegate', { task: nonce, mode: 'silent-wake' }),
+    call('exec', 'exec', { code: `continue_delegate ${nonce}` }),
+    call('wrong', 'tool_call', { toolId: 'other', args: { task: nonce, mode: 'silent-wake' } }),
+    { message: { role: 'assistant', ...meta(), content: [{ type: 'text', text: `RCD2-DELEGATE-SCHEDULED ${nonce}` }] } },
+  ]) {
+    const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
+    t.observe(search()); t.observe(found()); t.observe(event);
+    assert.equal(t.observe(scheduled(event.message.content?.[0]?.id || 'ghost')), null);
+  }
   const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  t.observe(call('c1')); t.observe(call('c2'));
-  assert.equal(t.observe(result('c1', '{"status":"rejected"}')), 'failed');
-  assert.equal(t.observe(result('c2', 'codex_dynamic_tool_error', { isError: true })), 'failed');
+  t.observe(search()); assert.equal(t.observe(invoke()), null);
+  assert.equal(t.observe(scheduled()), null);
 });
 
-test('nothing binds outside the accepted send run, without the nonce, or without a paired call', () => {
-  const other = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  other.observe(call('w1', undefined, 'wake-run'));
-  assert.equal(other.observe(result('w1', undefined, {}, 'wake-run')), null, 'wake run never counts');
-
-  const noNonce = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  noNonce.observe(call('n1', 'some other task'));
-  assert.equal(noNonce.observe(result('n1')), null, 'a call without the row nonce never binds');
-
-  const unpaired = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  assert.equal(unpaired.observe(result('ghost')), null, 'a result with no recorded call never binds');
-
-  const crossRun = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  crossRun.observe(call('x1'));
-  assert.equal(crossRun.observe(result('x1', undefined, {}, 'wake-run')), null, 'the result must be on the send run too');
-});
-
-test('a namespaced tool name (openclaw__continue_delegate) also counts; exec does not', () => {
-  const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  t.observe(call('ns1', undefined, run, 'openclaw__continue_delegate'));
-  assert.equal(t.observe(result('ns1')), 'scheduled');
-  const e = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  e.observe(call('ex1', undefined, run, 'exec'));
-  assert.equal(e.observe(result('ex1')), null);
+test('wrong run, nonce, mode, errors, and non-scheduled nested results reject success', () => {
+  const setup = () => { const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce }); t.observe(search()); t.observe(found()); return t; };
+  let t = setup(); t.observe(invoke('x', { toolId: 'deferred_42', args: { task: 'other', mode: 'silent-wake' } })); assert.equal(t.observe(scheduled('x')), null);
+  t = setup(); t.observe(invoke('x', { toolId: 'deferred_42', args: { task: nonce, mode: 'silent' } })); assert.equal(t.observe(scheduled('x')), null);
+  t = setup(); t.observe(invoke()); assert.equal(t.observe(result('invoke1', 'tool_call', { result: { details: { status: 'scheduled' } } }, {}, 'wake-run')), null);
+  t = setup(); t.observe(invoke()); assert.equal(t.observe(scheduled('invoke1', { result: { details: { status: 'scheduled', isError: true } } })), 'failed');
+  t = setup(); t.observe(invoke()); assert.equal(t.observe(scheduled('invoke1', { result: { details: { status: 'rejected' } } })), 'failed');
+  t = setup(); t.observe(invoke()); assert.equal(t.observe(scheduled('invoke1', { tool: { id: 'other', name: 'continue_delegate' }, result: { details: { status: 'scheduled' } } })), 'failed');
 });
 
 test('R-CD-2 scenario derives same-run delegate success from the tracker', () => {
@@ -84,8 +91,8 @@ test('the tracker is the single authority: a scheduled call plus a rejected dupl
   }
   // Behaviour of the authority itself: scheduled, then a rejected duplicate, then a late rejection.
   const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  t.observe(call('ok')); t.observe(call('dup'));
-  const outcomes = [t.observe(result('ok')), t.observe(result('dup', '{"status":"rejected"}'))];
+  t.observe(search()); t.observe(found()); t.observe(invoke('ok')); t.observe(invoke('dup'));
+  const outcomes = [t.observe(scheduled('ok')), t.observe(scheduled('dup', { result: { details: { status: 'rejected' } } }))];
   assert.deepEqual(outcomes, ['scheduled', 'failed']);
   // The real authority: success sticks once seen; a later rejection cannot flip it.
   const ev = {};
@@ -112,7 +119,7 @@ test('the notify:false/done completion record alone can never set same-run deleg
   assert.equal(writes.length, 0, 'no direct success writes remain in the scenario');
   // Positive: only a paired scheduled result on the accepted run sets success.
   const t = createSameRunDelegateTracker({ acceptedRunId: run, nonce });
-  t.observe(call('p1'));
-  const ev = applySameRunDelegateOutcome({}, t.observe(result('p1')));
+  t.observe(search()); t.observe(found()); t.observe(invoke('p1'));
+  const ev = applySameRunDelegateOutcome({}, t.observe(scheduled('p1')));
   assert.equal(ev.typed_delegate_success_same_run, true);
 });

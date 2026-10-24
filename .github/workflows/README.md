@@ -54,3 +54,26 @@ Inputs:
   the same row/seat does not run in parallel against the same session.
 - The runner needs a network route to the target gateway WS. For seat-local
   gateways, run this on a self-hosted runner on/near that seat.
+
+## `k6-baseline-scheduled.yml` — scheduled exact-build baseline (#587)
+
+This workflow fires on its own, with no dispatch needed.
+
+- **Nightly** (`17 2 * * *`): runs `rows=live-suite` on every seat in
+  `vars.K6_BASELINE_SEATS`, on that seat's self-hosted runner.
+- **Deploy-check** (`7,37 * * * *`): fires the same run when a seat's deployed
+  `dist/build-info.json` commit has no *fired* baseline yet. An attempt that did
+  not fire is retried, up to three times per seat and SHA, then left to the
+  nightly.
+- **Watchdog** (`41 6 * * *`, ARC): alerts for every seat that did not publish
+  a fired baseline since the nightly.
+
+The target is always an isolated gateway started from the seat's exact
+deployed dist (`tools/k6-proofs/scripts/isolated-gateway.mjs`). The gateway
+has no channels and no live state, uses a fresh `agent:main:main`, and is torn
+down afterwards. No hosted runner is used. The rollup is posted to
+`vars.K6_BASELINE_ISSUE`. Alerts go to `secrets.WEBHOOK_SCRIBE_NOTIFY` only on
+a regression or a missed fire. A run whose last-PASS history could not be read
+fails closed in the job and rollup (never a green "no regression").
+
+Setup and limits: [`tools/k6-proofs/docs/SCHEDULED-BASELINE.md`](../../tools/k6-proofs/docs/SCHEDULED-BASELINE.md).

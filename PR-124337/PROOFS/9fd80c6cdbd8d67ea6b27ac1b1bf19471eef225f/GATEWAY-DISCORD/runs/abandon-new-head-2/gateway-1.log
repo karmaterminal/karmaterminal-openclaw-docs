@@ -1,0 +1,785 @@
+[openclaw] Staging pinned Bun fork openclaw-v1.4.4-20261019-ef37c31de3-webkit-a2976f02e6 (one-time download)…
+[openclaw] Bun fork unavailable (could not stage the pinned fork: Command failed: /bin/bash <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/scripts/stage-openclaw-bun.sh <home>/.cache/openclaw/bun/openclaw-v1.4.4-20261019-ef37c31de3-webkit-a2976f02e6/linux-x64/.stage-8lagNj linux x64); using Node. Set OPENCLAW_VITEST_RUNTIME=node to silence.
+[gateway] startup phase: entry.run-main-import starting total=77.5ms
+[gateway] startup phase: entry.run-main-import 37.4ms total=114.9ms start=77.5ms
+[gateway] startup phase: cli.main.gateway-run-select-environment starting total=416.9ms
+[gateway] startup phase: cli.main.gateway-run-select-environment 238.6ms total=655.6ms start=416.9ms
+[gateway] startup phase: cli.main.gateway-run-imports starting total=667.7ms
+[gateway] startup phase: cli.main.gateway-run-imports 2.3ms total=670.0ms start=667.7ms
+[gateway] startup phase: cli.main.gateway-run-pre-bootstrap starting total=681.6ms
+[gateway] startup phase: cli.main.gateway-run-pre-bootstrap 4.0ms total=685.6ms start=681.6ms
+[gateway] startup phase: cli.main.gateway-run-bootstrap starting total=685.7ms
+[gateway] startup phase: cli.command.config-ready starting total=687.1ms
+[gateway] startup phase: cli.command.config-guard-import starting total=687.3ms
+[gateway] startup phase: cli.command.config-guard-import 13.7ms total=700.9ms start=687.3ms
+[gateway] startup phase: cli.bootstrap.admission.live-owner starting total=744.2ms
+[gateway] startup phase: cli.bootstrap.admission.live-owner 2.8ms total=747.0ms start=744.2ms
+[gateway] startup phase: cli.bootstrap.admission.core-config starting total=747.1ms
+[gateway] startup phase: cli.bootstrap.admission.core-config 2.3ms total=749.4ms start=747.1ms
+[gateway] startup phase: cli.bootstrap.admission.state-snapshot starting total=749.5ms
+[gateway] startup phase: cli.bootstrap.admission.core-recovery starting total=749.9ms
+[gateway] startup phase: cli.bootstrap.admission.core-recovery 0.7ms total=750.6ms start=749.9ms
+[gateway] startup phase: cli.bootstrap.admission.database-runtime-import starting total=751.0ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-config starting total=751.0ms
+[gateway] startup phase: cli.bootstrap.admission.database-runtime-import 33.2ms total=784.2ms start=751.0ms
+[gateway] startup phase: cli.bootstrap.admission.database-readiness starting total=784.3ms
+[gateway] startup phase: cli.bootstrap.admission.database-readiness 298.5ms total=1082.8ms start=784.3ms agentCount=1 schemaProcessCount=0 schemaInspectionCount=0 schemaSnapshotCount=0
+[gateway] startup phase: cli.bootstrap.admission.session-runtime-import starting total=1082.9ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-metadata-completion starting total=1082.9ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-metadata-completion 160.3ms total=1243.2ms start=1082.9ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-config 492.4ms total=1243.4ms start=751.0ms registrySnapshotMs=218.41725899999994 manifestRegistryMs=19.561042999999927 ownerMapsMs=9.79274200000009 totalMs=249.617161 indexPluginCount=176 manifestPluginCount=176
+[gateway] startup phase: cli.bootstrap.admission.session-runtime-import 174.9ms total=1257.8ms start=1082.9ms
+[gateway] startup phase: cli.bootstrap.admission.session-targets starting total=1257.9ms
+[gateway] startup phase: cli.bootstrap.admission.session-targets 1.2ms total=1259.1ms start=1257.9ms agentCount=1 registeredDatabaseCount=0
+[gateway] startup phase: cli.bootstrap.admission.session-readiness starting total=1259.2ms
+[gateway] startup phase: cli.bootstrap.admission.session-readiness 0.2ms total=1259.4ms start=1259.2ms targetCount=1
+[gateway] startup phase: cli.bootstrap.admission.workspace-runtime-import starting total=1259.5ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-runtime-import 3.1ms total=1262.5ms start=1259.5ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-readiness starting total=1262.6ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-readiness 1.7ms total=1264.3ms start=1262.6ms agentCount=1
+[gateway] startup phase: cli.bootstrap.admission.config-recovery starting total=1264.5ms
+[gateway] startup phase: cli.bootstrap.admission.config-recovery 0.5ms total=1265.0ms start=1264.5ms
+[gateway] startup phase: cli.bootstrap.admission.state-snapshot 515.6ms total=1265.0ms start=749.5ms
+[gateway] startup phase: cli.bootstrap.admission.config-guard starting total=1265.1ms
+[gateway] startup phase: cli.bootstrap.admission.config-guard 0.9ms total=1265.9ms start=1265.1ms
+[gateway] startup phase: cli.bootstrap.admission.device-identity starting total=1520.3ms
+[gateway] startup phase: cli.bootstrap.admission.device-identity 2.7ms total=1522.9ms start=1520.3ms
+[gateway] startup phase: cli.bootstrap.webhook-readiness starting total=1556.8ms
+[gateway] startup phase: cli.bootstrap.webhook-readiness 111.2ms total=1668.0ms start=1556.8ms
+[gateway] startup phase: cli.bootstrap.plugin-plan-import starting total=2107.3ms
+[gateway] startup phase: cli.bootstrap.plugin-plan-import 3.8ms total=2111.0ms start=2107.3ms
+[gateway] startup phase: cli.bootstrap.plugin-plan starting total=2111.1ms
+[gateway] startup phase: cli.bootstrap.plugin-plan 2.3ms total=2113.4ms start=2111.1ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification-import starting total=2133.2ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification-import 1.9ms total=2135.1ms start=2133.2ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification starting total=2135.1ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification 19.8ms total=2154.9ms start=2135.1ms
+[gateway] startup phase: cli.command.config-ready 1472.9ms total=2160.1ms start=687.1ms
+[gateway] startup phase: cli.main.gateway-run-reload-environment starting total=2160.2ms
+[gateway] startup phase: cli.main.gateway-run-reload-environment 0.6ms total=2160.8ms start=2160.2ms
+[gateway] startup phase: cli.main.gateway-run-bootstrap 1475.1ms total=2160.8ms start=685.7ms
+2026-10-24T09:17:12.219-07:00 [gateway] loading configuration…
+2026-10-24T09:17:12.245-07:00 [gateway] resolving authentication…
+2026-10-24T09:17:12.247-07:00 [gateway] starting...
+[gateway] startup phase: cli.bootstrap.lifecycle-runtime starting total=2404.4ms
+[gateway] startup phase: cli.bootstrap.lifecycle-runtime 114.1ms total=2518.5ms start=2404.4ms
+2026-10-24T09:17:12.391-07:00 [gateway] Unable to read systemd stop timeout; user manager openclaw-gateway.service: InvocationID does not match the running process; system manager openclaw-gateway.service: LoadState=not-found; using 90000ms default. Check the running unit with systemctl show.
+[gateway] startup phase: cli.bootstrap.gateway-lock starting total=2547.5ms
+[gateway] startup phase: cli.bootstrap.gateway-lock 462.2ms total=3009.7ms start=2547.5ms
+2026-10-24T09:17:12.855-07:00 [gateway] shutdown budget at startup: drain=75000ms shutdown=85000ms reserve=10000ms exitMargin=5000ms; source=systemd openclaw-gateway.service timeout unavailable; default TimeoutStopUSec=90000ms
+[gateway] startup phase: cli.bootstrap.boot-lifecycle starting total=3014.5ms
+[gateway] startup phase: cli.bootstrap.boot-lifecycle 13.3ms total=3027.9ms start=3014.5ms
+2026-10-24T09:17:13.087-07:00 [gateway] spawn broker ready pid=3678359
+[gateway] startup phase: gateway.server-start-import starting total=3245.1ms
+[gateway] startup phase: gateway.server-start-import 340.8ms total=3585.9ms start=3245.1ms
+2026-10-24T09:17:13.483-07:00 [gateway] startup phase: process.bootstrap 3638.0ms total=3638.0ms
+2026-10-24T09:17:13.730-07:00 [gateway] startup phase: state.schema-preflight starting total=3885.7ms
+2026-10-24T09:17:13.903-07:00 [gateway] startup phase: state.schema-preflight 171.8ms total=4057.6ms
+2026-10-24T09:17:13.935-07:00 [gateway] auto-enabled plugins for this runtime without writing config:
+- openai/gpt-5.6-sol model configured, enabled automatically.
+2026-10-24T09:17:13.942-07:00 [gateway] startup phase: config.auth starting total=4092.3ms
+2026-10-24T09:17:14.084-07:00 [plugins] loading deepseek from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/deepseek/index.js
+2026-10-24T09:17:14.280-07:00 [plugins] loading duckduckgo from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/duckduckgo/index.js
+2026-10-24T09:17:14.284-07:00 [plugins] loading exa from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/exa/index.js
+2026-10-24T09:17:14.288-07:00 [plugins] loading firecrawl from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/firecrawl/index.js
+2026-10-24T09:17:14.318-07:00 [plugins] loading moonshot from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/moonshot/index.js
+2026-10-24T09:17:14.327-07:00 [plugins] loading parallel from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/parallel/index.js
+2026-10-24T09:17:14.330-07:00 [plugins] loading perplexity from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/perplexity/index.js
+2026-10-24T09:17:14.334-07:00 [plugins] loading searxng from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/searxng/index.js
+2026-10-24T09:17:14.337-07:00 [plugins] loading tavily from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/tavily/index.js
+2026-10-24T09:17:14.342-07:00 [plugins] loading brave from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/brave/index.js
+2026-10-24T09:17:14.346-07:00 [plugins] loading codex from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/codex/index.js
+2026-10-24T09:17:14.426-07:00 [plugins] loading google from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/google/index.js
+2026-10-24T09:17:14.457-07:00 [plugins] loading minimax from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/minimax/index.js
+2026-10-24T09:17:14.491-07:00 [plugins] loading ollama from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/ollama/index.js
+2026-10-24T09:17:14.502-07:00 [plugins] loading xai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/xai/index.js
+2026-10-24T09:17:14.519-07:00 [plugins] loading qa-lab from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/extensions/qa-lab/index.ts
+2026-10-24T09:17:14.667-07:00 [plugins] loaded 16 plugin(s) (16 attempted) in 585.2ms
+2026-10-24T09:17:14.805-07:00 [gateway] startup phase: config.auth 867.4ms total=4959.7ms
+2026-10-24T09:17:14.822-07:00 [gateway] startup phase: state.desktop-approval-admission starting total=4977.3ms
+2026-10-24T09:17:14.848-07:00 [gateway] startup phase: state.desktop-approval-admission 26.2ms total=5003.5ms
+2026-10-24T09:17:14.849-07:00 [gateway] startup phase: sessions.admission starting total=5004.7ms
+2026-10-24T09:17:15.142-07:00 [gateway] startup phase: sessions.admission 292.3ms total=5297.0ms
+2026-10-24T09:17:16.011-07:00 [gateway] starting HTTP server...
+2026-10-24T09:17:16.185-07:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
+2026-10-24T09:17:16.321-07:00 [gateway] startup phase: http.bound 0.0ms total=6475.9ms
+2026-10-24T09:17:16.321-07:00 [gateway] startup phase: runtime.early starting total=6476.4ms
+2026-10-24T09:17:16.323-07:00 [gateway] startup phase: runtime.early.discovery starting total=6478.8ms
+2026-10-24T09:17:16.326-07:00 [gateway] startup phase: runtime.early.discovery 3.0ms total=6481.9ms
+2026-10-24T09:17:16.327-07:00 [gateway] startup phase: runtime.early.lazy-runtime-imports starting total=6482.0ms
+2026-10-24T09:17:16.328-07:00 [gateway] startup phase: runtime.early.lazy-runtime-imports 1.1ms total=6483.1ms
+2026-10-24T09:17:16.328-07:00 [gateway] startup phase: runtime.early.skills-listener starting total=6483.8ms
+2026-10-24T09:17:16.331-07:00 [gateway] startup phase: runtime.early.skills-listener 2.9ms total=6486.7ms
+2026-10-24T09:17:16.332-07:00 [gateway] startup phase: runtime.early 10.5ms total=6487.0ms
+2026-10-24T09:17:16.761-07:00 [gateway] startup phase: post-attach.system-ca starting total=6916.7ms
+2026-10-24T09:17:16.762-07:00 [gateway] startup phase: post-attach.system-ca 0.3ms total=6917.0ms
+2026-10-24T09:17:16.762-07:00 [scheduler] running maintenance:github-oauth
+2026-10-24T09:17:16.763-07:00 [scheduler] running maintenance:secret-expiry
+2026-10-24T09:17:16.767-07:00 [gateway] Control UI assets need rebuilding; building them now (rerun `pnpm --dir <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21 ui:build` after UI changes, or use `pnpm --dir <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21 ui:dev` while developing the Control UI)…
+2026-10-24T09:17:16.768-07:00 [gateway] startup phase: plugins.runtime-post-bind starting total=6923.9ms
+2026-10-24T09:17:16.784-07:00 [plugins] loading discord from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/discord/index.js
+2026-10-24T09:17:16.934-07:00 [plugins] loading teams-meetings from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/teams-meetings/index.js
+2026-10-24T09:17:16.955-07:00 [plugins] loading zoom-meetings from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/zoom-meetings/index.js
+2026-10-24T09:17:16.961-07:00 [plugins] loading acpx from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/acpx/index.js
+2026-10-24T09:17:16.984-07:00 [plugins] loading anthropic from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/anthropic/index.js
+2026-10-24T09:17:16.999-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:17.008-07:00 [gateway] Control UI build failed: Error: Could not acquire <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/.artifacts/dist-artifacts.lock: retained by PID 3619176, started "2026-10-24T15:38:43.499Z", identity "unknown", last seen "2026-10-24T15:38:43.499Z". In…
+2026-10-24T09:17:17.009-07:00 [plugins] loading browser from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/browser/index.js
+2026-10-24T09:17:17.027-07:00 [plugins] loading canvas from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/canvas/index.js
+2026-10-24T09:17:17.034-07:00 [plugins] loading codex from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/codex/index.js
+2026-10-24T09:17:17.068-07:00 [plugins] loading cua-computer from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/cua-computer/index.js
+2026-10-24T09:17:17.078-07:00 [plugins] loading device-pair from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/device-pair/index.js
+2026-10-24T09:17:17.083-07:00 [plugins] loading file-transfer from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/file-transfer/index.js
+2026-10-24T09:17:17.090-07:00 [plugins] loading geolocation from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/geolocation/index.js
+2026-10-24T09:17:17.095-07:00 [plugins] loading github from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/github/index.js
+2026-10-24T09:17:17.098-07:00 [plugins] loading google-meet from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/google-meet/index.js
+2026-10-24T09:17:17.107-07:00 [plugins] loading linux-node from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/linux-node/index.js
+2026-10-24T09:17:17.111-07:00 [plugins] loading llama-cpp from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/llama-cpp/index.js
+2026-10-24T09:17:17.118-07:00 [plugins] loading memory-core from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/memory-core/index.js
+2026-10-24T09:17:17.152-07:00 [plugins] loading ollama from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/ollama/index.js
+2026-10-24T09:17:17.157-07:00 [plugins] loading openai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/openai/index.js
+2026-10-24T09:17:17.191-07:00 [plugins] loading talk-voice from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/talk-voice/index.js
+2026-10-24T09:17:17.194-07:00 [plugins] loading xai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/xai/index.js
+2026-10-24T09:17:17.200-07:00 [plugins] loaded 21 plugin(s) (21 attempted) in 419.2ms
+2026-10-24T09:17:17.202-07:00 [gateway] startup phase: plugins.runtime-post-bind 433.5ms total=7357.3ms
+2026-10-24T09:17:17.202-07:00 [gateway] startup phase: plugins.runtime-attach starting total=7357.5ms
+2026-10-24T09:17:17.207-07:00 [gateway] startup phase: plugins.runtime-attach 4.6ms total=7362.1ms
+2026-10-24T09:17:17.213-07:00 [gateway] agent model: openai/gpt-5.6-sol (thinking=medium, fast=off)
+2026-10-24T09:17:17.213-07:00 [gateway] http server listening (21 plugins: acpx, anthropic, browser, canvas, codex, cua-computer, device-pair, discord, file-transfer, geolocation, github, google-meet, linux-node, llama-cpp, memory-core, ollama, openai, talk-voice, teams-meetings, xai, zoom-meetings; 4.4s)
+2026-10-24T09:17:17.213-07:00 [gateway] log file: <home>/.openclaw-proof-124337-abandon-new-head-2/gateway-file.log
+2026-10-24T09:17:17.214-07:00 [gateway] Older local CLI/SDK versions can bypass Gateway state mutation routing. Use matching CLI/SDK and Gateway versions; direct state writes from another process while this Gateway owns state are unsupported.
+2026-10-24T09:17:17.214-07:00 [gateway] native runtime: {"pid":3678308,"platform":"linux","arch":"x64","node":"26.12.1","v8":"14.6.202.34-node.40","uv":"1.52.1","openssl":"3.5.9","sqlite":"3.54.0","sqliteClose":{"explicitSqliteCloseReleasesNativeResources":true,"decided":true,"reason":"Node runtime"}}
+2026-10-24T09:17:17.216-07:00 [gateway] worker startup state: {"workerCount":9,"postgresBridgeCount":0,"workerLifecycle":[{"script":"client-credential.worker.js","started":1,"retired":[]},{"script":"sqlite-store.worker.js","started":1,"retired":[]},{"script":"gateway-state-owner-heartbeat.worker.js","started":2,"retired":[{"reason":"exit","count":1}]},{"script":"worker-native-lifecycle.worker.js","started":1,"retired":[]},{"script":"openclaw-state-read.worker.js","started":2,"retired":[]},{"script":"openclaw-state-lease-heartbeat.worker.js","started":1,"retired":[]},{"script":"session-transcript.worker.js","started":2,"retired":[]}],"workerTaskMetrics":[{"workerClass":"singleton","script":"client-credential.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":27377304,"gc":[]},{"workerClass":"other","script":"openclaw-state-read.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":21606616,"gc":[]},{"workerClass":"other","script":"session-transcript.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":17548352,"gc":[]},{"workerClass":"writer","script":"session-transcript.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":0,"gc":[]}],"compute":{"limit":15,"active":0,"waitingPools":0,"pendingTasks":0,"pendingBytes":0}}
+2026-10-24T09:17:17.221-07:00 [gateway] startup phase: sidecars.worker-environments starting total=7376.5ms
+2026-10-24T09:17:17.222-07:00 [gateway] startup phase: sidecars.worker-environments.github-ready starting total=7377.3ms
+2026-10-24T09:17:17.222-07:00 [gateway] startup phase: sidecars.worker-environments.github-ready 0.2ms total=7377.5ms
+2026-10-24T09:17:17.222-07:00 [gateway] startup phase: sidecars.worker-environments.workspaces starting total=7377.9ms
+2026-10-24T09:17:17.228-07:00 [gateway] startup phase: sidecars.worker-environments.workspaces 5.5ms total=7383.4ms
+2026-10-24T09:17:17.228-07:00 [gateway] startup phase: sidecars.worker-environments.active starting total=7383.6ms
+2026-10-24T09:17:17.230-07:00 [gateway] startup phase: sidecars.worker-environments.active 2.3ms total=7385.9ms
+2026-10-24T09:17:17.233-07:00 [gateway] startup phase: sidecars.worker-environments 11.7ms total=7388.2ms
+2026-10-24T09:17:17.233-07:00 [gateway] starting channels and sidecars...
+2026-10-24T09:17:17.233-07:00 [gateway] startup phase: sidecars.internal-hooks starting total=7388.8ms
+2026-10-24T09:17:17.235-07:00 [gateway] startup phase: sidecars.model-runtime starting total=7390.0ms
+2026-10-24T09:17:17.235-07:00 [gateway] startup phase: sidecars.reply-runtime starting total=7390.2ms
+2026-10-24T09:17:17.417-07:00 [gateway] startup phase: sidecars.internal-hooks 183.7ms total=7572.4ms
+2026-10-24T09:17:17.591-07:00 [gateway] startup phase: sidecars.reply-runtime 356.2ms total=7746.5ms
+2026-10-24T09:17:17.592-07:00 [gateway] startup phase: sidecars.worker-environments.publications starting total=7747.6ms
+2026-10-24T09:17:17.697-07:00 [gateway] startup phase: sidecars.model-runtime 462.3ms total=7852.2ms
+2026-10-24T09:17:17.703-07:00 [gateway] startup phase: sidecars.chat-metadata starting total=7858.0ms
+2026-10-24T09:17:17.703-07:00 [gateway] startup phase: sidecars.chat-metadata 0.6ms total=7858.6ms
+2026-10-24T09:17:17.703-07:00 [gateway] startup phase: sidecars.plugin-services starting total=7858.7ms
+2026-10-24T09:17:17.705-07:00 [gateway] startup phase: sidecars.channels starting total=7860.6ms
+2026-10-24T09:17:17.726-07:00 [plugins] embedded acpx runtime backend registered lazily
+2026-10-24T09:17:17.788-07:00 [gateway] startup phase: sidecars.plugin-services 84.2ms total=7942.9ms
+2026-10-24T09:17:17.790-07:00 [gateway] startup outcomes: internal-hooks=skipped (not-configured); internal-startup-hook=skipped (no-handlers-loaded); gateway-start-hooks=scheduled; gmail-watcher=skipped (hooks-disabled); gmail-model=skipped (not-configured)
+2026-10-24T09:17:17.792-07:00 [gateway] startup phase: runtime.worker-pool-metrics starting total=7947.4ms
+2026-10-24T09:17:17.795-07:00 [gateway] startup phase: runtime.worker-pool-metrics 2.8ms total=7950.2ms
+2026-10-24T09:17:17.830-07:00 [scheduler] running plugin-service:06b2c7b0-739b-474f-a908-ea2086fffc4e:codex/native-profile-recovery
+2026-10-24T09:17:17.831-07:00 [scheduler] running plugin-service:6932e735-efd6-4431-a16b-f3352c0cf94e:<home>/.openclaw-proof-124337-abandon-new-head-2/agents/main/agent/openclaw-agent.sqlite
+2026-10-24T09:17:17.833-07:00 [scheduler] running startup:dependency-template-prewarm
+2026-10-24T09:17:17.845-07:00 [gateway] startup phase: sidecars.worker-environments.publications 252.7ms total=8000.3ms
+2026-10-24T09:17:17.960-07:00 [plugins] memory-core: created managed dreaming cron job.
+2026-10-24T09:17:18.002-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:18.265-07:00 [scheduler] running database:page-cache
+2026-10-24T09:17:18.265-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T09:17:18.265-07:00 [scheduler] running startup:maintenance
+2026-10-24T09:17:18.348-07:00 [scheduler] running cron-maintenance
+2026-10-24T09:17:18.514-07:00 [scheduler] running startup:post-ready-work
+2026-10-24T09:17:18.515-07:00 [gateway] startup phase: sidecars.main-session-recovery starting total=8670.0ms
+2026-10-24T09:17:18.539-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:18.547-07:00 [scheduler] running update.check
+2026-10-24T09:17:18.547-07:00 [scheduler] running update.remote-model-catalog
+2026-10-24T09:17:18.767-07:00 [cron/maintenance] Session registry maintenance completed
+2026-10-24T09:17:18.856-07:00 [gateway] startup phase: sidecars.main-session-recovery 340.9ms total=9010.9ms
+2026-10-24T09:17:18.875-07:00 [discord] [default] starting account (reason: startup)
+2026-10-24T09:17:18.876-07:00 [discord] [default] starting provider
+2026-10-24T09:17:18.964-07:00 [gateway] startup phase: sidecars.channels 1258.4ms total=9118.9ms
+2026-10-24T09:17:18.988-07:00 discord: config dm=on dmPolicy=allowlist allowFrom=<human> groupDm=off groupDmChannels=any groupPolicy=allowlist guilds=any historyLimit=20 mediaMaxMb=100 native=off nativeSkills=off accessGroups=on threadBindings=on threadIdleTimeout=24h threadMaxAge=off
+2026-10-24T09:17:19.019-07:00 [scheduler] running maintenance:device-pair-setup
+2026-10-24T09:17:19.019-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:19.033-07:00 [gateway] startup phase: sidecars.subagent-recovery starting total=9188.4ms
+2026-10-24T09:17:19.069-07:00 [gateway] startup phase: ready 12.0ms total=9224.9ms
+2026-10-24T09:17:19.070-07:00 [gateway] ready
+2026-10-24T09:17:19.070-07:00 [gateway] startup phase: sidecars.subagent-recovery 37.0ms total=9225.3ms readersMs=0.0 execMs=36.6 registryLoadMs=3.0 registryActivationMs=2.7 registryActivationBindMs=0.5 registryActivationRequestersMs=0.2 registryActivationReserveMs=0.2 registryActivationResumeMs=0.5 registryActivationAuthorityRestoreMs=0.0 registryActivationPublishMs=0.0 registryActivationSessionReadMs=0.0 registryActivationYieldMs=0.0 registryActivationRuns=0.0 registryActivationActiveRuns=0.0 registryActivationRecoveredRuns=0.0 registryActivationPublishedRuns=0.0 outcome=success
+2026-10-24T09:17:19.074-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.076-07:00 [discord] [default] Discord bot check resolved @proof-bot
+2026-10-24T09:17:19.079-07:00 [discord] [default] Discord Message Content Intent is disabled; bot may not respond to channel messages. Enable it in Discord Dev Portal (Bot → Privileged Gateway Intents) or require mentions.
+2026-10-24T09:17:19.093-07:00 [discord] client initialized as <bot> (proof-bot); awaiting gateway readiness
+2026-10-24T09:17:19.304-07:00 [hooks] running gateway_start (1 handlers)
+2026-10-24T09:17:19.330-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.527-07:00 [scheduler] running database:page-cache
+2026-10-24T09:17:19.527-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T09:17:19.580-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.624-07:00 [gateway] database page-cache residency: database=state scope=file-sample resident=100.0% readBytes=72015 diskBytes=0 payloadBytes=0 payloadMessages=0 elapsedMs=11.8 projectionQueryMs=n/a->n/a limited=false
+2026-10-24T09:17:19.831-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.845-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.880-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.888-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:19.894-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:20.022-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:20.109-07:00 [scheduler] running delivery:session-recovery
+2026-10-24T09:17:20.533-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T09:17:20.534-07:00 [gateway] startup phase: post-ready.startup-maintenance starting total=10689.4ms
+2026-10-24T09:17:20.535-07:00 [gateway] startup phase: startup.maintenance.plugin-registry starting total=10690.0ms
+2026-10-24T09:17:20.536-07:00 [gateway] startup phase: startup.maintenance.channels starting total=10691.1ms
+2026-10-24T09:17:20.536-07:00 [gateway] startup phase: startup.maintenance.sessions starting total=10691.6ms
+2026-10-24T09:17:20.536-07:00 [gateway] startup phase: startup.maintenance.pairing starting total=10691.7ms
+2026-10-24T09:17:20.539-07:00 [gateway] startup phase: startup.maintenance.sessions 2.4ms total=10693.9ms
+2026-10-24T09:17:20.539-07:00 [gateway] startup phase: startup.maintenance.channels 3.4ms total=10694.6ms
+2026-10-24T09:17:20.542-07:00 [gateway] startup phase: startup.maintenance.pairing 6.2ms total=10697.9ms
+2026-10-24T09:17:20.812-07:00 [gateway] startup phase: startup.maintenance.plugin-registry 277.6ms total=10967.6ms
+2026-10-24T09:17:20.812-07:00 [gateway] startup phase: post-ready.startup-maintenance 278.5ms total=10967.9ms
+2026-10-24T09:17:21.025-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:21.329-07:00 [scheduler] running cron-maintenance
+2026-10-24T09:17:22.790-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:22.799-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:23.171-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T09:17:25.067-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:17:25.143-07:00 discord stream preview ready (maxChars=2000, throttleMs=1200)
+2026-10-24T09:17:27.282-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T09:17:27.740-07:00 [scheduler] running plugin-service:b8d03bda-9fda-4059-bef5-9a8e424af316:notifications
+2026-10-24T09:17:30.000-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:31.005-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:31.042-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:17:31.053-07:00 discord stream preview ready (maxChars=2000, throttleMs=1200)
+2026-10-24T09:17:31.169-07:00 [diagnostic] message dispatch completed: channel=discord sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=completed duration=92ms
+2026-10-24T09:17:31.170-07:00 [diagnostic] message processed: channel=discord chatId=user:<human> messageId=msg#03 sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main outcome=completed duration=98ms
+2026-10-24T09:17:32.008-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:33.009-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:33.859-07:00 [scheduler] running sessions:upstream-initial-probe
+2026-10-24T09:17:34.011-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:34.059-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:17:34.068-07:00 discord stream preview ready (maxChars=2000, throttleMs=1200)
+2026-10-24T09:17:34.126-07:00 [discord] ingress: spooled update msg#04 failed; keeping for retry: turn-abandoned
+2026-10-24T09:17:35.013-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:36.015-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:36.106-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:17:37.017-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:38.019-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:39.021-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:40.022-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:41.024-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:42.025-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:43.027-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:44.029-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:45.031-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:46.033-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:46.413-07:00 [scheduler] running maintenance:telemetry
+2026-10-24T09:17:47.034-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:48.014-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:17:48.015-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:17:48.035-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:48.997-07:00 [scheduler] running skills.remote-bin-refresh
+2026-10-24T09:17:49.037-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:50.038-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:51.041-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:52.043-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:53.044-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:54.046-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:55.048-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:56.050-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:57.051-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:58.053-07:00 [scheduler] running event-loop-health
+2026-10-24T09:17:59.056-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:00.058-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:01.060-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:02.061-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:03.063-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:04.065-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:04.125-07:00 [diagnostic] message dispatch completed: channel=discord sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=skipped duration=30043ms reason=queue-cap
+2026-10-24T09:18:04.125-07:00 [diagnostic] message processed: channel=discord chatId=user:<human> messageId=msg#04 sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main outcome=skipped duration=30048ms reason=queue-cap
+2026-10-24T09:18:05.066-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:06.067-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:07.069-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:08.071-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:09.072-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:10.075-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:11.076-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:12.077-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:13.080-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:14.081-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:15.083-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:16.084-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:17.085-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:18.016-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:18:18.016-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:18:18.087-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:18.346-07:00 [scheduler] running worker-placements:disk-space
+2026-10-24T09:18:19.089-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:20.092-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:21.093-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:22.096-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:23.098-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:24.100-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:25.101-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:26.102-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:27.103-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:28.105-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:29.106-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:30.108-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:31.109-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:32.112-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:33.113-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:34.114-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:35.117-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:36.118-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:37.120-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:38.121-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:39.123-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:40.126-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:41.131-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:42.137-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:43.142-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:44.146-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:45.148-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:46.151-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:47.152-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:48.016-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:18:48.017-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:18:48.154-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:49.155-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:50.157-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:51.159-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:52.160-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:53.163-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:54.164-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:55.166-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:56.168-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:57.169-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:58.172-07:00 [scheduler] running event-loop-health
+2026-10-24T09:18:59.175-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:00.176-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:01.179-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:02.180-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:03.183-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:04.184-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:05.187-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:06.188-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:07.190-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:08.192-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:09.194-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:10.199-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:11.202-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:12.203-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:13.209-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:14.210-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:15.216-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:16.222-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:17.228-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:18.016-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:19:18.018-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:19:18.229-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:19.231-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:20.236-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:21.243-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:22.249-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:23.255-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:24.261-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:25.263-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:26.265-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:27.270-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:28.275-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:29.280-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:30.286-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:31.293-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:32.295-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:33.299-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:34.301-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:35.302-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:36.304-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:37.309-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:38.312-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:39.316-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:40.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=133s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=133s recovery=controller_owned
+2026-10-24T09:19:40.321-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:41.326-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:42.331-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:43.336-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:44.342-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:45.343-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:46.346-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:47.351-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:48.016-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:19:48.018-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:19:48.356-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:49.362-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:50.366-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:51.368-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:52.370-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:53.376-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:54.380-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:55.386-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:56.391-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:57.394-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:58.399-07:00 [scheduler] running event-loop-health
+2026-10-24T09:19:59.402-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:00.407-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:01.414-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:02.416-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:03.418-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:04.419-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:05.420-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:06.422-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:07.423-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:08.424-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:09.425-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:10.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=163s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=163s recovery=controller_owned
+2026-10-24T09:20:10.426-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:11.427-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:12.428-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:13.429-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:14.430-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:15.431-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:16.434-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:17.435-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:18.017-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:20:18.019-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:20:18.436-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:19.438-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:20.439-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:21.445-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:22.450-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:23.456-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:24.457-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:25.460-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:26.462-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:27.463-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:28.465-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:29.466-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:30.467-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:31.469-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:32.470-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:33.472-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:34.473-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:35.475-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:36.477-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:37.478-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:38.480-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:39.482-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:40.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=193s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=193s recovery=controller_owned
+2026-10-24T09:20:40.483-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:41.485-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:42.486-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:43.488-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:44.490-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:45.491-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:46.497-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:47.502-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:48.017-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:20:48.019-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:20:48.504-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:49.510-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:50.515-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:51.522-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:52.523-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:53.529-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:54.532-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:55.538-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:56.544-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:57.546-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:58.551-07:00 [scheduler] running event-loop-health
+2026-10-24T09:20:59.556-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:00.562-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:01.568-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:02.573-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:03.575-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:04.577-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:05.580-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:06.583-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:07.584-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:08.590-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:09.595-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:10.001-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=223s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=223s recovery=controller_owned
+2026-10-24T09:21:10.597-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:11.598-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:12.604-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:13.609-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:14.615-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:15.620-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:16.622-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:17.626-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:18.017-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:21:18.020-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:21:18.631-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:19.636-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:20.641-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:21.644-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:22.646-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:23.648-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:24.653-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:25.657-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:26.660-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:27.664-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:28.666-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:29.668-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:30.673-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:31.675-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:32.679-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:33.681-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:34.687-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:35.688-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:36.691-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:37.695-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:38.701-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:39.705-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:40.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=253s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=253s recovery=controller_owned
+2026-10-24T09:21:40.712-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:41.718-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:42.720-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:43.725-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:44.727-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:45.729-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:46.734-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:47.735-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:48.018-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:21:48.020-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:21:48.736-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:49.738-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:50.740-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:51.746-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:52.751-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:53.755-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:54.758-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:55.759-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:56.765-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:57.766-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:58.769-07:00 [scheduler] running event-loop-health
+2026-10-24T09:21:59.770-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:00.772-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:01.774-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:02.775-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:03.781-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:04.782-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:05.786-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:06.792-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:07.796-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:08.801-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:09.803-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:10.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=283s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=283s recovery=controller_owned
+2026-10-24T09:22:10.807-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:11.809-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:12.815-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:13.821-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:14.825-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:15.826-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:16.829-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:17.835-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:18.018-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:22:18.022-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:22:18.839-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:19.842-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:20.847-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:21.849-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:22.850-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:23.854-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:24.855-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:25.861-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:26.862-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:27.863-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:28.864-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:29.867-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:30.873-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:31.874-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:32.875-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:33.880-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:34.881-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:35.882-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:36.112-07:00 [discord] ingress: Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 299999ms; applying retry policy (handler-timeout).
+2026-10-24T09:22:36.115-07:00 [discord] ingress: spooled update msg#04 failed; keeping for retry: Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 299999ms; applying retry policy (handler-timeout).
+2026-10-24T09:22:36.885-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:37.887-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:38.214-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:22:38.892-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:39.896-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:40.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=313s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=313s recovery=controller_owned
+2026-10-24T09:22:40.901-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:41.903-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:42.906-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:43.907-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:44.909-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:45.914-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:46.919-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:47.922-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:48.019-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:22:48.022-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:22:48.923-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:49.925-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:50.927-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:51.932-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:52.937-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:53.947-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:54.950-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:55.951-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:56.953-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:57.954-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:58.959-07:00 [scheduler] running event-loop-health
+2026-10-24T09:22:59.965-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:00.970-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:01.975-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:02.977-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:03.978-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:04.984-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:05.986-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:06.992-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:07.995-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:08.996-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:09.998-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:10.001-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=343s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=343s recovery=controller_owned
+2026-10-24T09:23:10.999-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:12.001-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:13.003-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:14.006-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:15.008-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:16.010-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:17.012-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:18.014-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:18.020-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:23:18.022-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:23:19.015-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:20.016-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:21.018-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:22.020-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:23.021-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:24.023-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:25.024-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:26.026-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:27.028-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:28.030-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:29.032-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:30.033-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:31.034-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:32.035-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:33.037-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:34.039-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:35.042-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:36.043-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:37.045-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:38.048-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:39.050-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:40.002-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=373s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=373s recovery=controller_owned
+2026-10-24T09:23:40.052-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:41.055-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:42.058-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:43.063-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:44.068-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:45.070-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:46.075-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:47.082-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:48.020-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:23:48.022-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:23:48.086-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:49.087-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:50.092-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:51.093-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:52.098-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:53.103-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:54.108-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:55.113-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:56.118-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:57.119-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:58.123-07:00 [scheduler] running event-loop-health
+2026-10-24T09:23:59.124-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:00.130-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:01.131-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:02.138-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:03.143-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:04.146-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:05.151-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:06.152-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:07.157-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:08.159-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:09.164-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:10.001-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=403s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=403s recovery=controller_owned
+2026-10-24T09:24:10.166-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:11.169-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:12.174-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:13.179-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:14.182-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:15.187-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:16.190-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:17.196-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:18.022-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:24:18.022-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:24:18.197-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:19.201-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:20.203-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:21.205-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:22.206-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:23.208-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:24.209-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:25.211-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:26.212-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:27.217-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:28.220-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:29.224-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:30.225-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:31.230-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:32.236-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:33.237-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:34.242-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:35.248-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:36.254-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:37.260-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:38.261-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:39.263-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:40.001-07:00 [diagnostic] long-running session: sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main state=idle age=433s queueDepth=1 reason=runtime_owned_wait classification=long_running activeWorkKind=embedded_run lastProgress=global_lane:wait_ended lastProgressAge=433s recovery=controller_owned
+2026-10-24T09:24:40.268-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:41.270-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:42.273-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:43.278-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:44.283-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:45.285-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:46.288-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:47.293-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:48.022-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T09:24:48.023-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T09:24:48.298-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:49.301-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:50.306-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:51.311-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:52.313-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:53.317-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:54.321-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:55.325-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:56.329-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:57.334-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:58.339-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:59.341-07:00 [scheduler] running event-loop-health
+2026-10-24T09:24:59.537-07:00 [activity-summary] recap unavailable: no Gateway model credential
+2026-10-24T09:24:59.597-07:00 [diagnostic] message dispatch completed: channel=discord sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=completed duration=454185ms
+2026-10-24T09:24:59.597-07:00 [diagnostic] message processed: channel=discord chatId=user:<human> messageId=msg#01 sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main outcome=completed duration=454217ms
+2026-10-24T09:24:59.643-07:00 discord stream preview ready (maxChars=2000, throttleMs=1200)
+2026-10-24T09:24:59.834-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:24:59.839-07:00 discord stream preview ready (maxChars=2000, throttleMs=1200)
+2026-10-24T09:24:59.844-07:00 [diagnostic] message dispatch completed: channel=discord sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=completed duration=161ms
+2026-10-24T09:24:59.844-07:00 [diagnostic] message processed: channel=discord chatId=user:<human> messageId=msg#04 sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main outcome=completed duration=166ms
+2026-10-24T09:25:00.035-07:00 [discord] ingress: spooled update msg#05 failed; keeping for retry: turn-abandoned
+2026-10-24T09:25:00.054-07:00 [diagnostic] message dispatch completed: channel=discord sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=skipped duration=71ms reason=queue-cap
+2026-10-24T09:25:00.054-07:00 [diagnostic] message processed: channel=discord chatId=user:<human> messageId=msg#05 sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main outcome=skipped duration=75ms reason=queue-cap
+2026-10-24T09:25:00.333-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T09:25:00.349-07:00 [scheduler] running event-loop-health
+2026-10-24T09:25:00.576-07:00 [agent/embedded] embedded run failover decision: runId=9da426f4-5c62-4447-bf11-7cb11b7b5591 stage=assistant decision=continue_normal reason=none attempt=1 retry=0 rotations=0 from=openai/gpt-5.6-sol profile=-
+2026-10-24T09:25:00.781-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T09:25:00.993-07:00 [agent/embedded] embedded run failover decision: runId=b1248f42-ece0-4d9b-93dc-c3e0a39cb2c1 stage=assistant decision=continue_normal reason=none attempt=1 retry=0 rotations=0 from=openai/gpt-5.6-sol profile=-
+2026-10-24T09:25:01.206-07:00 [routing] resolveAgentRoute: channel=discord accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T09:25:01.211-07:00 discord stream preview ready (maxChars=2000, throttleMs=1200)
+2026-10-24T09:25:01.378-07:00 [scheduler] running event-loop-health
+2026-10-24T09:25:01.392-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T09:25:01.600-07:00 [agent/embedded] embedded run failover decision: runId=edc0a443-fede-400a-8270-4f5a6604f11f stage=assistant decision=continue_normal reason=none attempt=1 retry=0 rotations=0 from=openai/gpt-5.6-sol profile=-
+2026-10-24T09:25:01.667-07:00 [diagnostic] message dispatch completed: channel=discord sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=completed duration=443ms
+2026-10-24T09:25:01.667-07:00 [diagnostic] message processed: channel=discord chatId=user:<human> messageId=msg#05 sessionId=9fafe0ce-6145-4060-b343-6c026cc0322a sessionKey=agent:main:main outcome=completed duration=448ms
+2026-10-24T09:25:02.380-07:00 [scheduler] running event-loop-health
+2026-10-24T09:25:04.546-07:00 [scheduler] running delivery:outbound-recovery
+2026-10-24T09:25:10.002-07:00 [scheduler] running event-loop-health
+2026-10-24T09:25:12.505-07:00 [admission] closed: restart-signal fence
+2026-10-24T09:25:12.510-07:00 [admission] closed: stop (SIGTERM)
+2026-10-24T09:25:12.511-07:00 [gateway] received SIGTERM; shutting down
+2026-10-24T09:25:12.547-07:00 [gateway] Unable to read systemd stop timeout; user manager openclaw-gateway.service: InvocationID does not match the running process; system manager openclaw-gateway.service: LoadState=not-found; using 90000ms default. Check the running unit with systemctl show.
+2026-10-24T09:25:12.547-07:00 [gateway] Retaining the startup shutdown budget of 85000ms because the current supervisor stop timeout could not be confirmed.
+2026-10-24T09:25:12.548-07:00 [gateway] shutdown budget at shutdown: drain=74957ms shutdown=84957ms reserve=10000ms exitMargin=5000ms; source=startup shutdown budget=85000ms
+2026-10-24T09:25:12.550-07:00 [gateway] active-work drain settled; beginning server close
+[state/agent-db] agent database clean-close receipt: written; agent=main
+2026-10-24T09:25:12.628-07:00 [discord] gateway websocket closed flow=19440c4f-361e-4abb-9f4e-d49c89ef2283 code=1000 reasonBytes=17 reason=Client disconnect
+2026-10-24T09:25:12.818-07:00 [gmail-watcher] gmail watcher stopped
+2026-10-24T09:25:12.872-07:00 [shutdown] completed cleanly in 316ms

@@ -1,0 +1,11 @@
+== rows queued 16:41:44Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+== rows after-stop 16:41:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03		completed	attempts=1	last_error=	failed_reason=
+state/openclaw.sqlite	#04		completed	attempts=0	last_error=	failed_reason=
+== rows final 16:46:00Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03		completed	attempts=1	last_error=	failed_reason=
+state/openclaw.sqlite	#04		completed	attempts=0	last_error=	failed_reason=

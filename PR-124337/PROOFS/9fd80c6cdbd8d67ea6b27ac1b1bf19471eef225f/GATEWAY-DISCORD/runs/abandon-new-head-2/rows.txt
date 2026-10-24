@@ -1,0 +1,57 @@
+== rows +30s 16:18:04Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +60s 16:18:34Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +90s 16:19:04Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +120s 16:19:34Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +150s 16:20:04Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +180s 16:20:34Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +210s 16:21:04Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +240s 16:21:34Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +270s 16:22:04Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +300s 16:22:34Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +330s 16:23:04Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 299999ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +361s 16:23:35Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 299999ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +391s 16:24:05Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 299999ms; applying retry policy (handler-timeout).	failed_reason=
+== rows final 16:25:12Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04		completed	attempts=2	last_error=	failed_reason=
+state/openclaw.sqlite	#05		completed	attempts=1	last_error=	failed_reason=

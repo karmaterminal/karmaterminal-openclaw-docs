@@ -1,0 +1,189 @@
+{"t":"2026-10-24T16:50:48.007Z","kind":"listening","port":18875}
+{"t":"2026-10-24T16:51:01.413Z","kind":"rest","method":"GET","path":"/api/v10/users/@me","status":200}
+{"t":"2026-10-24T16:51:01.413Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:51:01.470Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:51:01.471Z","kind":"rest","method":"GET","path":"/api/v10/gateway/bot","status":200}
+{"t":"2026-10-24T16:51:01.488Z","kind":"gateway","event":"connected","url":"/?v=10&encoding=json"}
+{"t":"2026-10-24T16:51:01.488Z","kind":"rest","method":"GET","path":"/api/v10/users/%40me","status":200}
+{"t":"2026-10-24T16:51:01.491Z","kind":"gateway","event":"IDENTIFY","intents":46601,"token":"<redacted>"}
+{"t":"2026-10-24T16:51:01.499Z","kind":"gateway","event":"op 3"}
+{"t":"2026-10-24T16:51:07.235Z","kind":"human-guild","id":"msg#01","content":"HOLD-1 keep the turn busy","connected":true}
+{"t":"2026-10-24T16:51:07.259Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T16:51:07.311Z","kind":"rest","method":"GET","path":"/api/v10/guilds/<guild>","status":200}
+{"t":"2026-10-24T16:51:07.351Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T16:51:09.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:11.522Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#02","content":"Working"}
+{"t":"2026-10-24T16:51:11.522Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T16:51:12.725Z","kind":"bot-edit","channel":"<guild-channel>","id":"msg#02","content":"ack HOLD-1"}
+{"t":"2026-10-24T16:51:12.725Z","kind":"rest","method":"PATCH","path":"/api/v10/channels/<guild-channel>/messages/msg#02","status":200}
+{"t":"2026-10-24T16:51:13.247Z","kind":"human-guild","id":"msg#03","content":"MSG-G01 busy room","connected":true}
+{"t":"2026-10-24T16:51:13.264Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T16:51:15.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:18.254Z","kind":"human-guild","id":"msg#04","content":"MSG-G02 busy room","connected":true}
+{"t":"2026-10-24T16:51:18.269Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T16:51:21.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:23.260Z","kind":"human-guild","id":"msg#05","content":"MSG-G03 busy room","connected":true}
+{"t":"2026-10-24T16:51:23.279Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T16:51:27.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:28.267Z","kind":"human-guild","id":"msg#06","content":"MSG-G04 busy room","connected":true}
+{"t":"2026-10-24T16:51:33.276Z","kind":"human-guild","id":"msg#07","content":"MSG-G05 busy room","connected":true}
+{"t":"2026-10-24T16:51:33.733Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:38.282Z","kind":"human-guild","id":"msg#08","content":"MSG-G06 busy room","connected":true}
+{"t":"2026-10-24T16:51:39.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:43.289Z","kind":"human-guild","id":"msg#09","content":"MSG-G07 busy room","connected":true}
+{"t":"2026-10-24T16:51:45.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:48.295Z","kind":"human-guild","id":"msg#10","content":"MSG-G08 busy room","connected":true}
+{"t":"2026-10-24T16:51:51.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:53.302Z","kind":"human-guild","id":"msg#11","content":"MSG-G09 busy room","connected":true}
+{"t":"2026-10-24T16:51:57.738Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:51:58.316Z","kind":"human-guild","id":"msg#12","content":"MSG-G10 busy room","connected":true}
+{"t":"2026-10-24T16:52:03.328Z","kind":"human-guild","id":"msg#13","content":"MSG-G11 busy room","connected":true}
+{"t":"2026-10-24T16:52:03.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:08.334Z","kind":"human-guild","id":"msg#14","content":"MSG-G12 busy room","connected":true}
+{"t":"2026-10-24T16:52:09.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:15.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:21.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:27.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:33.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:39.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:45.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:51.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:52:57.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:03.736Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:09.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:15.735Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:21.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:27.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:33.734Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:39.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:45.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:51.738Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:53:57.738Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:03.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:09.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:15.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:21.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:27.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:33.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:39.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:45.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:51.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:54:57.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:03.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:09.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:15.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:21.738Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:27.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:33.737Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:39.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:45.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:51.742Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:55:57.742Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:03.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:09.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:15.742Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:21.738Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:26.623Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T16:56:26.629Z","kind":"rest","method":"GET","path":"/api/v10/guilds/<guild>","status":200}
+{"t":"2026-10-24T16:56:27.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:33.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:39.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:45.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:51.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:56:57.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:03.739Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:09.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:15.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:21.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:27.742Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:33.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:39.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:45.746Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:51.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:57:57.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:03.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:09.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:15.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:21.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:27.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:33.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:39.740Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:45.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:51.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:58:57.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:03.741Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:09.742Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:15.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:21.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:27.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:33.750Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:39.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:44.524Z","kind":"human-guild","id":"msg#15","content":"MSG-Z after the hold","connected":true}
+{"t":"2026-10-24T16:59:45.743Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:51.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T16:59:57.744Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:03.747Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:09.746Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:15.749Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:21.704Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:21.710Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#16","content":"ack HOLD-1"}
+{"t":"2026-10-24T17:00:21.710Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:21.728Z","kind":"rest","method":"DELETE","path":"/api/v10/channels/<guild-channel>/messages/msg#02","status":204}
+{"t":"2026-10-24T17:00:21.763Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:22.017Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:22.868Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:22.872Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#17","content":"ack MSG-G02"}
+{"t":"2026-10-24T17:00:22.872Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:23.302Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:23.306Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#18","content":"ack MSG-G01"}
+{"t":"2026-10-24T17:00:23.306Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:23.359Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:23.453Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:23.524Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:24.062Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:24.066Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#19","content":"ack MSG-G04"}
+{"t":"2026-10-24T17:00:24.066Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:24.466Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:24.469Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#20","content":"ack MSG-G05"}
+{"t":"2026-10-24T17:00:24.469Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:24.850Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:24.853Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#21","content":"ack MSG-G06"}
+{"t":"2026-10-24T17:00:24.853Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:25.693Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:25.793Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:25.914Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:26.061Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:26.064Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:26.209Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:26.213Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#22","content":"ack MSG-G03"}
+{"t":"2026-10-24T17:00:26.213Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:27.056Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:27.060Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#23","content":"ack MSG-G08"}
+{"t":"2026-10-24T17:00:27.060Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:27.497Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:27.501Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#24","content":"ack MSG-G09"}
+{"t":"2026-10-24T17:00:27.501Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:27.679Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:27.768Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:27.940Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:28.024Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:28.063Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:28.186Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:28.190Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#25","content":"ack MSG-G07"}
+{"t":"2026-10-24T17:00:28.190Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:29.027Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:29.030Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#26","content":"ack MSG-G11"}
+{"t":"2026-10-24T17:00:29.030Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:29.402Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:29.406Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#27","content":"ack MSG-G12"}
+{"t":"2026-10-24T17:00:29.406Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:29.682Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:29.770Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:30.011Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/typing","status":204}
+{"t":"2026-10-24T17:00:30.142Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:30.146Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#28","content":"ack MSG-G10"}
+{"t":"2026-10-24T17:00:30.146Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:30.702Z","kind":"rest","method":"GET","path":"/api/v10/channels/<guild-channel>","status":200}
+{"t":"2026-10-24T17:00:30.705Z","kind":"bot-send","channel":"<guild-channel>","id":"msg#29","content":"ack MSG-Z"}
+{"t":"2026-10-24T17:00:30.705Z","kind":"rest","method":"POST","path":"/api/v10/channels/<guild-channel>/messages","status":200}
+{"t":"2026-10-24T17:00:41.956Z","kind":"gateway","event":"closed","code":1000}

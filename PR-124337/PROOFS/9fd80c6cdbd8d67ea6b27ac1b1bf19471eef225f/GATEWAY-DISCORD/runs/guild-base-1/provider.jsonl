@@ -1,0 +1,37 @@
+{"t":"2026-10-24T16:50:48.004Z","phase":"listening","port":18865,"ROUNDS":22,"STEP":25}
+{"t":"2026-10-24T16:51:09.824Z","n":1,"phase":"hold-sleep 1/22","markers":["HOLD-1"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:51:34.885Z","n":25,"phase":"hold-sleep 2/22","markers":["HOLD-1"],"toolOutputs":1,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:51:59.935Z","n":49,"phase":"hold-sleep 3/22","markers":["HOLD-1"],"toolOutputs":2,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:52:24.987Z","n":73,"phase":"hold-sleep 4/22","markers":["HOLD-1"],"toolOutputs":3,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:52:50.038Z","n":97,"phase":"hold-sleep 5/22","markers":["HOLD-1"],"toolOutputs":4,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:53:15.091Z","n":121,"phase":"hold-sleep 6/22","markers":["HOLD-1"],"toolOutputs":5,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:53:40.161Z","n":145,"phase":"hold-sleep 7/22","markers":["HOLD-1"],"toolOutputs":6,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:54:05.250Z","n":169,"phase":"hold-sleep 8/22","markers":["HOLD-1"],"toolOutputs":7,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:54:30.343Z","n":193,"phase":"hold-sleep 9/22","markers":["HOLD-1"],"toolOutputs":8,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:54:55.422Z","n":217,"phase":"hold-sleep 10/22","markers":["HOLD-1"],"toolOutputs":9,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:55:20.500Z","n":241,"phase":"hold-sleep 11/22","markers":["HOLD-1"],"toolOutputs":10,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:55:45.594Z","n":265,"phase":"hold-sleep 12/22","markers":["HOLD-1"],"toolOutputs":11,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:56:10.674Z","n":289,"phase":"hold-sleep 13/22","markers":["HOLD-1"],"toolOutputs":12,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:56:35.727Z","n":313,"phase":"hold-sleep 14/22","markers":["HOLD-1"],"toolOutputs":13,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:57:00.779Z","n":337,"phase":"hold-sleep 15/22","markers":["HOLD-1"],"toolOutputs":14,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:57:25.875Z","n":361,"phase":"hold-sleep 16/22","markers":["HOLD-1"],"toolOutputs":15,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:57:51.003Z","n":385,"phase":"hold-sleep 17/22","markers":["HOLD-1"],"toolOutputs":16,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:58:16.056Z","n":409,"phase":"hold-sleep 18/22","markers":["HOLD-1"],"toolOutputs":17,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:58:41.175Z","n":433,"phase":"hold-sleep 19/22","markers":["HOLD-1"],"toolOutputs":18,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:59:06.230Z","n":457,"phase":"hold-sleep 20/22","markers":["HOLD-1"],"toolOutputs":19,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:59:31.284Z","n":481,"phase":"hold-sleep 21/22","markers":["HOLD-1"],"toolOutputs":20,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:59:56.338Z","n":505,"phase":"hold-sleep 22/22","markers":["HOLD-1"],"toolOutputs":21,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:21.410Z","n":529,"phase":"reply","markers":["HOLD-1"],"toolOutputs":22,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:22.753Z","n":530,"phase":"reply","markers":["MSG-G02"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:23.196Z","n":531,"phase":"reply","markers":["MSG-G01"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:23.958Z","n":532,"phase":"reply","markers":["MSG-G04"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:24.367Z","n":533,"phase":"reply","markers":["MSG-G05"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:24.751Z","n":534,"phase":"reply","markers":["MSG-G06"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:26.091Z","n":535,"phase":"reply","markers":["MSG-G03"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:26.927Z","n":536,"phase":"reply","markers":["MSG-G08"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:27.358Z","n":537,"phase":"reply","markers":["MSG-G09"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:28.056Z","n":538,"phase":"reply","markers":["MSG-G07"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:28.928Z","n":539,"phase":"reply","markers":["MSG-G11"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:29.304Z","n":540,"phase":"reply","markers":["MSG-G12"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:30.036Z","n":541,"phase":"reply","markers":["MSG-G10"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T17:00:30.605Z","n":542,"phase":"reply","markers":["MSG-Z"],"toolOutputs":0,"model":"gpt-5.6-sol"}

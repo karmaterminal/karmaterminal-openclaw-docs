@@ -1,0 +1,9 @@
+label=abandon-head-1 tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0 start=15:39:24Z
+gateway#1 up health+3s discord={"connected":true,"sequence":1} 15:39:37Z
+dm 'HOLD-1 keep the turn busy' 15:39:42Z
+dm 'MSG-A first queued' 15:39:48Z
+dm 'MSG-B second queued' 15:39:49Z
+dm 'MSG-C after the abandonment window' 15:45:20Z
+C NOT replied by deadline
+gateway#1 stopped 15:52:28Z
+end=15:52:28Z

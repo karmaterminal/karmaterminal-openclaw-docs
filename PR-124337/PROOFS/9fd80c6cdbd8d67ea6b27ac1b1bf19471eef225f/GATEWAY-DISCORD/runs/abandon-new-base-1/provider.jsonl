@@ -1,0 +1,29 @@
+{"t":"2026-10-24T16:03:47.208Z","phase":"listening","port":18565,"ROUNDS":24,"STEP":25}
+{"t":"2026-10-24T16:05:50.890Z","n":1,"phase":"hold-sleep 1/24","markers":["HOLD-1"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:06:15.995Z","n":27,"phase":"hold-sleep 2/24","markers":["HOLD-1"],"toolOutputs":1,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:06:41.051Z","n":53,"phase":"hold-sleep 3/24","markers":["HOLD-1"],"toolOutputs":2,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:07:06.170Z","n":79,"phase":"hold-sleep 4/24","markers":["HOLD-1"],"toolOutputs":3,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:07:31.266Z","n":105,"phase":"hold-sleep 5/24","markers":["HOLD-1"],"toolOutputs":4,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:07:56.318Z","n":131,"phase":"hold-sleep 6/24","markers":["HOLD-1"],"toolOutputs":5,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:08:21.370Z","n":157,"phase":"hold-sleep 7/24","markers":["HOLD-1"],"toolOutputs":6,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:08:46.420Z","n":183,"phase":"hold-sleep 8/24","markers":["HOLD-1"],"toolOutputs":7,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:09:11.471Z","n":209,"phase":"hold-sleep 9/24","markers":["HOLD-1"],"toolOutputs":8,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:09:36.565Z","n":235,"phase":"hold-sleep 10/24","markers":["HOLD-1"],"toolOutputs":9,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:10:01.643Z","n":261,"phase":"hold-sleep 11/24","markers":["HOLD-1"],"toolOutputs":10,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:10:26.696Z","n":287,"phase":"hold-sleep 12/24","markers":["HOLD-1"],"toolOutputs":11,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:10:51.748Z","n":313,"phase":"hold-sleep 13/24","markers":["HOLD-1"],"toolOutputs":12,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:11:16.832Z","n":339,"phase":"hold-sleep 14/24","markers":["HOLD-1"],"toolOutputs":13,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:11:41.934Z","n":365,"phase":"hold-sleep 15/24","markers":["HOLD-1"],"toolOutputs":14,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:12:06.993Z","n":391,"phase":"hold-sleep 16/24","markers":["HOLD-1"],"toolOutputs":15,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:12:32.045Z","n":417,"phase":"hold-sleep 17/24","markers":["HOLD-1"],"toolOutputs":16,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:12:57.097Z","n":443,"phase":"hold-sleep 18/24","markers":["HOLD-1"],"toolOutputs":17,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:13:22.149Z","n":469,"phase":"hold-sleep 19/24","markers":["HOLD-1"],"toolOutputs":18,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:13:47.263Z","n":495,"phase":"hold-sleep 20/24","markers":["HOLD-1"],"toolOutputs":19,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:14:12.371Z","n":521,"phase":"hold-sleep 21/24","markers":["HOLD-1"],"toolOutputs":20,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:14:37.447Z","n":547,"phase":"hold-sleep 22/24","markers":["HOLD-1"],"toolOutputs":21,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:15:02.562Z","n":573,"phase":"hold-sleep 23/24","markers":["HOLD-1"],"toolOutputs":22,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:15:27.624Z","n":599,"phase":"hold-sleep 24/24","markers":["HOLD-1"],"toolOutputs":23,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:15:52.741Z","n":625,"phase":"reply","markers":["HOLD-1"],"toolOutputs":24,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:15:54.279Z","n":626,"phase":"reply","markers":["MSG-A"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:15:54.777Z","n":627,"phase":"reply","markers":["MSG-B"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-24T16:15:55.353Z","n":628,"phase":"reply","markers":["MSG-C"],"toolOutputs":0,"model":"gpt-5.6-sol"}

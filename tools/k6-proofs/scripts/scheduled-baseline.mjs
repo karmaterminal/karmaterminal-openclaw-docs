@@ -173,6 +173,7 @@ function rollupCommand(options) {
   if (rollup.alert) writeFileSync(path.join(options.out, 'alert.txt'), `${renderAlert(rollup)}\n`);
   setOutputs({
     fired: rollup.fired,
+    missing: rollup.counts.missing,
     alert: rollup.alert,
     regressions: rollup.regressions.join(',') || 'none',
     history_complete: rollup.historyComplete,

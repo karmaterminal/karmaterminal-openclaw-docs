@@ -59,6 +59,10 @@ test('teardown, rollup, publication and the fail-closed gate run even after fail
   for (const reason of ['baseline did not fire', 'regressed from last PASS', 'teardown was not clean', 'K6_BASELINE_ISSUE is not set']) {
     assert.ok(gate.includes(reason), reason);
   }
+  assert.match(gate, /SUITE_OUTCOME: \$\{\{ steps\.suite\.outcome \}\}/u);
+  assert.match(gate, /MISSING: \$\{\{ steps\.rollup\.outputs\.missing \}\}/u);
+  assert.ok(gate.includes('live suite did not complete'), 'a failed suite cannot be masked by continue-on-error');
+  assert.ok(gate.includes('live suite has ${MISSING:-unknown} missing rows'), 'one row cannot stand in for the full suite');
 });
 
 test('the seat job budget is the one the isolated unit backstop is derived from', async () => {

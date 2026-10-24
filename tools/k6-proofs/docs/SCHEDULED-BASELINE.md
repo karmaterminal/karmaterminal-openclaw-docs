@@ -115,6 +115,7 @@ Every seat job does the following, in order:
    already failing is listed but does not re-alert every night.
 9. **Fail closed.** The job is red in any of these cases:
    - it did not fire;
+   - the live suite aborted or any of its 34 rows are missing;
    - a row regressed;
    - **the last-PASS history it needed was not read** (`historyComplete: false`);
    - teardown was dirty;

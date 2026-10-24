@@ -366,6 +366,8 @@ jobs:
         if: ${{ always() && steps.decide.outputs.fire == 'true' }}
         env:
           FIRED: ${{ steps.rollup.outputs.fired }}
+          MISSING: ${{ steps.rollup.outputs.missing }}
+          SUITE_OUTCOME: ${{ steps.suite.outcome }}
           REGRESSIONS: ${{ steps.rollup.outputs.regressions }}
           HISTORY_COMPLETE: ${{ steps.rollup.outputs.history_complete }}
           HISTORY_GAPS: ${{ steps.rollup.outputs.history_gaps }}
@@ -376,6 +378,8 @@ jobs:
           set -euo pipefail
           errors=()
           [[ "$FIRED" == "true" ]] || errors+=("baseline did not fire")
+          [[ "$SUITE_OUTCOME" == "success" ]] || errors+=("live suite did not complete: ${SUITE_OUTCOME:-unknown}")
+          [[ "$MISSING" == "0" ]] || errors+=("live suite has ${MISSING:-unknown} missing rows")
           [[ "${REGRESSIONS:-none}" == "none" ]] || errors+=("regressed from last PASS: $REGRESSIONS")
           # A green "no regression" that never read this seat's last PASS is a
           # claim the run cannot make. Unknown is red, not green.

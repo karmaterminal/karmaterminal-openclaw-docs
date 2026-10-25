@@ -1,0 +1,266 @@
+$ node --import ./scripts/tsx.mjs scripts/check.mts
+
+[check] preflight guards
+$ node --import ./scripts/tsx.mjs scripts/check-database-dialect-ratchet.mts
+$ node scripts/check-no-conflict-markers.mjs
+$ node --import ./scripts/tsx.mjs scripts/check-max-lines-ratchet.mts
+$ node --max-old-space-size=4096 --import ./scripts/tsx.mjs scripts/check-database-worker-ratchet.mts
+$ node --import ./scripts/tsx.mjs scripts/check-assertion-safety-ratchet.mts
+$ node scripts/check-line-cap-ratchet.mjs
+$ node --disable-warning=ExperimentalWarning scripts/check-script-erasability.mjs
+$ node --import ./scripts/tsx.mjs scripts/check-agents-md-size.mts
+$ node --import ./scripts/tsx.mjs scripts/check-doctor-deprecation-registry.ts
+$ node --import ./scripts/tsx.mjs scripts/check-database-first-legacy-stores.mts
+$ node --import ./scripts/tsx.mjs scripts/check-test-timeout-race-ratchet.mts
+$ node --import ./scripts/tsx.mjs scripts/check-plugin-sdk-wildcard-reexports.mts
+$ node --import ./scripts/tsx.mjs scripts/check-no-deprecated-channel-access.ts
+$ node --import ./scripts/tsx.mjs scripts/check-changelog-attributions.mts
+$ node --import ./scripts/tsx.mjs scripts/tool-display.ts --check
+$ node --import ./scripts/tsx.mjs scripts/check-extension-wildcard-reexports.mts
+$ node --import ./scripts/tsx.mjs scripts/check-test-mock-exports.mts
+$ node scripts/generate-npm-package-lock.mjs --all
+$ node --import ./scripts/tsx.mjs scripts/generate-host-env-security-policy-swift.mts --check
+$ node --import ./scripts/tsx.mjs scripts/generate-browser-inspect-script-swift.mts --check
+$ node --import ./scripts/tsx.mjs scripts/check-media-download-helper-roundtrip.mts
+$ node security/opengrep/check-rule-metadata.mjs
+$ node scripts/check-duplicates.mjs --coverage
+$ node --import ./scripts/tsx.mjs scripts/check-runtime-sidecar-loaders.mts
+$ node scripts/generate-native-session-catalogs.mjs --check
+$ node --import ./scripts/tsx.mjs scripts/check-package-patches.mts
+AGENTS.md size check: 27 files within 20000 chars.
+[doctor-deprecation-registry] OK as of 2026-10-25
+tool-display snapshot is up to date
+check-opengrep-rule-metadata: <checkout>/security/opengrep/precise.yml ok
+OK apps/macos/Sources/OpenClaw/BrowserInspectScript.generated.swift
+OK apps/macos/Sources/OpenClaw/BrowserFaviconScript.generated.swift
+No plugin-sdk wildcard re-exports found in extension API barrels.
+OK apps/macos/Sources/OpenClaw/HostEnvSecurityPolicy.generated.swift
+No guarded extension wildcard re-exports found.
+[dup:check] target coverage ok
+Validating 108 npm package locks with 4 jobs.
+[script-erasability] checked 1140 TypeScript implementation files
+PASS package patch guard: no new pnpm patches; 19 approved patches allowlisted.
+OK: bundled plugin production code avoids deprecated channel runtime and access seams.
+test timeout race ratchet OK: 115 files, 214 grandfathered sites.
+Line-cap ratchet rejects new violations or growth:
+  extensions/amazon-bedrock/stream.runtime.ts: 1078 -> 1083 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  extensions/codex/src/app-server/dynamic-tools.ts: 755 -> 757 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  extensions/codex/src/app-server/thread-lifecycle-run.ts: 700 -> 705 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  extensions/feishu/src/bot.test.ts: 1619 -> 1694 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  extensions/memory-wiki/src/chatgpt-import.ts: 897 -> 901 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  extensions/memory-wiki/src/cli.ts: 779 -> 790 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  extensions/telegram/src/polling-session.test.ts: 1823 -> 1831 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/agents/cli-runner/session-history.test.ts: 1000 -> 1002 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/agents/command/attempt-execution.ts: 732 -> 733 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/agents/embedded-agent-subscribe.handlers.tools.test.ts: 2271 -> 2320 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/auto-reply/reply/get-reply-run.media-only.test.ts: 2313 -> 2326 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/auto-reply/reply/session.ts: 963 -> 969 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/cli/gateway-cli/run-loop.ts: 1276 -> 1290 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/commands/models/list.probe.ts: 765 -> 769 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/config/sessions/session-actor-entry-residency.test.ts: 1000 -> 1035 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/gateway/control-ui.http.test.ts: 1221 -> 1225 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/gateway/server-cron.ts: 1026 -> 1028 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/gateway/session-create-service.ts: 1147 -> 1160 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/gateway/worker-environments/workspace-quiescence-scripts.ts: 700 -> 715 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/media/web-media.ts: 734 -> 741 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/plugins/hooks.ts: 1073 -> 1117 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  src/state/openclaw-state-lease.ts: 700 -> 707 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  ui/src/api/gateway.node.test.ts: 1184 -> 1207 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  ui/src/api/gateway.ts: 700 -> 704 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  ui/src/pages/chat/chat-view.test.ts: 4295 -> 4339 counted lines (cap 1000). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  ui/src/pages/chat/components/chat-message-images-solid.tsx: 700 -> 701 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+Line-cap ratchet rejects new violations or growth:
+  ui/src/pages/chat/components/chat-transcript-virtualizer-host.ts: 700 -> 701 counted lines (cap 700). Extract a coherent sibling module; never trim coverage or disable max-lines.
+[line-cap-ratchet] FAILED (exit 1)
+[ELIFECYCLE] Command failed with exit code 1.
+SQLite dialect scope: 2122 differing production files; use --full-tree for totals.
+SQLite dialect mechanical (changed files): 10 -> 8 (reduced by 2).
+SQLite dialect design (changed files): 42 -> 34 (reduced by 8).
+SQLite dialect engine-maintenance (changed files): 38 -> 38.
+SQLite string-set owner: 0 mechanical occurrences in changed files (included above).
+SQLite primitive owners: 14 engine-maintenance matches in changed files (excluded from comparison).
+extensions/knowledge/src/retrieval.ts:275:48 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:290:51 rowid (owner)
+extensions/knowledge/src/retrieval.ts:391:17 temp-schema (owner)
+extensions/knowledge/src/retrieval.ts:393:11 temp-schema (owner)
+extensions/knowledge/src/retrieval.ts:393:11 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:396:11 temp-schema (owner)
+extensions/knowledge/src/retrieval.ts:412:71 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:416:18 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:417:73 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:418:73 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:419:73 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:420:36 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:431:57 fts5 (owner)
+extensions/knowledge/src/retrieval.ts:456:17 temp-schema (owner)
+SQLite dialect ratchet OK: no construct-group growth against cc595439453a97e17e10499579646f2fc89ba2a8.
+max-lines ratchet OK: 414 grandfathered suppressions.
+OPENCLAW_* count 457/457
+runtime-sidecar-loaders: local runtime sidecar loaders look OK.
+Mock factory ratchet OK: 6947 grandfathered factories.
+assertion SAFETY ratchet OK: 2424 files, 5519 grandfathered assertions.
+Database-first legacy-store guard passed.
+.: npm package lock validated.
+extensions/abliteration: npm package lock validated.
+extensions/acpx: npm package lock validated.
+extensions/amazon-bedrock: npm package lock validated.
+extensions/amazon-bedrock-mantle: npm package lock validated.
+extensions/anthropic-vertex: npm package lock validated.
+extensions/arcee: npm package lock validated.
+extensions/baseten: npm package lock validated.
+extensions/brave: npm package lock validated.
+extensions/buzz: npm package lock validated.
+extensions/byteplus: npm package lock validated.
+extensions/cerebras: npm package lock validated.
+extensions/chutes: npm package lock validated.
+extensions/clickclack: npm package lock validated.
+extensions/cloudflare: npm package lock validated.
+extensions/cloudflare-ai-gateway: npm package lock validated.
+extensions/codex: npm package lock validated.
+extensions/cohere: npm package lock validated.
+extensions/comfy: npm package lock validated.
+extensions/copilot: npm package lock validated.
+extensions/deepinfra: npm package lock validated.
+extensions/deepseek: npm package lock validated.
+extensions/diagnostics-otel: npm package lock validated.
+extensions/diagnostics-prometheus: npm package lock validated.
+extensions/diffs: npm package lock validated.
+extensions/diffs-language-pack: npm package lock validated.
+extensions/discord: npm package lock validated.
+extensions/duckduckgo: npm package lock validated.
+extensions/exa: npm package lock validated.
+extensions/facetime: npm package lock validated.
+extensions/featherless: npm package lock validated.
+extensions/feishu: npm package lock validated.
+extensions/firecrawl: npm package lock validated.
+extensions/fireworks: npm package lock validated.
+extensions/fish-audio-speech: npm package lock validated.
+extensions/gmi: npm package lock validated.
+extensions/google-meet: npm package lock validated.
+extensions/googlechat: npm package lock validated.
+extensions/gradium: npm package lock validated.
+extensions/groq: npm package lock validated.
+extensions/imessage: npm package lock validated.
+extensions/inworld: npm package lock validated.
+extensions/irc: npm package lock validated.
+extensions/kilocode: npm package lock validated.
+extensions/kimi-coding: npm package lock validated.
+extensions/levanto: npm package lock validated.
+extensions/line: npm package lock validated.
+extensions/llama-cpp: npm package lock validated.
+extensions/lobster: npm package lock validated.
+extensions/logbook: npm package lock validated.
+extensions/longcat: npm package lock validated.
+extensions/matrix: npm package lock validated.
+extensions/mattermost: npm package lock validated.
+extensions/memory-lancedb: npm package lock validated.
+extensions/memory-wiki: npm package lock validated.
+extensions/meta: npm package lock validated.
+extensions/mistral: npm package lock validated.
+extensions/moonshot: npm package lock validated.
+extensions/msteams: npm package lock validated.
+extensions/muse: npm package lock validated.
+extensions/mxc: npm package lock validated.
+extensions/nextcloud-talk: npm package lock validated.
+extensions/nostr: npm package lock validated.
+extensions/novita: npm package lock validated.
+extensions/onepassword: npm package lock validated.
+extensions/onnx: npm package lock validated.
+extensions/opencode: npm package lock validated.
+extensions/opencode-go: npm package lock validated.
+extensions/openshell: npm package lock validated.
+extensions/parallel: npm package lock validated.
+extensions/perplexity: npm package lock validated.
+extensions/pixverse: npm package lock validated.
+extensions/qianfan: npm package lock validated.
+extensions/qwen: npm package lock validated.
+extensions/radius: npm package lock validated.
+extensions/raft: npm package lock validated.
+extensions/searxng: npm package lock validated.
+extensions/signal: npm package lock validated.
+extensions/slack: npm package lock validated.
+extensions/slack-huddles: npm package lock validated.
+extensions/sms: npm package lock validated.
+extensions/stepfun: npm package lock validated.
+extensions/subq: npm package lock validated.
+extensions/synology-chat: npm package lock validated.
+extensions/synthetic: npm package lock validated.
+extensions/tavily: npm package lock validated.
+extensions/team-reports: npm package lock validated.
+extensions/teams-meetings: npm package lock validated.
+extensions/tencent: npm package lock validated.
+extensions/tlon: npm package lock validated.
+extensions/tokenjuice: npm package lock validated.
+extensions/twitch: npm package lock validated.
+extensions/typesafe: npm package lock validated.
+extensions/venice: npm package lock validated.
+extensions/vercel-ai-gateway: npm package lock validated.
+extensions/voice-call: npm package lock validated.
+extensions/volcengine: npm package lock validated.
+extensions/voyage: npm package lock validated.
+extensions/vydra: npm package lock validated.
+extensions/whatsapp: npm package lock validated.
+extensions/xiaomi: npm package lock validated.
+extensions/zai: npm package lock validated.
+extensions/zalo: npm package lock validated.
+extensions/zalouser: npm package lock validated.
+extensions/zoom-meetings: npm package lock validated.
+packages/ai: npm package lock validated.
+packages/gateway-client: npm package lock validated.
+packages/gateway-protocol: npm package lock validated.
+SQLite T1 live calls: 170 -> 170; T1-compat deprecated-only calls: 15 -> 15.
+SQLite worker ratchet OK: no T1 call-count growth against cc595439453a97e17e10499579646f2fc89ba2a8.
+
+[check] summary
+   998ms  ok         conflict markers
+   1.11s  ok         script TypeScript erasability
+   5.60s  failed:1   line-cap growth ratchet
+  72.25s  ok         SQLite worker ratchet
+   8.09s  ok         SQLite dialect ratchet
+   8.77s  ok         max-lines suppression ratchet
+  21.22s  ok         assertion SAFETY comment ratchet
+   2.99s  ok         test timeout race ratchet
+  19.59s  ok         first-party mock export ratchet
+   821ms  ok         changelog attributions
+   433ms  ok         AGENTS.md bootstrap size
+  43.17s  ok         database-first legacy-store guard
+   460ms  ok         doctor deprecation registry
+   701ms  ok         guarded extension wildcard re-exports
+   590ms  ok         plugin-sdk wildcard re-exports
+   1.58s  ok         deprecated channel access seams
+   939ms  ok         media download helper guard
+  19.37s  ok         runtime sidecar loader guard
+   521ms  ok         tool display
+   619ms  ok         host env policy
+   530ms  ok         browser inspect script
+   384ms  ok         native conversation privacy defaults
+   491ms  ok         opengrep rule metadata
+   858ms  ok         duplicate scan target coverage
+  67.43s  ok         npm package-lock guard
+   1.38s  ok         package patch guard
+[ELIFECYCLE] Command failed with exit code 1.

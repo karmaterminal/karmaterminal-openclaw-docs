@@ -1,0 +1,21 @@
+{"t":"2026-10-25T02:55:48.925Z","kind":"listening","port":18595}
+{"t":"2026-10-25T02:56:01.513Z","kind":"bot-call","method":"deleteMyCommands","params":[]}
+{"t":"2026-10-25T02:56:01.513Z","kind":"bot-call","method":"deleteWebhook","params":["drop_pending_updates"]}
+{"t":"2026-10-25T02:56:01.531Z","kind":"bot-call","method":"deleteMyCommands","params":["scope"]}
+{"t":"2026-10-25T02:56:08.005Z","kind":"inject","update_id":900001,"update":{"update_id":900001,"message":{"message_id":101,"from":{"id":<human>,"is_bot":false,"first_name":"Human","username":"proof_human"},"chat":{"id":<human>,"type":"private","first_name":"Human","username":"proof_human"},"date":1792896968,"text":"HOLD-1 keep the turn busy"}}}
+{"t":"2026-10-25T02:56:08.005Z","kind":"deliver","offset":0,"update_ids":[900001]}
+{"t":"2026-10-25T02:56:08.112Z","kind":"bot-call","method":"getUserProfilePhotos","params":["user_id","offset","limit"]}
+{"t":"2026-10-25T02:56:09.785Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T02:56:12.038Z","kind":"seed-keyboard","message_id":102,"text":"MSG-BTN pick one","reply_markup":{"inline_keyboard":[[{"text":"Approve","callback_data":"proof:approve"}]]}}
+{"t":"2026-10-25T02:56:12.966Z","kind":"bot-send","method":"sendMessage","message_id":103,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T02:56:13.969Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T02:56:15.059Z","kind":"inject","update_id":900002,"update":{"update_id":900002,"callback_query":{"id":"cbq-1","from":{"id":<human>,"is_bot":false,"first_name":"Human","username":"proof_human"},"chat_instance":"proof-chat-instance","message":{"message_id":102,"from":{"id":<bot>,"is_bot":true,"first_name":"ProofBot","username":"proof_124337_bot"},"chat":{"id":<human>,"type":"private","first_name":"Human","username":"proof_human"},"date":1792896972,"text":"MSG-BTN pick one","reply_markup":{"inline_keyboard":[[{"text":"Approve","callback_data":"proof:approve"}]]}},"data":"proof:approve"}}}
+{"t":"2026-10-25T02:56:15.059Z","kind":"deliver","offset":900002,"update_ids":[900002]}
+{"t":"2026-10-25T02:56:15.079Z","kind":"bot-answer-callback","callback_query_id":"cbq-1","text":null}
+{"t":"2026-10-25T02:56:17.807Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T02:56:23.108Z","kind":"inject","update_id":900003,"update":{"update_id":900003,"message":{"message_id":104,"from":{"id":<human>,"is_bot":false,"first_name":"Human","username":"proof_human"},"chat":{"id":<human>,"type":"private","first_name":"Human","username":"proof_human"},"date":1792896983,"text":"/stop","entities":[{"type":"bot_command","offset":0,"length":5}]}}}
+{"t":"2026-10-25T02:56:23.108Z","kind":"deliver","offset":900003,"update_ids":[900003]}
+{"t":"2026-10-25T02:56:23.257Z","kind":"bot-call","method":"deleteMessage","params":["chat_id","message_id"]}
+{"t":"2026-10-25T02:56:24.239Z","kind":"bot-send","method":"sendMessage","message_id":105,"text":"⚙️ Agent was aborted.","reply_markup":null}
+{"t":"2026-10-25T02:56:24.413Z","kind":"bot-answer-callback","callback_query_id":"cbq-1","text":null}
+{"t":"2026-10-25T02:56:25.235Z","kind":"bot-edit-markup","message_id":102,"reply_markup":{"inline_keyboard":[]}}

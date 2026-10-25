@@ -1,0 +1,1554 @@
+[openclaw] Staging pinned Bun fork openclaw-v1.4.4-20261019-ef37c31de3-webkit-a2976f02e6 (one-time download)…
+[openclaw] Bun fork unavailable (could not stage the pinned fork: Command failed: /bin/bash <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/scripts/stage-openclaw-bun.sh <home>/.cache/openclaw/bun/openclaw-v1.4.4-20261019-ef37c31de3-webkit-a2976f02e6/linux-x64/.stage-lgYds4 linux x64); using Node. Set OPENCLAW_VITEST_RUNTIME=node to silence.
+[gateway] startup phase: entry.run-main-import starting total=75.9ms
+[gateway] startup phase: entry.run-main-import 39.1ms total=115.0ms start=75.9ms
+[gateway] startup phase: cli.main.gateway-run-select-environment starting total=432.1ms
+[gateway] startup phase: cli.main.gateway-run-select-environment 249.9ms total=682.0ms start=432.1ms
+[gateway] startup phase: cli.main.gateway-run-imports starting total=695.7ms
+[gateway] startup phase: cli.main.gateway-run-imports 7.5ms total=703.2ms start=695.7ms
+[gateway] startup phase: cli.main.gateway-run-pre-bootstrap starting total=712.8ms
+[gateway] startup phase: cli.main.gateway-run-pre-bootstrap 6.3ms total=719.1ms start=712.8ms
+[gateway] startup phase: cli.main.gateway-run-bootstrap starting total=719.2ms
+[gateway] startup phase: cli.command.config-ready starting total=720.5ms
+[gateway] startup phase: cli.command.config-guard-import starting total=720.6ms
+[gateway] startup phase: cli.command.config-guard-import 10.2ms total=730.8ms start=720.6ms
+[gateway] startup phase: cli.bootstrap.admission.live-owner starting total=776.8ms
+[gateway] startup phase: cli.bootstrap.admission.live-owner 2.8ms total=779.7ms start=776.8ms
+[gateway] startup phase: cli.bootstrap.admission.core-config starting total=779.7ms
+[gateway] startup phase: cli.bootstrap.admission.core-config 1.9ms total=781.6ms start=779.7ms
+[gateway] startup phase: cli.bootstrap.admission.state-snapshot starting total=781.8ms
+[gateway] startup phase: cli.bootstrap.admission.core-recovery starting total=790.9ms
+[gateway] startup phase: cli.bootstrap.admission.core-recovery 0.5ms total=791.4ms start=790.9ms
+[gateway] startup phase: cli.bootstrap.admission.database-runtime-import starting total=791.6ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-config starting total=791.6ms
+[gateway] startup phase: cli.bootstrap.admission.database-runtime-import 38.7ms total=830.3ms start=791.6ms
+[gateway] startup phase: cli.bootstrap.admission.database-readiness starting total=830.4ms
+[gateway] startup phase: cli.bootstrap.admission.database-readiness 18.0ms total=848.4ms start=830.4ms agentCount=1 schemaProcessCount=0 schemaInspectionCount=0 schemaSnapshotCount=0
+[gateway] startup phase: cli.bootstrap.admission.session-runtime-import starting total=848.5ms
+[gateway] startup phase: cli.bootstrap.admission.session-runtime-import 154.5ms total=1003.0ms start=848.5ms
+[gateway] startup phase: cli.bootstrap.admission.session-targets starting total=1003.1ms
+[gateway] startup phase: cli.bootstrap.admission.session-targets 1.7ms total=1004.8ms start=1003.1ms agentCount=1 registeredDatabaseCount=1
+[gateway] startup phase: cli.bootstrap.admission.session-readiness starting total=1004.9ms
+[gateway] startup phase: cli.bootstrap.admission.session-readiness 0.2ms total=1005.1ms start=1004.9ms targetCount=1
+[gateway] startup phase: cli.bootstrap.admission.workspace-runtime-import starting total=1005.2ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-runtime-import 3.1ms total=1008.3ms start=1005.2ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-readiness starting total=1008.3ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-readiness 1.8ms total=1010.1ms start=1008.3ms agentCount=1
+[gateway] startup phase: cli.bootstrap.admission.plugin-metadata-completion starting total=1380.6ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-metadata-completion 25.0ms total=1405.6ms start=1380.6ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-config 614.1ms total=1405.7ms start=791.6ms registrySnapshotMs=278.885843 manifestRegistryMs=20.034754999999905 ownerMapsMs=9.479086999999936 totalMs=309.62528399999997 indexPluginCount=177 manifestPluginCount=177
+[gateway] startup phase: cli.bootstrap.admission.config-recovery starting total=1405.8ms
+[gateway] startup phase: cli.bootstrap.admission.config-recovery 0.4ms total=1406.2ms start=1405.8ms
+[gateway] startup phase: cli.bootstrap.admission.state-snapshot 624.8ms total=1406.5ms start=781.8ms
+[gateway] startup phase: cli.bootstrap.admission.config-guard starting total=1406.6ms
+[gateway] startup phase: cli.bootstrap.admission.config-guard 0.4ms total=1406.9ms start=1406.6ms
+[gateway] startup phase: cli.bootstrap.admission.device-identity starting total=1684.6ms
+[gateway] startup phase: cli.bootstrap.admission.device-identity 8.7ms total=1693.3ms start=1684.6ms
+[gateway] startup phase: cli.bootstrap.plugin-plan-import starting total=1881.1ms
+[gateway] startup phase: cli.bootstrap.plugin-plan-import 2.9ms total=1884.0ms start=1881.1ms
+[gateway] startup phase: cli.bootstrap.plugin-plan starting total=1884.1ms
+[gateway] startup phase: cli.bootstrap.plugin-plan 0.9ms total=1884.9ms start=1884.1ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification-import starting total=1901.8ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification-import 1.7ms total=1903.5ms start=1901.8ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification starting total=1903.6ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification 35.9ms total=1939.5ms start=1903.6ms
+[gateway] startup phase: cli.command.config-ready 1223.9ms total=1944.3ms start=720.5ms
+[gateway] startup phase: cli.main.gateway-run-reload-environment starting total=1944.4ms
+[gateway] startup phase: cli.main.gateway-run-reload-environment 0.4ms total=1944.8ms start=1944.4ms
+[gateway] startup phase: cli.main.gateway-run-bootstrap 1225.6ms total=1944.8ms start=719.2ms
+2026-10-24T20:15:15.575-07:00 [gateway] loading configuration…
+2026-10-24T20:15:15.600-07:00 [gateway] resolving authentication…
+2026-10-24T20:15:15.602-07:00 [gateway] starting...
+[gateway] startup phase: cli.bootstrap.lifecycle-runtime starting total=2182.4ms
+[gateway] startup phase: cli.bootstrap.lifecycle-runtime 111.0ms total=2293.4ms start=2182.4ms
+[gateway] startup phase: cli.bootstrap.gateway-lock starting total=2294.5ms
+[gateway] startup phase: cli.bootstrap.gateway-lock 292.1ms total=2586.6ms start=2294.5ms
+2026-10-24T20:15:16.008-07:00 [gateway] shutdown budget at startup: drain=315000ms shutdown=325000ms reserve=10000ms exitMargin=5000ms; source=Gateway stop policy=330000ms
+[gateway] startup phase: cli.bootstrap.boot-lifecycle starting total=2588.8ms
+[gateway] startup phase: cli.bootstrap.boot-lifecycle 372.2ms total=2961.0ms start=2588.8ms
+2026-10-24T20:15:16.575-07:00 [gateway] spawn broker ready pid=426756
+[gateway] startup phase: gateway.server-start-import starting total=3156.3ms
+[gateway] startup phase: gateway.server-start-import 314.7ms total=3471.0ms start=3156.3ms
+2026-10-24T20:15:16.957-07:00 [gateway] startup phase: process.bootstrap 3535.1ms total=3535.1ms
+2026-10-24T20:15:17.256-07:00 [gateway] startup phase: state.schema-preflight starting total=3834.4ms
+2026-10-24T20:15:17.260-07:00 [gateway] startup phase: state.schema-preflight 4.4ms total=3838.8ms
+2026-10-24T20:15:17.275-07:00 [gateway] auto-enabled plugins for this runtime without writing config:
+- openai/gpt-5.6-sol model configured, enabled automatically.
+2026-10-24T20:15:17.282-07:00 [gateway] startup phase: config.auth starting total=3855.7ms
+2026-10-24T20:15:17.572-07:00 [plugins] loading deepseek from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/deepseek/index.js
+2026-10-24T20:15:17.769-07:00 [plugins] loading duckduckgo from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/duckduckgo/index.js
+2026-10-24T20:15:17.773-07:00 [plugins] loading exa from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/exa/index.js
+2026-10-24T20:15:17.776-07:00 [plugins] loading firecrawl from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/firecrawl/index.js
+2026-10-24T20:15:17.803-07:00 [plugins] loading moonshot from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/moonshot/index.js
+2026-10-24T20:15:17.813-07:00 [plugins] loading parallel from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/parallel/index.js
+2026-10-24T20:15:17.816-07:00 [plugins] loading perplexity from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/perplexity/index.js
+2026-10-24T20:15:17.820-07:00 [plugins] loading searxng from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/searxng/index.js
+2026-10-24T20:15:17.826-07:00 [plugins] loading tavily from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/tavily/index.js
+2026-10-24T20:15:17.832-07:00 [plugins] loading brave from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/brave/index.js
+2026-10-24T20:15:17.837-07:00 [plugins] loading codex from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/codex/index.js
+2026-10-24T20:15:17.956-07:00 [plugins] loading google from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/google/index.js
+2026-10-24T20:15:17.988-07:00 [plugins] loading minimax from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/minimax/index.js
+2026-10-24T20:15:18.022-07:00 [plugins] loading ollama from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/ollama/index.js
+2026-10-24T20:15:18.032-07:00 [plugins] loading qa-lab from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/qa-lab/index.js
+2026-10-24T20:15:18.037-07:00 [plugins] loading xai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/xai/index.js
+2026-10-24T20:15:18.052-07:00 [plugins] loaded 16 plugin(s) (16 attempted) in 482.2ms
+2026-10-24T20:15:18.203-07:00 [gateway] startup phase: config.auth 925.2ms total=4780.9ms
+2026-10-24T20:15:18.222-07:00 [gateway] startup phase: state.desktop-approval-admission starting total=4801.2ms
+2026-10-24T20:15:18.250-07:00 [gateway] startup phase: state.desktop-approval-admission 27.8ms total=4829.0ms
+2026-10-24T20:15:18.252-07:00 [gateway] startup phase: sessions.admission starting total=4830.6ms
+2026-10-24T20:15:18.585-07:00 [gateway] startup phase: sessions.admission 332.9ms total=5163.5ms
+2026-10-24T20:15:19.380-07:00 [gateway] starting HTTP server...
+2026-10-24T20:15:19.560-07:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
+2026-10-24T20:15:19.697-07:00 [gateway] startup phase: http.bound 0.0ms total=6275.6ms
+2026-10-24T20:15:19.697-07:00 [gateway] startup phase: runtime.early starting total=6276.2ms
+2026-10-24T20:15:19.700-07:00 [gateway] startup phase: runtime.early.discovery starting total=6278.6ms
+2026-10-24T20:15:19.703-07:00 [gateway] startup phase: runtime.early.discovery 3.0ms total=6281.7ms
+2026-10-24T20:15:19.703-07:00 [gateway] startup phase: runtime.early.lazy-runtime-imports starting total=6281.8ms
+2026-10-24T20:15:19.704-07:00 [gateway] startup phase: runtime.early.lazy-runtime-imports 1.1ms total=6282.9ms
+2026-10-24T20:15:19.705-07:00 [gateway] startup phase: runtime.early.skills-listener starting total=6283.6ms
+2026-10-24T20:15:19.708-07:00 [gateway] startup phase: runtime.early.skills-listener 2.9ms total=6286.5ms
+2026-10-24T20:15:19.708-07:00 [gateway] startup phase: runtime.early 10.6ms total=6286.7ms
+2026-10-24T20:15:20.459-07:00 [gateway] startup phase: post-attach.system-ca starting total=7037.4ms
+2026-10-24T20:15:20.459-07:00 [gateway] startup phase: post-attach.system-ca 0.4ms total=7037.8ms
+2026-10-24T20:15:20.460-07:00 [scheduler] running maintenance:github-oauth
+2026-10-24T20:15:20.460-07:00 [scheduler] running maintenance:secret-expiry
+2026-10-24T20:15:20.464-07:00 [gateway] startup phase: plugins.runtime-post-bind starting total=7042.4ms
+2026-10-24T20:15:20.477-07:00 [plugins] loading proof-interactive from <home>/i_have_a_pet_human/bm124-tg/harness/proof-interactive/proof-interactive.cjs
+2026-10-24T20:15:20.705-07:00 [plugins] loading teams-meetings from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/teams-meetings/index.js
+2026-10-24T20:15:20.727-07:00 [plugins] loading zoom-meetings from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/zoom-meetings/index.js
+2026-10-24T20:15:20.732-07:00 [plugins] loading acpx from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/acpx/index.js
+2026-10-24T20:15:20.754-07:00 [plugins] loading anthropic from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/anthropic/index.js
+2026-10-24T20:15:20.771-07:00 [plugins] loading browser from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/browser/index.js
+2026-10-24T20:15:20.792-07:00 [plugins] loading canvas from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/canvas/index.js
+2026-10-24T20:15:20.798-07:00 [plugins] loading codex from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/codex/index.js
+2026-10-24T20:15:20.824-07:00 [plugins] loading cua-computer from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/cua-computer/index.js
+2026-10-24T20:15:20.833-07:00 [plugins] loading device-pair from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/device-pair/index.js
+2026-10-24T20:15:20.837-07:00 [plugins] loading file-transfer from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/file-transfer/index.js
+2026-10-24T20:15:20.844-07:00 [plugins] loading geolocation from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/geolocation/index.js
+2026-10-24T20:15:20.849-07:00 [plugins] loading github from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/github/index.js
+2026-10-24T20:15:20.854-07:00 [plugins] loading google-meet from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/google-meet/index.js
+2026-10-24T20:15:20.863-07:00 [plugins] loading linux-node from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/linux-node/index.js
+2026-10-24T20:15:20.868-07:00 [plugins] loading llama-cpp from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/llama-cpp/index.js
+2026-10-24T20:15:20.877-07:00 [plugins] loading memory-core from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/memory-core/index.js
+2026-10-24T20:15:20.916-07:00 [plugins] loading ollama from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/ollama/index.js
+2026-10-24T20:15:20.923-07:00 [plugins] loading openai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/openai/index.js
+2026-10-24T20:15:20.956-07:00 [plugins] loading talk-voice from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/talk-voice/index.js
+2026-10-24T20:15:20.960-07:00 [plugins] loading telegram from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/telegram/index.js
+2026-10-24T20:15:21.121-07:00 (node:426660) [DEP_PLUGIN_SDK] DeprecationWarning: Plugin telegram: createApproverRestrictedNativeApprovalCapability is deprecated; use createApproverRestrictedNativeApprovalCapabilityAsync instead. The legacy contract remains supported during its deprecation period. Final compatibility day: 2026-12-31. Removal ships in the first January 2027 stable release; no SDK major is required.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T20:15:21.127-07:00 [plugins] loading xai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-r21/dist/extensions/xai/index.js
+2026-10-24T20:15:21.135-07:00 [plugins] loaded 22 plugin(s) (22 attempted) in 657.9ms
+2026-10-24T20:15:21.136-07:00 [gateway] [plugins] OpenClaw can't verify where this plugin came from. Review it with 'openclaw plugins inspect proof-interactive'. Adding it to plugins.allow lets it load, but does not make it trusted. If it's an official plugin, reinstall it from its official npm package or its official ClawHub listing to enable trusted features. reason=record-missing; registryPath="<home>/.openclaw-proof-124337-tg-restart-head-2/state/openclaw.sqlite"; origin="config"; installSource=null; installSpec=null. (plugin=proof-interactive, source=<home>/i_have_a_pet_human/bm124-tg/harness/proof-interactive/proof-interactive.cjs)
+2026-10-24T20:15:21.137-07:00 [gateway] startup phase: plugins.runtime-post-bind 673.5ms total=7715.9ms
+2026-10-24T20:15:21.137-07:00 [gateway] startup phase: plugins.runtime-attach starting total=7716.1ms
+2026-10-24T20:15:21.142-07:00 [gateway] startup phase: plugins.runtime-attach 4.8ms total=7720.8ms
+2026-10-24T20:15:21.148-07:00 [gateway] agent model: openai/gpt-5.6-sol (thinking=medium, fast=off)
+2026-10-24T20:15:21.148-07:00 [gateway] http server listening (22 plugins: acpx, anthropic, browser, canvas, codex, cua-computer, device-pair, file-transfer, geolocation, github, google-meet, linux-node, llama-cpp, memory-core, ollama, openai, proof-interactive, talk-voice, teams-meetings, telegram, xai, zoom-meetings; 5.1s)
+2026-10-24T20:15:21.148-07:00 [gateway] log file: <home>/.openclaw-proof-124337-tg-restart-head-2/gateway-file.log
+2026-10-24T20:15:21.148-07:00 [gateway] Older local CLI/SDK versions can bypass Gateway state mutation routing. Use matching CLI/SDK and Gateway versions; direct state writes from another process while this Gateway owns state are unsupported.
+2026-10-24T20:15:21.148-07:00 [gateway] native runtime: {"pid":426660,"platform":"linux","arch":"x64","node":"26.12.1","v8":"14.6.202.34-node.40","uv":"1.52.1","openssl":"3.5.9","sqlite":"3.54.0","sqliteClose":{"explicitSqliteCloseReleasesNativeResources":true,"decided":true,"reason":"Node runtime"}}
+2026-10-24T20:15:21.151-07:00 [gateway] worker startup state: {"workerCount":11,"postgresBridgeCount":0,"workerLifecycle":[{"script":"openclaw-state-read.worker.js","started":3,"retired":[{"reason":"closed","count":1}]},{"script":"client-credential.worker.js","started":1,"retired":[]},{"script":"worker-native-lifecycle.worker.js","started":1,"retired":[]},{"script":"gateway-state-owner-heartbeat.worker.js","started":1,"retired":[]},{"script":"openclaw-state-lease-heartbeat.worker.js","started":1,"retired":[]},{"script":"sqlite-store.worker.js","started":2,"retired":[]},{"script":"session-transcript.worker.js","started":2,"retired":[]},{"script":"plugin-generation-preparation.worker.js","started":1,"retired":[]}],"workerTaskMetrics":[{"workerClass":"other","script":"openclaw-state-read.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":21565656,"gc":[]},{"workerClass":"singleton","script":"client-credential.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":27330480,"gc":[]},{"workerClass":"other","script":"session-transcript.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":18488016,"gc":[]},{"workerClass":"other","script":"plugin-generation-preparation.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":17537608,"gc":[]}],"compute":{"limit":15,"active":0,"waitingPools":0,"pendingTasks":0,"pendingBytes":0}}
+2026-10-24T20:15:21.156-07:00 [gateway] startup phase: sidecars.worker-environments starting total=7734.7ms
+2026-10-24T20:15:21.157-07:00 [gateway] startup phase: sidecars.worker-environments.github-ready starting total=7735.4ms
+2026-10-24T20:15:21.157-07:00 [gateway] startup phase: sidecars.worker-environments.github-ready 0.2ms total=7735.6ms
+2026-10-24T20:15:21.157-07:00 [gateway] startup phase: sidecars.worker-environments.workspaces starting total=7735.7ms
+2026-10-24T20:15:21.162-07:00 [gateway] startup phase: sidecars.worker-environments.workspaces 5.3ms total=7741.0ms
+2026-10-24T20:15:21.162-07:00 [gateway] startup phase: sidecars.worker-environments.active starting total=7741.3ms
+2026-10-24T20:15:21.164-07:00 [gateway] startup phase: sidecars.worker-environments.active 2.0ms total=7743.2ms
+2026-10-24T20:15:21.167-07:00 [gateway] startup phase: sidecars.worker-environments 10.8ms total=7745.5ms
+2026-10-24T20:15:21.167-07:00 [gateway] starting channels and sidecars...
+2026-10-24T20:15:21.167-07:00 [gateway] startup phase: sidecars.internal-hooks starting total=7746.2ms
+2026-10-24T20:15:21.169-07:00 [gateway] startup phase: sidecars.model-runtime starting total=7747.4ms
+2026-10-24T20:15:21.169-07:00 [gateway] startup phase: sidecars.reply-runtime starting total=7747.7ms
+2026-10-24T20:15:21.354-07:00 [gateway] startup phase: sidecars.internal-hooks 186.4ms total=7932.6ms
+2026-10-24T20:15:21.534-07:00 [gateway] startup phase: sidecars.reply-runtime 365.5ms total=8113.2ms
+2026-10-24T20:15:21.544-07:00 [gateway] startup phase: sidecars.worker-environments.publications starting total=8123.0ms
+2026-10-24T20:15:21.594-07:00 [gateway] startup phase: sidecars.worker-environments.publications 49.5ms total=8172.5ms
+2026-10-24T20:15:21.612-07:00 [scheduler] running cron-maintenance
+2026-10-24T20:15:22.000-07:00 [gateway] startup phase: sidecars.model-runtime 831.1ms total=8578.5ms
+2026-10-24T20:15:22.008-07:00 [gateway] startup phase: sidecars.chat-metadata starting total=8587.0ms
+2026-10-24T20:15:22.009-07:00 [gateway] startup phase: sidecars.chat-metadata 0.6ms total=8587.6ms
+2026-10-24T20:15:22.009-07:00 [gateway] startup phase: sidecars.plugin-services starting total=8587.7ms
+2026-10-24T20:15:22.011-07:00 [gateway] startup phase: sidecars.channels starting total=8589.7ms
+2026-10-24T20:15:22.033-07:00 [plugins] embedded acpx runtime backend registered lazily
+2026-10-24T20:15:22.090-07:00 [gateway] startup phase: sidecars.plugin-services 81.0ms total=8668.7ms
+2026-10-24T20:15:22.092-07:00 [gateway] startup outcomes: internal-hooks=skipped (not-configured); internal-startup-hook=skipped (no-handlers-loaded); gateway-start-hooks=scheduled; gmail-watcher=skipped (hooks-disabled); gmail-model=skipped (not-configured)
+2026-10-24T20:15:22.094-07:00 [gateway] startup phase: runtime.worker-pool-metrics starting total=8673.1ms
+2026-10-24T20:15:22.097-07:00 [gateway] startup phase: runtime.worker-pool-metrics 2.9ms total=8676.0ms
+2026-10-24T20:15:22.133-07:00 [scheduler] running plugin-service:c3e3ad9c-6b43-4a41-906b-9a154dbbbdef:codex/native-profile-recovery
+2026-10-24T20:15:22.136-07:00 [scheduler] running plugin-service:120d591e-bbdc-453c-9ac0-3de774aa8241:<home>/.openclaw-proof-124337-tg-restart-head-2/agents/main/agent/openclaw-agent.sqlite
+2026-10-24T20:15:22.138-07:00 [scheduler] running startup:dependency-template-prewarm
+2026-10-24T20:15:22.145-07:00 [cron/maintenance] Session registry maintenance completed
+2026-10-24T20:15:22.586-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:22.586-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:22.586-07:00 [scheduler] running startup:maintenance
+2026-10-24T20:15:22.835-07:00 [scheduler] running startup:post-ready-work
+2026-10-24T20:15:22.835-07:00 [gateway] startup phase: sidecars.main-session-recovery starting total=9414.2ms
+2026-10-24T20:15:22.860-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:22.864-07:00 [scheduler] running update.check
+2026-10-24T20:15:22.864-07:00 [scheduler] running update.remote-model-catalog
+2026-10-24T20:15:22.891-07:00 [gateway] remote model catalog refresh failed; next check in 6 hours, or run openclaw models refresh
+2026-10-24T20:15:23.184-07:00 [gateway] startup phase: sidecars.main-session-recovery 348.8ms total=9763.0ms
+2026-10-24T20:15:23.204-07:00 [telegram] [default] starting account (reason: startup)
+2026-10-24T20:15:23.205-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:23.210-07:00 [gateway] startup phase: sidecars.channels 1199.2ms total=9788.8ms
+2026-10-24T20:15:23.245-07:00 [gateway] startup phase: sidecars.subagent-recovery starting total=9823.4ms
+2026-10-24T20:15:23.275-07:00 [gateway] startup phase: ready 12.4ms total=9853.5ms
+2026-10-24T20:15:23.275-07:00 [gateway] ready
+2026-10-24T20:15:23.275-07:00 [gateway] startup phase: sidecars.subagent-recovery 30.6ms total=9853.9ms readersMs=0.0 execMs=30.2 registryLoadMs=4.9 registryActivationMs=2.5 registryActivationBindMs=0.5 registryActivationRequestersMs=0.2 registryActivationReserveMs=0.2 registryActivationResumeMs=0.5 registryActivationAuthorityRestoreMs=0.0 registryActivationPublishMs=0.0 registryActivationSessionReadMs=0.0 registryActivationYieldMs=0.0 registryActivationRuns=0.0 registryActivationActiveRuns=0.0 registryActivationRecoveredRuns=0.0 registryActivationPublishedRuns=0.0 outcome=success
+2026-10-24T20:15:23.279-07:00 [hooks] running gateway_start (1 handlers)
+2026-10-24T20:15:23.303-07:00 [telegram] [default] starting provider (@proof_124337_bot)
+2026-10-24T20:15:23.387-07:00 [scheduler] running maintenance:device-pair-setup
+2026-10-24T20:15:23.408-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:23.412-07:00 [telegram] [diag] isolated polling ingress started account=default
+2026-10-24T20:15:23.659-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:23.854-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:23.855-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:23.866-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:15:23.909-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:23.930-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:15:23.931-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:15:24.102-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:15:24.103-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:15:24.160-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:24.410-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:24.439-07:00 [scheduler] running delivery:session-recovery
+2026-10-24T20:15:24.668-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:24.712-07:00 [scheduler] running cron-maintenance
+2026-10-24T20:15:24.778-07:00 [diagnostic] message dispatch completed: channel=telegram sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=completed duration=707ms
+2026-10-24T20:15:24.779-07:00 [diagnostic] message processed: channel=telegram chatId=telegram:<human> messageId=cbq-1 sessionId=4dee4f95-34ad-4954-92c9-e8d8955d704f sessionKey=agent:main:main outcome=completed duration=732ms
+2026-10-24T20:15:24.867-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:24.867-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:24.900-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:24.902-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:24.924-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:25.194-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:25.444-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:25.662-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T20:15:25.665-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T20:15:25.699-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:25.868-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:25.868-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:25.924-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T20:15:25.951-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:26.202-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:26.452-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:26.702-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:26.804-07:00 [main-session-restart-recovery] started interrupted main session: agent:main:main
+2026-10-24T20:15:26.804-07:00 [main-session-restart-recovery] main-session restart recovery candidate {"boot":"1dd0f04e-e931-4d0d-9e31-d1cd8978c1b6","pass":"5bc5d93a-08fc-4869-bd6d-c73cb920bf93","agentId":"main","storePath":"<home>/.openclaw-proof-124337-tg-restart-head-2/agents/main/sessions/sessions.json","sessionKey":"agent:main:main","sessionId":"4dee4f95-34ad-4954-92c9-e8d8955d704f","sourceRunId":"channel-user:v1:7f52c79910a13f9e0e64b673cc7b86d5de845d307ef47554fa2330cdfea35c13","recoveryRunId":"101","interruptedRunIds":["f9a254c2-acbb-4784-8915-e2fbfb456fdd"],"decision":"started","reason":"dispatch_started","nextOwner":"restart-recovery-lane"}
+2026-10-24T20:15:26.809-07:00 [main-session-restart-recovery] main-session restart recovery startup complete: started=1 settled=0 failed=0 skipped=0 boot=1dd0f04e-e931-4d0d-9e31-d1cd8978c1b6 pass=5bc5d9…bf93
+2026-10-24T20:15:26.868-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:26.868-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:26.953-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:27.205-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:27.455-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:27.706-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:27.869-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:27.869-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:27.956-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:28.207-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:28.457-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:28.707-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:28.869-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:28.869-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:28.958-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:29.209-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:29.459-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:29.711-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:29.870-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:29.870-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:29.961-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:30.211-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:30.461-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:30.711-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:30.870-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:30.871-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:30.962-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:31.212-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:31.462-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:31.713-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:31.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:31.872-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:31.872-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:31.964-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:32.043-07:00 [scheduler] running plugin-service:77f6cbca-9e95-44df-a493-f0caecaccb51:notifications
+2026-10-24T20:15:32.214-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:32.464-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:32.715-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:32.873-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:32.873-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:32.965-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:33.216-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:33.467-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:33.717-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:33.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:33.874-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:33.968-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:34.218-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:34.468-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:34.719-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:34.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:34.874-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:34.970-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:35.220-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:35.471-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:35.722-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:35.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:35.874-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:35.972-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:36.223-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:36.473-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:36.724-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:36.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:36.874-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:36.974-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:37.225-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:37.476-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:37.727-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:37.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:37.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:37.874-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:37.977-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:38.190-07:00 [scheduler] running sessions:upstream-initial-probe
+2026-10-24T20:15:38.227-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:38.479-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:38.729-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:38.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:38.874-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:38.979-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:39.230-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:39.481-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:39.731-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:39.874-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:39.875-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:39.981-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:40.231-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:40.482-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:40.733-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:40.876-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:40.876-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:40.983-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:41.234-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:41.484-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:41.734-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:41.876-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:41.876-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:41.984-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:42.235-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:42.487-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:42.737-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:42.877-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:42.877-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:42.987-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:43.237-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:43.488-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:43.738-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:43.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:43.877-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:43.877-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:43.989-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:44.240-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:44.492-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:44.742-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:44.879-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:44.880-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:44.993-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:45.243-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:45.495-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:45.745-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:45.881-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:45.881-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:45.996-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:46.045-07:00 [scheduler] running maintenance:telemetry
+2026-10-24T20:15:46.248-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:46.499-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:46.750-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:46.882-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:46.883-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:47.001-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:47.252-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:47.502-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:47.754-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:47.884-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:47.884-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:48.005-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:48.256-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:48.506-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:48.758-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:48.886-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:48.886-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:49.008-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:49.260-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:49.511-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:49.762-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:49.795-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:49.888-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:49.888-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:50.012-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:50.264-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:50.515-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:50.767-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:50.890-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:50.891-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:51.017-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:51.269-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:51.520-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:51.770-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:51.892-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:51.893-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:52.021-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:52.273-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:52.336-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:15:52.337-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:15:52.523-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:52.774-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:52.894-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:52.895-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:53.025-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:53.275-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:53.381-07:00 [scheduler] running skills.remote-bin-refresh
+2026-10-24T20:15:53.526-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:53.776-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:53.896-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:53.897-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:54.027-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:54.278-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:54.528-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:54.780-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:54.898-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:54.898-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:55.030-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:55.282-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:55.532-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:55.784-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:55.794-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:15:55.900-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:55.900-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:56.034-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:56.286-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:56.537-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:56.788-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:56.900-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:56.902-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:57.038-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:57.289-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:57.540-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:57.792-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:57.901-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:57.902-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:58.042-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:58.293-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:58.543-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:58.793-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:58.902-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:58.902-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:15:59.044-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:59.295-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:59.545-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:59.795-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:15:59.904-07:00 [scheduler] running database:page-cache
+2026-10-24T20:15:59.904-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:00.045-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:00.296-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:00.547-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:00.798-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:00.905-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:00.905-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:01.049-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:01.299-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:01.550-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:01.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:01.801-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:01.905-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:01.906-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:02.052-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:02.303-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:02.553-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:02.803-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:02.906-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:02.906-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:03.054-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:03.305-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:03.556-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:03.807-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:03.907-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:03.907-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:04.057-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:04.308-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:04.558-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:04.808-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:04.907-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:04.907-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:05.058-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:05.308-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:05.559-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:05.809-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:05.908-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:05.908-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:06.059-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:06.309-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:06.559-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:06.809-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:06.909-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:06.909-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:07.060-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:07.310-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:07.561-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:07.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:07.811-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:07.909-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:07.909-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:08.061-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:08.311-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:08.562-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:08.812-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:08.909-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:08.910-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:09.063-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:09.313-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:09.563-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:09.814-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:09.910-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:09.910-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:10.065-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:10.315-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:10.567-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:10.819-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:10.910-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:10.913-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:11.070-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:11.322-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:11.572-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:11.823-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:11.912-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:11.914-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:12.074-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:12.325-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:12.576-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:12.826-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:12.912-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:12.914-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:13.076-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:13.326-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:13.576-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:13.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:13.826-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:13.913-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:13.915-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:14.077-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:14.327-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:14.577-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:14.828-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:14.914-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:14.915-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:15.079-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:15.330-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:15.581-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:15.831-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:15.914-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:15.916-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:16.082-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:16.332-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:16.582-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:16.833-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:16.914-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:16.916-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:17.083-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:17.333-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:17.583-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:17.835-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:17.916-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:17.917-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:18.086-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:18.336-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:18.588-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:18.839-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:18.916-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:18.917-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:19.089-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:19.339-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:19.589-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:19.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:19.840-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:19.917-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:19.918-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:20.091-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:20.341-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:20.592-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:20.842-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:20.918-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:20.918-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:21.093-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:21.344-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:21.595-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:21.602-07:00 [scheduler] running worker-placements:disk-space
+2026-10-24T20:16:21.846-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:21.918-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:21.919-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:22.097-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:22.337-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:16:22.339-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:16:22.347-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:22.597-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:22.848-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:22.920-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:22.920-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:23.098-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:23.349-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:23.600-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:23.851-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:23.920-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:23.920-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:24.101-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:24.352-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:24.602-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:24.853-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:24.921-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:24.921-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:25.104-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:25.354-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:25.605-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:25.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:25.855-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:25.922-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:25.922-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:26.106-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:26.357-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:26.608-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:26.859-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:26.922-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:26.922-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:27.110-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:27.360-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:27.610-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:27.860-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:27.923-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:27.923-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:28.110-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:28.361-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:28.612-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:28.862-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:28.923-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:28.923-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:29.112-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:29.363-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:29.613-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:29.863-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:29.923-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:29.923-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:30.114-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:30.364-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:30.615-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:30.865-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:30.923-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:30.923-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:31.116-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:31.366-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:31.616-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:31.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:31.867-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:31.923-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:31.923-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:32.117-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:32.367-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:32.618-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:32.868-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:32.925-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:32.925-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:33.119-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:33.370-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:33.620-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:33.870-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:33.926-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:33.926-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:34.120-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:34.371-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:34.621-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:34.872-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:34.927-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:34.927-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:35.122-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:35.373-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:35.624-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:35.874-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:35.928-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:35.928-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:36.124-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:36.375-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:36.626-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:36.877-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:36.928-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:36.929-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:37.127-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:37.378-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:37.629-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:37.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:37.879-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:37.929-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:37.929-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:38.129-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:38.380-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:38.630-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:38.880-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:38.930-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:38.932-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:39.130-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:39.382-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:39.632-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:39.883-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:39.930-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:39.932-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:40.134-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:40.384-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:40.634-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:40.885-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:40.931-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:40.933-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:41.135-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:41.386-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:41.636-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:41.886-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:41.932-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:41.934-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:42.138-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:42.388-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:42.639-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:42.889-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:42.932-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:42.934-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:43.141-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:43.392-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:43.643-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:43.792-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:43.894-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:43.932-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:43.934-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:44.145-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:44.395-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:44.645-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:44.897-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:44.932-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:44.935-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:45.150-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:45.403-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:45.655-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:45.908-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:45.934-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:45.938-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:46.160-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:46.412-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:46.664-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:46.916-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:46.936-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:46.940-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:47.168-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:47.626-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:47.876-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:47.938-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:47.942-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:48.127-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:48.377-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:48.628-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:48.878-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:48.938-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:48.942-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:49.128-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:49.379-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:49.629-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:49.793-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:49.880-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:49.941-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:49.943-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:49.952-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:16:49.953-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:16:49.986-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:16:50.131-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:50.382-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:50.632-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:50.834-07:00 [agents/agent-command] [agent] run 101 ended with stopReason=stop
+2026-10-24T20:16:50.857-07:00 [main-session-restart-recovery] main-session restart recovery terminal: session=agent:main:main run=101 status=ok reason=completed
+2026-10-24T20:16:50.970-07:00 [activity-summary] recap unavailable: no Gateway model credential
+2026-10-24T20:16:50.971-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:50.971-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:50.971-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:51.221-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:51.472-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:51.540-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T20:16:51.722-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:51.972-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:51.972-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:51.972-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:52.223-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:52.338-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:16:52.339-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:16:52.473-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:52.724-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:52.972-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:52.972-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:52.974-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:53.224-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:53.474-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:53.724-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:53.973-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:53.973-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:53.974-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:54.225-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:54.475-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:54.726-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:54.970-07:00 [scheduler] running delivery:outbound-recovery
+2026-10-24T20:16:54.973-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:54.973-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:54.976-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:55.226-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:55.476-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:55.726-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:55.973-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:55.973-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:55.976-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:56.226-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:56.477-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:56.727-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:56.973-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:56.973-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:56.977-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:57.228-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:57.478-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:57.729-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:57.975-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:57.975-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:57.981-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:58.232-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:58.482-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:58.734-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:58.975-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:58.977-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:58.984-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:59.234-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:59.486-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:59.737-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:16:59.976-07:00 [scheduler] running database:page-cache
+2026-10-24T20:16:59.977-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:16:59.987-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:00.237-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:00.489-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:00.739-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:00.977-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:00.977-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:00.990-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:01.240-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:01.491-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:01.742-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:01.977-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:01.978-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:01.992-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:02.242-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:02.493-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:02.744-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:02.978-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:02.979-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:02.994-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:03.245-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:03.496-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:03.748-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:03.980-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:03.980-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:03.999-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:04.249-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:04.499-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:04.749-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:04.980-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:04.980-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:05.000-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:05.251-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:05.502-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:05.753-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:05.981-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:05.981-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:06.003-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:06.253-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:06.503-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:06.754-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:06.981-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:06.982-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:07.005-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:07.255-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:07.505-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:07.755-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:07.982-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:07.983-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:08.006-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:08.256-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:08.507-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:08.758-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:08.983-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:08.983-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:09.009-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:09.260-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:09.511-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:09.761-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:09.983-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:09.983-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:10.011-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:10.262-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:10.513-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:10.764-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:10.983-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:10.983-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:11.015-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:11.266-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:11.516-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:11.766-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:11.984-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:11.984-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:12.018-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:12.269-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:12.519-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:12.770-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:12.985-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:12.985-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:13.021-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:13.272-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:13.522-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:13.773-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:13.985-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:13.987-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:14.025-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:14.276-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:14.526-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:14.777-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:14.986-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:14.988-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:15.028-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:15.279-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:15.529-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:15.781-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:15.988-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:15.989-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:16.031-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:16.281-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:16.532-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:16.783-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:16.991-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:16.992-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:17.034-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:17.285-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:17.535-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:17.787-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:17.992-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:17.993-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:18.037-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:18.289-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:18.539-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:18.790-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:18.993-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:18.994-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:19.041-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:19.292-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:19.544-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:19.794-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:19.995-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:19.995-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:20.045-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:20.296-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:20.548-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:20.799-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:20.996-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:20.998-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:21.049-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:21.301-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:21.552-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:21.803-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:21.996-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:22.000-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:22.053-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:22.303-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:22.339-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:17:22.340-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:17:22.555-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:22.806-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:22.997-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:23.002-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:23.057-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:23.307-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:23.558-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:23.809-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:23.997-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:24.002-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:24.061-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:24.312-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:24.562-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:24.814-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:24.997-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:25.004-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:25.065-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:25.315-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:25.566-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:25.817-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:25.998-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:26.004-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:26.067-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:26.319-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:26.570-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:26.820-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:26.999-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:27.006-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:27.070-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:27.320-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:27.571-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:27.822-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:28.000-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:28.007-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:28.072-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:28.323-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:28.576-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:28.828-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:29.001-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:29.009-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:29.079-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:29.330-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:29.580-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:29.832-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:30.009-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:30.045-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:30.082-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:30.334-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:30.585-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:30.835-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:31.043-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:31.046-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:31.085-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:31.335-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:31.585-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:31.837-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:32.045-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:32.046-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:32.087-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:32.337-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:32.589-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:32.839-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:33.045-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:33.048-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:33.090-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:33.342-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:33.593-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:33.844-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:34.046-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:34.050-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:34.095-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:34.345-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:34.596-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:34.847-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:35.047-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:35.051-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:35.098-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:35.349-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:35.599-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:35.849-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:36.047-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:36.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:36.100-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:36.350-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:36.600-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:36.852-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:37.047-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:37.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:37.102-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:37.352-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:37.602-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:37.853-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:38.048-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:38.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:38.104-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:38.354-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:38.605-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:38.855-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:39.049-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:39.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:39.105-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:39.355-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:39.606-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:39.856-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:40.051-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:40.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:40.106-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:40.356-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:40.607-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:40.857-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:41.051-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:41.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:41.107-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:41.357-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:41.607-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:41.857-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:42.051-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:42.052-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:42.108-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:42.359-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:42.610-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:42.860-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:43.051-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:43.053-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:43.112-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:43.362-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:43.613-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:43.863-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:44.053-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:44.053-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:44.114-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:44.364-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:44.615-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:44.865-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:45.054-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:45.054-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:45.116-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:45.366-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:45.617-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:45.867-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:46.055-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:46.055-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:46.118-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:46.369-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:46.619-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:46.870-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:47.056-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:47.056-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:47.121-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:47.371-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:47.622-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:47.872-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:48.056-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:48.056-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:48.122-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:48.374-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:48.624-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:48.876-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:49.056-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:49.058-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:49.127-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:49.377-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:49.628-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:49.879-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:49.917-07:00 [scheduler] running worker-placements:disk-space
+2026-10-24T20:17:50.056-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:50.058-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:50.130-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:50.381-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:50.631-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:50.881-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:51.058-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:51.058-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:51.131-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:51.382-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:51.632-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:51.882-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:52.058-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:52.059-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:52.132-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:52.340-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:17:52.341-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:17:52.382-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:52.633-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:52.884-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:53.060-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:53.060-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:53.134-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:53.386-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:53.636-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:53.886-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:54.061-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:54.061-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:54.136-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:54.388-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:54.638-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:54.889-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:55.062-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:55.062-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:55.140-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:55.390-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:55.642-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:55.892-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:56.062-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:56.062-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:56.142-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:56.393-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:56.643-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:56.894-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:57.062-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:57.062-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:57.144-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:57.395-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:57.645-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:57.895-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:58.063-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:58.063-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:58.145-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:58.396-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:58.647-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:58.898-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:59.063-07:00 [scheduler] running database:page-cache
+2026-10-24T20:17:59.063-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:17:59.149-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:59.400-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:59.651-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:17:59.901-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:00.065-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:00.065-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:00.151-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:00.402-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:00.652-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:00.903-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:01.065-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:01.065-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:01.153-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:01.404-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:01.654-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:01.904-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:02.066-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:02.066-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:02.155-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:02.406-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:02.656-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:02.906-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:03.067-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:03.067-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:03.157-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:03.408-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:03.659-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:03.909-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:04.067-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:04.067-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:04.159-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:04.410-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:04.660-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:04.912-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:05.068-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:05.068-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:05.162-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:05.412-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:05.663-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:05.914-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:06.068-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:06.068-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:06.165-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:06.415-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:06.665-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:06.915-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:07.068-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:07.069-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:07.165-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:07.415-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:07.665-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:07.915-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:08.069-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:08.069-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:08.166-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:08.417-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:08.668-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:08.918-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:09.070-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:09.070-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:09.169-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:09.419-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:09.670-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:09.920-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:10.070-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:10.070-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:10.170-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:10.420-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:10.671-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:10.921-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:11.070-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:11.070-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:11.171-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:11.421-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:11.671-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:11.921-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:12.070-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:12.070-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:12.172-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:12.422-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:12.672-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:12.922-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:13.071-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:13.071-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:13.173-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:13.423-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:13.674-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:13.924-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:14.072-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:14.072-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:14.175-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:14.425-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:14.675-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:14.926-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:15.072-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:15.072-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:15.177-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:15.427-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:15.678-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:15.928-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:16.072-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:16.072-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:16.179-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:16.429-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:16.679-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:16.930-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:17.073-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:17.073-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:17.181-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:17.432-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:17.683-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:17.933-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:18.074-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:18.074-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:18.184-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:18.434-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:18.685-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:18.935-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:19.074-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:19.074-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:19.186-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:19.437-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:19.688-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:19.938-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:20.074-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:20.074-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:20.188-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:20.438-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:20.688-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:20.939-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:21.074-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:21.075-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:21.189-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:21.440-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:21.690-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:21.941-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:22.075-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:22.075-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:22.191-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:22.341-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:18:22.341-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:18:22.442-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:22.692-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:22.943-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:23.075-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:23.075-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:23.194-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:23.445-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:23.695-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:23.945-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:24.076-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:24.076-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:24.196-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:24.446-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:24.697-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:24.948-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:25.076-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:25.076-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:25.198-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:25.449-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:25.700-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:25.950-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:26.077-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:26.077-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:26.201-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:26.451-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:26.702-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:26.953-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:27.077-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:27.077-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:27.203-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:27.453-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:27.703-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:27.953-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:28.078-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:28.078-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:28.204-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:28.454-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:28.706-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:28.956-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:29.078-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:29.078-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:29.207-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:29.457-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:29.707-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:29.958-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:30.078-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:30.078-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:30.209-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:30.459-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:30.710-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:30.960-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:31.078-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:31.078-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:31.210-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:31.460-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:31.711-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:31.962-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:32.078-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:32.078-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:32.212-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:32.463-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:32.713-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:32.963-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:33.078-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:33.079-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:33.214-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:33.465-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:33.715-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:33.966-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:34.079-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:34.079-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:34.216-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:34.466-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:34.717-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:34.967-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:35.080-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:35.080-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:35.217-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:35.467-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:35.718-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:35.969-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:36.080-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:36.081-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:36.219-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:36.470-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:36.720-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:36.970-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:37.081-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:37.082-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:37.221-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:37.472-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:37.722-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:37.973-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:38.083-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:38.083-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:38.223-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:38.473-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:38.723-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:38.973-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:39.083-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:39.083-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:39.223-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:39.473-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:39.724-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:39.974-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:40.085-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:40.085-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:40.226-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:40.477-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:40.727-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:40.978-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:41.085-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:41.085-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:41.228-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:41.479-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:41.729-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:41.979-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:42.085-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:42.085-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:42.229-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:42.479-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:42.730-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:42.980-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:43.086-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:43.086-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:43.231-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:43.481-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:43.732-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:43.982-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:44.087-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:44.087-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:44.232-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:44.483-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:44.733-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:44.984-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:45.088-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:45.088-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:45.234-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:45.484-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:45.735-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:45.985-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:46.089-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:46.089-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:46.236-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:46.486-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:46.736-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:46.987-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:47.089-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:47.090-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:47.239-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:47.490-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:47.740-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:47.991-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:48.090-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:48.090-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:48.242-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:48.493-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:48.744-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:48.995-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:49.090-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:49.090-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:49.245-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:49.496-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:49.746-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:49.997-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:50.091-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:50.091-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:50.247-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:50.498-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:50.748-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:50.998-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:51.091-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:51.091-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:51.248-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:51.500-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:51.751-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:52.001-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:52.092-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:52.092-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:52.245-07:00 [activity-summary] recap unavailable: no Gateway model credential
+2026-10-24T20:18:52.263-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:52.290-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:18:52.342-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:18:52.342-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:18:52.514-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:52.764-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.015-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.093-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:53.094-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:53.191-07:00 telegram: failed to persist sent-message cache: Error: Telegram runtime not initialized
+2026-10-24T20:18:53.265-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.300-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.326-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.339-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.340-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.341-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.347-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:53.702-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:18:54.094-07:00 [scheduler] running database:page-cache
+2026-10-24T20:18:54.102-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:54.246-07:00 [gateway] database page-cache residency: database=state scope=file-sample resident=100.0% readBytes=72018 diskBytes=0 payloadBytes=0 payloadMessages=0 elapsedMs=11.4 projectionQueryMs=n/a->n/a limited=false
+2026-10-24T20:18:54.381-07:00 [gateway] database page-cache residency: database=agent scope=file-sample resident=100.0% readBytes=137694 diskBytes=0 payloadBytes=0 payloadMessages=0 elapsedMs=21.5 projectionQueryMs=0.95->n/a limited=false
+2026-10-24T20:18:55.103-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:18:55.104-07:00 [gateway] startup phase: post-ready.startup-maintenance starting total=221682.8ms
+2026-10-24T20:18:55.105-07:00 [gateway] startup phase: startup.maintenance.plugin-registry starting total=221683.4ms
+2026-10-24T20:18:55.105-07:00 [gateway] startup phase: startup.maintenance.channels starting total=221683.6ms
+2026-10-24T20:18:55.105-07:00 [gateway] startup phase: startup.maintenance.sessions starting total=221684.1ms
+2026-10-24T20:18:55.105-07:00 [gateway] startup phase: startup.maintenance.pairing starting total=221684.2ms
+2026-10-24T20:18:55.107-07:00 [gateway] startup phase: startup.maintenance.plugin-registry 2.0ms total=221685.4ms
+2026-10-24T20:18:55.107-07:00 [gateway] startup phase: startup.maintenance.channels 2.6ms total=221686.1ms
+2026-10-24T20:18:55.108-07:00 [gateway] startup phase: startup.maintenance.pairing 2.2ms total=221686.4ms
+2026-10-24T20:18:55.111-07:00 [gateway] startup phase: startup.maintenance.session-transcripts starting total=221689.4ms
+2026-10-24T20:18:55.125-07:00 [gateway] startup phase: startup.maintenance.session-transcripts 14.1ms total=221703.5ms
+2026-10-24T20:18:55.125-07:00 [gateway] startup phase: startup.maintenance.sessions 19.7ms total=221703.7ms
+2026-10-24T20:18:55.125-07:00 [gateway] startup phase: post-ready.startup-maintenance 21.1ms total=221703.9ms
+2026-10-24T20:18:57.284-07:00 [scheduler] running delivery:outbound-recovery
+2026-10-24T20:19:09.105-07:00 [admission] closed: restart-signal fence
+2026-10-24T20:19:09.113-07:00 [admission] closed: stop (SIGTERM)
+2026-10-24T20:19:09.113-07:00 [gateway] received SIGTERM; shutting down
+2026-10-24T20:19:09.117-07:00 [gateway] shutdown budget at shutdown: drain=315000ms shutdown=325000ms reserve=10000ms exitMargin=5000ms; source=Gateway stop policy=330000ms
+2026-10-24T20:19:09.122-07:00 [gateway] active-work drain settled; beginning server close
+[state/agent-db] agent database clean-close receipt: written; agent=main
+2026-10-24T20:19:09.302-07:00 [gmail-watcher] gmail watcher stopped
+2026-10-24T20:19:09.360-07:00 [shutdown] completed cleanly in 233ms

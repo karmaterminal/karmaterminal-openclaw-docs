@@ -107,14 +107,14 @@ function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
 }
 
-async function readEvidence(evidencePath) {
+export async function readEvidence(evidencePath) {
   const text = await readFile(evidencePath, 'utf8');
   const records = text.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
   if (records.length !== 1) throw new Error(`expected exactly one evidence record, found ${records.length}`);
   return records[0];
 }
 
-function traceContract(manifest, evidence) {
+export function traceContract(manifest, evidence) {
   const tool = manifest?.invocation?.tool;
   const nonce = evidence?.nonce;
 

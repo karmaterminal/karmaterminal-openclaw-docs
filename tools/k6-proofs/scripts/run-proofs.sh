@@ -56,6 +56,7 @@ bind_execution_roots() {
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
   R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
+  R_CW_3_REVIEW_HELPER="$SCRIPT_DIR/review-r-cw-3-reason-telemetry.mjs"
 }
 bind_execution_roots
 PRIVATE_K6_LOG=""
@@ -1319,6 +1320,20 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$GATEWAY_JOURNAL_STATUS" != "captured" ]]; then
       REVIEW_PENDING_RECEIPTS='["gateway-journal"]'
     fi
+    # R-CW-3 owns a manual reason-telemetry/redaction review receipt (#1727).
+    # The generic pending list only ever tracked acquisition debt, so a
+    # successful trace fetch used to leave this row with an empty list and a
+    # "ready-for-human-review" status that nobody had reviewed.  Seed the
+    # manifest-declared manual receipt here; nothing below removes it.
+    R_CW_3_REVIEW_REQUIRED=false
+    if [[ "$ROW_ID" == "R-CW-3" ]] &&
+       [[ "$(jq -r '((.liveRunSafety.requiredReceipts // []) | any(. == "reason-telemetry-redaction-review"))' "$MANIFEST_FILE")" == "true" ]]; then
+      R_CW_3_REVIEW_REQUIRED=true
+      REVIEW_PENDING_RECEIPTS="$(
+        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+          '$current + ["reason-telemetry-redaction-review"] | unique'
+      )"
+    fi
     TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
     MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
     if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
@@ -1476,6 +1491,60 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     else
       rm -f "$RUN_DIR/evidence-redaction.error.log"
     fi
+    # R-CW-3 row-scoped review join (#1727).  The helper reviews the public
+    # artifacts this run actually produced and binds its receipt to the exact
+    # candidate, matrix, run and collected trace; the correlation receipt
+    # supplies trace identity because public evidence leaves trace_id null.
+    # It runs after redaction so it reads the same public bytes a reviewer
+    # will.  Helper success records a bound receipt — it never discharges the
+    # manual review debt, never rewrites the VU verdict, and never implies
+    # coordinator acceptance.  A missing, failed or unbindable review stays
+    # explicit as its own pending receipt.
+    R_CW_3_REVIEW_RECEIPT=""
+    R_CW_3_REVIEW_SHA256=""
+    R_CW_3_REVIEW_VERDICT=""
+    R_CW_3_REVIEW_STATUS="not-applicable"
+    if [[ "$R_CW_3_REVIEW_REQUIRED" == "true" ]]; then
+      R_CW_3_REVIEW_RECEIPT="r-cw-3-reason-telemetry-review.json"
+      R_CW_3_REVIEW_STATUS="review-join-invalid"
+      R_CW_3_REVIEW_ARGS=(
+        --run-dir "$RUN_DIR"
+        --out "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT"
+        --metadata "$RUN_DIR/runner-metadata.json"
+        --expect-candidate-sha "$OPENCLAW_CANDIDATE_SHA"
+        --expect-run-id "$RUN_ID"
+        --expect-matrix-id "$MATRIX_ID"
+      )
+      if [[ -n "$TEMPO_TRACE_PATH" && -f "$TEMPO_TRACE_PATH" ]]; then
+        R_CW_3_REVIEW_ARGS+=(--tempo-trace "$TEMPO_TRACE_PATH")
+      fi
+      if [[ -n "$TRACE_ID" ]]; then
+        R_CW_3_REVIEW_ARGS+=(--expect-trace-id "$TRACE_ID")
+      fi
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        R_CW_3_REVIEW_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if node "$R_CW_3_REVIEW_HELPER" "${R_CW_3_REVIEW_ARGS[@]}" \
+        > "$RUN_DIR/r-cw-3-review-join.json" 2> "$RUN_DIR/r-cw-3-review-join.error.log"; then
+        R_CW_3_REVIEW_STATUS="review-join-passed"
+        rm -f "$RUN_DIR/r-cw-3-review-join.error.log"
+        echo "[$ROW_ID] REASON TELEMETRY REVIEW JOIN: $RUN_DIR/$R_CW_3_REVIEW_RECEIPT"
+      else
+        echo "[$ROW_ID] REASON TELEMETRY REVIEW JOIN FAILED; see $RUN_DIR/r-cw-3-review-join.error.log" >&2
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["reason-telemetry-redaction-review-join"] | unique'
+        )"
+      fi
+      if [[ -f "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT" ]]; then
+        R_CW_3_REVIEW_SHA256="$(sha256sum "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT" | cut -d' ' -f1)"
+        R_CW_3_REVIEW_VERDICT="$(jq -r '.verdict // ""' "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT")"
+      else
+        R_CW_3_REVIEW_RECEIPT=""
+        R_CW_3_REVIEW_STATUS="review-join-missing"
+      fi
+      echo "[$ROW_ID] REASON TELEMETRY REVIEW: $R_CW_3_REVIEW_STATUS; manual reason-telemetry-redaction-review debt retained."
+    fi
     if [[ "$ROW_ID" == "R-CD-2" && -f "$RUN_DIR/$R_CD_2_RECEIPT" ]]; then
       # Provider/RPC/journal capture remains private for this row.  The signed,
       # allowlisted receipt is the sole public candidate evidence and the sole
@@ -1544,7 +1613,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      --arg rowReviewStatus "$R_CW_3_REVIEW_STATUS" \
+      --arg rowReviewReceipt "$R_CW_3_REVIEW_RECEIPT" \
+      --arg rowReviewSha256 "$R_CW_3_REVIEW_SHA256" \
+      --arg rowReviewVerdict "$R_CW_3_REVIEW_VERDICT" \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts, rowReview:(if $rowReviewStatus == "not-applicable" then null else {receipt:(if $rowReviewReceipt == "" then null else $rowReviewReceipt end), sha256:(if $rowReviewSha256 == "" then null else $rowReviewSha256 end), verdict:(if $rowReviewVerdict == "" then null else $rowReviewVerdict end), status:$rowReviewStatus, source:"r-cw-3-row-scoped-review-join", manualAcceptanceRequired:true, coordinatorAccepted:false} end)}}' \
       > "$RUN_DIR/run-result.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       jq \

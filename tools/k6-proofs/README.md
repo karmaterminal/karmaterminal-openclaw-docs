@@ -353,8 +353,10 @@ node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id>
 ```
 
-For `R-CW-3`, automate the repeatable reason-telemetry/redaction review after
-fetching the trace:
+For `R-CW-3`, the row-list runner runs the repeatable reason-telemetry/redaction
+review itself, immediately after public-artifact redaction, and records the
+result in `run-result.json` under `review.rowReview`. The same helper can be
+re-run by hand against a preserved run directory:
 
 ```bash
 node tools/k6-proofs/scripts/review-r-cw-3-reason-telemetry.mjs \
@@ -362,11 +364,34 @@ node tools/k6-proofs/scripts/review-r-cw-3-reason-telemetry.mjs \
   --tempo-trace /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id>/tempo-trace-<trace>.json
 ```
 
-The helper writes `r-cw-3-reason-telemetry-review.json`, passes only when the
-run saw dispatch/schedule/wake, Tempo contains safe `reason.present`,
-`reason.length`, and `reason.hash` attributes, and the raw `RAW-RCW3-*` reason
-sentinel / `k6-proof-R-CW-3-redaction` prefix are absent from the trace. It is a
-review artifact, not a Gateway action.
+The helper writes `r-cw-3-reason-telemetry-review.json`, and passes only when
+all of the following hold:
+
+- the run saw dispatch/schedule/wake and reported the raw reason absent from
+  public evidence;
+- Tempo carries safe `reason.present`, `reason.length` and `reason.hash`
+  attributes **whose values equal this run's own recorded reason digest and
+  length** — presence of the keys is not evidence;
+- the tool/work/fire span topology matches `continuation-trace-correlation.json`
+  exactly (one trace, one chain, distinct spans, both continuation spans
+  parented to the originating `continue_work` tool span);
+- the receipt binds the exact candidate SHA, matrix id, run id, trace id and
+  chain id, and the SHA-256 of every source artifact it read matches the
+  digests `runner-metadata.json` froze;
+- the raw `RAW-RCW3-*` reason sentinel and the `k6-proof-R-CW-3-redaction`
+  prefix are absent from the trace.
+
+Trace identity comes from the correlation receipt, because public evidence
+deliberately sanitizes `trace_id` to null.
+
+A passing receipt is mechanical verification, not acceptance. `R-CW-3` keeps
+`reason-telemetry-redaction-review` in `review.pendingReceipts` for the life of
+the run, so the row stays `review-pending`, receives no candidate routing
+envelope, and keeps its `PARTIAL-candidate` verdict until a coordinator accepts
+the manual review. A missing, failed or unbindable join adds
+`reason-telemetry-redaction-review-join` as its own explicit pending receipt and
+still writes a receipt naming the unreviewable input. It is a review artifact,
+not a Gateway action.
 
 When reviewing an existing candidate-run bundle, summarize pending review receipts
 before attempting Tempo fetches:

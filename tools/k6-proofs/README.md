@@ -353,20 +353,98 @@ node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id>
 ```
 
-For `R-CW-3`, automate the repeatable reason-telemetry/redaction review after
-fetching the trace:
+For `R-CW-3`, the row-list runner runs the repeatable reason-telemetry/redaction
+review itself, immediately after public-artifact redaction, and records the
+result in `run-result.json` under `review.rowReview`. The same helper can be
+re-run by hand against a preserved run directory. The four `--expect-*` anchors
+are **required**: they must come from the authorizing record of the run (the
+matrix receipt, the issue, the dispatch record), not be copied out of the run
+directory being reviewed. Without them the helper reports internal consistency
+only and the verdict stays `review-pending`.
 
 ```bash
 node tools/k6-proofs/scripts/review-r-cw-3-reason-telemetry.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id> \
-  --tempo-trace /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id>/tempo-trace-<trace>.json
+  --expect-candidate-sha <candidate sha> \
+  --expect-run-id <run id> \
+  --expect-matrix-id <matrix id> \
+  --expect-trace-id <collected trace id>
 ```
 
-The helper writes `r-cw-3-reason-telemetry-review.json`, passes only when the
-run saw dispatch/schedule/wake, Tempo contains safe `reason.present`,
-`reason.length`, and `reason.hash` attributes, and the raw `RAW-RCW3-*` reason
-sentinel / `k6-proof-R-CW-3-redaction` prefix are absent from the trace. It is a
-review artifact, not a Gateway action.
+The helper writes `r-cw-3-reason-telemetry-review.json`, and passes only when
+all of the following hold:
+
+- exactly one public evidence record exists, and it is already a fixed point of
+  `sanitize-k6-artifacts.mjs` — a surviving `nonce`, run id or session key means
+  the document was not sanitizer-produced and cannot be reviewed as public;
+- the run saw dispatch/schedule/wake;
+- the `RAW-RCW3-*` sentinel and the `k6-proof-R-CW-3-redaction` prefix are
+  absent from the fetched trace **and from the public bytes themselves** —
+  evidence, correlation receipt, runner metadata, summary, run result, and the
+  public `k6.log` / `evidence-lines.log` / `gateway-journal.log`. The run
+  directory's `row-manifest.json` and `row-scenario.js` copies are excluded by
+  name and the exclusion is recorded: they are the contract bytes and
+  necessarily carry the literal template. The producer's
+  `public_artifact_raw_reason_absent` boolean is recorded as a claim, never used
+  as the proof;
+- the manifest copy is the R-CW-3 `continue_work` contract with a nonce-bearing
+  reason template, and the correlation receipt records a `manifest-nonce`
+  fingerprint source;
+- Tempo carries safe `reason.present`, `reason.length` and `reason.hash`
+  attributes **whose values equal this run's own recorded reason digest and
+  length** — presence of the keys is not evidence;
+- the tool/work/fire span topology matches `continuation-trace-correlation.json`
+  exactly, under the collector's own rules: one trace, one chain, distinct
+  spans, exactly one originating `continue_work` tool span, work and fire both
+  parented to that same span, accept and fire status OK, and the tool span
+  neither errored nor blocked;
+- all four `--expect-*` anchors are supplied, well-typed and matching, the
+  runner metadata's matrix id / seat / run id are strings, and the runtime build
+  SHA equals the candidate SHA;
+- the `row-manifest.json` and `row-scenario.js` copies still hash to the digests
+  `runner-metadata.json` froze.
+
+Trace identity comes from the correlation receipt, because public evidence
+deliberately sanitizes `trace_id` to null.
+
+### What the offline review cannot prove
+
+The receipt carries a `limits` array naming each unavailable claim rather than
+presenting a satisfied check for it:
+
+- **Reason-fingerprint recomputation.** The producer collector derives the
+  fingerprint from the manifest template and this fire's nonce, but the
+  sanitizer drops every `nonce` key, so an offline review of public artifacts
+  cannot independently recompute `SHA256(reason)`. It binds the contract and
+  requires the recorded fingerprint to agree across evidence, correlation and
+  spans. Pass `--nonce <row nonce>` where one is available out of band to repeat
+  the collector derivation; the nonce is used only for that derivation and is
+  never written into the receipt.
+- **Digest authority.** Only `row-manifest.json` and `row-scenario.js` have
+  producer-frozen expected digests in `runner-metadata.json`. The other recorded
+  digests are **custody of the exact bytes this review read**, not a comparison
+  against a trusted prior value. `binding.digestAuthority` says which is which.
+- **Live execution.** It is offline inspection of preserved artifacts; no
+  gateway call, Tempo query or re-fire occurs.
+
+The receipt is itself a public artifact. Every outgoing string is scrubbed of
+raw reason material and of any supplied nonce before it is written, so a refused
+receipt built from poisoned run-directory bytes carries none of that material;
+`redactedOutgoingValues` reports how many values were dropped.
+
+`--out` cannot be aimed at an input or an immutable original: the helper refuses
+a symlink, a hard-linked target, a non-regular file, any path that resolves onto
+an existing run artifact, and any device+inode alias of one. It may replace a
+receipt it wrote itself, identified by schema rather than filename.
+
+A passing receipt is mechanical verification, not acceptance. `R-CW-3` keeps
+`reason-telemetry-redaction-review` in `review.pendingReceipts` for the life of
+the run, so the row stays `review-pending`, receives no candidate routing
+envelope, and keeps its `PARTIAL-candidate` verdict until a coordinator accepts
+the manual review. A missing, failed or unbindable join adds
+`reason-telemetry-redaction-review-join` as its own explicit pending receipt and
+still writes a receipt naming the unreviewable input. It is a review artifact,
+not a Gateway action.
 
 When reviewing an existing candidate-run bundle, summarize pending review receipts
 before attempting Tempo fetches:

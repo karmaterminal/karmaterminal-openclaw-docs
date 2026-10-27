@@ -37,6 +37,13 @@ Run from the docs repo root:
 cd karmaterminal-openclaw-docs
 ```
 
+For the routine path, use `tools/k6-proofs/proofs.sh`: `list`, `check`,
+`smoke`, `dry ROWS CANDIDATE_SHA`, and `live ROWS CANDIDATE_SHA --docs-ref
+DOCS_SHA`. It resolves the checkout, creates a fresh candidate artifact root
+unless `--out-dir` is given, and calls the gated matrix runner. The numbered
+steps below are the expanded procedure for inspecting individual gates and
+receipts; they are not additional steps required before using the wrapper.
+
 ### 1. Confirm the row catalog
 
 ```bash

@@ -155,7 +155,7 @@ test('item 6: contextUsage without threshold (or the reverse) is invalid, not co
 
 // --- #563 review items 1 and 4: one classifier, fail closed ------------------
 
-import { classifyRrc2Evidence } from '../lib/request-compaction-receipt.js';
+import { classifyRrc2Evidence, summaryRrc2Verdict } from '../lib/request-compaction-receipt.js';
 
 const CLEAN = {
   row: 'R-RC-2',
@@ -179,6 +179,30 @@ test('items 1/4: classifyRrc2Evidence uses the product status strings', () => {
   assert.equal(classifyRrc2Evidence({ ...CLEAN, child_reported_context_threshold: true, request_compaction_receipt_status: 'rejected', request_compaction_rejected_context_threshold: true, request_compaction_context_measured: true, guard: 'context_threshold' }).verdict, 'HONEST-LIMIT-candidate');
   assert.equal(classifyRrc2Evidence({ ...CLEAN, post_compaction_path_observed: true, request_compaction_receipt_status: 'compaction_requested', request_compaction_accepted: true }).verdict, 'PASS-candidate');
   assert.equal(classifyRrc2Evidence({ ...CLEAN, post_compaction_path_observed: true, request_compaction_receipt_status: 'accepted', request_compaction_accepted: true }).verdict, 'PARTIAL-candidate');
+});
+
+test('R-RC-2 summary does not promote a yield without request_compaction', () => {
+  const yieldedOnly = {
+    ...CLEAN,
+    child_wake_turn_bound: false,
+    delegate_child_report_observed: false,
+    request_compaction_tool_result_observed: false,
+    request_compaction_receipt_role: null,
+    request_compaction_receipt_tool_name: null,
+    request_compaction_invocation_bound: false,
+    verdict: 'PASS-candidate', // A misleading metric/fallback is not authority.
+  };
+  assert.equal(summaryRrc2Verdict(null), 'PARTIAL-candidate');
+  assert.equal(summaryRrc2Verdict(yieldedOnly), 'PARTIAL-candidate');
+  const accepted = {
+    ...CLEAN,
+    post_compaction_path_observed: true,
+    request_compaction_receipt_status: 'compaction_requested',
+    request_compaction_accepted: true,
+    verdict: 'PASS-candidate',
+  };
+  assert.equal(summaryRrc2Verdict(accepted), 'PASS-candidate');
+  assert.equal(summaryRrc2Verdict({ ...accepted, verdict: 'PARTIAL-candidate' }), 'PARTIAL-candidate');
 });
 
 test('item 4: R-RC-2 never ends FAIL from an observer error', () => {

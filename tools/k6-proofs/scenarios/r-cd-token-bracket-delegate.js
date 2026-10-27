@@ -10,6 +10,7 @@ import {
   createTokenSessionLedger,
   observeTokenSessionLedger,
   parseTokenReturnEvent,
+  parseTokenReturnHistory,
   rejectTokenSessionLedgerObservation,
   summarizeTokenSessionLedger,
   tokenDisposableOriginReady,
@@ -125,6 +126,7 @@ export default function () {
     let settleStartedAt = null;
     let originSubscriptionRequestId = null;
     let originSubscriptionTarget = null;
+    let originHistoryPending = false;
     const pendingReturnEvents = [];
 
     function tryReturnEvent(eventData) {
@@ -159,6 +161,15 @@ export default function () {
       originSubscriptionRequestId = tracker.send(socket, 'sessions.messages.subscribe', {
         key: originSubscriptionTarget,
       });
+    }
+
+    function maybeRefreshOriginHistory() {
+      if (originHistoryPending || evidence.delegate_return_observed) return;
+      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+      if (!identity.originChildSessionKey || !identity.delegateChildSessionKey) return;
+      originHistoryPending = Boolean(observer.refreshHistory(
+        identity.originChildSessionKey, OBSERVER_PAGE_LIMIT, 'token-return',
+      ));
     }
 
     function proofComplete() {
@@ -240,6 +251,7 @@ export default function () {
       });
       maybeSubscribeOrigin();
       reconcilePendingReturns();
+      maybeRefreshOriginHistory();
       closeComplete();
       scheduleTaskPoll();
     }
@@ -330,7 +342,23 @@ export default function () {
         );
         const classified = tracker.classify(msg);
         if (observed) {
-          observer.handle(observed, classified);
+          const history = observer.handle(observed, classified);
+          if (observed.purpose === 'token-return') {
+            originHistoryPending = false;
+            const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+            const receipt = parseTokenReturnHistory(history, {
+              expectedTargetSessionKey: identity.originChildSessionKey,
+              expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
+              expectedSentinel: returnSentinel,
+              hash,
+            });
+            if (receipt) {
+              evidence.delegate_return_observed = true;
+              evidence.return_target_session_hash = receipt.targetSessionHash;
+              evidence.return_source_session_hash = receipt.sourceSessionHash;
+              evidence.event_receipt_kinds.push('bound-target-transcript-return');
+            }
+          }
           if (observer.state.refusal && taskPollPending) {
             taskPollPending = false;
             rejectTokenSessionLedgerObservation(ledger);
@@ -415,7 +443,8 @@ export default function () {
       evidence.task_snapshot_stable_count >= REQUIRED_STABLE_TASK_SNAPSHOTS,
     'origin child exactly once': () => evidence.origin_task_unique_count === 1,
     'token delegate child exactly once': () => evidence.delegate_task_unique_count === 1,
-    'task identity available': () => !!evidence.origin_task_id_hash && !!evidence.delegate_task_id_hash,
+    'origin and delegate session identities available': () =>
+      !!evidence.origin_child_session_hash && !!evidence.delegate_child_session_hash,
     'delegate owned by origin child': () => evidence.delegate_requester_matches_origin_child,
     'origin child subscription accepted': () => evidence.origin_subscription_accepted,
     'bound delegate return observed': () => evidence.delegate_return_observed,

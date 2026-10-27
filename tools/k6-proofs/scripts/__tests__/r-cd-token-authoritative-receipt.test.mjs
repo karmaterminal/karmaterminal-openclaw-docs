@@ -88,6 +88,36 @@ test('only the complete exactly-once bracket lifecycle plus matching topology ca
   });
 });
 
+test('current session observer can sign a bound return without removed TaskFlow IDs', () => {
+  const sessionEvidence = {
+    ...evidence,
+    observation_surface: 'sessions.list spawnedBy + chat.history own spawn task',
+    observer_rounds_accepted: 3,
+    observer_traversals_refused: 0,
+    tasks_list_rejected: undefined,
+    origin_task_id_hash: null,
+    delegate_task_id_hash: null,
+    delegate_parent_task_id_hash: null,
+  };
+  const receipt = resolve({ evidence: sessionEvidence });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.deepEqual(validateRcdTokenAuthoritativeReceipt(receipt, key), {
+    valid: true, verdict: 'PASS-candidate',
+  });
+  for (const overrides of [
+    { observer_traversals_refused: 1 },
+    { delegate_requester_matches_origin_child: false },
+    { return_source_session_hash: h('f') },
+    { delegate_task_unique_count: 2 },
+  ]) {
+    assert.equal(resolve({ evidence: { ...sessionEvidence, ...overrides } }).verdict, 'PARTIAL-candidate');
+  }
+  assert.equal(resolve({
+    evidence: sessionEvidence,
+    correlation: { ...correlation, reason: { hash: h('f'), length: 42 } },
+  }).verdict, 'PARTIAL-candidate');
+});
+
 test('duplicate scheduling, interruption, typed-tool origin, and mismatched reason are non-PASS', () => {
   for (const overrides of [
     { evidence: { ...evidence, delegate_task_unique_count: 2 } },

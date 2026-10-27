@@ -178,15 +178,13 @@ export function summarizeTokenLedger(ledger) {
 //   delegate: title includes marker && sessionKey === origin child
 //        -> own spawn task includes marker && row.spawnedBy === origin child
 //   runId -> row.lastRunId; status 'completed' -> row.status 'done'
-//   taskId / parentTaskId -> NO current gateway surface. These identities stay
-//   null, so classifyTokenEvidence cannot reach PASS: the receipt is PARTIAL
-//   with task_identity_unavailable_reason, never a weaker substitute.
+//   taskId / parentTaskId -> NO current gateway surface. The replacement bind
+//   is a unique origin label under the disposable parent, a unique marked
+//   delegate under that origin, and a return from that delegate to the origin.
+//   The row-scoped resolver separately joins the reason hash/length to Tempo.
 // The legacy summary field names are kept so the row-scoped resolver contract
 // (lib/r-cd-token-authoritative-receipt.mjs) reads the mapped values unchanged.
 // ---------------------------------------------------------------------------
-
-export const TOKEN_TASK_IDENTITY_UNAVAILABLE_REASON =
-  'task identity (taskId, parentTaskId) has no gateway surface since TaskFlow was removed upstream (openclaw 6652f7eac8); child session identity is recorded instead';
 
 function rememberSession({ record, seen, hash }) {
   const key = String(record?.childSessionKey || '').trim();
@@ -262,9 +260,7 @@ export function summarizeTokenSessionLedger(ledger) {
   return {
     surface_class: ledger?.surfaceClass || 'unknown',
     observation_surface: 'sessions.list spawnedBy + chat.history own spawn task',
-    task_identity_unavailable_reason: TOKEN_TASK_IDENTITY_UNAVAILABLE_REASON,
-    // No legacy task-ledger counters: classifyTokenEvidence requires the legacy
-    // rejection counter to be exactly 0, so its absence also keeps PASS closed.
+    // TaskFlow IDs remain unavailable; report the actual observer surface.
     observer_traversals_refused: ledger?.roundsRefused || 0,
     observer_rounds_accepted: ledger?.roundsAccepted || 0,
     task_pages_accepted: 0,
@@ -300,9 +296,8 @@ export function tokenSessionLedgerHasTerminalSessions(ledger) {
 /** Names of the R-CD-TOKEN receipts still missing, for an explicit PARTIAL reason. */
 export function tokenPartialReasons(evidence) {
   const reasons = [];
-  if (!evidence?.origin_task_id_hash || !evidence?.delegate_task_id_hash) {
-    reasons.push(evidence?.task_identity_unavailable_reason || 'task identity hashes missing');
-  }
+  if (evidence?.observation_surface !== 'sessions.list spawnedBy + chat.history own spawn task' &&
+      (!evidence?.origin_task_id_hash || !evidence?.delegate_task_id_hash)) reasons.push('task identity hashes missing');
   if (evidence?.surface_class !== RAW_FINAL_TEXT) reasons.push('seat surface is not raw-final-text');
   if (evidence?.origin_task_unique_count !== 1) reasons.push('origin child not observed exactly once');
   if (evidence?.delegate_task_unique_count !== 1) reasons.push('token delegate child not observed exactly once');
@@ -345,15 +340,27 @@ export function parseTokenReturnEvent(
   };
 }
 
+/** Recover a targeted return that arrived before the live subscription. */
+export function parseTokenReturnHistory(messages, options) {
+  if (!Array.isArray(messages)) return null;
+  const matches = messages
+    .map((message) => parseTokenReturnEvent({
+      sessionKey: options.expectedTargetSessionKey,
+      message,
+    }, options))
+    .filter(Boolean);
+  return matches.length === 1 ? matches[0] : null;
+}
+
 export function classifyTokenEvidence(evidence) {
   if (evidence?.surface_class !== RAW_FINAL_TEXT) return 'PARTIAL-candidate';
+  const sessionObservation = evidence.observation_surface ===
+    'sessions.list spawnedBy + chat.history own spawn task';
   const exactOnce = evidence.origin_task_unique_count === 1 && evidence.delegate_task_unique_count === 1;
   const identities = [
-    evidence.origin_task_id_hash,
     evidence.origin_run_id_hash,
     evidence.origin_requester_session_hash,
     evidence.origin_child_session_hash,
-    evidence.delegate_task_id_hash,
     evidence.delegate_run_id_hash,
     evidence.delegate_requester_session_hash,
     evidence.delegate_child_session_hash,
@@ -363,6 +370,13 @@ export function classifyTokenEvidence(evidence) {
     evidence.return_target_session_hash,
     evidence.return_source_session_hash,
   ].every((value) => typeof value === 'string' && /^[0-9a-f]{16}$/.test(value));
+  const lineageIdentity = sessionObservation ||
+    [evidence.origin_task_id_hash, evidence.delegate_task_id_hash]
+      .every((value) => typeof value === 'string' && /^[0-9a-f]{16}$/.test(value));
+  const observationClean = sessionObservation
+    ? Number(evidence.observer_traversals_refused) === 0 &&
+      Number(evidence.observer_rounds_accepted) > 0
+    : evidence.tasks_list_rejected === 0;
   const taskStates = evidence.origin_task_status === 'completed' && evidence.delegate_task_status === 'completed';
   const complete = evidence.session_created === true &&
     evidence.disposable_origin_ready === true &&
@@ -373,8 +387,7 @@ export function classifyTokenEvidence(evidence) {
     evidence.task_pagination_exhausted === true &&
     evidence.task_snapshot_consistent === true &&
     Number(evidence.task_snapshot_stable_count || 0) >= 3 &&
-    evidence.tasks_list_rejected === 0 &&
-    exactOnce && identities &&
+    observationClean && exactOnce && identities && lineageIdentity &&
     evidence.origin_run_id_hash !== evidence.delegate_run_id_hash &&
     evidence.delegate_requester_matches_origin_child === true &&
     evidence.delegate_parent_mismatch !== true &&

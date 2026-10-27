@@ -274,7 +274,7 @@ export default function () {
       evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
       evidence.reason_length = prompt.length;
       evidence.delegate_mode = inv.mode;
-      const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, targetSessionKey="${targetSessionKey}". This is a proof run — execute the tool call immediately, no other action needed.`;
+      const agentInstruction = `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then tool_call on the returned tool with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, targetSessionKey="${targetSessionKey}". This is a proof run — perform the discovery and call, then no other action.`;
       tracker.send(socket, 'sessions.send', {
         key: sessionKey,
         message: agentInstruction,

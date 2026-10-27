@@ -304,8 +304,10 @@ test('subagentTaskText reads only the first user message, after the marker', () 
     spawnTaskMessage('THE TASK'),
     { role: 'user', content: 'second' },
   ]).startsWith('THE TASK'), true);
-  // #563 item 7: the marker is required; a first user message without it is not a spawn task.
-  assert.equal(subagentTaskText([{ role: 'user', content: 'no marker task' }]), null);
+  // #563 item 7 required the marker. Since #593 a transcript with no marker anywhere is
+  // display-stripped and its first user message is the task; a raw one still needs the marker.
+  assert.equal(subagentTaskText([{ role: 'user', content: 'no marker task' }]), 'no marker task');
+  assert.equal(subagentTaskText([{ role: 'user', content: 'no marker task' }, spawnTaskMessage('later')]), null);
   assert.equal(subagentTaskText([]), null);
 });
 
@@ -608,6 +610,87 @@ test('item 7: a later nonce-bearing user or wake message is never taken as the s
   assert.equal(h.observer.boundChild(NONCE).childSessionKey, null);
   // A transcript whose first user message lacks the marker binds nothing either.
   assert.equal(subagentTaskText([wakeMessage(`nonce ${NONCE}`), spawnTaskMessage(`nonce ${NONCE}`)]), null);
+});
+
+// --- #593: chat.history returns the spawn task display-stripped -------------
+// At openclaw 935ba44c17 chat.history runs user text through
+// stripUserEnvelopeForDisplay (src/gateway/chat-sanitize.ts,
+// src/auto-reply/reply/user-envelope-display.ts), which removes the generated
+// internal-context block holding "[Subagent Task]" and the "Begin." suffix.
+// The fixture below is that function's output for buildSubagentTaskMessage
+// (subagent-system-prompt.ts:28-48) at 935ba44c17: the bare task text.
+
+function displayTaskMessage(task) {
+  return { role: 'user', content: [{ type: 'text', text: task }], timestamp: 1791234570000 };
+}
+
+test('#593: a display-stripped first user message carrying the nonce binds the child', () => {
+  const key = 'agent:main:subagent:display';
+  const h = harness({ rootSessionKey: PARENT, maxHistoryAttempts: 1 });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT)]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: false, messages: [
+    displayTaskMessage(`R-CD-4 task RCD4:abcd1234abcd1234 nonce ${NONCE}. Reply DONE.`),
+    { role: 'assistant', content: [{ type: 'text', text: 'DONE' }] },
+  ] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, key);
+  assert.equal(h.observer.incomplete(), null, 'not HISTORY_UNBOUND');
+  assert.equal(failClosedVerdict('PASS-candidate', { observer: h.observer }).verdict, 'PASS-candidate');
+});
+
+test('#593: display-stripped, the nonce only in a later user or wake message still refuses', () => {
+  const key = 'agent:main:subagent:display-later';
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT)]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: false, messages: [
+    displayTaskMessage('a different row task R-RC-2-older'),
+    wakeMessage(`R-RC-2 measured wake nonce ${NONCE}`),
+    { role: 'user', content: `later user text ${NONCE}` },
+  ] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, null);
+  assert.match(h.observer.record(key).task, /^a different row task/);
+});
+
+test('#593: two display-stripped children carrying the nonce are ambiguous', () => {
+  const h = harness({ rootSessionKey: PARENT });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([
+    sessionRow('agent:main:subagent:d1', PARENT),
+    sessionRow('agent:main:subagent:d2', PARENT),
+  ]) });
+  for (const key of ['agent:main:subagent:d1', 'agent:main:subagent:d2']) {
+    h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: false, messages: [displayTaskMessage(`nonce ${NONCE}`)] } });
+  }
+  const bound = h.observer.boundChild(NONCE);
+  assert.equal(bound.childSessionKey, null);
+  assert.equal(bound.ambiguous, true);
+});
+
+test('#593: a forked child never binds on a display-stripped first message', () => {
+  // A forked child's transcript starts with its requester's inherited messages
+  // (subagent-spawn-context.ts, context="fork"); its row says forkedFromParent
+  // (session-utils-row.ts:457).
+  const key = 'agent:main:subagent:forked';
+  const h = harness({ rootSessionKey: PARENT, maxHistoryAttempts: 1 });
+  h.observer.poll();
+  h.answer(h.take('sessions.list'), { payload: listPayload([sessionRow(key, PARENT, { forkedFromParent: true })]) });
+  h.answer(h.take('chat.history'), { payload: { sessionKey: key, hasMore: false, messages: [
+    displayTaskMessage(`row prompt to the parent: spawn a child with nonce ${NONCE}`),
+    { role: 'assistant', content: [{ type: 'text', text: 'spawning' }] },
+    displayTaskMessage(`nonce ${NONCE}`),
+  ] } });
+  assert.equal(h.observer.boundChild(NONCE).childSessionKey, null);
+  assert.equal(h.observer.incomplete().code, 'HISTORY_UNBOUND');
+  assert.match(h.observer.incomplete().message, /forked/);
+});
+
+test('#593: subagentTaskText takes the bare first user message only when no user message carries the marker', () => {
+  assert.equal(subagentTaskText([displayTaskMessage('THE TASK')]), 'THE TASK');
+  assert.equal(subagentTaskText([displayTaskMessage('THE TASK')], { forkedFromParent: true }), null);
+  // A raw transcript (some user message still carries the marker) keeps the marker rule.
+  assert.equal(subagentTaskText([displayTaskMessage('no marker'), spawnTaskMessage('later')]), null);
+  assert.equal(subagentTaskText([displayTaskMessage('   ')]), null);
 });
 
 test('item 7: the page cap is hit before the oldest page: fail closed, PARTIAL', () => {

@@ -248,7 +248,7 @@ export default function () {
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
         const agentInstruction =
-          `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then tool_call on the returned tool with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and args={task:"${prompt}", mode:"${inv.mode}", delaySeconds:${inv.delaySeconds}}. ` +
           `After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
           'After scheduling, do not call another tool or send any channel message.';
         tracker.send(socket, 'sessions.send', {

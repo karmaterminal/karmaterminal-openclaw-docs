@@ -230,7 +230,8 @@ test('R-CD-2 dispatch turn requires an exact post-tool terminal sentinel', async
 test('R-CD-2 and R-CD-4 discover the deferred tool before invocation', async () => {
   for (const name of ['r-cd-2-silent-wake.js', 'r-cd-4-target-session-key.js']) {
     const scenario = await readFile(path.join(scenariosDir, name), 'utf8');
-    assert.match(scenario, /Use tool_search to discover the deferred continue_delegate tool, then tool_call on the returned tool with:/);
+    assert.match(scenario, /Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and args=\{task:/);
+    assert.doesNotMatch(scenario, /tool_call/);
     assert.ok(!scenario.includes('[k6-proof-harness] Call continue_delegate with:'));
   }
   const silentWake = await readFile(path.join(scenariosDir, 'r-cd-2-silent-wake.js'), 'utf8');

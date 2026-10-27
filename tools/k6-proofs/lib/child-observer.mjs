@@ -17,7 +17,8 @@
 //     A spawned child's first user message holds "[Subagent Task]" followed by
 //     the task text the row wrote (src/agents/subagents/spawn/
 //     subagent-system-prompt.ts:23-36). The row nonce / task token therefore
-//     lives in the child's own transcript, which is the binding record.
+//     lives in the child's own transcript, which is the binding record. Newer
+//     builds strip that marker for display (#593); see subagentTaskText.
 //
 // Binding rule (no looser than row-child-correlation.mjs): a child counts for
 // the row only when (a) its own session row names the expected requester in
@@ -205,21 +206,37 @@ export function messageText(message) {
     .join('\n');
 }
 
+function isUserMessage(m) {
+  return Boolean(m) && String(m.role || '').toLowerCase() === 'user';
+}
+
 /**
  * The spawn task from the child's own transcript. `messages` must be the
  * transcript from its true start (the observer pages chat.history back to the
- * oldest page before calling this). Only the FIRST user message counts, and it
- * must carry "[Subagent Task]"; the text after the marker is returned. A later
+ * oldest page before calling this). Only the FIRST user message counts. When
+ * it carries "[Subagent Task]", the text after the marker is returned. A later
  * user or wake message carrying the nonce is never taken as the spawn task.
+ *
+ * Display-stripped transcripts (#593): at openclaw 935ba44c17 chat.history
+ * runs user text through stripUserEnvelopeForDisplay (src/gateway/
+ * chat-sanitize.ts, src/auto-reply/reply/user-envelope-display.ts), which drops
+ * the generated block holding the marker and returns the bare task. The first
+ * user message is then taken whole, but only when no user message in the
+ * transcript still carries the marker (a raw transcript keeps the marker rule)
+ * and the child was not forked: a forked child's transcript starts with its
+ * requester's inherited messages, so its first user message is not its task.
  */
-export function subagentTaskText(messages) {
+export function subagentTaskText(messages, { forkedFromParent = false } = {}) {
   const list = Array.isArray(messages) ? messages : [];
-  const first = list.find((m) => m && String(m.role || '').toLowerCase() === 'user');
+  const first = list.find(isUserMessage);
   if (!first) return null;
   const text = messageText(first);
   const at = text ? text.indexOf(SUBAGENT_TASK_MARKER) : -1;
-  if (at < 0) return null;
-  return text.slice(at + SUBAGENT_TASK_MARKER.length).trim();
+  if (at >= 0) return text.slice(at + SUBAGENT_TASK_MARKER.length).trim();
+  if (forkedFromParent) return null;
+  if (list.some((m) => isUserMessage(m) && messageText(m).includes(SUBAGENT_TASK_MARKER))) return null;
+  const task = text.trim();
+  return task.length > 0 ? task : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -373,6 +390,8 @@ export function createChildObserver({
     record.endedAt = row.endedAt ?? null;
     record.lastRunId = str(row.lastRunId);
     record.parentSessionKey = str(row.parentSessionKey);
+    // src/gateway/session-utils-row.ts:457 at openclaw 935ba44c17.
+    record.forkedFromParent = row.forkedFromParent === true;
     records[key] = record;
     if (record.task === null && !record.historyPagingFailed) requestHistory(record);
     if (record.depth < maxDepth && requesterDepth[key] === undefined) {
@@ -481,7 +500,7 @@ export function createChildObserver({
           // Pages arrive newest first; each page is oldest-to-newest inside.
           const transcript = record.historyPages.slice().reverse().flat();
           record.historyPagesRead = record.historyPages.length;
-          if (record.task === null) record.task = subagentTaskText(transcript);
+          if (record.task === null) record.task = subagentTaskText(transcript, { forkedFromParent: record.forkedFromParent });
           if (record.task !== null) {
             // A transcript read that failed earlier and has now succeeded is recovered.
             for (const e of state.errors) {
@@ -582,7 +601,8 @@ export function createChildObserver({
       if (exhausted) {
         // A child of this lineage whose spawn task could never be read might be
         // the match or a duplicate: binding cannot be claimed either way.
-        return { method: 'chat.history', code: 'HISTORY_UNBOUND', message: `spawn task unread after ${exhausted.historyAttempts} attempts` };
+        const forked = exhausted.forkedFromParent ? ' (forked child: no marked spawn task)' : '';
+        return { method: 'chat.history', code: 'HISTORY_UNBOUND', message: `spawn task unread after ${exhausted.historyAttempts} attempts${forked}` };
       }
       if (state.counters.rounds_invalid > 0) {
         return { method: 'sessions.list', code: 'INVALID_TRAVERSAL', message: `${state.counters.rounds_invalid} traversal(s) incomplete or inconsistent` };

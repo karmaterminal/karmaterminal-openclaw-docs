@@ -40,6 +40,8 @@ test('R-RC-2 honest limit is bound to the child structured threshold receipt', a
   // #563 item 1: the final verdict comes from the classifier the manual
   // postprocessor also uses; its predicates are exercised below.
   assert.match(scenario, /const outcome = classifyRrc2Evidence\(evidence\)/);
+  assert.match(scenario, /verdict: summaryRrc2Verdict\(finalEvidence\)/);
+  assert.doesNotMatch(scenario, /failuresCount === 0 \? 'PASS-candidate'/);
   assert.match(scenario, /const verifiedThresholdOutcome = outcome\.verdict === 'HONEST-LIMIT-candidate'/);
   assert.match(scenario, /const verifiedPostCompactionOutcome = outcome\.verdict === 'PASS-candidate'/);
   assert.doesNotMatch(scenario, /childHistoryPolls >=/);

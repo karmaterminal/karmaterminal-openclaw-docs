@@ -35,6 +35,7 @@ import {
   classifyRrc2Evidence,
   findRequestCompactionReceipt,
   measuredRequestCompactionOutcome,
+  summaryRrc2Verdict,
 } from '../lib/request-compaction-receipt.js';
 import {
   childSessionKeyForRow,
@@ -519,7 +520,7 @@ export function handleSummary(data) {
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
     timestamp: new Date().toISOString(),
-    verdict: finalEvidence?.verdict || (failuresCount === 0 ? 'PASS-candidate' : 'PARTIAL-candidate'),
+    verdict: summaryRrc2Verdict(finalEvidence),
     evidence: finalEvidence,
     metrics: {
       failures: failuresCount,

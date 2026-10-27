@@ -370,3 +370,16 @@ export function classifyRrc2Evidence(evidence) {
   }
   return { verdict: partialEvidence ? 'PARTIAL-candidate' : 'FAIL-candidate', reason, thresholdReceipt, acceptedReceipt };
 }
+
+/**
+ * k6 invokes handleSummary in a separate JS isolate from the VU, where its
+ * module-local evidence is normally null. A green metric cannot substitute
+ * for the VU's nonce-bound compaction receipt and child return. If evidence
+ * is available, require its VU verdict to agree with the shared classifier;
+ * the VU's observation gates can only lower that verdict.
+ */
+export function summaryRrc2Verdict(evidence) {
+  if (!evidence) return 'PARTIAL-candidate';
+  const classified = classifyRrc2Evidence(evidence).verdict;
+  return evidence.verdict === classified ? classified : 'PARTIAL-candidate';
+}

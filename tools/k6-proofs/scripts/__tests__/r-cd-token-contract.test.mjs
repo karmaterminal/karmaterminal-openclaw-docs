@@ -6,6 +6,7 @@ import {
   createTokenLedger,
   observeTokenTaskLedger,
   parseTokenReturnEvent,
+  parseTokenReturnHistory,
   rejectTokenTaskLedgerObservation,
   summarizeTokenLedger,
   tokenDisposableOriginReady,
@@ -222,6 +223,28 @@ test('prompt echo, arbitrary event text, wrong session, and wrong delegate are r
       hash,
     }), null);
   }
+});
+
+test('target transcript recovers only a single source-bound return, not echoed nonce text', () => {
+  const options = {
+    expectedTargetSessionKey: originChild,
+    expectedDelegateChildSessionKey: delegateChild,
+    expectedSentinel: returnSentinel,
+    hash,
+  };
+  const bound = {
+    role: 'user',
+    content: `[Inter-session message] sourceSession=${delegateChild} sourceTool=subagent_announce\n${returnSentinel}`,
+  };
+  const echo = { role: 'assistant', content: `I was asked to say ${returnSentinel}` };
+  assert.deepEqual(parseTokenReturnHistory([echo, bound], options), {
+    targetSessionHash: hash(originChild), sourceSessionHash: hash(delegateChild),
+  });
+  assert.equal(parseTokenReturnHistory([echo], options), null);
+  assert.equal(parseTokenReturnHistory([bound, bound], options), null);
+  assert.equal(parseTokenReturnHistory([{
+    role: 'user', content: `[Inter-session message] sourceSession=agent:main:other sourceTool=subagent_announce\n${returnSentinel}`,
+  }], options), null);
 });
 
 test('task-list rejection is recorded fail-closed', () => {

@@ -411,7 +411,7 @@ test('R-RC-2: the RRC2 token binds the delegated child', () => {
   assert.equal(h.observer.boundChild(nonce, [token]).childSessionKey, 'agent:main:subagent:rc2');
 });
 
-test('R-CD-TOKEN: label + spawnedBy origin, marker + lineage delegate; task identity stays PARTIAL', () => {
+test('R-CD-TOKEN: label + spawnedBy origin, marker + lineage delegate bind without TaskFlow IDs', () => {
   const hash = (v) => String(v).padEnd(16, '0').slice(0, 16).replace(/[^0-9a-f]/g, 'a');
   const originTitle = 'RCDT-O-0123456789abcdef';
   const delegateMarker = 'D-0123456789ab';
@@ -442,8 +442,17 @@ test('R-CD-TOKEN: label + spawnedBy origin, marker + lineage delegate; task iden
     return_source_session_hash: summary.delegate_child_session_hash,
     interrupted: false,
   };
-  assert.equal(classifyTokenEvidence(evidence), 'PARTIAL-candidate');
-  assert.match(tokenPartialReasons(evidence)[0], /task identity \(taskId, parentTaskId\) has no gateway surface/);
+  assert.equal(classifyTokenEvidence(evidence), 'PASS-candidate');
+  assert.deepEqual(tokenPartialReasons(evidence), []);
+  for (const override of [
+    { observer_traversals_refused: 1 },
+    { delegate_requester_matches_origin_child: false },
+    { delegate_task_unique_count: 2 },
+    { return_source_session_hash: hash('other-child') },
+    { return_target_session_hash: hash('other-origin') },
+  ]) {
+    assert.equal(classifyTokenEvidence({ ...evidence, ...override }), 'PARTIAL-candidate');
+  }
 });
 
 test('R-CD-TOKEN traversal: pagination follows nextOffset; duplicates or a refused page void the round', () => {

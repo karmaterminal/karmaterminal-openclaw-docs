@@ -1369,9 +1369,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --evidence "$PRIVATE_EVIDENCE_FILE" \
         --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" \
         > "$COLLECTOR_RESULT" 2> "$COLLECTOR_ERROR"; then
-        TRACE_ID="$(jq -r '.traceId // empty' "$COLLECTOR_RESULT")"
-        TEMPO_TRACE_JSON="$(jq -r '.traceFile // empty' "$COLLECTOR_RESULT")"
-        CORRELATION_RECEIPT="$(jq -r '.receiptFile // empty' "$COLLECTOR_RESULT")"
+        # Unparseable collector output is a missing trace for this row, not a
+        # reason to abort the matrix under set -e.
+        TRACE_ID="$(jq -r '.traceId // empty' "$COLLECTOR_RESULT" 2>/dev/null || true)"
+        TEMPO_TRACE_JSON="$(jq -r '.traceFile // empty' "$COLLECTOR_RESULT" 2>/dev/null || true)"
+        CORRELATION_RECEIPT="$(jq -r '.receiptFile // empty' "$COLLECTOR_RESULT" 2>/dev/null || true)"
         if [[ "$TRACE_ID" =~ ^[0-9a-f]{32}$ &&
               "$TEMPO_TRACE_JSON" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ && -s "$RUN_DIR/$TEMPO_TRACE_JSON" &&
               "$CORRELATION_RECEIPT" == "$TRACE_CORRELATION_RECEIPT.json" && -s "$RUN_DIR/$CORRELATION_RECEIPT" ]]; then

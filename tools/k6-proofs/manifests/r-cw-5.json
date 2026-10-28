@@ -36,7 +36,7 @@
     {"name":"typed-tool-surface","required":true,"description":"The real attempt runner receives two typed continue_work callbacks and creates no durable work when over cap."},
     {"name":"dispatch-boundary-suite","required":true,"description":"Production dispatcher asserts no rejected-hop spawn and failed-flow persistence."},
     {"name":"cleanup","required":true,"description":"Disposable worktree is removed and no production config/state/source mutation occurred."},
-    {"name":"tempo-trace-json","required":true,"description":"Public-safe Tempo trace JSON for a continue_work cost-cap boundary fire. Required for every continuation row (#600). The process-local fixture exports no spans to Tempo, so it cannot discharge this receipt; it stays pending until a live exact-candidate fire supplies it."},
+    {"name":"tempo-trace-json","required":true,"description":"Public-safe Tempo trace JSON for a continue_work cost-cap boundary fire. Required for every continuation row (#600). The process-local fixture exports no spans to Tempo, so it cannot discharge this receipt; it stays pending on every fixture run, and only a separately authorized live exact-candidate fire, under its own run, could carry a Tempo trace."},
     {"name":"continuation-trace-correlation","required":true,"description":"continuation-trace-correlation.json for the same live fire: one trace matched by reason fingerprint with the admitted elections and their fire spans. The fixture cannot produce it."}
   ],
   "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-5","seat":"${OPENCLAW_SEAT_NAME:-cael-dgx}","runDirPrefix":"k6-run"},
@@ -197,7 +197,7 @@
     },
     "execution": {
       "deterministicK6": "Not a k6 scenario: run-cost-cap-fixture.mjs runs the production predicate in a disposable exact-candidate worktree.",
-      "manual": "A live exact-candidate fire, if one is ever authorized, is the only source of the trace receipts.",
+      "manual": "No live fire is authorized for this row, so its trace receipts stay review debt on every fixture run.",
       "relationship": "The fixture owns the verdict. The trace receipts decide only whether review is complete."
     }
   },

@@ -87,7 +87,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. The manifest reason also carries a per-hop {{hop}} placeholder that collect-continuation-trace.mjs does not render, so the in-run collector cannot attribute this row’s three hops today and its trace receipts stay pending until per-hop traces are attached for review."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. The manifest reason also carries a per-hop {{hop}} placeholder that collect-continuation-trace.mjs does not render, so the in-run collector cannot attribute this row’s three hops today and its trace receipts stay pending until the collector can render the per-hop reason."
     },
     "enforcement": "advisory",
     "rebindable": false,
@@ -235,7 +235,7 @@
     },
     "execution": {
       "deterministicK6": "r-cw-4-chain-depth.js fires three sequential continue_work hops in a disposable proof session.",
-      "manual": "Per-hop traces have to be located and attached by a reviewer until the collector can render the per-hop reason.",
+      "manual": "A reviewer can locate the per-hop traces by hand at fold review; that does not discharge the pending receipts.",
       "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
     }
   },

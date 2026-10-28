@@ -333,8 +333,12 @@ its tool: `continuation-trace-correlation` for `continue_work` /
 leaves a 32-hex trace id, the trace JSON and that receipt in the run directory,
 both receipts stay in `pendingReceipts`, and no writer or consumer of
 `candidate-run-result.json` calls such a row review-complete while its trace or
-correlation receipt is missing. R-CD-2 is the one exception by construction:
-its signed authority receipt consumes the trace and must hold it. The rule is
+correlation receipt is missing. R-CD-2 is the one deliberate exception: its
+public result withholds the trace JSON and correlation receipt, and it may
+complete review only when its signed authority receipt was resolved from the
+collector's authenticated acquisition receipt with a valid trace id. That
+receipt binds the trace by fingerprint (trace, chain, dispatch and fire); the
+trace JSON itself is not published for R-CD-2. The rule is
 owned by `lib/continuation-trace-requirement.mjs`; the VU or summary verdict is
 never changed by it. `check-proof-row-manifests.mjs` refuses a continuation
 manifest that does not require both receipts, and the bare alias `tempo-trace`.

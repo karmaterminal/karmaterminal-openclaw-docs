@@ -47,7 +47,7 @@
     {
       "name": "tempo-trace-json",
       "required": true,
-      "description": "Public-safe Tempo trace JSON for the committed live A→B→delayed-C collection run this static row validates. Required for every continuation row (#600). The static validator fires nothing, so this receipt is attached for review from the committed live run; it is never produced by this row."
+      "description": "Public-safe Tempo trace JSON for the committed live A→B→delayed-C collection run this static row validates. Required for every continuation row (#600). The static validator fires nothing and the harness has no way to attach a trace to its run, so this receipt stays pending on every run of this row; a reviewer can only confirm the committed live run’s trace at fold review."
     },
     {
       "name": "continuation-trace-correlation",
@@ -73,7 +73,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This row is an offline validator of committed corpus receipts and fires no continuation itself, so the in-run collector has no evidence to attribute; the trace receipts stay pending until the committed live run’s trace is attached for review."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This row is an offline validator of committed corpus receipts and fires no continuation itself, so the in-run collector has no evidence to attribute; the trace receipts stay pending on every run of this row, and a reviewer can only confirm the committed live run’s trace at fold review."
     },
     "enforcement": "advisory",
     "rebindable": false,
@@ -206,7 +206,7 @@
         "continuation.chain.id",
         "reason.hash"
       ],
-      "notes": "The static row reads no telemetry backend. Its trace receipts stay pending as review debt until a reviewer attaches the committed live trace; that never changes the static verdict."
+      "notes": "The static row reads no telemetry backend. Its trace receipts stay pending as review debt on every run; that never changes the static verdict."
     },
     "artifact": {
       "schema": "openclaw.k6.candidate-run-result.v1",
@@ -226,7 +226,7 @@
     },
     "execution": {
       "deterministicK6": "static-corpus-row-validator.js validates the committed corpus receipts offline.",
-      "manual": "The trace receipts are supplied by a reviewer from the committed live run.",
+      "manual": "The harness never discharges this row’s trace receipts; a reviewer confirms the committed live run’s trace at fold review.",
       "relationship": "The static validator owns the verdict over committed receipts. The trace receipts decide only whether review is complete."
     }
   },

@@ -143,7 +143,10 @@ async function loadRows(root) {
     }
     // A trace-required run owes its Tempo trace and correlation receipt even
     // when the raw result lists nothing pending (#600): runs written before the
-    // structural trace gate reported such rows ready for review.
+    // structural trace gate reported such rows ready for review. The
+    // requirement comes from the run's own row-manifest.json, which the runner
+    // has copied into every run directory since 054ec33f; a raw result without
+    // it carries no row contract and is reported as written.
     const traceDebt = traceReviewDebt(manifest, raw.observability, {
       traceHeldByAuthority: authority?.traceHeld === true,
     }).filter((receipt) => !pendingReceipts.includes(receipt));

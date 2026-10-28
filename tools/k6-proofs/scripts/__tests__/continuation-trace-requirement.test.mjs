@@ -522,6 +522,7 @@ test('review-debt adds trace debt to a raw continuation run that claims nothing 
 test('R-CD-2 completes review only when its signed authority holds the trace', async (t) => {
   const { candidateEnvelopeMatchesSiblings } = await import(contractUrl);
   const { SIGNING_KEY } = await import('./helpers/r-cd-2-authority-fixture.mjs');
+  const { consumeRcd2Authority } = await import('../../lib/r-cd-2-authority-context.mjs');
   for (const [verdict, expected] of [
     // PASS binds the acquisition receipt, trace and topology into the receipt.
     ['PASS-candidate', true],
@@ -532,6 +533,13 @@ test('R-CD-2 completes review only when its signed authority holds the trace', a
       const fixture = await writeRcd2Bundle(repoRoot, { verdict });
       try {
         assert.equal(fixture.runResult.observability.traceId, null, 'R-CD-2 publishes no raw trace');
+        // The authority itself is valid either way; only whether it holds the
+        // trace differs, so that is what decides the envelope below.
+        const authority = consumeRcd2Authority({ runDir: fixture.runDir, signingKey: SIGNING_KEY });
+        assert.equal(authority.outcome, verdict);
+        assert.deepEqual(authority.review.pendingReceipts, []);
+        assert.equal(authority.traceHeld, expected);
+        assert.equal(authority.review.complete, expected);
         assert.equal(candidateEnvelopeMatchesSiblings({
           envelope: fixture.envelope,
           manifest: fixture.manifest,

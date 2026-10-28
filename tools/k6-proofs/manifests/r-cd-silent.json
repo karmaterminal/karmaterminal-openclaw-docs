@@ -95,7 +95,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This manifest has no invocation.promptTemplate and the scenario publishes no reason fingerprint, so collect-continuation-trace.mjs refuses to attribute the trace and the trace receipts stay pending until the row records its task fingerprint."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This manifest has no invocation.promptTemplate, so collect-continuation-trace.mjs refuses to attribute the trace, and the scenario publishes no reason fingerprint for a post-run attribution either; the trace receipts stay pending until the manifest carries the task template the collector renders."
     },
     "enforcement": "advisory",
     "rebindable": false,
@@ -249,7 +249,7 @@
     },
     "execution": {
       "deterministicK6": "r-cd-silent.js fires continue_delegate(mode=silent) and the follow-up readback turn.",
-      "manual": "Until the row publishes its task fingerprint, a reviewer must locate and attach the trace by hand.",
+      "manual": "A reviewer can locate the trace by hand at fold review; that does not discharge the pending receipts.",
       "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
     }
   },

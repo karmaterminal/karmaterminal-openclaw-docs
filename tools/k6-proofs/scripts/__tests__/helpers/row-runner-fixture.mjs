@@ -41,13 +41,15 @@ function shellQuote(value) {
  * @param {string} [options.vuVerdict] VU-emitted VERDICT line value
  * @param {(url: URL, response: import('node:http').ServerResponse) => void} options.tempo
  *   Tempo API handler for /api/search and /api/traces/<id>
+ * @param {(harness: {proofsDir: string}) => Promise<void>} [options.beforeCommit]
+ *   edit the harness checkout before it is committed as the approved docs ref
  */
-export async function runRowThroughRunner(repoRoot, { rowId, evidence, vuVerdict = 'PASS-candidate', tempo }) {
+export async function runRowThroughRunner(repoRoot, { rowId, evidence, vuVerdict = 'PASS-candidate', tempo, beforeCommit = null }) {
   const root = await mkdtemp(path.join(tmpdir(), 'row-runner-fixture-'));
   const bin = path.join(root, 'bin');
   const out = path.join(root, 'out');
   await Promise.all([mkdir(bin, { recursive: true }), mkdir(out, { recursive: true })]);
-  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
+  const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'), { beforeCommit });
   const k6Output = path.join(root, 'k6-output.txt');
   await writeFile(
     k6Output,

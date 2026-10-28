@@ -8,6 +8,8 @@
 // `tempo-trace` and R-CW-DELEGATE-SELF named none.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runRowThroughRunner } from './helpers/row-runner-fixture.mjs';
@@ -166,5 +168,110 @@ test('sibling control: a read-only row stays not trace-required and completes wi
     assert.equal(envelope.observability.traceCaptured, false);
   } finally {
     await fixture.cleanup();
+  }
+});
+
+function delegateSelfTrace(evidence, manifest) {
+  const task = manifest.invocation.promptTemplate.replaceAll('{{nonce}}', evidence.nonce);
+  const toolOriginNs = 1793182600000000000n;
+  const fireNs = toolOriginNs + 5000000000n;
+  const continuation = [
+    attr('reason.hash', createHash('sha256').update(task).digest('hex').slice(0, 16)),
+    attr('reason.length', task.length),
+    attr('delegate.mode', 'normal'),
+    attr('chain.id', '12345678-1234-4123-8123-123456789abc'),
+  ];
+  return {
+    batches: [{ scopeSpans: [{ spans: [
+      { name: 'continuation.delegate.dispatch', traceId, spanId: '2'.repeat(16), parentSpanId: '5'.repeat(16), status: { code: 1 }, attributes: continuation, startTimeUnixNano: String(fireNs), endTimeUnixNano: String(fireNs + 1000000n) },
+      { name: 'continuation.delegate.fire', traceId, spanId: '3'.repeat(16), parentSpanId: '5'.repeat(16), status: { code: 1 }, attributes: [...continuation, attr('fire.deferred_ms', 5000)], startTimeUnixNano: String(fireNs), endTimeUnixNano: String(fireNs + 1000n) },
+      { name: 'openclaw.tool.execution', traceId, spanId: '4'.repeat(16), parentSpanId: '5'.repeat(16), status: { code: 1 }, attributes: [attr('gen_ai.tool.name', 'continue_delegate')], startTimeUnixNano: String(toolOriginNs), endTimeUnixNano: String(toolOriginNs + 1000000n) },
+    ] }] }],
+  };
+}
+
+const DELEGATE_SELF_EVIDENCE = evidenceFor('R-CW-DELEGATE-SELF-CONTINUATION', {
+  delegate_accepted: true,
+  child_continue_work_accepted: true,
+  child_hop_2_woke: true,
+  parent_return: true,
+});
+
+test('positive control: a continue_delegate row completes review with its continuation trace', async () => {
+  const manifest = JSON.parse(await readFile(path.join(repoRoot, 'tools/k6-proofs/manifests/r-cw-delegate-self.json'), 'utf8'));
+  const fixture = await runRowThroughRunner(repoRoot, {
+    rowId: 'R-CW-DELEGATE-SELF-CONTINUATION',
+    evidence: DELEGATE_SELF_EVIDENCE,
+    tempo: tempoServing(delegateSelfTrace(DELEGATE_SELF_EVIDENCE, manifest)),
+  });
+  try {
+    const { runResult, envelope } = fixture;
+    assert.equal(runResult.observability.traceStatus, 'present', fixture.result.stderr);
+    assert.equal(runResult.observability.traceId, traceId);
+    assert.equal(runResult.observability.correlationReceipt, 'continuation-trace-correlation.json');
+    assert.deepEqual(runResult.review.pendingReceipts, []);
+    assert.ok(envelope, `a complete run must receive its envelope: ${fixture.result.stderr}`);
+    assert.equal(envelope.review.complete, true);
+    assert.equal(envelope.observability.traceCaptured, true);
+    assert.equal(envelope.observability.correlationReceiptPresent, true);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+// A collector exit 0 is not a trace. Replace the collector in the approved
+// harness with one that exits 0 and leaves something less than a trace.
+function stubCollector({ stdout, files = {} }) {
+  return async ({ proofsDir }) => {
+    const writes = Object.entries(files)
+      .map(([name, body]) => `writeFileSync(join(runDir, ${JSON.stringify(name)}), ${JSON.stringify(body)});`)
+      .join('\n');
+    await writeFile(path.join(proofsDir, 'scripts/collect-continuation-trace.mjs'), `#!/usr/bin/env node
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const runDir = process.argv[process.argv.indexOf('--run-dir') + 1];
+${writes}
+process.stdout.write(${JSON.stringify(stdout)});
+`);
+  };
+}
+
+test('a collector that exits 0 without a trace and its correlation receipt is not trusted', async (t) => {
+  const traceFile = `tempo-trace-${traceId.slice(0, 12)}.json`;
+  for (const [label, stub] of [
+    ['non-JSON output', { stdout: 'collected\n' }],
+    ['named files that were never written', {
+      stdout: `${JSON.stringify({ traceId, traceFile, receiptFile: 'continuation-trace-correlation.json' })}\n`,
+    }],
+    ['a correlation receipt for another tool kind', {
+      stdout: `${JSON.stringify({ traceId, traceFile, receiptFile: 'tool-trace-correlation.json' })}\n`,
+      files: { [traceFile]: '{}\n', 'tool-trace-correlation.json': '{}\n' },
+    }],
+    ['a malformed trace id', {
+      stdout: `${JSON.stringify({ traceId: 'null', traceFile, receiptFile: 'continuation-trace-correlation.json' })}\n`,
+      files: { [traceFile]: '{}\n', 'continuation-trace-correlation.json': '{}\n' },
+    }],
+  ]) {
+    await t.test(label, async () => {
+      const fixture = await runRowThroughRunner(repoRoot, {
+        rowId: 'R-CW-DELEGATE-SELF-CONTINUATION',
+        evidence: DELEGATE_SELF_EVIDENCE,
+        tempo: tempoUnavailable,
+        beforeCommit: stubCollector(stub),
+      });
+      try {
+        const { runResult } = fixture;
+        assert.equal(runResult.verdict, 'PASS-candidate');
+        assert.equal(runResult.observability.traceStatus, 'missing');
+        assert.equal(runResult.observability.traceId, null);
+        assert.equal(runResult.observability.correlationReceipt, null);
+        for (const receipt of ['tempo-trace-json', 'continuation-trace-correlation']) {
+          assert.ok(runResult.review.pendingReceipts.includes(receipt), `${label}: ${JSON.stringify(runResult.review.pendingReceipts)}`);
+        }
+        assertNoCompleteEnvelope(fixture);
+      } finally {
+        await fixture.cleanup();
+      }
+    });
   }
 });

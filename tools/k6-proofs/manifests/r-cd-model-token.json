@@ -105,7 +105,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This manifest carries a bracket tokenTemplate and no invocation.promptTemplate, so collect-continuation-trace.mjs refuses to attribute the trace and the trace receipts stay pending until a reviewer attaches it. The census also found bracket origin has no positive span attribute, so the trace cannot prove the delegate came from the token."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This manifest carries a bracket tokenTemplate and no invocation.promptTemplate, so collect-continuation-trace.mjs refuses to attribute the trace and the trace receipts stay pending until the manifest carries a task template the collector renders. The census also found bracket origin has no positive span attribute, so the trace cannot prove the delegate came from the token."
     },
     "enforcement": "advisory",
     "rebindable": false,

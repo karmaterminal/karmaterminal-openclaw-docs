@@ -79,7 +79,7 @@
     {
       "name": "tempo-trace-json",
       "required": true,
-      "description": "Public-safe Tempo trace JSON for a continue_work max-chain-length boundary fire. Required for every continuation row (#600). The process-local fixture exports no spans to Tempo, so it cannot discharge this receipt; it stays pending until a live exact-candidate fire supplies it."
+      "description": "Public-safe Tempo trace JSON for a continue_work max-chain-length boundary fire. Required for every continuation row (#600). The process-local fixture exports no spans to Tempo, so it cannot discharge this receipt; it stays pending on every fixture run, and only a separately authorized live exact-candidate fire, under its own run, could carry a Tempo trace."
     },
     {
       "name": "continuation-trace-correlation",
@@ -258,7 +258,7 @@
     },
     "execution": {
       "deterministicK6": "Not a k6 scenario: run-max-chain-fixture.mjs runs the production boundary in a disposable exact-candidate worktree.",
-      "manual": "A live exact-candidate fire, if one is ever authorized, is the only source of the trace receipts.",
+      "manual": "No live fire is authorized for this row, so its trace receipts stay review debt on every fixture run.",
       "relationship": "The fixture owns the verdict. The trace receipts decide only whether review is complete."
     }
   },

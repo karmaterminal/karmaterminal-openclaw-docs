@@ -35,10 +35,172 @@
     {"name":"boundary-matrix","required":true,"description":"Below/equal/over cap results are null/null/cost-capped at the production budget predicate."},
     {"name":"typed-tool-surface","required":true,"description":"The real attempt runner receives two typed continue_work callbacks and creates no durable work when over cap."},
     {"name":"dispatch-boundary-suite","required":true,"description":"Production dispatcher asserts no rejected-hop spawn and failed-flow persistence."},
-    {"name":"cleanup","required":true,"description":"Disposable worktree is removed and no production config/state/source mutation occurred."}
+    {"name":"cleanup","required":true,"description":"Disposable worktree is removed and no production config/state/source mutation occurred."},
+    {"name":"tempo-trace-json","required":true,"description":"Public-safe Tempo trace JSON for a continue_work cost-cap boundary fire. Required for every continuation row (#600). The process-local fixture exports no spans to Tempo, so it cannot discharge this receipt; it stays pending until a live exact-candidate fire supplies it."},
+    {"name":"continuation-trace-correlation","required":true,"description":"continuation-trace-correlation.json for the same live fire: one trace matched by reason fingerprint with the admitted elections and their fire spans. The fixture cannot produce it."}
   ],
   "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-5","seat":"${OPENCLAW_SEAT_NAME:-cael-dgx}","runDirPrefix":"k6-run"},
   "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is an exact-candidate process-local typed-tool claim. It is not an external gateway invocation and is not promoted automatically."},
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. This row’s verdict comes from a process-local exact-candidate fixture that exports no spans to Tempo, so the fixture can never discharge the trace receipts; they record that a continuation-tool result without its trace is incomplete."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.work",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.work.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_work evidence. Joined to the accepted entry only by shared trace."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "The continuation reason is published only as a digest and a length, inside a public-safe Tempo projection. The raw reason, sentinel instructions, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "raw reason",
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The fixture proves below-cap and equal-cap elections are admitted and the over-cap election returns cost-capped from the production budget predicate.",
+      "negative": "An over-cap election that still creates durable work, or a rejected hop that spawns, fails the fixture; neither can be argued from a missing trace."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "The fixture has no telemetry backend at all. The trace receipts stay pending as review debt; they never change the fixture verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.project81.r-cw-5.fixture-result.v1",
+      "requiredFiles": [
+        "fixture-result.json",
+        "fixture-readiness.json",
+        "boundary-matrix.json",
+        "typed-tool-surface.json",
+        "dispatch-boundary-suite.json",
+        "cleanup.json",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "fixture-result.json reports PASS-candidate when the boundary matrix, typed-tool surface, and dispatch suite all hold; the manifest still caps this process-local row at PARTIAL-candidate. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "The row’s artifact class: a process-local fixture is not an external gateway invocation, so the row is not promoted past PARTIAL-candidate.",
+      "fail": "fixture-result.json reports FAIL-fixture: an over-cap election that is not cost-capped, or durable work or a spawn for the rejected hop."
+    },
+    "execution": {
+      "deterministicK6": "Not a k6 scenario: run-cost-cap-fixture.mjs runs the production predicate in a disposable exact-candidate worktree.",
+      "manual": "A live exact-candidate fire, if one is ever authorized, is the only source of the trace receipts.",
+      "relationship": "The fixture owns the verdict. The trace receipts decide only whether review is complete."
+    }
+  },
   "liveRunSafety": {
     "classification": "orchestration-required",
     "requiresLiveGatewayToken": false,
@@ -48,7 +210,7 @@
     "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": false,
     "expectedArtifactClass": "PARTIAL-candidate",
-    "requiredReceipts": ["fixture-readiness","boundary-matrix","typed-tool-surface","dispatch-boundary-suite","cleanup"],
+    "requiredReceipts": ["fixture-readiness","boundary-matrix","typed-tool-surface","dispatch-boundary-suite","cleanup","tempo-trace-json","continuation-trace-correlation"],
     "foldRequiresReview": true,
     "notes": "Fail closed for k6/WebSocket: continue_work is internal-only. The supported path is the process-local exact-candidate fixture described in docs/R-CW-5-ISOLATED-TOOL-SURFACE.md; review remains mandatory before corpus promotion."
   }

@@ -6,11 +6,18 @@
  * construct-only or scaffold, but they should still be explicit in the catalog so
  * the public executable-suite surface can explain the full 29-row corpus.
  *
+ * It also refuses a manifest whose trace receipts are not the ones the harness
+ * holds it to (#600): every receipt name must be canonical (`tempo-trace` is
+ * `tempo-trace-json`), and a row that fires a continuation tool or token must
+ * require `tempo-trace-json` plus its correlation receipt. The rule is owned by
+ * lib/continuation-trace-requirement.mjs.
+ *
  * The repository root comes from the shared repo-root contract, so running this
  * from the repository root and from tools/k6-proofs inspects the same files.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { manifestTraceReceiptFailures } from '../lib/continuation-trace-requirement.mjs';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
@@ -49,10 +56,12 @@ if (!failures.length) {
 }
 
 const manifestRows = [];
+const traceReceiptFailures = [];
 if (!failures.length) {
   for (const file of readdirSync(manifestsDir).filter((name) => name.endsWith('.json')).sort()) {
     const manifest = JSON.parse(readFileSync(path.join(manifestsDir, file), 'utf8'));
     if (manifest.rowId) manifestRows.push({ rowId: manifest.rowId, file });
+    for (const failure of manifestTraceReceiptFailures(manifest)) traceReceiptFailures.push(`${file}: ${failure}`);
   }
 }
 
@@ -91,6 +100,7 @@ if (caseMismatches.length) {
 if (duplicateManifestRows.length) {
   failures.push(`duplicate manifest row IDs: ${duplicateManifestRows.join('; ')}`);
 }
+failures.push(...traceReceiptFailures);
 
 console.log(`Current corpus: PROOFS/${currentSha}`);
 console.log(`Proof rows: ${proofRows.length}`);
@@ -104,6 +114,7 @@ if (manifestOnly.length) {
 } else {
   console.log('Manifest-only rows: 0');
 }
+console.log(`Trace receipt rule failures: ${traceReceiptFailures.length}`);
 
 if (failures.length) {
   console.error('\nProof row manifest coverage check failed:');

@@ -69,6 +69,16 @@
       "name": "requested-model-byte",
       "required": true,
       "description": "Committed request byte showing continue_delegate model=<provider/model>"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
     }
   ],
   "artifactDestination": {
@@ -210,7 +220,7 @@
         "continuation.chain.id",
         "requested_model"
       ],
-      "notes": "The trace/session correlation receipt is optional, so a degraded backend does not by itself change this row’s class; unavailable authoritative child metadata does, and it is PARTIAL-candidate."
+      "notes": "The trace/session correlation receipt stays optional for the verdict. Since #600 tempo-trace-json and continuation-trace-correlation are required review receipts for every continuation row, so a degraded backend keeps the row review-pending without changing its class; unavailable authoritative child metadata does change it, to PARTIAL-candidate."
     },
     "artifact": {
       "schema": "openclaw.k6.proof-row-result.v1",
@@ -248,7 +258,9 @@
       "requested-model-byte",
       "child-session-observed",
       "child-model-byte",
-      "return-payload"
+      "return-payload",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Explicit model override row. Prevent echo-based false PASS by omitting requested model from the child task; authoritative fallback/inheritance is FAIL-candidate, while unavailable authoritative metadata is PARTIAL-candidate."

@@ -229,7 +229,8 @@
       "typed-delegate-topology",
       "row-scoped-authoritative-receipt",
       "no-channel-delivery",
-      "tempo-trace-json"
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Live continuation row. Fail closed when token/session env is missing, serialize per target session, and treat generated output as a PASS-candidate until required receipts are reviewed."
@@ -259,6 +260,11 @@
       "name": "tempo-trace-json",
       "required": true,
       "description": "Public-safe Tempo trace projection that carries the same authoritative trace and chain binding as the accepted send lifecycle"
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
     },
     {
       "name": "no-channel-delivery",

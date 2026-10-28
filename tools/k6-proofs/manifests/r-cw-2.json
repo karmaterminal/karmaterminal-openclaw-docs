@@ -55,6 +55,16 @@
       "name": "trace-id",
       "required": false,
       "description": "Trace ID from dispatch response or optional task metadata for Tempo fetch."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_work tool → continuation.work → continuation.work.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash and length, holding one continuation.work span, its continuation.work.fire span(s), and the originating continue_work tool span on one trace and chain."
     }
   ],
   "artifactDestination": {
@@ -69,6 +79,164 @@
     "foldRequiresReview": true,
     "notes": "PASS-candidate requires dispatch accepted, explicit scheduled sentinel, explicit immediate wake sentinel, and prompt-echo filtering. Prefer disposable sessions."
   },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. The scenario does not publish that fingerprint in public evidence, so only the in-run collector, which renders the manifest reason with the private nonce, can attribute the trace."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.work",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.work.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_work evidence. Joined to the accepted entry only by shared trace."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "The continuation reason is published only as a digest and a length, inside a public-safe Tempo projection. The raw reason, sentinel instructions, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "raw reason",
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The dispatch is accepted, CW2-SCHEDULED follows the continue_work tool result that reports scheduled, CW2-WOKE arrives on the immediate wake, and one trace joins the tool span to the continuation.work accept and fire spans by reason fingerprint.",
+      "negative": "A harness prompt echo must not satisfy either sentinel, CW2-WOKE before CW2-SCHEDULED does not count, and more than one trace matching the reason fingerprint is refused as ambiguous."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Dispatch accepted, the scheduled sentinel after the scheduled tool result, the immediate wake sentinel, and prompt-echo filtering. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Any required sentinel is missing, including a disposable-session run that stops at scheduled-only. A missing or degraded trace keeps the row review-pending without changing its class.",
+      "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
+    },
+    "execution": {
+      "deterministicK6": "r-cw-2-immediate-wake.js fires continue_work(delaySeconds=0) and records the scheduled and wake sentinels.",
+      "manual": "Manual Tempo review confirms the work/fire topology; it cannot supply the missing identity attributes.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
+  },
   "liveRunSafety": {
     "classification": "k6-runnable",
     "requiresLiveGatewayToken": true,
@@ -82,7 +250,9 @@
       "dispatch-accepted",
       "continue-work-tool-result-scheduled",
       "immediate-wake-event",
-      "prompt-echo-filtered"
+      "prompt-echo-filtered",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Live continue_work delaySeconds=0 row. Serialize per target session. Disposable-session smoke may honestly stop at scheduled-only on runtimes where disposable sessions do not service self-elected continuation wakes; canonical PASS requires a CW2-WOKE receipt from the target session history or live websocket stream."

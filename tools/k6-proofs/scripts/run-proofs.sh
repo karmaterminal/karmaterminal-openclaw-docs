@@ -51,6 +51,7 @@ bind_execution_roots() {
   SCRIPT_DIR="$PROOFS_DIR/scripts"
   EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
   CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+  TRACE_REQUIREMENT_CLI="$SCRIPT_DIR/continuation-trace-requirement.mjs"
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
@@ -979,6 +980,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # digest-bound to the approved docs ref.
     MANIFEST_FILE="$RUN_DIR/row-manifest.json"
     export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
+    # Whether this row owes a Tempo trace is structural (#600): a continuation
+    # tool or token surface, never a receipt spelling. Read it from the shared
+    # predicate before dispatch, so an unreadable requirement stops the row
+    # before it can fire instead of being guessed afterwards.
+    if ! TRACE_REQUIREMENT_JSON="$(node "$TRACE_REQUIREMENT_CLI" --manifest "$MANIFEST_FILE")"; then
+      fail_harness "harness-identity" "row $ROW_ID trace requirement could not be evaluated; refusing dispatch" \
+        "$(jq -n --arg row "$ROW_ID" '{check:"continuation-trace-requirement",row:$row}')"
+    fi
+    TRACE_REQUIRED="$(jq -r '.required' <<<"$TRACE_REQUIREMENT_JSON")"
+    TRACE_CONTINUATION="$(jq -r '.continuation' <<<"$TRACE_REQUIREMENT_JSON")"
+    TRACE_CORRELATION_RECEIPT="$(jq -r '.correlationReceipt // empty' <<<"$TRACE_REQUIREMENT_JSON")"
+    TRACE_PENDING_RECEIPTS="$(jq -c '.receipts' <<<"$TRACE_REQUIREMENT_JSON")"
     RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     jq -n \
       --arg row "$ROW_ID" \
@@ -1334,16 +1347,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           '$current + ["reason-telemetry-redaction-review"] | unique'
       )"
     fi
-    TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
-    MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
     if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
       if jq -e 'select(has("trace_id"))' "$PRIVATE_EVIDENCE_FILE" >/dev/null; then
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
       fi
     fi
-    if [[ "$TRACE_REQUIRED" == "true" && -n "$MANIFEST_TOOL" ]]; then
+    # A continuation row always goes through the collector, and only a trace
+    # plus the correlation receipt the collector names for this tool counts as
+    # captured. Anything less leaves both receipts pending (#600), so the
+    # envelope writer cannot call the review complete.
+    if [[ "$TRACE_CONTINUATION" == "true" ]]; then
       COLLECTOR_RESULT="$RUN_DIR/continuation-trace-collector.json"
       COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
+      TRACE_COLLECTED=false
       if node "$CONTINUATION_TRACE_COLLECTOR" \
         --run-dir "$RUN_DIR" \
         --root "$OUT_ROOT" \
@@ -1353,10 +1369,19 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --evidence "$PRIVATE_EVIDENCE_FILE" \
         --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" \
         > "$COLLECTOR_RESULT" 2> "$COLLECTOR_ERROR"; then
-        TRACE_ID="$(jq -r '.traceId' "$COLLECTOR_RESULT")"
-        TEMPO_TRACE_JSON="$(jq -r '.traceFile' "$COLLECTOR_RESULT")"
+        TRACE_ID="$(jq -r '.traceId // empty' "$COLLECTOR_RESULT")"
+        TEMPO_TRACE_JSON="$(jq -r '.traceFile // empty' "$COLLECTOR_RESULT")"
+        CORRELATION_RECEIPT="$(jq -r '.receiptFile // empty' "$COLLECTOR_RESULT")"
+        if [[ "$TRACE_ID" =~ ^[0-9a-f]{32}$ &&
+              "$TEMPO_TRACE_JSON" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ && -s "$RUN_DIR/$TEMPO_TRACE_JSON" &&
+              "$CORRELATION_RECEIPT" == "$TRACE_CORRELATION_RECEIPT.json" && -s "$RUN_DIR/$CORRELATION_RECEIPT" ]]; then
+          TRACE_COLLECTED=true
+        else
+          echo "collector exited 0 without a trace id, trace JSON and $TRACE_CORRELATION_RECEIPT.json receipt" >> "$COLLECTOR_ERROR"
+        fi
+      fi
+      if [[ "$TRACE_COLLECTED" == "true" ]]; then
         TEMPO_TRACE_PATH="$RUN_DIR/$TEMPO_TRACE_JSON"
-        CORRELATION_RECEIPT="$(jq -r '.receiptFile' "$COLLECTOR_RESULT")"
         CORRELATION_RECEIPT_PATH="$RUN_DIR/$CORRELATION_RECEIPT"
         TRACE_STATUS="present"
         rm -f "$COLLECTOR_ERROR"
@@ -1365,19 +1390,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       else
         TRACE_STATUS="missing"
         TRACE_ID=""
-        if [[ "$MANIFEST_TOOL" == "continue_delegate" || "$MANIFEST_TOOL" == "continue_work" ]]; then
-          REVIEW_PENDING_RECEIPTS="$(
-            jq -cn \
-              --argjson current "$REVIEW_PENDING_RECEIPTS" \
-              '$current + ["tempo-trace-json","continuation-trace-correlation"] | unique'
-          )"
-        else
-          REVIEW_PENDING_RECEIPTS="$(
-            jq -cn \
-              --argjson current "$REVIEW_PENDING_RECEIPTS" \
-              '$current + ["tempo-trace-json","tool-trace-correlation"] | unique'
-          )"
-        fi
+        TEMPO_TRACE_JSON=""
+        CORRELATION_RECEIPT=""
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn \
+            --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            --argjson trace "$TRACE_PENDING_RECEIPTS" \
+            '$current + $trace | unique'
+        )"
         echo "[$ROW_ID] TRACE CORRELATION FAILED; see $COLLECTOR_ERROR" >&2
         if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
           POSTPROCESS_RC=1
@@ -1393,8 +1413,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         TRACE_STATUS="missing"
         if [[ "$TRACE_REQUIRED" == "true" ]]; then
           REVIEW_PENDING_RECEIPTS="$(
-            jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
-              '$current + ["tempo-trace-json"] | unique'
+            jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" --argjson trace "$TRACE_PENDING_RECEIPTS" \
+              '$current + $trace | unique'
           )"
         fi
         echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
@@ -1405,8 +1425,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     elif [[ "$TRACE_REQUIRED" == "true" ]]; then
       TRACE_STATUS="missing"
       REVIEW_PENDING_RECEIPTS="$(
-        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
-          '$current + ["tempo-trace-json"] | unique'
+        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" --argjson trace "$TRACE_PENDING_RECEIPTS" \
+          '$current + $trace | unique'
       )"
     fi
 

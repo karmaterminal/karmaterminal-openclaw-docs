@@ -43,6 +43,16 @@
       "name": "root-collection-after-intermediate-finalized",
       "required": true,
       "description": "Committed evidence satisfies the row-specific PASS predicate."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON for the committed live A→B→delayed-C collection run this static row validates. Required for every continuation row (#600). The static validator fires nothing, so this receipt is attached for review from the committed live run; it is never produced by this row."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json for the same committed live run: the delegate dispatch/fire topology bound to the run by reason fingerprint and mode."
     }
   ],
   "artifactDestination": {
@@ -57,6 +67,169 @@
     "foldRequiresReview": true,
     "notes": "Static artifact validator for R-CD-COLLECTION-ON-COLLAPSE. Validates committed corpus receipts; does not fire live behavior."
   },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This row is an offline validator of committed corpus receipts and fires no continuation itself, so the in-run collector has no evidence to attribute; the trace receipts stay pending until the committed live run’s trace is attached for review."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_delegate evidence. Joined to the dispatch span only by shared trace and causal timing."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Delegate task material is published only as a digest, a length and the delegate mode, inside a public-safe Tempo projection. Task text, prompt bodies, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "task text",
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The committed corpus receipts parse and show the root collection after the intermediate finalized, with the delayed C sentinel after B’s final.",
+      "negative": "A corpus missing the row receipts, or a C sentinel that precedes B’s final, fails the static predicate."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "The static row reads no telemetry backend. Its trace receipts stay pending as review debt until a reviewer attaches the committed live trace; that never changes the static verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "The committed receipts satisfy the row’s collection-on-collapse predicate. Behavioral only, and only for the committed run.",
+      "partial": "Not used by the static predicate; a corpus that does not satisfy it fails.",
+      "fail": "The committed receipts are missing or do not satisfy the collection-on-collapse predicate."
+    },
+    "execution": {
+      "deterministicK6": "static-corpus-row-validator.js validates the committed corpus receipts offline.",
+      "manual": "The trace receipts are supplied by a reviewer from the committed live run.",
+      "relationship": "The static validator owns the verdict over committed receipts. The trace receipts decide only whether review is complete."
+    }
+  },
   "liveRunSafety": {
     "classification": "k6-runnable",
     "requiresLiveGatewayToken": false,
@@ -68,7 +241,9 @@
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "collection-collapse-artifacts",
-      "root-collection-after-intermediate-finalized"
+      "root-collection-after-intermediate-finalized",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."

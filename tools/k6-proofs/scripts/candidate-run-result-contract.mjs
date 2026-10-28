@@ -9,6 +9,7 @@ import {
   R_CD_2_VERDICT_SOURCE,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { traceReviewDebt } from '../lib/continuation-trace-requirement.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -304,5 +305,11 @@ export function candidateEnvelopeMatchesSiblings({
   if (envelope.observability?.traceStatus !== rawObservability.traceStatus) return false;
   if (envelope.observability?.traceCaptured !== Boolean(rawObservability.traceId)) return false;
   if (envelope.observability?.correlationReceiptPresent !== Boolean(rawObservability.correlationReceipt)) return false;
+  // review.complete is never true for a trace-required row that does not hold
+  // its Tempo trace and correlation receipt (#600). The writer refuses such an
+  // envelope; a consumer must not accept one written by anything else.
+  if (traceReviewDebt(manifest, rawObservability, {
+    traceHeldByAuthority: rCd2Authority?.traceHeld === true,
+  }).length) return false;
   return true;
 }

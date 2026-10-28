@@ -58,6 +58,11 @@
       "description": "Fetched Tempo trace JSON for reviewer validation of reason telemetry/redaction."
     },
     {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash and length, holding one continuation.work span, its continuation.work.fire span(s), and the originating continue_work tool span on one trace and chain."
+    },
+    {
       "name": "reason-telemetry-redaction-review",
       "required": true,
       "description": "Reviewer confirms safe reason attrs are present and the raw reason sentinel is absent from Tempo JSON before folding PASS."
@@ -248,7 +253,8 @@
       "work-woke-event",
       "public-artifact-raw-reason-absent",
       "tempo-trace-json",
-      "reason-telemetry-redaction-review"
+      "reason-telemetry-redaction-review",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Safe unattended live fire, but not an unattended PASS proof: trace fetch/review decides whether the reason telemetry claim can be folded. Disposable-session smoke may honestly stop at scheduled-only on runtimes where disposable sessions do not service self-elected continuation wakes; canonical fold also requires a CW3-WOKE receipt."

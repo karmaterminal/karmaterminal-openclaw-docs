@@ -15,6 +15,7 @@ import {
   R_CD_2_VERDICT_SOURCE,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { traceReviewDebt } from '../lib/continuation-trace-requirement.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 import { consumeRunReadiness } from './run-readiness-consumer.mjs';
 
@@ -281,6 +282,15 @@ async function main() {
       authoritativeReceipt.binding?.runtimeBuildSha !== requireSha(metadata.runtimeBuildSha, 'runner metadata runtimeBuildSha') ||
       authoritativeReceipt.binding.runtimeBuildSha !== candidateSha
     )) throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
+  }
+  // A trace-required row is review-incomplete until it holds its Tempo trace
+  // and correlation receipt (#600), whatever its pending list says. R-CD-2's
+  // signed authority holds the trace it withholds from the public result.
+  const traceDebt = traceReviewDebt(manifest, observability, {
+    traceHeldByAuthority: rCd2Authority?.traceHeld === true,
+  });
+  if (traceDebt.length) {
+    throw new Error(`candidate run is review-incomplete: trace-required row still owes ${traceDebt.join(', ')} (Tempo trace requirement)`);
   }
   const artifacts = {
     manifest: COPIED_MANIFEST,

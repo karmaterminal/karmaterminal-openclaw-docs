@@ -9,6 +9,7 @@ import path from 'node:path';
 import { canonicalJson } from './canonical-json.mjs';
 import {
   rCd2AuthorityIdentity,
+  rCd2ReceiptHoldsTrace,
   resolveRcd2AuthoritativeReceipt,
   validateRcd2AcquisitionReceipt,
   validateRcd2AuthoritativeReceipt,
@@ -1030,6 +1031,9 @@ export function consumeRcd2Authority({
     same(rowResult.outcome, validation.verdict, 'normalized row result outcome');
   }
 
+  // R-CD-2 is a continuation row whose public result never carries its trace;
+  // only a receipt that holds the trace lets its review be complete (#600).
+  const traceHeld = rCd2ReceiptHoldsTrace(receipt);
   return {
     rowId: R_CD_2_ROW,
     outcome: validation.verdict,
@@ -1037,10 +1041,11 @@ export function consumeRcd2Authority({
     candidateOnly: true,
     foldRequiresReview: true,
     canonicalFoldForbidden: true,
+    traceHeld,
     review: {
       status: result?.review?.status || 'ready-for-human-review',
       pendingReceipts: result?.review?.pendingReceipts || [],
-      complete: (result?.review?.pendingReceipts || []).length === 0,
+      complete: (result?.review?.pendingReceipts || []).length === 0 && traceHeld,
     },
     authoritativeReceipt: {
       file: R_CD_2_RECEIPT_FILE,

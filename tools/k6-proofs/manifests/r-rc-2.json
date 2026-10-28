@@ -57,6 +57,16 @@
       "name": "trace-id",
       "required": true,
       "description": "Unique safe-fingerprint correlation to a public-safe Tempo projection containing same-trace continue_delegate tool, fire, and dispatch spans"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
     }
   ],
   "artifactDestination": {
@@ -261,7 +271,9 @@
       "delegate-requested",
       "child-report-observed",
       "threshold-rejection-or-accepted-compaction",
-      "trace-id"
+      "trace-id",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Runs in disposable session by default and delegates request_compaction to child. Does not mutate config; if compaction unexpectedly accepts, mutation is confined to proof child/session and result is review-gated."

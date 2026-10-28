@@ -2,6 +2,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
+import { traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
 import {
   consumeRcd2Authority,
   isRcd2AuthorityRequired,
@@ -119,16 +120,16 @@ async function loadRows(root) {
       metadata,
       runResult: raw,
     });
-    if (rCd2Required) {
-      consumeRcd2Authority({
-        root,
-        runDir: dir,
-        envelope: candidate,
-        manifest,
-        metadata,
-        runResult: raw,
-      });
-    }
+    const authority = rCd2Required
+      ? consumeRcd2Authority({
+          root,
+          runDir: dir,
+          envelope: candidate,
+          manifest,
+          metadata,
+          runResult: raw,
+        })
+      : null;
     const invalidCandidateSidecar = rCd2Required && candidateDirs.has(dir) && !candidateValid;
     if (invalidCandidateSidecar) {
       throw new Error('R-CD-2 candidate result is invalid');
@@ -140,16 +141,33 @@ async function loadRows(root) {
     ) {
       pendingReceipts.push('candidate-run-result-invalid');
     }
+    // A trace-required run owes its Tempo trace and correlation receipt even
+    // when the raw result lists nothing pending (#600): runs written before the
+    // structural trace gate reported such rows ready for review. The
+    // requirement comes from the run's own row-manifest.json, which the runner
+    // has copied into every run directory since 054ec33f; a raw result without
+    // it carries no row contract and is reported as written. A receipt the
+    // result names counts only as a bound file in this run directory; each
+    // one owed carries why it is not held (missing, symlink, trace-id-mismatch).
+    const traceReasons = new Map(traceReceiptFindings(manifest, raw.observability, {
+      runDir: dir,
+      traceHeldByAuthority: authority?.traceHeld === true,
+    }).filter((finding) => !finding.held).map((finding) => [finding.receipt, finding.reason]));
+    const traceDebt = [...traceReasons.keys()].filter((receipt) => !pendingReceipts.includes(receipt));
+    pendingReceipts.push(...traceDebt);
     const rowId = rCd2Required ? 'R-CD-2' : raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
     const traceId = raw.observability?.traceId || raw.traceId || null;
     rows.push({
       rowId,
       file: path.relative(root, file),
-      reviewStatus: raw.review?.status ||
+      reviewStatus: (traceDebt.length ? 'review-pending' : raw.review?.status) ||
         (pendingReceipts.length ? 'review-pending' : 'ready-for-human-review'),
       pendingReceipts,
       traceId,
-      pending: pendingReceipts.map((receipt) => classifyPending({ traceId }, receipt)),
+      pending: pendingReceipts.map((receipt) => ({
+        ...classifyPending({ traceId }, receipt),
+        ...(traceReasons.has(receipt) ? { reason: traceReasons.get(receipt) } : {}),
+      })),
     });
   }
   return rows;

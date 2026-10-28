@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { traceRequirement } from '../../lib/continuation-trace-requirement.mjs';
 import { buildHarnessCheckout } from './helpers/harness-checkout.mjs';
 import { attachReadinessGateway } from './helpers/readiness-gateway.mjs';
 
@@ -149,19 +150,48 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
   }
 }
 
-test('every trace-required continue_delegate row persists the safe fingerprint contract', async () => {
+/**
+ * Trace-required rows whose public evidence does not carry the reason
+ * fingerprint yet (#600). The in-run collector can still attribute some of
+ * them from the manifest and the private nonce, but nothing can attribute them
+ * afterwards from public evidence, and their trace receipts stay pending when
+ * the collector fails. A row leaves this list by persisting the contract the
+ * tests below assert; a listed row that already records a fingerprint fails.
+ */
+const DELEGATE_FINGERPRINT_DEBT = [
+  'R-CD-3',
+  'R-CD-COLLECTION-ON-COLLAPSE',
+  'R-CD-MODEL-CHAINED-ALT',
+  'R-CD-MODEL-DEFAULT',
+  'R-CD-MODEL-TOKEN',
+  'R-CD-MODEL-TOOL',
+  'R-CD-SILENT',
+];
+const WORK_FINGERPRINT_DEBT = ['R-CW-2', 'R-CW-4', 'R-CW-5', 'R-CW-6'];
+
+async function traceRequiredRows(tool) {
   const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json'));
   const rows = [];
-
   for (const file of files) {
     const manifest = JSON.parse(await readFile(path.join(manifestsDir, file), 'utf8'));
-    const required = (manifest.liveRunSafety?.requiredReceipts || []).map((value) => String(value).toLowerCase());
-    if (manifest.invocation?.tool !== 'continue_delegate' ||
-        !required.some((value) => value === 'trace-id' || value === 'tempo-trace-json')) {
+    if (manifest.invocation?.tool !== tool || !traceRequirement(manifest).required) continue;
+    const scenarioFile = manifest.scenario.file || manifest.scenario.expectedFile;
+    rows.push({ manifest, scenario: await readFile(path.join(scenariosDir, scenarioFile), 'utf8') });
+  }
+  return rows;
+}
+
+test('every trace-required continue_delegate row persists the safe fingerprint contract', async () => {
+  const rows = [];
+  const debt = [];
+
+  for (const { manifest, scenario } of await traceRequiredRows('continue_delegate')) {
+    if (DELEGATE_FINGERPRINT_DEBT.includes(manifest.rowId)) {
+      debt.push(manifest.rowId);
+      assert.doesNotMatch(scenario, /reason_hash/, `${manifest.rowId} records a fingerprint; move it off the debt list`);
       continue;
     }
     rows.push(manifest.rowId);
-    const scenario = await readFile(path.join(scenariosDir, manifest.scenario.file), 'utf8');
     assert.match(scenario, /crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
     if (manifest.rowId === 'R-CD-TOKEN') {
       assert.match(scenario, /reason_hash:\s*hash\(delegateTask\)/);
@@ -191,8 +221,10 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-4',
     'R-CD-CHAINED-DEPTH-2',
     'R-CD-TOKEN',
+    'R-CW-DELEGATE-SELF-CONTINUATION',
     'R-RC-2',
   ]);
+  assert.deepEqual(debt.sort(), [...DELEGATE_FINGERPRINT_DEBT].sort(), 'every debt row is still a trace-required continue_delegate row');
 });
 
 test('R-CD-2 scenario and resolver use the same no-channel-delivery evidence field', async () => {
@@ -241,19 +273,16 @@ test('R-CD-2 and R-CD-4 discover the deferred tool before invocation', async () 
 });
 
 test('every trace-required continue_work row persists the safe fingerprint contract', async () => {
-  const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json'));
   const rows = [];
+  const debt = [];
 
-  for (const file of files) {
-    const manifest = JSON.parse(await readFile(path.join(manifestsDir, file), 'utf8'));
-    const required = (manifest.liveRunSafety?.requiredReceipts || [])
-      .map((value) => String(value).toLowerCase());
-    if (manifest.invocation?.tool !== 'continue_work' ||
-        !required.some((value) => value === 'trace-id' || value === 'tempo-trace-json')) {
+  for (const { manifest, scenario } of await traceRequiredRows('continue_work')) {
+    if (WORK_FINGERPRINT_DEBT.includes(manifest.rowId)) {
+      debt.push(manifest.rowId);
+      assert.doesNotMatch(scenario, /reason_hash/, `${manifest.rowId} records a fingerprint; move it off the debt list`);
       continue;
     }
     rows.push(manifest.rowId);
-    const scenario = await readFile(path.join(scenariosDir, manifest.scenario.file), 'utf8');
     assert.match(scenario, /reason_hash:\s*crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
     assert.match(scenario, /reason_length:\s*(?:wakeReason|rawReason)\.length/);
     assert.match(scenario, /inv\.reason\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
@@ -265,6 +294,7 @@ test('every trace-required continue_work row persists the safe fingerprint contr
   }
 
   assert.deepEqual(rows.sort(), ['R-CW-1', 'R-CW-3']);
+  assert.deepEqual(debt.sort(), [...WORK_FINGERPRINT_DEBT].sort(), 'every debt row is still a trace-required continue_work row');
 });
 
 test('depth-2 chain dispatch uses the exact committed manifest task', async () => {

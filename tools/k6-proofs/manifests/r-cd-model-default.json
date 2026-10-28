@@ -68,6 +68,16 @@
       "name": "parent-model-byte",
       "required": true,
       "description": "Parent SERVED provider/model: the parent's own chat.history assistant message carrying MODEL-DEFAULT-PARENT-SCHEDULED <nonce> after the dispatch message is the inheritance baseline; the parent sessions.describe selection is recorded alongside. Optional OPENCLAW_EXPECTED_MODEL pins the served baseline; a wrong pin is the negative control (FAIL)."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
     }
   ],
   "artifactDestination": {
@@ -81,6 +91,170 @@
     "candidateOnly": true,
     "foldRequiresReview": true,
     "notes": "PASS-candidate only when both tool and bracket/token no-override forms produce child sessions whose model/provider matches the parent baseline. This is the contrast row for explicit override rows."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This row’s verdict rests on gateway transcripts, not telemetry: the census established that an accepted entry span cannot be joined to the child run it produced, so the trace cannot corroborate which child inherited which model. The trace receipts record review completeness only."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_delegate evidence. Joined to the dispatch span only by shared trace and causal timing."
+        },
+        {
+          "name": "openclaw.model.call",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Model-call spans exist fleet-wide; they cannot be attributed to a specific continuation entry."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Model and provider identifiers are published literally because they are public product identifiers. Delegate task material is published only as a digest and a length; prompt bodies, raw nonces, raw session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "prompt body",
+        "task text",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "With no model override, the child’s served provider/model in its own transcript equals the parent’s served baseline.",
+      "negative": "A wrong OPENCLAW_EXPECTED_MODEL pin fails the row, and child prose is never used for model equality."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "The child’s run-window-bound served model equals the parent’s served baseline. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Only the persisted selection matched, authoritative transcripts are unavailable, or a required receipt is missing. A missing or degraded trace keeps the row review-pending without changing its class.",
+      "fail": "The child serves a different model than the parent baseline, including an active fallback."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-model-default.js fires the typed continue_delegate with no model and reads both transcripts.",
+      "manual": "Manual runs may confirm the parent baseline on a seat before the row is fired; they are never evidence.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -96,7 +270,9 @@
       "child-session-observed",
       "child-model-byte",
       "return-payload",
-      "parent-model-byte"
+      "parent-model-byte",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Default model inheritance row. This scratch scenario covers typed-tool no-model path; manifest review originally asks both typed and bracket forms, so fold should decide whether this is full row or typed-subcase only."

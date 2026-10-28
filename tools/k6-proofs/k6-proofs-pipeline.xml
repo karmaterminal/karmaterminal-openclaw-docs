@@ -284,8 +284,16 @@
     <Mandate id="no-concurrent-rows">
       <Rule>Do not run multiple continuation rows against the same live session concurrently</Rule>
     </Mandate>
+    <Mandate id="continuation-trace-requirement">
+      <Rule>A row that fires continue_work, continue_delegate or request_compaction, or whose toolSurface is token or bracket-token, owes tempo-trace-json plus its correlation receipt (continuation-trace-correlation for continue_work/continue_delegate, tool-trace-correlation otherwise), in liveRunSafety.requiredReceipts and in expectedReceipts with required=true</Rule>
+      <Rule>The trace requirement is structural, never a receipt spelling; receipt names are canonical and the bare alias tempo-trace is refused</Rule>
+      <Rule>review.complete is never true while a trace-required row lacks its trace or correlation receipt; both stay in pendingReceipts. The VU or summary verdict is not changed by this rule</Rule>
+      <Validator>node tools/k6-proofs/scripts/check-proof-row-manifests.mjs</Validator>
+      <Doc>tools/k6-proofs/lib/continuation-trace-requirement.mjs</Doc>
+      <Reason>openclaw-bootstrap RUNBOOKS/PROOF-CORPUS-METHOD.md "Tempo trace requirement": a continuation-tool PASS without its Tempo trace JSON is INCOMPLETE (karmaterminal-openclaw-docs#600)</Reason>
+    </Mandate>
     <Mandate id="telemetry-rebind-contract">
-      <Rule>A row whose required receipts include a telemetry receipt (trace-id, tempo-trace-json, continuation-trace-correlation, trace-or-session-correlation, reason-telemetry-redaction-review) MUST declare a telemetryContract in its manifest</Rule>
+      <Rule>A row whose required receipts include a telemetry receipt (trace-id, tempo-trace-json, continuation-trace-correlation, tool-trace-correlation, trace-or-session-correlation, reason-telemetry-redaction-review) MUST declare a telemetryContract in its manifest</Rule>
       <Rule>A row may claim rebindable=true only when origin, session, turn, run identity AND the proof-run marker are all declared emittedByProduct=true; missing origin/session/turn/proof marker cannot become a telemetry-rebindable PASS</Rule>
       <Rule>backendUnavailable.treatZeroAsAbsence is always false: a degraded backend answering 200 with zero results is unavailable/partial evidence, never absence</Rule>
       <Validator>node tools/k6-proofs/scripts/check-telemetry-contracts.mjs</Validator>

@@ -89,6 +89,12 @@ Copy the closest existing manifest to `tools/k6-proofs/manifests/<row>.json`, fo
   `liveRunSafety.classification` `k6-runnable` requires `runnable`.
 - A live row fills `liveRunSafety`: `foldRequiresReview` is always `true`, and every
   `requiredReceipts` entry except `seat-readiness` must name an `expectedReceipts` entry.
+- A continuation row (`invocation.tool` `continue_work`, `continue_delegate` or
+  `request_compaction`, or a `token`/`bracket-token` surface) requires `tempo-trace-json` plus
+  its correlation receipt (`continuation-trace-correlation`, or `tool-trace-correlation` for
+  other tools) in both receipt lists. `tools/k6-proofs/scripts/check-proof-row-manifests.mjs`
+  refuses one that doesn't, and the bare alias `tempo-trace`; the rule lives in
+  `tools/k6-proofs/lib/continuation-trace-requirement.mjs`.
 - A row whose required receipts include a telemetry receipt also declares `telemetryContract`
   (`tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`).
 

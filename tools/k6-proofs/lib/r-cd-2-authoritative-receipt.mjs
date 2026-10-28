@@ -695,6 +695,24 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
   }, signingKey);
 }
 
+/**
+ * Whether a sealed R-CD-2 receipt holds the row's Tempo trace (#600).
+ *
+ * R-CD-2 withholds the raw trace and correlation receipt from its public run
+ * result; the resolver consumes them and seals what it saw into `diagnostics`.
+ * The trace counts as held only when that correlation carried a 32-hex trace
+ * id and was the collector's authenticated acquisition receipt. "Held" means
+ * bound by fingerprint at acquisition: the trace JSON itself is not published
+ * for R-CD-2. A receipt resolved without a correlation (a PARTIAL with no
+ * topology) holds none, so a consumer must keep the row's trace receipts
+ * pending.
+ * Call it only on a receipt that validateRcd2AuthoritativeReceipt accepted.
+ */
+export function rCd2ReceiptHoldsTrace(receipt) {
+  const topology = receipt?.diagnostics?.topology;
+  return topology?.traceId === true && topology?.authenticatedAcquisition === true;
+}
+
 export function validateRcd2AuthoritativeReceipt(receipt, signingKey, expectedIdentity) {
   const isPass = receipt?.verdict === 'PASS-candidate';
   const expectedTopLevel = isPass

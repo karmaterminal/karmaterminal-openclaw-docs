@@ -324,6 +324,36 @@ correlation failures are kept non-fatal by default and leave
 `tempo-trace-json` review-pending. Set `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true`
 only when a missing trace JSON should fail the run.
 
+Which rows owe a trace is structural, not a receipt spelling (#600). A row that
+fires `continue_work`, `continue_delegate` or `request_compaction`, or whose
+`toolSurface` is `token`/`bracket-token`, always runs the trace collector and
+owes `tempo-trace-json` plus the correlation receipt the collector writes for
+its tool: `continuation-trace-correlation` for `continue_work` /
+`continue_delegate`, `tool-trace-correlation` otherwise. Unless the collector
+leaves a 32-hex trace id, the trace JSON and that receipt in the run directory,
+both receipts stay in `pendingReceipts`. A name in `run-result.json` is not a
+receipt. A row counts as holding its trace only when both receipts are regular
+files in its run directory (no symlink, no path outside it) that bind to its
+trace ID: the trace JSON must carry that ID, and the correlation receipt must
+name that ID and that trace JSON. Until then, none of these calls the row
+review-complete or its trace receipts present: the envelope writer, the
+`candidate-run-result.json` consumer contract, the review-debt summary, the run
+report and both metrics exporters. The check runs whenever one of them reads
+the run, so a receipt deleted or replaced after the runner finished, or a stale
+one left in a reused run directory, makes the row review-pending again. The
+writer's refusal and review-debt name why each receipt is not held (`missing`,
+`symlink`, `unsafe-name`, `not-json`, `not-public-trace-projection`,
+`trace-id-mismatch`, `trace-json-mismatch`, `wrong-receipt-name`, ...).
+R-CD-2 is the one deliberate exception: its
+public result withholds the trace JSON and correlation receipt, and it may
+complete review only when its signed authority receipt was resolved from the
+collector's authenticated acquisition receipt with a valid trace id. That
+receipt binds the trace by fingerprint (trace, chain, dispatch and fire); the
+trace JSON itself is not published for R-CD-2. The rule is
+owned by `lib/continuation-trace-requirement.mjs`; the VU or summary verdict is
+never changed by it. `check-proof-row-manifests.mjs` refuses a continuation
+manifest that does not require both receipts, and the bare alias `tempo-trace`.
+
 For trace-required `continue_delegate` rows, the runner does not trust a
 missing or first-match trace ID. It derives the public-safe runtime fingerprint
 from the committed prompt template and evidence nonce, searches Tempo by

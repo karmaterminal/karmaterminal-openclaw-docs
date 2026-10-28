@@ -62,9 +62,21 @@ into `PROOFS/<sha>/` without back-and-forth.
    `expectedArtifactClass`, `requiredReceipts`, and `foldRequiresReview:true`.
    `OPENCLAW_SESSION_KEY` must be explicit when the row mutates/wakes a session; do
    not rely on the `main` fallback for live continuation rows.
-5. **If any required receipt is a telemetry receipt** (`trace-id`,
+5. **A continuation row owes its Tempo trace receipts.** A manifest whose
+   `invocation.tool` is `continue_work`, `continue_delegate` or
+   `request_compaction`, or whose `toolSurface` is `token`/`bracket-token`, must
+   list `tempo-trace-json` plus its correlation receipt
+   (`continuation-trace-correlation` for `continue_work`/`continue_delegate`,
+   `tool-trace-correlation` otherwise) in `liveRunSafety.requiredReceipts` and in
+   `expectedReceipts` with `required: true`. Spell receipts canonically:
+   `tempo-trace` is refused. A delegate or work row should also publish its
+   reason fingerprint (`reason_hash`, `reason_length`, and `delegate_mode` for
+   delegates) so the trace can be attributed after the run from public evidence.
+   Verify with `node tools/k6-proofs/scripts/check-proof-row-manifests.mjs`.
+6. **If any required receipt is a telemetry receipt** (`trace-id`,
    `tempo-trace-json`, `continuation-trace-correlation`,
-   `trace-or-session-correlation`, `reason-telemetry-redaction-review`), the
+   `tool-trace-correlation`, `trace-or-session-correlation`,
+   `reason-telemetry-redaction-review`), the
    manifest must also declare a `telemetryContract` block. See
    [`docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`](docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md)
    for what it must define and what the validator refuses. Verify with:

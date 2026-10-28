@@ -38,16 +38,33 @@ const CENSUS = {
   productBasis: '6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955',
 };
 
-/** The rows the census workorder requires to carry a telemetry contract. */
+/**
+ * The rows the census workorder requires to carry a telemetry contract, plus
+ * every continuation row the Tempo trace requirement now holds to its trace
+ * receipts (karmaterminal-openclaw-docs#600).
+ */
 const AUDITED_ROWS = [
   'R-CD-1',
   'R-CD-2',
+  'R-CD-3',
   'R-CD-4',
   'R-CD-CHAINED-DEPTH-2',
+  'R-CD-COLLECTION-ON-COLLAPSE',
+  'R-CD-MODEL-CHAINED-ALT',
+  'R-CD-MODEL-DEFAULT',
+  'R-CD-MODEL-TOKEN',
   'R-CD-MODEL-TOOL',
+  'R-CD-SILENT',
   'R-CD-TOKEN',
   'R-CW-1',
+  'R-CW-2',
   'R-CW-3',
+  'R-CW-4',
+  'R-CW-5',
+  'R-CW-6',
+  'R-CW-DELEGATE-SELF-CONTINUATION',
+  'R-CW-TOKEN',
+  'R-RC-1',
   'R-RC-2',
 ];
 

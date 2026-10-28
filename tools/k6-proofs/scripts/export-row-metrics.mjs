@@ -22,6 +22,7 @@ import {
   consumeRcd2Authority,
   isRcd2AuthorityRequired,
 } from '../lib/r-cd-2-authority-context.mjs';
+import { traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 import { consumeRunReadiness } from './run-readiness-consumer.mjs';
 
@@ -141,6 +142,33 @@ function receiptRowsFrom({ result, manifest, runResult }) {
   return receipts;
 }
 
+/**
+ * A trace-required row's trace receipts are what its run directory holds
+ * (#600), not what its run result, row result or evidence claims: a receipt the
+ * shared predicate finds held is present, any other is missing.
+ */
+function withTraceFindings(receipts, traceFindings) {
+  const out = receipts.map((receipt) => ({ ...receipt }));
+  for (const { receipt: name, held } of traceFindings) {
+    const status = held ? 'present' : 'missing';
+    const existing = out.find((receipt) => receipt.name === name);
+    if (existing) existing.status = status;
+    else out.push({ name, required: true, status });
+  }
+  return out;
+}
+
+/** The review state a run reports once its owed trace receipts are counted. */
+function reviewWithTraceDebt(review, traceFindings) {
+  const owed = traceFindings.filter((finding) => !finding.held).map((finding) => finding.receipt);
+  if (!owed.length) return review;
+  return {
+    ...(review || {}),
+    status: 'review-pending',
+    pendingReceipts: [...new Set([...(review?.pendingReceipts || []), ...owed])],
+  };
+}
+
 async function readEvidenceJsonl(file) {
   const text = await readFile(file, 'utf8').catch(() => '');
   return text.split(/\r?\n/)
@@ -233,6 +261,12 @@ async function normalizeFromRunDir(runDir) {
       })
     : null;
 
+  const traceFindings = traceReceiptFindings(manifest, runResult.observability, {
+    runDir,
+    traceHeldByAuthority: authority?.traceHeld === true,
+  });
+  const review = reviewWithTraceDebt(authority?.review || runResult.review || null, traceFindings);
+
   const rowId = authority?.identity.row || metadata.row || manifest.rowId || summary.row || 'unknown';
   const candidateSha = authority?.identity.candidateSha || metadata.candidateSha || manifest.candidateSha || summary.sha || 'unknown';
   const seat = authority?.identity.seat || metadata.seat || manifest.seat || summary.seat || 'unknown';
@@ -260,15 +294,17 @@ async function normalizeFromRunDir(runDir) {
       checksRate: checksRateFromSummary(summary),
       durationMs: durationFromSummary(summary),
     },
-    receipts: receiptRowsFrom({ result: {}, manifest, runResult }).map((receipt) => ({
+    receipts: withTraceFindings(receiptRowsFrom({ result: {}, manifest, runResult }).map((receipt) => ({
       ...receipt,
       status: receipt.status === 'unknown' ? receiptStatusFromEvidence(receipt.name, evidenceRows, true) : receipt.status,
-    })),
-    failureClass: proofFailures > 0 ? 'threshold' : (runResult?.review?.pendingReceipts?.length ? 'missing-receipt' : 'none'),
+    })), traceFindings),
+    failureClass: proofFailures > 0
+      ? 'threshold'
+      : (runResult?.review?.pendingReceipts?.length || traceFindings.some((finding) => !finding.held) ? 'missing-receipt' : 'none'),
     candidateOnly,
     foldRequiresReview,
     observability: runResult.observability || null,
-    review: authority?.review || runResult.review || null,
+    review,
   };
 }
 
@@ -331,7 +367,17 @@ async function normalizeInput(args) {
         review: authority.review,
       };
     }
-    return result;
+    const traceFindings = traceReceiptFindings(manifest, runResult?.observability || result.observability, { runDir });
+    if (!traceFindings.length) return result;
+    const review = reviewWithTraceDebt(result.review || runResult?.review || null, traceFindings);
+    return {
+      ...result,
+      receipts: withTraceFindings(Array.isArray(result.receipts) ? result.receipts : [], traceFindings),
+      failureClass: review?.pendingReceipts?.length && (result.failureClass || 'none') === 'none'
+        ? 'missing-receipt'
+        : result.failureClass,
+      review,
+    };
   }
   if (args['run-dir']) return normalizeFromRunDir(args['run-dir']);
   throw new Error('missing --row-result or --run-dir');

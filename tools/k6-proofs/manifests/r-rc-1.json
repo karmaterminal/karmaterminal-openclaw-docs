@@ -40,6 +40,16 @@
       "name": "tool-invoke-rejected",
       "required": true,
       "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) holding the row’s request_compaction tool-execution span, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "tool-trace-correlation",
+      "required": true,
+      "description": "tool-trace-correlation.json: exactly one Tempo trace on this seat inside the row’s evidence window, holding one request_compaction tool-execution span."
     }
   ],
   "artifactDestination": {
@@ -52,11 +62,150 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Threshold Reject. Validates direct typed-tool registration, this row's nonce-bearing invocation, and the matching structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose and Tempo traces are diagnostic only and cannot satisfy or block this synchronous reject row."
+    "notes": "Threshold Reject. Validates direct typed-tool registration, this row's nonce-bearing invocation, and the matching structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose cannot satisfy this synchronous reject row, and the Tempo trace is never its verdict authority. Since #600 the trace is review-completeness debt: tempo-trace-json and tool-trace-correlation are required receipts, so a missing trace keeps the row review-pending without changing its verdict."
   },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "request_compaction is tool-only and has no token form. The census found no span records whether a request was accepted or refused, so the accept/refuse distinction that is this row’s whole claim exists only in the structured toolResult. The trace receipt can show only that one request_compaction tool span ran on this seat in the row’s window; it records review completeness, never the verdict."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "tool-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed request_compaction executions are visible but carry no accepted/rejected outcome."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "gen_ai.tool.name",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.outcome",
+          "purpose": "terminal-outcome",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "The trace is published as a public-safe Tempo projection of the tool-execution span. Prompt bodies, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "tools.effective lists request_compaction, this row’s nonce-bearing typed invocation is observed, and its toolResult returns status=rejected with guard=context_threshold.",
+      "negative": "Assistant prose cannot pass the row, and a trace alone can neither satisfy nor block its verdict."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "gen_ai.tool.name"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "tool-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "The nonce-bound request_compaction toolResult returns a structured context_threshold rejection. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Registration, invocation, or the structured rejection is missing. A missing trace keeps the row review-pending without changing its class.",
+      "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
+    },
+    "execution": {
+      "deterministicK6": "r-rc-1-threshold-reject.js invokes request_compaction in a disposable session and reads the toolResult.",
+      "manual": "Manual Tempo review can confirm the tool span; it carries no outcome.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
   },
   "liveRunSafety": {
     "classification": "k6-runnable",
@@ -70,9 +219,11 @@
       "seat-readiness",
       "tool-registered",
       "tool-invoked",
-      "tool-invoke-rejected"
+      "tool-invoke-rejected",
+      "tempo-trace-json",
+      "tool-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult context_threshold rejection. Assistant prose cannot pass the row; no Tempo trace is required for a synchronous non-mutating rejection."
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult context_threshold rejection. Assistant prose cannot pass the row. The verdict needs no Tempo trace, but review completeness does (#600): tempo-trace-json and tool-trace-correlation stay pending until the collector attributes the request_compaction tool span."
   }
 }

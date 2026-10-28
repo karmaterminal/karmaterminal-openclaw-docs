@@ -120,8 +120,10 @@ harness infrastructure (exit 78) and never synthesizes a row verdict.
 
 - A row whose `liveRunSafety.requiredReceipts` include a telemetry receipt
   (`trace-id`, `tempo-trace-json`, `continuation-trace-correlation`,
-  `trace-or-session-correlation`, `reason-telemetry-redaction-review`) must
-  declare a `telemetryContract`.
+  `tool-trace-correlation`, `trace-or-session-correlation`,
+  `reason-telemetry-redaction-review`) must declare a `telemetryContract`.
+  Every continuation row requires `tempo-trace-json` and its correlation
+  receipt (#600), so every continuation row carries one.
 - `rebindable: true` requires **all four** identity purposes (`origin`,
   `session`, `turn`, `run`) *and* a `proof-run` marker attribute to be declared
   `emittedByProduct: true`, and forbids `productInstrumentationPrerequisite`.

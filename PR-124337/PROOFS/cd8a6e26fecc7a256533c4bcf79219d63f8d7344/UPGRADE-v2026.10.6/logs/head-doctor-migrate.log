@@ -1,0 +1,505 @@
+### head-doctor-migrate / tree cd8a6e26fecc7a256533c4bcf79219d63f8d7344
+Doctor: startup
+┌  OpenClaw doctor
+Config warnings: <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/openclaw.json: Config unavailable; using environment and default agent directory settings.
+Doctor: archive preparation
+Doctor: maintenance begin
+Doctor: Preserve original state
+Doctor: database preflight
+Doctor: schema admission
+Doctor: state database repair
+Doctor: database migrations
+Saved pre-migration SQLite backup: <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/state/openclaw.sqlite.pre-startup-migration-23cc28ba-3dba-88e3-8bad-27a549abfbd8.bak
+Doctor: heartbeat migration backups
+Reused pre-migration SQLite backup: <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/state/openclaw.sqlite.pre-startup-migration-23cc28ba-3dba-88e3-8bad-27a549abfbd8.bak
+Doctor: state schema
+Doctor: Agent deletion journal
+Doctor: UI protocol
+│
+◇  UI ──────────────────────────────────────────────────────────────────╮
+│                                                                       │
+│  - Control UI assets are missing or incomplete.                       │
+│  - Run: pnpm --dir                                                    │
+│    <home>/i_have_a_pet_human/source/WORKTREES/bm-124337 ui:build  │
+│                                                                       │
+├───────────────────────────────────────────────────────────────────────╯
+│
+◇  UI ─────────────────────────────────────────────────────╮
+│                                                          │
+│  Building Control UI assets... (this may take a moment)  │
+│                                                          │
+├──────────────────────────────────────────────────────────╯
+Doctor: UI protocol (10s elapsed)
+Doctor: UI protocol (20s elapsed)
+Doctor: UI protocol (30s elapsed)
+│
+◇  UI ───────────────────────────────────────────────────────────────────╮
+│                                                                        │
+│  Control UI build completed but its identity is                        │
+│  2026.10.6-cd8a6e26fecc-2026-10-23T20-27-53.182Z; expected             │
+│  2026.10.6-8da32c408eb3-2026-10-23T17-10-40.395Z. Restart the Gateway  │
+│  after rebuilding its runtime and UI together.                         │
+│                                                                        │
+├────────────────────────────────────────────────────────────────────────╯
+Doctor: Source install
+Doctor: CLI launcher
+Doctor: Plugin runtime links
+Doctor: config flow
+Doctor: state write admission
+Doctor: stale update runs
+Doctor: state migrations import
+Doctor: state dir migrations
+Doctor: legacy config migration
+Doctor: config snapshot
+Doctor: file
+Doctor: file
+Doctor: plugin metadata completion
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────╮
+│                                                                          │
+│  - Derived meeting transcript selectors and bounded delivery retention   │
+│    columns (v21)                                                         │
+│  - Promoted portable ACP resume keys and cursor identities (v22)         │
+│  - Persisted normalized meeting transcript start times                   │
+│  - Replaced retained task indexes with ordered cron history indexes      │
+│    (v24)                                                                 │
+│  - Required original operator authority for subagent recovery (v25)      │
+│  - Stored session state heads in their composite primary-key tree (v26)  │
+│  - Removed redundant replay and skill indexes and narrowed the           │
+│    lease-owner index (v27)                                               │
+│  - Retained the requested GitHub PR draft choice (v28)                   │
+│  - Moved client credentials and native socket material to the local      │
+│    owner (v29)                                                           │
+│  - Fenced ordinary automation timing and delivery policies from older    │
+│    schedulers (v30)                                                      │
+│  - Prepared resumable per-path local workspace baselines and checkpoint  │
+│    deltas (v31)                                                          │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+Doctor: retired state repair
+Doctor: session entry state
+Doctor: plugin plan import
+Doctor: plugin plan
+Doctor: config snapshot
+Doctor: file
+Doctor: file
+Doctor: plugin metadata completion
+Doctor: cron repair import
+Doctor: cron repair
+Doctor: cron policy scan
+Doctor: legacy state migrations
+Doctor: Config repairs
+Doctor: contributions
+Doctor: Write config migrations
+│
+◇  Doctor changes ────────────────────────────────────────────────╮
+│                                                                 │
+│  Recorded webhook listener decisions; removed pins will not be  │
+│  recreated.                                                     │
+│  Recorded webhook listener decisions; removed pins will not be  │
+│  recreated.                                                     │
+│  Recorded webhook listener decisions; removed pins will not be  │
+│  recreated.                                                     │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ────────────────────────────────────────────────────╮
+│                                                                     │
+│  Set messages.queue.allowCollaborativeSteering to false (default).  │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────╯
+Updated config: <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/openclaw.json
+Doctor: Agent database admission
+Doctor: core/doctor/agent-database-admission: check
+Doctor: Native helpers and child pipes
+Doctor: core/doctor/appcontainer-spawn: check
+Doctor: core/doctor/native-status: check
+Doctor: Node runtime
+Doctor: Gateway config
+Doctor: Database engines
+│
+◇  Database engines ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                                                    │
+│  Shared state: default=sqlite, override=inherit, effective=sqlite                                                                  │
+│  (configured); observed=sqlite                                                                                                     │
+│  Agent data: default=sqlite, override=inherit, effective=sqlite                                                                    │
+│  (configured)                                                                                                                      │
+│  Workboard: default=sqlite, override=inherit, effective=sqlite                                                                     │
+│  (configured)                                                                                                                      │
+│  Logbook: default=sqlite, override=inherit, effective=sqlite                                                                       │
+│  (configured)                                                                                                                      │
+│  Team Reports: default=sqlite, override=inherit, effective=sqlite                                                                  │
+│  (configured)                                                                                                                      │
+│  Database quarantine: default=sqlite, override=fixed local,                                                                        │
+│  effective=sqlite (configured)                                                                                                     │
+│  Managed update handoffs: default=sqlite, override=fixed local,                                                                    │
+│  effective=sqlite (configured)                                                                                                     │
+│  Package activation journal: default=sqlite, override=fixed local,                                                                 │
+│  effective=sqlite (configured)                                                                                                     │
+│  Shared state root:                                                                                                                │
+│  <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/state/openclaw.sqlite                                    │
+│  (physical=sqlite)                                                                                                                 │
+│  state                                                                                                                             │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/state/openclaw.sqlite);                                 │
+│  default=sqlite, override=inherit, effective=sqlite; observed=sqlite;                                                              │
+│  schema=31, expected=31, pending=0; connectivity=local; namespace=not                                                              │
+│  applicable; storeId=not applicable; database=local file;                                                                          │
+│  extensions=none; admittedExtensions=unknown; degraded=unknown;                                                                    │
+│  custody=unverifiable, lease=none; backup=unknown; legacy=none; Next:                                                              │
+│  Inspect the store owner's custody and lease before offline                                                                        │
+│  maintenance. No matching backup outcome was observed; run openclaw                                                                │
+│  backup create and verify its result.                                                                                              │
+│  state                                                                                                                             │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/voice-calls/state/openclaw.sqlite);                     │
+│  default=sqlite, override=inherit, effective=sqlite; observed=unknown                                                              │
+│  (mismatch unknown); schema=unknown, expected=31, pending=unknown;                                                                 │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  agent                                                                                                                             │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/agents/main/agent/openclaw-agent.sqlite);               │
+│  default=sqlite, override=inherit, effective=sqlite; observed=unknown                                                              │
+│  (mismatch unknown); schema=unknown, expected=unknown, pending=unknown;                                                            │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  workboard                                                                                                                         │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/plugins/workboard/workboard.sqlite);                    │
+│  default=sqlite, override=inherit, effective=sqlite; observed=unknown                                                              │
+│  (mismatch unknown); schema=unknown, expected=unknown, pending=unknown;                                                            │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  logbook                                                                                                                           │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/logbook/logbook.sqlite);                                │
+│  default=sqlite, override=inherit, effective=sqlite; observed=unknown                                                              │
+│  (mismatch unknown); schema=unknown, expected=unknown, pending=unknown;                                                            │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  team-reports                                                                                                                      │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/plugins/team-reports/team-reports.sqlite);              │
+│  default=sqlite, override=inherit, effective=sqlite; observed=unknown                                                              │
+│  (mismatch unknown); schema=unknown, expected=unknown, pending=unknown;                                                            │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  quarantine                                                                                                                        │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/state/openclaw-quarantine.sqlite);                      │
+│  default=sqlite, override=fixed local (local by design),                                                                           │
+│  effective=sqlite; observed=unknown (mismatch unknown); schema=unknown,                                                            │
+│  expected=2, pending=unknown; connectivity=unknown; namespace=unknown;                                                             │
+│  storeId=unknown; database=unknown; extensions=unknown;                                                                            │
+│  admittedExtensions=unknown; degraded=unknown; custody=unverifiable,                                                               │
+│  lease=unverifiable; backup=unknown; legacy=none; Next: Store is not                                                               │
+│  present. Initialize it through its owning feature, then rerun openclaw                                                            │
+│  doctor.                                                                                                                           │
+│  managed-update                                                                                                                    │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/tmp/openclaw-1000/managed-update-handoffs.sqlite);            │
+│  default=sqlite, override=fixed local (local by design),                                                                           │
+│  effective=sqlite; observed=unknown (mismatch unknown);                                                                            │
+│  schema=unversioned, expected=not applicable, pending=unknown;                                                                     │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  package-activation                                                                                                                │
+│  (<home>/i_have_a_pet_human/source/WORKTREES/.openclaw.package-activation-119b1dc2a71a8a95954d85c5.control/operation.sqlite);  │
+│  default=sqlite, override=fixed local (local by design),                                                                           │
+│  effective=sqlite; observed=unknown (mismatch unknown);                                                                            │
+│  schema=unversioned, expected=not applicable, pending=unknown;                                                                     │
+│  connectivity=unknown; namespace=unknown; storeId=unknown;                                                                         │
+│  database=unknown; extensions=unknown; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Store is not present. Initialize it                                                            │
+│  through its owning feature, then rerun openclaw doctor.                                                                           │
+│  credentials                                                                                                                       │
+│  (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/client/credentials.sqlite);                             │
+│  default=sqlite, override=fixed local (local by design),                                                                           │
+│  effective=sqlite; observed=sqlite; schema=1, expected=1, pending=0;                                                               │
+│  connectivity=local; namespace=not applicable; storeId=not applicable;                                                             │
+│  database=local file; extensions=none; admittedExtensions=unknown;                                                                 │
+│  degraded=unknown; custody=unverifiable, lease=unverifiable;                                                                       │
+│  backup=unknown; legacy=none; Next: Inspect the store owner's custody                                                              │
+│  and lease before offline maintenance. No matching backup outcome was                                                              │
+│  observed; run openclaw backup create and verify its result.                                                                       │
+│                                                                                                                                    │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+Doctor: Auth profile migration
+Doctor: Auth profiles
+Doctor: Claude CLI
+Doctor: Gateway auth
+│
+◇  Gateway auth ───────────────────────────────────────────────────────╮
+│                                                                      │
+│  Gateway auth is off or missing a token.                             │
+│  Run `openclaw doctor --fix --generate-gateway-token` to generate a  │
+│  token, then restart the Gateway.                                    │
+│                                                                      │
+├──────────────────────────────────────────────────────────────────────╯
+Doctor: Node hosting preconditions
+Doctor: core/doctor/node-hosting-preconditions: check
+Doctor: Command owner
+│
+◇  Command owner ──────────────────────────────────────────────────────────╮
+│                                                                          │
+│  No channel command owner is configured.                                 │
+│  A command owner is your trusted human operator account, allowed to      │
+│  update OpenClaw with /update, restart the Gateway, change               │
+│  configuration, and approve commands. Chat allowlists do not grant this  │
+│  authority.                                                              │
+│  Local Control UI/WebChat clients with operator.admin already have       │
+│  owner authority; no channel is required. Run openclaw --profile         │
+│  proof124337 dashboard on the Gateway host and open its link in your     │
+│  browser (use openclaw --profile proof124337 dashboard --json on a       │
+│  headless host).                                                         │
+│  If the Control UI shows limited access, open Inbox > System > Limited   │
+│  access > Request admin, then run its displayed openclaw --profile       │
+│  proof124337 devices approve <requestId> command on the Gateway host.    │
+│  For external channels, run openclaw --profile proof124337 channels add  │
+│  and complete a channel's setup to choose your operator account,         │
+│  including servers and groups without DM pairing.                        │
+│  CLI channel pairing approval records the first command owner. Control   │
+│  UI channel-sender approval has a separate owner checkbox.               │
+│  For an existing channel sender, set commands.ownerAllowFrom to your     │
+│  channel user id, for example openclaw --profile proof124337 config set  │
+│  commands.ownerAllowFrom '["telegram:123456789"]'                        │
+│  Restart the Gateway after changing commands.ownerAllowFrom if it is     │
+│  already running.                                                        │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+Doctor: Plugin health inspection and repair
+Doctor: Legacy state
+Doctor: core/doctor/removed-workspaces-state: check
+Doctor: Session transcripts
+Doctor: Agent memory schema
+Doctor: Legacy plugin manifests
+Doctor: Legacy plugin dependencies
+Doctor: Stale plugin runtime symlinks
+Doctor: Configured plugin repair
+Doctor: Plugin registry
+│
+◇  Plugin registry ──────────────────────────────────────────╮
+│                                                            │
+│  Plugin registry rebuilt: 88/174 enabled plugins indexed.  │
+│                                                            │
+├────────────────────────────────────────────────────────────╯
+Doctor: Legacy plugin captures
+Doctor: Updater runtimes
+Doctor: Retained update database snapshots
+Doctor: core/doctor/update-snapshots: check
+Doctor: UI protocol freshness
+Doctor: Stale runtime build
+Doctor: core/doctor/stale-runtime-build: check
+Doctor: Disk space
+Doctor: Project clones
+Doctor: SQLite database size
+Doctor: Channel ingress dead letters
+│
+◇  Channel ingress ─────────────────────────────────────────────────────╮
+│                                                                       │
+│  - telegram/default: 1 dead-lettered ingress event.                   │
+│  - Inspect with openclaw --profile proof124337 channels dead-letters  │
+│    list --channel telegram --account default.                         │
+│                                                                       │
+├───────────────────────────────────────────────────────────────────────╯
+Doctor: State integrity
+│
+◇  State integrity ───────────────────────────────────────────────────────────────────────────╮
+│                                                                                             │
+│  - State directory permissions are too open                                                 │
+│    (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state).              │
+│    Recommend chmod 700.                                                                     │
+│  - OAuth dir not present                                                                    │
+│    (<home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state/credentials).  │
+│    Skipping create because no WhatsApp/pairing channel config is                            │
+│    active.                                                                                  │
+│                                                                                             │
+├─────────────────────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ─────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  - Tightened permissions on                                                  │
+│    <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/state  │
+│    to 700                                                                    │
+│                                                                              │
+├──────────────────────────────────────────────────────────────────────────────╯
+│
+◇  Backups ───────────────────────────────────────────────────────────────╮
+│                                                                         │
+│  No successful backup is recorded.                                      │
+│  Create one now with openclaw --profile proof124337 backup create.      │
+│  Schedule versioned backups with openclaw --profile proof124337 backup  │
+│  enable --repository <dir>.                                             │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+Doctor: Codex session routes
+Doctor: Telegram General-topic conversations
+Doctor: core/doctor/telegram-general-topic-conversations: check
+Doctor: Session transcript headers
+Doctor: Session transcript labels
+Doctor: Session snapshots
+Doctor: Config audit
+Doctor: Legacy cron
+Doctor: Sandbox
+Doctor: Codex bwrap sandbox
+Doctor: Gateway services
+Doctor: Host desktop
+│
+◇  Host desktop ────────────────────────────────────────────────────╮
+│                                                                   │
+│  disabled; enable the Desktop lab with desktop.host.enabled=true  │
+│                                                                   │
+├───────────────────────────────────────────────────────────────────╯
+Doctor: Default account routing
+Doctor: core/doctor/default-account-routing: check
+Doctor: Channel package-state capabilities
+Doctor: core/doctor/channel-package-state-capabilities: check
+Doctor: Startup channel maintenance
+Doctor: Security
+Doctor: Web fetch proxy
+Doctor: Bundle LSP environment
+Doctor: GitHub projects
+│
+◇  GitHub projects ───────────────────────────────────────────────────────╮
+│                                                                         │
+│  Set gateway.controlUi.github.token with gateway.controlUi.github.host  │
+│  matching gateway.github.host for private project access. Public        │
+│  github.com can also use GH_TOKEN/GITHUB_TOKEN; otherwise search is     │
+│  public-only.                                                           │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────╯
+Doctor: Browser
+Doctor: OAuth TLS
+Doctor: Hooks model
+Doctor: Model references
+(node:2599100) [DEP_PLUGIN_SDK] DeprecationWarning: Plugin matrix: createPluginStateSyncKeyedStore is deprecated; use createPluginStateKeyedStoreV2 and await its operations instead. The legacy contract remains supported during its deprecation period. Final compatibility day: 2026-12-31. Removal ships in the first January 2027 stable release; no SDK major is required.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:2599100) [DEP_PLUGIN_SDK] DeprecationWarning: Plugin SDK: PluginStateSyncKeyedStore.entries is deprecated; use await openKeyedStoreV2().entries() instead. Synchronous operations still commit before returning; legacy callbacks retain transaction-local ordering. Final compatibility day: 2026-12-31. Removal ships in the first January 2027 stable release; no SDK major is required.
+Doctor: ACP agent model
+Doctor: Provider catalog projection
+Doctor: Local audio acceleration
+Doctor: Runtime tool schemas
+(node:2599100) [DEP_PLUGIN_SDK] DeprecationWarning: Plugin SDK: createOpenClawCodingTools is deprecated; use await createOpenClawCodingToolsAsync() instead. The legacy contract remains supported during its deprecation period. Final compatibility day: 2026-12-31. Removal ships in the first January 2027 stable release; no SDK major is required.
+(node:2599100) [DEP_PLUGIN_SDK] DeprecationWarning: Plugin SDK: ensureAuthProfileStoreWithoutExternalProfiles is deprecated; use ensureAuthProfileStoreWithoutExternalProfilesAsync instead. The legacy contract remains supported during its deprecation period. Final compatibility day: 2026-12-31. Removal ships in the first January 2027 stable release; no SDK major is required.
+Doctor: Skill Workshop tool policy
+Doctor: systemd linger
+Doctor: Workspace status
+Doctor: Workspace alias
+Doctor: Skills
+│
+◇  Skills ─────────────────────────────────────────────────────────────────╮
+│                                                                          │
+│  28 allowed skills are not usable in this environment (missing           │
+│  binaries, env vars, or config).                                         │
+│  - 1password, blogwatcher, blucli, camsnap, coding-agent, eightctl,      │
+│    gemini, gifgrep, gog, goplaces, himalaya, mcporter, model-usage,      │
+│    nano-pdf, obsidian, openai-whisper, openai-whisper-api, openhue,      │
+│    oracle, ordercli, sag, sherpa-onnx-tts, songsee, sonoscli,            │
+│    spotify-player, summarize, trello, xurl                               │
+│  Missing local binaries may exist on paired nodes; these skills remain   │
+│  enabled.                                                                │
+│  Inspect details: openclaw --profile proof124337 skills check --agent    │
+│  <id> or openclaw --profile proof124337 skills info <name> --agent <id>  │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+│
+◇  Doctor changes ────────────────╮
+│                                 │
+│  - Disabled coding-agent        │
+│  - Disabled openai-whisper-api  │
+│  - Disabled sherpa-onnx-tts     │
+│  - Disabled trello              │
+│                                 │
+├─────────────────────────────────╯
+Doctor: Bootstrap size
+Doctor: Heartbeat cadence migration
+Doctor: Heartbeat scratch migration
+Doctor: TOOLS.md migration
+Doctor: Heartbeat task cron migration
+Doctor: Shell completion
+Doctor: Gateway health
+│
+◇  Gateway ─────────────────────────────────────────────╮
+│                                                       │
+│  Gateway health will be checked after Doctor repair.  │
+│                                                       │
+├───────────────────────────────────────────────────────╯
+Doctor: WhatsApp responsiveness
+Doctor: Memory search
+Doctor: contributions (10s elapsed)
+│
+◇  Memory search ──────────────────────────────────────────────────────────╮
+│                                                                          │
+│  Memory search provider is set to "openai" but no API key was found.     │
+│  Without working primary or fallback embeddings, memory sync stops for   │
+│  explicitly configured providers or existing vector indexes; new and     │
+│  changed memory files are not indexed.                                   │
+│                                                                          │
+│                                                                          │
+│  Fix (pick one):                                                         │
+│  - Set OPENAI_API_KEY in your environment                                │
+│  - Configure credentials: openclaw --profile proof124337 configure       │
+│    --section model                                                       │
+│  - For keyword-only recall without a key, set memory.search.provider to  │
+│    "none" for this agent (including any agent override), then run        │
+│    openclaw --profile proof124337 memory index --force --agent main      │
+│                                                                          │
+│  Then rerun: openclaw --profile proof124337 doctor                       │
+│                                                                          │
+├──────────────────────────────────────────────────────────────────────────╯
+│
+◇  Memory search ──────────────────────────────╮
+│                                              │
+│  Dreaming: enabled (cadence 0 3 * * *).      │
+│  Last recorded dreaming run: none recorded.  │
+│  Next scheduled run: none scheduled.         │
+│                                              │
+├──────────────────────────────────────────────╯
+Doctor: Device pairing
+Doctor: Gateway daemon
+Doctor: Write config
+Updated config: <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/openclaw.json
+  Backup: <home>/i_have_a_pet_human/upgrade124337-2026.10.6/runs/upgrade/openclaw.json.bak
+Doctor: Workspace suggestions
+│
+◇  Workspace ────────────────────────────────────────────────────────────────────────────╮
+│                                                                                        │
+│  Memory system not found in workspace.                                                 │
+│  Paste this into your agent:                                                           │
+│                                                                                        │
+│  Install the memory system by applying:                                                │
+│  https://github.com/openclaw/openclaw/commit/9ffea23f31ca1df5183b25668f8f814bee0fb34e  │
+│  https://github.com/openclaw/openclaw/commit/7d1fee70e76f2f634f1b41fca927ee663914183a  │
+│                                                                                        │
+├────────────────────────────────────────────────────────────────────────────────────────╯
+Doctor: Final config validation
+Doctor: external config
+Doctor: maintenance ready
+Doctor: retained runtimes
+Doctor: maintenance finish
+Fix now:
+- gateway.mode is unset; gateway start will be blocked.
+  Location: gateway.mode
+  Next step: Run `openclaw configure` and set Gateway mode (local/remote), or `openclaw config set gateway.mode local`.
+  Docs: https://docs.openclaw.ai/gateway/configuration
+- Running build came from commit 8da32c4, but the checkout is at cd8a6e2; the loaded runtime is older than its source.
+  Location: <home>/i_have_a_pet_human/source/WORKTREES/bm-124337
+  Next step: Run `openclaw update` to rebuild and restart through the update lifecycle. For a manual build, stop the Gateway before running `pnpm build`, then start it again.
+  Docs: https://docs.openclaw.ai/install/updating
+Doctor: maintenance release
+│
+└  Doctor complete.
+
+### exit=0

@@ -1,0 +1,74 @@
+stable-seed [seed-drain-1] recoverStaleClaims=0
+stable-seed [seed-drain-1] dispatch ev-abandoned-over #1 sees {"attempts":0,"lastError":null} -> abandon
+stable-seed [seed-drain-1] dispatch ev-abandoned-over #2 sees {"attempts":1,"lastError":"turn-abandoned"} -> abandon
+stable-seed [seed-drain-1] dispatch ev-abandoned-over #3 sees {"attempts":2,"lastError":"turn-abandoned"} -> abandon
+stable-seed [seed-drain-1] dispatch ev-abandoned-over #4 sees {"attempts":3,"lastError":"turn-abandoned"} -> abandon
+stable-seed [seed-drain-1] dispatch ev-abandoned-over #5 sees {"attempts":4,"lastError":"turn-abandoned"} -> abandon
+stable-seed [seed-drain-1] dispatch counts {"ev-abandoned-over":5}
+stable-seed [seed-drain-2] recoverStaleClaims=0
+stable-seed [seed-drain-2] dispatch ev-abandoned-over #1 sees {"attempts":5,"lastError":"turn-abandoned"} -> abandon
+stable-seed [seed-drain-2] dispatch ev-abandoned-under #1 sees {"attempts":0,"lastError":null} -> abandon
+stable-seed [seed-drain-2] dispatch counts {"ev-abandoned-over":1,"ev-abandoned-under":1}
+stable-seed-rest [seed-rest] tree fe06181dc5ecc01cf8904abbfc26925925efefbc
+stable-seed-rest [seed-rest] ev-released: claimed and released twice with last_error
+stable-seed-rest [seed-rest] ev-cancel: claimed and released twice with last_error
+stable-seed-rest [seed-rest] ev-dead: claimed, failed (dead-letter)
+stable-seed-rest [seed-rest] ev-owner: claimed and left held; this process exits as a dead owner
+dump-stable-written [stable-written] total=7
+dump-after-migrate [after-migrate] total=7
+head-drain [drain] recoverStaleClaims=1
+head-drain [drain] dispatch ev-abandoned-over #1 sees {"attempts":6,"lastError":"turn-abandoned"} -> abandon
+head-drain [drain] dispatch ev-abandoned-under #1 sees {"attempts":1,"lastError":"turn-abandoned"} -> abandon
+head-drain [drain] dispatch ev-pending #1 sees {"attempts":0,"lastError":null} -> complete
+head-drain [drain] dispatch ev-released #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+head-drain [drain] dispatch ev-cancel #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> cancel
+head-drain [drain] dispatch ev-owner #1 sees {"attempts":1,"lastError":null} -> complete
+head-drain [drain] dispatch ev-abandoned-under #2 sees {"attempts":2,"lastError":"turn-abandoned"} -> complete
+head-drain [drain] dispatch ev-cancel #2 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+head-drain [drain] dispatch counts {"ev-abandoned-over":1,"ev-abandoned-under":2,"ev-pending":1,"ev-released":1,"ev-cancel":2,"ev-owner":1}
+dump-after-head [after-head] total=7
+upstream-drain [drain] recoverStaleClaims=1
+upstream-drain [drain] dispatch ev-abandoned-over #1 sees {"attempts":6,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-under #1 sees {"attempts":1,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-pending #1 sees {"attempts":0,"lastError":null} -> complete
+upstream-drain [drain] dispatch ev-released #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+upstream-drain [drain] dispatch ev-cancel #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> cancel
+upstream-drain [drain] dispatch ev-owner #1 sees {"attempts":1,"lastError":null} -> complete
+upstream-drain [drain] dispatch ev-abandoned-over #2 sees {"attempts":7,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-under #2 sees {"attempts":2,"lastError":"turn-abandoned"} -> complete
+upstream-drain [drain] dispatch ev-cancel #2 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+upstream-drain [drain] dispatch ev-abandoned-over #3 sees {"attempts":8,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #4 sees {"attempts":9,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #5 sees {"attempts":10,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #6 sees {"attempts":11,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #7 sees {"attempts":12,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #8 sees {"attempts":13,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #9 sees {"attempts":14,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #10 sees {"attempts":15,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #11 sees {"attempts":16,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch ev-abandoned-over #12 sees {"attempts":17,"lastError":"turn-abandoned"} -> abandon
+upstream-drain [drain] dispatch counts {"ev-abandoned-over":12,"ev-abandoned-under":2,"ev-pending":1,"ev-released":1,"ev-cancel":2,"ev-owner":1}
+dump-after-upstream [after-upstream] total=7
+control-stable-drain [drain] recoverStaleClaims=1
+control-stable-drain [drain] dispatch ev-abandoned-over #1 sees {"attempts":6,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-under #1 sees {"attempts":1,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-pending #1 sees {"attempts":0,"lastError":null} -> complete
+control-stable-drain [drain] dispatch ev-released #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+control-stable-drain [drain] dispatch ev-cancel #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> cancel
+control-stable-drain [drain] dispatch ev-owner #1 sees {"attempts":1,"lastError":null} -> complete
+control-stable-drain [drain] dispatch ev-abandoned-over #2 sees {"attempts":7,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-under #2 sees {"attempts":2,"lastError":"turn-abandoned"} -> complete
+control-stable-drain [drain] dispatch ev-cancel #2 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+control-stable-drain [drain] dispatch ev-abandoned-over #3 sees {"attempts":8,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #4 sees {"attempts":9,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #5 sees {"attempts":10,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #6 sees {"attempts":11,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #7 sees {"attempts":12,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #8 sees {"attempts":13,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #9 sees {"attempts":14,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #10 sees {"attempts":15,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #11 sees {"attempts":16,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch ev-abandoned-over #12 sees {"attempts":17,"lastError":"turn-abandoned"} -> abandon
+control-stable-drain [drain] dispatch counts {"ev-abandoned-over":12,"ev-abandoned-under":2,"ev-pending":1,"ev-released":1,"ev-cancel":2,"ev-owner":1}
+dump-after-stable [after-stable] total=7
+proofs-done

@@ -142,7 +142,9 @@ function scenarioName(manifest) {
 
 function manifestCandidateSha(manifest) {
   const value = manifest?.candidateSha;
-  return SHA.test(value || '') ? value : null;
+  if (value === '${OPENCLAW_CANDIDATE_SHA}' || value == null || value === '') return null;
+  if (!SHA.test(value)) throw new Error('manifest candidate SHA must be a 40-character lowercase SHA or the committed template');
+  return value;
 }
 
 function hasVerifiedRrc2Outcome(rowId, verdict, evidence) {

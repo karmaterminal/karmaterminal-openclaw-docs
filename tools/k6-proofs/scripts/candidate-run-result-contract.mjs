@@ -266,7 +266,12 @@ export function candidateEnvelopeMatchesSiblings({
   )) return false;
   if (!artifactReferencesMatchRunResult(envelope, runResult)) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
-  if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
+  // Committed manifests carry this one literal template. The runner freezes its
+  // unrendered bytes (and digest) before dispatch; metadata and the envelope
+  // bind the concrete SHA. Any other non-empty non-SHA value is invalid.
+  if (manifest.candidateSha &&
+      manifest.candidateSha !== '${OPENCLAW_CANDIDATE_SHA}' &&
+      manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;
   if (!harnessIdentityMatches({ envelope, metadata, runDir })) return false;
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;

@@ -20,6 +20,7 @@ for running rows, and `tools/k6-proofs/CONTRIBUTING-ROWS.md` the checklist for a
 | Row PR checklist and the evidence files a row dir needs | `tools/k6-proofs/CONTRIBUTING-ROWS.md` |
 | Row registry, pipeline and mandates in one parse | `tools/k6-proofs/k6-proofs-pipeline.xml` |
 | Corpus method and fold rules | `RUNBOOKS/PROOF-CORPUS-METHOD.md` |
+| Run a local proof set | `tools/k6-proofs/proofs.sh` (list, offline checks/smoke, dry and gated live matrices) |
 | Dispatch from this repo | `.github/workflows/k6-proof.yml` (one row), `.github/workflows/project81-k6-proof.yml` (row lists, self-hostable) |
 | Run, triage and publish a corpus | `openclaw-dev:run-k6-proofs` in the `karmaterminal/scribe-prince-shared` marketplace |
 | Runner and config workflow glue for the frond's seats | `karmaterminal/openclaw-bootstrap`: its `project81-k6/` directory, `scripts/project81-k6-proof/run.sh` and its own `project81-k6-proof.yml` workflow |

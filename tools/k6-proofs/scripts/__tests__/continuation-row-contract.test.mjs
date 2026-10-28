@@ -166,7 +166,6 @@ const DELEGATE_FINGERPRINT_DEBT = [
   'R-CD-MODEL-TOKEN',
   'R-CD-MODEL-TOOL',
   'R-CD-SILENT',
-  'R-CW-DELEGATE-SELF-CONTINUATION',
 ];
 const WORK_FINGERPRINT_DEBT = ['R-CW-2', 'R-CW-4', 'R-CW-5', 'R-CW-6'];
 
@@ -222,6 +221,7 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-4',
     'R-CD-CHAINED-DEPTH-2',
     'R-CD-TOKEN',
+    'R-CW-DELEGATE-SELF-CONTINUATION',
     'R-RC-2',
   ]);
   assert.deepEqual(debt.sort(), [...DELEGATE_FINGERPRINT_DEBT].sort(), 'every debt row is still a trace-required continue_delegate row');

@@ -159,6 +159,10 @@ export default function () {
     observation_refused: null,
     dispatch_accepted_at_ms: null,
     trace_id: null,
+    // Public-safe fingerprint of the delegate task (#600), set at dispatch.
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     preflight: null,
     verdict_reason: null,
     redacted_events: [],
@@ -285,6 +289,12 @@ export default function () {
       socket.setTimeout(() => {
         const inv = invocationCfg();
         const task = inv.promptTemplate.replace(/\{\{nonce\}\}/g, rowNonce);
+        // Public evidence drops the nonce, so this digest/length/mode is what
+        // lets collect-continuation-trace.mjs attribute the trace of this row
+        // after the run, the same shape it validates for the other delegate rows.
+        evidence.reason_hash = crypto.sha256(task, 'hex').slice(0, 16);
+        evidence.reason_length = task.length;
+        evidence.delegate_mode = inv.mode;
         const agentInstruction =
           `[k6-proof-harness] Call continue_delegate with: ` +
           `mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, ` +

@@ -26,6 +26,9 @@ const manifestsDir = path.join(repoRoot, 'tools/k6-proofs/manifests');
 const checker = path.join(repoRoot, 'tools/k6-proofs/scripts/check-proof-row-manifests.mjs');
 const writer = path.join(repoRoot, 'tools/k6-proofs/scripts/validate-candidate-run-result.mjs');
 const reviewDebt = path.join(repoRoot, 'tools/k6-proofs/scripts/summarize-review-debt.mjs');
+const runReport = path.join(repoRoot, 'tools/k6-proofs/scripts/render-run-report.mjs');
+const rowMetrics = path.join(repoRoot, 'tools/k6-proofs/scripts/export-row-metrics.mjs');
+const corpusMetrics = path.join(repoRoot, 'tools/k6-proofs/scripts/export-prometheus-metrics.mjs');
 const libUrl = new URL('../../lib/continuation-trace-requirement.mjs', import.meta.url);
 const contractUrl = new URL('../candidate-run-result-contract.mjs', import.meta.url);
 
@@ -363,6 +366,7 @@ async function candidateFixture({ manifest = continuationManifest(), observabili
     expectedMaxSpawnDepth: 5,
   };
   const runResult = {
+    k6ExitCode: 0,
     effectiveExitCode: 0,
     verdict: 'PASS-candidate',
     verdictSource: 'vu-log',
@@ -575,19 +579,26 @@ test('review-debt adds trace debt to a raw continuation run that claims nothing 
 const OTHER_TRACE_ID = '3'.repeat(32);
 const OTHER_TRACE_JSON = `tempo-trace-${OTHER_TRACE_ID.slice(0, 12)}.json`;
 
-async function assertWriterRefuses(setup, owed, label) {
+/** `reasons` maps an owed receipt to why it is not held, as the writer and review-debt report it. */
+async function assertWriterRefuses(setup, owed, label, reasons = {}) {
   const written = await writeEnvelope(setup);
   assert.equal(written.ok, false, `${label}: writer emitted complete=${written.envelope?.review?.complete}`);
   assert.match(written.stderr, new RegExp(`still owes ${owed.join(', ')} \\(Tempo trace requirement\\)`), label);
+  for (const [receipt, reason] of Object.entries(reasons)) {
+    assert.match(written.stderr, new RegExp(`${receipt}: ${reason}(?:[,\\n]|$)`), `${label}: ${written.stderr}`);
+  }
   await assert.rejects(readFile(path.join(setup.candidateDir, 'candidate-run-result.json')), /ENOENT/, label);
 }
 
-async function assertReviewDebtOwes(root, owed, label) {
+async function assertReviewDebtOwes(root, owed, label, reasons = {}) {
   const summary = await summarize(root);
   assert.equal(summary.pendingRows, 1, `${label}: ${JSON.stringify(summary, null, 2)}`);
   const [row] = summary.pending;
   assert.equal(row.reviewStatus, 'review-pending', label);
   assert.deepEqual([...row.pendingReceipts].sort(), [...owed].sort(), label);
+  for (const [receipt, reason] of Object.entries(reasons)) {
+    assert.equal(row.pending.find((item) => item.receipt === receipt)?.reason, reason, `${label}: ${JSON.stringify(row.pending)}`);
+  }
 }
 
 /** Put `body` outside the run directory and leave a symlink to it under `name`. */
@@ -599,11 +610,20 @@ async function symlinkOut(setup, name, body) {
 }
 
 test('the shared predicate needs the run directory: a receipt name is not a receipt', async () => {
-  const { traceReviewDebt } = await lib();
+  const { traceReceiptFindings, traceReviewDebt } = await lib();
   assert.throws(() => traceReviewDebt(continuationManifest(), OBSERVABILITY.complete), /run directory/);
+  assert.throws(() => traceReceiptFindings(continuationManifest(), OBSERVABILITY.complete), /run directory/);
   assert.deepEqual(traceReviewDebt(readOnlyManifest(), OBSERVABILITY.none), [], 'a row that owes no trace needs no run directory');
   const setup = await candidateFixture({ observability: OBSERVABILITY.complete, receipts: BOUND_RECEIPTS });
   try {
+    assert.deepEqual(traceReceiptFindings(setup.manifest, OBSERVABILITY.complete, { runDir: setup.candidateDir }), [
+      { receipt: 'tempo-trace-json', held: true, reason: null },
+      { receipt: 'continuation-trace-correlation', held: true, reason: null },
+    ]);
+    assert.deepEqual(traceReceiptFindings(setup.manifest, OBSERVABILITY.none, { runDir: setup.candidateDir }), [
+      { receipt: 'tempo-trace-json', held: false, reason: 'no-trace-id' },
+      { receipt: 'continuation-trace-correlation', held: false, reason: 'no-trace-id' },
+    ]);
     assert.deepEqual(traceReviewDebt(setup.manifest, OBSERVABILITY.complete, { runDir: setup.candidateDir }), []);
     await rm(path.join(setup.candidateDir, TRACE_JSON));
     assert.deepEqual(traceReviewDebt(setup.manifest, OBSERVABILITY.complete, { runDir: setup.candidateDir }), ['tempo-trace-json']);
@@ -625,40 +645,66 @@ test('the shared predicate needs the run directory: a receipt name is not a rece
 test('the envelope writer refuses a trace-required run whose named receipts are missing, unbound or not in its run directory', async (t) => {
   const trace = BOUND_RECEIPTS[TRACE_JSON];
   const correlation = BOUND_RECEIPTS[CORRELATION_JSON];
-  for (const [label, { observability = OBSERVABILITY.complete, receipts, prepare = null }, owed] of [
-    ['trace JSON missing', { receipts: { [CORRELATION_JSON]: correlation } }, ['tempo-trace-json']],
-    ['correlation receipt missing', { receipts: { [TRACE_JSON]: trace } }, ['continuation-trace-correlation']],
-    ['both named, neither on disk', { receipts: {} }, ['tempo-trace-json', 'continuation-trace-correlation']],
+  // Each case: what is on disk, then each owed receipt and why it is not held.
+  for (const [label, { observability = OBSERVABILITY.complete, receipts, prepare = null }, owedReasons] of [
+    ['trace JSON missing', { receipts: { [CORRELATION_JSON]: correlation } }, { 'tempo-trace-json': 'missing' }],
+    ['correlation receipt missing', { receipts: { [TRACE_JSON]: trace } }, { 'continuation-trace-correlation': 'missing' }],
+    ['both named, neither on disk', { receipts: {} }, {
+      'tempo-trace-json': 'missing',
+      'continuation-trace-correlation': 'missing',
+    }],
     ['trace JSON whose trace ID is not the result traceId', {
       receipts: { [TRACE_JSON]: traceJsonBody(OTHER_TRACE_ID), [CORRELATION_JSON]: correlation },
-    }, ['tempo-trace-json']],
+    }, { 'tempo-trace-json': 'trace-id-mismatch' }],
+    ['trace JSON with a span from another trace', {
+      receipts: {
+        [TRACE_JSON]: (() => {
+          const mixed = JSON.parse(trace);
+          mixed.spans.push({ ...mixed.spans[0], traceId: OTHER_TRACE_ID, spanId: '6'.repeat(16) });
+          return `${JSON.stringify(mixed, null, 2)}\n`;
+        })(),
+        [CORRELATION_JSON]: correlation,
+      },
+    }, { 'tempo-trace-json': 'trace-id-mismatch' }],
     ['correlation receipt naming another trace', {
       receipts: { [TRACE_JSON]: trace, [CORRELATION_JSON]: correlationBody(OTHER_TRACE_ID, TRACE_JSON) },
-    }, ['continuation-trace-correlation']],
+    }, { 'continuation-trace-correlation': 'trace-id-mismatch' }],
     ['correlation receipt naming another trace JSON', {
       receipts: { [TRACE_JSON]: trace, [CORRELATION_JSON]: correlationBody(traceId, OTHER_TRACE_JSON) },
-    }, ['continuation-trace-correlation']],
+    }, { 'continuation-trace-correlation': 'trace-json-mismatch' }],
+    ['correlation receipt written under another tool kind\'s name', {
+      observability: { ...OBSERVABILITY.complete, correlationReceipt: 'tool-trace-correlation.json' },
+      receipts: { [TRACE_JSON]: trace, 'tool-trace-correlation.json': correlation },
+    }, { 'continuation-trace-correlation': 'wrong-receipt-name' }],
     ['trace JSON cut short mid-write', {
       receipts: { [TRACE_JSON]: trace.slice(0, 40), [CORRELATION_JSON]: correlation },
-    }, ['tempo-trace-json']],
-    ['trace JSON that is not the public trace projection', {
+    }, { 'tempo-trace-json': 'not-json' }],
+    ['trace JSON that is a raw Tempo response, not the public projection', {
       receipts: { [TRACE_JSON]: `${JSON.stringify({ traceId, batches: [] })}\n`, [CORRELATION_JSON]: correlation },
-    }, ['tempo-trace-json']],
+    }, { 'tempo-trace-json': 'not-public-trace-projection' }],
+    ['trace JSON with spans but no public projection schema', {
+      receipts: { [TRACE_JSON]: `${JSON.stringify({ traceId, spans: [] })}\n`, [CORRELATION_JSON]: correlation },
+    }, { 'tempo-trace-json': 'not-public-trace-projection' }],
     ['trace JSON is a symlink out of the run directory', {
       receipts: { [CORRELATION_JSON]: correlation },
       prepare: (setup) => symlinkOut(setup, TRACE_JSON, trace),
-    }, ['tempo-trace-json']],
+    }, { 'tempo-trace-json': 'symlink' }],
     ['correlation receipt is a symlink out of the run directory', {
       receipts: { [TRACE_JSON]: trace },
       prepare: (setup) => symlinkOut(setup, CORRELATION_JSON, correlation),
-    }, ['continuation-trace-correlation']],
+    }, { 'continuation-trace-correlation': 'symlink' }],
+    ['trace JSON name is a directory', {
+      receipts: { [CORRELATION_JSON]: correlation },
+      prepare: (setup) => mkdir(path.join(setup.candidateDir, TRACE_JSON)),
+    }, { 'tempo-trace-json': 'not-a-regular-file' }],
   ]) {
     await t.test(label, async () => {
       const setup = await candidateFixture({ observability, receipts });
+      const owed = Object.keys(owedReasons);
       try {
         if (prepare) await prepare(setup);
-        await assertWriterRefuses(setup, owed, label);
-        await assertReviewDebtOwes(setup.root, owed, label);
+        await assertWriterRefuses(setup, owed, label, owedReasons);
+        await assertReviewDebtOwes(setup.root, owed, label, owedReasons);
       } finally {
         await setup.cleanup();
       }
@@ -689,8 +735,9 @@ test('a receipt path that escapes the run directory is refused by the predicate,
         // A bound receipt really is there, one directory up.
         await writeFile(path.join(path.dirname(setup.candidateDir), outsideName), outsideBody);
         assert.deepEqual(traceReviewDebt(setup.manifest, observability, { runDir: setup.candidateDir }), owed);
-        await assertReviewDebtOwes(setup.root, owed, label);
-        await assertWriterRefuses(setup, owed, label);
+        const reasons = Object.fromEntries(owed.map((receipt) => [receipt, 'unsafe-name']));
+        await assertReviewDebtOwes(setup.root, owed, label, reasons);
+        await assertWriterRefuses(setup, owed, label, reasons);
       } finally {
         await setup.cleanup();
       }
@@ -778,6 +825,87 @@ test('the envelope consumer rejects an envelope whose receipts were deleted or r
   }
 });
 
+/**
+ * What the run report and both metrics exporters say about the fixture's row:
+ * the report row as run-proofs.sh renders it after a matrix, the per-row
+ * metrics it exports for the run directory, and the corpus metrics over the
+ * same root.
+ */
+async function reportAndMetrics(setup) {
+  const env = { ...process.env, OPENCLAW_GATEWAY_TOKEN: gatewayKey };
+  const reportOut = path.join(setup.root, 'report.html');
+  await runNode(process.execPath, [runReport, '--root', setup.root, '--out', reportOut], { encoding: 'utf8', env });
+  const html = await readFile(reportOut, 'utf8');
+  const rowProm = path.join(setup.root, 'row.prom');
+  await runNode(process.execPath, [rowMetrics, '--run-dir', setup.candidateDir, '--prometheus-out', rowProm], { encoding: 'utf8', env });
+  const corpusProm = path.join(setup.root, 'corpus.prom');
+  await runNode(process.execPath, [corpusMetrics, '--root', setup.root, '--out', corpusProm], { encoding: 'utf8', env });
+  return {
+    html,
+    reportRow: html.split('\n').find((line) => line.startsWith(`<tr><td>${setup.manifest.rowId}</td>`)),
+    rowMetrics: await readFile(rowProm, 'utf8'),
+    corpusMetrics: await readFile(corpusProm, 'utf8'),
+  };
+}
+
+function receiptSample(prom, receipt) {
+  return prom.split('\n').filter((line) =>
+    line.startsWith('openclaw_proofs_k6_receipt_status{') && line.includes(`receipt_name="${receipt}"`));
+}
+
+test('the run report and both metrics exporters never show unbound trace receipts as complete or present', async (t) => {
+  for (const [label, mutate, owed] of [
+    ['trace JSON deleted', (setup) => rm(path.join(setup.candidateDir, TRACE_JSON)), ['tempo-trace-json']],
+    ['correlation receipt replaced by one naming another trace', (setup) =>
+      writeFile(path.join(setup.candidateDir, CORRELATION_JSON), correlationBody(OTHER_TRACE_ID, TRACE_JSON)),
+    ['continuation-trace-correlation']],
+  ]) {
+    await t.test(label, async () => {
+      const setup = await candidateFixture({ observability: OBSERVABILITY.complete, receipts: BOUND_RECEIPTS });
+      try {
+        const written = await writeEnvelope(setup);
+        assert.equal(written.ok, true, written.stderr);
+        await mutate(setup);
+        const seen = await reportAndMetrics(setup);
+        // The report: the run, not its stale envelope, and review-pending.
+        assert.ok(seen.reportRow, seen.html);
+        assert.match(seen.reportRow, /<td>review-pending<\/td>/);
+        assert.match(seen.html, /review-pending: 1/);
+        for (const receipt of owed) assert.match(seen.reportRow, new RegExp(`${receipt}: missing`));
+        // Both exporters: the owed receipt is missing, never present.
+        for (const [where, prom] of [['row metrics', seen.rowMetrics], ['corpus metrics', seen.corpusMetrics]]) {
+          for (const receipt of owed) {
+            const samples = receiptSample(prom, receipt);
+            assert.ok(samples.length > 0, `${where}: no ${receipt} sample\n${prom}`);
+            for (const sample of samples) assert.match(sample, /receipt_status="missing"\} 0$/, `${where}: ${sample}`);
+          }
+        }
+        assert.match(seen.rowMetrics, /failure_class="missing-receipt"/);
+      } finally {
+        await setup.cleanup();
+      }
+    });
+  }
+  await t.test('positive control: bound receipts read as complete and present', async () => {
+    const setup = await candidateFixture({ observability: OBSERVABILITY.complete, receipts: BOUND_RECEIPTS });
+    try {
+      const written = await writeEnvelope(setup);
+      assert.equal(written.ok, true, written.stderr);
+      const seen = await reportAndMetrics(setup);
+      assert.match(seen.reportRow, /<td>ready-for-human-review<\/td>/);
+      assert.match(seen.html, /review-pending: 0/);
+      for (const receipt of ['tempo-trace-json', 'continuation-trace-correlation']) {
+        const samples = receiptSample(seen.rowMetrics, receipt);
+        assert.ok(samples.length > 0, seen.rowMetrics);
+        for (const sample of samples) assert.match(sample, /receipt_status="present"\} 1$/, sample);
+      }
+      assert.match(seen.rowMetrics, /failure_class="none"/);
+    } finally {
+      await setup.cleanup();
+    }
+  });
+});
+
 test('sibling path: a declared-trace row with no continuation surface owes its trace JSON on disk, not a correlation receipt', async (t) => {
   const manifest = readOnlyManifest();
   manifest.liveRunSafety.requiredReceipts = ['config-read', 'tempo-trace-json'];
@@ -807,6 +935,24 @@ test('sibling path: a declared-trace row with no continuation surface owes its t
       assert.equal(written.ok, true, written.stderr);
       assert.equal(written.envelope.review.complete, true);
       assert.equal(written.envelope.observability.correlationReceiptPresent, false);
+    } finally {
+      await setup.cleanup();
+    }
+  });
+  await t.test('positive control: an upper-case evidence trace ID binds the lower-cased JSON fetch-tempo-trace writes', async () => {
+    // run-proofs.sh keeps the evidence trace_id as emitted and names the file
+    // from it; fetch-tempo-trace.mjs stores the ID lower-cased.
+    const upper = 'ABCDEF0123456789ABCDEF0123456789';
+    const name = `tempo-trace-${upper.slice(0, 12)}.json`;
+    const setup = await candidateFixture({
+      manifest: structuredClone(manifest),
+      observability: { traceStatus: 'present', traceId: upper, tempoTraceJson: name, correlationReceipt: null },
+      receipts: { [name]: traceJsonBody(upper.toLowerCase()) },
+    });
+    try {
+      const written = await writeEnvelope(setup);
+      assert.equal(written.ok, true, written.stderr);
+      assert.equal(written.envelope.review.complete, true);
     } finally {
       await setup.cleanup();
     }

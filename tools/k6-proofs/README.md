@@ -332,13 +332,18 @@ its tool: `continuation-trace-correlation` for `continue_work` /
 `continue_delegate`, `tool-trace-correlation` otherwise. Unless the collector
 leaves a 32-hex trace id, the trace JSON and that receipt in the run directory,
 both receipts stay in `pendingReceipts`. A name in `run-result.json` is not a
-receipt: no writer or consumer of `candidate-run-result.json`, and not the
-review-debt summary, calls such a row review-complete unless both receipts are
-regular files in its run directory (no symlink, no path outside it) that bind
-to its trace ID. The trace JSON must carry that ID, and the correlation receipt
-must name that ID and that trace JSON. The check runs whenever completion is
-decided, so a receipt deleted or replaced after the runner finished, or a stale
-one left in a reused run directory, leaves the row review-pending again.
+receipt. A row counts as holding its trace only when both receipts are regular
+files in its run directory (no symlink, no path outside it) that bind to its
+trace ID: the trace JSON must carry that ID, and the correlation receipt must
+name that ID and that trace JSON. Until then, none of these calls the row
+review-complete or its trace receipts present: the envelope writer, the
+`candidate-run-result.json` consumer contract, the review-debt summary, the run
+report and both metrics exporters. The check runs whenever one of them reads
+the run, so a receipt deleted or replaced after the runner finished, or a stale
+one left in a reused run directory, makes the row review-pending again. The
+writer's refusal and review-debt name why each receipt is not held (`missing`,
+`symlink`, `unsafe-name`, `not-json`, `not-public-trace-projection`,
+`trace-id-mismatch`, `trace-json-mismatch`, `wrong-receipt-name`, ...).
 R-CD-2 is the one deliberate exception: its
 public result withholds the trace JSON and correlation receipt, and it may
 complete review only when its signed authority receipt was resolved from the

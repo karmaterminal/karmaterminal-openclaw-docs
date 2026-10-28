@@ -16,6 +16,7 @@ import {
   consumeRcd2Authority,
   isRcd2AuthorityRequired,
 } from '../lib/r-cd-2-authority-context.mjs';
+import { traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 
 function parseArgs(argv) {
@@ -179,7 +180,15 @@ function normalizeRun(root, resultPath) {
   const candidateOnly = authority?.candidateOnly ?? (result.candidateOnly !== false);
   const foldRequiresReview = authority?.foldRequiresReview ??
     (result.foldRequiresReview !== false);
-  const failureClass = result.failureClass || (result.k6ExitCode && result.k6ExitCode !== 0 ? 'postprocess' : 'none');
+  // A trace-required row's trace receipts are what its run directory holds
+  // (#600), not what its run result or row result claims.
+  const traceFindings = traceReceiptFindings(manifest, rawRunResult?.observability || result.observability, {
+    runDir,
+    traceHeldByAuthority: authority?.traceHeld === true,
+  });
+  const traceOwed = traceFindings.some((finding) => !finding.held);
+  const reportedFailureClass = result.failureClass || (result.k6ExitCode && result.k6ExitCode !== 0 ? 'postprocess' : 'none');
+  const failureClass = traceOwed && reportedFailureClass === 'none' ? 'missing-receipt' : reportedFailureClass;
   const proofFailures = result.metrics?.proofFailures ?? summary.metrics?.failures ?? (result.k6ExitCode === 0 ? 0 : 1);
   const durationMs = result.metrics?.durationMs ?? numberFromDuration(summary.metrics?.duration_ms);
   const checksRate = result.metrics?.checksRate ?? (result.k6ExitCode === 0 ? 1 : null);
@@ -218,6 +227,12 @@ function normalizeRun(root, resultPath) {
     [];
   for (const name of pending) {
     if (!receipts.some((r) => r.name === name)) receipts.push({ name, required: true, status: 'missing' });
+  }
+  for (const { receipt: name, held } of traceFindings) {
+    const status = held ? 'present' : 'missing';
+    const index = receipts.findIndex((r) => r.name === name);
+    if (index >= 0) receipts[index] = { ...receipts[index], status };
+    else receipts.push({ name, required: true, status });
   }
   for (const receipt of receipts) {
     const status = receipt.status || 'unknown';

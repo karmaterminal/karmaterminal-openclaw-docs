@@ -11,8 +11,9 @@
 //
 // This module is the one owner of that decision. run-proofs.sh (through
 // scripts/continuation-trace-requirement.mjs), the candidate-run-result writer
-// and consumer contract, the review-debt summary and the manifest checker all
-// call it; none of them restates the predicate.
+// and consumer contract, the review-debt summary, the run report, both metrics
+// exporters and the manifest checker all call it; none of them restates the
+// predicate.
 //
 // A receipt name is not a receipt. A row holds its trace only when the trace
 // JSON and correlation receipt its result names are regular files in its run
@@ -134,78 +135,123 @@ function traceIdKey(value) {
 }
 
 /**
- * Parse receipt `name` from the run directory, or null when it is not a regular
- * file there. A symlink is refused wherever it points; O_NOFOLLOW also refuses
- * one swapped in after the lstat.
+ * Read receipt `name` from the run directory as `{ value }`, or `{ reason }`
+ * when it is not a regular file there holding JSON. A symlink is refused
+ * wherever it points; O_NOFOLLOW also refuses one swapped in after the lstat.
+ * Reasons are a fixed public-safe vocabulary, never a path or an error text.
  */
 function readRunDirJson(runDir, name) {
-  if (typeof name !== 'string' || !RUN_DIR_FILE_NAME.test(name)) return null;
+  if (typeof name !== 'string' || !name) return { reason: 'not-named' };
+  if (!RUN_DIR_FILE_NAME.test(name)) return { reason: 'unsafe-name' };
   const file = path.join(runDir, name);
   let fd;
   try {
-    if (!lstatSync(file).isFile()) return null;
-    fd = openSync(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
-    if (!fstatSync(fd).isFile()) return null;
-    return JSON.parse(readFileSync(fd, 'utf8'));
-  } catch {
-    return null;
+    let stat;
+    try {
+      stat = lstatSync(file);
+    } catch (error) {
+      return { reason: error?.code === 'ENOENT' ? 'missing' : 'unreadable' };
+    }
+    if (stat.isSymbolicLink()) return { reason: 'symlink' };
+    if (!stat.isFile()) return { reason: 'not-a-regular-file' };
+    try {
+      fd = openSync(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    } catch (error) {
+      if (error?.code === 'ELOOP') return { reason: 'symlink' };
+      return { reason: error?.code === 'ENOENT' ? 'missing' : 'unreadable' };
+    }
+    if (!fstatSync(fd).isFile()) return { reason: 'not-a-regular-file' };
+    let raw;
+    try {
+      raw = readFileSync(fd, 'utf8');
+    } catch {
+      return { reason: 'unreadable' };
+    }
+    try {
+      return { value: JSON.parse(raw) };
+    } catch {
+      return { reason: 'not-json' };
+    }
   } finally {
     if (fd !== undefined) closeSync(fd);
   }
 }
 
-/** The trace JSON is the public projection of `traceId`: at the top and on every span. */
-function traceJsonBinds(trace, traceId) {
-  return trace?.schema === PUBLIC_TEMPO_TRACE_SCHEMA &&
-    traceIdKey(trace.traceId) === traceId &&
-    Array.isArray(trace.spans) &&
-    trace.spans.every((span) => traceIdKey(span?.traceId) === traceId);
-}
-
-/** The collector's correlation receipt names `traceId` and the trace JSON it wrote beside it. */
-function correlationBinds(receipt, traceId, traceJson) {
-  return traceIdKey(receipt?.traceId) === traceId &&
-    typeof receipt.traceJson === 'string' &&
-    receipt.traceJson === traceJson;
+/** Why the trace JSON does not hold `traceId`, or null when it does. */
+function traceJsonProblem(runDir, name, traceId) {
+  const read = readRunDirJson(runDir, name);
+  if (read.reason) return read.reason;
+  const trace = read.value;
+  if (trace?.schema !== PUBLIC_TEMPO_TRACE_SCHEMA || !Array.isArray(trace.spans)) return 'not-public-trace-projection';
+  // The public projection of `traceId`: at the top and on every span.
+  if (traceIdKey(trace.traceId) !== traceId || !trace.spans.every((span) => traceIdKey(span?.traceId) === traceId)) {
+    return 'trace-id-mismatch';
+  }
+  return null;
 }
 
 /**
- * Trace receipts a run still owes, given its raw run-result observability
- * block (`traceId`, `tempoTraceJson`, `correlationReceipt`) and the run
- * directory those names resolve in.
+ * Why the correlation receipt does not bind, or null when it does: it must be
+ * the file the collector writes for this row's tool, naming `traceId` and the
+ * trace JSON it wrote beside it.
+ */
+function correlationProblem(runDir, name, expectedName, traceId, traceJson) {
+  if (typeof name === 'string' && RUN_DIR_FILE_NAME.test(name) && name !== expectedName) return 'wrong-receipt-name';
+  const read = readRunDirJson(runDir, name);
+  if (read.reason) return read.reason;
+  const receipt = read.value;
+  if (traceIdKey(receipt?.traceId) !== traceId) return 'trace-id-mismatch';
+  if (typeof receipt.traceJson !== 'string' || receipt.traceJson !== traceJson) return 'trace-json-mismatch';
+  return null;
+}
+
+/**
+ * Whether a run holds each trace receipt it owes, given its raw run-result
+ * observability block (`traceId`, `tempoTraceJson`, `correlationReceipt`) and
+ * the run directory those names resolve in: `[{ receipt, held, reason }]` in
+ * the order of `traceRequirement(manifest).receipts`, `reason` null when held.
+ * Empty when the row owes no trace or its authority holds it.
  *
  * The trace JSON is held only when it is a regular file in `runDir` whose
  * public projection carries the result's `traceId`. The correlation receipt is
  * held only when it is the file the collector writes for this row's tool, a
  * regular file in `runDir`, naming that same trace ID and that trace JSON. A
- * deleted, replaced, stale, escaping or symlinked receipt is owed. Whether a
- * trace-required row holds its receipts cannot be decided without its run
+ * deleted, replaced, stale, escaping or symlinked receipt is not held. Whether
+ * a trace-required row holds its receipts cannot be decided without its run
  * directory, so a missing `runDir` throws rather than trusting the names.
  *
  * `traceHeldByAuthority` is for a row whose signed authoritative receipt
  * consumed the trace and correlation and deliberately withholds them from the
  * public result (R-CD-2). Its owner decides; this module only honours it.
  */
-export function traceReviewDebt(manifest, observability, { runDir, traceHeldByAuthority = false } = {}) {
+export function traceReceiptFindings(manifest, observability, { runDir, traceHeldByAuthority = false } = {}) {
   const requirement = traceRequirement(manifest);
   if (!requirement.required || traceHeldByAuthority === true) return [];
   if (typeof runDir !== 'string' || !runDir) {
-    throw new TypeError('traceReviewDebt needs the run directory: a trace receipt counts only as a file there');
+    throw new TypeError('trace receipts need the run directory: a trace receipt counts only as a file there');
   }
   const traceId = traceIdKey(observability?.traceId);
   const traceJson = observability?.tempoTraceJson;
-  const debt = [];
-  if (!traceId || !traceJsonBinds(readRunDirJson(runDir, traceJson), traceId)) {
-    debt.push(TEMPO_TRACE_RECEIPT);
-  }
+  const findings = [{
+    receipt: TEMPO_TRACE_RECEIPT,
+    reason: traceId ? traceJsonProblem(runDir, traceJson, traceId) : 'no-trace-id',
+  }];
   if (requirement.continuation) {
-    const name = observability?.correlationReceipt;
-    if (!traceId || name !== `${requirement.correlationReceipt}.json` ||
-        !correlationBinds(readRunDirJson(runDir, name), traceId, traceJson)) {
-      debt.push(requirement.correlationReceipt);
-    }
+    findings.push({
+      receipt: requirement.correlationReceipt,
+      reason: traceId
+        ? correlationProblem(runDir, observability?.correlationReceipt, `${requirement.correlationReceipt}.json`, traceId, traceJson)
+        : 'no-trace-id',
+    });
   }
-  return debt;
+  return findings.map(({ receipt, reason }) => ({ receipt, held: reason === null, reason }));
+}
+
+/** Trace receipts a run still owes: the receipts traceReceiptFindings does not find held. */
+export function traceReviewDebt(manifest, observability, options = {}) {
+  return traceReceiptFindings(manifest, observability, options)
+    .filter((finding) => !finding.held)
+    .map((finding) => finding.receipt);
 }
 
 /**

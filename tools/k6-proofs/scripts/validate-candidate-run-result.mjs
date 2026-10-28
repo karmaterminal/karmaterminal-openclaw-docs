@@ -15,7 +15,7 @@ import {
   R_CD_2_VERDICT_SOURCE,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
-import { traceReviewDebt } from '../lib/continuation-trace-requirement.mjs';
+import { traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
 import { COPIED_MANIFEST, COPIED_SCENARIO, isSafeArtifactReference, isSafeCandidateArtifact } from './candidate-run-result-contract.mjs';
 import { consumeRunReadiness } from './run-readiness-consumer.mjs';
 
@@ -289,12 +289,14 @@ async function main() {
   // receipt, and this directory may predate or outlive the runner's own check.
   // R-CD-2's signed authority holds the trace it withholds from the public
   // result.
-  const traceDebt = traceReviewDebt(manifest, observability, {
+  const traceDebt = traceReceiptFindings(manifest, observability, {
     runDir: candidateDir,
     traceHeldByAuthority: rCd2Authority?.traceHeld === true,
-  });
+  }).filter((finding) => !finding.held);
   if (traceDebt.length) {
-    throw new Error(`candidate run is review-incomplete: trace-required row still owes ${traceDebt.join(', ')} (Tempo trace requirement)`);
+    throw new Error(`candidate run is review-incomplete: trace-required row still owes ${
+      traceDebt.map((finding) => finding.receipt).join(', ')} (Tempo trace requirement); ${
+      traceDebt.map((finding) => `${finding.receipt}: ${finding.reason}`).join(', ')}`);
   }
   const artifacts = {
     manifest: COPIED_MANIFEST,

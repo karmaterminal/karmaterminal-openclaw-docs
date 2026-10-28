@@ -314,6 +314,22 @@ test('a collector that exits 0 leaving receipts that do not bind to its trace id
     const summary = JSON.parse(stdout);
     assert.equal(summary.pendingRows, 1, JSON.stringify(summary, null, 2));
     assert.deepEqual([...summary.pending[0].pendingReceipts].sort(), ['continuation-trace-correlation', 'tempo-trace-json']);
+    // The report and per-row metrics the runner itself wrote for this matrix.
+    const html = await readFile(path.join(fixture.outDir, 'report.html'), 'utf8');
+    const row = html.split('\n').find((line) => line.startsWith('<tr><td>R-CW-DELEGATE-SELF-CONTINUATION</td>'));
+    assert.ok(row, html);
+    assert.match(row, /<td>review-pending<\/td>/);
+    assert.match(row, /tempo-trace-json: missing/);
+    assert.match(row, /continuation-trace-correlation: missing/);
+    const prom = await readFile(path.join(fixture.runDir, 'openclaw-proofs-k6.prom'), 'utf8');
+    for (const receipt of ['tempo-trace-json', 'continuation-trace-correlation']) {
+      const samples = prom.split('\n').filter((line) =>
+        line.startsWith('openclaw_proofs_k6_receipt_status{') && line.includes(`receipt_name="${receipt}"`));
+      assert.ok(samples.length > 0, prom);
+      for (const sample of samples) assert.match(sample, /receipt_status="missing"\} 0$/, sample);
+    }
+    // Why: both files exist but describe another trace.
+    assert.deepEqual(summary.pending[0].pending.map((item) => item.reason), ['trace-id-mismatch', 'trace-id-mismatch']);
   } finally {
     await fixture.cleanup();
   }

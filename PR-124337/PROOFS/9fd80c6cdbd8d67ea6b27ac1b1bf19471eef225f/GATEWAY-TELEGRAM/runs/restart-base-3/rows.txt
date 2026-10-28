@@ -1,0 +1,9 @@
+== rows queued 03:29:17Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002	MSG-BTN	claimed	attempts=0	last_error=	failed_reason=
+== rows after-shutdown 03:29:41Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002	MSG-BTN	pending	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows final 03:33:33Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002		completed	attempts=1	last_error=	failed_reason=

@@ -1,0 +1,14 @@
+label=cancel-head-1 tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0 start=02:51:05Z netns=net:[4026535205] ifaces=lo,
+gateway#1 up health+poll 5s state={"polls":2,"lastPollAt":"2026-10-25T02:51:17.438Z","pending":[],"keyboards":[]} 02:51:18Z
+text 'HOLD-1 keep the turn busy' 02:51:23Z
+keyboard message_id=102 02:51:26Z
+press message_id=102 02:51:29Z
+text '/stop' 02:51:37Z
+markup-edits on K before redelivery: 0
+SUBMIT not replied within 90 s of stop
+after stop: handler invocations=1 answers cbq-1=2 markup-edits on K=0 keyboards=[102]
+second press message_id=102 02:53:17Z
+SUBMIT replied 02:55:20Z
+final: handler invocations=2 markup-edits on K=1 SUBMIT sends=1 keyboards=[]
+gateway#1 stopped 02:55:31Z
+end=02:55:31Z tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0

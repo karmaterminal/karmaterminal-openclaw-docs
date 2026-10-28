@@ -1,0 +1,44 @@
+{
+  "gateway": { "mode": "local", "bind": "loopback", "port": __GWPORT__, "auth": { "mode": "token" } },
+  "tools": { "exec": { "mode": "full" }, "web": { "search": { "enabled": false } } },
+  "messages": {
+    "queue": { "mode": "followup", "cap": 1, "drop": "old" },
+    "inbound": { "debounceMs": 0 },
+    "visibleReplies": "automatic"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "123456789:AAproof-fake-token-not-a-credential",
+      "apiRoot": "http://127.0.0.1:__MOCKPORT__",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["5000000001"],
+      "commands": { "native": false, "nativeSkills": false }
+    }
+  },
+  "plugins": {
+    "load": { "paths": ["__PLUGIN__"] },
+    "entries": {
+      "telegram": { "enabled": true },
+      "proof-interactive": { "enabled": true },
+      "codex": {
+        "enabled": true,
+        "config": {
+          "appServer": {
+            "command": "__CODEX__",
+            "homeScope": "agent",
+            "args": ["app-server", "-c", "openai_base_url=\"http://127.0.0.1:__PROVPORT__/v1\""]
+          }
+        }
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "__STATE__/workspace",
+      "model": { "primary": "openai/gpt-5.6-sol" },
+      "models": { "openai/gpt-5.6-sol": { "agentRuntime": { "id": "codex" } } }
+    }
+  },
+  "logging": { "file": "__STATE__/gateway-file.log" }
+}

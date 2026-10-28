@@ -306,9 +306,12 @@ export function candidateEnvelopeMatchesSiblings({
   if (envelope.observability?.traceCaptured !== Boolean(rawObservability.traceId)) return false;
   if (envelope.observability?.correlationReceiptPresent !== Boolean(rawObservability.correlationReceipt)) return false;
   // review.complete is never true for a trace-required row that does not hold
-  // its Tempo trace and correlation receipt (#600). The writer refuses such an
-  // envelope; a consumer must not accept one written by anything else.
+  // its Tempo trace and correlation receipt (#600): both files in runDir, bound
+  // to the result's trace ID. The writer refuses such an envelope; a consumer
+  // must not accept one written by anything else, nor one whose receipts were
+  // deleted or replaced after it was written.
   if (traceReviewDebt(manifest, rawObservability, {
+    runDir,
     traceHeldByAuthority: rCd2Authority?.traceHeld === true,
   }).length) return false;
   return true;

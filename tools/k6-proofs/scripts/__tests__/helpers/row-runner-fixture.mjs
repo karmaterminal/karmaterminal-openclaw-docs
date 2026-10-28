@@ -21,7 +21,9 @@ import { attachReadinessGateway } from './readiness-gateway.mjs';
 const run = promisify(execFile);
 
 export const RUNNER_CANDIDATE_SHA = 'a'.repeat(40);
-const TOKEN = 'row-runner-fixture-token';
+/** Gateway token the fixture signs readiness with; the envelope writer needs it to re-validate a run. */
+export const RUNNER_GATEWAY_TOKEN = 'row-runner-fixture-token';
+const TOKEN = RUNNER_GATEWAY_TOKEN;
 const SEAT = 'cael-dgx';
 
 async function writeExecutable(file, source) {
@@ -120,6 +122,7 @@ export async function runRowThroughRunner(repoRoot, { rowId, evidence, vuVerdict
     });
     return {
       root,
+      outDir: out,
       runDir,
       result,
       tempoRequests,

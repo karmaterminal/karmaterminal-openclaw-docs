@@ -146,8 +146,10 @@ async function loadRows(root) {
     // structural trace gate reported such rows ready for review. The
     // requirement comes from the run's own row-manifest.json, which the runner
     // has copied into every run directory since 054ec33f; a raw result without
-    // it carries no row contract and is reported as written.
+    // it carries no row contract and is reported as written. A receipt the
+    // result names counts only as a bound file in this run directory.
     const traceDebt = traceReviewDebt(manifest, raw.observability, {
+      runDir: dir,
       traceHeldByAuthority: authority?.traceHeld === true,
     }).filter((receipt) => !pendingReceipts.includes(receipt));
     pendingReceipts.push(...traceDebt);

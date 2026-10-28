@@ -284,9 +284,13 @@ async function main() {
     )) throw new Error('R-CD-TOKEN authoritative receipt build identity mismatch');
   }
   // A trace-required row is review-incomplete until it holds its Tempo trace
-  // and correlation receipt (#600), whatever its pending list says. R-CD-2's
-  // signed authority holds the trace it withholds from the public result.
+  // and correlation receipt (#600), whatever its pending list says: both files
+  // in this directory, bound to the result's trace ID. A name alone is not a
+  // receipt, and this directory may predate or outlive the runner's own check.
+  // R-CD-2's signed authority holds the trace it withholds from the public
+  // result.
   const traceDebt = traceReviewDebt(manifest, observability, {
+    runDir: candidateDir,
     traceHeldByAuthority: rCd2Authority?.traceHeld === true,
   });
   if (traceDebt.length) {

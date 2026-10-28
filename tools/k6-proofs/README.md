@@ -331,9 +331,15 @@ owes `tempo-trace-json` plus the correlation receipt the collector writes for
 its tool: `continuation-trace-correlation` for `continue_work` /
 `continue_delegate`, `tool-trace-correlation` otherwise. Unless the collector
 leaves a 32-hex trace id, the trace JSON and that receipt in the run directory,
-both receipts stay in `pendingReceipts`, and no writer or consumer of
-`candidate-run-result.json` calls such a row review-complete while its trace or
-correlation receipt is missing. R-CD-2 is the one deliberate exception: its
+both receipts stay in `pendingReceipts`. A name in `run-result.json` is not a
+receipt: no writer or consumer of `candidate-run-result.json`, and not the
+review-debt summary, calls such a row review-complete unless both receipts are
+regular files in its run directory (no symlink, no path outside it) that bind
+to its trace ID. The trace JSON must carry that ID, and the correlation receipt
+must name that ID and that trace JSON. The check runs whenever completion is
+decided, so a receipt deleted or replaced after the runner finished, or a stale
+one left in a reused run directory, leaves the row review-pending again.
+R-CD-2 is the one deliberate exception: its
 public result withholds the trace JSON and correlation receipt, and it may
 complete review only when its signed authority receipt was resolved from the
 collector's authenticated acquisition receipt with a valid trace id. That

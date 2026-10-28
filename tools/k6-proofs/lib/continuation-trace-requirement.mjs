@@ -14,7 +14,15 @@
 // and consumer contract, the review-debt summary and the manifest checker all
 // call it; none of them restates the predicate.
 //
+// A receipt name is not a receipt. A row holds its trace only when the trace
+// JSON and correlation receipt its result names are regular files in its run
+// directory that bind to its trace ID, checked whenever completion is decided,
+// not only when the runner wrote them.
+//
 // Node only, dependency-free.
+
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 
 /** Typed continuation tools. Firing one is what makes a row owe a trace. */
 export const CONTINUATION_TOOLS = Object.freeze(['continue_work', 'continue_delegate', 'request_compaction']);
@@ -110,27 +118,92 @@ export function isTraceRequired(manifest) {
   return traceRequirement(manifest).required;
 }
 
-function nonEmptyString(value) {
-  return typeof value === 'string' && value.trim().length > 0;
+/** The public trace projection both trace writers emit (lib/public-tempo-trace.mjs). */
+const PUBLIC_TEMPO_TRACE_SCHEMA = 'openclaw.k6.public-tempo-trace.v1';
+
+/**
+ * A receipt name resolves only to a file directly in the run directory: the
+ * envelope's artifact-name rule (no separator, no leading dot, so no `..` and
+ * no absolute path).
+ */
+const RUN_DIR_FILE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+/** fetch-tempo-trace.mjs's trace ID rule; both trace writers store the ID lowercased. */
+function traceIdKey(value) {
+  return typeof value === 'string' && /^[0-9a-f]{8,64}$/iu.test(value) ? value.toLowerCase() : null;
 }
 
 /**
- * Trace receipts a run still owes, given the raw run-result observability
- * block (`traceId`, `tempoTraceJson`, `correlationReceipt`).
+ * Parse receipt `name` from the run directory, or null when it is not a regular
+ * file there. A symlink is refused wherever it points; O_NOFOLLOW also refuses
+ * one swapped in after the lstat.
+ */
+function readRunDirJson(runDir, name) {
+  if (typeof name !== 'string' || !RUN_DIR_FILE_NAME.test(name)) return null;
+  const file = path.join(runDir, name);
+  let fd;
+  try {
+    if (!lstatSync(file).isFile()) return null;
+    fd = openSync(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    if (!fstatSync(fd).isFile()) return null;
+    return JSON.parse(readFileSync(fd, 'utf8'));
+  } catch {
+    return null;
+  } finally {
+    if (fd !== undefined) closeSync(fd);
+  }
+}
+
+/** The trace JSON is the public projection of `traceId`: at the top and on every span. */
+function traceJsonBinds(trace, traceId) {
+  return trace?.schema === PUBLIC_TEMPO_TRACE_SCHEMA &&
+    traceIdKey(trace.traceId) === traceId &&
+    Array.isArray(trace.spans) &&
+    trace.spans.every((span) => traceIdKey(span?.traceId) === traceId);
+}
+
+/** The collector's correlation receipt names `traceId` and the trace JSON it wrote beside it. */
+function correlationBinds(receipt, traceId, traceJson) {
+  return traceIdKey(receipt?.traceId) === traceId &&
+    typeof receipt.traceJson === 'string' &&
+    receipt.traceJson === traceJson;
+}
+
+/**
+ * Trace receipts a run still owes, given its raw run-result observability
+ * block (`traceId`, `tempoTraceJson`, `correlationReceipt`) and the run
+ * directory those names resolve in.
+ *
+ * The trace JSON is held only when it is a regular file in `runDir` whose
+ * public projection carries the result's `traceId`. The correlation receipt is
+ * held only when it is the file the collector writes for this row's tool, a
+ * regular file in `runDir`, naming that same trace ID and that trace JSON. A
+ * deleted, replaced, stale, escaping or symlinked receipt is owed. Whether a
+ * trace-required row holds its receipts cannot be decided without its run
+ * directory, so a missing `runDir` throws rather than trusting the names.
  *
  * `traceHeldByAuthority` is for a row whose signed authoritative receipt
  * consumed the trace and correlation and deliberately withholds them from the
  * public result (R-CD-2). Its owner decides; this module only honours it.
  */
-export function traceReviewDebt(manifest, observability, { traceHeldByAuthority = false } = {}) {
+export function traceReviewDebt(manifest, observability, { runDir, traceHeldByAuthority = false } = {}) {
   const requirement = traceRequirement(manifest);
   if (!requirement.required || traceHeldByAuthority === true) return [];
+  if (typeof runDir !== 'string' || !runDir) {
+    throw new TypeError('traceReviewDebt needs the run directory: a trace receipt counts only as a file there');
+  }
+  const traceId = traceIdKey(observability?.traceId);
+  const traceJson = observability?.tempoTraceJson;
   const debt = [];
-  if (!nonEmptyString(observability?.traceId) || !nonEmptyString(observability?.tempoTraceJson)) {
+  if (!traceId || !traceJsonBinds(readRunDirJson(runDir, traceJson), traceId)) {
     debt.push(TEMPO_TRACE_RECEIPT);
   }
-  if (requirement.continuation && !nonEmptyString(observability?.correlationReceipt)) {
-    debt.push(requirement.correlationReceipt);
+  if (requirement.continuation) {
+    const name = observability?.correlationReceipt;
+    if (!traceId || name !== `${requirement.correlationReceipt}.json` ||
+        !correlationBinds(readRunDirJson(runDir, name), traceId, traceJson)) {
+      debt.push(requirement.correlationReceipt);
+    }
   }
   return debt;
 }

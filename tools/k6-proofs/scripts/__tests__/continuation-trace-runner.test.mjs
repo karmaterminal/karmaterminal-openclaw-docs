@@ -8,13 +8,19 @@
 // `tempo-trace` and R-CW-DELEGATE-SELF named none.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { cp, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runRowThroughRunner } from './helpers/row-runner-fixture.mjs';
+import { promisify } from 'node:util';
+import { candidateEnvelopeMatchesSiblings } from '../candidate-run-result-contract.mjs';
+import { RUNNER_CANDIDATE_SHA, RUNNER_GATEWAY_TOKEN, runRowThroughRunner } from './helpers/row-runner-fixture.mjs';
 
+const runNode = promisify(execFile);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
+const writer = path.join(repoRoot, 'tools/k6-proofs/scripts/validate-candidate-run-result.mjs');
+const reviewDebt = path.join(repoRoot, 'tools/k6-proofs/scripts/summarize-review-debt.mjs');
 const traceId = '7'.repeat(32);
 const dispatchAt = Date.parse('2026-10-28T10:16:40.000Z');
 
@@ -275,3 +281,159 @@ test('a collector that exits 0 without a trace and its correlation receipt is no
     });
   }
 });
+
+test('a collector that exits 0 leaving receipts that do not bind to its trace id gets no envelope', async () => {
+  // The runner's own check sees a 32-hex trace id and both files, correctly
+  // named and non-empty, so it records the trace as present. Only the writer's
+  // binding check can tell that both files describe another trace.
+  const traceFile = `tempo-trace-${traceId.slice(0, 12)}.json`;
+  const otherTraceId = '3'.repeat(32);
+  const fixture = await runRowThroughRunner(repoRoot, {
+    rowId: 'R-CW-DELEGATE-SELF-CONTINUATION',
+    evidence: DELEGATE_SELF_EVIDENCE,
+    tempo: tempoUnavailable,
+    beforeCommit: stubCollector({
+      stdout: `${JSON.stringify({ traceId, traceFile, receiptFile: 'continuation-trace-correlation.json' })}\n`,
+      files: {
+        [traceFile]: `${JSON.stringify({ schema: 'openclaw.k6.public-tempo-trace.v1', traceId: otherTraceId, spans: [] })}\n`,
+        'continuation-trace-correlation.json': `${JSON.stringify({
+          schema: 'openclaw.k6.continuation-trace-correlation.v1',
+          traceId: otherTraceId,
+          traceJson: traceFile,
+        })}\n`,
+      },
+    }),
+  });
+  try {
+    const { runResult } = fixture;
+    assert.equal(runResult.observability.traceStatus, 'present', 'precondition: the runner check alone accepts these files');
+    assert.equal(runResult.observability.traceId, traceId);
+    assert.deepEqual(runResult.review.pendingReceipts, []);
+    assertNoCompleteEnvelope(fixture);
+    const { stdout } = await runNode(process.execPath, [reviewDebt, '--run-root', fixture.outDir, '--json'], { encoding: 'utf8' });
+    const summary = JSON.parse(stdout);
+    assert.equal(summary.pendingRows, 1, JSON.stringify(summary, null, 2));
+    assert.deepEqual([...summary.pending[0].pendingReceipts].sort(), ['continuation-trace-correlation', 'tempo-trace-json']);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// After the runner (#601 review at b1fffb1e75): the collector-file check in
+// run-proofs.sh only holds at the moment the runner writes the envelope. A
+// receipt deleted afterwards, or a writer re-run on the same directory, must
+// not leave the run looking complete.
+// ---------------------------------------------------------------------------
+
+/** Re-run the envelope writer on a finished run directory, as the runner does. */
+async function rewriteEnvelope(runDir) {
+  const metadata = JSON.parse(await readFile(path.join(runDir, 'runner-metadata.json'), 'utf8'));
+  try {
+    const { stdout } = await runNode(process.execPath, [
+      writer,
+      '--manifest', path.join(runDir, 'row-manifest.json'),
+      '--candidate-dir', runDir,
+      '--docs-ref', metadata.docsRef,
+      '--out', path.join(runDir, 'candidate-run-result.json'),
+    ], { encoding: 'utf8', env: { ...process.env, OPENCLAW_GATEWAY_TOKEN: RUNNER_GATEWAY_TOKEN } });
+    return { ok: true, envelope: JSON.parse(stdout) };
+  } catch (error) {
+    if (typeof error.code !== 'number') throw error;
+    return { ok: false, stderr: error.stderr };
+  }
+}
+
+/**
+ * Pin the row manifest to the exact candidate SHA in the throwaway harness.
+ * Committed manifests carry the `${OPENCLAW_CANDIDATE_SHA}` template, which the
+ * consumer contract compares literally and so refuses every runner envelope for
+ * them, a separate disagreement with the writer outside #600. The exact SHA is
+ * the schema's own form and keeps the consumer's verdict here on the receipts.
+ */
+function pinCandidateSha(file) {
+  return async ({ proofsDir }) => {
+    const manifestPath = path.join(proofsDir, 'manifests', file);
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    manifest.candidateSha = RUNNER_CANDIDATE_SHA;
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  };
+}
+
+async function onDiskSiblings(runDir) {
+  const read = async (name) => JSON.parse(await readFile(path.join(runDir, name), 'utf8'));
+  return {
+    envelope: await read('candidate-run-result.json'),
+    manifest: await read('row-manifest.json'),
+    metadata: await read('runner-metadata.json'),
+    runResult: await read('run-result.json'),
+    runDir,
+  };
+}
+
+for (const { rowId, manifestFile, evidence, trace, correlation } of [
+  {
+    rowId: 'R-CW-TOKEN',
+    manifestFile: 'r-cw-token.json',
+    evidence: evidenceFor('R-CW-TOKEN', { hop_2_executed: true }),
+    trace: async () => sessionsSpawnTrace(),
+    correlation: 'tool-trace-correlation',
+  },
+  {
+    rowId: 'R-CW-DELEGATE-SELF-CONTINUATION',
+    manifestFile: 'r-cw-delegate-self.json',
+    evidence: DELEGATE_SELF_EVIDENCE,
+    trace: async () => delegateSelfTrace(
+      DELEGATE_SELF_EVIDENCE,
+      JSON.parse(await readFile(path.join(repoRoot, 'tools/k6-proofs/manifests/r-cw-delegate-self.json'), 'utf8')),
+    ),
+    correlation: 'continuation-trace-correlation',
+  },
+]) {
+  test(`${rowId}: a receipt deleted after a successful runner result leaves the run review-incomplete`, async (t) => {
+    const fixture = await runRowThroughRunner(repoRoot, {
+      rowId,
+      evidence,
+      tempo: tempoServing(await trace()),
+      beforeCommit: pinCandidateSha(manifestFile),
+    });
+    try {
+      assert.ok(fixture.envelope, `precondition: the runner writes a complete envelope: ${fixture.result.stderr}`);
+      assert.equal(fixture.envelope.review.complete, true);
+      const { tempoTraceJson, correlationReceipt } = fixture.runResult.observability;
+      assert.equal(correlationReceipt, `${correlation}.json`);
+      for (const [removed, owed] of [[tempoTraceJson, 'tempo-trace-json'], [correlationReceipt, correlation]]) {
+        await t.test(`${owed} deleted`, async () => {
+          // A copy of the finished run directory under the same run id.
+          const copyRoot = path.join(fixture.root, `deleted-${owed}`);
+          const runDir = path.join(copyRoot, path.relative(fixture.outDir, fixture.runDir));
+          await cp(fixture.runDir, runDir, { recursive: true });
+          assert.equal(candidateEnvelopeMatchesSiblings(await onDiskSiblings(runDir)), true, 'positive control on the copy');
+          await rm(path.join(runDir, removed));
+
+          // Consumer: the envelope the runner wrote no longer stands.
+          assert.equal(candidateEnvelopeMatchesSiblings(await onDiskSiblings(runDir)), false);
+          // review-debt routes the run with exactly the receipt it lost.
+          const { stdout } = await runNode(process.execPath, [reviewDebt, '--run-root', copyRoot, '--json'], { encoding: 'utf8' });
+          const summary = JSON.parse(stdout);
+          assert.equal(summary.pendingRows, 1, JSON.stringify(summary, null, 2));
+          assert.equal(summary.pending[0].reviewStatus, 'review-pending');
+          assert.deepEqual(summary.pending[0].pendingReceipts, [owed]);
+          // Writer: a re-run on the same directory refuses to call it complete.
+          const rewritten = await rewriteEnvelope(runDir);
+          assert.equal(rewritten.ok, false, `writer re-run emitted complete=${rewritten.envelope?.review?.complete}`);
+          assert.match(rewritten.stderr, new RegExp(`still owes ${owed} \\(Tempo trace requirement\\)`));
+
+          // Recovery: the same receipt restored binds again at both boundaries.
+          await cp(path.join(fixture.runDir, removed), path.join(runDir, removed));
+          const recovered = await rewriteEnvelope(runDir);
+          assert.equal(recovered.ok, true, recovered.stderr);
+          assert.equal(recovered.envelope.review.complete, true);
+          assert.equal(candidateEnvelopeMatchesSiblings(await onDiskSiblings(runDir)), true);
+        });
+      }
+    } finally {
+      await fixture.cleanup();
+    }
+  });
+}

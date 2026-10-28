@@ -324,6 +324,21 @@ correlation failures are kept non-fatal by default and leave
 `tempo-trace-json` review-pending. Set `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true`
 only when a missing trace JSON should fail the run.
 
+Which rows owe a trace is structural, not a receipt spelling (#600). A row that
+fires `continue_work`, `continue_delegate` or `request_compaction`, or whose
+`toolSurface` is `token`/`bracket-token`, always runs the trace collector and
+owes `tempo-trace-json` plus the correlation receipt the collector writes for
+its tool: `continuation-trace-correlation` for `continue_work` /
+`continue_delegate`, `tool-trace-correlation` otherwise. Unless the collector
+leaves a 32-hex trace id, the trace JSON and that receipt in the run directory,
+both receipts stay in `pendingReceipts`, and no writer or consumer of
+`candidate-run-result.json` calls such a row review-complete while its trace or
+correlation receipt is missing. R-CD-2 is the one exception by construction:
+its signed authority receipt consumes the trace and must hold it. The rule is
+owned by `lib/continuation-trace-requirement.mjs`; the VU or summary verdict is
+never changed by it. `check-proof-row-manifests.mjs` refuses a continuation
+manifest that does not require both receipts, and the bare alias `tempo-trace`.
+
 For trace-required `continue_delegate` rows, the runner does not trust a
 missing or first-match trace ID. It derives the public-safe runtime fingerprint
 from the committed prompt template and evidence nonce, searches Tempo by

@@ -7,7 +7,7 @@
  * durable work scheduler, typed continue_work capture, and delegate dispatch
  * boundary from a disposable worktree. Missing receipts fail closed.
  */
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   existsSync,
@@ -19,6 +19,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
@@ -73,6 +74,7 @@ function publicVitestCommand(surface) {
     ...(includeFiles.length > 0 ? { includeFiles } : {}),
   };
 }
+
 // A candidate must name one fixed pnpm release.  Corepack-style integrity
 // suffixes are allowed only when they begin with `sha`; ranges, tags, and
 // alternate package managers never identify one executable version.
@@ -82,7 +84,11 @@ function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \\
   --source-dir <exact-candidate-worktree> \\
   --candidate-sha <40-hex-sha> \\
-  --artifact-dir <safe-output-dir> [--max-chain-length <integer-at-least-2>] [--json]`;
+  --artifact-dir <safe-output-dir> [--private-dir <private-diagnostics-dir>] \
+  [--max-chain-length <integer-at-least-2>] [--json]
+
+A failed proof surface leaves its raw output in --private-dir (default
+<artifact-dir>.private), never in the publishable artifact dir.`;
 }
 
 export function parseArgs(argv, env = process.env) {
@@ -92,6 +98,7 @@ export function parseArgs(argv, env = process.env) {
     artifactDir: env.OPENCLAW_RCW6_ARTIFACT_DIR || '',
     maxChainLength: Number(env.OPENCLAW_RCW6_MAX_CHAIN_LENGTH || DEFAULT_MAX_CHAIN_LENGTH),
     json: false,
+    ...(env.OPENCLAW_RCW6_PRIVATE_DIR ? { privateDir: env.OPENCLAW_RCW6_PRIVATE_DIR } : {}),
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -108,6 +115,7 @@ export function parseArgs(argv, env = process.env) {
     if (arg === '--source-dir') args.sourceDir = next();
     else if (arg === '--candidate-sha') args.candidateSha = next();
     else if (arg === '--artifact-dir') args.artifactDir = next();
+    else if (arg === '--private-dir') args.privateDir = next();
     else if (arg === '--max-chain-length') args.maxChainLength = Number(next());
     else throw new Error(`unexpected argument: ${arg}`);
   }
@@ -125,22 +133,22 @@ function assertArgs(args) {
   }
 }
 
+// Both streams are kept whatever the exit status: a proof run can exit 0 and
+// still fail its surface (for example, a filter that selects no test files).
 function run(command, args, options = {}) {
-  try {
-    const stdout = execFileSync(command, args, {
-      ...options,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    return { ok: true, exitCode: 0, stdout, stderr: '' };
-  } catch (error) {
-    return {
-      ok: false,
-      exitCode: typeof error.status === 'number' ? error.status : 1,
-      stdout: error.stdout?.toString() || '',
-      stderr: error.stderr?.toString() || error.message,
-    };
-  }
+  const child = spawnSync(command, args, {
+    ...options,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const ok = !child.error && child.status === 0;
+  return {
+    ok,
+    exitCode: typeof child.status === 'number' ? child.status : 1,
+    stdout: child.stdout || '',
+    stderr: child.stderr || (ok ? '' : child.error?.message || `${command} exited with status ${child.status}`),
+  };
 }
 
 function writeJson(file, value) {
@@ -431,33 +439,91 @@ export function verifyInstalledCandidateDependencies(worktreeDir, candidatePacka
   };
 }
 
-export function prepareArtifactDir(input) {
-  const artifactDir = path.resolve(input);
-  const parsed = path.parse(artifactDir);
+// A new or empty 0700 directory with no symlink anywhere on its path.
+function assertFreshPrivateDirectory(directory, label) {
+  const parsed = path.parse(directory);
   let componentPath = parsed.root;
-  for (const component of path.relative(parsed.root, artifactDir).split(path.sep)) {
+  for (const component of path.relative(parsed.root, directory).split(path.sep)) {
     if (!component) continue;
     componentPath = path.join(componentPath, component);
     if (!existsSync(componentPath)) break;
     if (lstatSync(componentPath).isSymbolicLink()) {
-      throw new Error('artifact dir path must not contain a symlink component');
+      throw new Error(`${label} path must not contain a symlink component`);
     }
   }
-  if (existsSync(artifactDir)) {
-    const stats = lstatSync(artifactDir);
-    if (!stats.isDirectory() || stats.isSymbolicLink()) {
-      throw new Error('artifact dir must be a real directory, not a file or symlink');
-    }
-    if ((stats.mode & 0o077) !== 0) {
-      throw new Error('artifact dir must not be group/world accessible (mode 0700 required)');
-    }
-    if (readdirSync(artifactDir).length !== 0) {
-      throw new Error('artifact dir must be empty; refusing to overwrite an earlier receipt');
-    }
-  } else {
+  if (!existsSync(directory)) return false;
+  const stats = lstatSync(directory);
+  if (!stats.isDirectory() || stats.isSymbolicLink()) {
+    throw new Error(`${label} must be a real directory, not a file or symlink`);
+  }
+  if ((stats.mode & 0o077) !== 0) {
+    throw new Error(`${label} must not be group/world accessible (mode 0700 required)`);
+  }
+  if (readdirSync(directory).length !== 0) {
+    throw new Error(`${label} must be empty; refusing to overwrite an earlier receipt`);
+  }
+  return true;
+}
+
+export function prepareArtifactDir(input) {
+  const artifactDir = path.resolve(input);
+  if (!assertFreshPrivateDirectory(artifactDir, 'artifact dir')) {
     mkdirSync(artifactDir, { recursive: true, mode: 0o700 });
   }
   return artifactDir;
+}
+
+export function privateDiagnosticsDirFor({ artifactDir, privateDir }) {
+  return path.resolve(privateDir || `${path.resolve(artifactDir)}.private`);
+}
+
+/**
+ * Validate where raw proof-surface output may be retained. The directory is
+ * created only when a surface fails, and never inside the publishable
+ * artifact dir (or around it).
+ */
+export function resolvePrivateDiagnosticsDir({ artifactDir, privateDir }) {
+  const resolvedArtifactDir = path.resolve(artifactDir);
+  const resolved = privateDiagnosticsDirFor({ artifactDir: resolvedArtifactDir, privateDir });
+  if (isPathInside(resolvedArtifactDir, resolved) || isPathInside(resolved, resolvedArtifactDir)) {
+    throw new Error('private diagnostics dir must be outside the public artifact dir');
+  }
+  assertFreshPrivateDirectory(resolved, 'private diagnostics dir');
+  return resolved;
+}
+
+const ANSI_ESCAPE = /\u001b\[[0-9;?]*[ -/]*[@-~]/gu;
+const FAILURE_SIGNAL = /\b(?:FAIL|Error|AssertionError|expected|Cannot find|No test files|Test Files|Tests)\b|[×→❯]/u;
+
+/**
+ * A public excerpt of a failed proof run: terminal escapes stripped, private
+ * paths and session identifiers replaced, the failure lines kept (or the
+ * tail when none match), bounded in count and width.
+ */
+export function sanitizeFailureExcerpt(raw, { replacements = [], maxLines = 40, maxLineLength = 240 } = {}) {
+  let text = String(raw).replaceAll(ANSI_ESCAPE, '').replaceAll('\r', '');
+  for (const [privatePath, placeholder] of replacements
+    .filter(([privatePath]) => privatePath)
+    .toSorted(([left], [right]) => right.length - left.length)) {
+    text = text.replaceAll(privatePath, placeholder);
+  }
+  text = text
+    // Vitest prints candidate module ids root-relative (/src/..., /test/...).
+    .replace(/(^|[\s("'=])\/((?:src|test|extensions|packages|apps|ui|scripts)\/)/gmu, '$1$2')
+    .replace(/(^|[\s("'=])\/(?:[^/\s"'()]+\/?)+/gmu, '$1<path>')
+    .replace(/(^|[\s("'=])[a-z]:[\\/](?:[^\\/\s"'()]+[\\/]?)+/gimu, '$1<path>')
+    .replace(/(^|[\s("'=])\\\\[^\\\s"'()]+\\[^\s"'()]+/gmu, '$1<path>')
+    .replace(/\bfile:\/\/\S+/giu, '<path>')
+    .replace(/(^|[\s("'=])~[\\/]\S*/gmu, '$1<path>')
+    .replace(/\bagent:[a-z0-9:_-]+/giu, '<session-key>');
+  const lines = text
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.trim() && !line.trim().startsWith('[sqlite-test-lifecycle]'));
+  const failureLines = lines.filter((line) => FAILURE_SIGNAL.test(line));
+  return (failureLines.length > 0 ? failureLines : lines.slice(-20))
+    .slice(0, maxLines)
+    .map((line) => (line.length > maxLineLength ? `${line.slice(0, maxLineLength - 1)}…` : line));
 }
 
 export function renderToolSurfaceTemplate(template, maxChainLength) {
@@ -700,6 +766,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       dispatchAssertions,
       selectedDelegateRun,
       selectedDelegateReceipt,
+      runtimeRun: test,
       runtimeReceipt,
       typedReceipt,
       candidateRuntime,
@@ -721,10 +788,56 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
   return { ...result, disposableWorktreeRemoved: true, privateWorktreePath: worktreeDir };
 }
 
+// Raw output of a failed proof surface goes to the private dir; its receipt
+// carries only a sanitized excerpt that has already passed the public guard.
+function createFailureRetainer({ privateDir, candidateSha, replacements, privatePaths }) {
+  const retained = [];
+  return {
+    retained,
+    retain(surface, run, passed, commandInfo) {
+      if (passed) return undefined;
+      mkdirSync(privateDir, { recursive: true, mode: 0o700 });
+      writeJson(path.join(privateDir, `${surface}.json`), {
+        schema: 'openclaw.project81.r-cw-6.private-proof-surface-diagnostics.v1',
+        surface,
+        candidateSha,
+        ...commandInfo,
+        exitCode: run.exitCode,
+        stdout: run.stdout,
+        stderr: run.stderr,
+      });
+      retained.push(surface);
+      let excerpt = sanitizeFailureExcerpt(`${run.stdout}\n${run.stderr}`, { replacements });
+      try {
+        assertPublicArtifactSafe({ excerpt }, { label: `${surface} failure excerpt`, privatePaths });
+      } catch {
+        excerpt = ['<excerpt withheld: sanitized text failed public-artifact safety; see the private copy>'];
+      }
+      return { surface, privateCopyRetained: true, exitCode: run.exitCode, excerpt };
+    },
+  };
+}
+
+function hostPathReplacements() {
+  const tmp = os.tmpdir();
+  let realTmp = tmp;
+  try {
+    realTmp = realpathSync(tmp);
+  } catch {
+    // An unresolvable temp dir is still replaced by its spelled path.
+  }
+  return [
+    [os.homedir(), '<home>'],
+    [tmp, '<tmp>'],
+    [realTmp, '<tmp>'],
+  ].filter(([hostPath]) => hostPath && hostPath !== path.parse(hostPath).root);
+}
+
 export function runFixture(args) {
   assertArgs(args);
   const { resolved: sourceDir, head } = assertSource(args.sourceDir, args.candidateSha);
   const artifactDir = prepareArtifactDir(args.artifactDir);
+  const privateDir = resolvePrivateDiagnosticsDir({ artifactDir, privateDir: args.privateDir });
 
   const runtimeSurface = runDisposableToolSurface({
     sourceDir,
@@ -739,6 +852,19 @@ export function runFixture(args) {
     maxChainLength: args.maxChainLength,
   });
   writeJson(path.join(artifactDir, 'fixture-readiness.json'), readiness);
+  const privatePaths = [sourceDir, artifactDir, privateDir, runtimeSurface.privateWorktreePath];
+  const diagnostics = createFailureRetainer({
+    privateDir,
+    candidateSha: args.candidateSha,
+    replacements: [
+      [runtimeSurface.privateWorktreePath, '<candidate-worktree>'],
+      [artifactDir, '<artifact-dir>'],
+      [privateDir, '<private-dir>'],
+      [sourceDir, '<source-dir>'],
+      ...hostPathReplacements(),
+    ],
+    privatePaths,
+  });
   const candidateRuntimeReceipt = {
     candidateWorktreeHead: runtimeSurface.candidateRuntime.candidateWorktreeHead,
     candidateLockfileSha256: runtimeSurface.candidateRuntime.candidateLockfileSha256,
@@ -773,13 +899,18 @@ export function runFixture(args) {
       matrix.cases[1]?.attemptedHop === args.maxChainLength &&
       matrix.cases[2]?.attemptedHop === args.maxChainLength + 1,
   );
+  const matrixCommand = ['node_modules/.bin/tsx', '--eval', '<production-module-eval>'];
+  const matrixDiagnostics = diagnostics.retain('boundary-matrix', matrixRun, matrixPassed, {
+    command: matrixCommand,
+  });
   const boundaryMatrixReceipt = {
     schema: 'openclaw.project81.r-cw-6.boundary-matrix.v1',
     maxChainLength: args.maxChainLength,
     passed: matrixPassed,
     ...(matrix || {}),
-    command: ['node_modules/.bin/tsx', '--eval', '<production-module-eval>'],
+    command: matrixCommand,
     exitCode: matrixRun.exitCode,
+    ...(matrixDiagnostics ? { failureDiagnostics: matrixDiagnostics } : {}),
     exactCandidateDisposableWorktree: true,
     ...candidateRuntimeReceipt,
   };
@@ -814,6 +945,18 @@ export function runFixture(args) {
   const candidateDispatchSuitePassed =
     dispatchRun.ok && Object.values(dispatchAssertions).every(Boolean);
   const dispatchPassed = candidateDispatchSuitePassed && selectedDelegatePassed;
+  const selectedDelegateDiagnostics = diagnostics.retain(
+    'selected-delegate-boundary',
+    runtimeSurface.selectedDelegateRun,
+    selectedDelegatePassed,
+    publicVitestCommand('selectedDelegateBoundary'),
+  );
+  const candidateSuiteDiagnostics = diagnostics.retain(
+    'candidate-delegate-suite',
+    dispatchRun,
+    candidateDispatchSuitePassed,
+    publicVitestCommand('candidateDelegateSuite'),
+  );
   const dispatchBoundaryReceipt = {
     schema: 'openclaw.project81.r-cw-6.dispatch-boundary-suite.v1',
     passed: dispatchPassed,
@@ -824,12 +967,14 @@ export function runFixture(args) {
       asserted: selectedDelegateAssertions,
       ...publicVitestCommand('selectedDelegateBoundary'),
       exitCode: runtimeSurface.selectedDelegateRun.exitCode,
+      ...(selectedDelegateDiagnostics ? { failureDiagnostics: selectedDelegateDiagnostics } : {}),
     },
     candidateRegressionSuite: {
       passed: candidateDispatchSuitePassed,
       ...publicVitestCommand('candidateDelegateSuite'),
       exitCode: dispatchRun.exitCode,
       asserted: dispatchAssertions,
+      ...(candidateSuiteDiagnostics ? { failureDiagnostics: candidateSuiteDiagnostics } : {}),
     },
     exactCandidateDisposableWorktree: true,
     ...candidateRuntimeReceipt,
@@ -870,12 +1015,22 @@ export function runFixture(args) {
     structuredReceiptPassed &&
     durableRecoveryPassed &&
     typedSurfacePassed;
+  // One run feeds three receipts; each failed one carries the run's excerpt.
+  const runtimeDiagnostics = diagnostics.retain(
+    'runtime-typed-surface',
+    runtimeSurface.runtimeRun,
+    runtimeSurfacePassed,
+    publicVitestCommand('runtimeTypedSurface'),
+  );
+  const runtimeDiagnosticsUnless = (passed) =>
+    runtimeDiagnostics && !passed ? { failureDiagnostics: runtimeDiagnostics } : {};
 
   const runtimeBoundaryReceipt = {
     ...runtimeReceipt,
     passed: structuredReceiptPassed,
     fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
     ...publicVitestCommand('runtimeTypedSurface'),
+    ...runtimeDiagnosticsUnless(structuredReceiptPassed),
     ...candidateRuntimeReceipt,
   };
   const durableStateRecoveryReceipt = {
@@ -883,6 +1038,7 @@ export function runFixture(args) {
     passed: durableRecoveryPassed,
     configuredMaximum: args.maxChainLength,
     ...runtimeReceipt?.durableState,
+    ...runtimeDiagnosticsUnless(durableRecoveryPassed),
     ...candidateRuntimeReceipt,
   };
   const typedToolSurfaceReceipt = {
@@ -890,6 +1046,7 @@ export function runFixture(args) {
     passed: typedSurfacePassed,
     fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
     ...publicVitestCommand('runtimeTypedSurface'),
+    ...runtimeDiagnosticsUnless(typedSurfacePassed),
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceDirMutated: false,
@@ -946,6 +1103,7 @@ export function runFixture(args) {
       cleanup: 'cleanup.json',
       publicArtifactSafety: 'public-artifact-safety.json',
     },
+    privateDiagnosticsRetainedFor: diagnostics.retained,
     checks: {
       matrixPassed,
       dispatchPassed,
@@ -989,7 +1147,6 @@ export function runFixture(args) {
   if (JSON.stringify(actualPreFinalFiles) !== JSON.stringify(expectedPreFinalFiles)) {
     throw new Error('artifact directory contains a missing or unexpected file before final receipts');
   }
-  const privatePaths = [sourceDir, artifactDir, runtimeSurface.privateWorktreePath];
   for (const [label, value] of publicReceiptEntries) {
     assertPublicArtifactSafe(value, { label, privatePaths });
   }
@@ -1015,6 +1172,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) try {
     console.log(usage());
   } else {
     const result = runFixture(args);
+    if (result.privateDiagnosticsRetainedFor.length > 0) {
+      console.error(
+        `R-CW-6 private diagnostics for ${result.privateDiagnosticsRetainedFor.join(', ')} retained in ${privateDiagnosticsDirFor(args)}`,
+      );
+    }
     if (args.json) console.log(JSON.stringify(result));
     else console.log(`R-CW-6 fixture: ${result.verdict} (${result.candidateSha})`);
     process.exitCode = result.verdict === 'PASS-candidate' ? 0 : 1;

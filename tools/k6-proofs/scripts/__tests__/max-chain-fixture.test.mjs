@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { chmod, mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -31,6 +32,8 @@ import {
   parsePinnedPnpmPackageManager,
   prepareArtifactDir,
   renderToolSurfaceTemplate,
+  resolvePrivateDiagnosticsDir,
+  sanitizeFailureExcerpt,
   verifyInstalledCandidateDependencies,
 } from '../run-max-chain-fixture.mjs';
 import {
@@ -83,6 +86,76 @@ test('R-CW-6 fixture accepts an explicit isolated source contract', () => {
     maxChainLength: 3,
     json: true,
   });
+});
+
+test('R-CW-6 fixture accepts a private diagnostics dir by flag or environment', () => {
+  const base = ['node', 'run-max-chain-fixture.mjs', '--artifact-dir', '/tmp/rcw6-artifacts'];
+  assert.equal(parseArgs([...base, '--private-dir', '/tmp/rcw6-private'], {}).privateDir, '/tmp/rcw6-private');
+  assert.equal(parseArgs(base, { OPENCLAW_RCW6_PRIVATE_DIR: '/tmp/rcw6-env-private' }).privateDir, '/tmp/rcw6-env-private');
+  assert.equal('privateDir' in parseArgs(base, {}), false);
+  assert.throws(() => parseArgs([...base, '--private-dir'], {}), /--private-dir requires a value/);
+});
+
+test('R-CW-6 private diagnostics stay outside the publishable artifact dir', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-private-dir-'));
+  const artifactDir = path.join(root, 'artifacts');
+  assert.equal(resolvePrivateDiagnosticsDir({ artifactDir }), `${artifactDir}.private`);
+  assert.equal(existsSync(`${artifactDir}.private`), false, 'validation must not create the private dir');
+  const explicit = path.join(root, 'elsewhere', 'diagnostics');
+  assert.equal(resolvePrivateDiagnosticsDir({ artifactDir, privateDir: explicit }), explicit);
+
+  for (const nested of [path.join(artifactDir, 'private'), artifactDir, root]) {
+    assert.throws(
+      () => resolvePrivateDiagnosticsDir({ artifactDir, privateDir: nested }),
+      /private diagnostics dir must be outside the public artifact dir/,
+    );
+  }
+  const used = path.join(root, 'used');
+  await mkdir(used, { mode: 0o700 });
+  await writeFile(path.join(used, 'selected-delegate-boundary.json'), '{}');
+  assert.throws(
+    () => resolvePrivateDiagnosticsDir({ artifactDir, privateDir: used }),
+    /private diagnostics dir must be empty/,
+  );
+  const shared = path.join(root, 'shared');
+  await mkdir(shared);
+  await chmod(shared, 0o755);
+  assert.throws(
+    () => resolvePrivateDiagnosticsDir({ artifactDir, privateDir: shared }),
+    /private diagnostics dir must not be group\/world accessible/,
+  );
+  const linked = path.join(root, 'linked');
+  await symlink(root, linked);
+  assert.throws(
+    () => resolvePrivateDiagnosticsDir({ artifactDir, privateDir: path.join(linked, 'diagnostics') }),
+    /private diagnostics dir path must not contain a symlink component/,
+  );
+});
+
+test('R-CW-6 failure excerpt keeps the failing lines and drops private paths, sessions, and escapes', () => {
+  const worktree = '/home/operator/private/artifacts/.r-cw-6-runtime-1-2';
+  const raw = [
+    '\u001b[31m FAIL \u001b[39m |infra| test/r-cw-6-runtime-fixture/max-chain-tool-surface.test.ts > captures',
+    `Error: Cannot find module '/src/tasks/task-runtime.test-helpers.js' imported from ${worktree}/test/r-cw-6-runtime-fixture/max-chain-tool-surface.test.ts`,
+    '[sqlite-test-lifecycle] test/r-cw-6-runtime-fixture/max-chain-tool-surface.test.ts: retiring openclaw.agentDatabaseReaders',
+    'AssertionError: session agent:main:subagent:rcw6:abc failed at /var/lib/other/trace.txt',
+    ' ❯ C:\\Users\\operator\\trace.ts:1:1',
+    'unrelated progress line',
+  ].join('\n');
+  const excerpt = sanitizeFailureExcerpt(raw, { replacements: [[worktree, '<candidate-worktree>']] });
+  assert.deepEqual(excerpt, [
+    ' FAIL  |infra| test/r-cw-6-runtime-fixture/max-chain-tool-surface.test.ts > captures',
+    "Error: Cannot find module 'src/tasks/task-runtime.test-helpers.js' imported from <candidate-worktree>/test/r-cw-6-runtime-fixture/max-chain-tool-surface.test.ts",
+    'AssertionError: session <session-key> failed at <path>',
+    ' ❯ <path>',
+  ]);
+  assert.doesNotThrow(() => assertPublicArtifactSafe({ excerpt }, { privatePaths: [worktree] }));
+
+  assert.deepEqual(sanitizeFailureExcerpt('first\nsecond\n'), ['first', 'second'], 'no failure line keeps the tail');
+  const [long] = sanitizeFailureExcerpt(`Error: ${'x'.repeat(500)}`);
+  assert.equal(long.length, 240);
+  assert.ok(long.endsWith('…'));
+  assert.equal(sanitizeFailureExcerpt(Array.from({ length: 90 }, (_, i) => `Error ${i}`).join('\n')).length, 40);
 });
 
 test('R-CW-6 fixture refuses unknown or live-mutation arguments', () => {
@@ -556,6 +629,18 @@ test('R-CW-6 public artifact guard rejects private paths and sensitive fields', 
   assert.throws(
     () => assertPublicArtifactSafe({ schema: 'unsafe.v1', detail: 'agent:main:private' }),
     /contains a session identifier/,
+  );
+  assert.doesNotThrow(() =>
+    assertPublicArtifactSafe({
+      selectedBoundary: {
+        failureDiagnostics: {
+          surface: 'selected-delegate-boundary',
+          privateCopyRetained: true,
+          exitCode: 1,
+          excerpt: ['Error: [vitest] No "enqueueSystemEventRaw" export is defined on the mock'],
+        },
+      },
+    }),
   );
   const recursiveAliases = [
     ['windows backslash path', { nested: { detail: 'C:\\Windows\\System32' } }, /absolute filesystem path/],

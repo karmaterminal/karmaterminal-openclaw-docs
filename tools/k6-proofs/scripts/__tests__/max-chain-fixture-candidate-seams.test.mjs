@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readdir, readFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -62,21 +62,29 @@ function missingMockTargets(root, relativeFile, rendered) {
     });
 }
 
-async function fireStubFixture({ forceFailure } = {}) {
+async function fireStubFixture({ forceFailure, inheritedIncludeFile, plantPrivateDir } = {}) {
   const { root, source, candidateSha } = await stubCandidate();
   const bin = path.join(root, 'bin');
   writeStubToolchain(bin);
   const artifactDir = path.join(root, 'artifacts');
   const logPath = path.join(root, 'stub-vitest.jsonl');
-  const saved = {
-    PATH: process.env.PATH,
-    RCW6_STUB_VITEST_LOG: process.env.RCW6_STUB_VITEST_LOG,
-    RCW6_STUB_FORCE_FAILURE: process.env.RCW6_STUB_FORCE_FAILURE,
-  };
+  const saved = Object.fromEntries(
+    ['PATH', 'RCW6_STUB_VITEST_LOG', 'RCW6_STUB_FORCE_FAILURE', 'RCW6_STUB_PLANT_DIR', 'OPENCLAW_VITEST_INCLUDE_FILE']
+      .map((key) => [key, process.env[key]]),
+  );
   process.env.PATH = `${bin}${path.delimiter}${process.env.PATH}`;
   process.env.RCW6_STUB_VITEST_LOG = logPath;
   if (forceFailure) process.env.RCW6_STUB_FORCE_FAILURE = forceFailure;
   else delete process.env.RCW6_STUB_FORCE_FAILURE;
+  if (plantPrivateDir) process.env.RCW6_STUB_PLANT_DIR = `${artifactDir}.private`;
+  else delete process.env.RCW6_STUB_PLANT_DIR;
+  if (inheritedIncludeFile) {
+    const includeFile = path.join(root, 'operator-include.json');
+    await writeFile(includeFile, `${JSON.stringify(inheritedIncludeFile)}\n`);
+    process.env.OPENCLAW_VITEST_INCLUDE_FILE = includeFile;
+  } else {
+    delete process.env.OPENCLAW_VITEST_INCLUDE_FILE;
+  }
   let result;
   try {
     result = runFixture({ sourceDir: source, candidateSha, artifactDir, maxChainLength: 3, json: true });
@@ -176,7 +184,8 @@ test('R-CW-6 retains private diagnostics and a sanitized public excerpt when a p
     const raw = await readFile(path.join(fired.artifactDir, name), 'utf8');
     assert.ok(!raw.includes(fired.root), `${name} publishes a private path`);
     assert.ok(!raw.includes('agent:main:subagent'), `${name} publishes a session identifier`);
-    assert.ok(!raw.includes('\u001b['), `${name} publishes terminal escapes`);
+    // JSON.stringify spells ESC as the six characters \u001b.
+    assert.ok(!raw.includes('\\u001b'), `${name} publishes terminal escapes`);
   }
   assert.deepEqual((await readdir(fired.artifactDir)).toSorted(), PUBLIC_RECEIPTS);
   assert.deepEqual(fired.result.privateDiagnosticsRetainedFor, ['selected-delegate-boundary']);
@@ -196,4 +205,24 @@ test('R-CW-6 passing run retains nothing private', async () => {
   assert.equal(fired.result.verdict, 'PASS-candidate', `stub candidate runs:\n${describeRuns(fired.runs)}`);
   assert.deepEqual(fired.result.privateDiagnosticsRetainedFor, []);
   assert.equal(existsSync(`${fired.artifactDir}.private`), false);
+});
+
+test('R-CW-6 never lets an operator include-file override select the proof surfaces', async () => {
+  const fired = await fireStubFixture({ inheritedIncludeFile: [] });
+  assert.equal(fired.result.verdict, 'PASS-candidate', `stub candidate runs:\n${describeRuns(fired.runs)}`);
+  const candidateRun = fired.runs.find((run) => run.selected.includes(CANDIDATE_DELEGATE_SUITE));
+  assert.equal(candidateRun?.includeFile, false, 'candidate suite ran under an inherited include file');
+});
+
+test('R-CW-6 refuses a private dir that appeared during the run and still emits its FAIL-fixture receipts', async () => {
+  const fired = await fireStubFixture({ forceFailure: 'r-cw-6-delegate-fixture', plantPrivateDir: true });
+  assert.equal(fired.result.verdict, 'FAIL-fixture');
+  assert.deepEqual((await readdir(fired.artifactDir)).toSorted(), PUBLIC_RECEIPTS);
+  const dispatch = await fired.receipt('dispatch-boundary-suite.json');
+  const diagnostics = dispatch.selectedBoundary.failureDiagnostics;
+  assert.equal(diagnostics?.privateCopyRetained, false, 'raw output went into a directory the fixture did not create');
+  assert.ok(diagnostics.excerpt.some((line) => line.includes('stub forced failure for <session-key>')));
+  assert.deepEqual(fired.result.privateDiagnosticsRetainedFor, []);
+  assert.deepEqual(fired.result.privateDiagnosticsNotRetainedFor, ['selected-delegate-boundary']);
+  assert.deepEqual(await readdir(`${fired.artifactDir}.private`), ['planted.json']);
 });

@@ -348,7 +348,18 @@ function appendLog(entry) {
   if (file) writeFileSync(file, `${JSON.stringify(entry)}\n`, { flag: 'a', mode: 0o600 });
 }
 
+// Another process creating the private diagnostics dir mid-run (a second
+// fixture run sharing it, or another user under a shared temp root).
+function plantPrivateDir() {
+  const dir = process.env.RCW6_STUB_PLANT_DIR;
+  if (!dir || existsSync(dir)) return;
+  mkdirSync(dir, { recursive: true });
+  chmodSync(dir, 0o777);
+  writeFileSync(path.join(dir, 'planted.json'), '{}\n');
+}
+
 function runStubVitest(argv, cwd) {
+  plantPrivateDir();
   const args = parseVitestArgs(argv);
   const databaseWorkerLane = args.config === DATABASE_WORKER_LANE_CONFIG;
   const includeFile = process.env.OPENCLAW_VITEST_INCLUDE_FILE;

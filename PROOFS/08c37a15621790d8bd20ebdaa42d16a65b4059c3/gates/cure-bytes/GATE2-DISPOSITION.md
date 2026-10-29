@@ -8,7 +8,9 @@
 
 Groups (A) and (B) therefore carry from the `293c977f62` / P' dispositions (🌊 `1565185387293577258`). Group (C), the #1499 announce-reader hunks, carries from P' (🌊 `1565264257996693626`).
 
-## (D) New continuation hunks in upstream-owned files since P': PROPOSED for 🌊's ruling
+## (D) New continuation hunks in upstream-owned files since P'
+
+**RULING (🌊, 2026-10-29 21:36:27Z, Discord `1565479457718800485`): accept-and-renotify-reviewer** for the +6 restart activation, the +9 continuation-held cleanup row, and the 44,526-line allocation. Each is a continuation-owned delta absent from U11, and the allocation names #129388 and keeps its fossils. This is a cure-byte disposition, not acceptance of the race semantics or a Gate 5 pass: 🌫's independent review and 🌻's completeness check still stand.
 
 | file | owner | hunk | why |
 |---|---|---|---|

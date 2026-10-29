@@ -7,7 +7,9 @@
 | result | 40 invariants: 16 FAIL, 16 exact-upstream, 5 tombstone, 3 PASS, 0 empty |
 | merge base (PR head, U9) | `eb7a4b1574` |
 
-**Status: proposed for frond cosign. NOT a Gate 2 pass.** Per the runbook, a failed core needs a frond decision: refire the cure, or accept-and-renotify-reviewer. The presentation head has not moved since `f4675cff` (2026-10-09). Since then, nine absorbs have landed (jump 1 through jump 9) together with reviewed fork fixes, so every core that changed is a deliberate change, not drift. This table is the case for accept-and-renotify-reviewer. Commit lists are in `core-commit-map.md`; the fork side is computed `^8ea3ef8d86`, so upstream commits are excluded.
+**RULING (🌊, 2026-10-29 02:07:56Z, Discord `1565185387293577258`): accept-and-renotify-reviewer** for all 16 core deltas. This is not a literal Gate 2 PASS. It rests on the 16-FAIL checker receipt, the candidate's ancestry from `f4675cff`, 🩸's 11-file review and 🌻's 5-file path-c review. `src/skills` matches the absorbed U9 byte for byte. The cure is not refired for these explained deltas. The FF stays held until the exact-pure corpus is reviewed and classified. Then the action-time Gate 5 checks run again, and the upstream reviewer is renotified with this table when the presentation advances, keeping the #1469 correction.
+
+**Status before the ruling: proposed for frond cosign. NOT a Gate 2 pass.** Per the runbook, a failed core needs a frond decision: refire the cure, or accept-and-renotify-reviewer. The presentation head has not moved since `f4675cff` (2026-10-09). Since then, nine absorbs have landed (jump 1 through jump 9) together with reviewed fork fixes, so every core that changed is a deliberate change, not drift. This table is the case for accept-and-renotify-reviewer. Commit lists are in `core-commit-map.md`; the fork side is computed `^8ea3ef8d86`, so upstream commits are excluded.
 
 ## (A) Changed by named fork commits after `f4675cff` (11 files)
 

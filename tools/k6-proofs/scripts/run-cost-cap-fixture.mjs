@@ -25,15 +25,17 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
 import { resolveCandidateNodeBin } from './lib/candidate-executables.mjs';
+import { runCandidateVitestSuite, selectCandidateVitestConfig } from './lib/candidate-vitest-suite.mjs';
 import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_CAP = 100;
 const CHILD_OUTPUT_LIMIT_BYTES = 64 * 1024 * 1024;
 const TRUSTED_GIT = '/usr/bin/git';
 const TRUSTED_SH = '/bin/sh';
+const DISPATCH_SUITE = 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts';
 const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
-  'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts',
+  DISPATCH_SUITE,
   'package.json',
   'pnpm-lock.yaml',
 ];
@@ -655,26 +657,58 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-export function runDispatchBoundarySuite({ worktreeDir, vitestExecutable }) {
-  const command = [
-    'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-    'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
-  ];
-  const dispatchRun = run(process.execPath, [vitestExecutable, ...command], { cwd: worktreeDir });
-  const asserted = {
-    belowCapAllowsSpawn: /allows dispatch when accumulatedChainTokens is 1 below costCapTokens/u.test(dispatchRun.stdout),
-    exactCapAllowsSpawn: /rejects at exact boundary \(accumulatedChainTokens === costCapTokens is NOT over\)/u.test(dispatchRun.stdout),
-    overCapRejectsSpawn: /rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1/u.test(dispatchRun.stdout),
-    overCapMarksFlowFailed: /marks TaskFlow records as failed for cost-cap-rejected delegates/u.test(dispatchRun.stdout),
-  };
+// The configs that have owned the dispatch boundary suite, newest first.
+// Candidate 311bc66fca (fork #1408 L4) moved it onto real continuation custody,
+// into the database-worker-core lane that vitest.infra.config.ts runs and
+// vitest.auto-reply.config.ts excludes.
+const DISPATCH_SUITE_CONFIGS = ['test/vitest/vitest.infra.config.ts', 'test/vitest/vitest.auto-reply.config.ts'];
+
+// The four observable contract points, by the names their tests have carried.
+// 311bc66fca renamed the failed-flow test when TaskFlow records became custody
+// records; either name pins the same rejected-and-marked-failed contract.
+const DISPATCH_CONTRACT_TESTS = {
+  belowCapAllowsSpawn: ['allows dispatch when accumulatedChainTokens is 1 below costCapTokens'],
+  exactCapAllowsSpawn: ['rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)'],
+  overCapRejectsSpawn: ['rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1'],
+  overCapMarksFlowFailed: [
+    'marks custody records as failed for cost-cap-rejected delegates',
+    'marks TaskFlow records as failed for cost-cap-rejected delegates',
+  ],
+};
+
+export function runDispatchBoundarySuite({ worktreeDir, vitestExecutable, reportDir }) {
+  const suiteSelection = selectCandidateVitestConfig({
+    worktreeDir,
+    vitestScript: vitestExecutable,
+    suite: DISPATCH_SUITE,
+    ownerConfigs: DISPATCH_SUITE_CONFIGS,
+  });
+  const suiteRun = suiteSelection.config
+    ? runCandidateVitestSuite({
+      worktreeDir,
+      vitestScript: vitestExecutable,
+      config: suiteSelection.config,
+      files: [DISPATCH_SUITE],
+      reportPath: path.join(reportDir, 'dispatch-boundary-suite.vitest.json'),
+      expectedTests: DISPATCH_CONTRACT_TESTS,
+    })
+    : null;
+  const asserted = Object.fromEntries(
+    Object.keys(DISPATCH_CONTRACT_TESTS).map((key) => [key, suiteRun?.tests[key]?.passed === true]),
+  );
   return {
     // A green process alone is insufficient: this fixture must keep pinning the
     // four observable contract points, especially the rejected-hop no-spawn
-    // behavior and durable failed-flow side effect.
-    passed: dispatchRun.ok && Object.values(asserted).every(Boolean),
-    exitCode: dispatchRun.exitCode,
-    command: ['node', '<candidate-local-vitest>', ...command],
+    // behavior and durable failed-flow side effect, each by a test that passed.
+    passed: suiteRun?.passed === true && Object.values(asserted).every(Boolean),
+    exitCode: suiteRun?.exitCode ?? null,
+    command: suiteRun
+      ? ['node', '<candidate-local-vitest>', ...suiteRun.args.map((arg) =>
+        arg.startsWith('--outputFile.json=') ? '--outputFile.json=<private-vitest-report>' : arg)]
+      : null,
     asserted,
+    suiteSelection,
+    results: suiteRun ? { ...suiteRun.results, tests: suiteRun.tests } : null,
   };
 }
 
@@ -758,7 +792,9 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
     const matrixRun = run(process.execPath, [tsxExecutable, '--eval', matrixEval(cap)], { cwd: worktreeDir });
     const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
-    const dispatchSuite = runDispatchBoundarySuite({ worktreeDir, vitestExecutable });
+    assertReservedPathAbsent(worktreeDir, '.r-cw-5-reports');
+    const reportDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-reports');
+    const dispatchSuite = runDispatchBoundarySuite({ worktreeDir, vitestExecutable, reportDir });
     const toolSurface = runToolSurface({ worktreeDir, cap, vitestExecutable });
     const afterExecution = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'final receipt emission');
     return {
@@ -847,6 +883,8 @@ export function runFixture(args) {
     // Test names, not raw logs, are public-safe and pin the no-spawn/cascade
     // assertion without copying arbitrary candidate output into the corpus.
     asserted: dispatchSuite.asserted,
+    suiteSelection: dispatchSuite.suiteSelection,
+    results: dispatchSuite.results,
     dependency: verified.dependency,
   });
 

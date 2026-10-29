@@ -65,6 +65,21 @@ JS entry each package's `package.json` `bin` declares under the trusted
 `node`. The `node_modules/.bin` link pnpm wrote must name that entry: a symlink
 up to pnpm 12.0, an sh cmd-shim's `# cmd-shim-target=` line from pnpm 12.3. Node
 cannot run a cmd-shim, and the shim itself would pick `node` from `PATH`.
+The dispatch boundary suite runs under whichever Vitest config owns it at the
+candidate. Candidate `311bc66fca` (fork #1408 L4) moved it onto real
+continuation custody, into the database-worker-core lane of
+`vitest.infra.config.ts`, which `vitest.auto-reply.config.ts` now excludes.
+The fixture asks the candidate's Vitest (`list --filesOnly`) which of those two
+configs collects the suite, and needs exactly one. It then reads Vitest's JSON
+report. The report must list exactly that file, every test in it must have
+passed, none may be skipped or todo, and at least one must have run.
+Each of the four contract tests must also have passed. The failed-record test
+counts under its custody name or its earlier TaskFlow name. The candidate's
+reporter redacts credential-looking spans of a test name, so it reports
+`rejects at exact boundary (accumulatedChainTokens === …)` with a
+`<redacted len=N>` marker. Such a title counts only when its visible text and
+marked length fit the expected name and the committed suite declares that name
+verbatim. A green exit, or names on stdout, is never enough.
 It never trusts or mutates source `node_modules`, starts a gateway, writes
 OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.

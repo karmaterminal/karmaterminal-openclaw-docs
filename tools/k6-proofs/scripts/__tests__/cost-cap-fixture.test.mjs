@@ -15,8 +15,16 @@ import {
   resolveCandidateLocalExecutable,
   resolvePinnedPnpm,
   renderToolSurfaceTemplate,
+  runDispatchBoundarySuite,
   verifyInstalledPinnedPnpm,
 } from '../run-cost-cap-fixture.mjs';
+import {
+  COST_CAP_SUITE,
+  INFRA_CONFIG,
+  costCapSuiteAt293c977f62,
+  costCapSuiteBefore311bc66fca,
+  modeledVitestCandidate,
+} from './helpers/modeled-vitest-candidate.mjs';
 import {
   PNPM_12_SHIMS,
   modeledCandidateNodeModules,
@@ -499,6 +507,90 @@ test('R-CW-5 refuses a cmd-shim that targets anything but the declared entry', a
     () => resolveCandidateLocalExecutable(worktree, 'tsx'),
     /candidate-local tsx \.bin cmd-shim does not target the bin entry its package declares/,
   );
+});
+
+const DISPATCH_CONTRACT_KEYS = ['belowCapAllowsSpawn', 'exactCapAllowsSpawn', 'overCapRejectsSpawn', 'overCapMarksFlowFailed'];
+
+async function runModeledDispatchSuite(model) {
+  const candidate = await modeledVitestCandidate(model);
+  return runDispatchBoundarySuite({
+    worktreeDir: candidate.worktree,
+    vitestExecutable: candidate.vitestScript,
+    reportDir: candidate.reportDir,
+  });
+}
+
+// Candidate 311bc66fca moved the cost-cap dispatch suite into the
+// database-worker-core lane, which vitest.auto-reply.config.ts excludes, and
+// renamed its TaskFlow test onto custody. The candidate's reporter also
+// redacts the exact-boundary test name.
+test('R-CW-5 proves the dispatch boundary where candidate 293c977f62 now runs it', async () => {
+  const result = await runModeledDispatchSuite(costCapSuiteAt293c977f62());
+  assert.deepEqual(result.asserted, Object.fromEntries(DISPATCH_CONTRACT_KEYS.map((key) => [key, true])));
+  assert.equal(result.passed, true);
+});
+
+test('R-CW-5 still proves the dispatch boundary in the auto-reply shard before 311bc66fca', async () => {
+  const result = await runModeledDispatchSuite(costCapSuiteBefore311bc66fca());
+  assert.deepEqual(result.asserted, Object.fromEntries(DISPATCH_CONTRACT_KEYS.map((key) => [key, true])));
+  assert.equal(result.passed, true);
+});
+
+test('R-CW-5 never counts a skipped dispatch contract test as proved', async () => {
+  const model = costCapSuiteBefore311bc66fca();
+  model.suites[COST_CAP_SUITE] = model.suites[COST_CAP_SUITE].map((entry) =>
+    entry.name === 'rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1'
+      ? { ...entry, status: 'skipped' }
+      : entry);
+  const result = await runModeledDispatchSuite(model);
+  assert.equal(result.asserted.overCapRejectsSpawn, false);
+  assert.equal(result.passed, false);
+});
+
+test('R-CW-5 never passes a dispatch suite in which no test ran', async () => {
+  for (const model of [costCapSuiteBefore311bc66fca(), costCapSuiteAt293c977f62()]) {
+    model.suites[COST_CAP_SUITE] = [];
+    const result = await runModeledDispatchSuite(model);
+    assert.deepEqual(result.asserted, Object.fromEntries(DISPATCH_CONTRACT_KEYS.map((key) => [key, false])));
+    assert.equal(result.passed, false);
+  }
+});
+
+test('R-CW-5 records which candidate config owns the dispatch suite and how each name matched', async () => {
+  const result = await runModeledDispatchSuite(costCapSuiteAt293c977f62());
+  assert.equal(result.suiteSelection.config, INFRA_CONFIG);
+  assert.deepEqual(
+    result.suiteSelection.probes.map(({ config, collected }) => ({ config, collected })),
+    [
+      { config: INFRA_CONFIG, collected: true },
+      { config: 'test/vitest/vitest.auto-reply.config.ts', collected: false },
+    ],
+  );
+  assert.deepEqual(result.command.slice(0, 6), ['node', '<candidate-local-vitest>', 'run', '--config', INFRA_CONFIG, COST_CAP_SUITE]);
+  assert.ok(result.command.includes('--outputFile.json=<private-vitest-report>'));
+  assert.deepEqual(result.results.totals, { tests: 5, passed: 5, failed: 0, skipped: 0, todo: 0 });
+  assert.deepEqual(result.results.tests.exactCapAllowsSpawn, {
+    passed: true,
+    name: 'rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)',
+    status: 'passed',
+    reportedTitleRedacted: true,
+    declaredVerbatimInSuite: true,
+  });
+  assert.equal(result.results.tests.overCapMarksFlowFailed.name, 'marks custody records as failed for cost-cap-rejected delegates');
+  assert.doesNotMatch(JSON.stringify(result), /modeled-vitest-(?:candidate|reports)-/u);
+});
+
+test('R-CW-5 fails closed when no candidate config, or more than one, collects the dispatch suite', async () => {
+  const unowned = costCapSuiteAt293c977f62();
+  unowned.configs[INFRA_CONFIG].files = [];
+  const ambiguous = costCapSuiteAt293c977f62();
+  ambiguous.configs['test/vitest/vitest.auto-reply.config.ts'].files = [COST_CAP_SUITE];
+  for (const model of [unowned, ambiguous]) {
+    const result = await runModeledDispatchSuite(model);
+    assert.equal(result.suiteSelection.config, null);
+    assert.equal(result.passed, false);
+    assert.equal(result.exitCode, null);
+  }
 });
 
 test('R-CW-5 fixture confines package-manager state and rejects inherited hooks', async () => {

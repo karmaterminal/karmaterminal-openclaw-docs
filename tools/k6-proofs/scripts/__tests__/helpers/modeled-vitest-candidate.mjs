@@ -14,9 +14,11 @@
 //   - the candidate's reporter redacts a credential-looking span of a test
 //     name to `<redacted len=N>` in the report, and on stdout a second pass
 //     also swallows the duration after it;
-//   - a scoped config without its own dir (the infra config) collects
-//     exactly the files an OPENCLAW_VITEST_INCLUDE_FILE JSON array names, and
-//     one with a dir (auto-reply) collects what `--dir D` holds.
+//   - a scoped config collects exactly the files an
+//     OPENCLAW_VITEST_INCLUDE_FILE JSON array names; failing that, it narrows
+//     its include list to the command-line files, and a file outside that
+//     list (auto-reply's src/auto-reply/**) narrows it to nothing; failing
+//     that, one with a dir (auto-reply) collects what `--dir D` holds.
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -47,7 +49,7 @@ export function costCapSuiteAt293c977f62() {
   return {
     configs: {
       [INFRA_CONFIG]: { project: 'infra', files: [COST_CAP_SUITE], includeFile: true, passWithNoTests: true },
-      [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [], passWithNoTests: true },
+      [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [], includeRoot: 'src/auto-reply/', passWithNoTests: true },
     },
     suites: {
       [COST_CAP_SUITE]: costCapTests('marks custody records as failed for cost-cap-rejected delegates').map((test) =>
@@ -67,7 +69,7 @@ export function costCapSuiteBefore311bc66fca() {
   return {
     configs: {
       [INFRA_CONFIG]: { project: 'infra', files: [], passWithNoTests: true },
-      [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [COST_CAP_SUITE], passWithNoTests: true },
+      [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [COST_CAP_SUITE], includeRoot: 'src/auto-reply/', passWithNoTests: true },
     },
     suites: {
       [COST_CAP_SUITE]: costCapTests('marks TaskFlow records as failed for cost-cap-rejected delegates'),
@@ -76,11 +78,13 @@ export function costCapSuiteBefore311bc66fca() {
 }
 
 export const TOOL_SURFACE_TEST_FILE = 'test/r-cw-5-fixture/cost-cap-tool-surface.test.ts';
+export const CUSTODY_STORE = 'src/auto-reply/continuation/custody/custody-store.ts';
 export const CUSTODY_TEST_SUPPORT = 'src/auto-reply/continuation/custody/custody.test-support.ts';
 export const TASK_FLOW_REGISTRY = 'src/tasks/task-flow-registry.ts';
 const TOOL_SURFACE_DESCRIBE = ['R-CW-5 disposable typed tool surface'];
 const OVER_CAP_TOOL_TEST = 'rejects exhausted typed-tool elections without a durable continuation';
-const BELOW_CAP_TOOL_TEST = 'schedules a below-cap typed-tool election as one durable custody record';
+const BELOW_CAP_CUSTODY_TEST = 'schedules a below-cap typed-tool election as one durable custody record';
+const BELOW_CAP_TASK_FLOW_TEST = 'schedules a below-cap typed-tool election as one durable TaskFlow';
 
 /**
  * The typed-tool surface at a candidate that records continuation work in
@@ -89,25 +93,29 @@ const BELOW_CAP_TOOL_TEST = 'schedules a below-cap typed-tool election as one du
  */
 export function typedToolSurfaceWithCustody() {
   return {
-    markers: [CUSTODY_TEST_SUPPORT],
+    markers: [CUSTODY_STORE],
     sourceWrittenByFixture: [TOOL_SURFACE_TEST_FILE],
     configs: {
       [INFRA_CONFIG]: { project: 'infra', files: [], includeFile: true, passWithNoTests: true },
-      [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [], dirArgument: true, passWithNoTests: true },
+      [AUTO_REPLY_CONFIG]: {
+        project: 'auto-reply', files: [], includeRoot: 'src/auto-reply/', dirArgument: true, passWithNoTests: true,
+      },
     },
     suites: {
-      [TOOL_SURFACE_TEST_FILE]: [OVER_CAP_TOOL_TEST, BELOW_CAP_TOOL_TEST].map((name) => ({
+      [TOOL_SURFACE_TEST_FILE]: [OVER_CAP_TOOL_TEST, BELOW_CAP_CUSTODY_TEST].map((name) => ({
         name, ancestorTitles: TOOL_SURFACE_DESCRIBE, status: 'passed',
       })),
     },
   };
 }
 
-/** The same surface at a TaskFlow-era candidate (80311e8a): one test, auto-reply --dir. */
+/** The same surface at a TaskFlow-era candidate (80311e8a), run through auto-reply --dir. */
 export function typedToolSurfaceWithTaskFlow() {
   const model = typedToolSurfaceWithCustody();
   model.markers = [TASK_FLOW_REGISTRY];
-  model.suites[TOOL_SURFACE_TEST_FILE] = model.suites[TOOL_SURFACE_TEST_FILE].slice(0, 1);
+  model.suites[TOOL_SURFACE_TEST_FILE] = [OVER_CAP_TOOL_TEST, BELOW_CAP_TASK_FLOW_TEST].map((name) => ({
+    name, ancestorTitles: TOOL_SURFACE_DESCRIBE, status: 'passed',
+  }));
   return model;
 }
 
@@ -129,6 +137,8 @@ const dir = rest.includes('--dir') ? rest[rest.indexOf('--dir') + 1] : undefined
 let collectable = config.files;
 if (config.includeFile && process.env.OPENCLAW_VITEST_INCLUDE_FILE) {
   collectable = JSON.parse(readFileSync(process.env.OPENCLAW_VITEST_INCLUDE_FILE, 'utf8'));
+} else if (config.includeRoot && filters.length && !filters.some((filter) => filter.startsWith(config.includeRoot))) {
+  collectable = [];
 } else if (config.dirArgument && dir) {
   collectable = Object.keys(model.suites).filter((file) => file.startsWith(dir + '/'));
 }

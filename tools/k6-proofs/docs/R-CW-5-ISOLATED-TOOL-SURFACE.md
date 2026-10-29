@@ -25,23 +25,34 @@ the real continuation scheduling path, and observes the real durable store.
 The companion production-module matrix and dispatcher suite cover
 the below/equal/over boundary plus rejected-hop no-spawn/failed-flow behavior.
 
-The durable store depends on the candidate, and the fixture picks the template
-for the newest store the candidate ships:
+The durable store depends on the candidate. The fixture picks the template by
+the store module the candidate's runtime writes through:
 
-- **Continuation custody** (fork #1408; its test support since `91aaf10f9f`).
+- **Continuation custody** (fork #1408), when
+  `src/auto-reply/continuation/custody/custody-store.ts` exists.
   `cost-cap-tool-surface.custody.test.ts` runs in a per-test custody state
-  directory through the real shared-state worker. So it runs in the
-  database-worker lane of `vitest.infra.config.ts`, which collects it from
-  the `OPENCLAW_VITEST_INCLUDE_FILE` list the candidate's scoped configs read.
+  directory through the real shared-state worker. It therefore runs as the
+  candidate's `infra` project, the config that hosts the database-worker-core
+  suites, which collects it from the `OPENCLAW_VITEST_INCLUDE_FILE` list the
+  candidate's scoped configs read.
   The over-cap test requires no custody record for the session, and none at
   all in its store. A positive control makes one below-cap election through
   the same attempt runner and requires exactly one queued `work` record for
-  that session. "No record" therefore cannot hold vacuously. The control also
-  fails closed where a candidate ships custody but still records continuation
-  work elsewhere.
-- **TaskFlow** (removed upstream by `6652f7eac8`).
-  `cost-cap-tool-surface.test.ts` requires no TaskFlow row and runs in the
-  auto-reply shard through `--dir test/r-cw-5-fixture`.
+  that session. A candidate whose custody runtime predates the custody test
+  support (`d71e6bcd3d`..`91aaf10f9f^`) fails closed on that missing import.
+  It is never judged by a TaskFlow registry that nothing writes.
+- **TaskFlow** (removed upstream by `6652f7eac8`), when only
+  `src/tasks/task-flow-registry.ts` exists. `cost-cap-tool-surface.test.ts`
+  requires no TaskFlow row for the session. Its positive control requires
+  exactly one TaskFlow for a below-cap election. It runs in the auto-reply
+  shard through `--dir test/r-cw-5-fixture`, with no file named on the
+  command line: the auto-reply config narrows its include list to
+  command-line files, and the template lies outside `src/auto-reply`.
+
+In both templates every election waits the same hour, so the over-cap and
+control elections differ only in the chain's tokens. Admitted work cannot fire
+during the test. "No record" over the cap counts only beside a passing
+positive control, so it cannot hold vacuously.
 
 A candidate with neither store fails the typed-tool receipt. Its result is
 judged from Vitest's JSON report, as for the dispatch suite below.

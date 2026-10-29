@@ -159,6 +159,10 @@ function readReport(reportPath) {
 /**
  * Run `files` under `config` and judge Vitest's JSON report.
  *
+ * `files` is what the report must list. They are also the command-line
+ * filters unless `filters` says otherwise: the candidate's scoped configs
+ * narrow their include list to the filters on the command line, so a file
+ * outside that list, collected through `--dir`, must not be named there.
  * `expectedTests` maps a receipt key to the names its contract test has
  * carried; exactly one reported test must match one of them and pass. A title
  * the candidate's reporter redacted counts only when the committed suite
@@ -169,6 +173,7 @@ export function runCandidateVitestSuite({
   vitestScript,
   config,
   files,
+  filters = files,
   reportPath,
   expectedTests,
   extraArgs = [],
@@ -178,7 +183,7 @@ export function runCandidateVitestSuite({
     throw new Error('candidate Vitest report path already exists; refusing a stale report');
   }
   const args = [
-    'run', '--config', config, ...files, ...extraArgs,
+    'run', '--config', config, ...filters, ...extraArgs,
     '--reporter=verbose', '--reporter=json', `--outputFile.json=${reportPath}`,
   ];
   const vitestRun = runNode(vitestScript, args, { cwd: worktreeDir, env });

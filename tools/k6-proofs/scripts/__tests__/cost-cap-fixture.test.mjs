@@ -21,6 +21,7 @@ import {
 } from '../run-cost-cap-fixture.mjs';
 import {
   COST_CAP_SUITE,
+  CUSTODY_STORE,
   CUSTODY_TEST_SUPPORT,
   INFRA_CONFIG,
   TASK_FLOW_REGISTRY,
@@ -619,9 +620,10 @@ test('R-CW-5 fails closed when no candidate config, or more than one, collects t
   }
 });
 
-// The candidate modules the typed-tool templates import, as each candidate
-// tree has them. Upstream 6652f7eac8 removed the TaskFlow registry; custody
-// test support arrived with fork 91aaf10f9f; 91aaf10f9f..311bc66fca ship both.
+// The candidate modules the typed-tool templates import, plus the custody
+// store module, as each candidate tree has them. Upstream 6652f7eac8 removed
+// the TaskFlow registry. The custody store arrived before its test support
+// (d71e6bcd3d..91aaf10f9f^), and 91aaf10f9f..311bc66fca ship both stores.
 const TEMPLATE_RUNTIME_MODULES = [
   'src/config/config.ts',
   'src/config/sessions/session-accessor.ts',
@@ -636,8 +638,9 @@ const TEMPLATE_RUNTIME_MODULES = [
   'src/agents/embedded-agent.ts',
 ];
 const CANDIDATE_TEMPLATE_MODULES = {
-  '293c977f62': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_TEST_SUPPORT],
-  '311bc66fca': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_TEST_SUPPORT, TASK_FLOW_REGISTRY],
+  '293c977f62': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_STORE, CUSTODY_TEST_SUPPORT],
+  '311bc66fca': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_STORE, CUSTODY_TEST_SUPPORT, TASK_FLOW_REGISTRY],
+  'd71e6bcd3d': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_STORE, TASK_FLOW_REGISTRY],
   '80311e8a': [...TEMPLATE_RUNTIME_MODULES, TASK_FLOW_REGISTRY],
 };
 
@@ -681,6 +684,16 @@ test('R-CW-5 picks the custody template where a candidate ships both stores, and
   assert.equal(both.config, INFRA_CONFIG);
   assert.equal(path.basename(both.template), 'cost-cap-tool-surface.custody.test.ts');
   assert.equal(selectToolSurface(await candidateTree(TEMPLATE_RUNTIME_MODULES)), null);
+});
+
+// Its runtime writes custody records while the TaskFlow registry still exists,
+// so the TaskFlow template's "no row" would hold vacuously there.
+test('R-CW-5 fails closed for a custody runtime that predates its test support', async () => {
+  const modules = CANDIDATE_TEMPLATE_MODULES.d71e6bcd3d;
+  const surface = selectToolSurface(await candidateTree(modules));
+  assert.equal(surface.durableStore, 'continuation-custody');
+  const imports = templateCandidateImports(await readFile(surface.template, 'utf8'));
+  assert.deepEqual(imports.filter((module) => !modules.includes(module)), [CUSTODY_TEST_SUPPORT]);
 });
 
 test('R-CW-5 fixture confines package-manager state and rejects inherited hooks', async () => {
@@ -778,9 +791,21 @@ test('R-CW-5 TaskFlow typed tool-surface template asserts no durable work after 
   );
   assert.match(template, /runAgentAttempt/);
   assert.match(template, /continueWorkOpts/);
-  assert.match(template, /continuationChainTokens:\s*__RCW5_OVER_CAP__/);
+  assert.match(template, /seedSession\(__RCW5_OVER_CAP__\)/);
   assert.match(template, /listTaskFlowsForOwnerKey\(sessionKey\)\)\.toHaveLength\(0\)/);
   assert.match(template, /2 of 2 continue_work elections were not scheduled/);
+  assert.match(template, /it\("schedules a below-cap typed-tool election as one durable TaskFlow"/);
+  assert.match(template, /seedSession\(__RCW5_CAP__ - 1\)/);
+  assert.match(template, /expect\(flows\)\.toHaveLength\(1\)/);
+  assert.doesNotMatch(template, /custody\.test-support/);
+});
+
+test('R-CW-5 typed tool-surface elections differ only in the chain tokens', async () => {
+  for (const name of ['cost-cap-tool-surface.test.ts', 'cost-cap-tool-surface.custody.test.ts']) {
+    const template = await readFile(fileURLToPath(new URL(`../../fixtures/r-cw-5/${name}`, import.meta.url)), 'utf8');
+    const delays = [...template.matchAll(/reason: "[^"]*", delaySeconds: ([^ },]+)/gu)].map((match) => match[1]);
+    assert.deepEqual(delays, ['ELECTION_DELAY_SECONDS', 'ELECTION_DELAY_SECONDS', 'ELECTION_DELAY_SECONDS'], name);
+  }
 });
 
 test('R-CW-5 custody typed tool-surface template asserts no custody record, against a positive control', async () => {
@@ -807,7 +832,8 @@ test('R-CW-5 renders both typed tool surfaces at the selected cap', async () => 
     'utf8',
   ), 200);
   assert.match(taskFlow, /costCapTokens:\s*200/);
-  assert.match(taskFlow, /continuationChainTokens:\s*201/);
+  assert.match(taskFlow, /seedSession\(201\)/);
+  assert.match(taskFlow, /seedSession\(200 - 1\)/);
   assert.doesNotMatch(taskFlow, /__RCW5_(?:CAP|OVER_CAP)__/);
   const custody = renderToolSurfaceTemplate(await readFile(
     fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.custody.test.ts', import.meta.url)),

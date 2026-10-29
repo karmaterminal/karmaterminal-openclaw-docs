@@ -46,17 +46,21 @@ const SOURCE_MARKERS = [
 const TOOL_SURFACE_FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/r-cw-5');
 const TOOL_SURFACE_TEST_FILE = 'test/r-cw-5-fixture/cost-cap-tool-surface.test.ts';
 const OVER_CAP_TOOL_TEST = 'rejects exhausted typed-tool elections without a durable continuation';
-// Where a candidate records continuation work durably, newest first. Custody
-// (fork #1408; its test support since 91aaf10f9f) runs through the shared-state
-// worker, so its template runs in the database-worker lane of the infra config,
-// which collects it from the include file the candidate's scoped configs read.
-// Its positive control fails closed if a candidate that ships custody still
-// records continuation work elsewhere. Upstream 6652f7eac8 removed the TaskFlow
-// runtime, which the auto-reply shard observed through --dir.
+// Where a candidate records continuation work durably, chosen by the store
+// module its runtime writes through. Continuation custody (fork #1408) runs
+// through the shared-state worker, so its template runs as the infra project,
+// which hosts the database-worker-core suites and collects the template from
+// the include file the candidate's scoped configs read. A candidate whose
+// custody runtime predates its test support (d71e6bcd3d..91aaf10f9f^) fails
+// closed on that missing import rather than falling back to a TaskFlow
+// registry nothing writes. Upstream 6652f7eac8 removed the TaskFlow runtime,
+// which the auto-reply shard ran through --dir. Each template's positive
+// control must see the store record a below-cap election, so that "no
+// record" over the cap cannot hold vacuously.
 const TOOL_SURFACE_STORES = [
   {
     durableStore: 'continuation-custody',
-    marker: 'src/auto-reply/continuation/custody/custody.test-support.ts',
+    marker: 'src/auto-reply/continuation/custody/custody-store.ts',
     template: 'cost-cap-tool-surface.custody.test.ts',
     config: 'test/vitest/vitest.infra.config.ts',
     collectBy: 'include-file',
@@ -71,7 +75,10 @@ const TOOL_SURFACE_STORES = [
     template: 'cost-cap-tool-surface.test.ts',
     config: 'test/vitest/vitest.auto-reply.config.ts',
     collectBy: 'dir',
-    expectedTests: { overCapRejected: [OVER_CAP_TOOL_TEST] },
+    expectedTests: {
+      overCapRejected: [OVER_CAP_TOOL_TEST],
+      belowCapSchedulesDurableWork: ['schedules a below-cap typed-tool election as one durable TaskFlow'],
+    },
   },
 ];
 
@@ -781,10 +788,14 @@ export function runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir }
   );
   let env = candidateVitestEnv();
   let extraArgs = [];
+  // A --dir run names no file: the auto-reply config would narrow its include
+  // list to a command-line file outside src/auto-reply and collect nothing.
+  let filters = [];
   if (surface.collectBy === 'include-file') {
     const includeFile = path.join(reportDir, 'typed-tool-surface.include.json');
     writeFileSync(includeFile, `${JSON.stringify([TOOL_SURFACE_TEST_FILE])}\n`, { mode: 0o600, flag: 'wx' });
     env = candidateVitestEnv({ OPENCLAW_VITEST_INCLUDE_FILE: includeFile });
+    filters = [TOOL_SURFACE_TEST_FILE];
   } else {
     extraArgs = ['--dir', 'test/r-cw-5-fixture'];
   }
@@ -793,6 +804,7 @@ export function runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir }
     vitestScript: vitestExecutable,
     config: surface.config,
     files: [TOOL_SURFACE_TEST_FILE],
+    filters,
     extraArgs,
     env,
     reportPath: path.join(reportDir, 'typed-tool-surface.vitest.json'),
@@ -801,15 +813,12 @@ export function runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir }
   // The over-cap test asserts the system event that names both typed
   // elections, so its pass shows the real attempt runner captured them.
   const overCapRejected = suiteRun.tests.overCapRejected.passed;
-  // Its "no durable work" counts only beside a passing positive control, where
-  // the template has one, so that it cannot hold vacuously.
-  const durableWorkObservable = Object.hasOwn(surface.expectedTests, 'belowCapSchedulesDurableWork')
-    ? suiteRun.tests.belowCapSchedulesDurableWork.passed
-    : true;
+  // Its "no durable work" counts only beside the passing positive control, so
+  // that it cannot hold vacuously.
   const asserted = {
     typedToolCaptured: overCapRejected,
     overCapRejected,
-    rejectedHopNoDurableWork: overCapRejected && durableWorkObservable,
+    rejectedHopNoDurableWork: overCapRejected && suiteRun.tests.belowCapSchedulesDurableWork.passed,
   };
   return {
     passed: suiteRun.passed && Object.values(asserted).every(Boolean),

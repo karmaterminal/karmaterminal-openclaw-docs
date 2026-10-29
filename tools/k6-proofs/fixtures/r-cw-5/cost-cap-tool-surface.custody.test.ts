@@ -6,7 +6,8 @@
 // candidate ships custody (fork #1408); upstream 6652f7eac8 removed the
 // TaskFlow runtime the earlier template observed. Custody runs through the
 // real shared-state worker in a per-test state directory, so the runner
-// executes this file in the candidate's database-worker lane.
+// executes this file as the candidate's infra project, beside its
+// database-worker-core suites.
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -64,6 +65,11 @@ const cfg = {
 } as unknown as OpenClawConfig;
 
 type ContinuationRequest = { reason: string; delaySeconds: number };
+
+// One delay for every election, admitted or not: an hour, so admitted work
+// cannot fire during the test, and the over-cap and control elections differ
+// only in the chain's tokens.
+const ELECTION_DELAY_SECONDS = 3_600;
 
 describe("R-CW-5 disposable typed tool surface", () => {
   let root: string;
@@ -136,8 +142,8 @@ describe("R-CW-5 disposable typed tool surface", () => {
   it("rejects exhausted typed-tool elections without a durable continuation", async () => {
     await electThroughAttempt(
       [
-        { reason: "R-CW-5 disposable first", delaySeconds: 1 },
-        { reason: "R-CW-5 disposable second", delaySeconds: 1 },
+        { reason: "R-CW-5 disposable first", delaySeconds: ELECTION_DELAY_SECONDS },
+        { reason: "R-CW-5 disposable second", delaySeconds: ELECTION_DELAY_SECONDS },
       ],
       "rcw5-fixture-run",
     );
@@ -153,11 +159,13 @@ describe("R-CW-5 disposable typed tool surface", () => {
   });
 
   // Positive control: the same surface and observation do see durable work
-  // when the chain is under the cap, so "no record" above is not vacuous. The
-  // hour-long delay keeps the admitted work from firing during the test.
+  // when the chain is under the cap, so "no record" above is not vacuous.
   it("schedules a below-cap typed-tool election as one durable custody record", async () => {
     await seedSession(__RCW5_CAP__ - 1);
-    await electThroughAttempt([{ reason: "R-CW-5 disposable admitted", delaySeconds: 3_600 }], "rcw5-fixture-run-admitted");
+    await electThroughAttempt(
+      [{ reason: "R-CW-5 disposable admitted", delaySeconds: ELECTION_DELAY_SECONDS }],
+      "rcw5-fixture-run-admitted",
+    );
 
     const records = await listCustodyRecordsForTest();
     expect(records).toHaveLength(1);

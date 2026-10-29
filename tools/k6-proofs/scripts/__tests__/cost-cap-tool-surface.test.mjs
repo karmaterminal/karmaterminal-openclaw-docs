@@ -20,7 +20,7 @@ async function runModeledToolSurface(model) {
   });
 }
 
-test('R-CW-5 runs the custody typed-tool surface in the database-worker lane', async () => {
+test('R-CW-5 runs the custody typed-tool surface as the candidate infra project', async () => {
   const result = await runModeledToolSurface(typedToolSurfaceWithCustody());
   assert.equal(result.durableStore, 'continuation-custody');
   assert.deepEqual(result.asserted, { typedToolCaptured: true, overCapRejected: true, rejectedHopNoDurableWork: true });
@@ -34,11 +34,15 @@ test('R-CW-5 runs the custody typed-tool surface in the database-worker lane', a
 });
 
 test('R-CW-5 counts no durable work only beside a passing positive control', async () => {
-  const failing = typedToolSurfaceWithCustody();
-  failing.suites[TOOL_SURFACE_TEST_FILE][1].status = 'failed';
-  const missing = typedToolSurfaceWithCustody();
-  missing.suites[TOOL_SURFACE_TEST_FILE] = missing.suites[TOOL_SURFACE_TEST_FILE].slice(0, 1);
-  for (const model of [failing, missing]) {
+  const models = [];
+  for (const surface of [typedToolSurfaceWithCustody, typedToolSurfaceWithTaskFlow]) {
+    const failing = surface();
+    failing.suites[TOOL_SURFACE_TEST_FILE][1].status = 'failed';
+    const missing = surface();
+    missing.suites[TOOL_SURFACE_TEST_FILE] = missing.suites[TOOL_SURFACE_TEST_FILE].slice(0, 1);
+    models.push(failing, missing);
+  }
+  for (const model of models) {
     const result = await runModeledToolSurface(model);
     assert.equal(result.asserted.overCapRejected, true);
     assert.equal(result.asserted.rejectedHopNoDurableWork, false);
@@ -46,13 +50,18 @@ test('R-CW-5 counts no durable work only beside a passing positive control', asy
   }
 });
 
+// The auto-reply config narrows its include list to the files named on the
+// command line, and the template lies outside src/auto-reply, so a --dir run
+// that also names it collects nothing.
 test('R-CW-5 still runs the TaskFlow typed-tool surface through the auto-reply --dir run', async () => {
   const result = await runModeledToolSurface(typedToolSurfaceWithTaskFlow());
   assert.equal(result.durableStore, 'task-flow');
   assert.deepEqual(result.asserted, { typedToolCaptured: true, overCapRejected: true, rejectedHopNoDurableWork: true });
   assert.equal(result.passed, true);
+  assert.deepEqual(result.results.totals, { tests: 2, passed: 2, failed: 0, skipped: 0, todo: 0 });
   assert.ok(result.command.includes('--dir'));
   assert.ok(result.command.includes('test/vitest/vitest.auto-reply.config.ts'));
+  assert.equal(result.command.includes(TOOL_SURFACE_TEST_FILE), false);
 });
 
 test('R-CW-5 fails the typed-tool surface closed for a candidate with no known durable store', async () => {

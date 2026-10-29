@@ -9,7 +9,7 @@
 
 **Status: proposed for frond cosign. NOT a Gate 2 pass.** Per the runbook, a failed core needs a frond decision: refire the cure, or accept-and-renotify-reviewer. The presentation head has not moved since `f4675cff` (2026-10-09). Since then, nine absorbs have landed (jump 1 through jump 9) together with reviewed fork fixes, so every core that changed is a deliberate change, not drift. This table is the case for accept-and-renotify-reviewer. Commit lists are in `core-commit-map.md`; the fork side is computed `^8ea3ef8d86`, so upstream commits are excluded.
 
-## (A) Changed by named fork commits after `f4675cff` (12 paths)
+## (A) Changed by named fork commits after `f4675cff` (11 files)
 
 | core | fork commits | intent |
 |---|---|---|
@@ -26,22 +26,26 @@
 | `embedded-agent-runner/run.continuation-opts-forward.test.ts` | `a8db52a7a8` | port the opts-forward suite to the new runner seam |
 
 
-## (B) Changed only through absorb merges (4 paths)
+## (B) Changed only through absorb merges (5 files)
 
-The upstream delta conflicted with the presentation head, so the checker cannot project it. Comparison used: the fork delta at the presentation head (`eb7a4b1574..f4675cff`) against the fork delta at the candidate (`8ea3ef8d86..293c977f62`), as changed lines with line numbers ignored.
+The upstream delta conflicted with the presentation head, so the checker cannot project it. Comparison used: the fork delta at the presentation head (`eb7a4b1574..f4675cff`) against the fork delta at the candidate (`8ea3ef8d86..293c977f62`).
 
-| core | lines at P | lines at C | shared | P-only | C-only | reading |
+**Method:** per file, `git diff -U0 <base> <head> -- <file>`. Take the **added** lines (`^\+[^+]`, i.e. not the `+++` header), sort them as a multiset, and compare with `comm`; line numbers are ignored. This is the method 🌻 used for the independent re-derivation (path-c, Discord `1565175284683112533`). An earlier draft of this table counted `+` and `-` lines together and disagreed with it; the figures below are additions only.
+
+| core | fork additions at P | at C | shared | P-only | C-only | reading |
 |---|---|---|---|---|---|---|
-| `embedded-agent-runner/compact.types.ts` | 3 | 3 | 3 | 0 | 0 | fork hunks preserved exactly; the remaining difference is upstream's delta |
-| `embedded-agent-runner/run/params.ts` | 19 | 19 | 19 | 0 | 0 | preserved exactly |
-| `embedded-agent-runner/compact-reasons.ts` | 45 | 46 | 45 | 0 | 1 | preserved; plus the `"unshrinkable_request"` union member, which tracks upstream #172912 (`5afc3db70f`, a reason added to upstream's map) |
-| `embedded-agent-runner/compact-reasons.test.ts` | 43 | 41 | 3 | 40 | 38 | all 3 fork test cases are kept by name ("Unknown model → unknown_model", empty → unknown, closed union). Upstream turned its own cases into a table (it() 18 → 6), so the fork's lines were re-expressed in the new shape |
-| `openclaw-tools.ts` | 5 | 29 | 5 | 0 | 24 | all 5 fork lines kept. The extra 24 are the PDF-tool construction moved into the fork owner module `openclaw-tools.pdf-tool.ts`, added in the jump-1 merge `049d5c58a4` (resolving that merge's conflict) |
+| `embedded-agent-runner/compact.types.ts` | 2 | 2 | 2 | 0 | 0 | fork lines kept verbatim |
+| `embedded-agent-runner/run/params.ts` | 19 | 19 | 19 | 0 | 0 | kept verbatim |
+| `embedded-agent-runner/compact-reasons.ts` | 43 | 44 | 43 | 0 | 1 | kept, plus the `"unshrinkable_request"` union member, which tracks upstream #172912 (`5afc3db70f`) |
+| `embedded-agent-runner/compact-reasons.test.ts` | 43 | 41 | 3 | 40 | 38 | all 3 named fork cases and the skip-code table are kept. Upstream turned its own cases into a table (it() 18 → 6), so the fork's lines were re-expressed in the new shape |
+| `openclaw-tools.ts` | 5 | 11 | 5 | 0 | 6 | all 5 fork lines kept. The rest is the PDF-tool construction moved into the fork owner module `openclaw-tools.pdf-tool.ts`, added in the jump-1 merge `049d5c58a4` (resolving that merge's conflict) |
+
+**Independent re-derivation (path-c):** 🌻 checked the exact Git objects read-only and confirms the static preservation for all 5 files. That supports static preservation only. It is neither a Gate 2 PASS nor runtime proof.
 
 Gate 2.7 at this candidate: FROZEN-STALE 0, MIXED-CLOBBER 0 (🌊's guard run).
 
 ## Asked of the frond
 
-1. Dual-seat cosign: another seat re-derives (B) by path-c, independent recreation.
+1. Dual-seat cosign: (B) re-derived by 🌻 (path-c) ✓; (A) still needs a second seat.
 2. Rule: accept-and-renotify-reviewer for (A) and (B), or refire.
 3. If accepted, renotify the reviewer on openclaw/openclaw#129388 with this table when the presentation advances.

@@ -8,7 +8,7 @@
   "execution_runtime_sha": "8ba08c76d8f74a63238f2ce79302168748c31965",
   "execution_runtime_provenance": "isolated proof gateway on emeric (:18798, comp-8ba08c76), staged by deploy-gateway stage-only run 40835050338 (build-info == 8ba08c76d8f74a63238f2ce79302168748c31965); the live fleet gateway is untouched",
   "exact_target_execution": true,
-  "exact_target_mode_b": false,
+  "exact_target_mode_b": true,
   "harness_sha": "94f63c05df362c8a89754d611b90789dd5eaf1df",
   "seat": "emeric",
   "fire_type": "exact-pure-head isolated-gateway live-suite",
@@ -797,5 +797,5 @@
   "refires": [],
   "promotion": "none",
   "build_string": "Pure continuation j9 head 8ba08c76d8 = 293c977f62 + the #1499 subagent bracket-delegate fix (merge of fdbfa20765). The qualified-j9 FF candidate for openclaw/openclaw#129388 from f4675cff (verified ancestor). Seeded before review: every row is missing.",
-  "notes": "Supersedes 293c977f62 as the candidate after openclaw#1499. 🌊 ruled method (a), a full matrix refire at this head (Discord 1565264257996693626): earlier receipts stay historical, all rows rebind here. Mode-B 40834471377 runs at this exact head; classification is pending. The fleet serves the j8 composite 2915ea02dc; nothing here is transposed from it."
+  "notes": "Supersedes 293c977f62 as the candidate after openclaw#1499. 🌊 ruled method (a), a full matrix refire at this head (Discord 1565264257996693626): earlier receipts stay historical, all rows rebind here. Mode-B 40834471377 ran at this exact head: 37 failed / 3 cancelled / 41 success, every red classified upstream or baseline, 0 fork-owned; the failed-job set is a strict subset of the j9 candidate run 40689895077 (gates/mode-b/CLASSIFICATION-40834471377.md). The fleet serves the j8 composite 2915ea02dc; nothing here is transposed from it."
 }

@@ -6,7 +6,7 @@
 | composition | `293c977f62` + merge of lane `codeagent/1499-subagent-bracket-delegate` @ `fdbfa20765` (tree == lane head) |
 | upstream absorbed (U9) | `8ea3ef8d8608b77a91b6f73a2284ae2f6398609e` |
 | presentation head before FF | `f4675cff003d7778521dc1dc8229130e987788da` (an ancestor of the candidate; FF-able) |
-| Mode-B | [40834471377](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/40834471377) at this exact head; classification pending, against candidate 40689895077 (`5e4093fdf1`) and U9 control 40705770015 |
+| Mode-B | [40834471377](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/40834471377) at this exact head; **0 fork-owned**: 37 failed / 3 cancelled / 41 success, every red classified upstream or baseline against candidate 40689895077 (`5e4093fdf1`) and U9 control 40705770015; the failed-job set is a strict subset of the j9 run (`gates/mode-b/CLASSIFICATION-40834471377.md`) |
 | runtime for live rows | stage-only `8ba08c76d8` on emeric, deploy-gateway run [40835050338](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/40835050338) |
 | docs / harness at seeding | `94f63c05df362c8a89754d611b90789dd5eaf1df` |
 | live fleet at seeding | j8 composite `2915ea02dcb03db94e311f1656dd440d0617c9a8` on all six seats (not the proof runtime) |

@@ -43,8 +43,10 @@ export function splitPnpmLockfile(bytes) {
 // pnpm dumps the env document with js-yaml in one small shape: nested block
 // mappings, plain or single-quoted keys and scalars, and one-line flow mappings
 // and sequences of scalars. This reader accepts that shape and refuses any
-// other YAML rather than guess at it. Scalars stay strings.
-const PLAIN_KEY = String.raw`[^\s'"#&*!|>%@\x60{}[\],?:-][^:]*?`;
+// other YAML rather than guess at it. Scalars stay strings. A plain key may not
+// end in whitespace (YAML would read `version : 2` as `version`, a duplicate
+// this reader could then miss) or carry a `#`, and `<<` merge keys are refused.
+const PLAIN_KEY = String.raw`[^\s'"#&*!|>%@\x60{}[\],?:-](?:[^:#]*[^\s:#])?`;
 const QUOTED = String.raw`'((?:[^']|'')*)'`;
 const BLOCK_LINE = new RegExp(String.raw`^( *)(?:${QUOTED}|(${PLAIN_KEY})):(?: (.*))?$`, 'u');
 const FLOW_ENTRY = new RegExp(String.raw`^(?:${QUOTED}|(${PLAIN_KEY})): (.+)$`, 'u');
@@ -55,7 +57,7 @@ function unsupported(lineNumber) {
 }
 
 function setKey(mapping, key, value, lineNumber) {
-  if (key === '__proto__') throw unsupported(lineNumber);
+  if (key === '__proto__' || key === '<<') throw unsupported(lineNumber);
   if (Object.hasOwn(mapping, key)) {
     throw new Error(`candidate pnpm-lock.yaml env document repeats key ${key} at line ${lineNumber}`);
   }

@@ -305,6 +305,10 @@ export function tokenSessionLedgerHasTerminalSessions(ledger) {
   );
 }
 
+/** The PARTIAL reason for a targeted return that was correlated but cannot be bound (#1727). */
+export const TOKEN_TARGETED_RETURN_UNBOUND_REASON =
+  'targeted-return correlated; no product-stamped delivery→run join observable';
+
 /** Names of the R-CD-TOKEN receipts still missing, for an explicit PARTIAL reason. */
 export function tokenPartialReasons(evidence) {
   const reasons = [];
@@ -315,7 +319,11 @@ export function tokenPartialReasons(evidence) {
   if (evidence?.delegate_task_unique_count !== 1) reasons.push('token delegate child not observed exactly once');
   if (evidence?.origin_task_status !== 'completed') reasons.push('origin child row not done');
   if (evidence?.delegate_task_status !== 'completed') reasons.push('delegate child row not done');
-  if (evidence?.delegate_return_observed !== true) reasons.push('bound delegate return not observed');
+  if (evidence?.delegate_return_observed !== true) {
+    reasons.push(evidence?.targeted_return_correlated === true
+      ? TOKEN_TARGETED_RETURN_UNBOUND_REASON
+      : 'bound delegate return not observed');
+  }
   if (evidence?.task_snapshot_consistent !== true) reasons.push('observer snapshot not stable across 3 traversals');
   if (Number(evidence?.observer_traversals_refused || 0) !== 0) reasons.push('observer traversal refused or invalid');
   return reasons;
@@ -354,30 +362,39 @@ function contentText(message) {
 //   delegate. The direct-announce path is not reached for a continuation
 //   delegate.
 //
-// The targeted return binds the same four things the header did, from the
-// surfaces that are visible:
-//   (a) target: the woken run's own assistant answer, top-level sessionKey ===
-//       the origin child, in a run that started on the origin (lifecycle
-//       start) at or after the delegate run ended (the delegate row's endedAt)
-//       and is not the origin's own bracket run. The origin already knows the
-//       sentinel from its own task, so a later origin turn alone proves
-//       nothing; the order is what a targeted return implies;
-//   (b) source: the delegate child's own transcript (cleanup "keep") answers
-//       the sentinel in the delegate's own run;
-//   (c) the exact RCDT-RETURN-<tag> sentinel, word-bounded, once, on both legs;
-//   (d) this row run: <tag> is derived from the runner-owned nonce, and both
-//       legs are bound to run identities (delegate run, woken origin run).
-// A sentinel from another session, another run, a run that never started on
-// the origin, a run that started before the delegate ended, an unstamped row,
-// or a return with no delegate leg never binds (not an exhaustive list).
-// For this route (b) is the delegate's own answer plus that order, not a
-// provenance stamp on one visible row: the product's own stamp (the hidden
-// user row's provenance runId) is not shown to subscribers.
+// Only the direct announce binds. Its header row is a product stamp naming
+// the source session on the row delivered to the target.
+//
+// The targeted return is CORRELATION ONLY (🌊's ruling on docs#612). Its
+// visible legs show that the delegate answered the sentinel in its own run and
+// that the origin answered it in a later run: a lifecycle start on the origin,
+// not its bracket run, at or after the delegate row's endedAt. They do not tie
+// that origin run to receipt of this delegate's result. The origin's task
+// already carries the sentinel, so an unrelated session event that wakes the
+// origin after the delegate ended produces the same answer, and every
+// harness-visible byte is the same. At the integration candidate
+// karmaterminal/openclaw 9f1b83f9d0 no gateway read surface returns a product
+// record naming the delegate run, the recipient session and the woken run
+// together:
+//   - the woken turn's hidden user row (raw through sessions.get, which is
+//     unadvertised) names the delegate run (provenance runId) and lives in the
+//     recipient's transcript. Only assistant and tool rows are run-stamped
+//     (sessions/transcript-events.ts:41-58), and a session-event input is keyed
+//     by its occurrence id, not by its run;
+//   - the woken run's assistant row and lifecycle events name the run and the
+//     recipient, never the delegate;
+//   - the transcript parentId link between them is not projected by any read
+//     surface.
+// A correlated targeted return is therefore recorded as evidence
+// (targeted_return_*), never as a bound return, and the row stays PARTIAL with
+// TOKEN_TARGETED_RETURN_UNBOUND_REASON. Neither the order nor a signed receipt
+// stands in for the missing join.
 // ---------------------------------------------------------------------------
 
 const HARNESS_MARKER = '[k6-proof-harness]';
 const BRACKET_OPEN = '[[CONTINUE_DELEGATE:';
-export const TOKEN_RETURN_ROUTES = Object.freeze(['direct-announce', 'targeted-return']);
+/** Routes on which a return can bind at the products this row runs against. */
+export const TOKEN_BOUND_RETURN_ROUTES = Object.freeze(['direct-announce']);
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -484,14 +501,15 @@ function directAnnounceReturn(eventData, { expectedSentinel, expectedDelegateChi
 }
 
 /**
- * The target leg plus the source leg. Live (requireWakeStart): the answer's
- * run must be a woken run (wakeRuns: runId -> startedAtMs, from
- * parseTokenOriginWakeStart) that started at or after the delegate ended.
- * Transcript: the row must come after the origin's own bracket-run rows
- * (anchored by the caller), be stamped with a run other than that bracket
- * run, and carry a timestamp at or after the delegate ended.
+ * Targeted-return correlation: the origin's answer plus the delegate's own
+ * answer. Live (requireWakeStart): the answer's run must be a woken run
+ * (wakeRuns: runId -> startedAtMs, from parseTokenOriginWakeStart) that
+ * started at or after the delegate ended. Transcript: the row must come after
+ * the origin's own bracket-run rows (anchored by the caller), be stamped with
+ * a run other than that bracket run, and carry a timestamp at or after the
+ * delegate ended. A match is correlation evidence, never a bound return.
  */
-function targetedReturn(eventData, {
+function targetedReturnCorrelation(eventData, {
   expectedSentinel,
   expectedDelegateChildSessionKey,
   originSpawnRunId,
@@ -514,7 +532,6 @@ function targetedReturn(eventData, {
       sourceReturn.sourceSessionHash !== hash(source) ||
       typeof sourceReturn.sourceRunIdHash !== 'string') return null;
   return {
-    route: 'targeted-return',
     targetSessionHash: hash(String(eventData.sessionKey)),
     sourceSessionHash: sourceReturn.sourceSessionHash,
     returnRunIdHash: hash(runId),
@@ -523,65 +540,66 @@ function targetedReturn(eventData, {
   };
 }
 
-/**
- * Parse only the structured session.message return surface, never arbitrary
- * JSON. Accepts the direct-announce row (header-bound source) or the
- * targeted-return woken answer (wake-start-bound target plus the delegate's
- * own source leg).
- */
-export function parseTokenReturnEvent(eventData, options) {
+function onExpectedTarget(eventData, options) {
   const { expectedTargetSessionKey, hash } = options || {};
-  if (!eventData || typeof hash !== 'function') return null;
-  if (String(eventData.sessionKey || '') !== String(expectedTargetSessionKey || '')) return null;
-  if (eventSessionKey(eventData) !== String(expectedTargetSessionKey || '')) return null;
-  return directAnnounceReturn(eventData, options) ||
-    targetedReturn(eventData, options, { requireWakeStart: true });
+  return Boolean(eventData) && typeof hash === 'function' &&
+    String(eventData.sessionKey || '') === String(expectedTargetSessionKey || '') &&
+    eventSessionKey(eventData) === String(expectedTargetSessionKey || '');
 }
 
 /**
- * Recover a return from the origin child's own transcript (chat.history).
- * Exactly one bound return across both routes. A targeted answer counts only
- * after the last row of the origin's own bracket run. Under cleanup "delete"
- * this transcript is gone once the origin's announce completes; the live
- * route is then the only one.
+ * Parse only the structured session.message return surface, never arbitrary
+ * JSON. Only the direct-announce row binds (its header names the source).
+ */
+export function parseTokenReturnEvent(eventData, options) {
+  if (!onExpectedTarget(eventData, options)) return null;
+  return directAnnounceReturn(eventData, options);
+}
+
+/** Correlate a live targeted return on the origin child. Never a bound return. */
+export function correlateTokenTargetedReturnEvent(eventData, options) {
+  if (!onExpectedTarget(eventData, options)) return null;
+  return targetedReturnCorrelation(eventData, options, { requireWakeStart: true });
+}
+
+/**
+ * Recover a bound return from the origin child's own transcript
+ * (chat.history): exactly one direct-announce row. Under cleanup "delete" this
+ * transcript is gone once the origin's announce completes.
  */
 export function parseTokenReturnHistory(messages, options) {
+  if (!Array.isArray(messages) || !options || typeof options.hash !== 'function') return null;
+  const target = options.expectedTargetSessionKey;
+  const matches = messages
+    .map((message) => directAnnounceReturn({ sessionKey: target, message }, options))
+    .filter(Boolean);
+  return matches.length === 1 ? matches[0] : null;
+}
+
+/**
+ * Correlate a targeted return from the origin child's own transcript: exactly
+ * one answer after the last row of the origin's own bracket run. Never a bound
+ * return.
+ */
+export function correlateTokenTargetedReturnHistory(messages, options) {
   if (!Array.isArray(messages) || !options || typeof options.hash !== 'function') return null;
   const target = options.expectedTargetSessionKey;
   let anchor = -1;
   messages.forEach((message, index) => {
     if (options.originSpawnRunId && rowRunId({ message }) === String(options.originSpawnRunId)) anchor = index;
   });
+  if (anchor < 0) return null;
   const matches = messages
-    .map((message, index) => {
-      const eventData = { sessionKey: target, message };
-      return directAnnounceReturn(eventData, options) ||
-        (index > anchor && anchor >= 0
-          ? targetedReturn(eventData, options, { requireWakeStart: false })
-          : null);
-    })
+    .slice(anchor + 1)
+    .map((message) => targetedReturnCorrelation({ sessionKey: target, message }, options, { requireWakeStart: false }))
     .filter(Boolean);
   return matches.length === 1 ? matches[0] : null;
 }
 
-function hex16(value) {
-  return typeof value === 'string' && /^[0-9a-f]{16}$/.test(value);
-}
-
-/** Route-specific return binding; legacy evidence without a route is the header route. */
+/** Only a bound route binds; legacy evidence without a route is the header route. */
 function returnRouteBound(evidence) {
   const route = evidence?.return_route;
-  if (route === undefined || route === null || route === 'direct-announce') return true;
-  if (route !== 'targeted-return') return false;
-  return evidence.source_return_observed === true &&
-    hex16(evidence.source_return_run_id_hash) &&
-    evidence.source_return_run_id_hash === evidence.delegate_run_id_hash &&
-    hex16(evidence.return_run_id_hash) &&
-    hex16(evidence.origin_spawn_run_id_hash) &&
-    evidence.return_run_id_hash !== evidence.origin_spawn_run_id_hash &&
-    evidence.return_run_id_hash !== evidence.delegate_run_id_hash &&
-    Number.isFinite(evidence.return_after_delegate_end_ms) &&
-    evidence.return_after_delegate_end_ms >= 0;
+  return route === undefined || route === null || TOKEN_BOUND_RETURN_ROUTES.includes(route);
 }
 
 export function classifyTokenEvidence(evidence) {

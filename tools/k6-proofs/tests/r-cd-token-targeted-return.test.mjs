@@ -53,6 +53,23 @@
 // projection hides it even where the direct announce still runs
 // (chat-display-projection.history.ts:413-415), so the row could never bind.
 //
+// Negative control (🌊's review of docs#612 at 8b44456d): the two visible legs
+// show that the delegate answered and that the origin answered later; they do
+// not tie that origin run to receipt of this delegate's result. At the
+// integration candidate karmaterminal/openclaw 9f1b83f9d0 (source walk; no
+// exact GitNexus index) the only record naming the delegate run on the
+// recipient is the woken turn's hidden user row (provenance runId = the
+// delegate run, session-event-context.ts:180-192; __openclaw
+// sessionDeliveryAckIds). That row carries no run stamp of its own: only
+// assistant and tool rows are run-stamped (transcript-events.ts:41-58), and a
+// session-event input is keyed by its occurrence id
+// (get-reply-run-execute.ts:299-300, session-event-handoff.ts:531-533). So an
+// unrelated origin wake after the delegate ended, echoing the sentinel the
+// origin already knows, is indistinguishable from the targeted return on every
+// surface the harness reads, and must stay unbound. The scripted gateway keeps
+// the hidden product state (`state.originInputs`) to make that difference
+// explicit.
+//
 // Each test fires the real R-CD-TOKEN scenario (k6 runtime stubbed, see
 // helpers/k6-node-runtime.mjs) against a gateway scripted on the shapes above,
 // passes its log through the real extractor, and resolves the evidence with the
@@ -83,6 +100,7 @@ const UNRELATED = 'agent:main:subagent:00000000-0000-4000-8000-000000000000';
 const ORIGIN_RUN = '2c1d7e3a-6b5f-4e2d-9a1c-8f7e6d5c4b3a';
 const DELEGATE_RUN = 'continuation:7e6d5c4b-3a29-4180-9f8e-7d6c5b4a3928:1';
 const WAKE_RUN = 'b4e5f6a7-0c1d-4e2f-8a3b-6c7d8e9f0a1b';
+const UNRELATED_WAKE_RUN = 'e1f2a3b4-c5d6-4e7f-8091-a2b3c4d5e6f7';
 // Journal (PDT + 7h): send accepted ~13:37:37.4, origin bracket run ended
 // 13:37:39.100, delegate spawned 13:37:49.257, delegate ended 13:37:52.017,
 // targeted return 13:37:52.074, origin wake turn ended 13:37:58.681, origin
@@ -118,6 +136,31 @@ function transcript({ sessionKey, message, runId }) {
 }
 
 const text = (role, body) => ({ role, content: [{ type: 'text', text: body }] });
+const runtimeContext = (body) => `<<<BEGIN_OPENCLAW_INTERNAL_CONTEXT>>>\n${body}\n<<<END_OPENCLAW_INTERNAL_CONTEXT>>>`;
+
+/**
+ * The hidden input row that starts an origin wake, as 9f1b83f9d0 stores it.
+ * A targeted return: the runtime-context completion text with provenance
+ * internal_system / continuation / the delegate run and the durable delivery
+ * row's id; no stamp names the run it starts. Display projection empties and
+ * hides it (chat-display-projection.history.ts:416-420), so neither
+ * session.message nor chat.history carries it.
+ */
+function continuationReturnInput(sentinel) {
+  return {
+    ...text('user', runtimeContext(`[Internal task completion event]\nsource: subagent\nsession_key: ${DELEGATE}\nstatus: completed; ready for parent review\n\n${sentinel}`)),
+    provenance: { kind: 'internal_system', sourceTool: 'continuation', runId: DELEGATE_RUN },
+    __openclaw: { sessionDeliveryAckIds: [`continuation-return:${DELEGATE_RUN}:${ORIGIN}`] },
+  };
+}
+
+/** An unrelated session event on the origin (an exec completion), with no delegate in it. */
+function unrelatedWakeInput() {
+  return {
+    ...text('user', runtimeContext('Exec completed (background-job, code 0)')),
+    provenance: { kind: 'internal_system', sourceTool: 'exec' },
+  };
+}
 
 /**
  * The 8ba08c76d8 targeted return as a subscriber of the origin child sees it:
@@ -166,10 +209,16 @@ function directAnnounce({ sentinel, sourceSession = DELEGATE }) {
  *   sessions it never subscribed to, so the parser (not the gateway) rejects them
  * - preIdentityFrames: frames broadcast with the dispatch, before the origin
  *   child is known
+ * - targetedDelivery: whether the product delivered this delegate's return to
+ *   the origin (default true). Hidden product state only: it decides the wake's
+ *   input row (`state.originInputs`), which no surface the harness reads shows
+ * - wakeRunId: the woken run's id as the origin row reports it (lastRunId)
  */
 function scriptedGateway({
   clock,
   wake = (state) => targetedReturnWake({ sentinel: state.sentinel }),
+  targetedDelivery = true,
+  wakeRunId = WAKE_RUN,
   wakeAtRound = DELEGATE_DONE_ROUND + 1,
   delegateAnswer = (state) => state.sentinel,
   delegateAnswerRunId = DELEGATE_RUN,
@@ -183,13 +232,14 @@ function scriptedGateway({
   const state = {
     parentKey: null, tag: null, sentinel: null, originTitle: null, childTask: null, delegateTask: null,
     round: 0, woke: false, subscribed: new Set(), wakeFrames: [], times: {},
+    targetedDeliveries: 0, originInputs: [],
   };
   const ok = (frame, payload) => ({ type: 'res', id: frame.id, ok: true, payload });
   const originRow = () => {
     const wakeActive = state.woke && state.round < WAKE_END_ROUND;
     const lastRunId = state.round < ORIGIN_DONE_ROUND || wakeActive
       ? undefined
-      : state.woke ? WAKE_RUN : ORIGIN_RUN;
+      : state.woke ? wakeRunId : ORIGIN_RUN;
     return {
       key: ORIGIN, spawnedBy: state.parentKey, label: state.originTitle, kind: 'subagent',
       status: state.round >= ORIGIN_DONE_ROUND && !wakeActive ? 'done' : 'running',
@@ -231,7 +281,7 @@ function scriptedGateway({
     }
     return frames;
   };
-  return (frame) => {
+  const handle = (frame) => {
     if (frame?.type !== 'req') return [];
     switch (frame.method) {
       case 'connect':
@@ -269,6 +319,10 @@ function scriptedGateway({
           if (!state.woke && state.round >= wakeAtRound) {
             state.woke = true;
             state.wakeFrames = wake(state);
+            // The hidden input of the woken turn: the delivered return, or an
+            // unrelated event when the product delivered nothing.
+            if (targetedDelivery) state.targetedDeliveries += 1;
+            state.originInputs.push(targetedDelivery ? continuationReturnInput(state.sentinel) : unrelatedWakeInput());
           }
           if (state.wakeFrames.length) {
             const reaches = (f) => f.event === 'agent' || deliverUnsubscribed || state.subscribed.has(f.payload.sessionKey);
@@ -294,6 +348,7 @@ function scriptedGateway({
         return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `unknown method: ${frame.method}` } }];
     }
   };
+  return Object.assign(handle, { state });
 }
 
 /** Fire the real scenario once against the scripted gateway; resolve its evidence. */
@@ -302,11 +357,12 @@ async function fireRcdToken(options = {}) {
   let now = Date.parse('2026-10-29T13:37:36.000Z');
   const clock = { set: (ms) => { now = Math.max(now, ms); } };
   Date.now = () => now;
+  const gateway = scriptedGateway({ clock, ...options });
   let fired;
   try {
     fired = await runK6Scenario({
       scenarioPath,
-      gateway: scriptedGateway({ clock, ...options }),
+      gateway,
       env: {
         OPENCLAW_ROW_MANIFEST: manifestPath,
         OPENCLAW_GATEWAY_TOKEN: SIGNING_KEY,
@@ -343,23 +399,16 @@ async function fireRcdToken(options = {}) {
     metadata: { row: 'R-CD-TOKEN', candidateSha: SHA, runtimeBuildSha: SHA },
     signingKey: SIGNING_KEY,
   });
-  return { evidence, dispatch, receipt, frames: fired.frames, log: fired.log };
+  return { evidence, dispatch, receipt, frames: fired.frames, log: fired.log, gatewayState: gateway.state };
 }
 
 /** The return bound to origin (target) and delegate (source); the next gate is Tempo topology. */
-function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
+function assertReturnBound(fired, receiptKind, route = 'direct-announce') {
   const { evidence, receipt } = fired;
   assert.equal(evidence.delegate_return_observed, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
   // Evidence without a route came from the header parser (the direct announce),
   // the same reading classifyTokenEvidence gives it.
   assert.equal(evidence.return_route ?? 'direct-announce', route);
-  if (route === 'targeted-return') {
-    assert.equal(evidence.source_return_observed, true);
-    assert.equal(evidence.source_return_run_id_hash, hash16(DELEGATE_RUN));
-    assert.equal(evidence.origin_spawn_run_id_hash, hash16(ORIGIN_RUN));
-    assert.equal(evidence.return_run_id_hash, hash16(WAKE_RUN));
-    assert.ok(evidence.return_after_delegate_end_ms >= 0, `woken ${evidence.return_after_delegate_end_ms} ms after the delegate ended`);
-  }
   assert.equal(evidence.return_target_session_hash, hash16(ORIGIN));
   assert.equal(evidence.return_source_session_hash, hash16(DELEGATE));
   assert.equal(evidence.return_target_session_hash, evidence.origin_child_session_hash);
@@ -372,10 +421,40 @@ function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
   assert.equal(receipt.failureCategory, 'missing-continuation-topology');
 }
 
+/**
+ * A targeted return correlated on both legs, and still unbound: no surface ties
+ * the woken run to this delivery, so the row stays PARTIAL with that reason.
+ */
+function assertTargetedCorrelated(fired, receiptKind) {
+  const { evidence, receipt } = fired;
+  // Correlation never fills the bound-return fields.
+  const bound = evidence.event_receipt_kinds.filter((kind) => kind.startsWith('bound-'));
+  assert.equal(evidence.delegate_return_observed, false, `a targeted return bound without a stamped join: ${bound.join(', ')}`);
+  assert.deepEqual(bound, []);
+  assert.equal(evidence.return_route, null);
+  assert.equal(evidence.return_target_session_hash, null);
+  assert.equal(evidence.return_source_session_hash, null);
+  // Both legs are still checked, and recorded as correlation.
+  assert.equal(evidence.targeted_return_correlated, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
+  assert.ok(evidence.event_receipt_kinds.includes(receiptKind), `receipt kinds: ${evidence.event_receipt_kinds.filter((k) => k.startsWith('correlated-')).join(', ')}`);
+  assert.equal(evidence.source_return_observed, true);
+  assert.equal(evidence.source_return_run_id_hash, hash16(DELEGATE_RUN));
+  assert.equal(evidence.origin_spawn_run_id_hash, hash16(ORIGIN_RUN));
+  assert.equal(evidence.targeted_return_run_id_hash, hash16(WAKE_RUN));
+  assert.ok(evidence.targeted_return_after_delegate_end_ms >= 0, `woken ${evidence.targeted_return_after_delegate_end_ms} ms after the delegate ended`);
+  assert.deepEqual(evidence.partial_reasons, [NO_STAMPED_JOIN]);
+  assert.equal(evidence.terminal_reason, 'observation-window-expired');
+  assert.equal(classifyTokenEvidence(evidence), 'PARTIAL-candidate');
+  assert.equal(receipt.verdict, 'PARTIAL-candidate');
+  assert.equal(receipt.failureCategory, 'incomplete-or-nonunique-lifecycle');
+}
+
 /** The return did not bind, and the evidence says so the way the live one did. */
 function assertReturnUnbound(fired) {
   const { evidence, receipt } = fired;
   assert.equal(evidence.delegate_return_observed, false);
+  // Not even correlated: every correlation binding still holds.
+  assert.notEqual(evidence.targeted_return_correlated, true);
   assert.equal(evidence.return_target_session_hash, null);
   assert.equal(evidence.return_source_session_hash, null);
   // The return binding is the only thing missing: the control cannot pass for
@@ -387,25 +466,26 @@ function assertReturnUnbound(fired) {
   assert.equal(receipt.failureCategory, 'incomplete-or-nonunique-lifecycle');
 }
 
-test('R-CD-TOKEN run 20261029T133725Z: the targeted return binds origin target and delegate source', async () => {
+test('R-CD-TOKEN run 20261029T133725Z: the targeted return is correlated on both legs and stays PARTIAL', async () => {
   const fired = await fireRcdToken();
   // Everything else the live run needed is present: one origin, one delegate,
-  // both done, stable traversals, the origin subscription accepted.
+  // both done, stable traversals, the origin subscription accepted. Only the
+  // product-stamped delivery-to-run join is missing.
   assert.equal(fired.evidence.origin_task_unique_count, 1);
   assert.equal(fired.evidence.delegate_task_unique_count, 1);
   assert.equal(fired.evidence.origin_subscription_accepted, true);
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
 });
 
-test('cleanup "delete" removes the origin transcript; the live route still binds', async () => {
+test('cleanup "delete" removes the origin transcript; the live route still correlates', async () => {
   // The origin is deleted right after its announce; chat.history then answers
   // an empty transcript, and only the live subscription carries the wake.
   const fired = await fireRcdToken({ originDeleted: true });
-  assertReturnBound(fired, 'bound-session-message-return');
-  assert.equal(fired.evidence.event_receipt_kinds.includes('bound-target-transcript-return'), false);
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
+  assert.equal(fired.evidence.event_receipt_kinds.includes('correlated-target-transcript-targeted-return'), false);
 });
 
-test('the origin transcript recovers a wake answer the live subscription missed', async () => {
+test('the origin transcript recovers the correlation the live subscription missed', async () => {
   // The wake ran before any origin subscriber existed (no live frame), and the
   // origin transcript still holds that run's answer.
   const fired = await fireRcdToken({
@@ -413,7 +493,7 @@ test('the origin transcript recovers a wake answer the live subscription missed'
     wake: () => [],
     originHistory: (state) => state.round >= WAKE_END_ROUND ? [stamped(text('assistant', state.sentinel), WAKE_RUN)] : [],
   });
-  assertReturnBound(fired, 'bound-target-transcript-return');
+  assertTargetedCorrelated(fired, 'correlated-target-transcript-targeted-return');
 });
 
 test('agent lifecycle broadcasts from other sessions cannot crowd out the woken run', async () => {
@@ -426,7 +506,7 @@ test('agent lifecycle broadcasts from other sessions cannot crowd out the woken 
     wake: (state) => [...unrelatedStarts, ...targetedReturnWake({ sentinel: state.sentinel })],
     deliverUnsubscribed: true,
   });
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
 });
 
 test('lifecycle broadcasts before the origin is known cannot crowd out the woken run', async () => {
@@ -434,17 +514,17 @@ test('lifecycle broadcasts before the origin is known cannot crowd out the woken
     preIdentityFrames: Array.from({ length: 25 }, (_, i) =>
       lifecycle({ runId: `early-run-${i}`, sessionKey: `agent:main:early-${i}`, phase: 'start' })),
   });
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
 });
 
-test('delivery order: an answer ahead of its lifecycle start, or ahead of the source leg, still binds', async () => {
+test('delivery order: an answer ahead of its lifecycle start, or ahead of the source leg, still correlates', async () => {
   for (const options of [
     { wake: (state) => targetedReturnWake({ sentinel: state.sentinel, order: 'answer-first' }) },
     // The delegate's transcript shows its answer a few rounds after the wake.
     { delegateAnswerRound: DELEGATE_DONE_ROUND + 4 },
   ]) {
     const fired = await fireRcdToken(options);
-    assertReturnBound(fired, 'bound-session-message-return');
+    assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
   }
 });
 
@@ -470,6 +550,50 @@ test('negative: an origin run that started before the delegate finished does not
 test('both forms: the direct-announce delivery still binds', async () => {
   const fired = await fireRcdToken({ wake: (state) => directAnnounce({ sentinel: state.sentinel }) });
   assertReturnBound(fired, 'bound-session-message-return', 'direct-announce');
+});
+
+const NO_STAMPED_JOIN = 'targeted-return correlated; no product-stamped delivery→run join observable';
+
+/** The harness's conclusion, without the two real-clock stamps. */
+function harnessView(evidence) {
+  const { started: _started, ended: _ended, ...view } = evidence;
+  return view;
+}
+
+test('negative control: an unrelated origin wake after the delegate ended echoes the sentinel; with no targeted delivery it stays unbound', async () => {
+  // The delegate completes and answers correctly (the source leg is present).
+  // No targeted delivery reaches the origin. An unrelated session event wakes
+  // it after the delegate ended, and that turn echoes the sentinel the origin
+  // already knows from its own task.
+  const targeted = await fireRcdToken();
+  const control = await fireRcdToken({ targetedDelivery: false });
+  // The product states differ: only the first delivered the return, and even
+  // its input names the delegate run but not the run it starts.
+  assert.equal(targeted.gatewayState.targetedDeliveries, 1);
+  assert.equal(control.gatewayState.targetedDeliveries, 0);
+  assert.deepEqual(targeted.gatewayState.originInputs.map((input) => input.provenance),
+    [{ kind: 'internal_system', sourceTool: 'continuation', runId: DELEGATE_RUN }]);
+  assert.deepEqual(control.gatewayState.originInputs.map((input) => input.provenance),
+    [{ kind: 'internal_system', sourceTool: 'exec' }]);
+  // Run ids are opaque. With the same id for both wakes, every byte the
+  // harness reads is the same, and so is its conclusion.
+  assert.deepEqual(harnessView(control.evidence), harnessView(targeted.evidence));
+  const distinctRun = await fireRcdToken({
+    targetedDelivery: false,
+    wakeRunId: UNRELATED_WAKE_RUN,
+    wake: (state) => targetedReturnWake({ sentinel: state.sentinel, startRunId: UNRELATED_WAKE_RUN, answerRunId: UNRELATED_WAKE_RUN }),
+  });
+  for (const fired of [control, distinctRun]) {
+    const bound = fired.evidence.event_receipt_kinds.filter((kind) => kind.startsWith('bound-'));
+    assert.equal(fired.evidence.delegate_return_observed, false, `an unrelated echo bound the return: ${bound.join(', ')}`);
+    assert.deepEqual(bound, []);
+    assert.equal(fired.evidence.return_target_session_hash, null);
+    assert.equal(fired.evidence.return_source_session_hash, null);
+    assert.deepEqual(fired.evidence.partial_reasons, [NO_STAMPED_JOIN]);
+    assert.equal(classifyTokenEvidence(fired.evidence), 'PARTIAL-candidate');
+    assert.equal(fired.receipt.verdict, 'PARTIAL-candidate');
+    assert.equal(fired.receipt.failureCategory, 'incomplete-or-nonunique-lifecycle');
+  }
 });
 
 test('negative: the wake answer in another session does not bind', async () => {

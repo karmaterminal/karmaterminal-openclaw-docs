@@ -670,71 +670,143 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 ### Return contract (R-CD-TOKEN, karmaterminal/openclaw-bootstrap#1727)
 
-Since openclaw `2273ef64d5` (2026-09-12, "restore continuation substrate on current upstream"),
-`createDelegateRecord` binds every pending delegate to its requester as recipient. A token
-delegate's return to the origin child is therefore always a **targeted return**
-(`routeSubagentContinuationReturn`), never the direct announce. At `8ba08c76d8` the route works
-like this:
+**Outcome: only the direct announce binds. A targeted return is correlation evidence, and the
+row stays PARTIAL** with `partial_reasons: ["targeted-return correlated; no product-stamped
+delivery→run join observable"]`. This follows 🌊's ruling on docs#612 (CHANGES_REQUESTED at
+`8b44456d`): the visible legs show that the delegate answered and that the origin answered later.
+They do not tie that origin run to receipt of this delegate's result.
 
-- a durable `systemEvent` row and a queued system event for the origin child, then a
-  `delegate-return` wake (journal: `[continuation:targeted-return] Delivered to <origin> from
-  <delegate>`);
-- the wake runs an ordinary session-event turn on the origin child. Its user message is the
-  return text (`[Internal task completion event]`, `session_key: <delegate child>`, the child
-  result), with provenance `internal_system` / `continuation` / the delegate run;
-- display projection empties that runtime-context row and hides it from `session.message` and
-  `chat.history`. The run's lifecycle names no delegate. A subscriber sees only the woken run's
-  lifecycle on the origin key and that run's own assistant answer, stamped `__openclaw.runId`.
+**The route.** Since openclaw `2273ef64d5` (2026-09-12, "restore continuation substrate on
+current upstream"), `createDelegateRecord` binds every pending delegate to its requester as
+recipient. A token delegate's return to the origin child is therefore always a **targeted
+return** (`routeSubagentContinuationReturn`), never the direct announce. At `8ba08c76d8` (the live
+P' evidence) and at the integration candidate `9f1b83f9d0` (I1) the route works like this:
 
-The row binds the return to the same four things as before: (a) the origin child as target,
-(b) the delegate child as source, (c) the exact `RCDT-RETURN-<tag>` sentinel, and (d) this row
-run. It accepts either route.
+- a durable `systemEvent` row (`continuationSourceRunId` = the delegate run) and a queued system
+  event for the origin child, then a `delegate-return` wake with `parentRunId` = the delegate run
+  (`auto-reply/continuation/targeting.ts:270-277`, `:366-373`). The journal logs
+  `[continuation:targeted-return] Delivered to <origin> from <delegate>`;
+- after a 250 ms coalesce, the wake runs an ordinary session-event turn on the origin child
+  (`continuation-wake.ts:186-202`). Its user message is the return text
+  (`[Internal task completion event]`, `session_key: <delegate child>`, the child result), with
+  provenance `internal_system` / `continuation` / `runId` = the delegate run
+  (`session-event-context.ts:180-192`) and `__openclaw.sessionDeliveryAckIds` naming the durable
+  row;
+- that text is runtime context (`internal-events.ts:241-255`). Display projection strips it and
+  hides the empty row (`chat-display-projection.history.ts:416-420`), so neither `session.message`
+  nor `chat.history` carries it. A subscriber sees only the woken run's lifecycle on the origin
+  key and that run's own assistant answer, stamped `__openclaw.runId`.
 
-- **direct-announce** (unchanged): a user row on the origin headed `[Inter-session message]
-  ... sourceTool=subagent_announce` whose `sourceSession` is the delegate child. Older products
-  published it. At `8ba08c76d8` display projection hides it even where the direct announce still
-  runs, and a continuation delegate never takes that path.
-- **targeted-return**: both legs are required.
-  - Target leg: the woken run's assistant answer on the origin key carries the exact sentinel,
-    word-bounded and once, with no bracket or harness text. Its run started on the origin (a
-    lifecycle start) and is not the origin's own bracket run, which is the first run the
-    observer reports for the origin. It also started **at or after the delegate run ended**
-    (the delegate row's `endedAt`). The origin already knows the sentinel from its own task, so
-    a later origin turn alone proves nothing; that order is what a targeted return implies.
-  - Source leg: the delegate child's own transcript answers the same sentinel in an assistant row
-    stamped with the delegate's run (`lastRunId`). The delegate is spawned with the default
-    cleanup `keep`, so it is still readable after the return.
-  - Evidence records `return_route`, `return_run_id_hash`, `origin_spawn_run_id_hash`,
-    `source_return_run_id_hash`, `return_after_delegate_end_ms`. Classification requires the
-    route's bindings, and the signed receipt records the route and those fields.
+**Direct-announce (bound, unchanged).** A user row on the origin headed `[Inter-session message]
+... sourceTool=subagent_announce` whose `sourceSession` is the delegate child. Its header is a
+product stamp naming the source on the row delivered to the target, so it binds (a) the origin
+as target, (b) the delegate as source, (c) the exact `RCDT-RETURN-<tag>` sentinel and (d) this
+row run. Older products published it; current ones hide it (`history.ts:413-415`), and a
+continuation delegate never takes that path.
 
-On this route, (b) is the delegate's own answer plus that order, not a provenance stamp on one
-visible row. The product's own stamp (the hidden user row's provenance runId and its
-`session_key` line) is not shown to subscribers.
+**Targeted-return (correlation only).** Both legs are still checked:
 
-Things that never bind (not an exhaustive list): a sentinel from another session, another run's
-nonce, the origin's bracket run, a run that never started on the origin, a run that started
-before the delegate ended, an unstamped row, or a return with no delegate leg. Because the
-delivery itself is invisible, the origin child is told in its spawn task: *on a later turn, only
-after an internal task completion contains `RCDT-RETURN-<tag>`, reply exactly
-`RCDT-RETURN-<tag>`*. That instruction comes before the terminal bracket, and the bracket turn is
-excluded by run identity.
+- target leg: the woken run's assistant answer on the origin key carries the exact sentinel,
+  word-bounded and once, with no bracket or harness text. Its run started on the origin (a
+  lifecycle start), is not the origin's own bracket run (the first run the observer reports for
+  the origin), and started **at or after the delegate run ended** (the delegate row's `endedAt`).
+  Transcript recovery (`chat.history` after the bracket run) applies the same rules to a row
+  timestamp;
+- source leg: the delegate child's own transcript answers the same sentinel in an assistant row
+  stamped with the delegate's run (`lastRunId`). The delegate is spawned with the default cleanup
+  `keep`, so it is still readable after the return.
+
+A match is recorded as `targeted_return_correlated`, `targeted_return_run_id_hash`,
+`targeted_return_after_delegate_end_ms`, `origin_spawn_run_id_hash`, `source_return_observed`,
+`source_return_run_id_hash`, with receipt kinds `correlated-session-message-targeted-return` or
+`correlated-target-transcript-targeted-return`. It never sets `delegate_return_observed`,
+`return_route` or the return target/source hashes. Classification binds only the direct-announce
+route (`TOKEN_BOUND_RETURN_ROUTES`). The signed receipt fingerprints the correlation, and its
+validator rejects a PASS lifecycle that names any other route, even when it is correctly signed:
+neither the order nor a signature stands in for the join.
+
+**Why it cannot bind: the negative control.** The delegate completes and answers correctly. No
+targeted delivery reaches the origin. An unrelated session event (for example an exec completion)
+wakes the origin after the delegate ended, and that turn echoes the sentinel the origin already
+knows from its own task. Every byte the harness reads is the same as for a real targeted return,
+and so is the evidence. At `8b44456d` this control bound as PASS-candidate. It now stays unbound.
+
+**Product join map at I1 `9f1b83f9d0`** (source walk of a clean detached checkout; no exact
+GitNexus index exists for that SHA). No record available to the harness names all three of the
+delegate run, the recipient session and the woken run:
+
+| record | delegate run | recipient | woken run | read surface for an operator token |
+|---|---|---|---|---|
+| woken turn's user row (raw) | `provenance.runId` | its transcript | **no**: only assistant and tool rows are run-stamped (`sessions/transcript-events.ts:40-58`); a session-event input is keyed by its occurrence id (`get-reply-run-execute.ts:299-300`) | hidden from `session.message`/`chat.history`; raw only through `sessions.get` (`sessions-read-by-key.ts:209-312`), `operator.read` but unadvertised (`methods/core-descriptors.ts:374`) |
+| woken run's assistant row | no | yes | `__openclaw.runId` | `session.message`, `chat.history` |
+| woken run's lifecycle start | no: `{phase, startedAt}` only (`embedded-agent-subscribe.handlers.lifecycle.ts:293`) | `sessionKey` | `runId` | `agent` events |
+| pending-input receipt (`chat.history inputRunIds`) | no | yes | no: keyed by the occurrence id (`session-event-handoff.ts:531-533`) | `chat.history` (`chat-history-handler.ts:217-235`) |
+| durable delivery row | `continuationSourceRunId` | `sessionKey` | no: the ack records no run (`session-delivery-queue-storage.ts:583-603`) | none (state database only) |
+
+The transcript `parentId` link from the assistant row to its input row is not projected by any
+read surface (`session-transcript-entry-message.ts:37-60` attaches only `id`, `idempotencyKey`,
+`recordTimestampMs`, `transcriptPosition` and `seq`).
+
+**Product seam that would let it bind** (fork-owned; not made in this repo):
+
+1. Stamp the consuming run on the record that already names the delegate run and lives in the
+   recipient's transcript: when an `internalEventExecution` turn commits its input row, write the
+   run id as a protected operational field, for example `__openclaw.inputRunId`.
+   - Where the run id comes from: it is preallocated when the turn is admitted
+     (`reply-agent-turn-preparation.ts:437-441`). An `internalEventExecution` turn is a
+     `queued_followup` (`reply-turn-kind.ts:4`), so the id is `controllerInput.protocolRunId` or
+     a fresh UUID. `GetReplyOptions.runId` is ignored for that kind. The id then reaches
+     `executeAgentTurn` as `opts.runId` (`agent-runner-execution.ts:710`).
+   - Where the stamp goes: the input is staged earlier, at `prepareInput`
+     (`session-event-handoff.ts:527-540`), keyed by the occurrence id, so the staged message
+     predates the run id. The stamp has to be added when the admitted turn commits that staged
+     input to the transcript. Carry it in the persisted metadata
+     (`buildPersistedUserTurnMetadata`, `user-turn-transcript.metadata.ts:51-119`) and add it to
+     the hook-protected fields (`:201-236`, `:334-346`), so a before-message-write hook can
+     neither drop nor forge it.
+   - Do not widen `attachSessionTranscriptRunId`: user rows are deliberately not run-owned.
+2. Read it through `sessions.get`, which already returns raw rows with `provenance` and
+   `__openclaw` intact; no new method is needed. Advertise it (drop `advertise: false` at
+   `core-descriptors.ts:374`). The entry sits after the advertised block, so existing advertised
+   indices stay stable, and the row preflight requires every method in hello-ok
+   `features.methods`.
+3. Stamp per delivery, not per wake, in the general case. When returns coalesce, the wake keeps a
+   single `parentRunId`, and the last writer wins (`continuation-wake.ts:89-96`). Each durable
+   row keeps its own `continuationSourceRunId`. For this row (one delegate per origin) the
+   provenance runId is exact.
+
+With that seam, the row would bind PASS on one `sessions.get {key: <origin>}` row whose
+provenance is `continuation` with `runId` equal to the delegate's `lastRunId`, whose
+`inputRunId` is the run whose answer carries the sentinel, and whose content names the delegate
+child. The four bindings and the ordering would remain additional checks. The read must happen
+before the origin is deleted: `sessions.get` answers `{messages: []}` for a missing session
+(`sessions-read-by-key.ts:252-253`), so the alternative is to spawn the origin with cleanup
+`keep`.
+
+**Origin instruction.** Because the delivery is invisible, the origin child is told in its spawn
+task: *on a later turn, only after an internal task completion contains `RCDT-RETURN-<tag>`,
+reply exactly `RCDT-RETURN-<tag>`*. That answer is what the correlation reads. The instruction
+comes before the terminal bracket, and the bracket turn is excluded by run identity.
+
+Things that never even correlate (not an exhaustive list): a sentinel from another session,
+another run's nonce, the origin's bracket run, a run that never started on the origin, a run that
+started before the delegate ended, an unstamped row, or an answer with no delegate leg.
 
 `cleanup: "delete"` on the origin: the delegate's cleanup resumes the origin's held announce,
 which delivers to the parent and then deletes the origin. Nothing orders that delete after the
-wake. **The live route (`bound-session-message-return`) is the primary receipt.** Transcript
-recovery (`bound-target-transcript-return`, the origin's `chat.history` after its bracket run,
-exactly one answer with a timestamp at or after the delegate's end, plus the source leg) works
-only while the origin still exists. If the delete
-pre-empts the wake, no woken answer exists and the row stays PARTIAL.
+wake. The live route is the primary correlation. Transcript recovery works only while the origin
+still exists. If the delete pre-empts the wake, nothing correlates.
 
 The offline fossil is `tests/r-cd-token-targeted-return.test.mjs`. It fires the real scenario
-against a gateway scripted on the `8ba08c76d8` route, modeled on live run 20261029T133725Z.
+against a gateway scripted on the targeted-return route, modeled on live run 20261029T133725Z.
+The scripted gateway keeps each wake's hidden input row (`state.originInputs`), so the negative
+control differs from a targeted return only in product state that the harness cannot read.
 
-Stale design text in openclaw (an openclaw change, not this repo's):
-`docs/design/continue-work-signal-v2.md:211` says normal-mode delegates with no explicit target
-"keep the existing visible announce behavior", and `:513` says "the existing announce path delivers
-untargeted results back to the dispatching session". Both stopped being true at `2273ef64d5`.
+Stale design text in openclaw (an openclaw change, not this repo's), still present at
+`9f1b83f9d0`: `docs/design/continue-work-signal-v2.md:211` says normal-mode delegates with no
+explicit target "keep the existing visible announce behavior", and `:513` says "the existing
+announce path delivers untargeted results back to the dispatching session". Both stopped being
+true at `2273ef64d5`.
 
 ## Row coverage
 

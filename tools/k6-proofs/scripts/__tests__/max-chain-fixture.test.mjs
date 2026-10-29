@@ -441,9 +441,16 @@ test('R-CW-6 delegate template uses the selected maximum and proves reject-befor
   assert.match(rendered, /const maxChainLength = 7/);
   assert.match(rendered, /currentChainCount: maxChainLength - 1/);
   assert.match(rendered, /rejectedBeforeSecondSpawn/);
+  assert.match(rendered, /spawnedOnlyAcceptedDelegate/);
   assert.match(rendered, /rejectedFlowStatus/);
+  assert.match(rendered, /rejectedRecordFailedForChainCap/);
   assert.match(rendered, /chainCappedNoticeObserved/);
+  assert.match(rendered, /config: runtimeConfig/);
   assert.doesNotMatch(rendered, /__RCW6_MAX_CHAIN_LENGTH__/);
+  // Delegate custody is the candidate's real store; only spawn and the raw
+  // system-event enqueue are replaced.
+  assert.match(rendered, /useContinuationCustodyTestState\(\)/);
+  assert.doesNotMatch(rendered, /task-flow-registry|task-runtime\.test-helpers/);
 });
 
 test('R-CW-6 renders every runtime layer at the selected max chain length', async () => {

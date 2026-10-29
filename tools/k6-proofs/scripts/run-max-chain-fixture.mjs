@@ -795,7 +795,9 @@ export function runFixture(args) {
     oneDispatchOneReject:
       selectedDelegateReceipt?.dispatched === 1 && selectedDelegateReceipt?.rejected === 1,
     rejectedBeforeSecondSpawn: selectedDelegateReceipt?.rejectedBeforeSecondSpawn === true,
+    spawnedOnlyAcceptedDelegate: selectedDelegateReceipt?.spawnedOnlyAcceptedDelegate === true,
     rejectedFlowFailed: selectedDelegateReceipt?.rejectedFlowStatus === 'failed',
+    rejectedRecordFailedForChainCap: selectedDelegateReceipt?.rejectedRecordFailedForChainCap === true,
     chainCappedNoticeObserved: selectedDelegateReceipt?.chainCappedNoticeObserved === true,
     resultingCountAtMaximum:
       selectedDelegateReceipt?.resultingChainCount === args.maxChainLength,

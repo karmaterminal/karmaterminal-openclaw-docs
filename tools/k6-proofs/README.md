@@ -70,7 +70,9 @@ state, repeats rejection through `scheduleContinuationWork`, enters the real
 `runAgentAttempt` path and invokes the registered production `continue_work`
 tool executor, and runs the exact candidate's delegate
 dispatch boundary at the same selected maximum plus the candidate's committed
-regression suite. It does not infer chain behavior from the R-CW-5
+regression suite. Durable state is the candidate's real continuation custody
+store, so every Vitest surface runs in the candidate's database-worker
+(infra) lane. It does not infer chain behavior from the R-CW-5
 cost-cap fixture or mutate fleet config/state:
 
 Before proofs, the detached worktree must declare exact `pnpm@<semver>` in its
@@ -94,7 +96,9 @@ node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
   --max-chain-length 3 --json
 ```
 
-See
+A failed proof surface leaves its raw output in `<artifact-dir>.private`
+(`--private-dir` to change it), which must never be published, and a sanitized
+`failureDiagnostics` excerpt in its public receipt. See
 [`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
 The result is review-required and never an automatic canonical fold.
 
@@ -774,9 +778,9 @@ and aligned installed dependency tree; it refuses tags/ranges, package-manager
 version mismatch, lockfile/tree/metadata mismatch, virtual-store escape,
 indirect source dependencies, reused or symlinked artifact paths, wrong SHAs,
 and dirty tracked source. The production predicate, durable scheduler, temporary session
-store recovery, typed `continue_work` registration/executor path, TaskFlow no-spawn check, and
+store recovery, typed `continue_work` registration/executor path, custody no-spawn check, and
 selected-max delegate dispatch boundary all run inside one detached disposable candidate
-worktree without a gateway or fleet mutation. The fixture first requires the
+worktree, in the candidate's database-worker Vitest lane, without a gateway or fleet mutation. The fixture first requires the
 candidate's committed `package.json` and `pnpm-lock.yaml`, runs `pnpm install
 --frozen-lockfile --prefer-offline --ignore-scripts` inside that detached worktree,
 checks the installed virtual-store lock bytes/SHA-256 against the candidate
@@ -795,10 +799,13 @@ claim.
 
 At the default maximum `3`, the required receipt shape is attempted hop `2`:
 allow, attempted hop `3`: allow, attempted hop `4`: `chain-capped`. The
-rejected election must leave the durable flow count and chain count unchanged;
-the persisted count must reload as `3` and remain capped. The disposable
-worktree/state must be removed and `public-artifact-safety.json` must pass
-before `fixture-result.json` can say `PASS-candidate`. See
+rejected election must leave the durable work-record count and chain count
+unchanged; the persisted count must reload as `3` and remain capped. The
+disposable worktree/state must be removed and `public-artifact-safety.json`
+must pass before `fixture-result.json` can say `PASS-candidate`. A failed
+surface keeps its raw output only in the private diagnostics dir (default
+`<artifact-dir>.private`, never published) and a sanitized excerpt in its
+receipt. See
 [`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.

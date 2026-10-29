@@ -42,24 +42,41 @@ The fixture:
    - the at-limit hop (`max-1 -> max`) schedules;
    - the first over-limit hop (`max -> max+1`) is rejected.
 4. Require the production budget helper to return the structured code
-   `chain-capped`, require no TaskFlow row for the rejected election, and
-   require the chain count to remain at the configured maximum.
+   `chain-capped`, require no durable work record for the rejected election,
+   and require the chain count to remain at the configured maximum.
 5. Persist the at-limit count to the temporary session store, clear the cache,
    reload it, and repeat the rejected election through
    `scheduleContinuationWork` to prove recovery does not reset the budget.
 6. Enter `runAgentAttempt`, use its forwarded continuation options to build the
    production continuation tool registry, invoke the registered `continue_work`
-   executor three times, and require only the two in-budget TaskFlow rows plus
-   the multi-election cap notice.
-7. Run a parameterized delegate test at the same selected maximum to prove the
-   at-limit delegate spawns, the first-over delegate is rejected before a
-   second spawn, and its TaskFlow is failed. Also run the exact candidate's
-   `delegate-dispatch.chain-depth-exhaustion.test.ts` as a regression companion.
+   executor three times, and require only the two in-budget work records plus
+   the multi-election cap notice. The in-memory count is read from the
+   caller's session store map, where the attempt publishes its patched entry.
+7. Run a parameterized delegate test at the same selected maximum. It must
+   prove that the at-limit delegate spawns with the accepted task, that the
+   first-over delegate is rejected before a second spawn, and that the
+   rejected delegate's custody record fails for `chain-capped`, with a trusted
+   notice to the owner. Only the spawn owner and the raw system-event enqueue
+   are mocked. Before it dispatches, the test refuses to run if the
+   dispatcher's spawn import no longer resolves to the mocked owner. Also run
+   the exact candidate's `delegate-dispatch.chain-depth-exhaustion.test.ts` as
+   a regression companion.
 8. Immediately after install, re-check the candidate worktree SHA and tracked
    state. Re-check both again after all proof surfaces, then remove the
    disposable worktree and isolated state before emitting the final result.
 9. Reject any public receipt containing the source, artifact, or disposable
    worktree path, or secret/session/environment/process-output fields.
+
+Durable work and delegate state live in the candidate's real continuation
+custody store. Upstream removed the Tasks/TaskFlow runtime, and the fork moved
+continuation custody onto that store. Custody suites run only in the
+candidate's database-worker lane: `test/vitest/vitest.infra.config.ts`, whose
+forked pool reaches the host SQLite broker. The scoped auto-reply config
+excludes them, and a file filter it excludes exits 0 with no tests. Every
+Vitest proof surface therefore runs under the infra config. The two generated
+tests join it through the candidate's `OPENCLAW_VITEST_INCLUDE_FILE`
+override, which the runner never inherits from the operator's shell. Each
+receipt records the command and include files that actually ran.
 
 This is not a copied implementation of the predicate. The matrix imports
 `checkContinuationBudget`; the runtime receipt uses
@@ -75,8 +92,31 @@ node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
   --source-dir <clean-exact-candidate-source-worktree> \
   --candidate-sha <40-char-candidate-sha> \
   --artifact-dir <new-empty-private-directory> \
+  [--private-dir <new-empty-private-diagnostics-directory>] \
   --max-chain-length 3 --json
 ```
+
+## Failure diagnostics
+
+The disposable worktree is always removed, so a failed proof surface keeps
+its raw output elsewhere. The command, exit code, stdout and stderr of each
+failed proof run (boundary matrix, candidate delegate suite, selected delegate
+boundary, runtime/typed surface) go to
+`<private-dir>/<surface>.json`. A surface counts as failed when its predicate
+fails, even if the process exited 0. The private dir defaults to
+`<artifact-dir>.private`; `--private-dir` or `OPENCLAW_RCW6_PRIVATE_DIR` can
+set it. It is created only when something fails. It must be new or an empty
+`0700` directory with no symlink on its path, and it may not sit inside or
+around the artifact dir. It holds raw candidate output: **never publish it.**
+
+Each public receipt fed by a failed surface carries `failureDiagnostics`:
+the surface, its exit code, `privateCopyRetained: true`, and a bounded excerpt
+of the failing lines. Terminal escapes are stripped. Worktree, artifact,
+private, source, home and temp paths become placeholders, and session
+identifiers become `<session-key>`. The excerpt must pass the
+public-artifact guard; otherwise it is withheld in favor of the private copy.
+`fixture-result.json` lists the surfaces with a retained private copy in
+`privateDiagnosticsRetainedFor`. The run prints the private path to stderr.
 
 The command refuses:
 
@@ -98,7 +138,8 @@ The command refuses:
 - missing or non-candidate-local `node_modules/.bin/tsx` or
   `node_modules/.bin/vitest` after that verified install;
 - a reused, group/world-readable, file, symlink, or symlink-ancestor artifact
-  path;
+  path, or such a private diagnostics path, or one inside or around the
+  artifact dir;
 - unknown mutation/restart arguments;
 - any missing structured runtime, typed-tool, dispatcher, recovery, readiness,
   cleanup, or public-artifact-safety receipt.

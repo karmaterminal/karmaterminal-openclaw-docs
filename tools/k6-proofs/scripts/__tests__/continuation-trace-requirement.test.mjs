@@ -229,6 +229,19 @@ test('the manifest checker refuses the bare alias anywhere and a missing correla
   }
 });
 
+test('a continue_delegate manifest must declare its delegate mode', async () => {
+  const { manifestTraceReceiptFailures } = await lib();
+  const base = { rowId: 'R-X', invocation: { tool: 'continue_delegate' } };
+  const modeFailures = (manifest) =>
+    manifestTraceReceiptFailures(manifest).filter((failure) => failure.includes('invocation.mode'));
+  assert.equal(modeFailures(base).length, 1);
+  assert.equal(modeFailures({ ...base, invocation: { tool: 'continue_delegate', mode: 'bogus' } }).length, 1);
+  for (const mode of ['normal', 'silent', 'silent-wake', 'post-compaction']) {
+    assert.deepEqual(modeFailures({ ...base, invocation: { tool: 'continue_delegate', mode } }), []);
+  }
+  assert.deepEqual(modeFailures({ rowId: 'R-Y', invocation: { tool: 'continue_work' } }), []);
+});
+
 test('every committed manifest satisfies the trace receipt rule', async () => {
   const { manifestTraceReceiptFailures } = await lib();
   const failures = [];

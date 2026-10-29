@@ -31,6 +31,7 @@
   },
   "invocation": {
     "tool": "continue_delegate",
+    "mode": "normal",
     "forms": [
       "typed-tool-no-model",
       "bracket-token-no-model"

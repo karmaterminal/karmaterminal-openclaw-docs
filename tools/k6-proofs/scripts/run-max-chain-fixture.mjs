@@ -22,6 +22,7 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_MAX_CHAIN_LENGTH = 3;
 const SOURCE_MARKERS = [
@@ -238,11 +239,26 @@ export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageM
   );
   const candidateLock = readFileSync(candidateLockPath);
   const installedLock = readFileSync(installedLockPath);
-  const candidateLockfileSha256 = sha256File(candidateLockPath);
-  const installedLockfileSha256 = sha256File(installedLockPath);
-  if (!candidateLock.equals(installedLock) || candidateLockfileSha256 !== installedLockfileSha256) {
-    throw new Error('installed node_modules/.pnpm/lock.yaml bytes do not match candidate pnpm-lock.yaml');
+  const candidateLockfileSha256 = createHash('sha256').update(candidateLock).digest('hex');
+  const installedLockfileSha256 = createHash('sha256').update(installedLock).digest('hex');
+  // pnpm installs from, and writes to .pnpm/lock.yaml, only the lockfile
+  // document. A pnpm 12 candidate commits an env document before it.
+  const candidateLockfile = splitPnpmLockfile(candidateLock);
+  const candidateLockfileDocumentSha256 = createHash('sha256')
+    .update(candidateLockfile.lockfileDocument)
+    .digest('hex');
+  if (
+    !candidateLockfile.lockfileDocument.equals(installedLock) ||
+    candidateLockfileDocumentSha256 !== installedLockfileSha256
+  ) {
+    throw new Error(
+      'installed node_modules/.pnpm/lock.yaml bytes do not match candidate pnpm-lock.yaml lockfile document',
+    );
   }
+  const packageManagerDependencies = candidateLockfile.envDocument === null
+    ? null
+    : readPnpmEnvDocumentPins(candidateLockfile.envDocument, candidatePackageManager.version)
+      .packageManagerDependencies;
 
   const modulesPath = assertRealFile(path.join(dependencyDir, '.modules.yaml'), 'node_modules/.modules.yaml');
   const modulesRaw = readFileSync(modulesPath, 'utf8');
@@ -280,6 +296,9 @@ export function assertInstalledPnpmDependencyTree(worktreeDir, candidatePackageM
 
   return {
     candidateLockfileSha256,
+    candidateLockfileLayout: candidateLockfile.layout,
+    candidateLockfileDocumentSha256,
+    packageManagerDependencies,
     installedLockfileSha256,
     lockfileMatchesCandidate: true,
     installedPackageManager: installedPackageManager.declaration,
@@ -432,6 +451,9 @@ export function buildReadiness({ candidateSha, head, candidateRuntime, maxChainL
     dependencyTree: 'candidate-worktree-pnpm-install-frozen-lockfile-prefer-offline-ignore-scripts; lockfile/tree/version-aligned; source-node_modules-ignored',
     hostToolchainHermetic: false,
     candidateLockfileSha256: candidateRuntime.candidateLockfileSha256,
+    candidateLockfileLayout: candidateRuntime.candidateLockfileLayout,
+    candidateLockfileDocumentSha256: candidateRuntime.candidateLockfileDocumentSha256,
+    candidatePackageManagerDependencies: candidateRuntime.candidatePackageManagerDependencies,
     installedLockfileSha256: candidateRuntime.installedLockfileSha256,
     lockfileMatchesCandidate: candidateRuntime.lockfileMatchesCandidate,
     candidatePackageManager: candidateRuntime.candidatePackageManager,
@@ -543,6 +565,9 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
     const candidateRuntime = {
       candidateWorktreeHead: candidateBeforeInstall.head,
       candidateLockfileSha256: candidateBeforeInstall.candidateLockfileSha256,
+      candidateLockfileLayout: verifiedDependencies.dependencyProvenance.candidateLockfileLayout,
+      candidateLockfileDocumentSha256: verifiedDependencies.dependencyProvenance.candidateLockfileDocumentSha256,
+      candidatePackageManagerDependencies: verifiedDependencies.dependencyProvenance.packageManagerDependencies,
       installedLockfileSha256: verifiedDependencies.dependencyProvenance.installedLockfileSha256,
       lockfileMatchesCandidate: verifiedDependencies.dependencyProvenance.lockfileMatchesCandidate,
       candidatePackageManager: candidateBeforeInstall.candidatePackageManager.declaration,
@@ -714,6 +739,9 @@ export function runFixture(args) {
   const candidateRuntimeReceipt = {
     candidateWorktreeHead: runtimeSurface.candidateRuntime.candidateWorktreeHead,
     candidateLockfileSha256: runtimeSurface.candidateRuntime.candidateLockfileSha256,
+    candidateLockfileLayout: runtimeSurface.candidateRuntime.candidateLockfileLayout,
+    candidateLockfileDocumentSha256: runtimeSurface.candidateRuntime.candidateLockfileDocumentSha256,
+    candidatePackageManagerDependencies: runtimeSurface.candidateRuntime.candidatePackageManagerDependencies,
     installedLockfileSha256: runtimeSurface.candidateRuntime.installedLockfileSha256,
     lockfileMatchesCandidate: runtimeSurface.candidateRuntime.lockfileMatchesCandidate,
     candidatePackageManager: runtimeSurface.candidateRuntime.candidatePackageManager,

@@ -14,7 +14,11 @@ suffix is allowed), checks that host-resolved `pnpm --version` is exactly that
 semantic version, then runs `pnpm install --frozen-lockfile --prefer-offline
 --ignore-scripts` in that worktree before any proof command. It then requires
 the installed virtual-store `lock.yaml` bytes and SHA-256 to match the
-candidate lockfile, `.modules.yaml` package-manager metadata to match the
+candidate's lockfile document. A pnpm 12 `pnpm-lock.yaml` is two YAML
+documents: an env document that pins pnpm itself
+(`packageManagerDependencies`), then the lockfile document, which is all pnpm
+installs. Every package-manager pin in that env document must equal the
+candidate pnpm version. It also requires `.modules.yaml` package-manager metadata to match the
 candidate pnpm version (the metadata may omit the integrity suffix), and the
 declared virtual store plus `tsx`/`vitest` realpaths to remain inside that
 candidate `node_modules` tree. Source-tree `node_modules` is ignored. The
@@ -85,9 +89,12 @@ The command refuses:
   or a `pnpm --version` that does not exactly equal the candidate's fixed
   semantic version;
 - a failed `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`;
-- a missing/indirect `node_modules`, missing or byte/SHA-mismatched installed
-  `.pnpm/lock.yaml`, incompatible `.modules.yaml packageManager`, or a
-  virtual store that escapes candidate `node_modules`;
+- a missing/indirect `node_modules`, missing installed `.pnpm/lock.yaml` or one
+  whose bytes/SHA do not match the candidate lockfile document, a candidate
+  lockfile whose env document is unterminated or followed by a third document,
+  an env document that pins a different pnpm version, incompatible
+  `.modules.yaml packageManager`, or a virtual store that escapes candidate
+  `node_modules`;
 - missing or non-candidate-local `node_modules/.bin/tsx` or
   `node_modules/.bin/vitest` after that verified install;
 - a reused, group/world-readable, file, symlink, or symlink-ancestor artifact
@@ -101,7 +108,8 @@ resolved dependency command is the candidate-worktree `pnpm`, which is
 version-checked but not hermetically attested. It never starts a gateway, reads
 or writes fleet config/state, or writes the private source path into public
 receipts. The readiness and runtime receipts record candidate and installed
-lockfile SHA-256 values, candidate `packageManager`, executing and installed
+lockfile SHA-256 values, the candidate lockfile layout and lockfile-document
+SHA-256, the env document's package-manager pins, candidate `packageManager`, executing and installed
 package-manager versions, the exact frozen install command, the local
 executable contract, and post-install/post-proof worktree integrity checks.
 Any failed install, lockfile/tree/version alignment, SHA/state check, or

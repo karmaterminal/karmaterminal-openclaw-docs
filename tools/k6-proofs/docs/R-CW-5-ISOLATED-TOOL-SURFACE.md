@@ -50,6 +50,16 @@ The command refuses a SHA/source mismatch, a missing or altered candidate
 lockfile, or any failure to create and remove its disposable worktree. It runs
 `pnpm install --frozen-lockfile --prefer-offline` only in that disposable
 worktree using the exact version and sha512 integrity pinned by the candidate.
+npm installs that pnpm release into a private toolchain. The fixture runs the
+bin entry the package declares through a trusted interpreter: `node` for a
+`#!...node` script, `/bin/sh` for pnpm 12's shebang-less launcher. It refuses a
+pnpm that changes its own toolchain during the `--version` probe. That probe
+picks the native binary in the same way the install then does. When the candidate lockfile
+opens with a pnpm env document, that document must pin the same pnpm version
+and tarball integrity. Every other toolchain package, such as pnpm 12's
+`@pnpm/exe.<target>` native binary, must match the integrity that document
+records. The installed `.pnpm/lock.yaml` must byte-match the candidate's
+lockfile document, the part after any env document.
 It never trusts or mutates source `node_modules`, starts a gateway, writes
 OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.

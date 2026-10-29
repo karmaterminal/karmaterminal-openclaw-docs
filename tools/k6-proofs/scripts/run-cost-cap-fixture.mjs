@@ -18,15 +18,18 @@ import {
   readlinkSync,
   readdirSync,
   realpathSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_CAP = 100;
 const CHILD_OUTPUT_LIMIT_BYTES = 64 * 1024 * 1024;
 const TRUSTED_GIT = '/usr/bin/git';
+const TRUSTED_SH = '/bin/sh';
 const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
   'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts',
@@ -248,7 +251,10 @@ function requireCandidatePackageManager(worktreeDir) {
   return { packageManager, pnpmVersion: match[1], integrityHex: match[2] };
 }
 
-export function resolvePinnedPnpm(worktreeDir) {
+// `candidateLockfile` is the committed pnpm-lock.yaml the caller has already
+// verified. The env-document pins that bind the toolchain come from those
+// bytes, never from a later read of the worktree.
+export function resolvePinnedPnpm(worktreeDir, candidateLockfile) {
   const { packageManager, pnpmVersion, integrityHex } = requireCandidatePackageManager(worktreeDir);
   const nodePrefix = path.resolve(path.dirname(process.execPath), '..');
   const npmScript = path.join(nodePrefix, 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
@@ -280,31 +286,46 @@ export function resolvePinnedPnpm(worktreeDir) {
   if (!install.ok) {
     throw new Error(`cannot install candidate-pinned pnpm: ${install.stderr.trim()}`);
   }
+  return verifyInstalledPinnedPnpm({
+    worktreeDir,
+    toolchainDir,
+    pin: { packageManager, pnpmVersion, integrityHex },
+    packageManagerEnv,
+    candidateLockfile,
+  });
+}
+
+export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, packageManagerEnv, candidateLockfile }) {
+  const { packageManager, pnpmVersion, integrityHex } = pin;
+  if (!Buffer.isBuffer(candidateLockfile)) {
+    throw new Error('pinned pnpm verification requires the verified candidate lockfile bytes');
+  }
   const toolchainLock = JSON.parse(
     readFileSync(path.join(toolchainDir, 'node_modules', '.package-lock.json'), 'utf8'),
   );
   const installedIntegrity = toolchainLock?.packages?.['node_modules/pnpm']?.integrity;
-  const installedIntegrityMatch = typeof installedIntegrity === 'string' &&
-    /^sha512-([A-Za-z0-9+/]+={0,2})$/u.exec(installedIntegrity);
-  const installedIntegrityHex = installedIntegrityMatch
-    ? Buffer.from(installedIntegrityMatch[1], 'base64').toString('hex')
-    : '';
-  if (installedIntegrityHex !== integrityHex) {
+  if (sha512IntegrityHex(installedIntegrity) !== integrityHex) {
     throw new Error('installed pnpm integrity does not match candidate packageManager pin');
   }
-  const pnpmScript = path.join(toolchainDir, 'node_modules', 'pnpm', 'bin', 'pnpm.cjs');
-  if (!existsSync(pnpmScript) || !lstatSync(pnpmScript).isFile() || lstatSync(pnpmScript).isSymbolicLink()) {
-    throw new Error('candidate-pinned pnpm install did not produce a real pnpm script');
-  }
-  const resolvedPnpmScript = realpathSync(pnpmScript);
-  if (!isInside(resolvedPnpmScript, realpathSync(path.join(toolchainDir, 'node_modules')))) {
-    throw new Error('candidate-pinned pnpm script resolves outside the private toolchain');
-  }
+  const toolchain = assertToolchainPinnedByCandidateLockfile({
+    toolchainLock,
+    candidateLockfile: splitPnpmLockfile(candidateLockfile),
+    pin,
+  });
+  const { entry, script } = resolvePinnedPnpmEntry(toolchainDir);
+  const { launcher, interpreter } = pinnedPnpmLauncher(script);
+  // pnpm 12's launcher downloads a native binary next to itself when npm
+  // installed no platform package, and no candidate integrity pins that
+  // binary. A pinned pnpm must run from its toolchain as installed.
+  const toolchainBefore = toolchainInventory(toolchainDir);
   const versionResult = run(
-    process.execPath,
-    [resolvedPnpmScript, '--version'],
+    interpreter,
+    [script, '--version'],
     { cwd: worktreeDir, env: packageManagerEnv },
   );
+  if (toolchainInventory(toolchainDir).join('\n') !== toolchainBefore.join('\n')) {
+    throw new Error('candidate-pinned pnpm changed its private toolchain while running');
+  }
   if (!versionResult.ok) {
     throw new Error(`cannot execute candidate-pinned pnpm: ${versionResult.stderr.trim()}`);
   }
@@ -316,8 +337,134 @@ export function resolvePinnedPnpm(worktreeDir) {
     packageManager,
     pnpmVersion,
     pnpmIntegritySha512: integrityHex,
-    pnpmScript: resolvedPnpmScript,
+    pnpmEntry: entry,
+    pnpmLauncher: launcher,
+    pnpmInterpreter: interpreter,
+    pnpmScript: script,
+    ...toolchain,
     packageManagerEnv,
+  };
+}
+
+function sha512IntegrityHex(integrity) {
+  const match = typeof integrity === 'string' && /^sha512-([A-Za-z0-9+/]+={0,2})$/u.exec(integrity);
+  return match ? Buffer.from(match[1], 'base64').toString('hex') : '';
+}
+
+const TOOLCHAIN_LOCK_LOCATION = /^node_modules\/(?:(?:@[^/]+\/)?[^/@][^/]*\/node_modules\/)*((?:@[^/]+\/)?[^/@][^/]*)$/u;
+
+// The packageManager sha512 pins only the pnpm tarball, and pnpm 12 runs a
+// native binary from a second package. Every package npm put in the private
+// toolchain must therefore be pinned, integrity for integrity, by the
+// candidate's own lockfile env document, which records exactly those packages.
+function assertToolchainPinnedByCandidateLockfile({ toolchainLock, candidateLockfile, pin }) {
+  const pins = candidateLockfile.envDocument === null
+    ? null
+    : readPnpmEnvDocumentPins(candidateLockfile.envDocument, pin.pnpmVersion);
+  if (pins !== null && sha512IntegrityHex(pins.packageIntegrities[`pnpm@${pin.pnpmVersion}`]) !== pin.integrityHex) {
+    throw new Error(
+      `candidate pnpm-lock.yaml env document integrity for pnpm@${pin.pnpmVersion} does not match the candidate packageManager pin`,
+    );
+  }
+  const toolchainPackages = [];
+  for (const [location, installed] of Object.entries(toolchainLock?.packages ?? {})) {
+    const name = TOOLCHAIN_LOCK_LOCATION.exec(location)?.[1];
+    if (!name) throw new Error(`private pnpm toolchain lock has an unexpected entry: ${location}`);
+    const packageId = `${name}@${installed?.version}`;
+    toolchainPackages.push(packageId);
+    if (location === 'node_modules/pnpm') continue;
+    if (pins === null) {
+      throw new Error(`candidate pnpm-lock.yaml has no env document to pin private toolchain package ${packageId}`);
+    }
+    const pinned = pins.packageIntegrities[packageId];
+    if (pinned === undefined) {
+      throw new Error(`private pnpm toolchain package ${packageId} is not pinned by the candidate pnpm-lock.yaml env document`);
+    }
+    if (installed.integrity !== pinned) {
+      throw new Error(
+        `private pnpm toolchain package ${packageId} does not match its candidate pnpm-lock.yaml env document integrity`,
+      );
+    }
+  }
+  return {
+    candidateLockfileLayout: candidateLockfile.layout,
+    packageManagerDependencies: pins?.packageManagerDependencies ?? null,
+    toolchainPackages: toolchainPackages.toSorted(),
+  };
+}
+
+// The pinned package's own package.json names its pnpm command. Published
+// layouts differ: pnpm <=10 declares bin/pnpm.cjs, pnpm 11 bin/pnpm.mjs, and
+// pnpm 12 a `pnpm` launcher at the package root with no bin/pnpm.cjs at all.
+function resolvePinnedPnpmEntry(toolchainDir) {
+  const packageDir = path.join(toolchainDir, 'node_modules', 'pnpm');
+  const manifest = JSON.parse(readFileSync(path.join(packageDir, 'package.json'), 'utf8'));
+  const declared = typeof manifest?.bin === 'string' ? manifest.bin : manifest?.bin?.pnpm;
+  if (typeof declared !== 'string' || declared === '') {
+    throw new Error('candidate-pinned pnpm package declares no pnpm bin entry');
+  }
+  const entry = path.resolve(packageDir, declared);
+  if (!isInside(entry, packageDir)) {
+    throw new Error('candidate-pinned pnpm bin entry escapes the pinned pnpm package');
+  }
+  if (!existsSync(entry) || !lstatSync(entry).isFile() || lstatSync(entry).isSymbolicLink()) {
+    throw new Error('candidate-pinned pnpm install did not produce a real pnpm script');
+  }
+  const script = realpathSync(entry);
+  if (!isInside(script, realpathSync(path.join(toolchainDir, 'node_modules')))) {
+    throw new Error('candidate-pinned pnpm script resolves outside the private toolchain');
+  }
+  return { entry: path.relative(packageDir, entry).split(path.sep).join('/'), script };
+}
+
+// npm links a declared bin and the kernel runs it: a `#!` line names the
+// interpreter, and a file without one is retried under the POSIX shell. pnpm
+// 12's launcher is shebang-less on purpose. Both kinds run here through a
+// trusted absolute interpreter, so PATH can substitute neither.
+function pinnedPnpmLauncher(script) {
+  const content = readFileSync(script);
+  if (content.subarray(0, 2).toString('latin1') === '#!') {
+    const newline = content.indexOf(0x0a);
+    const shebang = content.subarray(2, newline === -1 ? content.length : newline).toString('utf8').trim();
+    const words = shebang.split(/\s+/u);
+    const interpreter = words[0] === '/usr/bin/env' ? words.slice(1) : words;
+    if (interpreter.length === 1 && path.basename(interpreter[0]) === 'node') {
+      return { launcher: 'node', interpreter: process.execPath };
+    }
+    throw new Error(`candidate-pinned pnpm bin entry requires an unsupported interpreter: #!${shebang}`);
+  }
+  if (content.includes(0)) {
+    throw new Error('candidate-pinned pnpm bin entry is neither a script nor a shell launcher');
+  }
+  if (statSync(TRUSTED_SH, { throwIfNoEntry: false })?.isFile() !== true) {
+    throw new Error(`trusted shell is unavailable: ${TRUSTED_SH}`);
+  }
+  return { launcher: 'sh', interpreter: TRUSTED_SH };
+}
+
+function toolchainInventory(toolchainDir) {
+  return readdirSync(toolchainDir, { recursive: true, withFileTypes: true })
+    .map((dirent) => {
+      const file = path.join(dirent.parentPath, dirent.name);
+      const stats = lstatSync(file);
+      return `${path.relative(toolchainDir, file)}\0${stats.mode}\0${stats.size}\0${stats.mtimeMs}`;
+    })
+    .toSorted();
+}
+
+// pnpm installs from, and writes to .pnpm/lock.yaml, only the lockfile
+// document. A pnpm 12 candidate commits an env document before it.
+export function assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLockfile) {
+  const { layout, lockfileDocument } = splitPnpmLockfile(candidateLockfile);
+  const virtualStoreLock = path.join(worktreeDir, 'node_modules', '.pnpm', 'lock.yaml');
+  const installed = existsSync(virtualStoreLock) ? readFileSync(virtualStoreLock) : null;
+  if (installed === null || !installed.equals(lockfileDocument)) {
+    throw new Error('disposable pnpm virtual-store lock does not byte-match the committed candidate lockfile document');
+  }
+  return {
+    lockfileLayout: layout,
+    lockfileDocumentSha256: createHash('sha256').update(lockfileDocument).digest('hex'),
+    virtualStoreLockSha256: createHash('sha256').update(installed).digest('hex'),
   };
 }
 
@@ -558,11 +705,15 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     if (lockfileSha256 !== sourceLockfileSha256) {
       throw new Error('disposable candidate lockfile does not match the verified source lockfile');
     }
-    const packageManager = resolvePinnedPnpm(worktreeDir);
+    const candidateLockfile = readFileSync(path.join(worktreeDir, 'pnpm-lock.yaml'));
+    if (createHash('sha256').update(candidateLockfile).digest('hex') !== lockfileSha256) {
+      throw new Error('disposable candidate lockfile changed after its integrity check');
+    }
+    const packageManager = resolvePinnedPnpm(worktreeDir, candidateLockfile);
     assertReservedPathAbsent(worktreeDir, '.r-cw-5-pnpm-store');
     const pnpmStoreDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-pnpm-store');
     const install = run(
-      process.execPath,
+      packageManager.pnpmInterpreter,
       [
         packageManager.pnpmScript,
         'install',
@@ -582,10 +733,7 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     if (!existsSync(dependencyDir) || !lstatSync(dependencyDir).isDirectory() || lstatSync(dependencyDir).isSymbolicLink()) {
       throw new Error('frozen-lockfile install did not create a real disposable node_modules directory');
     }
-    const virtualStoreLock = path.join(worktreeDir, 'node_modules', '.pnpm', 'lock.yaml');
-    if (!existsSync(virtualStoreLock) || fileSha256(virtualStoreLock) !== lockfileSha256) {
-      throw new Error('disposable pnpm virtual-store lock does not byte-match the committed candidate lockfile');
-    }
+    const virtualStore = assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLockfile);
     const afterInstall = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'proof execution after install');
     const tsxExecutable = resolveCandidateLocalExecutable(worktreeDir, 'tsx');
     const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
@@ -610,8 +758,10 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
         packageManager: packageManager.packageManager,
         pnpmVersion: packageManager.pnpmVersion,
         pnpmIntegritySha512: packageManager.pnpmIntegritySha512,
+        pnpmEntry: packageManager.pnpmEntry,
+        pnpmLauncher: packageManager.pnpmLauncher,
         installCommand: [
-          'node',
+          packageManager.pnpmLauncher,
           '<candidate-pinned-pnpm>',
           'install',
           '--frozen-lockfile',
@@ -624,8 +774,12 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
           'node_modules/.pnpm',
         ],
         packageManagerStateConfinedToDisposableWorktree: true,
+        pnpmToolchainPackages: packageManager.toolchainPackages,
+        packageManagerDependencies: packageManager.packageManagerDependencies,
         lockfileSha256,
-        virtualStoreLockSha256: fileSha256(virtualStoreLock),
+        lockfileLayout: virtualStore.lockfileLayout,
+        lockfileDocumentSha256: virtualStore.lockfileDocumentSha256,
+        virtualStoreLockSha256: virtualStore.virtualStoreLockSha256,
         frozenLockfileVerified: true,
         sourceNodeModulesTrusted: false,
         executionWorktreeIntegrity: { beforeInstall, afterInstall, afterExecution },

@@ -4,6 +4,7 @@ import { readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import {
+  candidateVitestEnv,
   reportedTitleMatches,
   runCandidateVitestSuite,
   selectCandidateVitestConfig,
@@ -145,4 +146,18 @@ test('a report path that already exists is refused before Vitest runs', async ()
   await rm(path.join(candidate.reportDir, 'suite.json'));
   await symlink('/nonexistent/report.json', path.join(candidate.reportDir, 'suite.json'));
   assert.throws(() => runSuite(candidate, {}), /report path already exists; refusing a stale report/);
+});
+
+test('candidate Vitest runs see the fixture selection knobs, never inherited ones', () => {
+  const base = {
+    PATH: '/usr/bin',
+    OPENCLAW_VITEST_INCLUDE_FILE: '/inherited/include.json',
+    OPENCLAW_VITEST_DATABASE_WORKER_WATCH_TESTS: '["x"]',
+    OPENCLAW_STATE_DIR: '/kept',
+  };
+  assert.deepEqual(candidateVitestEnv({}, base), { PATH: '/usr/bin', OPENCLAW_STATE_DIR: '/kept' });
+  assert.deepEqual(
+    candidateVitestEnv({ OPENCLAW_VITEST_INCLUDE_FILE: '/fixture/include.json' }, base),
+    { PATH: '/usr/bin', OPENCLAW_STATE_DIR: '/kept', OPENCLAW_VITEST_INCLUDE_FILE: '/fixture/include.json' },
+  );
 });

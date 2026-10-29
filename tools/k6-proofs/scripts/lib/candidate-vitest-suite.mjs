@@ -24,6 +24,21 @@ const CHILD_OUTPUT_LIMIT_BYTES = 64 * 1024 * 1024;
 const REDACTION_MARKER = /<redacted len=(\d+)>/gu;
 const TEST_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/u;
 
+/**
+ * The environment for a candidate Vitest run: the caller's, without its
+ * OPENCLAW_VITEST_* selection knobs, plus `overrides`. The candidate's scoped
+ * configs replace their include list with the files an inherited
+ * OPENCLAW_VITEST_INCLUDE_FILE names, which would change what the fixture's
+ * own selection and run see.
+ */
+export function candidateVitestEnv(overrides = {}, base = process.env) {
+  const env = {};
+  for (const [key, value] of Object.entries(base)) {
+    if (!key.startsWith('OPENCLAW_VITEST_')) env[key] = value;
+  }
+  return { ...env, ...overrides };
+}
+
 function runNode(script, args, { cwd, env }) {
   try {
     const stdout = execFileSync(process.execPath, [script, ...args], {
@@ -70,7 +85,13 @@ function listedFiles(worktreeDir, stdout) {
  * it at this candidate. `config` is null unless exactly one collects exactly
  * that file.
  */
-export function selectCandidateVitestConfig({ worktreeDir, vitestScript, suite, ownerConfigs, env = process.env }) {
+export function selectCandidateVitestConfig({
+  worktreeDir,
+  vitestScript,
+  suite,
+  ownerConfigs,
+  env = candidateVitestEnv(),
+}) {
   const probes = ownerConfigs.map((config) => {
     const configFile = path.join(worktreeDir, config);
     if (!existsSync(configFile) || !lstatSync(configFile).isFile()) {
@@ -151,7 +172,7 @@ export function runCandidateVitestSuite({
   reportPath,
   expectedTests,
   extraArgs = [],
-  env = process.env,
+  env = candidateVitestEnv(),
 }) {
   if (lstatSync(reportPath, { throwIfNoEntry: false })) {
     throw new Error('candidate Vitest report path already exists; refusing a stale report');

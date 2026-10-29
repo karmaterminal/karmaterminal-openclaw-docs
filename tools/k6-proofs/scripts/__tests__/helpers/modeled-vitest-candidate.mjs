@@ -43,7 +43,7 @@ function costCapTests(failedRecordName) {
 export function costCapSuiteAt293c977f62() {
   return {
     configs: {
-      [INFRA_CONFIG]: { project: 'infra', files: [COST_CAP_SUITE], passWithNoTests: true },
+      [INFRA_CONFIG]: { project: 'infra', files: [COST_CAP_SUITE], includeFile: true, passWithNoTests: true },
       [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [], passWithNoTests: true },
     },
     suites: {

@@ -580,6 +580,29 @@ test('R-CW-5 records which candidate config owns the dispatch suite and how each
   assert.doesNotMatch(JSON.stringify(result), /modeled-vitest-(?:candidate|reports)-/u);
 });
 
+// The candidate's scoped configs replace their include list with the files an
+// OPENCLAW_VITEST_INCLUDE_FILE names, so an operator's inherited one would
+// change which files the fixture's own selection and run see.
+test('R-CW-5 selects and runs the dispatch suite regardless of an inherited Vitest include file', async () => {
+  const candidate = await modeledVitestCandidate(costCapSuiteAt293c977f62());
+  const inherited = path.join(candidate.reportDir, 'inherited-include.json');
+  await writeFile(inherited, JSON.stringify(['src/auto-reply/continuation/delegate-dispatch.test.ts']));
+  const prior = process.env.OPENCLAW_VITEST_INCLUDE_FILE;
+  process.env.OPENCLAW_VITEST_INCLUDE_FILE = inherited;
+  try {
+    const result = runDispatchBoundarySuite({
+      worktreeDir: candidate.worktree,
+      vitestExecutable: candidate.vitestScript,
+      reportDir: candidate.reportDir,
+    });
+    assert.equal(result.suiteSelection.config, INFRA_CONFIG);
+    assert.equal(result.passed, true);
+  } finally {
+    if (prior === undefined) delete process.env.OPENCLAW_VITEST_INCLUDE_FILE;
+    else process.env.OPENCLAW_VITEST_INCLUDE_FILE = prior;
+  }
+});
+
 test('R-CW-5 fails closed when no candidate config, or more than one, collects the dispatch suite', async () => {
   const unowned = costCapSuiteAt293c977f62();
   unowned.configs[INFRA_CONFIG].files = [];

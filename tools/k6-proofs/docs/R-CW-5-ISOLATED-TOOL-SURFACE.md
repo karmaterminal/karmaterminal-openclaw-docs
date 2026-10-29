@@ -60,11 +60,13 @@ and tarball integrity. Every other toolchain package, such as pnpm 12's
 `@pnpm/exe.<target>` native binary, must match the integrity that document
 records. The installed `.pnpm/lock.yaml` must byte-match the candidate's
 lockfile document, the part after any env document.
+
 The candidate-local `tsx` and `vitest` run the same way. The fixture runs the
 JS entry each package's `package.json` `bin` declares under the trusted
 `node`. The `node_modules/.bin` link pnpm wrote must name that entry: a symlink
 up to pnpm 12.0, an sh cmd-shim's `# cmd-shim-target=` line from pnpm 12.3. Node
 cannot run a cmd-shim, and the shim itself would pick `node` from `PATH`.
+
 The dispatch boundary suite runs under whichever Vitest config owns it at the
 candidate. Candidate `311bc66fca` (fork #1408 L4) moved it onto real
 continuation custody, into the database-worker-core lane of
@@ -79,7 +81,11 @@ reporter redacts credential-looking spans of a test name, so it reports
 `rejects at exact boundary (accumulatedChainTokens === …)` with a
 `<redacted len=N>` marker. Such a title counts only when its visible text and
 marked length fit the expected name and the committed suite declares that name
-verbatim. A green exit, or names on stdout, is never enough.
+verbatim. A green exit, or names on stdout, is never enough. Candidate Vitest
+runs do not inherit the caller's `OPENCLAW_VITEST_*` variables. The candidate's
+scoped configs would let an inherited `OPENCLAW_VITEST_INCLUDE_FILE` replace
+the include list that the fixture selects by.
+
 It never trusts or mutates source `node_modules`, starts a gateway, writes
 OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.

@@ -33,6 +33,14 @@ import {
   renderToolSurfaceTemplate,
   verifyInstalledCandidateDependencies,
 } from '../run-max-chain-fixture.mjs';
+import {
+  LOCKFILE_DOCUMENT,
+  PNPM_12_15_0,
+  PNPM_12_ENV_PREFIX,
+  modeledIntegrity,
+  pnpmEnvPrefix,
+  sha256,
+} from './helpers/pnpm-toolchain-fixture.mjs';
 
 async function writeInstalledPnpmTree(source, {
   candidateLock = 'lockfileVersion: 9.0\n',
@@ -217,6 +225,63 @@ test('R-CW-6 verifies installed lock bytes, pnpm metadata, and candidate-contain
   assert.equal(
     assertInstalledPnpmDependencyTree(legacyYaml, candidate).installedPackageManagerVersion,
     '11.2.2',
+  );
+});
+
+test('R-CW-6 accepts a pnpm 12 tree whose lock.yaml is the candidate lockfile document', async () => {
+  const candidateLock = Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]);
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm-12-lock-'));
+  await writeInstalledPnpmTree(worktree, {
+    candidateLock,
+    installedLock: LOCKFILE_DOCUMENT,
+    packageManager: 'pnpm@12.15.0',
+  });
+  const verified = assertInstalledPnpmDependencyTree(worktree, parsePinnedPnpmPackageManager(PNPM_12_15_0));
+  assert.equal(verified.lockfileMatchesCandidate, true);
+  assert.equal(verified.candidateLockfileSha256, sha256(candidateLock));
+  assert.equal(verified.installedLockfileSha256, sha256(LOCKFILE_DOCUMENT));
+  assert.equal(verified.candidateLockfileLayout, 'env-and-lockfile-documents');
+  assert.equal(verified.candidateLockfileDocumentSha256, sha256(LOCKFILE_DOCUMENT));
+  assert.deepEqual(verified.packageManagerDependencies, { pnpm: '12.15.0' });
+  assert.equal(verified.installedPackageManagerVersion, '12.15.0');
+});
+
+test('R-CW-6 still fails closed on drift in a pnpm 12 lockfile document', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm-12-drift-'));
+  await writeInstalledPnpmTree(worktree, {
+    candidateLock: Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]),
+    installedLock: LOCKFILE_DOCUMENT.toString('utf8').replace('version: 7.0.0', 'version: 7.0.1'),
+    packageManager: 'pnpm@12.15.0',
+  });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(worktree, parsePinnedPnpmPackageManager(PNPM_12_15_0)),
+    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+  );
+});
+
+test('R-CW-6 rejects an installed lock.yaml that carries the env document pnpm never installs', async () => {
+  const candidateLock = Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]);
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm-12-whole-file-'));
+  await writeInstalledPnpmTree(worktree, { candidateLock, installedLock: candidateLock, packageManager: 'pnpm@12.15.0' });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(worktree, parsePinnedPnpmPackageManager(PNPM_12_15_0)),
+    /lock\.yaml bytes do not match candidate pnpm-lock\.yaml/,
+  );
+});
+
+test('R-CW-6 requires the candidate env document to pin the resolved pnpm version', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm-12-env-pin-'));
+  await writeInstalledPnpmTree(worktree, {
+    candidateLock: Buffer.concat([
+      pnpmEnvPrefix({ pinnedVersion: '12.14.0', pnpmIntegrity: modeledIntegrity('pnpm 12.14.0').sri }),
+      LOCKFILE_DOCUMENT,
+    ]),
+    installedLock: LOCKFILE_DOCUMENT,
+    packageManager: 'pnpm@12.15.0',
+  });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(worktree, parsePinnedPnpmPackageManager(PNPM_12_15_0)),
+    /env document pins pnpm 12\.14\.0, not the resolved pnpm 12\.15\.0/,
   );
 });
 

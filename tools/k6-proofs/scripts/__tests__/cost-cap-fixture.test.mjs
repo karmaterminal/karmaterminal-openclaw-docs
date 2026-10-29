@@ -7,14 +7,26 @@ import {
   assertSafeLocalGitConfig,
   assertTrackedTreeBytes,
   assertTrackedSourceClean,
+  assertVirtualStoreLockMatchesCandidate,
   buildReadiness,
   parseArgs,
   privatePackageManagerEnv,
   prepareArtifactDir,
   resolvePinnedPnpm,
   renderToolSurfaceTemplate,
+  verifyInstalledPinnedPnpm,
 } from '../run-cost-cap-fixture.mjs';
-import { chmod, mkdir, mkdtemp, readFile, symlink, writeFile } from 'node:fs/promises';
+import {
+  LOCKFILE_DOCUMENT,
+  PLATFORM_PACKAGE,
+  PNPM_12_15_0,
+  PNPM_12_ENV_PREFIX,
+  modeledIntegrity,
+  pnpmEnvPrefix,
+  sha256,
+  writePnpmToolchain,
+} from './helpers/pnpm-toolchain-fixture.mjs';
+import { chmod, mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -22,6 +34,63 @@ import path from 'node:path';
 
 const PNPM_11_2_2 =
   'pnpm@11.2.2+sha512.36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f';
+
+const PNPM_12_TARBALL = modeledIntegrity('modeled pnpm 12.15.0 tarball');
+const PNPM_12_NATIVE = modeledIntegrity('modeled pnpm 12.15.0 native binary package');
+const PNPM_12_PIN = {
+  packageManager: `pnpm@12.15.0+sha512.${PNPM_12_TARBALL.hex}`,
+  pnpmVersion: '12.15.0',
+  integrityHex: PNPM_12_TARBALL.hex,
+};
+
+function pnpm12Lockfile(envOverrides = {}) {
+  return Buffer.concat([
+    pnpmEnvPrefix({
+      version: '12.15.0',
+      pnpmIntegrity: PNPM_12_TARBALL.sri,
+      platformPackages: { [PLATFORM_PACKAGE]: PNPM_12_NATIVE.sri },
+      ...envOverrides,
+    }),
+    LOCKFILE_DOCUMENT,
+  ]);
+}
+
+// A worktree laid out like the fixture's: the committed candidate lockfile at
+// its root and the npm-installed pnpm toolchain in its reserved private path.
+async function modeledPinnedToolchain({ candidateLockfile, ...toolchain }) {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-modeled-toolchain-'));
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), candidateLockfile);
+  const toolchainDir = path.join(worktree, '.r-cw-5-pnpm-toolchain');
+  await writePnpmToolchain(toolchainDir, toolchain);
+  return { worktree, toolchainDir };
+}
+
+function verifyModeledToolchain({ worktree, toolchainDir }, pin) {
+  return verifyInstalledPinnedPnpm({
+    worktreeDir: worktree,
+    toolchainDir,
+    pin,
+    packageManagerEnv: privatePackageManagerEnv(worktree),
+  });
+}
+
+function modeledPnpm12({ candidateLockfile = pnpm12Lockfile(), ...toolchain } = {}) {
+  return modeledPinnedToolchain({
+    layout: 'pnpm12',
+    version: '12.15.0',
+    integrityHex: PNPM_12_TARBALL.hex,
+    platformPackages: { [PLATFORM_PACKAGE]: PNPM_12_NATIVE.sri },
+    candidateLockfile,
+    ...toolchain,
+  });
+}
+
+async function virtualStoreWorktree(installedLock) {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-virtual-store-'));
+  await mkdir(path.join(worktree, 'node_modules', '.pnpm'), { recursive: true });
+  await writeFile(path.join(worktree, 'node_modules', '.pnpm', 'lock.yaml'), installedLock);
+  return worktree;
+}
 
 test('R-CW-5 fixture accepts an explicit isolated source contract', () => {
   const parsed = parseArgs([
@@ -129,6 +198,8 @@ test('R-CW-5 fixture rechecks committed candidate files after disposable worktre
 test('R-CW-5 fixture ignores fake PATH pnpm and verifies version plus integrity', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-pinned-pnpm-'));
   await writeFile(path.join(worktree, 'package.json'), `${JSON.stringify({ packageManager: PNPM_11_2_2 })}\n`);
+  // pnpm 11 commits a single-document lockfile.
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), LOCKFILE_DOCUMENT);
   const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-fake-pnpm-'));
   const fakePnpm = path.join(fakeBin, 'pnpm');
   await writeFile(fakePnpm, '#!/bin/sh\necho FAKE-PNPM-RAN >&2\nexit 97\n');
@@ -143,6 +214,217 @@ test('R-CW-5 fixture ignores fake PATH pnpm and verifies version plus integrity'
   } finally {
     process.env.PATH = priorPath;
   }
+});
+
+// Real published bytes: pnpm@12.15.0 declares a shebang-less `pnpm` shell
+// launcher, ships no bin/pnpm.cjs, and runs its native binary from the
+// @pnpm/exe.<target> package npm installs beside it. The candidate pins both
+// through its lockfile env document.
+test('R-CW-5 installs, binds, and runs the real pnpm 12.15.0 package the candidate pins', async () => {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-real-pnpm-12-'));
+  await writeFile(path.join(worktree, 'package.json'), `${JSON.stringify({ packageManager: PNPM_12_15_0 })}\n`);
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]));
+  const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-fake-pnpm-'));
+  const fakePnpm = path.join(fakeBin, 'pnpm');
+  await writeFile(fakePnpm, '#!/bin/sh\necho FAKE-PNPM-RAN >&2\nexit 97\n');
+  await chmod(fakePnpm, 0o700);
+  const priorPath = process.env.PATH;
+  try {
+    process.env.PATH = fakeBin;
+    const pinned = resolvePinnedPnpm(worktree);
+    assert.equal(pinned.pnpmVersion, '12.15.0');
+    assert.equal(pinned.packageManager, PNPM_12_15_0);
+    assert.equal(pinned.pnpmIntegritySha512, PNPM_12_15_0.split('+sha512.')[1]);
+    assert.equal(pinned.pnpmEntry, 'pnpm');
+    assert.equal(pinned.pnpmLauncher, 'sh');
+    assert.equal(pinned.candidateLockfileLayout, 'env-and-lockfile-documents');
+    assert.deepEqual(pinned.packageManagerDependencies, { pnpm: '12.15.0' });
+    assert.ok(pinned.toolchainPackages.includes('pnpm@12.15.0'));
+    assert.equal(
+      pinned.toolchainPackages.filter((entry) => /^@pnpm\/exe\.[a-z0-9-]+@12\.15\.0$/u.test(entry)).length,
+      1,
+    );
+  } finally {
+    process.env.PATH = priorPath;
+  }
+});
+
+test('R-CW-5 runs pinned pnpm 12 through the shell launcher its package.json bin declares', async () => {
+  const modeled = await modeledPnpm12();
+  const pinned = verifyModeledToolchain(modeled, PNPM_12_PIN);
+  assert.equal(pinned.pnpmVersion, '12.15.0');
+  assert.equal(pinned.pnpmIntegritySha512, PNPM_12_TARBALL.hex);
+  assert.equal(pinned.pnpmEntry, 'pnpm');
+  assert.equal(pinned.pnpmLauncher, 'sh');
+  assert.equal(
+    pinned.pnpmScript,
+    await realpath(path.join(modeled.toolchainDir, 'node_modules', 'pnpm', 'pnpm')),
+  );
+});
+
+test('R-CW-5 still runs a pnpm whose bin is bin/pnpm.cjs with a single-document lockfile', async () => {
+  const pnpm10 = modeledIntegrity('modeled pnpm 10.20.0 tarball');
+  const modeled = await modeledPinnedToolchain({
+    layout: 'pnpm10',
+    version: '10.20.0',
+    integrityHex: pnpm10.hex,
+    candidateLockfile: LOCKFILE_DOCUMENT,
+  });
+  const pinned = verifyModeledToolchain(modeled, {
+    packageManager: `pnpm@10.20.0+sha512.${pnpm10.hex}`,
+    pnpmVersion: '10.20.0',
+    integrityHex: pnpm10.hex,
+  });
+  assert.equal(pinned.pnpmVersion, '10.20.0');
+  assert.equal(pinned.pnpmIntegritySha512, pnpm10.hex);
+  assert.ok(pinned.pnpmScript.endsWith(path.join('node_modules', 'pnpm', 'bin', 'pnpm.cjs')));
+});
+
+test('R-CW-5 runs the entry the pinned package declares, not a file it merely ships', async () => {
+  const pnpm11 = modeledIntegrity('modeled pnpm 11.22.0 tarball');
+  const modeled = await modeledPinnedToolchain({
+    layout: 'pnpm11',
+    version: '11.22.0',
+    integrityHex: pnpm11.hex,
+    candidateLockfile: LOCKFILE_DOCUMENT,
+  });
+  const pinned = verifyModeledToolchain(modeled, {
+    packageManager: `pnpm@11.22.0+sha512.${pnpm11.hex}`,
+    pnpmVersion: '11.22.0',
+    integrityHex: pnpm11.hex,
+  });
+  assert.equal(pinned.pnpmVersion, '11.22.0');
+  assert.equal(pinned.pnpmEntry, 'bin/pnpm.mjs');
+  assert.equal(pinned.pnpmLauncher, 'node');
+  assert.ok(pinned.pnpmScript.endsWith(path.join('node_modules', 'pnpm', 'bin', 'pnpm.mjs')));
+});
+
+test('R-CW-5 rejects a pinned pnpm bin entry outside its own package', async () => {
+  const modeled = await modeledPnpm12({ bin: { pnpm: '../escape/pnpm' } });
+  await mkdir(path.join(modeled.toolchainDir, 'node_modules', 'escape'), { recursive: true });
+  await writeFile(
+    path.join(modeled.toolchainDir, 'node_modules', 'escape', 'pnpm'),
+    '#!/usr/bin/env node\nconsole.log("12.15.0");\n',
+  );
+  assert.throws(() => verifyModeledToolchain(modeled, PNPM_12_PIN), /bin entry escapes the pinned pnpm package/);
+});
+
+test('R-CW-5 rejects a symlinked pinned pnpm bin entry', async () => {
+  const modeled = await modeledPnpm12();
+  const launcher = path.join(modeled.toolchainDir, 'node_modules', 'pnpm', 'pnpm');
+  await rm(launcher);
+  await symlink('bin/pnpm.mjs', launcher);
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN),
+    /candidate-pinned pnpm install did not produce a real pnpm script/,
+  );
+});
+
+test('R-CW-5 rejects a pinned pnpm bin entry for an interpreter it cannot pin', async () => {
+  const modeled = await modeledPnpm12({ entrySource: '#!/usr/bin/env python3\nprint("12.15.0")\n' });
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN),
+    /pinned pnpm bin entry requires an unsupported interpreter/,
+  );
+});
+
+test('R-CW-5 refuses a pinned pnpm that changes its own toolchain while running', async () => {
+  // No platform package was installed, so the pnpm 12 wrapper fetches a native
+  // binary next to itself: code that no candidate integrity pins.
+  const modeled = await modeledPnpm12({ platformPackages: {} });
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN),
+    /candidate-pinned pnpm changed its private toolchain while running/,
+  );
+  const wrapperFiles = await readdir(path.join(modeled.toolchainDir, 'node_modules', 'pnpm'));
+  assert.ok(wrapperFiles.includes('pnpm-native'), 'the modeled wrapper did take its download path');
+});
+
+test('R-CW-5 compares the virtual-store lock with the lockfile document of a pnpm 12 lockfile', async () => {
+  const candidate = Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]);
+  const worktree = await virtualStoreWorktree(LOCKFILE_DOCUMENT);
+  const verified = assertVirtualStoreLockMatchesCandidate(worktree, candidate);
+  assert.equal(verified.virtualStoreLockSha256, sha256(LOCKFILE_DOCUMENT));
+  assert.equal(verified.lockfileDocumentSha256, sha256(LOCKFILE_DOCUMENT));
+  assert.equal(verified.lockfileLayout, 'env-and-lockfile-documents');
+});
+
+test('R-CW-5 still byte-matches a single-document lockfile', async () => {
+  const worktree = await virtualStoreWorktree(LOCKFILE_DOCUMENT);
+  const verified = assertVirtualStoreLockMatchesCandidate(worktree, LOCKFILE_DOCUMENT);
+  assert.equal(verified.virtualStoreLockSha256, sha256(LOCKFILE_DOCUMENT));
+});
+
+test('R-CW-5 rejects lockfile drift in either lockfile layout', async () => {
+  const drifted = Buffer.from(LOCKFILE_DOCUMENT.toString('utf8').replace('version: 7.0.0', 'version: 7.0.1'));
+  const worktree = await virtualStoreWorktree(drifted);
+  for (const candidate of [LOCKFILE_DOCUMENT, Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT])]) {
+    assert.throws(
+      () => assertVirtualStoreLockMatchesCandidate(worktree, candidate),
+      /virtual-store lock does not byte-match the committed candidate lockfile/,
+    );
+  }
+});
+
+test('R-CW-5 rejects a virtual-store lock that carries the env document pnpm never installs', async () => {
+  const candidate = Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]);
+  const worktree = await virtualStoreWorktree(candidate);
+  assert.throws(
+    () => assertVirtualStoreLockMatchesCandidate(worktree, candidate),
+    /virtual-store lock does not byte-match the committed candidate lockfile/,
+  );
+});
+
+test('R-CW-5 rejects a candidate lockfile with more than two YAML documents', async () => {
+  const candidate = Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT, Buffer.from('---\n'), LOCKFILE_DOCUMENT]);
+  const worktree = await virtualStoreWorktree(LOCKFILE_DOCUMENT);
+  assert.throws(
+    () => assertVirtualStoreLockMatchesCandidate(worktree, candidate),
+    /more than two YAML documents/,
+  );
+});
+
+test('R-CW-5 requires the env document to pin the pnpm version it resolved', async () => {
+  const modeled = await modeledPnpm12({ candidateLockfile: pnpm12Lockfile({ pinnedVersion: '12.14.0' }) });
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN),
+    /env document pins pnpm 12\.14\.0, not the resolved pnpm 12\.15\.0/,
+  );
+});
+
+test('R-CW-5 requires the env document pnpm integrity to equal the packageManager pin', async () => {
+  const other = modeledIntegrity('a different pnpm 12.15.0 tarball');
+  const modeled = await modeledPnpm12({ candidateLockfile: pnpm12Lockfile({ pnpmIntegrity: other.sri }) });
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN),
+    /env document integrity for pnpm@12\.15\.0 does not match the candidate packageManager pin/,
+  );
+});
+
+test('R-CW-5 binds the installed native-binary package to the candidate env document', async () => {
+  const other = modeledIntegrity('a different native binary package');
+  const modeled = await modeledPnpm12({
+    candidateLockfile: pnpm12Lockfile({ platformPackages: { [PLATFORM_PACKAGE]: other.sri } }),
+  });
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN),
+    (error) => error.message.includes(
+      `${PLATFORM_PACKAGE}@12.15.0 does not match its candidate pnpm-lock.yaml env document integrity`,
+    ),
+  );
+});
+
+test('R-CW-5 refuses toolchain packages the candidate lockfile does not pin', async () => {
+  const unpinned = await modeledPnpm12({ candidateLockfile: pnpm12Lockfile({ platformPackages: {} }) });
+  assert.throws(
+    () => verifyModeledToolchain(unpinned, PNPM_12_PIN),
+    /@12\.15\.0 is not pinned by the candidate pnpm-lock\.yaml env document/,
+  );
+  const singleDocument = await modeledPnpm12({ candidateLockfile: LOCKFILE_DOCUMENT });
+  assert.throws(
+    () => verifyModeledToolchain(singleDocument, PNPM_12_PIN),
+    /has no env document to pin private toolchain package/,
+  );
 });
 
 test('R-CW-5 fixture confines package-manager state and rejects inherited hooks', async () => {

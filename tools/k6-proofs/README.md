@@ -751,13 +751,20 @@ read surface (`session-transcript-entry-message.ts:37-60` attaches only `id`, `i
 
 1. Stamp the consuming run on the record that already names the delegate run and lives in the
    recipient's transcript: when an `internalEventExecution` turn commits its input row, write the
-   run id as a protected operational field, for example `__openclaw.inputRunId`. The run id
-   exists before the input commits: the handoff can pass it through the existing
-   `GetReplyOptions.runId`, which `executeAgentTurn` honours (`agent-runner-execution.ts:705-715`).
-   Write it in `buildPersistedUserTurnMetadata` (`user-turn-transcript.metadata.ts:51-119`) and
-   add it to the hook-protected fields (`:201-236`, `:334-346`) so a before-message-write hook
-   can neither drop nor forge it. Do not widen `attachSessionTranscriptRunId`: user rows are
-   deliberately not run-owned.
+   run id as a protected operational field, for example `__openclaw.inputRunId`.
+   - Where the run id comes from: it is preallocated when the turn is admitted
+     (`reply-agent-turn-preparation.ts:437-441`). An `internalEventExecution` turn is a
+     `queued_followup` (`reply-turn-kind.ts:4`), so the id is `controllerInput.protocolRunId` or
+     a fresh UUID. `GetReplyOptions.runId` is ignored for that kind. The id then reaches
+     `executeAgentTurn` as `opts.runId` (`agent-runner-execution.ts:710`).
+   - Where the stamp goes: the input is staged earlier, at `prepareInput`
+     (`session-event-handoff.ts:527-540`), keyed by the occurrence id, so the staged message
+     predates the run id. The stamp has to be added when the admitted turn commits that staged
+     input to the transcript. Carry it in the persisted metadata
+     (`buildPersistedUserTurnMetadata`, `user-turn-transcript.metadata.ts:51-119`) and add it to
+     the hook-protected fields (`:201-236`, `:334-346`), so a before-message-write hook can
+     neither drop nor forge it.
+   - Do not widen `attachSessionTranscriptRunId`: user rows are deliberately not run-owned.
 2. Read it through `sessions.get`, which already returns raw rows with `provenance` and
    `__openclaw` intact; no new method is needed. Advertise it (drop `advertise: false` at
    `core-descriptors.ts:374`). The entry sits after the advertised block, so existing advertised

@@ -712,9 +712,16 @@ export function runDispatchBoundarySuite({ worktreeDir, vitestExecutable, report
   };
 }
 
+// The typed-tool template the fixture renders into the candidate, and the
+// Vitest config it runs under.
+export function selectToolSurface(_worktreeDir) {
+  return { template: TOOL_SURFACE_TEMPLATE, config: 'test/vitest/vitest.auto-reply.config.ts' };
+}
+
 function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
-  if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
-    throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
+  const surface = selectToolSurface(worktreeDir);
+  if (!existsSync(surface.template)) {
+    throw new Error(`tool-surface template missing: ${surface.template}`);
   }
   const testDirPath = path.join(worktreeDir, 'test', 'r-cw-5-fixture');
   try {
@@ -726,12 +733,12 @@ function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
   const testDir = preparePrivateWorktreeDirectory(worktreeDir, 'test/r-cw-5-fixture');
   writeFileSync(
     path.join(testDir, 'cost-cap-tool-surface.test.ts'),
-    renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), cap),
+    renderToolSurfaceTemplate(readFileSync(surface.template, 'utf8'), cap),
     { mode: 0o600 },
   );
   const test = run(
     process.execPath,
-    [vitestExecutable, 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
+    [vitestExecutable, 'run', '--config', surface.config, '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
     { cwd: worktreeDir },
   );
   return {

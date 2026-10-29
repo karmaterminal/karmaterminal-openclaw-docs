@@ -186,20 +186,22 @@
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
       "title": "Static validator for committed A→B→delayed-C collection-on-collapse proof receipts.",
       "owner": "frond-scribe-static",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CD-COLLECTION-ON-COLLAPSE/",
       "evidence_doc": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
-      "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-      "review_status": "reviewed: frond-scribe, 2026-10-29; ruling A re-confirmation pending at this head",
+      "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T080845Z)",
+      "review_status": "carried as historical static evidence per 🌊 ruling A, re-confirmed at 8ba08c76d8 (Discord 1565277747671080961)",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "pending_receipts": [],
-      "summary": "Static validator at this corpus (k6 2.0.0, docs b03fae5f, candidate 8ba08c76d8) PASSes over live evidence captured historically at PROOFS/1cc8f4e3…/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx (INDEX static_evidence_sha). At 293c977f62 🌊 ruled A: carry as historical static evidence (Discord 1565214416730066967). Missing here until 🌊 confirms ruling A applies unchanged at 8ba08c76d8.",
-      "notes": "historical at 293c977f62: pass (not carried; 🌊 1565264257996693626)",
+      "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3…/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-8ba08c76d8 live proof. Separate claims at this head: the static-corpus-row-validator run (k6 2.0.0) PASSes against that pinned evidence, and the observed P' Gate 2 / 2.7 checks (gates/cure-bytes/) show the row's primitive cores unchanged from 293c977f62; group C's two new hunks are recorded separately there.",
+      "notes": "ruling: 🌊 A, 2026-10-29T04:03Z; carried forward to 8ba08c76d8 at 08:14:56Z",
       "test_cases_executed": [
         "static-validator-20261029T080845Z"
-      ]
+      ],
+      "carried": true,
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
@@ -534,39 +536,43 @@
       "row": "R-CW-7",
       "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
       "owner": "frond-scribe-static",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-7/",
       "evidence_doc": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-7/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
-      "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-      "review_status": "reviewed: frond-scribe, 2026-10-29; ruling A re-confirmation pending at this head",
+      "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T080845Z)",
+      "review_status": "carried as historical static evidence per 🌊 ruling A, re-confirmed at 8ba08c76d8 (Discord 1565277747671080961)",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "pending_receipts": [],
-      "summary": "Static validator at this corpus (k6 2.0.0, docs b03fae5f, candidate 8ba08c76d8) PASSes over live evidence captured historically at PROOFS/1cc8f4e3…/R-CW-7/cael-dgx (INDEX static_evidence_sha). At 293c977f62 🌊 ruled A: carry as historical static evidence (Discord 1565214416730066967). Missing here until 🌊 confirms ruling A applies unchanged at 8ba08c76d8.",
-      "notes": "historical at 293c977f62: pass (not carried; 🌊 1565264257996693626)",
+      "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3…/R-CW-7/cael-dgx (INDEX static_evidence_sha). It is NOT exact-8ba08c76d8 live proof. Separate claims at this head: the static-corpus-row-validator run (k6 2.0.0) PASSes against that pinned evidence, and the observed P' Gate 2 / 2.7 checks (gates/cure-bytes/) show the row's primitive cores unchanged from 293c977f62; group C's two new hunks are recorded separately there.",
+      "notes": "ruling: 🌊 A, 2026-10-29T04:03Z; carried forward to 8ba08c76d8 at 08:14:56Z",
       "test_cases_executed": [
         "static-validator-20261029T080845Z"
-      ]
+      ],
+      "carried": true,
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
     },
     {
       "row": "R-CW-DELEGATE-CHILD-LIVE",
       "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
       "owner": "frond-scribe-static",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-DELEGATE-CHILD-LIVE/",
       "evidence_doc": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
-      "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-      "review_status": "reviewed: frond-scribe, 2026-10-29; ruling A re-confirmation pending at this head",
+      "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T080845Z)",
+      "review_status": "carried as historical static evidence per 🌊 ruling A, re-confirmed at 8ba08c76d8 (Discord 1565277747671080961)",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "pending_receipts": [],
-      "summary": "Static validator at this corpus (k6 2.0.0, docs b03fae5f, candidate 8ba08c76d8) PASSes over live evidence captured historically at PROOFS/1cc8f4e3…/R-CW-DELEGATE-CHILD-LIVE/cael-dgx (INDEX static_evidence_sha). At 293c977f62 🌊 ruled A: carry as historical static evidence (Discord 1565214416730066967). Missing here until 🌊 confirms ruling A applies unchanged at 8ba08c76d8.",
-      "notes": "historical at 293c977f62: pass (not carried; 🌊 1565264257996693626)",
+      "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3…/R-CW-DELEGATE-CHILD-LIVE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-8ba08c76d8 live proof. Separate claims at this head: the static-corpus-row-validator run (k6 2.0.0) PASSes against that pinned evidence, and the observed P' Gate 2 / 2.7 checks (gates/cure-bytes/) show the row's primitive cores unchanged from 293c977f62; group C's two new hunks are recorded separately there.",
+      "notes": "ruling: 🌊 A, 2026-10-29T04:03Z; carried forward to 8ba08c76d8 at 08:14:56Z",
       "test_cases_executed": [
         "static-validator-20261029T080845Z"
-      ]
+      ],
+      "carried": true,
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
     },
     {
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
@@ -588,58 +594,64 @@
       "row": "R-CW-DELEGATE-TOKEN",
       "title": "Static validator for committed delegate child bare-token continuation receipts.",
       "owner": "frond-scribe-static",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-DELEGATE-TOKEN/",
       "evidence_doc": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
-      "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-      "review_status": "reviewed: frond-scribe, 2026-10-29; ruling A re-confirmation pending at this head",
+      "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T080845Z)",
+      "review_status": "carried as historical static evidence per 🌊 ruling A, re-confirmed at 8ba08c76d8 (Discord 1565277747671080961)",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "pending_receipts": [],
-      "summary": "Static validator at this corpus (k6 2.0.0, docs b03fae5f, candidate 8ba08c76d8) PASSes over live evidence captured historically at PROOFS/1cc8f4e3…/R-CW-DELEGATE-TOKEN/cael-dgx (INDEX static_evidence_sha). At 293c977f62 🌊 ruled A: carry as historical static evidence (Discord 1565214416730066967). Missing here until 🌊 confirms ruling A applies unchanged at 8ba08c76d8.",
-      "notes": "historical at 293c977f62: pass (not carried; 🌊 1565264257996693626)",
+      "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3…/R-CW-DELEGATE-TOKEN/cael-dgx (INDEX static_evidence_sha). It is NOT exact-8ba08c76d8 live proof. Separate claims at this head: the static-corpus-row-validator run (k6 2.0.0) PASSes against that pinned evidence, and the observed P' Gate 2 / 2.7 checks (gates/cure-bytes/) show the row's primitive cores unchanged from 293c977f62; group C's two new hunks are recorded separately there.",
+      "notes": "ruling: 🌊 A, 2026-10-29T04:03Z; carried forward to 8ba08c76d8 at 08:14:56Z",
       "test_cases_executed": [
         "static-validator-20261029T080845Z"
-      ]
+      ],
+      "carried": true,
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
     },
     {
       "row": "R-CW-MULTI",
       "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
       "owner": "frond-scribe-static",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-MULTI/",
       "evidence_doc": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-MULTI/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
-      "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-      "review_status": "reviewed: frond-scribe, 2026-10-29; ruling A re-confirmation pending at this head",
+      "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T080845Z)",
+      "review_status": "carried as historical static evidence per 🌊 ruling A, re-confirmed at 8ba08c76d8 (Discord 1565277747671080961)",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "pending_receipts": [],
-      "summary": "Static validator at this corpus (k6 2.0.0, docs b03fae5f, candidate 8ba08c76d8) PASSes over live evidence captured historically at PROOFS/1cc8f4e3…/R-CW-MULTI/cael-dgx (INDEX static_evidence_sha). At 293c977f62 🌊 ruled A: carry as historical static evidence (Discord 1565214416730066967). Missing here until 🌊 confirms ruling A applies unchanged at 8ba08c76d8.",
-      "notes": "historical at 293c977f62: pass (not carried; 🌊 1565264257996693626)",
+      "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3…/R-CW-MULTI/cael-dgx (INDEX static_evidence_sha). It is NOT exact-8ba08c76d8 live proof. Separate claims at this head: the static-corpus-row-validator run (k6 2.0.0) PASSes against that pinned evidence, and the observed P' Gate 2 / 2.7 checks (gates/cure-bytes/) show the row's primitive cores unchanged from 293c977f62; group C's two new hunks are recorded separately there.",
+      "notes": "ruling: 🌊 A, 2026-10-29T04:03Z; carried forward to 8ba08c76d8 at 08:14:56Z",
       "test_cases_executed": [
         "static-validator-20261029T080845Z"
-      ]
+      ],
+      "carried": true,
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
     },
     {
       "row": "R-CW-MULTI-COLLAPSE",
       "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
       "owner": "frond-scribe-static",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-MULTI-COLLAPSE/",
       "evidence_doc": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
-      "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-      "review_status": "reviewed: frond-scribe, 2026-10-29; ruling A re-confirmation pending at this head",
+      "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T080845Z)",
+      "review_status": "carried as historical static evidence per 🌊 ruling A, re-confirmed at 8ba08c76d8 (Discord 1565277747671080961)",
       "fired": true,
-      "exact_target_execution": true,
+      "exact_target_execution": false,
       "pending_receipts": [],
-      "summary": "Static validator at this corpus (k6 2.0.0, docs b03fae5f, candidate 8ba08c76d8) PASSes over live evidence captured historically at PROOFS/1cc8f4e3…/R-CW-MULTI-COLLAPSE/cael-dgx (INDEX static_evidence_sha). At 293c977f62 🌊 ruled A: carry as historical static evidence (Discord 1565214416730066967). Missing here until 🌊 confirms ruling A applies unchanged at 8ba08c76d8.",
-      "notes": "historical at 293c977f62: pass (not carried; 🌊 1565264257996693626)",
+      "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3…/R-CW-MULTI-COLLAPSE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-8ba08c76d8 live proof. Separate claims at this head: the static-corpus-row-validator run (k6 2.0.0) PASSes against that pinned evidence, and the observed P' Gate 2 / 2.7 checks (gates/cure-bytes/) show the row's primitive cores unchanged from 293c977f62; group C's two new hunks are recorded separately there.",
+      "notes": "ruling: 🌊 A, 2026-10-29T04:03Z; carried forward to 8ba08c76d8 at 08:14:56Z",
       "test_cases_executed": [
         "static-validator-20261029T080845Z"
-      ]
+      ],
+      "carried": true,
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
     },
     {
       "row": "R-CW-TOKEN",
@@ -772,12 +784,12 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 2,
+    "pass": 8,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 36
+    "missing": 30
   },
   "method": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/METHOD.md",
   "corpus": "PROOFS/8ba08c76d8f74a63238f2ce79302168748c31965/",

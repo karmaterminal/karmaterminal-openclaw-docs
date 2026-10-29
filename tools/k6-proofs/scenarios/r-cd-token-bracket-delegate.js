@@ -110,6 +110,7 @@ export default function () {
     return_route: null, return_run_id_hash: null,
     origin_spawn_run_id_hash: null, origin_wake_run_count: 0,
     source_return_observed: false, source_return_run_id_hash: null,
+    return_after_delegate_end_ms: null,
     interrupted: true, terminal_reason: 'observation-window-open',
     dispatch_accepted_at_ms: null, trace_id: null, event_receipt_kinds: [],
     // Snapshot fields now digest complete child-observer traversals (#562).
@@ -152,20 +153,24 @@ export default function () {
         expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
         expectedSentinel: returnSentinel,
         originSpawnRunId,
-        wakeRunIds: originWakeRunIds(identity),
+        wakeRuns: originWakeRuns(identity),
+        delegateEndedAtMs: identity.delegateEndedAtMs,
         sourceReturn,
         hash,
       };
     }
 
-    function originWakeRunIds(identity) {
-      const runs = new Set();
+    // Woken origin runs: lifecycle starts on the origin key, not its bracket
+    // run, at or after the delegate run ended (runId -> startedAtMs).
+    function originWakeRuns(identity) {
+      const runs = new Map();
       for (const eventData of originLifecycleStarts) {
-        const runId = parseTokenOriginWakeStart(eventData, {
+        const start = parseTokenOriginWakeStart(eventData, {
           expectedTargetSessionKey: identity.originChildSessionKey,
           originSpawnRunId,
+          delegateEndedAtMs: identity.delegateEndedAtMs,
         });
-        if (runId) runs.add(runId);
+        if (start && !runs.has(start.runId)) runs.set(start.runId, start.startedAtMs);
       }
       evidence.origin_wake_run_count = runs.size;
       return runs;
@@ -177,6 +182,9 @@ export default function () {
       evidence.return_source_session_hash = receipt.sourceSessionHash;
       evidence.return_route = receipt.route;
       evidence.return_run_id_hash = receipt.returnRunIdHash || null;
+      evidence.return_after_delegate_end_ms = Number.isFinite(receipt.returnAfterDelegateEndMs)
+        ? receipt.returnAfterDelegateEndMs
+        : null;
       evidence.event_receipt_kinds.push(kind);
     }
 
@@ -314,6 +322,7 @@ export default function () {
         parentSessionKey: sessionKey, hash,
       });
       captureOriginSpawnRun();
+      originWakeRuns(tokenSessionLedgerRuntimeIdentity(ledger));
       maybeSubscribeOrigin();
       reconcilePendingReturns();
       maybeRefreshSourceHistory();

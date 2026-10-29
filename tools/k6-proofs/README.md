@@ -698,15 +698,23 @@ run. It accepts either route.
   - Target leg: the woken run's assistant answer on the origin key carries the exact sentinel,
     word-bounded and once, with no bracket or harness text. Its run started on the origin (a
     lifecycle start) and is not the origin's own bracket run, which is the first run the
-    observer reports for the origin.
+    observer reports for the origin. It also started **at or after the delegate run ended**
+    (the delegate row's `endedAt`). The origin already knows the sentinel from its own task, so
+    a later origin turn alone proves nothing; that order is what a targeted return implies.
   - Source leg: the delegate child's own transcript answers the same sentinel in an assistant row
     stamped with the delegate's run (`lastRunId`). The delegate is spawned with the default
     cleanup `keep`, so it is still readable after the return.
   - Evidence records `return_route`, `return_run_id_hash`, `origin_spawn_run_id_hash`,
-    `source_return_run_id_hash`. Classification requires the route's bindings.
+    `source_return_run_id_hash`, `return_after_delegate_end_ms`. Classification requires the
+    route's bindings, and the signed receipt records the route and those fields.
 
-A sentinel from another session, another run's nonce, the origin's bracket run, a run that never
-started on the origin, an unstamped row, or a return with no delegate leg never binds. Because the
+On this route, (b) is the delegate's own answer plus that order, not a provenance stamp on one
+visible row. The product's own stamp (the hidden user row's provenance runId and its
+`session_key` line) is not shown to subscribers.
+
+Things that never bind (not an exhaustive list): a sentinel from another session, another run's
+nonce, the origin's bracket run, a run that never started on the origin, a run that started
+before the delegate ended, an unstamped row, or a return with no delegate leg. Because the
 delivery itself is invisible, the origin child is told in its spawn task: *on a later turn, only
 after an internal task completion contains `RCDT-RETURN-<tag>`, reply exactly
 `RCDT-RETURN-<tag>`*. That instruction comes before the terminal bracket, and the bracket turn is
@@ -716,7 +724,8 @@ excluded by run identity.
 which delivers to the parent and then deletes the origin. Nothing orders that delete after the
 wake. **The live route (`bound-session-message-return`) is the primary receipt.** Transcript
 recovery (`bound-target-transcript-return`, the origin's `chat.history` after its bracket run,
-exactly one answer, plus the source leg) works only while the origin still exists. If the delete
+exactly one answer with a timestamp at or after the delegate's end, plus the source leg) works
+only while the origin still exists. If the delete
 pre-empts the wake, no woken answer exists and the row stays PARTIAL.
 
 The offline fossil is `tests/r-cd-token-targeted-return.test.mjs`. It fires the real scenario

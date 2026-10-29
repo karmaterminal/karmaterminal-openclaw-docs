@@ -186,6 +186,15 @@ export function summarizeTokenLedger(ledger) {
 // (lib/r-cd-token-authoritative-receipt.mjs) reads the mapped values unchanged.
 // ---------------------------------------------------------------------------
 
+function timeMs(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value !== 'string' || !value) return null;
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) return numeric;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function rememberSession({ record, seen, hash }) {
   const key = String(record?.childSessionKey || '').trim();
   if (!key) return;
@@ -200,6 +209,8 @@ function rememberSession({ record, seen, hash }) {
     requesterSessionKey: requester,
     requesterSessionHash: requester ? hash(requester) : null,
     rowStatus,
+    // Row endedAt is the run's lifecycle end (session-run-lifecycle-projection.ts:215).
+    endedAtMs: timeMs(record?.endedAt),
     // Row status 'done' is the current terminal-success state
     // (packages/gateway-protocol/src/schema/sessions-row.ts:28-36).
     status: rowStatus === 'done' ? 'completed' : rowStatus,
@@ -251,6 +262,7 @@ export function tokenSessionLedgerRuntimeIdentity(ledger) {
     originChildSessionKey: origin?.childSessionKey || null,
     delegateRunId: delegate?.runId || null,
     delegateChildSessionKey: delegate?.childSessionKey || null,
+    delegateEndedAtMs: delegate?.endedAtMs ?? null,
   };
 }
 
@@ -346,14 +358,21 @@ function contentText(message) {
 // surfaces that are visible:
 //   (a) target: the woken run's own assistant answer, top-level sessionKey ===
 //       the origin child, in a run that started on the origin (lifecycle
-//       start) and is not the origin's own bracket run;
+//       start) at or after the delegate run ended (the delegate row's endedAt)
+//       and is not the origin's own bracket run. The origin already knows the
+//       sentinel from its own task, so a later origin turn alone proves
+//       nothing; the order is what a targeted return implies;
 //   (b) source: the delegate child's own transcript (cleanup "keep") answers
 //       the sentinel in the delegate's own run;
 //   (c) the exact RCDT-RETURN-<tag> sentinel, word-bounded, once, on both legs;
 //   (d) this row run: <tag> is derived from the runner-owned nonce, and both
 //       legs are bound to run identities (delegate run, woken origin run).
 // A sentinel from another session, another run, a run that never started on
-// the origin, an unstamped row, or a return with no delegate leg never binds.
+// the origin, a run that started before the delegate ended, an unstamped row,
+// or a return with no delegate leg never binds (not an exhaustive list).
+// For this route (b) is the delegate's own answer plus that order, not a
+// provenance stamp on one visible row: the product's own stamp (the hidden
+// user row's provenance runId) is not shown to subscribers.
 // ---------------------------------------------------------------------------
 
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -409,15 +428,20 @@ function assistantSentinelText(message, sentinel) {
 
 /**
  * A woken run on the origin child: a lifecycle start, on the origin's own key,
- * of a run other than the origin's bracket run. Returns its runId or null.
+ * of a run other than the origin's bracket run, that started at or after the
+ * delegate run ended. Returns { runId, startedAtMs } or null.
  */
-export function parseTokenOriginWakeStart(eventData, { expectedTargetSessionKey, originSpawnRunId }) {
+export function parseTokenOriginWakeStart(eventData, { expectedTargetSessionKey, originSpawnRunId, delegateEndedAtMs }) {
   if (!isRecord(eventData) || !expectedTargetSessionKey || !originSpawnRunId) return null;
   if (eventSessionKey(eventData) !== String(expectedTargetSessionKey)) return null;
   if (String(eventData.stream || '').toLowerCase() !== 'lifecycle') return null;
   if (String(eventData.data?.phase || '').toLowerCase() !== 'start') return null;
   const runId = typeof eventData.runId === 'string' && eventData.runId ? eventData.runId : null;
-  return runId && runId !== String(originSpawnRunId) ? runId : null;
+  if (!runId || runId === String(originSpawnRunId)) return null;
+  const startedAtMs = timeMs(eventData.data?.startedAt) ?? timeMs(eventData.ts);
+  const delegateEnded = timeMs(delegateEndedAtMs);
+  if (startedAtMs === null || delegateEnded === null || startedAtMs < delegateEnded) return null;
+  return { runId, startedAtMs };
 }
 
 /**
@@ -461,25 +485,30 @@ function directAnnounceReturn(eventData, { expectedSentinel, expectedDelegateChi
 
 /**
  * The target leg plus the source leg. Live (requireWakeStart): the answer's
- * run must be a lifecycle-started woken run (wakeRunIds). Transcript: the row
- * must come after the origin's own bracket-run rows (anchored by the caller)
- * and be stamped with a run other than that bracket run.
+ * run must be a woken run (wakeRuns: runId -> startedAtMs, from
+ * parseTokenOriginWakeStart) that started at or after the delegate ended.
+ * Transcript: the row must come after the origin's own bracket-run rows
+ * (anchored by the caller), be stamped with a run other than that bracket
+ * run, and carry a timestamp at or after the delegate ended.
  */
 function targetedReturn(eventData, {
   expectedSentinel,
   expectedDelegateChildSessionKey,
   originSpawnRunId,
-  wakeRunIds,
+  wakeRuns,
+  delegateEndedAtMs,
   sourceReturn,
   hash,
 }, { requireWakeStart }) {
   if (!assistantSentinelText(eventData.message, expectedSentinel)) return null;
   const runId = rowRunId(eventData);
   if (!runId || !originSpawnRunId || runId === String(originSpawnRunId)) return null;
-  if (requireWakeStart) {
-    const started = wakeRunIds instanceof Set ? wakeRunIds : new Set(Array.isArray(wakeRunIds) ? wakeRunIds : []);
-    if (!started.has(runId)) return null;
-  }
+  const delegateEnded = timeMs(delegateEndedAtMs);
+  if (delegateEnded === null) return null;
+  const answeredAtMs = requireWakeStart
+    ? (wakeRuns instanceof Map ? timeMs(wakeRuns.get(runId)) : null)
+    : timeMs(eventData.message?.timestamp);
+  if (answeredAtMs === null || answeredAtMs < delegateEnded) return null;
   const source = String(expectedDelegateChildSessionKey || '');
   if (!source || !isRecord(sourceReturn) || sourceReturn.sourceSessionKey !== source ||
       sourceReturn.sourceSessionHash !== hash(source) ||
@@ -490,6 +519,7 @@ function targetedReturn(eventData, {
     sourceSessionHash: sourceReturn.sourceSessionHash,
     returnRunIdHash: hash(runId),
     sourceRunIdHash: sourceReturn.sourceRunIdHash,
+    returnAfterDelegateEndMs: answeredAtMs - delegateEnded,
   };
 }
 
@@ -549,7 +579,9 @@ function returnRouteBound(evidence) {
     hex16(evidence.return_run_id_hash) &&
     hex16(evidence.origin_spawn_run_id_hash) &&
     evidence.return_run_id_hash !== evidence.origin_spawn_run_id_hash &&
-    evidence.return_run_id_hash !== evidence.delegate_run_id_hash;
+    evidence.return_run_id_hash !== evidence.delegate_run_id_hash &&
+    Number.isFinite(evidence.return_after_delegate_end_ms) &&
+    evidence.return_after_delegate_end_ms >= 0;
 }
 
 export function classifyTokenEvidence(evidence) {

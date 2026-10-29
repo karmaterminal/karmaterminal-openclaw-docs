@@ -347,8 +347,16 @@ async function fireRcdToken(options = {}) {
 }
 
 /** The return bound to origin (target) and delegate (source); the next gate is Tempo topology. */
-function assertReturnBound(fired, receiptKind) {
+function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
   const { evidence, receipt } = fired;
+  assert.equal(evidence.return_route, route);
+  if (route === 'targeted-return') {
+    assert.equal(evidence.source_return_observed, true);
+    assert.equal(evidence.source_return_run_id_hash, hash16(DELEGATE_RUN));
+    assert.equal(evidence.origin_spawn_run_id_hash, hash16(ORIGIN_RUN));
+    assert.equal(evidence.return_run_id_hash, hash16(WAKE_RUN));
+    assert.ok(evidence.return_after_delegate_end_ms >= 0, `woken ${evidence.return_after_delegate_end_ms} ms after the delegate ended`);
+  }
   assert.equal(evidence.delegate_return_observed, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
   assert.equal(evidence.return_target_session_hash, hash16(ORIGIN));
   assert.equal(evidence.return_source_session_hash, hash16(DELEGATE));
@@ -459,7 +467,7 @@ test('negative: an origin run that started before the delegate finished does not
 
 test('both forms: the direct-announce delivery still binds', async () => {
   const fired = await fireRcdToken({ wake: (state) => directAnnounce({ sentinel: state.sentinel }) });
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertReturnBound(fired, 'bound-session-message-return', 'direct-announce');
 });
 
 test('negative: the wake answer in another session does not bind', async () => {

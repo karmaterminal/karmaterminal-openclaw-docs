@@ -145,3 +145,38 @@ test('tampering invalidates the signed receipt', () => {
   receipt.lifecycle.delegateRunIdHash = h('f');
   assert.equal(validateRcdTokenAuthoritativeReceipt(receipt, key).valid, false);
 });
+
+test('the signed receipt records which route bound the return (#1727)', () => {
+  // Legacy evidence (no route) is the header parser's direct announce.
+  assert.equal(resolve().lifecycle.returnRoute, 'direct-announce');
+  const targeted = {
+    ...evidence,
+    return_route: 'targeted-return',
+    return_run_id_hash: h('c'),
+    source_return_run_id_hash: evidence.delegate_run_id_hash,
+    origin_spawn_run_id_hash: h('d'),
+    source_return_observed: true,
+    return_after_delegate_end_ms: 312,
+  };
+  const receipt = resolve({ evidence: targeted });
+  assert.equal(receipt.verdict, 'PASS-candidate');
+  assert.equal(receipt.lifecycle.returnRoute, 'targeted-return');
+  assert.equal(receipt.lifecycle.returnRunIdHash, h('c'));
+  assert.equal(receipt.lifecycle.sourceReturnRunIdHash, evidence.delegate_run_id_hash);
+  assert.equal(receipt.lifecycle.originSpawnRunIdHash, h('d'));
+  assert.equal(receipt.lifecycle.returnAfterDelegateEndMs, 312);
+  assert.deepEqual(validateRcdTokenAuthoritativeReceipt(receipt, key), { valid: true, verdict: 'PASS-candidate' });
+  assert.notEqual(receipt.binding.localEvidenceFingerprint, resolve().binding.localEvidenceFingerprint);
+  // The route fields are signed.
+  const tampered = structuredClone(receipt);
+  tampered.lifecycle.returnRoute = 'direct-announce';
+  assert.equal(validateRcdTokenAuthoritativeReceipt(tampered, key).valid, false);
+  // An incomplete targeted route never PASSes.
+  for (const overrides of [
+    { source_return_observed: false },
+    { return_after_delegate_end_ms: -5 },
+    { return_run_id_hash: h('d') },
+  ]) {
+    assert.equal(resolve({ evidence: { ...targeted, ...overrides } }).verdict, 'PARTIAL-candidate');
+  }
+});

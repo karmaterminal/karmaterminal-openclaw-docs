@@ -387,3 +387,19 @@ test('a row without a declared chain depth keeps the exactly-one tool span rule'
   const { trace } = chainTrace([reason, `R-CW-1 later hop ${fired.evidence.nonce}`]);
   assertRefused(await collect({ trace, manifest: 'r-cw-1.json', evidence }), /matched trace contains 2 continue_work tool spans/u);
 });
+
+test('retried exports: an identical later-hop copy is one hop, a differing copy is refused', async () => {
+  const identical = chainTrace(fired.reasons);
+  const spans = identical.trace.batches[0].scopeSpans[0].spans;
+  const hop2Tool = spans.find((entry) => entry.spanId === b64(identical.hops[1].tool));
+  spans.push({ ...hop2Tool });
+  const deduplicated = await collect({ trace: identical.trace });
+  assert.equal(deduplicated.ok, true, deduplicated.stderr);
+  assert.equal(deduplicated.receipt.chainDepth, 3);
+
+  const differing = chainTrace(fired.reasons);
+  const differingSpans = differing.trace.batches[0].scopeSpans[0].spans;
+  const copy = differingSpans.find((entry) => entry.spanId === b64(differing.hops[1].tool));
+  differingSpans.push({ ...copy, endTimeUnixNano: String(BigInt(copy.endTimeUnixNano) + 5n * MS) });
+  assertRefused(await collect({ trace: differing.trace }), /exported more than once with different content/u);
+});

@@ -332,6 +332,12 @@ function scopeDelegateToolSpans(trace, tools, accept, fires) {
 // chain.id, and its nearest continue_work ancestor is the previous hop, so the
 // hops form one sequence from hop 1, no deeper than the row declares.
 function scopeContinueWorkChain(spans, tools, accept, chainId, chainDepthTarget) {
+  const toolIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
+  // allTempoSpans drops identical re-exports; a copy that differs is ambiguous.
+  const duplicate = toolIds.find((toolId, index) => toolIds.indexOf(toolId) !== index);
+  if (duplicate) {
+    throw new Error(`continue_work tool span ${duplicate} is exported more than once with different content`);
+  }
   if (tools.length > chainDepthTarget) {
     throw new Error(
       `matched trace contains ${tools.length} continue_work tool spans, more than the row's declared chain depth ${chainDepthTarget}`,
@@ -347,7 +353,6 @@ function scopeContinueWorkChain(spans, tools, accept, chainId, chainDepthTarget)
     }
     parentOf.set(spanId, parentSpanId);
   }
-  const toolIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
   const toolIdSet = new Set(toolIds);
   const hop1 = idHex(accept.parentSpanId, 8, 'work parent span id');
   if (!toolIdSet.has(hop1)) {

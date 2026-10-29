@@ -210,20 +210,22 @@
    "row": "R-CD-COLLECTION-ON-COLLAPSE",
    "title": "Static validator for committed A\u2192B\u2192delayed-C collection-on-collapse proof receipts.",
    "owner": "frond-scribe-static",
-   "state": "missing",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-COLLECTION-ON-COLLAPSE/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
-   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
    "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
-   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
   },
   {
    "row": "R-CD-MODEL-CHAINED-ALT",
@@ -593,39 +595,43 @@
    "row": "R-CW-7",
    "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
    "owner": "frond-scribe-static",
-   "state": "missing",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-7/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-7/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
-   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
    "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-7/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
-   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-7/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
   },
   {
    "row": "R-CW-DELEGATE-CHILD-LIVE",
    "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
    "owner": "frond-scribe-static",
-   "state": "missing",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-CHILD-LIVE/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
-   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
    "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-CHILD-LIVE/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
-   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-CHILD-LIVE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
   },
   {
    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
@@ -653,58 +659,64 @@
    "row": "R-CW-DELEGATE-TOKEN",
    "title": "Static validator for committed delegate child bare-token continuation receipts.",
    "owner": "frond-scribe-static",
-   "state": "missing",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-TOKEN/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
-   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
    "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-TOKEN/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
-   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-TOKEN/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
   },
   {
    "row": "R-CW-MULTI",
    "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
    "owner": "frond-scribe-static",
-   "state": "missing",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
-   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
    "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-MULTI/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
-   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-MULTI/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
   },
   {
    "row": "R-CW-MULTI-COLLAPSE",
    "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
    "owner": "frond-scribe-static",
-   "state": "missing",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI-COLLAPSE/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
-   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
-   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
    "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-MULTI-COLLAPSE/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
-   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-MULTI-COLLAPSE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
   },
   {
    "row": "R-CW-TOKEN",
@@ -875,12 +887,12 @@
  ],
  "rollup": {
   "total_rows": 38,
-  "pass": 19,
+  "pass": 25,
   "partial": 7,
   "thin": 0,
   "fail": 0,
   "honest_limit": 1,
-  "missing": 11
+  "missing": 5
  },
  "method": "PROOFS/293c977f629f872a643fb94892603310b887293b/METHOD.md",
  "corpus": "PROOFS/293c977f629f872a643fb94892603310b887293b/",

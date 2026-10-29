@@ -423,8 +423,13 @@ function runStubVitest(argv, cwd) {
     } else {
       playRuntimeBoundary(source);
     }
-    for (const title of loaded.parsed.titles) lines.push(` ✓ |${project}| ${file} > ${title} 1ms`);
-    passedCount += loaded.parsed.titles.length;
+    // A suite whose run exits 0 with valid receipts but whose titles the
+    // runner no longer recognizes.
+    const titles = process.env.RCW6_STUB_RETITLE && file.includes(process.env.RCW6_STUB_RETITLE)
+      ? loaded.parsed.titles.map((_, index) => `renamed proof ${index + 1}`)
+      : loaded.parsed.titles;
+    for (const title of titles) lines.push(` ✓ |${project}| ${file} > ${title} 1ms`);
+    passedCount += titles.length;
     record('passed');
   }
   process.stdout.write(`\n RUN  stub\n\n${lines.join('\n')}\n\n Test Files  ${failed ? '1 failed' : `${selected.length} passed`} (${selected.length})\n      Tests  ${failed ? `${passedCount} passed` : `${passedCount} passed (${passedCount})`}\n`);

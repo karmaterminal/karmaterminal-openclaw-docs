@@ -62,14 +62,14 @@ function missingMockTargets(root, relativeFile, rendered) {
     });
 }
 
-async function fireStubFixture({ forceFailure, inheritedIncludeFile, plantPrivateDir } = {}) {
+async function fireStubFixture({ forceFailure, inheritedIncludeFile, plantPrivateDir, retitle } = {}) {
   const { root, source, candidateSha } = await stubCandidate();
   const bin = path.join(root, 'bin');
   writeStubToolchain(bin);
   const artifactDir = path.join(root, 'artifacts');
   const logPath = path.join(root, 'stub-vitest.jsonl');
   const saved = Object.fromEntries(
-    ['PATH', 'RCW6_STUB_VITEST_LOG', 'RCW6_STUB_FORCE_FAILURE', 'RCW6_STUB_PLANT_DIR', 'OPENCLAW_VITEST_INCLUDE_FILE']
+    ['PATH', 'RCW6_STUB_VITEST_LOG', 'RCW6_STUB_FORCE_FAILURE', 'RCW6_STUB_PLANT_DIR', 'RCW6_STUB_RETITLE', 'OPENCLAW_VITEST_INCLUDE_FILE']
       .map((key) => [key, process.env[key]]),
   );
   process.env.PATH = `${bin}${path.delimiter}${process.env.PATH}`;
@@ -78,6 +78,8 @@ async function fireStubFixture({ forceFailure, inheritedIncludeFile, plantPrivat
   else delete process.env.RCW6_STUB_FORCE_FAILURE;
   if (plantPrivateDir) process.env.RCW6_STUB_PLANT_DIR = `${artifactDir}.private`;
   else delete process.env.RCW6_STUB_PLANT_DIR;
+  if (retitle) process.env.RCW6_STUB_RETITLE = retitle;
+  else delete process.env.RCW6_STUB_RETITLE;
   if (inheritedIncludeFile) {
     const includeFile = path.join(root, 'operator-include.json');
     await writeFile(includeFile, `${JSON.stringify(inheritedIncludeFile)}\n`);
@@ -225,4 +227,19 @@ test('R-CW-6 refuses a private dir that appeared during the run and still emits 
   assert.deepEqual(fired.result.privateDiagnosticsRetainedFor, []);
   assert.deepEqual(fired.result.privateDiagnosticsNotRetainedFor, ['selected-delegate-boundary']);
   assert.deepEqual(await readdir(`${fired.artifactDir}.private`), ['planted.json']);
+});
+
+test('R-CW-6 attaches a failed runtime run excerpt to every receipt that run feeds', async () => {
+  const fired = await fireStubFixture({ retitle: 'r-cw-6-runtime-fixture' });
+  assert.equal(fired.result.verdict, 'FAIL-fixture');
+  assert.deepEqual(fired.result.privateDiagnosticsRetainedFor, ['runtime-typed-surface']);
+  for (const name of ['runtime-boundary.json', 'durable-state-recovery.json', 'typed-tool-surface.json']) {
+    const receipt = await fired.receipt(name);
+    assert.equal(receipt.passed, true, `${name} receipt values are valid; only the run's titles drifted`);
+    assert.equal(
+      receipt.failureDiagnostics?.surface,
+      'runtime-typed-surface',
+      `${name} reports no diagnostics although its run failed the fixture`,
+    );
+  }
 });

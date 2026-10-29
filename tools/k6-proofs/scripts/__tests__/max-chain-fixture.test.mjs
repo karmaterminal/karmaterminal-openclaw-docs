@@ -158,6 +158,28 @@ test('R-CW-6 failure excerpt keeps the failing lines and drops private paths, se
   assert.equal(sanitizeFailureExcerpt(Array.from({ length: 90 }, (_, i) => `Error ${i}`).join('\n')).length, 40);
 });
 
+test('R-CW-6 failure excerpt redacts paths after any punctuation, key tails, credentials, and every escape', () => {
+  const cases = [
+    ['Error: open failed path:/var/lib/openclaw/state.db', 'Error: open failed path:<path>'],
+    ['Error: [/opt/secrets/broker.sock] and `/srv/private/trace.log`', 'Error: [<path>] and `<path>`'],
+    ['Error: host dir /scripts/tenant-acme/run.sh', 'Error: host dir <path>'],
+    ['Error: host dir /src/private-tenant', 'Error: host dir <path>'],
+    ['Error: route agent:main:whatsapp:direct:+15551234567 refused', 'Error: route <session-key> refused'],
+    ['Error: Authorization: Bearer sk-ant-api03-abcdefghijkl', 'Error: Authorization: <redacted> <redacted>'],
+    ['Error: leaked ghp_abcdefghijklmnopqrstuvwxyz0123 and token=abc123', 'Error: leaked <redacted> and token=<redacted>'],
+    ['\u001b]8;;https://example.invalid/x\u0007Error: linked\u001b]8;;\u0007 \u001b(Bmode \u001b7saved\u0000', 'Error: linked mode saved'],
+    ["Error: Cannot find module '/test/helpers/temp-dir.js' imported", "Error: Cannot find module 'test/helpers/temp-dir.js' imported"],
+    ['→ expected 1 to be 3 // Object.is equality [1/1]', '→ expected 1 to be 3 // Object.is equality [1/1]'],
+    ['Error: see <candidate-worktree>/test/r-cw-6-runtime-fixture/x.test.ts:3:1', 'Error: see <candidate-worktree>/test/r-cw-6-runtime-fixture/x.test.ts:3:1'],
+  ];
+  for (const [raw, expected] of cases) {
+    assert.deepEqual(sanitizeFailureExcerpt(raw), [expected], raw);
+  }
+  const excerpt = cases.flatMap(([raw]) => sanitizeFailureExcerpt(raw));
+  assert.doesNotThrow(() => assertPublicArtifactSafe({ excerpt }));
+  assert.ok(excerpt.every((line) => !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(line)));
+});
+
 test('R-CW-6 fixture refuses unknown or live-mutation arguments', () => {
   assert.throws(
     () => parseArgs(['node', 'run-max-chain-fixture.mjs', '--restart-gateway'], {}),

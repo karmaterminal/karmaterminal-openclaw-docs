@@ -514,6 +514,10 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
   assert.match(template, /useContinuationCustodyTestState\(\)/);
   assert.match(template, /listCustodyRecordsForTest\(\{ ownerSessionKey: sessionKey, kinds: \["work"\] \}\)/);
   assert.match(template, /decodeWorkState/);
+  // The no-new-record checks count every custody kind the owner holds.
+  assert.match(template, /const flowsBeforeRecoveredAttempt = await countOwnerRecords\(sessionKey\)/);
+  assert.match(template, /const flowsAfterRecoveredAttempt = await countOwnerRecords\(sessionKey\)/);
+  assert.match(template, /listCustodyRecordsForTest\(\{ ownerSessionKey: sessionKey \}\)/);
   assert.doesNotMatch(template, /task-flow-registry|task-runtime\.test-helpers/);
 });
 

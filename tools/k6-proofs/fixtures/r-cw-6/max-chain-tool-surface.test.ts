@@ -108,6 +108,13 @@ async function listOwnerWork(sessionKey: string): Promise<Array<{ hop?: number; 
     .toSorted((left, right) => (left.hop ?? 0) - (right.hop ?? 0));
 }
 
+// Every custody record the owner holds, of any kind (work, delegate,
+// post_compaction): a rejected election must leave none behind, whatever kind
+// a regression might give it.
+async function countOwnerRecords(sessionKey: string): Promise<number> {
+  return (await listCustodyRecordsForTest({ ownerSessionKey: sessionKey })).length;
+}
+
 async function writeReceipt(envName: string, value: unknown): Promise<void> {
   const receiptPath = process.env[envName];
   if (!receiptPath) throw new Error(`${envName} is required`);
@@ -184,6 +191,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     });
 
     const scheduledFlows = await listOwnerWork(sessionKey);
+    expect(await countOwnerRecords(sessionKey)).toBe(2);
     expect(result).toMatchObject({ scheduledCount: 2, cappedCount: 1, capped: true });
     expect(result.chainState.currentChainCount).toBe(maxChainLength);
     expect(scheduledFlows.map((flow) => flow.hop)).toEqual([
@@ -212,7 +220,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       readConsistency: "latest",
     });
     const recoveredState = loadContinuationChainState(recoveredEntry);
-    const flowsBeforeRecoveredAttempt = (await listOwnerWork(sessionKey)).length;
+    const flowsBeforeRecoveredAttempt = await countOwnerRecords(sessionKey);
     const recoveryLogs: string[] = [];
     const recoveredAttempt = await scheduleContinuationWork({
       sessionKey,
@@ -221,7 +229,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       config: runtimeConfig,
       log: (message) => recoveryLogs.push(message),
     });
-    const flowsAfterRecoveredAttempt = (await listOwnerWork(sessionKey)).length;
+    const flowsAfterRecoveredAttempt = await countOwnerRecords(sessionKey);
     const structuredReason = checkContinuationBudget({
       sessionKey,
       chainState: recoveredState,
@@ -346,6 +354,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     });
 
     const flows = await listOwnerWork(sessionKey);
+    const ownerRecordCount = await countOwnerRecords(sessionKey);
     // The attempt publishes its patched entry into the caller's session store
     // map; that map, not the entry object passed in, is the in-memory owner.
     const finalInMemoryCount = sessionStore[sessionKey]?.continuationChainCount;
@@ -363,6 +372,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     expect(registeredContinueWorkTools).toBe(1);
     expect(continueWorkToolExecutions).toBe(3);
     expect(flows).toHaveLength(2);
+    expect(ownerRecordCount).toBe(2);
     expect(flows.map((flow) => flow.hop)).toEqual([maxChainLength - 1, maxChainLength]);
     expect(flows.some((flow) => flow.reason?.includes("first-over-limit"))).toBe(false);
     expect(finalInMemoryCount).toBe(maxChainLength);

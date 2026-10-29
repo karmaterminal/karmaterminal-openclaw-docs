@@ -450,7 +450,8 @@ test('R-CW-4: the hop-1 continue_work reason is the row fingerprint', async () =
   const contract = traceContract(await readManifest(manifest), privateEvidence);
   assert.equal(contract.hash, sha16(reason));
   assert.equal(contract.length, reason.length);
-  assert.equal(contract.fingerprintSource, 'scenario-evidence');
+  // The manifest reason is hop 1's, so the collector reproduces it from the nonce.
+  assert.equal(contract.fingerprintSource, 'manifest-nonce');
 });
 
 for (const { row, scenario, manifest } of [

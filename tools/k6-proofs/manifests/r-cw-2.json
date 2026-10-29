@@ -85,7 +85,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. The scenario does not publish that fingerprint in public evidence, so only the in-run collector, which renders the manifest reason with the private nonce, can attribute the trace."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. The scenario records the fingerprint of the reason it dispatched, which the manifest reason reproduces from the nonce, so the collector attributes the trace in run and from public evidence afterwards."
     },
     "enforcement": "advisory",
     "rebindable": false,

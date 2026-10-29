@@ -19,6 +19,7 @@ import {
   sealRcd2AcquisitionReceipt,
 } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { escapeTraceqlString, proofsServiceName } from '../lib/proofs-service-name.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
@@ -115,18 +116,17 @@ export async function readEvidence(evidencePath) {
 }
 
 // A manifest template is the dispatched reason only when the nonce alone
-// renders it. Scenario-owned placeholders ({{marker}}, {{tag}}, {{hop}}) and the
-// ${VAR:-default} placeholders a scenario resolves from its environment describe
-// a reason's shape, not its bytes, so the collector never hashes them.
+// renders it, through the renderer the scenarios use. Scenario-owned
+// placeholders ({{marker}}, {{tag}}) and the ${VAR:-default} placeholders a
+// scenario resolves from its environment describe a reason's shape, not its
+// bytes, so the collector never hashes them.
 const NONCE_TEMPLATE_PLACEHOLDERS = new Set(['{{nonce}}', '{{nonceSuffix16}}']);
 
 function renderNonceTemplate(template, nonce) {
   if (typeof template !== 'string' || !template || !nonce) return undefined;
   const placeholders = template.match(/\{\{[^{}]*\}\}|\$\{[^}]*\}/gu) || [];
   if (placeholders.some((placeholder) => !NONCE_TEMPLATE_PLACEHOLDERS.has(placeholder))) return undefined;
-  return template
-    .replaceAll('{{nonceSuffix16}}', String(nonce).slice(-16))
-    .replaceAll('{{nonce}}', String(nonce));
+  return renderRowTaskTemplate(template, String(nonce)) ?? undefined;
 }
 
 export function traceContract(manifest, evidence) {

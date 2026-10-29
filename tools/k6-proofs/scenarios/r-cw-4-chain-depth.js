@@ -19,7 +19,7 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function isRunnerProvisionedSession(key) { return String(key || '').includes(':subagent:continuation-'); }
 function disposableSubagentKey(rowNonce) { return `agent:main:subagent:continuation-r-cw-4-${rowNonce}`.toLowerCase().replace(/[^a-z0-9:._-]/g, '-'); }
-function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix }; }
+function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'R-CW-4 hop1 {{nonce}}; on wake call hop2' }; }
 
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
@@ -32,8 +32,9 @@ export default function () {
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) { const errors = validateManifest(manifest); if (errors.length) console.warn('Manifest validation warnings: ' + errors.join('; ')); }
   const inv = invocationCfg();
-  // The row trace is hop 1, the only election the dispatch turn makes (#600).
-  const hop1Reason = `R-CW-4 hop1 ${rowNonce}; on wake call hop2`;
+  // The row trace is hop 1, the only election the dispatch turn makes; the
+  // manifest reason renders it from the nonce (#600).
+  const hop1Reason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
   const evidence = { row:'R-CW-4', manifest_loaded:!!manifest, nonce:rowNonce, seat, requestedSessionKey, sessionKey, session_created:false, created_session_key:null, candidateSha:manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started:new Date().toISOString(), dispatch_accepted:false, hop1_scheduled:false, hop2_scheduled:false, hop3_scheduled:false, final_done:false, hop_events:[], trace_id:null, reason_hash:crypto.sha256(hop1Reason, 'hex').slice(0, 16), reason_length:hop1Reason.length, redacted_events:[] };
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {

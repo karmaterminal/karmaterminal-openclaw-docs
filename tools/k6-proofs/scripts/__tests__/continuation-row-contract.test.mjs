@@ -177,7 +177,7 @@ const SCENARIO_OWNED_DELEGATE_REASONS = {
 /** Rows that render the dispatched task from the manifest template through renderRowTaskTemplate. */
 const RENDERED_DELEGATE_TEMPLATES = {
   'R-CD-3': /renderRowTaskTemplate\(manifest\?\.invocation\?\.promptTemplate \|\| DEFAULT_LIFEBOAT_TEMPLATE, rowNonce\)/,
-  'R-CD-MODEL-DEFAULT': /renderRowTaskTemplate\(DEFAULTS\.promptTemplate, rowNonce\)/,
+  'R-CD-MODEL-DEFAULT': /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/,
   'R-CD-MODEL-TOOL': /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/,
 };
 
@@ -224,6 +224,7 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       } else if (Object.hasOwn(SCENARIO_OWNED_DELEGATE_REASONS, manifest.rowId)) {
         const variable = SCENARIO_OWNED_DELEGATE_REASONS[manifest.rowId];
         assert.equal(manifest.invocation.promptTemplate, undefined, `${manifest.rowId} declares no template it does not dispatch`);
+        assert.equal(manifest.invocation.tokenTemplate, undefined, `${manifest.rowId} declares no token template it does not dispatch`);
         assert.match(scenario, new RegExp(`evidence\\.reason_hash = crypto\\.sha256\\(${variable}, 'hex'\\)\\.slice\\(0, 16\\)`));
         assert.match(scenario, new RegExp(`evidence\\.reason_length = ${variable}\\.length`));
       } else if (Object.hasOwn(RENDERED_DELEGATE_TEMPLATES, manifest.rowId)) {
@@ -231,6 +232,11 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
         assert.doesNotMatch(manifest.invocation.promptTemplate, /\{\{(?!nonce\}\}|nonceSuffix16\}\})|\$\{/);
         assert.match(scenario, RENDERED_DELEGATE_TEMPLATES[manifest.rowId]);
         assert.match(scenario, /evidence\.reason_hash = crypto\.sha256\((?:childTask|lifeboatTask), 'hex'\)\.slice\(0, 16\)/);
+        if (manifest.rowId === 'R-CD-3') {
+          // The lifeboat task comes from the manifest; its return sentinel is what the scenario detects.
+          assert.match(manifest.invocation.promptTemplate, /reply exactly RCD3-LIFEBOAT-RECEIVED \{\{nonce\}\}/);
+          assert.match(scenario, /eventStr\.includes\(`RCD3-LIFEBOAT-RECEIVED \$\{rowNonce\}`\)/);
+        }
       } else {
         assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
       }
@@ -313,12 +319,12 @@ test('every trace-required continue_work row persists the safe fingerprint contr
     rows.push(manifest.rowId);
     assert.match(scenario, /reason_hash:\s*crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
     if (manifest.rowId === 'R-CW-4') {
-      // Each hop elects its own reason; the row trace is hop 1. The manifest's
-      // {{hop}} template is not a reason the nonce alone renders.
-      assert.match(scenario, /const hop1Reason = `R-CW-4 hop1 \$\{rowNonce\}; on wake call hop2`/);
+      // Each hop elects its own reason; the row trace is hop 1, the reason the
+      // manifest renders from the nonce.
+      assert.equal(manifest.invocation.reason, 'R-CW-4 hop1 {{nonce}}; on wake call hop2');
+      assert.match(scenario, /const hop1Reason = inv\.reason\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g, rowNonce\)/);
       assert.match(scenario, /reason_length:\s*hop1Reason\.length/);
       assert.match(scenario, /reason="\$\{hop1Reason\}"/);
-      assert.match(manifest.invocation.reason, /\{\{hop\}\}/);
       continue;
     }
     assert.match(scenario, /reason_length:\s*(?:wakeReason|rawReason)\.length/);

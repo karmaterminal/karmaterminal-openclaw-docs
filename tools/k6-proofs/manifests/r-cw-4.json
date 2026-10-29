@@ -29,7 +29,7 @@
     "tool": "continue_work",
     "chainDepthTarget": 3,
     "delaySeconds": 2,
-    "reason": "k6-proof-R-CW-4-chain-hop-{{hop}}-{{nonce}}",
+    "reason": "R-CW-4 hop1 {{nonce}}; on wake call hop2",
     "idempotencyKeyPrefix": "R-CW-4"
   },
   "expectedReceipts": [
@@ -87,7 +87,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. The manifest reason also carries a per-hop {{hop}} placeholder that collect-continuation-trace.mjs does not render, so the in-run collector cannot attribute this row’s three hops today and its trace receipts stay pending until the collector can render the per-hop reason."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_work tool span to continuation.work and continuation.work.fire only by shared trace and reason fingerprint. Each hop elects its own reason; the row's trace receipt is hop 1, whose reason the manifest renders from the nonce and the scenario fingerprints. Hops 2 and 3 are reviewed from the session transcript."
     },
     "enforcement": "advisory",
     "rebindable": false,

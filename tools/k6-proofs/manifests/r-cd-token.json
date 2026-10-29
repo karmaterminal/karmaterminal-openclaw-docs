@@ -104,6 +104,7 @@
   },
   "invocation": {
     "tool": "continue_delegate",
+    "mode": "normal",
     "forms": [
       "bracket-token-delegate-from-lightcontext-subagent"
     ],

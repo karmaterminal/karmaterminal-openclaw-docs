@@ -31,6 +31,7 @@
   },
   "invocation": {
     "tool": "continue_delegate",
+    "mode": "normal",
     "forms": [
       "typed-tool-depth1-spawns-depth2-model-override"
     ],

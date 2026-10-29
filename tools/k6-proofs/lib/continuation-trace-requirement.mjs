@@ -262,6 +262,9 @@ export function traceReviewDebt(manifest, observability, options = {}) {
  * must declare, in both liveRunSafety.requiredReceipts and expectedReceipts
  * (required: true), exactly the trace receipts the harness will hold it to.
  */
+// The continue_delegate tool's modes (continue-delegate-tool.ts DELEGATE_MODES); `normal` is the default.
+const DELEGATE_MODES = ['normal', 'silent', 'silent-wake', 'post-compaction'];
+
 export function manifestTraceReceiptFailures(manifest) {
   const failures = [];
   const requiredReceipts = Array.isArray(manifest?.liveRunSafety?.requiredReceipts)
@@ -279,6 +282,16 @@ export function manifestTraceReceiptFailures(manifest) {
         failures.push(`${label} names '${name}'; declare the canonical receipt '${canonical}'`);
       }
     }
+  }
+
+  // The collector attributes a continue_delegate fire by reason hash, length and
+  // delegate mode (scripts/collect-continuation-trace.mjs), so a manifest that
+  // leaves the mode implicit can never produce its trace receipts.
+  const invocation = manifest?.invocation;
+  if (invocation?.tool === 'continue_delegate' && !DELEGATE_MODES.includes(invocation.mode)) {
+    failures.push(
+      `continue_delegate row must declare invocation.mode (one of ${DELEGATE_MODES.join(', ')}); the trace collector attributes the fire by mode`,
+    );
   }
 
   const requirement = traceRequirement(manifest);

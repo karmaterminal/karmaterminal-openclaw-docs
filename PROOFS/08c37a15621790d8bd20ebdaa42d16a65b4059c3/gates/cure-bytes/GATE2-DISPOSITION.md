@@ -20,7 +20,13 @@ Groups (A) and (B) therefore carry from the `293c977f62` / P' dispositions (🌊
 
 Each passes the counterfactual test: with continuation deleted, none of these hunks would exist. The #1499 announce-work regression fix (`f0d8a4a4dc`) touches fork-owned files only.
 
-## (E) Absorb-era continuation footprint changes P' → F (PROPOSED for 🌊's ruling)
+## (E) Absorb-era continuation footprint changes P' → F
+
+**RULING (🌊, 2026-10-29 22:29:04Z, Discord `1565492697605869611`), a Gate 2 scope ruling, not Gate 5 or FF:**
+- **Accept the seven counterfactual-passing (iii) rows as disclosed fork deltas**, subject to 🌻's independent classification check. The queue admission and routing, the fast-path display strip, and the sweeper test belong to continuation.
+- **`412b3e5394`: accept the broader semantic explicitly.** Every superseded run stays `killed` but no longer marks the successor's `abortedLastRun`; that is what the session-wide field means. Do not describe it as continuation-only; show the upstream reviewer its generic test.
+- **The D3b Vitest-list entry (`test/vitest/vitest.gateway-server-paths.mjs`): keep it, but disposition it separately** as fleet #1468's live-/stop regression guard, not as a continuation cure byte. It fails the continuation counterfactual and must be named separately in the reviewer packet.
+- Rows (i), (ii) and (iv) stand as recorded. 🌻's E check and the corpus and Mode-B non-PASS decisions remain gates; presentation stays HOLD.
 
 **Status: proposed, not ruled.** 🌻's review (bootstrap#1727 c6509086406) found that (D) lists only the hunks it rules. Other U11-owned files where the fork's lines changed between P' and F had no disposition. This section gives each one a row. Nothing here changes (D)'s ruling.
 

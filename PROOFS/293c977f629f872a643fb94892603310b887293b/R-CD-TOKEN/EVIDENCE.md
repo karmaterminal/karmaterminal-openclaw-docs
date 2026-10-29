@@ -10,3 +10,8 @@ Terminal [[CONTINUE_DELEGATE:...]] path from an explicitly agent-bound isolated 
 - Targeted trace refire (030423Z, 🌊 go 1565199441013645316): `20261029T032648Z-r-cd-token-844f2bba`
 
 Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's isolated gateway `:18797` (state `~/proof-gw/comp-293c977f`, own OpenAI sign-in), docs harness `dcc6330c40` (matrix) / `313a70c625` (refire). Nothing is transposed from the live composite.
+
+## Refire 2 (050313Z, docs c65b9bb86a, 🌊 go 1565229430878642217)
+
+- PRODUCT REGRESSION karmaterminal/openclaw#1499: the light-context subagent's [[CONTINUE_DELEGATE]] bracket is parsed (bracket-parse kind=delegate, origin=bracket) but never consumed/dispatched, 3/3 attempts (012658Z, 030423Z, 050313Z). Last fired PASS corpus 3821eaef72 (09-20).
+- Runs: `20261029T051222Z-r-cd-token-843e883b`

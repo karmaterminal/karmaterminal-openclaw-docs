@@ -1,0 +1,71 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "293c977f629f872a643fb94892603310b887293b",
+    "docsRef": "c65b9bb86a6127c403c494eb8b7a95c93d5ee3d0"
+  },
+  "harness": {
+    "docsRef": "c65b9bb86a6127c403c494eb8b7a95c93d5ee3d0",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-2.json",
+    "manifestSha256": "020bc56aca8eb07e1d5fce9c3e6f1ebc706c5c2b4a290197311a74d46bdb0e01",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-2-silent-wake.js",
+    "scenarioSha256": "488d78401ef8d3da4e307e5f86a4d3a9a36f621958455446a2b6adc9cd7534ca",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261029T050321Z-r-cd-2-843e883b",
+    "rowId": "R-CD-2",
+    "seat": "emeric-isolated-composite",
+    "scenario": "r-cd-2-silent-wake",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "r-cd-2-authoritative-receipt",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "r-cd-2-authoritative-receipt",
+    "traceCaptured": false,
+    "correlationReceiptPresent": false
+  },
+  "authoritativeReceipt": {
+    "file": "r-cd-2-authoritative-receipt.json",
+    "sha256": "acdc1b7d0841ffa21b49e77a450398a6ba5f9730892c61ffb5418ec217afcb54"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-2-authoritative-receipt.json",
+      "r-cd-2-selected-context-receipt.json",
+      "r-cd-2-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": null,
+    "correlationReceipt": null
+  }
+}

@@ -1,0 +1,11 @@
+2026-10-28T22:06:29.847866-07:00 emeric node[3090743]: 2026-10-28T22:06:29.847-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-28T22:06:29.848168-07:00 emeric node[3090743]: 2026-10-28T22:06:29.847-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-28T22:06:29.848168-07:00 emeric node[3090743]: 2026-10-28T22:06:29.848-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-28T22:06:29.848193-07:00 emeric node[3090743]: 2026-10-28T22:06:29.848-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-28T22:06:31.459436-07:00 emeric node[3090743]: 2026-10-28T22:06:31.459-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=<redacted-session-key>
+2026-10-28T22:06:31.461188-07:00 emeric node[3090743]: 2026-10-28T22:06:31.459-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=1000 session=<redacted-session-key>
+2026-10-28T22:06:31.461188-07:00 emeric node[3090743]: 2026-10-28T22:06:31.459-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=<redacted-session-key>
+2026-10-28T22:06:41.099947-07:00 emeric node[3090743]: 2026-10-28T22:06:41.099-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-28T22:06:41.100331-07:00 emeric node[3090743]: 2026-10-28T22:06:41.100-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-28T22:06:41.127641-07:00 emeric node[3090743]: 2026-10-28T22:06:41.127-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key>:8b7bcf4f-a5a4-43ea-ba37-9d195856c58d ended with stopReason=stop
+2026-10-28T22:06:55.823459-07:00 emeric node[3090743]: 2026-10-28T22:06:55.823-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>

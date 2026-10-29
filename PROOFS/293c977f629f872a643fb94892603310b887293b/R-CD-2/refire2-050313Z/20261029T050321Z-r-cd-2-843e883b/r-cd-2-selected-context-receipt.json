@@ -1,0 +1,29 @@
+{
+  "schema": "openclaw.k6.r-cd-2-selected-context-receipt.v1",
+  "row": "R-CD-2",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "identity": {
+    "schema": "openclaw.k6.r-cd-2-authority-identity.v1",
+    "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+    "runtimeBuildSha": "293c977f629f872a643fb94892603310b887293b",
+    "docsRef": "c65b9bb86a6127c403c494eb8b7a95c93d5ee3d0",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "seat": "emeric-isolated-composite",
+    "matrixId": "20261029T050318Z-c65b9bb86a61-843e883b",
+    "runId": "20261029T050321Z-r-cd-2-843e883b",
+    "row": "R-CD-2",
+    "scenario": "r-cd-2-silent-wake.js",
+    "harness": {
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-2.json",
+      "manifestSha256": "020bc56aca8eb07e1d5fce9c3e6f1ebc706c5c2b4a290197311a74d46bdb0e01",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-2-silent-wake.js",
+      "scenarioSha256": "488d78401ef8d3da4e307e5f86a4d3a9a36f621958455446a2b6adc9cd7534ca"
+    }
+  },
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "12cee947510c91d21e01dc8389f388c3e3bfee3622bac4f1b7f590b26b5948c6"
+  }
+}

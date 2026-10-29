@@ -10,3 +10,8 @@ Chain depth hop counter: fires continue_work 3× in sequence, verifies hop incre
 - Targeted trace refire (030423Z, 🌊 go 1565199441013645316): `20261029T032246Z-r-cw-4-844f2bba`
 
 Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's isolated gateway `:18797` (state `~/proof-gw/comp-293c977f`, own OpenAI sign-in), docs harness `dcc6330c40` (matrix) / `313a70c625` (refire). Nothing is transposed from the live composite.
+
+## Refire 2 (050313Z, docs c65b9bb86a, 🌊 go 1565229430878642217)
+
+- PASS with complete receipts in refire2 050313Z (docs c65b9bb86a, #608 declared chain scoping, chainDepth 3). Earlier trace-pending receipts preserved.
+- Runs: `20261029T050418Z-r-cw-4-843e883b`

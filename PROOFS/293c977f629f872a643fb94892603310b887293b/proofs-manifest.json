@@ -126,19 +126,20 @@
    "row": "R-CD-2",
    "title": "continue_delegate(mode='silent-wake') full path.",
    "owner": "emeric-exact-fire",
-   "state": "partial",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
-   "candidate_verdict": "PARTIAL-candidate",
+   "candidate_verdict": "PASS-candidate",
    "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
    "fired": true,
    "exact_target_execution": true,
    "pending_receipts": [],
-   "summary": "Not overlap-contaminated (01:27:45-01:29:20Z). Resolver failureCategory missing-send-run-lifecycle with wakeLifecycle=false, but the isolated gateway journal shows the product path complete: delegate-spawned mode=silent-wake 18:28:03, child end 18:28:06, targeted-return delivered 18:28:07, parent wake turn 18:28:15 PDT. Classified harness: resolver wake binding.",
-   "notes": "owner: docs harness (R-CD-2 resolver); last fired PASS product 6ee7eca2 docs 246c447a run 29573369445",
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a, #608 run-bound RCD2-WAKE-ACK wake binding). Matrix-012658Z PARTIAL (heartbeat-era binder) preserved as provenance.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
    "test_cases_executed": [
-    "20261029T012745Z-r-cd-2-5e4ce138"
+    "20261029T012745Z-r-cd-2-5e4ce138",
+    "20261029T050321Z-r-cd-2-843e883b"
    ],
    "traces": []
   },
@@ -280,16 +281,17 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-TOKEN/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-TOKEN/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
-   "candidate_verdict": "PARTIAL-candidate (both attempts)",
+   "candidate_verdict": "PARTIAL-candidate (3 attempts)",
    "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
    "fired": true,
    "exact_target_execution": true,
    "pending_receipts": [],
-   "summary": "012658Z: PARTIAL, collector could not fingerprint (no promptTemplate, pre-#606). Refire 030423Z: no delegate dispatch in the journal for the row, so no trace; model did not emit the token delegate.",
-   "notes": "owner: harness/model fidelity",
+   "summary": "PRODUCT REGRESSION karmaterminal/openclaw#1499: same subagent bracket-delegate drop (bracket-parse delayMs=1000, never dispatched), 3/3 attempts. Last fired PASS corpus 3821eaef72 (09-20).",
+   "notes": "owner: product karmaterminal/openclaw#1499 (causal lane codeagent/1499-subagent-bracket-delegate)",
    "test_cases_executed": [
     "20261029T013950Z-r-cd-model-token-5e4ce138",
-    "20261029T031024Z-r-cd-model-token-844f2bba"
+    "20261029T031024Z-r-cd-model-token-844f2bba",
+    "20261029T050615Z-r-cd-model-token-843e883b"
    ],
    "traces": []
   },
@@ -355,23 +357,25 @@
    "row": "R-CD-SILENT",
    "title": "Typed continue_delegate(mode='silent') proof.",
    "owner": "emeric-exact-fire",
-   "state": "partial",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-SILENT/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-SILENT/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
-   "candidate_verdict": "PASS-candidate in 012658Z (trace pending); PARTIAL in refire",
+   "candidate_verdict": "PASS-candidate",
    "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
    "fired": true,
    "exact_target_execution": true,
    "pending_receipts": [],
-   "summary": "Behavior PASS in matrix-012658Z but its record predates the scenario fingerprint (docs#606), and private evidence is deleted after each row, so no post-run trace. Refire 030423Z: product spawned the silent delegate and delivered the return (journal 20:10:09-20:10:18 PDT), but the scenario observed neither scheduled sentinel nor completion.",
-   "notes": "owner: docs harness (observation) + one more trace attempt",
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a). Matrix behavior PASS and refire-030423Z observation miss preserved.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
    "test_cases_executed": [
     "20261029T014330Z-r-cd-silent-5e4ce138",
-    "20261029T030430Z-r-cd-silent-844f2bba"
+    "20261029T030430Z-r-cd-silent-844f2bba",
+    "20261029T050514Z-r-cd-silent-843e883b"
    ],
    "traces": [
-    "tempo-trace-db28db39c03d.json"
+    "tempo-trace-db28db39c03d.json",
+    "tempo-trace-f84f778ca44f.json"
    ]
   },
   {
@@ -382,16 +386,17 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-TOKEN/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-TOKEN/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
-   "candidate_verdict": "PARTIAL-candidate (both attempts)",
+   "candidate_verdict": "PARTIAL-candidate (3 attempts)",
    "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
    "fired": true,
    "exact_target_execution": true,
    "pending_receipts": [],
-   "summary": "Both attempts: no Tempo trace matched the recorded bracket reason hash. docs#606 confirms the hash equals the product hash for a verbatim bracket, so the miss is live-side (model not emitting the bracket verbatim, export, or ingestion); unexplained.",
-   "notes": "owner: harness live diagnosis",
+   "summary": "PRODUCT REGRESSION karmaterminal/openclaw#1499: the light-context subagent's [[CONTINUE_DELEGATE]] bracket is parsed (bracket-parse kind=delegate, origin=bracket) but never consumed/dispatched, 3/3 attempts (012658Z, 030423Z, 050313Z). Last fired PASS corpus 3821eaef72 (09-20).",
+   "notes": "owner: product karmaterminal/openclaw#1499 (causal lane codeagent/1499-subagent-bracket-delegate)",
    "test_cases_executed": [
     "20261029T014357Z-r-cd-token-5e4ce138",
-    "20261029T032648Z-r-cd-token-844f2bba"
+    "20261029T032648Z-r-cd-token-844f2bba",
+    "20261029T051222Z-r-cd-token-843e883b"
    ],
    "traces": []
   },
@@ -461,22 +466,25 @@
    "row": "R-CW-2",
    "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
    "owner": "emeric-exact-fire",
-   "state": "partial",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-2/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-2/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
-   "candidate_verdict": "PASS-candidate in 012658Z (trace pending); PARTIAL in refire",
+   "candidate_verdict": "PASS-candidate",
    "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
    "fired": true,
    "exact_target_execution": true,
    "pending_receipts": [],
-   "summary": "Behavior PASS in matrix-012658Z (old record, no fingerprint; private evidence deleted). Refire 030423Z: the model made no continue_work call (no work-dispatch in the journal for the dispatch turn), so no trace exists. Model compliance, not product.",
-   "notes": "owner: harness/model fidelity; one more trace attempt",
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a). Matrix behavior PASS and refire-030423Z model non-dispatch preserved.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
    "test_cases_executed": [
     "20261029T015044Z-r-cw-2-5e4ce138",
-    "20261029T031810Z-r-cw-2-844f2bba"
+    "20261029T031810Z-r-cw-2-844f2bba",
+    "20261029T050544Z-r-cw-2-843e883b"
    ],
-   "traces": []
+   "traces": [
+    "tempo-trace-ef682ed419b8.json"
+   ]
   },
   {
    "row": "R-CW-3",
@@ -504,22 +512,25 @@
    "row": "R-CW-4",
    "title": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
    "owner": "emeric-exact-fire",
-   "state": "partial",
+   "state": "pass",
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-4/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-4/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
-   "candidate_verdict": "PASS-candidate (trace pending)",
+   "candidate_verdict": "PASS-candidate",
    "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
    "fired": true,
    "exact_target_execution": true,
    "pending_receipts": [],
-   "summary": "Behavior PASS (hops 1-3 woke, journal). Refire 030423Z trace: matched trace carries 3 continue_work tool spans (hops 2-3 wake under hop 1's trace); the collector's exactly-one-span topology rule refuses it. Classified harness topology rule for chain rows.",
-   "notes": "owner: docs harness (#600 follow-up: chain-row topology)",
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a, #608 declared chain scoping, chainDepth 3). Earlier trace-pending receipts preserved.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
    "test_cases_executed": [
     "20261029T015426Z-r-cw-4-5e4ce138",
-    "20261029T032246Z-r-cw-4-844f2bba"
+    "20261029T032246Z-r-cw-4-844f2bba",
+    "20261029T050418Z-r-cw-4-843e883b"
    ],
-   "traces": []
+   "traces": [
+    "tempo-trace-71a46ec5ee60.json"
+   ]
   },
   {
    "row": "R-CW-5",
@@ -887,8 +898,8 @@
  ],
  "rollup": {
   "total_rows": 38,
-  "pass": 25,
-  "partial": 7,
+  "pass": 29,
+  "partial": 3,
   "thin": 0,
   "fail": 0,
   "honest_limit": 1,
@@ -911,6 +922,19 @@
    "authority": "\ud83c\udf0a Discord 1565199441013645316",
    "reason": "trace receipts only; matrix behavior receipts preserved",
    "docs": "313a70c6258f1740fcc754c7886d9f4ac66cceca"
+  },
+  {
+   "run": "COMP-293c977f-20261029T050313Z",
+   "rows": [
+    "R-CD-2",
+    "R-CW-4",
+    "R-CD-SILENT",
+    "R-CW-2",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-TOKEN"
+   ],
+   "authority": "\ud83c\udf0a Discord 1565229430878642217",
+   "docs": "c65b9bb86a6127c403c494eb8b7a95c93d5ee3d0"
   }
  ],
  "promotion": "none",

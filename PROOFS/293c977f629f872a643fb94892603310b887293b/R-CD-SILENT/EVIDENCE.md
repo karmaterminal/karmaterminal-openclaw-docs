@@ -10,3 +10,8 @@ Typed continue_delegate(mode='silent') proof.
 - Targeted trace refire (030423Z, 🌊 go 1565199441013645316): `20261029T030430Z-r-cd-silent-844f2bba`
 
 Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's isolated gateway `:18797` (state `~/proof-gw/comp-293c977f`, own OpenAI sign-in), docs harness `dcc6330c40` (matrix) / `313a70c625` (refire). Nothing is transposed from the live composite.
+
+## Refire 2 (050313Z, docs c65b9bb86a, 🌊 go 1565229430878642217)
+
+- PASS with complete receipts in refire2 050313Z (docs c65b9bb86a). Matrix behavior PASS and refire-030423Z observation miss preserved.
+- Runs: `20261029T050514Z-r-cd-silent-843e883b`

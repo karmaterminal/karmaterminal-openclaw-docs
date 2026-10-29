@@ -1,0 +1,96 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cd-silent.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 4m0s max duration (incl. graceful stop):
+              * r_cd_silent: 1 iterations shared among 1 VUs (maxDuration: 3m30s, gracefulStop: 30s)
+
+time="2026-10-29T14:45:53-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-10-29T14:45:54-07:00" level=info msg="✓ dispatch sessions.send accepted for mode=silent" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m01.0s/3m30s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m02.0s/3m30s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m03.0s/3m30s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m04.0s/3m30s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m05.0s/3m30s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m06.0s/3m30s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m07.0s/3m30s  0/1 shared iters
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+
+running (0m08.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m08.0s/3m30s  0/1 shared iters
+time="2026-10-29T14:46:01-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+
+running (0m09.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m09.0s/3m30s  0/1 shared iters
+
+running (0m10.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m10.0s/3m30s  0/1 shared iters
+time="2026-10-29T14:46:04-07:00" level=info msg="✓ scheduled sentinel observed" source=console
+
+running (0m11.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m11.0s/3m30s  0/1 shared iters
+
+running (0m12.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m12.0s/3m30s  0/1 shared iters
+
+running (0m13.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m13.0s/3m30s  0/1 shared iters
+time="2026-10-29T14:46:07-07:00" level=info msg="✓ silent child completion observed on internal stream" source=console
+
+running (0m14.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m14.0s/3m30s  0/1 shared iters
+
+running (0m15.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m15.0s/3m30s  0/1 shared iters
+
+running (0m16.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m16.0s/3m30s  0/1 shared iters
+
+running (0m17.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m17.0s/3m30s  0/1 shared iters
+
+running (0m18.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m18.0s/3m30s  0/1 shared iters
+time="2026-10-29T14:46:12-07:00" level=info msg="✓ follow-up sessions.send accepted" source=console
+
+running (0m19.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m19.0s/3m30s  0/1 shared iters
+
+running (0m20.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cd_silent   [   0% ] 1 VUs  0m20.0s/3m30s  0/1 shared iters
+time="2026-10-29T14:46:13-07:00" level=info msg="✓ parent reported silent child token from internal context" source=console
+time="2026-10-29T14:46:13-07:00" level=info msg="All required R-CD-SILENT evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CD-SILENT","manifest_loaded":true,"seat":"emeric-isolated-composite","session_created":true,"candidateSha":"08c37a15621790d8bd20ebdaa42d16a65b4059c3","started":"2026-10-29T21:45:53.542Z","dispatch_accepted":true,"scheduled_sentinel":true,"child_completion_observed":true,"followup_accepted":true,"parent_internal_context_observed":true,"no_channel_delivery":true,"child_channel_delivery_observed":false,"dispatch_accepted_at_ms":1793310354347,"followup_sent_at_ms":1793310372211,"trace_id":null,"reason_hash":"5a8395022a9ed443","reason_length":160,"delegate_mode":"silent","ended":"2026-10-29T21:46:13.730Z","duration_ms":20188}
+time="2026-10-29T14:46:13-07:00" level=info msg="\n[R-CD-SILENT] VERDICT: PASS-candidate" source=console
+
+[R-CD-SILENT] Summary: PASS-candidate | SHA: 08c37a15621790d8bd20ebdaa42d16a65b4059c3 | Seat: emeric-isolated-composite
+
+running (0m20.2s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cd_silent ✓ [ 100% ] 1 VUs  0m20.2s/3m30s  1/1 shared iters

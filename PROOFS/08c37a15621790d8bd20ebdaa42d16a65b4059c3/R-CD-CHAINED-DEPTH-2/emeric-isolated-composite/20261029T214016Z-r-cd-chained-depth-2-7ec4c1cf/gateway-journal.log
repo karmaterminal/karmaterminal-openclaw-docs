@@ -1,0 +1,29 @@
+2026-10-29T14:40:28.220532-07:00 emeric node[218274]: 2026-10-29T14:40:28.220-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:28.220862-07:00 emeric node[218274]: 2026-10-29T14:40:28.220-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:28.220959-07:00 emeric node[218274]: 2026-10-29T14:40:28.220-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:28.221111-07:00 emeric node[218274]: 2026-10-29T14:40:28.221-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:28.262793-07:00 emeric node[218274]: 2026-10-29T14:40:28.262-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3649ms fireAt=1793310031911 session=<redacted-session-key>
+2026-10-29T14:40:31.913187-07:00 emeric node[218274]: 2026-10-29T14:40:31.913-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-10-29T14:40:31.919182-07:00 emeric node[218274]: 2026-10-29T14:40:31.919-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-29T14:40:31.959676-07:00 emeric node[218274]: 2026-10-29T14:40:31.959-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=<redacted-session-key> task=<redacted-payload>
+2026-10-29T14:40:36.357482-07:00 emeric node[218274]: 2026-10-29T14:40:36.357-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:36.357991-07:00 emeric node[218274]: 2026-10-29T14:40:36.357-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:36.371234-07:00 emeric node[218274]: 2026-10-29T14:40:36.371-07:00 [agents/agent-command] [agent] run continuation:01a1899b-6c9f-76df-871b-d8d5f632b866:1 ended with stopReason=stop
+2026-10-29T14:40:36.440231-07:00 emeric node[218274]: 2026-10-29T14:40:36.440-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-29T14:40:36.477343-07:00 emeric node[218274]: 2026-10-29T14:40:36.477-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=2/200 mode=silent-wake session=<redacted-session-key> task=<redacted-payload>
+2026-10-29T14:40:40.447319-07:00 emeric node[218274]: 2026-10-29T14:40:40.447-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:40.447627-07:00 emeric node[218274]: 2026-10-29T14:40:40.447-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:40.458614-07:00 emeric node[218274]: 2026-10-29T14:40:40.458-07:00 [agents/agent-command] [agent] run continuation:01a1899b-8c57-74a0-b7db-3b8011c08d9c:1 ended with stopReason=stop
+2026-10-29T14:40:40.534971-07:00 emeric node[218274]: 2026-10-29T14:40:40.534-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>
+2026-10-29T14:40:44.436509-07:00 emeric node[218274]: 2026-10-29T14:40:44.436-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:44.436861-07:00 emeric node[218274]: 2026-10-29T14:40:44.436-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:44.446242-07:00 emeric node[218274]: 2026-10-29T14:40:44.446-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key>:continuation:01a1899b-6c9f-76df-871b-d8d5f632b866:1:wake ended with stopReason=stop
+2026-10-29T14:40:50.852586-07:00 emeric node[218274]: 2026-10-29T14:40:50.852-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:50.852899-07:00 emeric node[218274]: 2026-10-29T14:40:50.852-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:50.853128-07:00 emeric node[218274]: 2026-10-29T14:40:50.853-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:50.853297-07:00 emeric node[218274]: 2026-10-29T14:40:50.853-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:50.912306-07:00 emeric node[218274]: 2026-10-29T14:40:50.912-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>
+2026-10-29T14:40:54.970290-07:00 emeric node[218274]: 2026-10-29T14:40:54.970-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:54.970644-07:00 emeric node[218274]: 2026-10-29T14:40:54.970-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:40:54.970669-07:00 emeric node[218274]: 2026-10-29T14:40:54.970-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:40:54.970898-07:00 emeric node[218274]: 2026-10-29T14:40:54.970-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

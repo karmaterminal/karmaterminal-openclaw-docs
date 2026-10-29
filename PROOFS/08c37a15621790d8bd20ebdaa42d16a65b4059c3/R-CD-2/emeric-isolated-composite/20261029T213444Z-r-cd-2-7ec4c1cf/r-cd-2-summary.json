@@ -1,0 +1,32 @@
+{
+  "row": "R-CD-2",
+  "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T21:35:12.085Z",
+  "verdict": "PARTIAL-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "observability": {
+    "traceStatus": "resolved-after-run"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "r-cd-2-authoritative-receipt"
+    ],
+    "notes": [
+      "The runner owns final R-CD-2 candidate disposition from its validated row-scoped receipt."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "avg": 25003,
+      "min": 25003,
+      "med": 25003,
+      "max": 25003,
+      "p(90)": 25003,
+      "p(95)": 25003
+    },
+    "failures": 0
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-10-29T21:51:47Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-cw-4-chain-depth-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-4",
+    "manifest_loaded": true,
+    "seat": "emeric-isolated-composite",
+    "session_created": true,
+    "candidateSha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "started": "2026-10-29T21:51:18.019Z",
+    "dispatch_accepted": true,
+    "hop1_scheduled": true,
+    "hop2_scheduled": true,
+    "hop3_scheduled": true,
+    "final_done": true,
+    "hop_events": [
+      {
+        "marker": "CW4-HOP1-SCHEDULED",
+        "ts": 1793310682742,
+        "event": "agent"
+      },
+      {
+        "marker": "CW4-HOP2-SCHEDULED",
+        "ts": 1793310691829,
+        "event": "agent"
+      },
+      {
+        "marker": "CW4-HOP3-SCHEDULED",
+        "ts": 1793310700943,
+        "event": "agent"
+      },
+      {
+        "marker": "CW4-DONE",
+        "ts": 1793310707595,
+        "event": "agent"
+      }
+    ],
+    "trace_id": null,
+    "reason_hash": "0f49a3d57848ad60",
+    "reason_length": 60,
+    "ended": "2026-10-29T21:51:47.596Z",
+    "duration_ms": 29577
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "e8b29fe69f14cb21194668b94ea31c2c",
+    "tempoTraceJson": "tempo-trace-e8b29fe69f14.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+  }
+}

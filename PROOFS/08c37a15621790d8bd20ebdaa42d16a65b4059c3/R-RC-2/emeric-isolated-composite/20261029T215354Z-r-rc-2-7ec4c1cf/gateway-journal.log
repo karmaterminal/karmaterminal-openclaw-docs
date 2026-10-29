@@ -1,0 +1,21 @@
+2026-10-29T14:54:07.938150-07:00 emeric node[218274]: 2026-10-29T14:54:07.937-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:54:07.938457-07:00 emeric node[218274]: 2026-10-29T14:54:07.938-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:54:07.938457-07:00 emeric node[218274]: 2026-10-29T14:54:07.938-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:54:07.938504-07:00 emeric node[218274]: 2026-10-29T14:54:07.938-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:54:07.986725-07:00 emeric node[218274]: 2026-10-29T14:54:07.986-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3429ms fireAt=1793310851415 session=<redacted-session-key>
+2026-10-29T14:54:11.417336-07:00 emeric node[218274]: 2026-10-29T14:54:11.417-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-10-29T14:54:11.423832-07:00 emeric node[218274]: 2026-10-29T14:54:11.423-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-29T14:54:11.462557-07:00 emeric node[218274]: 2026-10-29T14:54:11.462-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>
+2026-10-29T14:54:20.342260-07:00 emeric node[218274]: 2026-10-29T14:54:20.342-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:54:20.342506-07:00 emeric node[218274]: 2026-10-29T14:54:20.342-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-10-29T14:54:20.355312-07:00 emeric node[218274]: 2026-10-29T14:54:20.355-07:00 [agents/attempt-execution] [continuation:work-turn-end-parked-coalesced] session=<redacted-session-key> folded=0
+2026-10-29T14:54:20.355613-07:00 emeric node[218274]: 2026-10-29T14:54:20.355-07:00 [agents/attempt-execution] [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=2 reasonCategory=follow-up-work
+2026-10-29T14:54:20.355915-07:00 emeric node[218274]: 2026-10-29T14:54:20.355-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-10-29T14:54:20.360770-07:00 emeric node[218274]: 2026-10-29T14:54:20.360-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399991ms fireAt=1793397260351 session=<redacted-session-key>
+2026-10-29T14:54:20.370474-07:00 emeric node[218274]: 2026-10-29T14:54:20.370-07:00 [agents/agent-command] [agent] run continuation:01a189a7-edcf-7383-bd78-e8fb4dea8a6a:1 ended with stopReason=stop
+2026-10-29T14:54:20.384427-07:00 emeric node[218274]: 2026-10-29T14:54:20.384-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=29 session=<redacted-session-key>
+2026-10-29T14:54:20.404436-07:00 emeric node[218274]: 2026-10-29T14:54:20.404-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4981ms fireAt=1793310865384 session=<redacted-session-key>
+2026-10-29T14:54:20.434571-07:00 emeric node[218274]: 2026-10-29T14:54:20.434-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>
+2026-10-29T14:54:25.386321-07:00 emeric node[218274]: 2026-10-29T14:54:25.386-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-10-29T14:54:25.396712-07:00 emeric node[218274]: 2026-10-29T14:54:25.396-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59996ms fireAt=1793310925392 session=<redacted-session-key>
+2026-10-29T14:54:25.397370-07:00 emeric node[218274]: 2026-10-29T14:54:25.397-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=2/200 session=<redacted-session-key> reasonCategory=follow-up-work

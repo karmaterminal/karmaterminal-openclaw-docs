@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CW-4",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length",
+  "query": "{ resource.service.name=\"emeric-proof-comp-08c37a15\" && name=\"continuation.work\" && .reason.hash=\"0f49a3d57848ad60\" && .reason.length=60 }",
+  "searchWindow": {
+    "startUnixSeconds": 1793310618,
+    "endUnixSeconds": 1793310767,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-e8b29fe69f14.json",
+  "traceId": "e8b29fe69f14cb21194668b94ea31c2c",
+  "chainId": "b34a5714-0b79-4716-bdc7-1e45fb4ec0fe",
+  "toolSpanIds": [
+    "1b5e316bec2d439d"
+  ],
+  "toolParentSpanIds": [
+    "ba38cf9467b02a72"
+  ],
+  "fireSpanId": "2cb259be87d84312",
+  "fireParentSpanId": "1b5e316bec2d439d",
+  "fireSpanIds": [
+    "2cb259be87d84312"
+  ],
+  "fireParentSpanIds": [
+    "1b5e316bec2d439d"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [],
+  "chainDepthTarget": 3,
+  "chainDepth": 3,
+  "chainHops": [
+    {
+      "hop": 2,
+      "toolSpanId": "d4581f81be9b3740",
+      "toolParentSpanId": "62ef5257eab3e245",
+      "workSpanId": "76bf99f1d0b4f60f"
+    },
+    {
+      "hop": 3,
+      "toolSpanId": "1e6675bec4f3d66b",
+      "toolParentSpanId": "d14e6a59306f018b",
+      "workSpanId": "e24b0b9526f30362"
+    }
+  ],
+  "chainPathSpanIds": [
+    "62ef5257eab3e245",
+    "e5f810c81b729c30",
+    "d14e6a59306f018b",
+    "d976f9b77655ee61"
+  ],
+  "workSpanId": "cd92e7681d850f19",
+  "workParentSpanId": "1b5e316bec2d439d",
+  "reason": {
+    "hash": "0f49a3d57848ad60",
+    "length": 60,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_work",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.work",
+    "fireSpan": "continuation.work.fire"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

@@ -1,0 +1,48 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: scenarios/r-cw-2-immediate-wake.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 2m30s max duration (incl. graceful stop):
+              * r_cw_2_immediate_wake: 1 iterations shared among 1 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time="2026-10-29T14:50:17-07:00" level=info msg="✓ disposable session created: <redacted-session-key>" source=console
+time="2026-10-29T14:50:18-07:00" level=info msg="✓ sessions.send accepted — immediate continue_work turn triggered" source=console
+
+running (0m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m01.0s/2m0s  0/1 shared iters
+
+running (0m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m02.0s/2m0s  0/1 shared iters
+
+running (0m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m03.0s/2m0s  0/1 shared iters
+
+running (0m04.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m04.0s/2m0s  0/1 shared iters
+
+running (0m05.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m05.0s/2m0s  0/1 shared iters
+
+running (0m06.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m06.0s/2m0s  0/1 shared iters
+
+running (0m07.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+r_cw_2_immediate_wake   [   0% ] 1 VUs  0m07.0s/2m0s  0/1 shared iters
+time="2026-10-29T14:50:25-07:00" level=info msg="✓ CW2-SCHEDULED sentinel observed" source=console
+time="2026-10-29T14:50:25-07:00" level=info msg="✓ CW2-WOKE sentinel observed" source=console
+time="2026-10-29T14:50:25-07:00" level=info msg="All required R-CW-2 evidence gathered, closing early" source=console
+PUBLIC_EVIDENCE {"row":"R-CW-2","manifest_loaded":true,"seat":"emeric-isolated-composite","session_created":true,"candidateSha":"08c37a15621790d8bd20ebdaa42d16a65b4059c3","started":"2026-10-29T21:50:17.699Z","dispatch_accepted":true,"scheduled_sentinel":true,"immediate_wake_observed":true,"prompt_echo_ignored":true,"reason_hash":"8491374f294a6178","reason_length":132,"dispatch_accepted_at_ms":1793310618513,"scheduled_result_at_ms":1793310625255,"wake_delay_ms":241,"trace_id":null,"ended":"2026-10-29T21:50:25.497Z","duration_ms":7798}
+time="2026-10-29T14:50:25-07:00" level=info msg="\n[R-CW-2] VERDICT: PASS-candidate" source=console
+
+[R-CW-2] Summary: PASS-candidate | SHA: 08c37a15621790d8bd20ebdaa42d16a65b4059c3 | Seat: emeric-isolated-composite
+
+running (0m07.8s), 0/1 VUs, 1 complete and 0 interrupted iterations
+r_cw_2_immediate_wake ✓ [ 100% ] 1 VUs  0m07.8s/2m0s  1/1 shared iters

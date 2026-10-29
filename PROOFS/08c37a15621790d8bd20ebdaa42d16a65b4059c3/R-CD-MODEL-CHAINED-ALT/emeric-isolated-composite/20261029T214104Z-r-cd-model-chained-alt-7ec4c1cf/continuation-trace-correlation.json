@@ -1,0 +1,73 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-08c37a15\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"e42dff54009c8a3b\" && .reason.length=810 && .delegate.mode=\"normal\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793310008,
+    "endUnixSeconds": 1793310173,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-40fad5e38628.json",
+  "traceId": "40fad5e38628a0f15dd96449452062eb",
+  "chainId": "a740e3a6-a3b2-486d-a2c0-6be1c3c635eb",
+  "toolSpanIds": [
+    "aad3d9ef6f4c3274"
+  ],
+  "toolParentSpanIds": [
+    "1f7119c168ae297d"
+  ],
+  "fireSpanId": "a7142f487ba12642",
+  "fireParentSpanId": "08e4e254cc1bf273",
+  "fireSpanIds": [
+    "a7142f487ba12642"
+  ],
+  "fireParentSpanIds": [
+    "08e4e254cc1bf273"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "a7142f487ba12642"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "4888dce743fcb6ed"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "9391f682df37eff1"
+    }
+  ],
+  "dispatchSpanId": "08e4e254cc1bf273",
+  "dispatchParentSpanId": "aad3d9ef6f4c3274",
+  "reason": {
+    "hash": "e42dff54009c8a3b",
+    "length": 810,
+    "source": "scenario-evidence",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "normal"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

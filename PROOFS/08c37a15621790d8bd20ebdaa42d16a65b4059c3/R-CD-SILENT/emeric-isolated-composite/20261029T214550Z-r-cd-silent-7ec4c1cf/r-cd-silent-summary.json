@@ -1,0 +1,34 @@
+{
+  "row": "R-CD-SILENT",
+  "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T21:46:13.734Z",
+  "verdict": "PASS-candidate",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "evidenceJsonl": "evidence.jsonl",
+  "observability": {
+    "traceId": null,
+    "traceJson": "missing"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "tempo-trace-json"
+    ],
+    "notes": [
+      "No trace_id emitted; keep PASS-candidate review-pending until trace JSON is fetched or trace-missing is explicitly accepted."
+    ]
+  },
+  "metrics": {
+    "duration_ms": {
+      "avg": 20188,
+      "min": 20188,
+      "med": 20188,
+      "max": 20188,
+      "p(90)": 20188,
+      "p(95)": 20188
+    },
+    "failures": 0
+  }
+}

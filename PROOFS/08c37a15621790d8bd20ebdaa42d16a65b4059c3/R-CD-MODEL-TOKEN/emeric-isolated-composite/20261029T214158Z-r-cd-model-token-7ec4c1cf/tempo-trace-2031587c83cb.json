@@ -1,0 +1,88 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "2031587c83cbfcd489ac1e5e328be644",
+  "spans": [
+    {
+      "name": "continuation.delegate.fire",
+      "traceId": "2031587c83cbfcd489ac1e5e328be644",
+      "spanId": "3098a2db4278e97a",
+      "parentSpanId": "ce073b5d13812d4b",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "2ebd827c-95ac-4441-b0ce-6e192b79ce20"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "normal"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "331"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "44e5b22007fae9a1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "traceId": "2031587c83cbfcd489ac1e5e328be644",
+      "spanId": "ce073b5d13812d4b",
+      "parentSpanId": "2d4d9e0f8f84b4c2",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "2ebd827c-95ac-4441-b0ce-6e192b79ce20"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "normal"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "331"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "44e5b22007fae9a1"
+          }
+        }
+      ]
+    }
+  ]
+}

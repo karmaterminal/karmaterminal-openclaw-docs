@@ -1,0 +1,281 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-TOKEN",
+  "issue": 118,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "bracket-token",
+  "mutates": false,
+  "timeoutSeconds": 90,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-token-bracket",
+    "description": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives. Proves the token-form continuation works for subagents (the #952 row lineage).",
+    "methods": [
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "subagents.spawn"
+    ],
+    "status": "runnable",
+    "registryNotes": "Local scratch conversion: runnable k6 scenario exercises lightContext sessions_spawn child emitting bare CONTINUE_WORK:N and requiring TOKEN-HOP2-DONE hop-2 sentinel.",
+    "file": "r-cw-token-bracket.js"
+  },
+  "seatClassExpectation": {
+    "lightContext-subagent": "PASS-candidate",
+    "message-body-main-session": "PARTIAL-candidate",
+    "reason": "CONTINUE_WORK bare token only fires from auto-delivered final-text (subagent-announce path). On main-session message-body delivery seats, the token scanner doesn't walk the payload. lightContext subagents auto-deliver → scanner fires → hop-2 drives."
+  },
+  "expectedReceipts": [
+    {
+      "name": "parent-dispatch-accepted",
+      "required": true,
+      "description": "sessions.send dispatch accepted for disposable parent session"
+    },
+    {
+      "name": "subagent-spawn-requested",
+      "required": true,
+      "description": "parent instructed to call sessions_spawn lightContext child"
+    },
+    {
+      "name": "subagent-spawn-accepted",
+      "required": true,
+      "description": "parent observed sessions_spawn acceptance/final sentinel"
+    },
+    {
+      "name": "token-emitted-or-stripped",
+      "required": true,
+      "description": "child first turn reached TOKEN-HOP1 and emitted/stripped bare CONTINUE_WORK:N token"
+    },
+    {
+      "name": "hop-2-executed",
+      "required": true,
+      "description": "TOKEN-HOP2-DONE sentinel from continuation wake/hop-2"
+    },
+    {
+      "name": "parent-return",
+      "required": true,
+      "description": "hop-2 result returned/observable on parent session"
+    },
+    {
+      "name": "journal-work-wake-hop-2",
+      "required": true,
+      "description": "Review receipt: journal [continuation:work-wake] for the child session; runtime labels the first child continuation wake as hop=1/200, which is the semantic hop-2 turn for this row"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the sessions_spawn child whose bare CONTINUE_WORK token drives the continuation.work.fire wake path, collected by collect-continuation-trace.mjs. Formerly spelled tempo-trace; required for every continuation row (#600)."
+    },
+    {
+      "name": "tool-trace-correlation",
+      "required": true,
+      "description": "tool-trace-correlation.json: exactly one Tempo trace on this seat inside the row’s evidence window, holding one sessions_spawn tool-execution span. The continuation.work / continuation.work.fire topology under it is reviewed by hand."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof — the lightContext bracket path that was broken pre-fix."
+  },
+  "invocation": {
+    "tool": "sessions_spawn",
+    "lightContext": true,
+    "tokenDelaySeconds": 5,
+    "taskNamePrefix": "r-cw-token",
+    "idempotencyKeyPrefix": "R-CW-TOKEN"
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity, so a token-driven continuation.work span cannot be told apart from a typed one or joined to the child that emitted the token. The collector attributes this row’s trace only by the sessions_spawn tool span on this seat inside the evidence window; the work/fire topology under it is reviewed by hand."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "tool-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "The sessions_spawn span the collector attributes by seat and window."
+        },
+        {
+          "name": "continuation.work",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Token-driven accepted entry. Carries no origin attribute that distinguishes a token from a typed call."
+        },
+        {
+          "name": "continuation.work.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        }
+      ],
+      "attributes": [
+        {
+          "key": "gen_ai.tool.name",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "continuation.signal.surface",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "The trace is published as a public-safe Tempo projection. The token text, child final text, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "final reply text",
+        "task text",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The lightContext child reaches TOKEN-HOP1 and emits the bare CONTINUE_WORK token, its hop-2 turn emits TOKEN-HOP2-DONE, the journal records the child’s [continuation:work-wake], and one trace on this seat carries the sessions_spawn span inside the row window.",
+      "negative": "Token parse or strip alone is insufficient, a harness prompt echo cannot satisfy TOKEN-HOP2-DONE, and more than one sessions_spawn trace in the window is refused as ambiguous."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "gen_ai.tool.name",
+        "continuation.chain.id"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "tool-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "TOKEN-HOP2-DONE from the continuation wake plus the child’s [continuation:work-wake] journal receipt. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Hop 2 is not observed, or the seat is a message-body seat. A missing or degraded trace keeps the row review-pending without changing its class.",
+      "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
+    },
+    "execution": {
+      "deterministicK6": "r-cw-token-bracket.js spawns a lightContext child that emits the bare CONTINUE_WORK token.",
+      "manual": "Manual Tempo review confirms the work/fire topology under the sessions_spawn trace.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "parent-dispatch-accepted",
+      "subagent-spawn-requested",
+      "subagent-spawn-accepted",
+      "token-emitted-or-stripped",
+      "hop-2-executed",
+      "parent-return",
+      "journal-work-wake-hop-2",
+      "tempo-trace-json",
+      "tool-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Bare CONTINUE_WORK token row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. PASS requires TOKEN-HOP2-DONE plus journal [continuation:work-wake] for the child session (runtime records first child continuation wake as hop=1/200, the semantic hop-2 turn) and Tempo trace; parse/strip alone is insufficient."
+  }
+}

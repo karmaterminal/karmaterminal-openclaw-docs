@@ -1,0 +1,279 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-3",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 300,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-3-post-compaction",
+    "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send",
+      "request_compaction-threshold-guard"
+    ],
+    "status": "runnable",
+    "file": "r-cd-3-post-compaction.js",
+    "notes": "Does not lower thresholds or mutate config. In ordinary disposable sessions a below-threshold refusal is retained as PARTIAL proof debt."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "post-compaction",
+    "delaySeconds": 0,
+    "promptTemplate": "R-CD-3 post-compaction lifeboat nonce {{nonce}}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED {{nonce}}. Do not mutate files.",
+    "idempotencyKeyPrefix": "R-CD-3"
+  },
+  "prerequisites": {
+    "contextUsage": "Any; < threshold is retained as PARTIAL-candidate proof debt",
+    "notes": "If context is below compaction threshold, request_compaction should reject structurally and the scenario records that environmental limit. If context is above threshold, the staged post-compaction lifeboat may fire after compaction."
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the sessions.send proof turn"
+    },
+    {
+      "name": "delegate-staging-requested",
+      "required": true,
+      "description": "Agent was instructed to stage continue_delegate(mode=post-compaction)"
+    },
+    {
+      "name": "compaction-requested",
+      "required": true,
+      "description": "Agent was instructed to call request_compaction after staging the delegate"
+    },
+    {
+      "name": "threshold-refusal-or-lifeboat",
+      "required": true,
+      "description": "Either structured below-threshold request_compaction refusal is observed, or post-compaction lifeboat return is observed"
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID for gateway/session dispatch correlation when available"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-3",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "R-CD-3 is PASS-candidate on real lifeboat return after compaction. A below-threshold request_compaction refusal remains PARTIAL-candidate; do not overclaim compaction firing."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. The scenario records the fingerprint of the staged lifeboat task, which the manifest template reproduces from the nonce. At karmaterminal/openclaw 293c977f62 the product releases a post-compaction lifeboat from post-compaction-delegate-delivery.ts without a continuation.delegate.dispatch or .fire span (only continuation.compaction.released, which carries no reason), so no trace carries that fingerprint: the collector stays fail-closed and the trace receipts stay pending until the product emits the delegate spans on that path."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_delegate evidence. Joined to the dispatch span only by shared trace and causal timing."
+        },
+        {
+          "name": "continuation.compaction.released",
+          "role": "compaction",
+          "emittedByProduct": true,
+          "notes": "Emitted only on an accepted compaction, so its absence cannot distinguish a refusal from a missing trace."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Delegate task material is published only as a digest, a length and the delegate mode, inside a public-safe Tempo projection. Task text, prompt bodies, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "task text",
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "continue_delegate(mode=post-compaction) is staged, request_compaction is called, and the post-compaction lifeboat return carrying the nonce is observed.",
+      "negative": "A structured below-threshold refusal is PARTIAL, never PASS, and a prose-only report of compaction does not satisfy the row."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "The post-compaction lifeboat return is observed after the staged delegate. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "A structured below-threshold refusal, or an accepted compaction without the lifeboat return. A missing or degraded trace keeps the row review-pending without changing its class.",
+      "fail": "Neither a threshold refusal, an accepted compaction, nor a lifeboat return is observed."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-3-post-compaction.js stages the delegate and calls request_compaction in a disposable session.",
+      "manual": "Manual Tempo review confirms the dispatch/fire topology; it cannot supply the missing identity attributes.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "dispatch-accepted",
+      "delegate-staging-requested",
+      "compaction-requested",
+      "threshold-refusal-or-lifeboat",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Runs in a disposable session by default. Does not mutate config; if compaction is accepted it only compacts that proof session. Public/dry environments commonly retain a below-threshold refusal as PARTIAL proof debt."
+  }
+}

@@ -12,7 +12,7 @@
   "harness_sha": "0f126c8396a2adeaa8d8a49cd0f3b4347cd65ea0",
   "seat": "emeric",
   "fire_type": "exact-pure-head isolated-gateway live-suite",
-  "execution_status": "in-progress",
+  "execution_status": "fired",
   "required_rows": [
     "R-CD-1",
     "R-CD-2",
@@ -106,81 +106,107 @@
       "row": "R-CD-1",
       "title": "Typed continue_delegate() schedule/spawn/return.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-1/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T213408Z-r-cd-1-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-2857c2ddaa56.json"
+      ]
     },
     {
       "row": "R-CD-2",
       "title": "continue_delegate(mode='silent-wake') full path.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-2/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate (authoritative receipt)",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with the R-CD-2 authoritative receipt. Under 🌊's ruling (a) at 293c977f62 the row stays PARTIAL with its keyed PASS review kept (the authority is HMAC-signed with the proof-gateway token; PASS would need the seat-attestation method change, option (b)). Keyed review at this head: see KEYED-AUTHORITY-REVIEW.json when recorded.",
+      "notes": "owner: method: 🌊 ruling (a)",
+      "test_cases_executed": [
+        "20261029T213444Z-r-cd-2-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-CD-3",
       "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-3/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate (trace correlation failed; envelope withheld)",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "Behavior observed, but continuation trace correlation failed, so the candidate envelope was withheld. Same class as at 293c977f62: product span gap openclaw#1497 (a lifeboat release emits no delegate span). Last-known: 293c977f62 partial for the same reason.",
+      "notes": "owner: product: openclaw#1497",
+      "test_cases_executed": [
+        "20261029T213517Z-r-cd-3-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-CD-4",
       "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-4/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T213834Z-r-cd-4-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-e5457fb914f3.json"
+      ]
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
       "title": "Depth-2 delegate chain: parent→child→grandchild→return path.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-CHAINED-DEPTH-2/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214016Z-r-cd-chained-depth-2-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-f3ed8cc65dae.json"
+      ]
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
@@ -207,81 +233,109 @@
       "row": "R-CD-MODEL-CHAINED-ALT",
       "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-CHAINED-ALT/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214104Z-r-cd-model-chained-alt-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-40fad5e38628.json"
+      ]
     },
     {
       "row": "R-CD-MODEL-DEFAULT",
       "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-DEFAULT/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-DEFAULT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in smoke-213240Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T213247Z-r-cd-model-default-16a420ea"
+      ],
+      "traces": [
+        "tempo-trace-6d98635c69a7.json"
+      ]
     },
     {
       "row": "R-CD-MODEL-TOKEN",
       "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-TOKEN/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "Bracket model= modifier honored and the child selected openai/gpt-5.6-sol, but no served-model receipt or return inside the row window ('selection matched; served route unproven'). The isolated gateway's subagent_runs row shows the delegate ran and ended ok, but 317 s after spawn (14:42:17 -> 14:47:35 PDT), past the window; at P' the same run took 8 s. Classified timing/model latency, not product. A refire needs 🌊.",
+      "notes": "owner: infrastructure (model latency); refire is 🌊's call",
+      "test_cases_executed": [
+        "20261029T214158Z-r-cd-model-token-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-2031587c83cb.json"
+      ]
     },
     {
       "row": "R-CD-MODEL-TOOL",
       "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-TOOL/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-MODEL-TOOL/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214506Z-r-cd-model-tool-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-4912924a677f.json"
+      ]
     },
     {
       "row": "R-CD-RETURN-OVERLAP",
       "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-RETURN-OVERLAP/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-RETURN-OVERLAP/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214545Z-r-cd-return-overlap-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-CD-RETURN-COVENANT-AUTHORITY",
@@ -303,129 +357,173 @@
       "row": "R-CD-SILENT",
       "title": "Typed continue_delegate(mode='silent') proof.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-SILENT/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-SILENT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214550Z-r-cd-silent-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-c1291e187be6.json"
+      ]
     },
     {
       "row": "R-CD-TOKEN",
       "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an explicitly agent-bound isolated raw-final-text parent; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "partial",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-TOKEN/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "Targeted return correlated, but no product-stamped delivery->run join observable (docs#612 method, 🌊 row-level ruling Discord 1565449760234676286; product seam openclaw#1504). The subagent bracket delegate dispatched and ran (#1499 fix live), and the return was delivered to the origin child.",
+      "notes": "owner: product seam: openclaw#1504",
+      "test_cases_executed": [
+        "20261029T214624Z-r-cd-token-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-3ebc367b40cd.json"
+      ]
     },
     {
       "row": "R-CONFIG-DEFAULTS",
       "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CONFIG-DEFAULTS/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CONFIG-DEFAULTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214932Z-r-config-defaults-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-CONFIG-INTERSESSION",
       "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CONFIG-INTERSESSION/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CONFIG-INTERSESSION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214938Z-r-config-intersession-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-CW-1",
       "title": "Typed continue_work() tool-form schedule + wake.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-1/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T214944Z-r-cw-1-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-05f8050876ad.json"
+      ]
     },
     {
       "row": "R-CW-2",
       "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-2/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215015Z-r-cw-2-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-af2719cc5ebc.json"
+      ]
     },
     {
       "row": "R-CW-3",
       "title": "continue_work reason telemetry/redaction partial candidate.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-3/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PARTIAL-candidate (manual receipt pending) -> reviewed pass",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "Behavior and trace receipts complete (trace 83f5f298…, correlated; review join passed). The one pending receipt was the manual reason-telemetry-redaction-review. frond-scribe reviewed the Tempo JSON: safe attributes reason.hash / reason.length / reason.present present (2 each); the raw sentinels RAW-RCW3 / CW3-WOKE / CW3-SCHEDULED / k6-proof-R-CW-3-redaction absent. Receipt satisfied (same review as at 293c977f62). Two review-join files had a private run-root path redacted to <private-run-root>/.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215044Z-r-cw-3-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-83f5f298daaa.json"
+      ]
     },
     {
       "row": "R-CW-4",
       "title": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-4/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-4/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215115Z-r-cw-4-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-e8b29fe69f14.json"
+      ]
     },
     {
       "row": "R-CW-5",
@@ -578,17 +676,23 @@
       "row": "R-CW-DELEGATE-SELF-CONTINUATION",
       "title": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-DELEGATE-SELF-CONTINUATION/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215152Z-r-cw-delegate-self-continuation-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-676b4857e589.json"
+      ]
     },
     {
       "row": "R-CW-DELEGATE-TOKEN",
@@ -657,139 +761,177 @@
       "row": "R-CW-TOKEN",
       "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-TOKEN/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215228Z-r-cw-token-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-5a35d64ec415.json"
+      ]
     },
     {
       "row": "R-OBS-1",
       "title": "Session-status-card observability via the session_status tool.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-OBS-1/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-OBS-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215255Z-r-obs-1-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-OBS-2",
       "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-OBS-2/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-OBS-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215310Z-r-obs-2-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-OBS-STATUS",
       "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-OBS-STATUS/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-OBS-STATUS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215315Z-r-obs-status-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-RC-1",
       "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-RC-1/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-RC-1/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215321Z-r-rc-1-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-661db63750c0.json"
+      ]
     },
     {
       "row": "R-RC-2",
       "title": "Parent fires continue_delegate to a child that calls request_compaction.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "honest_limit",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-RC-2/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-RC-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "HONEST-LIMIT-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "HONEST-LIMIT-candidate in matrix-213356Z: structured request_compaction rejection (guard context_threshold) with the matching child threshold return; receipts reviewed.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215354Z-r-rc-2-7ec4c1cf"
+      ],
+      "traces": [
+        "tempo-trace-c60f3f0969e2.json"
+      ]
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",
       "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-REGRESSION-TRAP-TESTS/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215437Z-r-regression-trap-tests-7ec4c1cf"
+      ],
+      "traces": []
     },
     {
       "row": "R-TRACE-REDACTION-1121",
       "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
       "owner": "emeric-exact-fire",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-TRACE-REDACTION-1121/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-TRACE-REDACTION-1121/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): missing (diagnostic only; not carried)"
+      "summary": "PASS-candidate with complete receipts in matrix-213356Z.",
+      "notes": "owner: -",
+      "test_cases_executed": [
+        "20261029T215442Z-r-trace-redaction-1121-7ec4c1cf"
+      ],
+      "traces": []
     }
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 8,
-    "partial": 0,
+    "pass": 30,
+    "partial": 4,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 0,
-    "missing": 30
+    "honest_limit": 1,
+    "missing": 3
   },
   "method": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/METHOD.md",
   "corpus": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/",

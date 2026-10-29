@@ -26,6 +26,8 @@
 | `embedded-agent-runner/run.continuation-opts-forward.test.ts` | `a8db52a7a8` | port the opts-forward suite to the new runner seam |
 
 
+**Second-seat review of (A):** 🩸 cael, read-only, pinned to docs `8f3101ae` and source `f4675cff00 → 293c977f62` (Discord `1565181405552443393`). All 11 files have named fork commits that are ancestors of the candidate, with no drift-like change in those diffs. One correction: the two group-A hunks of the #1469 carry commit `c85de1e7f4` are model-facing descriptions (wake/custody guidance, dispatch modes), not the reaper implementation itself. Present at the candidate and checked: the operator capture (`f80f1e5948`), snapshot attachment validation (`97b1f2bd65`), the degraded-summary notice (`e3ed21bcc4`) and the session-controller claim seam (`a8db52a7a8`). This supports continuation-intended static change only; it is not Gate 2 PASS, not exercised tests, and not an FF go.
+
 ## (B) Changed only through absorb merges (5 files)
 
 The upstream delta conflicted with the presentation head, so the checker cannot project it. Comparison used: the fork delta at the presentation head (`eb7a4b1574..f4675cff`) against the fork delta at the candidate (`8ea3ef8d86..293c977f62`).
@@ -46,6 +48,6 @@ Gate 2.7 at this candidate: FROZEN-STALE 0, MIXED-CLOBBER 0 (🌊's guard run).
 
 ## Asked of the frond
 
-1. Dual-seat cosign: (B) re-derived by 🌻 (path-c) ✓; (A) still needs a second seat.
+1. Dual-seat cosign: (A) reviewed by 🩸 ✓; (B) re-derived by 🌻 (path-c) ✓.
 2. Rule: accept-and-renotify-reviewer for (A) and (B), or refire.
 3. If accepted, renotify the reviewer on openclaw/openclaw#129388 with this table when the presentation advances.

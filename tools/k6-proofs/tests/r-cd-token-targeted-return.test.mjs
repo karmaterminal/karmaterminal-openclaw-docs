@@ -403,19 +403,12 @@ async function fireRcdToken(options = {}) {
 }
 
 /** The return bound to origin (target) and delegate (source); the next gate is Tempo topology. */
-function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
+function assertReturnBound(fired, receiptKind, route = 'direct-announce') {
   const { evidence, receipt } = fired;
   assert.equal(evidence.delegate_return_observed, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
   // Evidence without a route came from the header parser (the direct announce),
   // the same reading classifyTokenEvidence gives it.
   assert.equal(evidence.return_route ?? 'direct-announce', route);
-  if (route === 'targeted-return') {
-    assert.equal(evidence.source_return_observed, true);
-    assert.equal(evidence.source_return_run_id_hash, hash16(DELEGATE_RUN));
-    assert.equal(evidence.origin_spawn_run_id_hash, hash16(ORIGIN_RUN));
-    assert.equal(evidence.return_run_id_hash, hash16(WAKE_RUN));
-    assert.ok(evidence.return_after_delegate_end_ms >= 0, `woken ${evidence.return_after_delegate_end_ms} ms after the delegate ended`);
-  }
   assert.equal(evidence.return_target_session_hash, hash16(ORIGIN));
   assert.equal(evidence.return_source_session_hash, hash16(DELEGATE));
   assert.equal(evidence.return_target_session_hash, evidence.origin_child_session_hash);
@@ -428,10 +421,40 @@ function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
   assert.equal(receipt.failureCategory, 'missing-continuation-topology');
 }
 
+/**
+ * A targeted return correlated on both legs, and still unbound: no surface ties
+ * the woken run to this delivery, so the row stays PARTIAL with that reason.
+ */
+function assertTargetedCorrelated(fired, receiptKind) {
+  const { evidence, receipt } = fired;
+  // Correlation never fills the bound-return fields.
+  const bound = evidence.event_receipt_kinds.filter((kind) => kind.startsWith('bound-'));
+  assert.equal(evidence.delegate_return_observed, false, `a targeted return bound without a stamped join: ${bound.join(', ')}`);
+  assert.deepEqual(bound, []);
+  assert.equal(evidence.return_route, null);
+  assert.equal(evidence.return_target_session_hash, null);
+  assert.equal(evidence.return_source_session_hash, null);
+  // Both legs are still checked, and recorded as correlation.
+  assert.equal(evidence.targeted_return_correlated, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
+  assert.ok(evidence.event_receipt_kinds.includes(receiptKind), `receipt kinds: ${evidence.event_receipt_kinds.filter((k) => k.startsWith('correlated-')).join(', ')}`);
+  assert.equal(evidence.source_return_observed, true);
+  assert.equal(evidence.source_return_run_id_hash, hash16(DELEGATE_RUN));
+  assert.equal(evidence.origin_spawn_run_id_hash, hash16(ORIGIN_RUN));
+  assert.equal(evidence.targeted_return_run_id_hash, hash16(WAKE_RUN));
+  assert.ok(evidence.targeted_return_after_delegate_end_ms >= 0, `woken ${evidence.targeted_return_after_delegate_end_ms} ms after the delegate ended`);
+  assert.deepEqual(evidence.partial_reasons, [NO_STAMPED_JOIN]);
+  assert.equal(evidence.terminal_reason, 'observation-window-expired');
+  assert.equal(classifyTokenEvidence(evidence), 'PARTIAL-candidate');
+  assert.equal(receipt.verdict, 'PARTIAL-candidate');
+  assert.equal(receipt.failureCategory, 'incomplete-or-nonunique-lifecycle');
+}
+
 /** The return did not bind, and the evidence says so the way the live one did. */
 function assertReturnUnbound(fired) {
   const { evidence, receipt } = fired;
   assert.equal(evidence.delegate_return_observed, false);
+  // Not even correlated: every correlation binding still holds.
+  assert.notEqual(evidence.targeted_return_correlated, true);
   assert.equal(evidence.return_target_session_hash, null);
   assert.equal(evidence.return_source_session_hash, null);
   // The return binding is the only thing missing: the control cannot pass for
@@ -443,25 +466,26 @@ function assertReturnUnbound(fired) {
   assert.equal(receipt.failureCategory, 'incomplete-or-nonunique-lifecycle');
 }
 
-test('R-CD-TOKEN run 20261029T133725Z: the targeted return binds origin target and delegate source', async () => {
+test('R-CD-TOKEN run 20261029T133725Z: the targeted return is correlated on both legs and stays PARTIAL', async () => {
   const fired = await fireRcdToken();
   // Everything else the live run needed is present: one origin, one delegate,
-  // both done, stable traversals, the origin subscription accepted.
+  // both done, stable traversals, the origin subscription accepted. Only the
+  // product-stamped delivery-to-run join is missing.
   assert.equal(fired.evidence.origin_task_unique_count, 1);
   assert.equal(fired.evidence.delegate_task_unique_count, 1);
   assert.equal(fired.evidence.origin_subscription_accepted, true);
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
 });
 
-test('cleanup "delete" removes the origin transcript; the live route still binds', async () => {
+test('cleanup "delete" removes the origin transcript; the live route still correlates', async () => {
   // The origin is deleted right after its announce; chat.history then answers
   // an empty transcript, and only the live subscription carries the wake.
   const fired = await fireRcdToken({ originDeleted: true });
-  assertReturnBound(fired, 'bound-session-message-return');
-  assert.equal(fired.evidence.event_receipt_kinds.includes('bound-target-transcript-return'), false);
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
+  assert.equal(fired.evidence.event_receipt_kinds.includes('correlated-target-transcript-targeted-return'), false);
 });
 
-test('the origin transcript recovers a wake answer the live subscription missed', async () => {
+test('the origin transcript recovers the correlation the live subscription missed', async () => {
   // The wake ran before any origin subscriber existed (no live frame), and the
   // origin transcript still holds that run's answer.
   const fired = await fireRcdToken({
@@ -469,7 +493,7 @@ test('the origin transcript recovers a wake answer the live subscription missed'
     wake: () => [],
     originHistory: (state) => state.round >= WAKE_END_ROUND ? [stamped(text('assistant', state.sentinel), WAKE_RUN)] : [],
   });
-  assertReturnBound(fired, 'bound-target-transcript-return');
+  assertTargetedCorrelated(fired, 'correlated-target-transcript-targeted-return');
 });
 
 test('agent lifecycle broadcasts from other sessions cannot crowd out the woken run', async () => {
@@ -482,7 +506,7 @@ test('agent lifecycle broadcasts from other sessions cannot crowd out the woken 
     wake: (state) => [...unrelatedStarts, ...targetedReturnWake({ sentinel: state.sentinel })],
     deliverUnsubscribed: true,
   });
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
 });
 
 test('lifecycle broadcasts before the origin is known cannot crowd out the woken run', async () => {
@@ -490,17 +514,17 @@ test('lifecycle broadcasts before the origin is known cannot crowd out the woken
     preIdentityFrames: Array.from({ length: 25 }, (_, i) =>
       lifecycle({ runId: `early-run-${i}`, sessionKey: `agent:main:early-${i}`, phase: 'start' })),
   });
-  assertReturnBound(fired, 'bound-session-message-return');
+  assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
 });
 
-test('delivery order: an answer ahead of its lifecycle start, or ahead of the source leg, still binds', async () => {
+test('delivery order: an answer ahead of its lifecycle start, or ahead of the source leg, still correlates', async () => {
   for (const options of [
     { wake: (state) => targetedReturnWake({ sentinel: state.sentinel, order: 'answer-first' }) },
     // The delegate's transcript shows its answer a few rounds after the wake.
     { delegateAnswerRound: DELEGATE_DONE_ROUND + 4 },
   ]) {
     const fired = await fireRcdToken(options);
-    assertReturnBound(fired, 'bound-session-message-return');
+    assertTargetedCorrelated(fired, 'correlated-session-message-targeted-return');
   }
 });
 

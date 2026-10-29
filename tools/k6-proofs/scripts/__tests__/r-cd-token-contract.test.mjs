@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
 import {
+  TOKEN_TARGETED_RETURN_UNBOUND_REASON,
   classifyTokenEvidence,
+  correlateTokenTargetedReturnEvent,
+  correlateTokenTargetedReturnHistory,
   createTokenLedger,
   observeTokenTaskLedger,
   parseTokenOriginWakeStart,
@@ -13,6 +16,7 @@ import {
   summarizeTokenLedger,
   tokenDisposableOriginReady,
   tokenLedgerHasTerminalTasks,
+  tokenPartialReasons,
 } from '../../lib/r-cd-token-contract.js';
 
 const hash = (value) => createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
@@ -259,8 +263,10 @@ test('task-list rejection is recorded fail-closed', () => {
 });
 
 // Targeted-return route (karmaterminal/openclaw-bootstrap#1727). At openclaw
-// 8ba08c76d8 a delegate return is a hidden system-event delivery plus a woken
-// session-event run on the origin child; the delegate keeps its own answer.
+// 8ba08c76d8 and 9f1b83f9d0 a delegate return is a hidden system-event
+// delivery plus a woken session-event run on the origin child; the delegate
+// keeps its own answer. No read surface ties the woken run to the delivery, so
+// the route is correlation evidence only and never binds.
 const originSpawnRun = 'origin-bracket-run';
 const wakeRun = 'origin-woken-run';
 const delegateRun = 'continuation:flow:1';
@@ -332,19 +338,19 @@ function targetedOptions(overrides = {}) {
   };
 }
 
-test('targeted return: the woken origin answer plus the delegate leg binds target and source', () => {
+test('targeted return: the woken origin answer plus the delegate leg correlates and never binds', () => {
   const event = { sessionKey: originChild, message: stampedRow('assistant', returnSentinel, wakeRun) };
-  assert.deepEqual(parseTokenReturnEvent(event, targetedOptions()), {
-    route: 'targeted-return',
+  assert.deepEqual(correlateTokenTargetedReturnEvent(event, targetedOptions()), {
     targetSessionHash: hash(originChild),
     sourceSessionHash: hash(delegateChild),
     returnRunIdHash: hash(wakeRun),
     sourceRunIdHash: hash(delegateRun),
     returnAfterDelegateEndMs: wokenAtMs - delegateEndedAtMs,
   });
+  assert.equal(parseTokenReturnEvent(event, targetedOptions()), null);
 });
 
-test('targeted return: wrong session, sentinel, run, or missing source leg never binds', () => {
+test('targeted return: wrong session, sentinel, run, or missing source leg never correlates', () => {
   const answer = (text, runId = wakeRun) => stampedRow('assistant', text, runId);
   const variants = [
     [{ sessionKey: delegateChild, message: answer(returnSentinel) }, {}],
@@ -368,50 +374,57 @@ test('targeted return: wrong session, sentinel, run, or missing source leg never
     [{ sessionKey: originChild, message: answer(returnSentinel) }, { originSpawnRunId: null }],
   ];
   for (const [event, overrides] of variants) {
-    assert.equal(parseTokenReturnEvent(event, targetedOptions(overrides)), null, JSON.stringify(event));
+    assert.equal(correlateTokenTargetedReturnEvent(event, targetedOptions(overrides)), null, JSON.stringify(event));
   }
 });
 
-test('targeted return: transcript recovery needs one answer after the bracket run, plus the source leg', () => {
+test('targeted return: transcript correlation needs one answer after the bracket run, plus the source leg', () => {
   const bracketRows = [
     stampedRow('user', `[Subagent Task] reply exactly ${returnSentinel}`),
     stampedRow('assistant', `RCDT-HOP1-x\n[[CONTINUE_DELEGATE: reply exactly ${returnSentinel} +10s]]`, originSpawnRun),
   ];
   const woken = stampedRow('assistant', returnSentinel, wakeRun);
   const options = targetedOptions({ wakeRuns: undefined });
-  assert.equal(parseTokenReturnHistory([...bracketRows, woken], options)?.route, 'targeted-return');
+  assert.equal(correlateTokenTargetedReturnHistory([...bracketRows, woken], options)?.returnRunIdHash, hash(wakeRun));
+  // The bound transcript parser never accepts it.
+  assert.equal(parseTokenReturnHistory([...bracketRows, woken], options), null);
   // Written before the delegate ended, or without a timestamp: not its return.
-  assert.equal(parseTokenReturnHistory([...bracketRows, stampedRow('assistant', returnSentinel, wakeRun, delegateEndedAtMs - 1)], options), null);
-  assert.equal(parseTokenReturnHistory([...bracketRows, { ...woken, timestamp: undefined }], options), null);
-  assert.equal(parseTokenReturnHistory([woken, ...bracketRows], options), null);
-  assert.equal(parseTokenReturnHistory([woken], options), null);
-  assert.equal(parseTokenReturnHistory([...bracketRows, woken, stampedRow('assistant', returnSentinel, 'later')], options), null);
-  assert.equal(parseTokenReturnHistory([...bracketRows, stampedRow('assistant', returnSentinel)], options), null);
-  assert.equal(parseTokenReturnHistory([...bracketRows, woken], { ...options, sourceReturn: null }), null);
+  assert.equal(correlateTokenTargetedReturnHistory([...bracketRows, stampedRow('assistant', returnSentinel, wakeRun, delegateEndedAtMs - 1)], options), null);
+  assert.equal(correlateTokenTargetedReturnHistory([...bracketRows, { ...woken, timestamp: undefined }], options), null);
+  assert.equal(correlateTokenTargetedReturnHistory([woken, ...bracketRows], options), null);
+  assert.equal(correlateTokenTargetedReturnHistory([woken], options), null);
+  assert.equal(correlateTokenTargetedReturnHistory([...bracketRows, woken, stampedRow('assistant', returnSentinel, 'later')], options), null);
+  assert.equal(correlateTokenTargetedReturnHistory([...bracketRows, stampedRow('assistant', returnSentinel)], options), null);
+  assert.equal(correlateTokenTargetedReturnHistory([...bracketRows, woken], { ...options, sourceReturn: null }), null);
 });
 
-test('classification: a targeted route needs its delegate leg and a woken run distinct from the bracket run', () => {
-  const targeted = completeEvidence({
-    return_route: 'targeted-return',
-    return_run_id_hash: hash(wakeRun),
+test('classification: a correlated targeted return stays PARTIAL with its precise reason', () => {
+  // Every receipt present except a bound return: the targeted route was
+  // correlated on both legs, after the delegate ended, in a woken run.
+  const correlated = completeEvidence({
+    delegate_return_observed: false,
+    return_target_session_hash: null,
+    return_source_session_hash: null,
+    return_route: null,
+    targeted_return_correlated: true,
+    targeted_return_run_id_hash: hash(wakeRun),
+    targeted_return_after_delegate_end_ms: 300,
     origin_spawn_run_id_hash: hash(originSpawnRun),
     source_return_observed: true,
     source_return_run_id_hash: completeEvidence().delegate_run_id_hash,
-    return_after_delegate_end_ms: 300,
   });
-  assert.equal(classifyTokenEvidence(targeted), 'PASS-candidate');
+  assert.equal(classifyTokenEvidence(correlated), 'PARTIAL-candidate');
+  assert.deepEqual(tokenPartialReasons(correlated), [TOKEN_TARGETED_RETURN_UNBOUND_REASON]);
+  assert.equal(TOKEN_TARGETED_RETURN_UNBOUND_REASON, 'targeted-return correlated; no product-stamped delivery→run join observable');
+  assert.deepEqual(tokenPartialReasons({ ...correlated, targeted_return_correlated: false }), ['bound delegate return not observed']);
+  // Only the direct announce binds; legacy evidence without a route is that route.
+  assert.equal(classifyTokenEvidence(completeEvidence()), 'PASS-candidate');
   assert.equal(classifyTokenEvidence(completeEvidence({ return_route: 'direct-announce' })), 'PASS-candidate');
-  for (const overrides of [
-    { source_return_observed: false },
-    { source_return_run_id_hash: hash('other-run') },
-    { return_run_id_hash: null },
-    { return_run_id_hash: hash(originSpawnRun) },
-    { return_run_id_hash: targeted.delegate_run_id_hash },
-    { origin_spawn_run_id_hash: null },
-    { return_after_delegate_end_ms: null },
-    { return_after_delegate_end_ms: -1 },
-    { return_route: 'log-only' },
-  ]) {
-    assert.equal(classifyTokenEvidence({ ...targeted, ...overrides }), 'PARTIAL-candidate', JSON.stringify(overrides));
+  assert.equal(classifyTokenEvidence(completeEvidence({ return_route: 'direct-announce', targeted_return_correlated: true })), 'PASS-candidate');
+  // Evidence claiming a targeted-return bind, however complete, never PASSes.
+  for (const route of ['targeted-return', 'log-only']) {
+    assert.equal(classifyTokenEvidence(completeEvidence({ ...correlated, delegate_return_observed: true,
+      return_target_session_hash: hash(originChild), return_source_session_hash: hash(delegateChild), return_route: route })),
+    'PARTIAL-candidate', route);
   }
 });

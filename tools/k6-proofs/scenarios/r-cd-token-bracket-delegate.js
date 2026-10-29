@@ -7,6 +7,8 @@ import { connectFrame, nonce, RequestTracker } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   classifyTokenEvidence,
+  correlateTokenTargetedReturnEvent,
+  correlateTokenTargetedReturnHistory,
   createTokenSessionLedger,
   observeTokenSessionLedger,
   parseTokenOriginWakeStart,
@@ -82,9 +84,10 @@ export default function () {
     .replace(/\{\{tag\}\}/g, tag);
   const bracket = `[[CONTINUE_DELEGATE: ${delegateTask} +${inv.delaySeconds}s]]`;
   // The delegate's return reaches the origin child as a targeted return: the
-  // delivered text is hidden from subscribers and the woken turn's only
-  // run-bound receipt is its own answer (#1727), so the origin is told what to
-  // answer there. The bracket turn itself is excluded by run identity.
+  // delivered text is hidden from subscribers, so the origin is told to answer
+  // the sentinel on its woken turn. That answer is correlation evidence only
+  // (#1727): no read surface ties the woken run to this delivery. The bracket
+  // turn itself is excluded by run identity.
   const childTask = `On a later turn, only after an internal task completion contains ${returnSentinel}, reply exactly ${returnSentinel}. Now reply exactly RCDT-HOP1-${tag}, then put this exact terminal bracket on its own final line: ${bracket} Do not call continue_delegate. Put no text after the closing brackets. Do not mutate files.`;
   const ledger = createTokenSessionLedger({ surfaceClass });
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
@@ -105,12 +108,14 @@ export default function () {
     reason_hash: hash(delegateTask), reason_length: delegateTask.length, delegate_mode: 'normal',
     origin_subscription_accepted: false, delegate_return_observed: false,
     return_target_session_hash: null, return_source_session_hash: null,
-    // Return route (#1727): direct-announce (header-bound source) or
-    // targeted-return (woken origin answer + the delegate's own answer).
-    return_route: null, return_run_id_hash: null,
+    // The route that bound the return: only direct-announce (header-bound
+    // source) binds. A targeted return (woken origin answer + the delegate's
+    // own answer) is correlation evidence only (#1727).
+    return_route: null,
+    targeted_return_correlated: false, targeted_return_run_id_hash: null,
+    targeted_return_after_delegate_end_ms: null,
     origin_spawn_run_id_hash: null, origin_wake_run_count: 0,
     source_return_observed: false, source_return_run_id_hash: null,
-    return_after_delegate_end_ms: null,
     interrupted: true, terminal_reason: 'observation-window-open',
     dispatch_accepted_at_ms: null, trace_id: null, event_receipt_kinds: [],
     // Snapshot fields now digest complete child-observer traversals (#562).
@@ -181,10 +186,15 @@ export default function () {
       evidence.return_target_session_hash = receipt.targetSessionHash;
       evidence.return_source_session_hash = receipt.sourceSessionHash;
       evidence.return_route = receipt.route;
-      evidence.return_run_id_hash = receipt.returnRunIdHash || null;
-      evidence.return_after_delegate_end_ms = Number.isFinite(receipt.returnAfterDelegateEndMs)
-        ? receipt.returnAfterDelegateEndMs
-        : null;
+      evidence.event_receipt_kinds.push(kind);
+    }
+
+    // Correlation only: never sets the bound-return fields above.
+    function recordTargetedCorrelation(correlation, kind) {
+      if (evidence.targeted_return_correlated) return;
+      evidence.targeted_return_correlated = true;
+      evidence.targeted_return_run_id_hash = correlation.returnRunIdHash;
+      evidence.targeted_return_after_delegate_end_ms = correlation.returnAfterDelegateEndMs;
       evidence.event_receipt_kinds.push(kind);
     }
 
@@ -192,10 +202,15 @@ export default function () {
       if (evidence.delegate_return_observed) return true;
       const identity = tokenSessionLedgerRuntimeIdentity(ledger);
       if (!identity.originChildSessionKey || !identity.delegateChildSessionKey) return false;
-      const receipt = parseTokenReturnEvent(eventData, returnOptions(identity));
-      if (!receipt) return false;
-      recordReturn(receipt, 'bound-session-message-return');
-      return true;
+      const options = returnOptions(identity);
+      const receipt = parseTokenReturnEvent(eventData, options);
+      if (receipt) {
+        recordReturn(receipt, 'bound-session-message-return');
+        return true;
+      }
+      const correlation = correlateTokenTargetedReturnEvent(eventData, options);
+      if (correlation) recordTargetedCorrelation(correlation, 'correlated-session-message-targeted-return');
+      return false;
     }
 
     function reconcilePendingReturns() {
@@ -438,10 +453,15 @@ export default function () {
           if (observed.purpose === 'token-return') {
             originHistoryPending = false;
             const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+            const options = returnOptions(identity);
             const receipt = evidence.delegate_return_observed
               ? null
-              : parseTokenReturnHistory(history, returnOptions(identity));
+              : parseTokenReturnHistory(history, options);
             if (receipt) recordReturn(receipt, 'bound-target-transcript-return');
+            const correlation = evidence.delegate_return_observed
+              ? null
+              : correlateTokenTargetedReturnHistory(history, options);
+            if (correlation) recordTargetedCorrelation(correlation, 'correlated-target-transcript-targeted-return');
           }
           if (observer.state.refusal && taskPollPending) {
             taskPollPending = false;

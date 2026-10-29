@@ -16,7 +16,7 @@
   "scenario": {
     "name": "r-cw-5-cost-cap-reject",
     "description": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
-    "methods": ["runAgentAttempt", "continueWorkOpts.requestContinuation", "TaskFlow.assert-no-row"],
+    "methods": ["runAgentAttempt", "continueWorkOpts.requestContinuation", "durable-work.assert-none"],
     "status": "scaffold",
     "expectedFile": "r-cw-5-cost-cap-reject.js",
     "registryNotes": "The legacy k6 scenario remains fail-closed: it cannot invoke continue_work through WebSocket/MCP and must not mutate shared config. Use run-cost-cap-fixture.mjs; see docs/R-CW-5-ISOLATED-TOOL-SURFACE.md."

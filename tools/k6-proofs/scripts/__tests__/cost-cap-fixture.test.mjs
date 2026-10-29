@@ -12,10 +12,28 @@ import {
   parseArgs,
   privatePackageManagerEnv,
   prepareArtifactDir,
+  resolveCandidateLocalExecutable,
   resolvePinnedPnpm,
   renderToolSurfaceTemplate,
+  runDispatchBoundarySuite,
+  selectToolSurface,
   verifyInstalledPinnedPnpm,
 } from '../run-cost-cap-fixture.mjs';
+import {
+  COST_CAP_SUITE,
+  CUSTODY_STORE,
+  CUSTODY_TEST_SUPPORT,
+  INFRA_CONFIG,
+  TASK_FLOW_REGISTRY,
+  costCapSuiteAt293c977f62,
+  costCapSuiteBefore311bc66fca,
+  modeledVitestCandidate,
+} from './helpers/modeled-vitest-candidate.mjs';
+import {
+  PNPM_12_SHIMS,
+  modeledCandidateNodeModules,
+  modeledToolEntry,
+} from './helpers/candidate-node-modules-fixture.mjs';
 import {
   LOCKFILE_DOCUMENT,
   PLATFORM_PACKAGE,
@@ -85,6 +103,23 @@ function modeledPnpm12({ candidateLockfile = pnpm12Lockfile(), ...toolchain } = 
     candidateLockfile,
     ...toolchain,
   });
+}
+
+// The fixture hands each candidate-local tool to the trusted Node binary.
+function runUnderNode(executable, args) {
+  try {
+    const stdout = execFileSync(process.execPath, [executable, ...args], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return { status: 0, stdout, stderr: '' };
+  } catch (error) {
+    return {
+      status: typeof error.status === 'number' ? error.status : 1,
+      stdout: error.stdout?.toString() ?? '',
+      stderr: error.stderr?.toString() ?? error.message,
+    };
+  }
 }
 
 async function virtualStoreWorktree(installedLock) {
@@ -445,6 +480,222 @@ test('R-CW-5 refuses toolchain packages the candidate lockfile does not pin', as
   );
 });
 
+// pnpm 12.15.0 links node_modules/.bin/tsx and .bin/vitest as sh cmd-shims, not
+// symlinks, so `node <realpath(.bin/x)>` hands Node a shell script.
+test('R-CW-5 runs pnpm 12 cmd-shim tools through the JS entry their package declares', async () => {
+  const worktree = await modeledCandidateNodeModules({ layout: 'pnpm12' });
+  for (const name of ['tsx', 'vitest']) {
+    const executable = resolveCandidateLocalExecutable(worktree, name);
+    const result = runUnderNode(executable, ['--probe']);
+    assert.equal(result.status, 0, `node <candidate-local ${name}> failed:\n${result.stderr}`);
+    assert.deepEqual(JSON.parse(result.stdout), { tool: name, argv: ['--probe'] });
+  }
+});
+
+test('R-CW-5 still runs pnpm 11 symlinked tools from the same JS entry', async () => {
+  const worktree = await modeledCandidateNodeModules({ layout: 'pnpm11' });
+  for (const name of ['tsx', 'vitest']) {
+    const executable = resolveCandidateLocalExecutable(worktree, name);
+    assert.equal(executable, await realpath(modeledToolEntry(worktree, name)));
+    const result = runUnderNode(executable, ['--probe']);
+    assert.equal(result.status, 0, `node <candidate-local ${name}> failed:\n${result.stderr}`);
+    assert.deepEqual(JSON.parse(result.stdout), { tool: name, argv: ['--probe'] });
+  }
+});
+
+test('R-CW-5 refuses a cmd-shim that targets anything but the declared entry', async () => {
+  const shim = PNPM_12_SHIMS.tsx.toString('utf8').replaceAll('/dist/cli.mjs', '/dist/other.mjs');
+  const worktree = await modeledCandidateNodeModules({ layout: 'pnpm12', tools: ['tsx'], overrides: { tsx: { shim } } });
+  await writeFile(path.join(path.dirname(modeledToolEntry(worktree, 'tsx')), 'other.mjs'), 'console.log("other");\n');
+  assert.throws(
+    () => resolveCandidateLocalExecutable(worktree, 'tsx'),
+    /candidate-local tsx \.bin cmd-shim does not target the bin entry its package declares/,
+  );
+});
+
+const DISPATCH_CONTRACT_KEYS = ['belowCapAllowsSpawn', 'exactCapAllowsSpawn', 'overCapRejectsSpawn', 'overCapMarksFlowFailed'];
+
+async function runModeledDispatchSuite(model) {
+  const candidate = await modeledVitestCandidate(model);
+  return runDispatchBoundarySuite({
+    worktreeDir: candidate.worktree,
+    vitestExecutable: candidate.vitestScript,
+    reportDir: candidate.reportDir,
+  });
+}
+
+// Candidate 311bc66fca moved the cost-cap dispatch suite into the
+// database-worker-core lane, which vitest.auto-reply.config.ts excludes, and
+// renamed its TaskFlow test onto custody. The candidate's reporter also
+// redacts the exact-boundary test name.
+test('R-CW-5 proves the dispatch boundary where candidate 293c977f62 now runs it', async () => {
+  const result = await runModeledDispatchSuite(costCapSuiteAt293c977f62());
+  assert.deepEqual(result.asserted, Object.fromEntries(DISPATCH_CONTRACT_KEYS.map((key) => [key, true])));
+  assert.equal(result.passed, true);
+});
+
+test('R-CW-5 still proves the dispatch boundary in the auto-reply shard before 311bc66fca', async () => {
+  const result = await runModeledDispatchSuite(costCapSuiteBefore311bc66fca());
+  assert.deepEqual(result.asserted, Object.fromEntries(DISPATCH_CONTRACT_KEYS.map((key) => [key, true])));
+  assert.equal(result.passed, true);
+});
+
+test('R-CW-5 never counts a skipped dispatch contract test as proved', async () => {
+  const model = costCapSuiteBefore311bc66fca();
+  model.suites[COST_CAP_SUITE] = model.suites[COST_CAP_SUITE].map((entry) =>
+    entry.name === 'rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1'
+      ? { ...entry, status: 'skipped' }
+      : entry);
+  const result = await runModeledDispatchSuite(model);
+  assert.equal(result.asserted.overCapRejectsSpawn, false);
+  assert.equal(result.passed, false);
+});
+
+test('R-CW-5 never passes a dispatch suite in which no test ran', async () => {
+  for (const model of [costCapSuiteBefore311bc66fca(), costCapSuiteAt293c977f62()]) {
+    model.suites[COST_CAP_SUITE] = [];
+    const result = await runModeledDispatchSuite(model);
+    assert.deepEqual(result.asserted, Object.fromEntries(DISPATCH_CONTRACT_KEYS.map((key) => [key, false])));
+    assert.equal(result.passed, false);
+  }
+});
+
+test('R-CW-5 records which candidate config owns the dispatch suite and how each name matched', async () => {
+  const result = await runModeledDispatchSuite(costCapSuiteAt293c977f62());
+  assert.equal(result.suiteSelection.config, INFRA_CONFIG);
+  assert.deepEqual(
+    result.suiteSelection.probes.map(({ config, collected }) => ({ config, collected })),
+    [
+      { config: INFRA_CONFIG, collected: true },
+      { config: 'test/vitest/vitest.auto-reply.config.ts', collected: false },
+    ],
+  );
+  assert.deepEqual(result.command.slice(0, 6), ['node', '<candidate-local-vitest>', 'run', '--config', INFRA_CONFIG, COST_CAP_SUITE]);
+  assert.ok(result.command.includes('--outputFile.json=<private-vitest-report>'));
+  assert.deepEqual(result.results.totals, { tests: 5, passed: 5, failed: 0, skipped: 0, todo: 0 });
+  assert.deepEqual(result.results.tests.exactCapAllowsSpawn, {
+    passed: true,
+    name: 'rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)',
+    status: 'passed',
+    reportedTitleRedacted: true,
+    declaredVerbatimInSuite: true,
+  });
+  assert.equal(result.results.tests.overCapMarksFlowFailed.name, 'marks custody records as failed for cost-cap-rejected delegates');
+  assert.doesNotMatch(JSON.stringify(result), /modeled-vitest-(?:candidate|reports)-/u);
+});
+
+// The candidate's scoped configs replace their include list with the files an
+// OPENCLAW_VITEST_INCLUDE_FILE names, so an operator's inherited one would
+// change which files the fixture's own selection and run see.
+test('R-CW-5 selects and runs the dispatch suite regardless of an inherited Vitest include file', async () => {
+  const candidate = await modeledVitestCandidate(costCapSuiteAt293c977f62());
+  const inherited = path.join(candidate.reportDir, 'inherited-include.json');
+  await writeFile(inherited, JSON.stringify(['src/auto-reply/continuation/delegate-dispatch.test.ts']));
+  const prior = process.env.OPENCLAW_VITEST_INCLUDE_FILE;
+  process.env.OPENCLAW_VITEST_INCLUDE_FILE = inherited;
+  try {
+    const result = runDispatchBoundarySuite({
+      worktreeDir: candidate.worktree,
+      vitestExecutable: candidate.vitestScript,
+      reportDir: candidate.reportDir,
+    });
+    assert.equal(result.suiteSelection.config, INFRA_CONFIG);
+    assert.equal(result.passed, true);
+  } finally {
+    if (prior === undefined) delete process.env.OPENCLAW_VITEST_INCLUDE_FILE;
+    else process.env.OPENCLAW_VITEST_INCLUDE_FILE = prior;
+  }
+});
+
+test('R-CW-5 fails closed when no candidate config, or more than one, collects the dispatch suite', async () => {
+  const unowned = costCapSuiteAt293c977f62();
+  unowned.configs[INFRA_CONFIG].files = [];
+  const ambiguous = costCapSuiteAt293c977f62();
+  ambiguous.configs['test/vitest/vitest.auto-reply.config.ts'].files = [COST_CAP_SUITE];
+  for (const model of [unowned, ambiguous]) {
+    const result = await runModeledDispatchSuite(model);
+    assert.equal(result.suiteSelection.config, null);
+    assert.equal(result.passed, false);
+    assert.equal(result.exitCode, null);
+  }
+});
+
+// The candidate modules the typed-tool templates import, plus the custody
+// store module, as each candidate tree has them. Upstream 6652f7eac8 removed
+// the TaskFlow registry. The custody store arrived before its test support
+// (d71e6bcd3d..91aaf10f9f^), and 91aaf10f9f..311bc66fca ship both stores.
+const TEMPLATE_RUNTIME_MODULES = [
+  'src/config/config.ts',
+  'src/config/sessions/session-accessor.ts',
+  'src/config/sessions.ts',
+  'src/config/types.openclaw.ts',
+  'src/infra/system-events.ts',
+  'src/agents/command/attempt-execution.ts',
+  'src/agents/cli-runner.ts',
+  'src/agents/model-selection.ts',
+  'src/agents/provider-auth-aliases.ts',
+  'src/agents/model-runtime-aliases.ts',
+  'src/agents/embedded-agent.ts',
+];
+const CANDIDATE_TEMPLATE_MODULES = {
+  '293c977f62': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_STORE, CUSTODY_TEST_SUPPORT],
+  '311bc66fca': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_STORE, CUSTODY_TEST_SUPPORT, TASK_FLOW_REGISTRY],
+  'd71e6bcd3d': [...TEMPLATE_RUNTIME_MODULES, CUSTODY_STORE, TASK_FLOW_REGISTRY],
+  '80311e8a': [...TEMPLATE_RUNTIME_MODULES, TASK_FLOW_REGISTRY],
+};
+
+async function candidateTree(modules) {
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-candidate-tree-'));
+  for (const module of modules) {
+    await mkdir(path.dirname(path.join(worktree, module)), { recursive: true });
+    await writeFile(path.join(worktree, module), '// modeled candidate module\n');
+  }
+  return worktree;
+}
+
+// Every `../../src/...js` specifier a template imports or mocks, as the
+// candidate TypeScript module it names from test/r-cw-5-fixture.
+function templateCandidateImports(source) {
+  return [...new Set([...source.matchAll(/["'](\.\.\/\.\.\/src\/[^"']+)\.js["']/gu)]
+    .map((match) => path.posix.join('test/r-cw-5-fixture', `${match[1]}.ts`)))].sort();
+}
+
+// The TaskFlow-era template imports src/tasks/task-flow-registry.js, which
+// candidate 293c977f62 no longer has: its typed-tool test died with
+// "Cannot find module '/src/tasks/task-flow-registry.js'".
+test('R-CW-5 renders a typed-tool template whose candidate imports the candidate has', async () => {
+  const modules = CANDIDATE_TEMPLATE_MODULES['293c977f62'];
+  const surface = selectToolSurface(await candidateTree(modules));
+  const imports = templateCandidateImports(await readFile(surface.template, 'utf8'));
+  assert.deepEqual(imports.filter((module) => !modules.includes(module)), []);
+});
+
+test('R-CW-5 still renders the TaskFlow template for a TaskFlow-era candidate', async () => {
+  const modules = CANDIDATE_TEMPLATE_MODULES['80311e8a'];
+  const surface = selectToolSurface(await candidateTree(modules));
+  const imports = templateCandidateImports(await readFile(surface.template, 'utf8'));
+  assert.ok(imports.includes(TASK_FLOW_REGISTRY));
+  assert.deepEqual(imports.filter((module) => !modules.includes(module)), []);
+});
+
+test('R-CW-5 picks the custody template where a candidate ships both stores, and none where it ships neither', async () => {
+  const both = selectToolSurface(await candidateTree(CANDIDATE_TEMPLATE_MODULES['311bc66fca']));
+  assert.equal(both.durableStore, 'continuation-custody');
+  assert.equal(both.config, INFRA_CONFIG);
+  assert.equal(path.basename(both.template), 'cost-cap-tool-surface.custody.test.ts');
+  assert.equal(selectToolSurface(await candidateTree(TEMPLATE_RUNTIME_MODULES)), null);
+});
+
+// Its runtime writes custody records while the TaskFlow registry still exists,
+// so the TaskFlow template's "no row" would hold vacuously there.
+test('R-CW-5 fails closed for a custody runtime that predates its test support', async () => {
+  const modules = CANDIDATE_TEMPLATE_MODULES.d71e6bcd3d;
+  const surface = selectToolSurface(await candidateTree(modules));
+  assert.equal(surface.durableStore, 'continuation-custody');
+  const imports = templateCandidateImports(await readFile(surface.template, 'utf8'));
+  assert.deepEqual(imports.filter((module) => !modules.includes(module)), [CUSTODY_TEST_SUPPORT]);
+});
+
 test('R-CW-5 fixture confines package-manager state and rejects inherited hooks', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-private-pm-env-'));
   const prior = {
@@ -533,27 +784,66 @@ test('R-CW-5 fixture rejects repository-local filters before Git can execute the
   assert.doesNotThrow(() => assertTrackedTreeBytes(source, candidateSha, 'unfiltered proof execution'));
 });
 
-test('R-CW-5 typed tool-surface template asserts no durable work after exhausted elections', async () => {
+test('R-CW-5 TaskFlow typed tool-surface template asserts no durable work after exhausted elections', async () => {
   const template = await readFile(
     fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
     'utf8',
   );
   assert.match(template, /runAgentAttempt/);
   assert.match(template, /continueWorkOpts/);
-  assert.match(template, /continuationChainTokens:\s*__RCW5_OVER_CAP__/);
+  assert.match(template, /seedSession\(__RCW5_OVER_CAP__\)/);
   assert.match(template, /listTaskFlowsForOwnerKey\(sessionKey\)\)\.toHaveLength\(0\)/);
   assert.match(template, /2 of 2 continue_work elections were not scheduled/);
+  assert.match(template, /it\("schedules a below-cap typed-tool election as one durable TaskFlow"/);
+  assert.match(template, /seedSession\(__RCW5_CAP__ - 1\)/);
+  assert.match(template, /expect\(flows\)\.toHaveLength\(1\)/);
+  assert.doesNotMatch(template, /custody\.test-support/);
 });
 
-test('R-CW-5 renders the typed tool surface at the selected cap', async () => {
+test('R-CW-5 typed tool-surface elections differ only in the chain tokens', async () => {
+  for (const name of ['cost-cap-tool-surface.test.ts', 'cost-cap-tool-surface.custody.test.ts']) {
+    const template = await readFile(fileURLToPath(new URL(`../../fixtures/r-cw-5/${name}`, import.meta.url)), 'utf8');
+    const delays = [...template.matchAll(/reason: "[^"]*", delaySeconds: ([^ },]+)/gu)].map((match) => match[1]);
+    assert.deepEqual(delays, ['ELECTION_DELAY_SECONDS', 'ELECTION_DELAY_SECONDS', 'ELECTION_DELAY_SECONDS'], name);
+  }
+});
+
+test('R-CW-5 custody typed tool-surface template asserts no custody record, against a positive control', async () => {
   const template = await readFile(
-    fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
+    fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.custody.test.ts', import.meta.url)),
     'utf8',
   );
-  const rendered = renderToolSurfaceTemplate(template, 200);
-  assert.match(rendered, /costCapTokens:\s*200/);
-  assert.match(rendered, /continuationChainTokens:\s*201/);
-  assert.doesNotMatch(rendered, /__RCW5_(?:CAP|OVER_CAP)__/);
+  assert.match(template, /runAgentAttempt/);
+  assert.match(template, /continueWorkOpts/);
+  assert.match(template, /^useContinuationCustodyTestState\(\);$/mu);
+  assert.match(template, /seedSession\(__RCW5_OVER_CAP__\)/);
+  assert.match(template, /listCustodyRecordsForTest\(\{ ownerSessionKey: sessionKey \}\)\)\.toHaveLength\(0\)/);
+  assert.match(template, /listCustodyRecordsForTest\(\)\)\.toHaveLength\(0\)/);
+  assert.match(template, /2 of 2 continue_work elections were not scheduled/);
+  assert.match(template, /it\("schedules a below-cap typed-tool election as one durable custody record"/);
+  assert.match(template, /seedSession\(__RCW5_CAP__ - 1\)/);
+  assert.match(template, /toMatchObject\(\{ kind: "work", status: "queued", ownerSessionKey: sessionKey \}\)/);
+  assert.doesNotMatch(template, /task-flow-registry/);
+});
+
+test('R-CW-5 renders both typed tool surfaces at the selected cap', async () => {
+  const taskFlow = renderToolSurfaceTemplate(await readFile(
+    fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.test.ts', import.meta.url)),
+    'utf8',
+  ), 200);
+  assert.match(taskFlow, /costCapTokens:\s*200/);
+  assert.match(taskFlow, /seedSession\(201\)/);
+  assert.match(taskFlow, /seedSession\(200 - 1\)/);
+  assert.doesNotMatch(taskFlow, /__RCW5_(?:CAP|OVER_CAP)__/);
+  const custody = renderToolSurfaceTemplate(await readFile(
+    fileURLToPath(new URL('../../fixtures/r-cw-5/cost-cap-tool-surface.custody.test.ts', import.meta.url)),
+    'utf8',
+  ), 200);
+  assert.match(custody, /costCapTokens:\s*200/);
+  assert.match(custody, /seedSession\(201\)/);
+  assert.match(custody, /seedSession\(200 - 1\)/);
+  assert.match(custody, /toBe\(201\)/);
+  assert.doesNotMatch(custody, /__RCW5_(?:CAP|OVER_CAP)__/);
 });
 
 test('R-CW-5 public readiness has no private source path', () => {
@@ -606,7 +896,7 @@ test('R-CW-5 fails closed instead of pretending the internal tool is websocket-i
   assert.deepEqual(manifest.scenario.methods, [
     'runAgentAttempt',
     'continueWorkOpts.requestContinuation',
-    'TaskFlow.assert-no-row',
+    'durable-work.assert-none',
   ]);
   assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
   assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, false);

@@ -24,22 +24,63 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import { resolveCandidateNodeBin } from './lib/candidate-executables.mjs';
+import {
+  candidateVitestEnv,
+  runCandidateVitestSuite,
+  selectCandidateVitestConfig,
+} from './lib/candidate-vitest-suite.mjs';
 import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_CAP = 100;
 const CHILD_OUTPUT_LIMIT_BYTES = 64 * 1024 * 1024;
 const TRUSTED_GIT = '/usr/bin/git';
 const TRUSTED_SH = '/bin/sh';
+const DISPATCH_SUITE = 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts';
 const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
-  'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts',
+  DISPATCH_SUITE,
   'package.json',
   'pnpm-lock.yaml',
 ];
-const TOOL_SURFACE_TEMPLATE = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../fixtures/r-cw-5/cost-cap-tool-surface.test.ts',
-);
+const TOOL_SURFACE_FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/r-cw-5');
+const TOOL_SURFACE_TEST_FILE = 'test/r-cw-5-fixture/cost-cap-tool-surface.test.ts';
+const OVER_CAP_TOOL_TEST = 'rejects exhausted typed-tool elections without a durable continuation';
+// Where a candidate records continuation work durably, chosen by the store
+// module its runtime writes through. Continuation custody (fork #1408) runs
+// through the shared-state worker, so its template runs as the infra project,
+// which hosts the database-worker-core suites and collects the template from
+// the include file the candidate's scoped configs read. A candidate whose
+// custody runtime predates its test support (d71e6bcd3d..91aaf10f9f^) fails
+// closed on that missing import rather than falling back to a TaskFlow
+// registry nothing writes. Upstream 6652f7eac8 removed the TaskFlow runtime,
+// which the auto-reply shard ran through --dir. Each template's positive
+// control must see the store record a below-cap election, so that "no
+// record" over the cap cannot hold vacuously.
+const TOOL_SURFACE_STORES = [
+  {
+    durableStore: 'continuation-custody',
+    marker: 'src/auto-reply/continuation/custody/custody-store.ts',
+    template: 'cost-cap-tool-surface.custody.test.ts',
+    config: 'test/vitest/vitest.infra.config.ts',
+    collectBy: 'include-file',
+    expectedTests: {
+      overCapRejected: [OVER_CAP_TOOL_TEST],
+      belowCapSchedulesDurableWork: ['schedules a below-cap typed-tool election as one durable custody record'],
+    },
+  },
+  {
+    durableStore: 'task-flow',
+    marker: 'src/tasks/task-flow-registry.ts',
+    template: 'cost-cap-tool-surface.test.ts',
+    config: 'test/vitest/vitest.auto-reply.config.ts',
+    collectBy: 'dir',
+    expectedTests: {
+      overCapRejected: [OVER_CAP_TOOL_TEST],
+      belowCapSchedulesDurableWork: ['schedules a below-cap typed-tool election as one durable TaskFlow'],
+    },
+  },
+];
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \\
@@ -468,15 +509,10 @@ export function assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLoc
   };
 }
 
-function resolveCandidateLocalExecutable(worktreeDir, name) {
-  const nodeModules = realpathSync(path.join(worktreeDir, 'node_modules'));
-  const bin = path.join(worktreeDir, 'node_modules', '.bin', name);
-  if (!existsSync(bin)) throw new Error(`candidate-local ${name} executable is missing after frozen install`);
-  const executable = realpathSync(bin);
-  if (!isInside(executable, nodeModules)) {
-    throw new Error(`candidate-local ${name} executable resolves outside disposable node_modules`);
-  }
-  return executable;
+// The JS entry, not the .bin link: pnpm 12 links bins as sh cmd-shims, which
+// Node cannot run (see lib/candidate-executables.mjs).
+export function resolveCandidateLocalExecutable(worktreeDir, name) {
+  return resolveCandidateNodeBin(worktreeDir, name).script;
 }
 
 function trackedSourceStatus(sourceDir) {
@@ -659,9 +695,83 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
-function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
-  if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
-    throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
+// The configs that have owned the dispatch boundary suite, newest first.
+// Candidate 311bc66fca (fork #1408 L4) moved it onto real continuation custody,
+// into the database-worker-core lane that vitest.infra.config.ts runs and
+// vitest.auto-reply.config.ts excludes.
+const DISPATCH_SUITE_CONFIGS = ['test/vitest/vitest.infra.config.ts', 'test/vitest/vitest.auto-reply.config.ts'];
+
+// The four observable contract points, by the names their tests have carried.
+// 311bc66fca renamed the failed-flow test when TaskFlow records became custody
+// records; either name pins the same rejected-and-marked-failed contract.
+const DISPATCH_CONTRACT_TESTS = {
+  belowCapAllowsSpawn: ['allows dispatch when accumulatedChainTokens is 1 below costCapTokens'],
+  exactCapAllowsSpawn: ['rejects at exact boundary (accumulatedChainTokens === costCapTokens is NOT over)'],
+  overCapRejectsSpawn: ['rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1'],
+  overCapMarksFlowFailed: [
+    'marks custody records as failed for cost-cap-rejected delegates',
+    'marks TaskFlow records as failed for cost-cap-rejected delegates',
+  ],
+};
+
+export function runDispatchBoundarySuite({ worktreeDir, vitestExecutable, reportDir }) {
+  const suiteSelection = selectCandidateVitestConfig({
+    worktreeDir,
+    vitestScript: vitestExecutable,
+    suite: DISPATCH_SUITE,
+    ownerConfigs: DISPATCH_SUITE_CONFIGS,
+  });
+  const suiteRun = suiteSelection.config
+    ? runCandidateVitestSuite({
+      worktreeDir,
+      vitestScript: vitestExecutable,
+      config: suiteSelection.config,
+      files: [DISPATCH_SUITE],
+      reportPath: path.join(reportDir, 'dispatch-boundary-suite.vitest.json'),
+      expectedTests: DISPATCH_CONTRACT_TESTS,
+    })
+    : null;
+  const asserted = Object.fromEntries(
+    Object.keys(DISPATCH_CONTRACT_TESTS).map((key) => [key, suiteRun?.tests[key]?.passed === true]),
+  );
+  return {
+    // A green process alone is insufficient: this fixture must keep pinning the
+    // four observable contract points, especially the rejected-hop no-spawn
+    // behavior and durable failed-flow side effect, each by a test that passed.
+    passed: suiteRun?.passed === true && Object.values(asserted).every(Boolean),
+    exitCode: suiteRun?.exitCode ?? null,
+    command: suiteRun
+      ? ['node', '<candidate-local-vitest>', ...suiteRun.args.map((arg) =>
+        arg.startsWith('--outputFile.json=') ? '--outputFile.json=<private-vitest-report>' : arg)]
+      : null,
+    asserted,
+    suiteSelection,
+    results: suiteRun ? { ...suiteRun.results, tests: suiteRun.tests } : null,
+  };
+}
+
+// The typed-tool template the fixture renders into the candidate, and the
+// Vitest config it runs under, for the durable store the candidate has.
+export function selectToolSurface(worktreeDir) {
+  const store = TOOL_SURFACE_STORES.find(({ marker }) =>
+    statSync(path.join(worktreeDir, marker), { throwIfNoEntry: false })?.isFile() === true);
+  return store ? { ...store, template: path.join(TOOL_SURFACE_FIXTURES, store.template) } : null;
+}
+
+export function runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir }) {
+  const surface = selectToolSurface(worktreeDir);
+  if (!surface) {
+    return {
+      passed: false,
+      exitCode: null,
+      durableStore: null,
+      command: null,
+      asserted: { typedToolCaptured: false, overCapRejected: false, rejectedHopNoDurableWork: false },
+      results: null,
+    };
+  }
+  if (!existsSync(surface.template)) {
+    throw new Error(`tool-surface template missing: ${surface.template}`);
   }
   const testDirPath = path.join(worktreeDir, 'test', 'r-cw-5-fixture');
   try {
@@ -672,23 +782,56 @@ function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
   }
   const testDir = preparePrivateWorktreeDirectory(worktreeDir, 'test/r-cw-5-fixture');
   writeFileSync(
-    path.join(testDir, 'cost-cap-tool-surface.test.ts'),
-    renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), cap),
+    path.join(testDir, path.basename(TOOL_SURFACE_TEST_FILE)),
+    renderToolSurfaceTemplate(readFileSync(surface.template, 'utf8'), cap),
     { mode: 0o600 },
   );
-  const test = run(
-    process.execPath,
-    [vitestExecutable, 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
-    { cwd: worktreeDir },
-  );
+  let env = candidateVitestEnv();
+  let extraArgs = [];
+  // A --dir run names no file: the auto-reply config would narrow its include
+  // list to a command-line file outside src/auto-reply and collect nothing.
+  let filters = [];
+  if (surface.collectBy === 'include-file') {
+    const includeFile = path.join(reportDir, 'typed-tool-surface.include.json');
+    writeFileSync(includeFile, `${JSON.stringify([TOOL_SURFACE_TEST_FILE])}\n`, { mode: 0o600, flag: 'wx' });
+    env = candidateVitestEnv({ OPENCLAW_VITEST_INCLUDE_FILE: includeFile });
+    filters = [TOOL_SURFACE_TEST_FILE];
+  } else {
+    extraArgs = ['--dir', 'test/r-cw-5-fixture'];
+  }
+  const suiteRun = runCandidateVitestSuite({
+    worktreeDir,
+    vitestScript: vitestExecutable,
+    config: surface.config,
+    files: [TOOL_SURFACE_TEST_FILE],
+    filters,
+    extraArgs,
+    env,
+    reportPath: path.join(reportDir, 'typed-tool-surface.vitest.json'),
+    expectedTests: surface.expectedTests,
+  });
+  // The over-cap test asserts the system event that names both typed
+  // elections, so its pass shows the real attempt runner captured them.
+  const overCapRejected = suiteRun.tests.overCapRejected.passed;
+  // Its "no durable work" counts only beside the passing positive control, so
+  // that it cannot hold vacuously.
+  const asserted = {
+    typedToolCaptured: overCapRejected,
+    overCapRejected,
+    rejectedHopNoDurableWork: overCapRejected && suiteRun.tests.belowCapSchedulesDurableWork.passed,
+  };
   return {
-    passed: test.ok && /1 passed/u.test(test.stdout),
-    exitCode: test.exitCode,
-    asserted: {
-      typedToolCaptured: /disposable typed tool surface/u.test(test.stdout),
-      overCapRejected: /rejects exhausted typed-tool elections/u.test(test.stdout),
-      rejectedHopNoDurableWork: /1 passed/u.test(test.stdout),
-    },
+    passed: suiteRun.passed && Object.values(asserted).every(Boolean),
+    exitCode: suiteRun.exitCode,
+    durableStore: surface.durableStore,
+    command: [
+      ...(surface.collectBy === 'include-file' ? ['OPENCLAW_VITEST_INCLUDE_FILE=<private-include-file>'] : []),
+      'node', '<candidate-local-vitest>',
+      ...suiteRun.args.map((arg) =>
+        arg.startsWith('--outputFile.json=') ? '--outputFile.json=<private-vitest-report>' : arg),
+    ],
+    asserted,
+    results: { ...suiteRun.results, tests: suiteRun.tests },
   };
 }
 
@@ -739,20 +882,15 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
     const matrixRun = run(process.execPath, [tsxExecutable, '--eval', matrixEval(cap)], { cwd: worktreeDir });
     const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
-    const dispatchRun = run(
-      process.execPath,
-      [
-        vitestExecutable, 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
-      ],
-      { cwd: worktreeDir },
-    );
-    const toolSurface = runToolSurface({ worktreeDir, cap, vitestExecutable });
+    assertReservedPathAbsent(worktreeDir, '.r-cw-5-reports');
+    const reportDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-reports');
+    const dispatchSuite = runDispatchBoundarySuite({ worktreeDir, vitestExecutable, reportDir });
+    const toolSurface = runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir });
     const afterExecution = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'final receipt emission');
     return {
       matrixRun,
       matrix,
-      dispatchRun,
+      dispatchSuite,
       toolSurface,
       dependency: {
         packageManager: packageManager.packageManager,
@@ -809,7 +947,7 @@ export function runFixture(args) {
     cap: args.cap,
     sourceLockfileSha256: lockfileSha256,
   });
-  const { matrixRun, matrix, dispatchRun, toolSurface } = verified;
+  const { matrixRun, matrix, dispatchSuite, toolSurface } = verified;
   const matrixPassed = Boolean(
     matrix?.cases?.length === 3 &&
     matrix.cases[0]?.outcome === null &&
@@ -826,24 +964,17 @@ export function runFixture(args) {
     dependency: verified.dependency,
   });
 
-  const dispatchAssertions = {
-    belowCapAllowsSpawn: /allows dispatch when accumulatedChainTokens is 1 below costCapTokens/u.test(dispatchRun.stdout),
-    exactCapAllowsSpawn: /rejects at exact boundary \(accumulatedChainTokens === costCapTokens is NOT over\)/u.test(dispatchRun.stdout),
-    overCapRejectsSpawn: /rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1/u.test(dispatchRun.stdout),
-    overCapMarksFlowFailed: /marks TaskFlow records as failed for cost-cap-rejected delegates/u.test(dispatchRun.stdout),
-  };
-  // A green process alone is insufficient: this fixture must keep pinning the
-  // four observable contract points, especially the rejected-hop no-spawn
-  // behavior and durable failed-flow side effect.
-  const dispatchPassed = dispatchRun.ok && Object.values(dispatchAssertions).every(Boolean);
+  const dispatchPassed = dispatchSuite.passed;
   writeJson(path.join(artifactDir, 'dispatch-boundary-suite.json'), {
     schema: 'openclaw.project81.r-cw-5.dispatch-boundary-suite.v1',
     passed: dispatchPassed,
-    exitCode: dispatchRun.exitCode,
-    command: ['node', '<candidate-local-vitest>', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose'],
+    exitCode: dispatchSuite.exitCode,
+    command: dispatchSuite.command,
     // Test names, not raw logs, are public-safe and pin the no-spawn/cascade
     // assertion without copying arbitrary candidate output into the corpus.
-    asserted: dispatchAssertions,
+    asserted: dispatchSuite.asserted,
+    suiteSelection: dispatchSuite.suiteSelection,
+    results: dispatchSuite.results,
     dependency: verified.dependency,
   });
 

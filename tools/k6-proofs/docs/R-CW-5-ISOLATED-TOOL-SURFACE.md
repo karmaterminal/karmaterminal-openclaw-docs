@@ -60,6 +60,11 @@ and tarball integrity. Every other toolchain package, such as pnpm 12's
 `@pnpm/exe.<target>` native binary, must match the integrity that document
 records. The installed `.pnpm/lock.yaml` must byte-match the candidate's
 lockfile document, the part after any env document.
+The candidate-local `tsx` and `vitest` run the same way. The fixture runs the
+JS entry each package's `package.json` `bin` declares under the trusted
+`node`. The `node_modules/.bin` link pnpm wrote must name that entry: a symlink
+up to pnpm 12.0, an sh cmd-shim's `# cmd-shim-target=` line from pnpm 12.3. Node
+cannot run a cmd-shim, and the shim itself would pick `node` from `PATH`.
 It never trusts or mutates source `node_modules`, starts a gateway, writes
 OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.

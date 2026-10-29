@@ -12,10 +12,16 @@ import {
   parseArgs,
   privatePackageManagerEnv,
   prepareArtifactDir,
+  resolveCandidateLocalExecutable,
   resolvePinnedPnpm,
   renderToolSurfaceTemplate,
   verifyInstalledPinnedPnpm,
 } from '../run-cost-cap-fixture.mjs';
+import {
+  PNPM_12_SHIMS,
+  modeledCandidateNodeModules,
+  modeledToolEntry,
+} from './helpers/candidate-node-modules-fixture.mjs';
 import {
   LOCKFILE_DOCUMENT,
   PLATFORM_PACKAGE,
@@ -85,6 +91,23 @@ function modeledPnpm12({ candidateLockfile = pnpm12Lockfile(), ...toolchain } = 
     candidateLockfile,
     ...toolchain,
   });
+}
+
+// The fixture hands each candidate-local tool to the trusted Node binary.
+function runUnderNode(executable, args) {
+  try {
+    const stdout = execFileSync(process.execPath, [executable, ...args], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return { status: 0, stdout, stderr: '' };
+  } catch (error) {
+    return {
+      status: typeof error.status === 'number' ? error.status : 1,
+      stdout: error.stdout?.toString() ?? '',
+      stderr: error.stderr?.toString() ?? error.message,
+    };
+  }
 }
 
 async function virtualStoreWorktree(installedLock) {
@@ -442,6 +465,39 @@ test('R-CW-5 refuses toolchain packages the candidate lockfile does not pin', as
   assert.throws(
     () => verifyModeledToolchain(singleDocument, PNPM_12_PIN),
     /has no env document to pin private toolchain package/,
+  );
+});
+
+// pnpm 12.15.0 links node_modules/.bin/tsx and .bin/vitest as sh cmd-shims, not
+// symlinks, so `node <realpath(.bin/x)>` hands Node a shell script.
+test('R-CW-5 runs pnpm 12 cmd-shim tools through the JS entry their package declares', async () => {
+  const worktree = await modeledCandidateNodeModules({ layout: 'pnpm12' });
+  for (const name of ['tsx', 'vitest']) {
+    const executable = resolveCandidateLocalExecutable(worktree, name);
+    const result = runUnderNode(executable, ['--probe']);
+    assert.equal(result.status, 0, `node <candidate-local ${name}> failed:\n${result.stderr}`);
+    assert.deepEqual(JSON.parse(result.stdout), { tool: name, argv: ['--probe'] });
+  }
+});
+
+test('R-CW-5 still runs pnpm 11 symlinked tools from the same JS entry', async () => {
+  const worktree = await modeledCandidateNodeModules({ layout: 'pnpm11' });
+  for (const name of ['tsx', 'vitest']) {
+    const executable = resolveCandidateLocalExecutable(worktree, name);
+    assert.equal(executable, await realpath(modeledToolEntry(worktree, name)));
+    const result = runUnderNode(executable, ['--probe']);
+    assert.equal(result.status, 0, `node <candidate-local ${name}> failed:\n${result.stderr}`);
+    assert.deepEqual(JSON.parse(result.stdout), { tool: name, argv: ['--probe'] });
+  }
+});
+
+test('R-CW-5 refuses a cmd-shim that targets anything but the declared entry', async () => {
+  const shim = PNPM_12_SHIMS.tsx.toString('utf8').replaceAll('/dist/cli.mjs', '/dist/other.mjs');
+  const worktree = await modeledCandidateNodeModules({ layout: 'pnpm12', tools: ['tsx'], overrides: { tsx: { shim } } });
+  await writeFile(path.join(path.dirname(modeledToolEntry(worktree, 'tsx')), 'other.mjs'), 'console.log("other");\n');
+  assert.throws(
+    () => resolveCandidateLocalExecutable(worktree, 'tsx'),
+    /candidate-local tsx \.bin cmd-shim does not target the bin entry its package declares/,
   );
 });
 

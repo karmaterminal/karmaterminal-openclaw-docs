@@ -24,6 +24,7 @@ import {
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
+import { resolveCandidateNodeBin } from './lib/candidate-executables.mjs';
 import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_CAP = 100;
@@ -468,15 +469,10 @@ export function assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLoc
   };
 }
 
+// The JS entry, not the .bin link: pnpm 12 links bins as sh cmd-shims, which
+// Node cannot run (see lib/candidate-executables.mjs).
 export function resolveCandidateLocalExecutable(worktreeDir, name) {
-  const nodeModules = realpathSync(path.join(worktreeDir, 'node_modules'));
-  const bin = path.join(worktreeDir, 'node_modules', '.bin', name);
-  if (!existsSync(bin)) throw new Error(`candidate-local ${name} executable is missing after frozen install`);
-  const executable = realpathSync(bin);
-  if (!isInside(executable, nodeModules)) {
-    throw new Error(`candidate-local ${name} executable resolves outside disposable node_modules`);
-  }
-  return executable;
+  return resolveCandidateNodeBin(worktreeDir, name).script;
 }
 
 function trackedSourceStatus(sourceDir) {

@@ -1,3 +1,5 @@
+import { gatewayLifecycleSessionKey } from './gateway-lifecycle.js';
+
 const IGNORABLE_REASONING_PART_TYPES = new Set(['thinking', 'reasoning']);
 
 function messageText(message) {
@@ -28,4 +30,13 @@ export function observesRcd2DispatchTerminalSentinel(
   return dispatchLifecycleActive === true &&
     wakeLifecycleObserved !== true &&
     observesExactRcd2TerminalSentinel(eventData, expectedSentinel);
+}
+
+// The silent-wake acknowledgement: the exact assistant answer, in the row's own
+// session by the event's top-level session key. Text that only quotes it (the
+// harness instruction, a user echo, a longer reply) never matches.
+export function observesRcd2WakeAck(eventData, expectedAck, expectedSessionKey) {
+  return typeof expectedSessionKey === 'string' && expectedSessionKey.length > 0 &&
+    gatewayLifecycleSessionKey(eventData) === expectedSessionKey &&
+    observesExactRcd2TerminalSentinel(eventData, expectedAck);
 }

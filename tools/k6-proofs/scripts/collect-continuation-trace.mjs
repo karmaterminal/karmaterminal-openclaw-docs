@@ -194,6 +194,13 @@ export function traceContract(manifest, evidence) {
     reason = rendered;
     fingerprintSource = 'manifest-nonce';
   }
+  // A chain row (R-CW-4) declares how many sequential continue_work hops it
+  // drives; its later hops join hop 1's trace (see scopeContinueWorkChain).
+  const chainDepthTarget = manifest?.invocation?.chainDepthTarget;
+  if (chainDepthTarget !== undefined &&
+      (tool !== 'continue_work' || !Number.isInteger(chainDepthTarget) || chainDepthTarget < 1)) {
+    throw new Error('manifest invocation.chainDepthTarget must be a positive integer on a continue_work row');
+  }
   return {
     kind: 'continuation',
     tool,
@@ -206,6 +213,7 @@ export function traceContract(manifest, evidence) {
     fireSpanName,
     attribution,
     originSurface: manifest?.invocation?.originSurface,
+    ...(chainDepthTarget > 1 ? { chainDepthTarget } : {}),
   };
 }
 
@@ -313,6 +321,111 @@ function scopeDelegateToolSpans(trace, tools, accept, fires) {
   };
 }
 
+// A chain row's later hops run on hop 1's trace: each wake turn runs under the
+// tool span that elected its work (openclaw work-dispatch-execution.ts
+// driveContinuationTurn -> runWithDiagnosticTraceparent(work.traceparent)), and
+// continuation.work is a child of its electing tool span (continue-work-tool.ts
+// captures the live span). The row is attributed to hop 1 alone: the tool span
+// that parents the fingerprint-matched continuation.work. Every other
+// continue_work tool span must prove it is a later hop of that chain, or the
+// trace is refused: it schedules exactly one continuation.work, OK, on the same
+// chain.id, and its nearest continue_work ancestor is the previous hop, so the
+// hops form one sequence from hop 1, no deeper than the row declares.
+function scopeContinueWorkChain(spans, tools, accept, chainId, chainDepthTarget) {
+  const toolIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
+  // allTempoSpans drops identical re-exports; a copy that differs is ambiguous.
+  const duplicate = toolIds.find((toolId, index) => toolIds.indexOf(toolId) !== index);
+  if (duplicate) {
+    throw new Error(`continue_work tool span ${duplicate} is exported more than once with different content`);
+  }
+  if (tools.length > chainDepthTarget) {
+    throw new Error(
+      `matched trace contains ${tools.length} continue_work tool spans, more than the row's declared chain depth ${chainDepthTarget}`,
+    );
+  }
+  const parentOf = new Map();
+  for (const span of spans) {
+    if (!span?.spanId) continue;
+    const spanId = idHex(span.spanId, 8, 'span id');
+    const parentSpanId = span.parentSpanId ? idHex(span.parentSpanId, 8, 'parent span id') : null;
+    if (parentOf.has(spanId) && parentOf.get(spanId) !== parentSpanId) {
+      throw new Error(`span ${spanId} is exported with conflicting parents; continue_work chain ancestry is ambiguous`);
+    }
+    parentOf.set(spanId, parentSpanId);
+  }
+  const toolIdSet = new Set(toolIds);
+  const hop1 = idHex(accept.parentSpanId, 8, 'work parent span id');
+  if (!toolIdSet.has(hop1)) {
+    throw new Error(
+      `matched trace contains ${tools.length} continue_work tool spans and none is the parent of the hop-1 continuation.work span`,
+    );
+  }
+
+  // The nearest continue_work tool ancestor of a tool span, and the spans
+  // between them (the wake turn that ran the later hop).
+  const previousHop = (toolId) => {
+    const path = [];
+    const seen = new Set([toolId]);
+    let current = parentOf.get(toolId);
+    while (current) {
+      if (seen.has(current)) throw new Error(`continue_work tool span ${toolId} has cyclic ancestry`);
+      seen.add(current);
+      if (toolIdSet.has(current)) return { previous: current, path };
+      if (!parentOf.has(current)) break;
+      path.push(current);
+      current = parentOf.get(current);
+    }
+    return { previous: null, path: [] };
+  };
+
+  const nextHop = new Map();
+  const hopFacts = new Map();
+  for (const toolId of toolIds) {
+    if (toolId === hop1) continue;
+    const works = spans.filter((span) =>
+      span.name === 'continuation.work' &&
+      span.parentSpanId &&
+      idHex(span.parentSpanId, 8, 'work parent span id') === toolId);
+    if (works.length !== 1 ||
+        attributes(works[0]).get('chain.id') !== chainId ||
+        publicStatusCode(works[0].status?.code) !== 'OK') {
+      throw new Error(
+        `continue_work tool span ${toolId} is not a later hop of the hop-1 chain: it must schedule exactly one OK continuation.work on chain ${chainId}`,
+      );
+    }
+    const { previous, path } = previousHop(toolId);
+    if (!previous) {
+      throw new Error(`continue_work tool span ${toolId} does not descend from the hop-1 chain's wake turns`);
+    }
+    if (nextHop.has(previous)) {
+      throw new Error(
+        `continue_work tool spans ${nextHop.get(previous)} and ${toolId} both follow ${previous}: the hops branch instead of running in sequence`,
+      );
+    }
+    nextHop.set(previous, toolId);
+    hopFacts.set(toolId, {
+      toolParentSpanId: parentOf.get(toolId),
+      workSpanId: idHex(works[0].spanId, 8, 'work span id'),
+      path,
+    });
+  }
+  const ordered = [];
+  for (let toolId = nextHop.get(hop1); toolId; toolId = nextHop.get(toolId)) ordered.push(toolId);
+  if (ordered.length !== toolIds.length - 1) {
+    throw new Error('continue_work tool spans do not form one sequential chain from hop 1');
+  }
+  return {
+    attribution: tools[toolIds.indexOf(hop1)],
+    chainHops: ordered.map((toolId, index) => ({
+      hop: index + 2,
+      toolSpanId: toolId,
+      toolParentSpanId: hopFacts.get(toolId).toolParentSpanId,
+      workSpanId: hopFacts.get(toolId).workSpanId,
+    })),
+    chainPathSpanIds: ordered.flatMap((toolId) => hopFacts.get(toolId).path),
+  };
+}
+
 function projectScopedContinuationTrace(trace, traceId, topology) {
   const projected = projectPublicTempoTrace(trace, traceId);
   const spanIds = new Set([
@@ -321,6 +434,10 @@ function projectScopedContinuationTrace(trace, traceId, topology) {
     ...topology.toolSpanIds,
     ...topology.fireSpanIds,
     ...topology.childSpans.map((span) => span.spanId),
+    // A chain row keeps the later hops and the wake-turn spans between them,
+    // so the public projection replays its own chain proof.
+    ...(topology.chainHops || []).flatMap((hop) => [hop.toolSpanId, hop.workSpanId]),
+    ...(topology.chainPathSpanIds || []),
   ].filter(Boolean));
   return {
     ...projected,
@@ -375,10 +492,14 @@ function validateTrace(trace, expected) {
     throw new Error('matched raw trace lacks complete causal timing for continue_delegate generation scope');
   }
   const tools = toolScope?.tools ?? matchingTools;
+  const chainRow = expected.tool === 'continue_work' && expected.chainDepthTarget > 1;
+  let chain = null;
   if (expected.originSurface === 'raw-final-text') {
     if (tools.length !== 0) {
       throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
     }
+  } else if (chainRow && tools.length > 1) {
+    chain = scopeContinueWorkChain(spans, tools, accept, chainId, expected.chainDepthTarget);
   } else if (tools.length !== 1) {
     throw new Error(
       tools.length === 0
@@ -391,8 +512,9 @@ function validateTrace(trace, expected) {
     const attrs = attributes(span);
     return !['UNSET', 'OK'].includes(status) || attrs.get('openclaw.outcome') === 'blocked';
   })) {
-    throw new Error(`originating ${expected.tool} tool span is error, blocked, or has unknown status`);
+    throw new Error(`${chain ? 'a chain hop' : 'originating'} ${expected.tool} tool span is error, blocked, or has unknown status`);
   }
+  const originTools = chain ? [chain.attribution] : tools;
 
   const traceId = idHex(accept.traceId, 16, 'trace id');
   const fireTraceIds = fires.map((span) => idHex(span.traceId, 16, 'fire trace id'));
@@ -405,9 +527,14 @@ function validateTrace(trace, expected) {
   const fireSpanIds = fires.map((span) => idHex(span.spanId, 8, 'fire span id'));
   const acceptParentSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
   const fireParentSpanIds = fires.map((span) => idHex(span.parentSpanId, 8, 'fire parent span id'));
-  const toolParentSpanIds = tools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
-  const toolSpanIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
-  const lifecycleSpanIds = [acceptSpanId, ...fireSpanIds, ...toolSpanIds];
+  const toolParentSpanIds = originTools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
+  const toolSpanIds = originTools.map((span) => idHex(span.spanId, 8, 'tool span id'));
+  const lifecycleSpanIds = [
+    acceptSpanId,
+    ...fireSpanIds,
+    ...toolSpanIds,
+    ...(chain?.chainHops || []).flatMap((hop) => [hop.toolSpanId, hop.workSpanId]),
+  ];
   if (new Set(lifecycleSpanIds).size !== lifecycleSpanIds.length) {
     throw new Error('tool/fire/accept span IDs are not distinct');
   }
@@ -429,6 +556,14 @@ function validateTrace(trace, expected) {
     fireParentSpanIds,
     fireAttemptCount: fireSpanIds.length,
     childSpans,
+    ...(chainRow
+      ? {
+          chainDepthTarget: expected.chainDepthTarget,
+          chainDepth: 1 + (chain?.chainHops.length || 0),
+          chainHops: chain?.chainHops || [],
+          chainPathSpanIds: chain?.chainPathSpanIds || [],
+        }
+      : {}),
   };
   if (expected.tool === 'continue_delegate') {
     return {
@@ -577,6 +712,7 @@ async function main() {
               acceptSpanName: contract.acceptSpanName,
               fireSpanName: contract.fireSpanName,
               originSurface: contract.originSurface,
+              chainDepthTarget: contract.chainDepthTarget,
             })
           : validateToolTrace(trace, { tool: contract.tool });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
@@ -641,6 +777,7 @@ async function main() {
         acceptSpanName: contract.acceptSpanName,
         fireSpanName: contract.fireSpanName,
         originSurface: contract.originSurface,
+        chainDepthTarget: contract.chainDepthTarget,
       })
     : validateToolTrace(trace, { tool: contract.tool });
   if (topology.traceId !== traceId) {

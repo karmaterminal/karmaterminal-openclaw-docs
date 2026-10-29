@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "docsRef": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19"
+  },
+  "harness": {
+    "docsRef": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-model-token.json",
+    "manifestSha256": "858496098db3b38a9a8c3289ed21d117061439677d723dbd188c8d4a20527f0c",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-token.js",
+    "scenarioSha256": "d0b71b697e926da4384491c7a339ee64651a0ae50545fd082d0f70f7be45ab92",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261029T220426Z-r-cd-model-token-c686f848",
+    "rowId": "R-CD-MODEL-TOKEN",
+    "seat": "emeric-isolated-composite",
+    "scenario": "r-cd-model-token",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-model-token-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-923d45eb4e8a.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  }
+}

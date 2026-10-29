@@ -1,0 +1,76 @@
+{
+  "schema": "openclaw.project81.r-cw-5.boundary-matrix.v1",
+  "cap": 100,
+  "passed": false,
+  "command": [
+    "node",
+    "<candidate-local-tsx>",
+    "--eval",
+    "<production-module-eval>"
+  ],
+  "exitCode": 1,
+  "dependency": {
+    "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "pnpmVersion": "12.15.0",
+    "pnpmIntegritySha512": "b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "pnpmEntry": "pnpm",
+    "pnpmLauncher": "sh",
+    "installCommand": [
+      "sh",
+      "<candidate-pinned-pnpm>",
+      "install",
+      "--frozen-lockfile",
+      "--prefer-offline",
+      "--ignore-scripts",
+      "--ignore-pnpmfile",
+      "--store-dir",
+      "<private-disposable-store>",
+      "--virtual-store-dir",
+      "node_modules/.pnpm"
+    ],
+    "packageManagerStateConfinedToDisposableWorktree": true,
+    "pnpmToolchainPackages": [
+      "@pnpm/exe.linux-arm64@12.15.0",
+      "pnpm@12.15.0"
+    ],
+    "packageManagerDependencies": {
+      "pnpm": "12.15.0"
+    },
+    "lockfileSha256": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc",
+    "lockfileLayout": "env-and-lockfile-documents",
+    "lockfileDocumentSha256": "39a639eee3825075709f83d176383357a07bfdfc01041ce56709397eb1e1c01d",
+    "virtualStoreLockSha256": "39a639eee3825075709f83d176383357a07bfdfc01041ce56709397eb1e1c01d",
+    "frozenLockfileVerified": true,
+    "sourceNodeModulesTrusted": false,
+    "executionWorktreeIntegrity": {
+      "beforeInstall": {
+        "head": "293c977f629f872a643fb94892603310b887293b",
+        "trackedClean": true,
+        "candidateFileSha256": {
+          "package.json": "52377c0d697760c2869aacd6ad6205783396b20e77c2769f8d3c217c16ccb108",
+          "pnpm-lock.yaml": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc"
+        }
+      },
+      "afterInstall": {
+        "head": "293c977f629f872a643fb94892603310b887293b",
+        "trackedClean": true,
+        "candidateFileSha256": {
+          "package.json": "52377c0d697760c2869aacd6ad6205783396b20e77c2769f8d3c217c16ccb108",
+          "pnpm-lock.yaml": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc"
+        }
+      },
+      "afterExecution": {
+        "head": "293c977f629f872a643fb94892603310b887293b",
+        "trackedClean": true,
+        "candidateFileSha256": {
+          "package.json": "52377c0d697760c2869aacd6ad6205783396b20e77c2769f8d3c217c16ccb108",
+          "pnpm-lock.yaml": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc"
+        }
+      }
+    },
+    "cleanup": {
+      "disposableWorktreeCreated": true,
+      "disposableWorktreeRemoved": true
+    }
+  }
+}

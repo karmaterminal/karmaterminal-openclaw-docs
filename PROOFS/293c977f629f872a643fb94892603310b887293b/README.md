@@ -4,7 +4,7 @@ This is the pure continuation j9 head: the qualified-j9 fast-forward candidate f
 
 **Status: folded after single-seat review (frond-scribe, 2026-10-29). NOT acceptance-complete.**
 
-Rollup: **29 pass (6 carried as historical static evidence, ruling A) · 1 honest_limit · 3 partial · 5 missing · 0 fail**, out of 38 required rows. Open product regression: karmaterminal/openclaw#1499 (subagent bracket delegate dropped; R-CD-TOKEN, R-CD-MODEL-TOKEN).
+Rollup: **28 pass (6 carried as historical static evidence, ruling A) · 1 honest_limit · 4 partial · 5 missing · 0 fail**, out of 38 required rows. Open product regression: karmaterminal/openclaw#1499 (subagent bracket delegate dropped; R-CD-TOKEN, R-CD-MODEL-TOKEN).
 
 - **Live rows (27):** the canonical fire is matrix `COMP-293c977f-20261029T012658Z`, on emeric's isolated gateway `:18797` at exact runtime and candidate `293c977f62`, docs `dcc6330c40`, 0× 401. A targeted trace refire, `COMP-293c977f-20261029T030423Z` (docs `313a70c625`, 🌊 go `1565199441013645316`), re-ran 6 rows for trace receipts only; the matrix behavior receipts are preserved beside it.
 - **Partial rows, all with behavior evidence and a named owner:**

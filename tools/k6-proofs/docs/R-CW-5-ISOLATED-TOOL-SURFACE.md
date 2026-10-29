@@ -53,7 +53,8 @@ worktree using the exact version and sha512 integrity pinned by the candidate.
 npm installs that pnpm release into a private toolchain. The fixture runs the
 bin entry the package declares through a trusted interpreter: `node` for a
 `#!...node` script, `/bin/sh` for pnpm 12's shebang-less launcher. It refuses a
-pnpm that changes its own toolchain while running. When the candidate lockfile
+pnpm that changes its own toolchain during the `--version` probe. That probe
+picks the native binary in the same way the install then does. When the candidate lockfile
 opens with a pnpm env document, that document must pin the same pnpm version
 and tarball integrity. Every other toolchain package, such as pnpm 12's
 `@pnpm/exe.<target>` native binary, must match the integrity that document

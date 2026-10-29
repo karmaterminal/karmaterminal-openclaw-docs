@@ -359,6 +359,19 @@ test('the origin transcript recovers a wake answer the live subscription missed'
   assertReturnBound(fired, 'bound-target-transcript-return');
 });
 
+test('agent lifecycle broadcasts from other sessions cannot crowd out the woken run', async () => {
+  // A visible run's agent events are broadcast to every operator connection
+  // (server-chat.ts:836-841), so a busy gateway sends lifecycle starts of
+  // unrelated sessions ahead of the origin's woken run.
+  const unrelatedStarts = Array.from({ length: 25 }, (_, i) =>
+    lifecycle({ runId: `unrelated-run-${i}`, sessionKey: `agent:main:other-${i}`, phase: 'start' }));
+  const fired = await fireRcdToken({
+    wake: (state) => [...unrelatedStarts, ...targetedReturnWake({ sentinel: state.sentinel })],
+    deliverUnsubscribed: true,
+  });
+  assertReturnBound(fired, 'bound-session-message-return');
+});
+
 test('both forms: the direct-announce delivery still binds', async () => {
   const fired = await fireRcdToken({ wake: (state) => directAnnounce({ sentinel: state.sentinel }) });
   assertReturnBound(fired, 'bound-session-message-return');

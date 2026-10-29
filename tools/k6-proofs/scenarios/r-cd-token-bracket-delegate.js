@@ -491,8 +491,17 @@ export default function () {
         }
         if (classified.kind === 'event' && classified.event === 'agent') {
           const eventData = classified.data || {};
-          // Lifecycle starts off the parent: the origin's woken run is one.
-          if (eventData.sessionKey !== sessionKey && String(eventData.stream || '') === 'lifecycle' &&
+          // Lifecycle starts off the parent: the origin's woken run is one. A
+          // visible run's agent events reach every operator connection, so once
+          // the origin is known only its own starts are kept (bounded buffer).
+          const originKey = tokenSessionLedgerRuntimeIdentity(ledger).originChildSessionKey;
+          if (originKey) {
+            for (let i = originLifecycleStarts.length - 1; i >= 0; i -= 1) {
+              if (originLifecycleStarts[i].sessionKey !== originKey) originLifecycleStarts.splice(i, 1);
+            }
+          }
+          if (eventData.sessionKey !== sessionKey && (!originKey || eventData.sessionKey === originKey) &&
+              String(eventData.stream || '') === 'lifecycle' &&
               String(eventData.data?.phase || '') === 'start' && originLifecycleStarts.length < 20) {
             originLifecycleStarts.push(eventData);
             reconcilePendingReturns();

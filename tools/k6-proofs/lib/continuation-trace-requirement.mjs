@@ -294,6 +294,17 @@ export function manifestTraceReceiptFailures(manifest) {
     );
   }
 
+  // A bracket delegate is parsed from a child's final text, so its trace has no
+  // typed continue_delegate tool span. The collector expects that topology only
+  // for invocation.originSurface 'raw-final-text', and a typed row declaring it
+  // would have its real tool span refused.
+  if (invocation?.tool === 'continue_delegate' &&
+      (manifest.toolSurface === 'bracket-token') !== (invocation.originSurface === 'raw-final-text')) {
+    failures.push(manifest.toolSurface === 'bracket-token'
+      ? "bracket-token continue_delegate row must declare invocation.originSurface 'raw-final-text'; the trace collector otherwise demands a typed continue_delegate tool span"
+      : `only a bracket-token continue_delegate row may declare invocation.originSurface 'raw-final-text' (toolSurface is ${manifest.toolSurface ?? 'unset'}); the trace collector would refuse its typed tool span`);
+  }
+
   const requirement = traceRequirement(manifest);
   if (!requirement.continuation) return failures;
   const why = requirement.reasons.filter((reason) => reason !== 'declared-trace-receipt').join(', ');

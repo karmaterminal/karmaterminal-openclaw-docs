@@ -77,9 +77,12 @@ Before proofs, the detached worktree must declare exact `pnpm@<semver>` in its
 committed `package.json` (an optional `+sha...` suffix is accepted). The runner
 checks `pnpm --version`, requires that exact semantic version, runs
 `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`, and then
-requires candidate-lock bytes, `.modules.yaml` package-manager metadata,
-candidate-contained virtual-store metadata, and local `tsx`/`vitest` realpaths
-to align. This is **not hermetic host-toolchain or cryptographic provenance
+requires the installed `.pnpm/lock.yaml` to byte-match the candidate's lockfile
+document, `.modules.yaml` package-manager metadata, candidate-contained
+virtual-store metadata, and local `tsx`/`vitest` realpaths to align. A pnpm 12
+`pnpm-lock.yaml` opens with an env document that pins pnpm itself; pnpm installs
+only the lockfile document after it, and every pin in that env document must
+equal the candidate pnpm version. This is **not hermetic host-toolchain or cryptographic provenance
 proof**: the host-resolved `pnpm` is version-checked and the resulting tree is
 verified for lockfile/tree/version alignment.
 
@@ -714,7 +717,13 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 component fixture for `R-CW-5`. It requires a clean exact-candidate source
 worktree and its committed `pnpm-lock.yaml`, then creates a disposable
 candidate worktree and runs `pnpm install --frozen-lockfile --prefer-offline`
-there. It never trusts or mutates source `node_modules`, and writes only to an explicit artifact directory. It evaluates the exact
+there. That pnpm is the candidate's `packageManager` release, npm-installed into
+a private toolchain and checked against the pin's sha512. The fixture runs the
+bin entry the package declares (pnpm 12's is a shell launcher for a native
+binary). Every other toolchain package must match the integrity recorded in
+the env document of the candidate's lockfile. The installed `.pnpm/lock.yaml`
+must byte-match the candidate's lockfile document. It never trusts or mutates
+source `node_modules`, and writes only to an explicit artifact directory. It evaluates the exact
 production `checkContinuationBudget` module at below/equal/over cap, then
 runs the production dispatcher boundary suite to prove the over-cap hop does
 not spawn and its flow is failed. Finally, it creates a short-lived detached
@@ -770,7 +779,9 @@ selected-max delegate dispatch boundary all run inside one detached disposable c
 worktree without a gateway or fleet mutation. The fixture first requires the
 candidate's committed `package.json` and `pnpm-lock.yaml`, runs `pnpm install
 --frozen-lockfile --prefer-offline --ignore-scripts` inside that detached worktree,
-checks the installed virtual-store lock bytes/SHA-256, `.modules.yaml`
+checks the installed virtual-store lock bytes/SHA-256 against the candidate
+lockfile document (the env document a pnpm 12 lockfile opens with must pin the
+candidate pnpm version), `.modules.yaml`
 package-manager and virtual-store metadata, and invokes
 only its absolute `node_modules/.bin/tsx` and `node_modules/.bin/vitest`
 binaries; source-tree `node_modules` is ignored. Before the final result is

@@ -13,9 +13,11 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 
 export const options = {
   scenarios: {
@@ -36,6 +38,8 @@ const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_3_duration');
 const manifest = loadManifestFromEnv();
 const HARNESS_MARKER = '[k6-proof-harness]';
+const DEFAULT_LIFEBOAT_TEMPLATE =
+  'R-CD-3 post-compaction lifeboat nonce {{nonce}}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED {{nonce}}. Do not mutate files.';
 let finalEvidence = null;
 
 function boolEnv(name, fallback = false) {
@@ -89,6 +93,12 @@ export default function () {
     context_usage: null,
     threshold: null,
     trace_id: null,
+    // Fingerprint of the staged lifeboat task (#600). The product spawns a
+    // released lifeboat without a continuation.delegate.dispatch span, so no
+    // Tempo trace carries it; the collector still stays fail-closed on it.
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     preflight: null,
     verdict_reason: null,
     redacted_events: [],
@@ -102,8 +112,10 @@ export default function () {
     function startProofFlow() {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
-        const lifeboatTask =
-          `R-CD-3 post-compaction lifeboat nonce ${rowNonce}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED ${rowNonce}. Do not mutate files.`;
+        const lifeboatTask = renderRowTaskTemplate(manifest?.invocation?.promptTemplate || DEFAULT_LIFEBOAT_TEMPLATE, rowNonce);
+        evidence.reason_hash = crypto.sha256(lifeboatTask, 'hex').slice(0, 16);
+        evidence.reason_length = lifeboatTask.length;
+        evidence.delegate_mode = 'post-compaction';
         const reason = `R-CD-3 k6 proof nonce ${rowNonce}: trigger compaction after staging post-compaction delegate, or report a below-threshold refusal.`;
         const instruction =
           `${HARNESS_MARKER} R-CD-3 nonce ${rowNonce}. ` +

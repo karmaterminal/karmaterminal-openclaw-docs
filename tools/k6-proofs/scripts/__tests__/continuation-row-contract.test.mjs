@@ -151,23 +151,35 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
 }
 
 /**
- * Trace-required rows whose public evidence does not carry the reason
- * fingerprint yet (#600). The in-run collector can still attribute some of
- * them from the manifest and the private nonce, but nothing can attribute them
- * afterwards from public evidence, and their trace receipts stay pending when
- * the collector fails. A row leaves this list by persisting the contract the
+ * Trace-required rows whose evidence does not carry the reason fingerprint yet
+ * (#600). The collector matches every continuation trace by the fingerprint
+ * the scenario recorded and fails closed without one, so these rows' trace
+ * receipts stay pending. A row leaves this list by persisting the contract the
  * tests below assert; a listed row that already records a fingerprint fails.
  */
-const DELEGATE_FINGERPRINT_DEBT = [
-  'R-CD-3',
-  'R-CD-COLLECTION-ON-COLLAPSE',
-  'R-CD-MODEL-CHAINED-ALT',
-  'R-CD-MODEL-DEFAULT',
-  'R-CD-MODEL-TOKEN',
-  'R-CD-MODEL-TOOL',
-  'R-CD-SILENT',
-];
-const WORK_FINGERPRINT_DEBT = ['R-CW-2', 'R-CW-4', 'R-CW-5', 'R-CW-6'];
+const DELEGATE_FINGERPRINT_DEBT = ['R-CD-COLLECTION-ON-COLLAPSE'];
+const WORK_FINGERPRINT_DEBT = ['R-CW-5', 'R-CW-6'];
+
+/**
+ * Rows whose dispatched delegate task no manifest template renders from the
+ * nonce alone: a random child token (R-CD-SILENT), a bracket delegate built
+ * around row tokens (R-CD-MODEL-TOKEN), or a depth-1 task that embeds the
+ * depth-2 task, model and disposable session key (R-CD-MODEL-CHAINED-ALT).
+ * The scenario fingerprints the variable it dispatches and the manifest
+ * declares no template the collector could mistake for it.
+ */
+const SCENARIO_OWNED_DELEGATE_REASONS = {
+  'R-CD-MODEL-CHAINED-ALT': 'depth1Task',
+  'R-CD-MODEL-TOKEN': 'delegateTask',
+  'R-CD-SILENT': 'task',
+};
+
+/** Rows that render the dispatched task from the manifest template through renderRowTaskTemplate. */
+const RENDERED_DELEGATE_TEMPLATES = {
+  'R-CD-3': /renderRowTaskTemplate\(manifest\?\.invocation\?\.promptTemplate \|\| DEFAULT_LIFEBOAT_TEMPLATE, rowNonce\)/,
+  'R-CD-MODEL-DEFAULT': /renderRowTaskTemplate\(DEFAULTS\.promptTemplate, rowNonce\)/,
+  'R-CD-MODEL-TOOL': /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/,
+};
 
 async function traceRequiredRows(tool) {
   const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json'));
@@ -209,6 +221,16 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
       } else if (manifest.rowId === 'R-RC-2') {
         assert.match(manifest.invocation.promptTemplate, /^RRC2:\{\{nonceSuffix16\}\}/);
         assert.match(scenario, /renderRowTaskTemplate\(inv\.promptTemplate,\s*rowNonce\)/);
+      } else if (Object.hasOwn(SCENARIO_OWNED_DELEGATE_REASONS, manifest.rowId)) {
+        const variable = SCENARIO_OWNED_DELEGATE_REASONS[manifest.rowId];
+        assert.equal(manifest.invocation.promptTemplate, undefined, `${manifest.rowId} declares no template it does not dispatch`);
+        assert.match(scenario, new RegExp(`evidence\\.reason_hash = crypto\\.sha256\\(${variable}, 'hex'\\)\\.slice\\(0, 16\\)`));
+        assert.match(scenario, new RegExp(`evidence\\.reason_length = ${variable}\\.length`));
+      } else if (Object.hasOwn(RENDERED_DELEGATE_TEMPLATES, manifest.rowId)) {
+        assert.match(manifest.invocation.promptTemplate, /\{\{nonce\}\}/);
+        assert.doesNotMatch(manifest.invocation.promptTemplate, /\{\{(?!nonce\}\}|nonceSuffix16\}\})|\$\{/);
+        assert.match(scenario, RENDERED_DELEGATE_TEMPLATES[manifest.rowId]);
+        assert.match(scenario, /evidence\.reason_hash = crypto\.sha256\((?:childTask|lifeboatTask), 'hex'\)\.slice\(0, 16\)/);
       } else {
         assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
       }
@@ -218,8 +240,14 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
   assert.deepEqual(rows.sort(), [
     'R-CD-1',
     'R-CD-2',
+    'R-CD-3',
     'R-CD-4',
     'R-CD-CHAINED-DEPTH-2',
+    'R-CD-MODEL-CHAINED-ALT',
+    'R-CD-MODEL-DEFAULT',
+    'R-CD-MODEL-TOKEN',
+    'R-CD-MODEL-TOOL',
+    'R-CD-SILENT',
     'R-CD-TOKEN',
     'R-CW-DELEGATE-SELF-CONTINUATION',
     'R-RC-2',
@@ -284,6 +312,15 @@ test('every trace-required continue_work row persists the safe fingerprint contr
     }
     rows.push(manifest.rowId);
     assert.match(scenario, /reason_hash:\s*crypto\.sha256\([^,]+,\s*'hex'\)\.slice\(0,\s*16\)/);
+    if (manifest.rowId === 'R-CW-4') {
+      // Each hop elects its own reason; the row trace is hop 1. The manifest's
+      // {{hop}} template is not a reason the nonce alone renders.
+      assert.match(scenario, /const hop1Reason = `R-CW-4 hop1 \$\{rowNonce\}; on wake call hop2`/);
+      assert.match(scenario, /reason_length:\s*hop1Reason\.length/);
+      assert.match(scenario, /reason="\$\{hop1Reason\}"/);
+      assert.match(manifest.invocation.reason, /\{\{hop\}\}/);
+      continue;
+    }
     assert.match(scenario, /reason_length:\s*(?:wakeReason|rawReason)\.length/);
     assert.match(scenario, /inv\.reason\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);
     assert.match(manifest.invocation.reason, /\{\{nonce\}\}/);
@@ -293,7 +330,7 @@ test('every trace-required continue_work row persists the safe fingerprint contr
     }
   }
 
-  assert.deepEqual(rows.sort(), ['R-CW-1', 'R-CW-3']);
+  assert.deepEqual(rows.sort(), ['R-CW-1', 'R-CW-2', 'R-CW-3', 'R-CW-4']);
   assert.deepEqual(debt.sort(), [...WORK_FINGERPRINT_DEBT].sort(), 'every debt row is still a trace-required continue_work row');
 });
 

@@ -39,7 +39,8 @@
     "tokenTemplate": "[[CONTINUE_DELEGATE: Proof nonce {{nonce}}: report observed provider/model and nonce only. Do not mutate files. | silent-wake | model=${OPENCLAW_ALT_MODEL:-}]]",
     "idempotencyKeyPrefix": "R-CD-MODEL-TOKEN",
     "delaySeconds": 1,
-    "taskNamePrefix": "r-cd-model-token"
+    "taskNamePrefix": "r-cd-model-token",
+    "originSurface": "raw-final-text"
   },
   "expectedReceipts": [
     {

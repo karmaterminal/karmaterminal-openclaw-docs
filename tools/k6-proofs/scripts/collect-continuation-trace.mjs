@@ -114,23 +114,32 @@ export async function readEvidence(evidencePath) {
   return records[0];
 }
 
+// A manifest template is the dispatched reason only when the nonce alone
+// renders it. Scenario-owned placeholders ({{marker}}, {{tag}}, {{hop}}) and the
+// ${VAR:-default} placeholders a scenario resolves from its environment describe
+// a reason's shape, not its bytes, so the collector never hashes them.
+const NONCE_TEMPLATE_PLACEHOLDERS = new Set(['{{nonce}}', '{{nonceSuffix16}}']);
+
+function renderNonceTemplate(template, nonce) {
+  if (typeof template !== 'string' || !template || !nonce) return undefined;
+  const placeholders = template.match(/\{\{[^{}]*\}\}|\$\{[^}]*\}/gu) || [];
+  if (placeholders.some((placeholder) => !NONCE_TEMPLATE_PLACEHOLDERS.has(placeholder))) return undefined;
+  return template
+    .replaceAll('{{nonceSuffix16}}', String(nonce).slice(-16))
+    .replaceAll('{{nonce}}', String(nonce));
+}
+
 export function traceContract(manifest, evidence) {
   const tool = manifest?.invocation?.tool;
   const nonce = evidence?.nonce;
 
-  let reason;
+  let template;
   let mode;
   let acceptSpanName;
   let fireSpanName;
   let attribution;
   if (tool === 'continue_delegate') {
-    const template = manifest?.invocation?.promptTemplate;
-    if (!template) throw new Error('continue_delegate manifest promptTemplate is required');
-    if (nonce) {
-      reason = String(template)
-        .replaceAll('{{nonceSuffix16}}', String(nonce).slice(-16))
-        .replaceAll('{{nonce}}', String(nonce));
-    }
+    template = manifest.invocation.promptTemplate;
     const manifestMode = manifest.invocation.mode;
     const evidenceMode = evidence.delegate_mode;
     if (manifestMode && evidenceMode && manifestMode !== evidenceMode) {
@@ -145,9 +154,7 @@ export function traceContract(manifest, evidence) {
       ? 'bracket-token-reason-hash-length-mode'
       : 'reason-hash-length-mode';
   } else if (tool === 'continue_work') {
-    const template = manifest?.invocation?.reason;
-    if (!template) throw new Error('continue_work manifest reason is required');
-    if (nonce) reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    template = manifest.invocation.reason;
     acceptSpanName = 'continuation.work';
     fireSpanName = 'continuation.work.fire';
     attribution = 'reason-hash-length';
@@ -162,26 +169,30 @@ export function traceContract(manifest, evidence) {
     throw new Error('manifest invocation.tool is required for trace collection');
   }
 
-  let hash;
-  let length;
-  let fingerprintSource;
-  if (reason !== undefined) {
-    hash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
-    length = reason.length;
+  // One rule for every continuation row (#600): the trace is matched by the
+  // fingerprint the scenario recorded for the reason it dispatched. Only the
+  // scenario knows those bytes (a random child token, a bracket marker, a
+  // disposable session key, a hop's own task), so a row that records none fails
+  // closed here instead of searching Tempo for a reason nobody sent. The
+  // manifest template is a cross-check, never the source.
+  const hash = safeHex(evidence?.reason_hash, 16, 'evidence reason hash');
+  const length = Number(evidence?.reason_length);
+  if (!Number.isInteger(length) || length < 1) {
+    throw new Error('continuation evidence requires a positive integer reason_length');
+  }
+  let reason;
+  let fingerprintSource = nonce ? 'scenario-evidence' : 'public-evidence';
+  const rendered = renderNonceTemplate(template, nonce);
+  if (rendered !== undefined) {
+    const renderedHash = createHash('sha256').update(rendered).digest('hex').slice(0, 16);
+    if (renderedHash !== hash) {
+      throw new Error(`evidence reason_hash mismatch: expected ${renderedHash}, got ${hash}`);
+    }
+    if (rendered.length !== length) {
+      throw new Error(`evidence reason_length mismatch: expected ${rendered.length}, got ${length}`);
+    }
+    reason = rendered;
     fingerprintSource = 'manifest-nonce';
-    if (evidence.reason_hash !== undefined && evidence.reason_hash !== hash) {
-      throw new Error(`evidence reason_hash mismatch: expected ${hash}, got ${evidence.reason_hash}`);
-    }
-    if (evidence.reason_length !== undefined && Number(evidence.reason_length) !== length) {
-      throw new Error(`evidence reason_length mismatch: expected ${length}, got ${evidence.reason_length}`);
-    }
-  } else {
-    hash = safeHex(evidence.reason_hash, 16, 'evidence reason hash');
-    length = Number(evidence.reason_length);
-    if (!Number.isInteger(length) || length < 1) {
-      throw new Error('public evidence requires a positive integer reason_length');
-    }
-    fingerprintSource = 'public-evidence';
   }
   return {
     kind: 'continuation',

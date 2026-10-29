@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
@@ -75,6 +76,9 @@ export default function () {
     child_active_fallback: null, child_served_model_byte: null, child_served_receipt: null,
     child_self_reported_model: null, child_session_metadata: null, model_matches: false, selection_matches: false, return_payload: false,
     hop1_token: hop1Token, delegate_token: delegateToken,
+    // The bracket delegate's task (what the parser hands the dispatch span) is
+    // known only here; the collector matches the trace by it (#600).
+    reason_hash: null, reason_length: null, delegate_mode: null,
     dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null,
     preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
@@ -165,6 +169,9 @@ export default function () {
         // Neither task names the requested model; only the bracket modifier does.
         const delegateTask = delegateToken + ' Proof R-CD-MODEL-TOKEN delegate nonce ' + rowNonce + ': reply exactly MODEL-TOKEN-DELEGATE-DONE ' + rowNonce + ' MODEL <provider/model>, replacing <provider/model> with the current model identity from runtime context. Do not mutate files. Do not post externally.';
         const bracket = '[[CONTINUE_DELEGATE: ' + delegateTask + ' +' + inv.delaySeconds + 's | model=' + inv.requestedModel + ']]';
+        evidence.reason_hash = crypto.sha256(delegateTask, 'hex').slice(0, 16);
+        evidence.reason_length = delegateTask.length;
+        evidence.delegate_mode = 'normal';
         const childTask = hop1Token + ' k6 proof R-CD-MODEL-TOKEN nonce ' + rowNonce + '. Reply exactly MODEL-TOKEN-HOP1 ' + rowNonce + ', then end your entire response with this exact terminal bracket on its own final line: ' + bracket + ' Do not call continue_delegate tool. Do not put any text after the closing brackets. Do not mutate files.';
         const agentInstruction = HARNESS_MARKER + ' Call sessions_spawn exactly once with runtime="subagent", mode="run", taskName="' + taskName + '", label="k6 R-CD-MODEL-TOKEN ' + rowNonce + '", lightContext=' + (inv.lightContext ? 'true' : 'false') + ', context="isolated", cleanup="delete", and task=' + JSON.stringify(childTask) + '. After the sessions_spawn tool result is accepted, reply exactly MODEL-TOKEN-PARENT-SPAWNED ' + rowNonce + '. This is a proof run.';
         evidence.subagent_spawn_requested = true;

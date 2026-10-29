@@ -30,7 +30,7 @@
     "tool": "continue_delegate",
     "mode": "post-compaction",
     "delaySeconds": 0,
-    "promptTemplate": "Post-compaction lifeboat nonce {{nonce}}: you are a post-compaction delegate. Reply with LIFEBOAT-RECEIVED and the nonce. Do not mutate files.",
+    "promptTemplate": "R-CD-3 post-compaction lifeboat nonce {{nonce}}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED {{nonce}}. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-3"
   },
   "prerequisites": {

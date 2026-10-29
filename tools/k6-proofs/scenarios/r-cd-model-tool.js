@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
@@ -96,6 +97,11 @@ export default function() {
     child_session_metadata: null,
     child_metadata_requested: false,
     task_identity_token: taskIdentityToken,
+    // Fingerprint of the task this row dispatches. The collector matches the
+    // trace by it and checks it against the manifest template (#600).
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     event_child_candidates: [],
     child_identity_conflict: false,
     child_identity_reason: null,
@@ -184,6 +190,9 @@ export default function() {
           socket.close();
           return;
         }
+        evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
+        evidence.reason_length = childTask.length;
+        evidence.delegate_mode = 'normal';
         const instruction =
           HARNESS_MARKER + ' R-CD-MODEL-TOOL nonce ' + rowNonce + '. ' +
           'Call continue_delegate with task=' + JSON.stringify(childTask) +

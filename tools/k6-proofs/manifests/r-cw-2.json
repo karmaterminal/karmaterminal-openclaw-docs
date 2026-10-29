@@ -27,7 +27,7 @@
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 0,
-    "reason": "k6-proof-R-CW-2-immediate-{{nonce}}",
+    "reason": "k6-proof-R-CW-2-immediate-{{nonce}} -- on continuation wake reply exactly CW2-WOKE {{nonce}}",
     "idempotencyKeyPrefix": "R-CW-2"
   },
   "expectedReceipts": [

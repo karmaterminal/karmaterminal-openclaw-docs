@@ -428,11 +428,13 @@ test('R-CW-2: an immediate continue_work wake is attributed by the reason it dis
   const { privateEvidence, dispatch } = await fireScenario({ row, scenario: 'r-cw-2-immediate-wake.js', manifest });
   const reason = typedReason(dispatch, 'reason', 1024);
   assert.match(reason, /-- on continuation wake reply exactly CW2-WOKE /u);
-  const continuation = [...reasonAttrs(reason), attr('chain.id', chainId), attr('delay.ms', 1000)];
+  // delaySeconds=0: the work span is emitted at election, the fire span when
+  // the parked work runs after the electing turn ends.
+  const continuation = [...reasonAttrs(reason), attr('chain.id', chainId), attr('delay.ms', 0)];
   const trace = traceOf([
     spanOf('openclaw.tool.execution', '4'.repeat(16), ORIGIN_NS, [attr('gen_ai.tool.name', 'continue_work')]),
     spanOf('continuation.work', '2'.repeat(16), ORIGIN_NS + 1000000n, continuation),
-    spanOf('continuation.work.fire', '3'.repeat(16), ORIGIN_NS + 1000000000n, [...continuation, attr('fire.deferred_ms', 1000)]),
+    spanOf('continuation.work.fire', '3'.repeat(16), ORIGIN_NS + 3000000000n, [...continuation, attr('fire.deferred_ms', 3000)]),
   ]);
   const collected = await collect({ manifest, evidence: privateEvidence, trace });
   assertAttributed(collected, { reason, originSurface: 'typed-tool', privateEvidence });

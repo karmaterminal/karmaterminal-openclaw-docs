@@ -40,6 +40,25 @@ function evidenceFor(row, extra = {}) {
   };
 }
 
+const delegateSelfManifest = JSON.parse(await readFile(
+  path.join(repoRoot, 'tools/k6-proofs/manifests/r-cw-delegate-self.json'),
+  'utf8',
+));
+
+// The real R-CW-DELEGATE-SELF scenario records the fingerprint of the task it
+// dispatched (tests/cw-delegate-self-trace-fingerprint.test.mjs), and the
+// collector refuses a continuation record without one.
+function delegateSelfEvidence(extra) {
+  const evidence = evidenceFor('R-CW-DELEGATE-SELF-CONTINUATION', extra);
+  const task = delegateSelfManifest.invocation.promptTemplate.replaceAll('{{nonce}}', evidence.nonce);
+  return {
+    ...evidence,
+    reason_hash: createHash('sha256').update(task).digest('hex').slice(0, 16),
+    reason_length: task.length,
+    delegate_mode: delegateSelfManifest.invocation.mode,
+  };
+}
+
 // Tempo answers the search with an error: the collector cannot produce a
 // trace, which is the state the live rows were actually in.
 function tempoUnavailable(url, response) {
@@ -105,7 +124,7 @@ test('R-CW-TOKEN (receipt spelled tempo-trace) collects its trace and fails clos
 test('R-CW-DELEGATE-SELF-CONTINUATION (no trace receipt declared) collects its trace and fails closed without one', async () => {
   const fixture = await runRowThroughRunner(repoRoot, {
     rowId: 'R-CW-DELEGATE-SELF-CONTINUATION',
-    evidence: evidenceFor('R-CW-DELEGATE-SELF-CONTINUATION', {
+    evidence: delegateSelfEvidence({
       delegate_accepted: true,
       child_continue_work_accepted: true,
       child_hop_2_woke: true,
@@ -196,7 +215,7 @@ function delegateSelfTrace(evidence, manifest) {
   };
 }
 
-const DELEGATE_SELF_EVIDENCE = evidenceFor('R-CW-DELEGATE-SELF-CONTINUATION', {
+const DELEGATE_SELF_EVIDENCE = delegateSelfEvidence({
   delegate_accepted: true,
   child_continue_work_accepted: true,
   child_hop_2_woke: true,

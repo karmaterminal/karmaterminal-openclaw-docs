@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -13,7 +14,7 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 0, idempotencyKeyPrefix: 'R-CW-2' };
 let finalEvidence = null;
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
-function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-2-immediate-{{nonce}}' }; }
+function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-2-immediate-{{nonce}} -- on continuation wake reply exactly CW2-WOKE {{nonce}}' }; }
 function safeRedact(classified) { return redactEvent(classified.payload || classified.data || {}); }
 
 export default function () {
@@ -27,15 +28,17 @@ export default function () {
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) { const errors = validateManifest(manifest); if (errors.length) console.warn('Manifest validation warnings: ' + errors.join('; ')); }
   const inv = invocationCfg();
-  const evidence = { row: 'R-CW-2', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, immediate_wake_observed: false, prompt_echo_ignored: false, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, trace_id: null, redacted_events: [] };
+  // The manifest reason is the whole dispatched reason, so the collector can
+  // reproduce the fingerprint recorded here from the nonce (#600).
+  const wakeReason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
+  const evidence = { row: 'R-CW-2', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, immediate_wake_observed: false, prompt_echo_ignored: false, reason_hash: crypto.sha256(wakeReason, 'hex').slice(0, 16), reason_length: wakeReason.length, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, trace_id: null, redacted_events: [] };
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
-        const reason = `${inv.reason.replace(/\{\{nonce\}\}/g, rowNonce)} -- on continuation wake reply exactly CW2-WOKE ${rowNonce}`;
-        const instruction = `${HARNESS_MARKER} R-CW-2 proof nonce ${rowNonce}. Call continue_work with delaySeconds=${inv.delaySeconds} and reason=${JSON.stringify(reason)}. After the continue_work tool result reports scheduled, reply exactly CW2-SCHEDULED ${rowNonce}. On the continuation wake, reply exactly CW2-WOKE ${rowNonce}. Do not mutate files.`;
+        const instruction = `${HARNESS_MARKER} R-CW-2 proof nonce ${rowNonce}. Call continue_work with delaySeconds=${inv.delaySeconds} and reason=${JSON.stringify(wakeReason)}. After the continue_work tool result reports scheduled, reply exactly CW2-SCHEDULED ${rowNonce}. On the continuation wake, reply exactly CW2-WOKE ${rowNonce}. Do not mutate files.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
       socket.setTimeout(() => socket.close(), 90000);

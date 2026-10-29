@@ -415,6 +415,11 @@ test('R-CW-6 runtime template proves the real budget and durable recovery path',
   assert.match(template, /flowCountBeforeRejectedHop/);
   assert.match(template, /flowCountAfterRejectedHop/);
   assert.match(template, /recoveredAttemptScheduled/);
+  // Scheduled work is read back from the candidate's real custody store.
+  assert.match(template, /useContinuationCustodyTestState\(\)/);
+  assert.match(template, /listCustodyRecordsForTest\(\{ ownerSessionKey: sessionKey, kinds: \["work"\] \}\)/);
+  assert.match(template, /decodeWorkState/);
+  assert.doesNotMatch(template, /task-flow-registry|task-runtime\.test-helpers/);
 });
 
 test('R-CW-6 typed template enters runAgentAttempt and omits the rejected flow', async () => {
@@ -430,6 +435,9 @@ test('R-CW-6 typed template enters runAgentAttempt and omits the rejected flow',
   assert.match(template, /typed first-over-limit/);
   assert.match(template, /firstOverLimitFlowPresent:\s*false/);
   assert.match(template, /capNoticeObserved/);
+  assert.match(template, /preparedRunAdmission: createTestPreparedRunAdmission\(/);
+  // The attempt publishes its patched entry into the caller's session store.
+  assert.match(template, /finalInMemoryCount = sessionStore\[sessionKey\]\?\.continuationChainCount/);
 });
 
 test('R-CW-6 delegate template uses the selected maximum and proves reject-before-spawn', async () => {

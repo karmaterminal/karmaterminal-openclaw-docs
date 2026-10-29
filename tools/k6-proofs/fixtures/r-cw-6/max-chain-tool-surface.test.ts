@@ -1,6 +1,9 @@
 // This file is copied into a disposable exact-candidate worktree by
 // run-max-chain-fixture.mjs. It is deliberately not run in this docs checkout:
 // all imports resolve against the candidate's production runtime.
+//
+// Scheduled work is held in the candidate's real continuation custody store, so
+// the runner executes this file in the candidate's database-worker lane.
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -14,9 +17,15 @@ import {
 import type { SessionEntry } from "../../src/config/sessions.js";
 import type { OpenClawConfig } from "../../src/config/types.openclaw.js";
 import { peekSystemEvents, resetSystemEventsForTest } from "../../src/infra/system-events.js";
+import { createTestPreparedRunAdmission } from "../../src/agents/admitted-run-context.test-support.js";
 import { runAgentAttempt } from "../../src/agents/command/attempt-execution.js";
 import { createOpenClawContinuationTools } from "../../src/agents/openclaw-tools.continuation.js";
+import {
+  listCustodyRecordsForTest,
+  useContinuationCustodyTestState,
+} from "../../src/auto-reply/continuation/custody/custody.test-support.js";
 import { checkContinuationBudget } from "../../src/auto-reply/continuation/scheduler.js";
+import { decodeWorkState } from "../../src/auto-reply/continuation/work-flow-state.js";
 import {
   resetContinuationWorkDispatchForTests,
   scheduleContinuationWork,
@@ -26,6 +35,13 @@ import {
   loadContinuationChainState,
   persistContinuationChainState,
 } from "../../src/auto-reply/continuation/state.js";
+import { clearSessionStoreCacheForTest } from "../../src/config/sessions/store-writer-state.js";
+import {
+  closeOpenClawAgentDatabasesAsync,
+  closeOpenClawAgentDatabasesForTest,
+} from "../../src/state/openclaw-agent-db.js";
+
+useContinuationCustodyTestState();
 
 const runEmbeddedAgentMock = vi.hoisted(() => vi.fn());
 const runCliAgentMock = vi.hoisted(() => vi.fn());
@@ -80,6 +96,18 @@ const runtimeConfig = {
   busySkipBackoff: { baseMs: 1_000, ceilingMs: 60_000, factor: 2 },
 };
 
+// Every durable work record the owner holds, in hop order, decoded by the
+// candidate's own work-state codec.
+async function listOwnerWork(sessionKey: string): Promise<Array<{ hop?: number; reason?: string }>> {
+  const records = await listCustodyRecordsForTest({ ownerSessionKey: sessionKey, kinds: ["work"] });
+  return records
+    .map((record) => {
+      const work = decodeWorkState(record);
+      return { hop: work?.hop, reason: work?.reason };
+    })
+    .toSorted((left, right) => (left.hop ?? 0) - (right.hop ?? 0));
+}
+
 async function writeReceipt(envName: string, value: unknown): Promise<void> {
   const receiptPath = process.env[envName];
   if (!receiptPath) throw new Error(`${envName} is required`);
@@ -107,21 +135,22 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
 
   beforeEach(async () => {
     roots = [];
-    const { resetTaskFlowRegistryForTests } = await import("../../src/tasks/task-runtime.test-helpers.js");
     resetContinuationWorkDispatchForTests();
-    resetTaskFlowRegistryForTests({ persist: false });
     resetSystemEventsForTest();
+    clearSessionStoreCacheForTest();
     setRuntimeConfigSnapshot(cfg);
     runEmbeddedAgentMock.mockReset();
     runCliAgentMock.mockReset();
   });
 
   afterEach(async () => {
-    const { resetTaskFlowRegistryForTests } = await import("../../src/tasks/task-runtime.test-helpers.js");
     resetContinuationWorkDispatchForTests();
-    resetTaskFlowRegistryForTests({ persist: false });
     clearRuntimeConfigSnapshot();
     resetSystemEventsForTest();
+    clearSessionStoreCacheForTest();
+    // Drain worker-retained agent databases before removing their roots.
+    await closeOpenClawAgentDatabasesAsync();
+    closeOpenClawAgentDatabasesForTest();
     await Promise.all(roots.map(async (root) => await fs.rm(root, { recursive: true, force: true })));
   });
 
@@ -154,10 +183,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       log: (message) => logs.push(message),
     });
 
-    const { listTaskFlowsForOwnerKey } = await import("../../src/tasks/task-flow-registry.js");
-    const scheduledFlows = listTaskFlowsForOwnerKey(sessionKey)
-      .map((flow) => flow.stateJson as { hop?: number; reason?: string })
-      .toSorted((left, right) => (left.hop ?? 0) - (right.hop ?? 0));
+    const scheduledFlows = await listOwnerWork(sessionKey);
     expect(result).toMatchObject({ scheduledCount: 2, cappedCount: 1, capped: true });
     expect(result.chainState.currentChainCount).toBe(maxChainLength);
     expect(scheduledFlows.map((flow) => flow.hop)).toEqual([
@@ -179,13 +205,14 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       ...(result.chainState.chainId ? { chainId: result.chainState.chainId } : {}),
     });
     await replaceSessionEntry({ sessionKey, storePath }, sessionEntry);
+    clearSessionStoreCacheForTest();
     const recoveredEntry = loadSessionEntry({
       sessionKey,
       storePath,
       readConsistency: "latest",
     });
     const recoveredState = loadContinuationChainState(recoveredEntry);
-    const flowsBeforeRecoveredAttempt = listTaskFlowsForOwnerKey(sessionKey).length;
+    const flowsBeforeRecoveredAttempt = (await listOwnerWork(sessionKey)).length;
     const recoveryLogs: string[] = [];
     const recoveredAttempt = await scheduleContinuationWork({
       sessionKey,
@@ -194,7 +221,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       config: runtimeConfig,
       log: (message) => recoveryLogs.push(message),
     });
-    const flowsAfterRecoveredAttempt = listTaskFlowsForOwnerKey(sessionKey).length;
+    const flowsAfterRecoveredAttempt = (await listOwnerWork(sessionKey)).length;
     const structuredReason = checkContinuationBudget({
       sessionKey,
       chainState: recoveredState,
@@ -305,6 +332,9 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     });
 
     await runAgentAttempt({
+      preparedRunAdmission: createTestPreparedRunAdmission("rcw6-fixture-run"),
+      pluginGeneration: undefined,
+      modelRoutingProvenance: { requestedProvider: "anthropic", requestedModel: "fixture", stage: "initial" },
       providerOverride: "anthropic", originalProvider: "anthropic", modelOverride: "fixture", cfg,
       sessionEntry, sessionId: sessionEntry.sessionId, sessionKey, sessionAgentId: "main",
       lifecycleGeneration: "rcw6-fixture", sessionFile: path.join(root, "session.jsonl"),
@@ -315,10 +345,11 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       authProfileProvider: "anthropic", sessionStore, storePath, sessionHasHistory: false,
     });
 
-    const { listTaskFlowsForOwnerKey } = await import("../../src/tasks/task-flow-registry.js");
-    const flows = listTaskFlowsForOwnerKey(sessionKey)
-      .map((flow) => flow.stateJson as { hop?: number; reason?: string })
-      .toSorted((left, right) => (left.hop ?? 0) - (right.hop ?? 0));
+    const flows = await listOwnerWork(sessionKey);
+    // The attempt publishes its patched entry into the caller's session store
+    // map; that map, not the entry object passed in, is the in-memory owner.
+    const finalInMemoryCount = sessionStore[sessionKey]?.continuationChainCount;
+    clearSessionStoreCacheForTest();
     const persisted = loadSessionEntry({
       sessionKey,
       storePath,
@@ -334,7 +365,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
     expect(flows).toHaveLength(2);
     expect(flows.map((flow) => flow.hop)).toEqual([maxChainLength - 1, maxChainLength]);
     expect(flows.some((flow) => flow.reason?.includes("first-over-limit"))).toBe(false);
-    expect(sessionEntry.continuationChainCount).toBe(maxChainLength);
+    expect(finalInMemoryCount).toBe(maxChainLength);
     expect(persisted?.continuationChainCount).toBe(maxChainLength);
     expect(capNotice).toContain("1 of 3 continue_work elections were not scheduled");
 
@@ -348,7 +379,7 @@ describe("R-CW-6 disposable max-chain runtime surface", () => {
       capturedElections: 3,
       scheduledFlows: flows.map((flow) => ({ hop: flow.hop, reason: flow.reason })),
       firstOverLimitFlowPresent: false,
-      finalInMemoryCount: sessionEntry.continuationChainCount,
+      finalInMemoryCount,
       finalPersistedCount: persisted?.continuationChainCount,
       capNoticeObserved: Boolean(capNotice),
     });

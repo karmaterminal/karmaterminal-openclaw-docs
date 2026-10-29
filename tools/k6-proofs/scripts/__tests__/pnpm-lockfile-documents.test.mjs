@@ -138,6 +138,12 @@ test('the env document reader refuses YAML it does not model', () => {
     ['double-quoted scalar', 'pnpm: "12.15.0"\n', /unsupported YAML at line 1/],
     ['nested flow mapping', 'resolution: {integrity: {sha512: x}}\n', /unsupported YAML at line 1/],
     ['duplicate key', 'pnpm: 12.15.0\npnpm: 12.14.0\n', /repeats key pnpm at line 2/],
+    // YAML reads `version : 2` as a second `version`; a reader keeping the
+    // space would store a different key and miss the duplicate.
+    ['key with trailing space', 'p:\n  version: 1\n  version : 2\n', /unsupported YAML at line 3/],
+    ['flow key with trailing space', 'resolution: {integrity : sha512-x}\n', /unsupported YAML at line 1/],
+    ['merge key', 'p:\n  <<: {version: 2}\n', /unsupported YAML at line 2/],
+    ['comment marker in key', 'pnpm #note: 12.15.0\n', /unsupported YAML at line 1/],
     ['inconsistent indentation', 'importers:\n  a: 1\n   b: 2\n', /inconsistent indentation at line 3/],
     ['orphan indentation', 'a: 1\n  b: 2\n', /inconsistent indentation at line 2/],
   ];

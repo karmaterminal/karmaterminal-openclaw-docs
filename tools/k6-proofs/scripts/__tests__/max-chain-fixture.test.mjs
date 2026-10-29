@@ -285,6 +285,22 @@ test('R-CW-6 requires the candidate env document to pin the resolved pnpm versio
   );
 });
 
+test('R-CW-6 refuses an env document that hides a second pnpm version behind a spaced key', async () => {
+  const envPrefix = pnpmEnvPrefix({ pnpmIntegrity: modeledIntegrity('pnpm 12.15.0').sri })
+    .toString('utf8')
+    .replace('        version: 12.15.0\n', '        version: 12.15.0\n        version : 13.0.0\n');
+  const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-pnpm-12-spaced-key-'));
+  await writeInstalledPnpmTree(worktree, {
+    candidateLock: Buffer.concat([Buffer.from(envPrefix), LOCKFILE_DOCUMENT]),
+    installedLock: LOCKFILE_DOCUMENT,
+    packageManager: 'pnpm@12.15.0',
+  });
+  assert.throws(
+    () => assertInstalledPnpmDependencyTree(worktree, parsePinnedPnpmPackageManager(PNPM_12_15_0)),
+    /env document has unsupported YAML at line 11/,
+  );
+});
+
 test('R-CW-6 rejects a fake PATH pnpm that reports the candidate version but cannot produce the required tree metadata', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-worktree-'));
   const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-6-fake-pnpm-bin-'));

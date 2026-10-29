@@ -28,6 +28,7 @@ import {
 } from './helpers/pnpm-toolchain-fixture.mjs';
 import { chmod, mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
@@ -65,12 +66,13 @@ async function modeledPinnedToolchain({ candidateLockfile, ...toolchain }) {
   return { worktree, toolchainDir };
 }
 
-function verifyModeledToolchain({ worktree, toolchainDir }, pin) {
+function verifyModeledToolchain({ worktree, toolchainDir }, pin, candidateLockfile) {
   return verifyInstalledPinnedPnpm({
     worktreeDir: worktree,
     toolchainDir,
     pin,
     packageManagerEnv: privatePackageManagerEnv(worktree),
+    candidateLockfile: candidateLockfile ?? readFileSync(path.join(worktree, 'pnpm-lock.yaml')),
   });
 }
 
@@ -207,7 +209,7 @@ test('R-CW-5 fixture ignores fake PATH pnpm and verifies version plus integrity'
   const priorPath = process.env.PATH;
   try {
     process.env.PATH = fakeBin;
-    const pinned = resolvePinnedPnpm(worktree);
+    const pinned = resolvePinnedPnpm(worktree, LOCKFILE_DOCUMENT);
     assert.equal(pinned.pnpmVersion, '11.2.2');
     assert.equal(pinned.packageManager, PNPM_11_2_2);
     assert.equal(pinned.pnpmIntegritySha512, PNPM_11_2_2.split('+sha512.')[1]);
@@ -223,7 +225,8 @@ test('R-CW-5 fixture ignores fake PATH pnpm and verifies version plus integrity'
 test('R-CW-5 installs, binds, and runs the real pnpm 12.15.0 package the candidate pins', async () => {
   const worktree = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-real-pnpm-12-'));
   await writeFile(path.join(worktree, 'package.json'), `${JSON.stringify({ packageManager: PNPM_12_15_0 })}\n`);
-  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]));
+  const candidateLockfile = Buffer.concat([PNPM_12_ENV_PREFIX, LOCKFILE_DOCUMENT]);
+  await writeFile(path.join(worktree, 'pnpm-lock.yaml'), candidateLockfile);
   const fakeBin = await mkdtemp(path.join(os.tmpdir(), 'r-cw-5-fake-pnpm-'));
   const fakePnpm = path.join(fakeBin, 'pnpm');
   await writeFile(fakePnpm, '#!/bin/sh\necho FAKE-PNPM-RAN >&2\nexit 97\n');
@@ -231,7 +234,7 @@ test('R-CW-5 installs, binds, and runs the real pnpm 12.15.0 package the candida
   const priorPath = process.env.PATH;
   try {
     process.env.PATH = fakeBin;
-    const pinned = resolvePinnedPnpm(worktree);
+    const pinned = resolvePinnedPnpm(worktree, candidateLockfile);
     assert.equal(pinned.pnpmVersion, '12.15.0');
     assert.equal(pinned.packageManager, PNPM_12_15_0);
     assert.equal(pinned.pnpmIntegritySha512, PNPM_12_15_0.split('+sha512.')[1]);
@@ -414,6 +417,21 @@ test('R-CW-5 binds the installed native-binary package to the candidate env docu
   );
 });
 
+test('R-CW-5 takes env pins from the verified lockfile bytes, not a later read of the worktree', async () => {
+  // The worktree copy agrees with the installed toolchain; the bytes whose
+  // sha256 the fixture verified pin a different native binary.
+  const modeled = await modeledPnpm12();
+  const verified = pnpm12Lockfile({
+    platformPackages: { [PLATFORM_PACKAGE]: modeledIntegrity('the committed native binary package').sri },
+  });
+  assert.throws(
+    () => verifyModeledToolchain(modeled, PNPM_12_PIN, verified),
+    (error) => error.message.includes(
+      `${PLATFORM_PACKAGE}@12.15.0 does not match its candidate pnpm-lock.yaml env document integrity`,
+    ),
+  );
+});
+
 test('R-CW-5 refuses toolchain packages the candidate lockfile does not pin', async () => {
   const unpinned = await modeledPnpm12({ candidateLockfile: pnpm12Lockfile({ platformPackages: {} }) });
   assert.throws(
@@ -558,6 +576,8 @@ test('R-CW-5 executes only in a disposable frozen-lockfile dependency tree', asy
     'utf8',
   );
   assert.match(runner, /resolvePinnedPnpm/);
+  // Env pins must come from the lockfile bytes whose sha256 was just verified.
+  assert.match(runner, /resolvePinnedPnpm\(worktreeDir, candidateLockfile\)/);
   assert.match(runner, /--ignore-scripts/);
   assert.match(runner, /resolveCandidateLocalExecutable\(worktreeDir, 'tsx'\)/);
   assert.match(runner, /resolveCandidateLocalExecutable\(worktreeDir, 'vitest'\)/);

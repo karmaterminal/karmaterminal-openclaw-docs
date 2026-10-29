@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
 import test from 'node:test';
 import {
   resolveRcdTokenAuthoritativeReceipt,
@@ -144,4 +145,69 @@ test('tampering invalidates the signed receipt', () => {
   const receipt = resolve();
   receipt.lifecycle.delegateRunIdHash = h('f');
   assert.equal(validateRcdTokenAuthoritativeReceipt(receipt, key).valid, false);
+});
+
+/** Re-seal a receipt with the gateway key, exactly as the resolver does. */
+function reseal(receipt) {
+  const canonical = JSON.stringify({
+    schema: receipt.schema,
+    row: receipt.row,
+    authoritativeSource: receipt.authoritativeSource,
+    candidateOnly: receipt.candidateOnly,
+    foldRequiresReview: receipt.foldRequiresReview,
+    verdict: receipt.verdict,
+    failureCategory: receipt.failureCategory || null,
+    binding: receipt.binding,
+    lifecycle: receipt.lifecycle || null,
+  });
+  return {
+    ...receipt,
+    integrity: { ...receipt.integrity, signature: createHmac('sha256', key).update(canonical).digest('hex') },
+  };
+}
+
+test('the signed receipt records the bound route; a targeted return never PASSes, signed or not (#1727)', () => {
+  // Legacy evidence (no route) is the header parser's direct announce.
+  assert.equal(resolve().lifecycle.returnRoute, 'direct-announce');
+  assert.equal(resolve({ evidence: { ...evidence, return_route: 'direct-announce' } }).lifecycle.returnRoute, 'direct-announce');
+  // A targeted return correlated on both legs, with the topology present:
+  // PARTIAL, its correlation fingerprinted.
+  const correlated = {
+    ...evidence,
+    delegate_return_observed: false,
+    return_target_session_hash: null,
+    return_source_session_hash: null,
+    targeted_return_correlated: true,
+    targeted_return_run_id_hash: h('c'),
+    targeted_return_after_delegate_end_ms: 312,
+    origin_spawn_run_id_hash: h('d'),
+    source_return_observed: true,
+    source_return_run_id_hash: evidence.delegate_run_id_hash,
+  };
+  const partial = resolve({ evidence: correlated });
+  assert.equal(partial.verdict, 'PARTIAL-candidate');
+  assert.equal(partial.failureCategory, 'incomplete-or-nonunique-lifecycle');
+  assert.equal(partial.lifecycle, undefined);
+  assert.deepEqual(validateRcdTokenAuthoritativeReceipt(partial, key), { valid: true, verdict: 'PARTIAL-candidate' });
+  assert.notEqual(partial.binding.localEvidenceFingerprint,
+    resolve({ evidence: { ...correlated, targeted_return_run_id_hash: h('f') } }).binding.localEvidenceFingerprint);
+  // Evidence claiming a targeted-return bind is refused.
+  assert.equal(resolve({ evidence: {
+    ...correlated,
+    delegate_return_observed: true,
+    return_target_session_hash: h('4'),
+    return_source_session_hash: h('5'),
+    return_route: 'targeted-return',
+  } }).verdict, 'PARTIAL-candidate');
+  // A PASS lifecycle naming the targeted route is invalid even when correctly
+  // signed: a signature over a correlation cannot stand in for the join.
+  assert.deepEqual(validateRcdTokenAuthoritativeReceipt(reseal(resolve()), key), { valid: true, verdict: 'PASS-candidate' });
+  for (const returnRoute of ['targeted-return', 'log-only']) {
+    const sealed = reseal({ ...resolve(), lifecycle: { ...resolve().lifecycle, returnRoute } });
+    assert.deepEqual(validateRcdTokenAuthoritativeReceipt(sealed, key), { valid: false, reason: 'invalid-pass-lifecycle' }, returnRoute);
+  }
+  // The route field is signed.
+  const tampered = structuredClone(resolve());
+  tampered.lifecycle.returnRoute = 'targeted-return';
+  assert.equal(validateRcdTokenAuthoritativeReceipt(tampered, key).valid, false);
 });

@@ -98,6 +98,15 @@ export function resolveRcdTokenAuthoritativeReceipt({
         delegate: evidence?.delegate_run_id_hash || null,
         returnTarget: evidence?.return_target_session_hash || null,
         returnSource: evidence?.return_source_session_hash || null,
+        returnRoute: evidence?.return_route || null,
+        // Targeted-return correlation (#1727): fingerprinted, never bound.
+        targetedReturnCorrelated: evidence?.targeted_return_correlated === true,
+        targetedReturnRun: evidence?.targeted_return_run_id_hash || null,
+        targetedReturnAfterDelegateEndMs: Number.isFinite(evidence?.targeted_return_after_delegate_end_ms)
+          ? evidence.targeted_return_after_delegate_end_ms
+          : null,
+        sourceReturnRun: evidence?.source_return_run_id_hash || null,
+        originSpawnRun: evidence?.origin_spawn_run_id_hash || null,
         reason: evidence?.reason_hash || null,
         length: evidence?.reason_length || null,
       }),
@@ -155,10 +164,23 @@ export function resolveRcdTokenAuthoritativeReceipt({
       delegateRunIdHash: evidence.delegate_run_id_hash,
       returnTargetSessionHash: evidence.return_target_session_hash,
       returnSourceSessionHash: evidence.return_source_session_hash,
+      // Which route bound the return (#1727); evidence without a route came
+      // from the header parser, the direct announce, the only bound route.
+      returnRoute: evidence.return_route || 'direct-announce',
       traceFingerprint: createHash('sha256').update(correlation.traceId).digest('hex').slice(0, 16),
       chainFingerprint: createHash('sha256').update(correlation.chainId).digest('hex').slice(0, 16),
     },
   }, signingKey);
+}
+
+/**
+ * Receipts sealed before #1727 carry no route. A PASS names only the
+ * direct-announce route: a targeted return is correlation, and a signature
+ * over it cannot stand in for the missing delivery-to-run join.
+ */
+function returnRouteLifecycleValid(lifecycle) {
+  const route = lifecycle?.returnRoute;
+  return route === undefined || route === 'direct-announce';
 }
 
 export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
@@ -203,7 +225,8 @@ export function validateRcdTokenAuthoritativeReceipt(receipt, key) {
     requiredTrue.every((name) => lifecycle[name] === true) &&
     hashes.every((name) => hex(lifecycle?.[name], 16)) &&
     lifecycle.originRunIdHash !== lifecycle.delegateRunIdHash &&
-    lifecycle.returnTargetSessionHash !== lifecycle.returnSourceSessionHash;
+    lifecycle.returnTargetSessionHash !== lifecycle.returnSourceSessionHash &&
+    returnRouteLifecycleValid(lifecycle);
   return pass
     ? { valid: true, verdict: receipt.verdict }
     : { valid: false, reason: 'invalid-pass-lifecycle' };

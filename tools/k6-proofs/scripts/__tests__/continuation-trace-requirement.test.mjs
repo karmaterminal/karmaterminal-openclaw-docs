@@ -242,6 +242,27 @@ test('a continue_delegate manifest must declare its delegate mode', async () => 
   assert.deepEqual(modeFailures({ rowId: 'R-Y', invocation: { tool: 'continue_work' } }), []);
 });
 
+test('a bracket-token continue_delegate manifest declares its raw-final-text origin, and only it does', async () => {
+  const { manifestTraceReceiptFailures } = await lib();
+  const originFailures = (manifest) =>
+    manifestTraceReceiptFailures(manifest).filter((failure) => failure.includes('originSurface'));
+  // R-CD-MODEL-TOKEN as it stood on the docs#601 fire: its delegate came from a
+  // child's final-text bracket, but without the declared origin the collector
+  // asks the trace for a typed continue_delegate tool span it never holds.
+  const committed = await committedManifest('r-cd-model-token.json');
+  const { originSurface, ...undeclared } = committed.invocation;
+  assert.equal(originSurface, 'raw-final-text');
+  assert.equal(originFailures({ ...committed, invocation: undeclared }).length, 1);
+  assert.deepEqual(originFailures(committed), []);
+  assert.deepEqual(originFailures(await committedManifest('r-cd-token.json')), []);
+  // A typed row that claimed the bracket origin would have its real tool span refused.
+  const typed = { rowId: 'R-X', toolSurface: 'typed-tool', invocation: { tool: 'continue_delegate', mode: 'normal' } };
+  assert.deepEqual(originFailures(typed), []);
+  assert.equal(originFailures({ ...typed, invocation: { ...typed.invocation, originSurface: 'raw-final-text' } }).length, 1);
+  // R-CW-TOKEN reaches its bracket through sessions_spawn; the delegate rule does not apply.
+  assert.deepEqual(originFailures({ rowId: 'R-Y', toolSurface: 'bracket-token', invocation: { tool: 'sessions_spawn' } }), []);
+});
+
 test('every committed manifest satisfies the trace receipt rule', async () => {
   const { manifestTraceReceiptFailures } = await lib();
   const failures = [];

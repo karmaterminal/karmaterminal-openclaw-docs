@@ -69,9 +69,13 @@ into `PROOFS/<sha>/` without back-and-forth.
    (`continuation-trace-correlation` for `continue_work`/`continue_delegate`,
    `tool-trace-correlation` otherwise) in `liveRunSafety.requiredReceipts` and in
    `expectedReceipts` with `required: true`. Spell receipts canonically:
-   `tempo-trace` is refused. A delegate or work row should also publish its
-   reason fingerprint (`reason_hash`, `reason_length`, and `delegate_mode` for
-   delegates) so the trace can be attributed after the run from public evidence.
+   `tempo-trace` is refused. A delegate or work row's scenario must record the
+   reason fingerprint of the reason it dispatched (`reason_hash`, `reason_length`,
+   and `delegate_mode` for delegates): the collector matches the trace by it and
+   fails closed without it. A manifest template the nonce alone renders is only
+   a cross-check and must reproduce that fingerprint, so do not declare a
+   `promptTemplate` or `reason` the scenario does not dispatch. A bracket-token
+   `continue_delegate` row declares `invocation.originSurface: "raw-final-text"`.
    Verify with `node tools/k6-proofs/scripts/check-proof-row-manifests.mjs`.
 6. **If any required receipt is a telemetry receipt** (`trace-id`,
    `tempo-trace-json`, `continuation-trace-correlation`,

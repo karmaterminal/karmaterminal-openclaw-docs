@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { childSessionKeyForTokenOnly, compactTaskIdentityToken } from '../lib/row-child-correlation.mjs';
@@ -80,6 +81,9 @@ export default function () {
     depth_2_self_reported_model: null, depth_2_session_metadata: null, selection_matches: false,
     depth_1_token: depth1Token, depth_2_token: depth2Token, model_matches: false,
     return_payload: false, trace_id: null, model_classification_reason: null,
+    // The row's trace is the root hop: the depth-1 task this session dispatches,
+    // which embeds the depth-2 task, model and disposable session key (#600).
+    reason_hash: null, reason_length: null, delegate_mode: null,
     depth_1_child_session_key: null, event_depth_2_candidates: [], child_identity_conflict: false, child_identity_reason: null, preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
@@ -170,6 +174,9 @@ export default function () {
           `model=${JSON.stringify(inv.requestedModel)}, targetSessionKey=${JSON.stringify(sessionKey)}, and task=${JSON.stringify(depth2Task)}. ` +
           `After the continue_delegate tool result reports scheduled, reply exactly MODEL-CHAINED-DEPTH1-SCHEDULED ${rowNonce}. ` +
           `Do not mutate files. Do not post externally.`;
+        evidence.reason_hash = crypto.sha256(depth1Task, 'hex').slice(0, 16);
+        evidence.reason_length = depth1Task.length;
+        evidence.delegate_mode = 'normal';
         const instruction =
           `${HARNESS_MARKER} R-CD-MODEL-CHAINED-ALT nonce ${rowNonce}. ` +
           `Call continue_delegate with mode="normal", delaySeconds=${inv.delaySeconds}, and task=${JSON.stringify(depth1Task)}. ` +

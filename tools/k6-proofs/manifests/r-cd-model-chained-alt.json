@@ -36,7 +36,6 @@
       "typed-tool-depth1-spawns-depth2-model-override"
     ],
     "model": "${OPENCLAW_ALT_MODEL:-}",
-    "promptTemplate": "Proof nonce {{nonce}} depth-1: schedule one depth-2 continue_delegate with model=${OPENCLAW_ALT_MODEL:-}; depth-2 reports current time, observed model/provider, and nonce. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-MODEL-CHAINED-ALT"
   },
   "expectedReceipts": [
@@ -114,7 +113,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. The collector attributes only the depth-1 dispatch, by the manifest task rendered with the private nonce; the depth-2 dispatch that carries the model override is reviewed by hand. The census established that an accepted entry span cannot be joined to the child run it produced."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. The collector attributes only the root-hop dispatch, by the fingerprint the scenario records for the depth-1 task it dispatched (that task embeds the depth-2 task, model and disposable session key, so no manifest template renders it); the depth-2 dispatch that carries the model override is reviewed by hand. The census established that an accepted entry span cannot be joined to the child run it produced."
     },
     "enforcement": "advisory",
     "rebindable": false,

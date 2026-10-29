@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -50,7 +51,10 @@ export default function () {
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(),
     dispatch_accepted: false, scheduled_sentinel: false, child_completion_observed: false, followup_accepted: false,
     parent_internal_context_observed: false, no_channel_delivery: true, child_channel_delivery_observed: false,
-    dispatch_accepted_at_ms: null, followup_sent_at_ms: null, trace_id: null, redacted_events: [],
+    dispatch_accepted_at_ms: null, followup_sent_at_ms: null, trace_id: null,
+    // The task carries a random child token, so only this scenario can name the
+    // delegate reason the collector matches the trace by (#600).
+    reason_hash: null, reason_length: null, delegate_mode: null, redacted_events: [],
   };
   const started = Date.now();
 
@@ -68,6 +72,7 @@ export default function () {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
         const task = `Proof ${rowNonce}: return exactly ${childToken}. Do not mutate files. Do not post to any channel.`;
+        evidence.reason_hash = crypto.sha256(task, 'hex').slice(0, 16); evidence.reason_length = task.length; evidence.delegate_mode = inv.mode;
         const instruction = `${HARNESS_MARKER} R-CD-SILENT proof nonce ${rowNonce}. Call continue_delegate with task=${JSON.stringify(task)}, mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. After the continue_delegate tool result reports scheduled, reply exactly RCDS-SCHEDULED ${rowNonce}. Do not say ${childToken} in your visible reply.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);

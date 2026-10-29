@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 
@@ -18,7 +19,7 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
 function isRunnerProvisionedSession(key) { return String(key || '').includes(':subagent:continuation-'); }
 function disposableSubagentKey(rowNonce) { return `agent:main:subagent:continuation-r-cw-4-${rowNonce}`.toLowerCase().replace(/[^a-z0-9:._-]/g, '-'); }
-function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix }; }
+function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'R-CW-4 hop1 {{nonce}}; on wake call hop2' }; }
 
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
@@ -31,14 +32,17 @@ export default function () {
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) { const errors = validateManifest(manifest); if (errors.length) console.warn('Manifest validation warnings: ' + errors.join('; ')); }
   const inv = invocationCfg();
-  const evidence = { row:'R-CW-4', manifest_loaded:!!manifest, nonce:rowNonce, seat, requestedSessionKey, sessionKey, session_created:false, created_session_key:null, candidateSha:manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started:new Date().toISOString(), dispatch_accepted:false, hop1_scheduled:false, hop2_scheduled:false, hop3_scheduled:false, final_done:false, hop_events:[], trace_id:null, redacted_events:[] };
+  // The row trace is hop 1, the only election the dispatch turn makes; the
+  // manifest reason renders it from the nonce (#600).
+  const hop1Reason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
+  const evidence = { row:'R-CW-4', manifest_loaded:!!manifest, nonce:rowNonce, seat, requestedSessionKey, sessionKey, session_created:false, created_session_key:null, candidateSha:manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started:new Date().toISOString(), dispatch_accepted:false, hop1_scheduled:false, hop2_scheduled:false, hop3_scheduled:false, final_done:false, hop_events:[], trace_id:null, reason_hash:crypto.sha256(hop1Reason, 'hex').slice(0, 16), reason_length:hop1Reason.length, redacted_events:[] };
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
-        const instruction = `${HARNESS_MARKER} R-CW-4 proof nonce ${rowNonce}. This is a sequential continue_work proof. On this initial turn: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop1 ${rowNonce}; on wake call hop2". After tool result scheduled, reply exactly CW4-HOP1-SCHEDULED ${rowNonce}. On the first continuation wake: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop2 ${rowNonce}; on wake call hop3"; after scheduled, reply exactly CW4-HOP2-SCHEDULED ${rowNonce}. On the second continuation wake: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop3 ${rowNonce}; on wake finish"; after scheduled, reply exactly CW4-HOP3-SCHEDULED ${rowNonce}. On the third continuation wake: reply exactly CW4-DONE ${rowNonce}. No file mutations, no external posts.`;
+        const instruction = `${HARNESS_MARKER} R-CW-4 proof nonce ${rowNonce}. This is a sequential continue_work proof. On this initial turn: call continue_work with delaySeconds=${inv.delaySeconds} and reason="${hop1Reason}". After tool result scheduled, reply exactly CW4-HOP1-SCHEDULED ${rowNonce}. On the first continuation wake: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop2 ${rowNonce}; on wake call hop3"; after scheduled, reply exactly CW4-HOP2-SCHEDULED ${rowNonce}. On the second continuation wake: call continue_work with delaySeconds=${inv.delaySeconds} and reason="R-CW-4 hop3 ${rowNonce}; on wake finish"; after scheduled, reply exactly CW4-HOP3-SCHEDULED ${rowNonce}. On the third continuation wake: reply exactly CW4-DONE ${rowNonce}. No file mutations, no external posts.`;
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: instruction, idempotencyKey: `${inv.idempotencyKeyPrefix}-DISPATCH-${rowNonce}` });
       }, 500);
       socket.setTimeout(() => socket.close(), k6TimeoutMs(Math.max(600000, (inv.delaySeconds * 4 + 360) * 1000)));

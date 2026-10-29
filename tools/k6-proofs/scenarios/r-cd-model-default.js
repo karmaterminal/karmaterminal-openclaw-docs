@@ -2,6 +2,7 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
@@ -55,7 +56,7 @@ export default function() {
   const rowNonce = nonce('R-CD-MODEL-DEFAULT');
   const inv = manifest?.invocation || {};
   const taskIdentityToken = compactTaskIdentityToken('MDEF', rowNonce);
-  const childTask = renderRowTaskTemplate(DEFAULTS.promptTemplate, rowNonce);
+  const childTask = renderRowTaskTemplate(inv.promptTemplate || DEFAULTS.promptTemplate, rowNonce);
   // Optional seat pin. When set, the parent's own session model must equal it;
   // a deliberately wrong value is the live negative control (must FAIL).
   const expectedModel = __ENV.OPENCLAW_EXPECTED_MODEL ? normalizeModel(__ENV.OPENCLAW_EXPECTED_MODEL) : null;
@@ -96,6 +97,11 @@ export default function() {
     child_self_reported_model: null,
     child_session_metadata: null,
     task_identity_token: taskIdentityToken,
+    // Fingerprint of the task this row dispatches. The collector matches the
+    // trace by it and checks it against the manifest template (#600).
+    reason_hash: null,
+    reason_length: null,
+    delegate_mode: null,
     event_child_candidates: [],
     child_identity_conflict: false,
     child_identity_reason: null,
@@ -137,6 +143,9 @@ export default function() {
           socket.close();
           return;
         }
+        evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
+        evidence.reason_length = childTask.length;
+        evidence.delegate_mode = 'normal';
         const instruction =
           HARNESS_MARKER + ' R-CD-MODEL-DEFAULT nonce ' + rowNonce + '. ' +
           'Call continue_delegate with task=' + JSON.stringify(childTask) +

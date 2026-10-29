@@ -30,7 +30,7 @@
     "tool": "continue_delegate",
     "mode": "post-compaction",
     "delaySeconds": 0,
-    "promptTemplate": "Post-compaction lifeboat nonce {{nonce}}: you are a post-compaction delegate. Reply with LIFEBOAT-RECEIVED and the nonce. Do not mutate files.",
+    "promptTemplate": "R-CD-3 post-compaction lifeboat nonce {{nonce}}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED {{nonce}}. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-3"
   },
   "prerequisites": {
@@ -92,7 +92,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. The scenario does not publish that fingerprint in public evidence, so only the in-run collector, which renders the manifest task with the private nonce, can attribute the trace."
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. The scenario records the fingerprint of the staged lifeboat task, which the manifest template reproduces from the nonce. At karmaterminal/openclaw 293c977f62 the product releases a post-compaction lifeboat from post-compaction-delegate-delivery.ts without a continuation.delegate.dispatch or .fire span (only continuation.compaction.released, which carries no reason), so no trace carries that fingerprint: the collector stays fail-closed and the trace receipts stay pending until the product emits the delegate spans on that path."
     },
     "enforcement": "advisory",
     "rebindable": false,

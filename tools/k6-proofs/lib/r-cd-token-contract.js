@@ -324,19 +324,23 @@ function contentText(message) {
 //
 // Two product routes carry a token delegate's return to the origin child:
 //
-// - direct-announce: deliverSubagentAnnouncement writes a user row on the
-//   requester headed "[Inter-session message] ... sourceTool=subagent_announce
-//   sourceSession=<delegate child>". The header binds the source on the row.
+// - direct-announce: deliverSubagentAnnouncement delivers to the requester
+//   with an "[Inter-session message] sourceSession=<delegate child> ...
+//   sourceTool=subagent_announce" header, which binds the source on the row.
+//   Older products published that row; at 8ba08c76d8 display projection hides
+//   it (chat-display-projection.history.ts:413-415).
 // - targeted-return: since openclaw 2273ef64d5 (2026-09-12) every pending
 //   delegate carries a recipient-authority binding for its requester, so
 //   routeSubagentContinuationReturn handles every delegate return: a durable
 //   systemEvent row plus a queued system event on the origin child, then a
-//   `delegate-return` wake that runs an ordinary session-event turn there
-//   (logged `[continuation:targeted-return] Delivered to <origin> from
-//   <delegate>`). The delivered text is hidden from session.message and
-//   chat.history (input rows of an event turn), and the woken run's lifecycle
-//   names no delegate. At 8ba08c76d8 the direct-announce row is never written
-//   for a continuation delegate.
+//   `delegate-return` wake (logged `[continuation:targeted-return] Delivered
+//   to <origin> from <delegate>`). The wake hands the return text to an
+//   ordinary session-event turn as its user message (provenance
+//   internal_system / continuation / the delegate run). Display projection
+//   empties that runtime-context row and hides it from session.message and
+//   chat.history (history.ts:416-421), and the woken run's lifecycle names no
+//   delegate. The direct-announce path is not reached for a continuation
+//   delegate.
 //
 // The targeted return binds the same four things the header did, from the
 // surfaces that are visible:

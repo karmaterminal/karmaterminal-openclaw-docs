@@ -77,7 +77,7 @@
     {
       "name": "parent-return-event",
       "required": true,
-      "description": "The exact nonce-bound delegate return sentinel is observed on the parent"
+      "description": "The exact nonce-bound delegate return (RCDT-RETURN-<tag>) is bound to the origin child as target and the token delegate as source. Direct announce: an inter-session subagent_announce row whose sourceSession is the delegate. Targeted return (every delegate since openclaw 2273ef64d5): the origin's woken run (lifecycle start on the origin, not its bracket run) answers the sentinel, and the delegate's own transcript answers it in the delegate run (karmaterminal/openclaw-bootstrap#1727)"
     },
     {
       "name": "tempo-trace-json",
@@ -234,8 +234,8 @@
       ]
     },
     "controls": {
-      "positive": "A disposable raw-final-text origin child emits the terminal bracket, exactly one token-scheduled delegate task identity appears in the authoritative ledger, it completes, and the nonce-bound return sentinel reaches the parent.",
-      "negative": "A message-tool-body surface cannot satisfy the row and stays PARTIAL-candidate; a typed continue_delegate tool origin in the same trace disqualifies the bracket claim; more than one nonce-bound delegate identity through the settle window fails the row.",
+      "positive": "A disposable raw-final-text origin child emits the terminal bracket, exactly one token-scheduled delegate task identity appears in the authoritative ledger, it completes, and the nonce-bound return is bound to the origin child (target) and the delegate child (source) on the direct-announce or targeted-return route.",
+      "negative": "A message-tool-body surface cannot satisfy the row and stays PARTIAL-candidate; a typed continue_delegate tool origin in the same trace disqualifies the bracket claim; more than one nonce-bound delegate identity through the settle window fails the row; a return sentinel in another session, from another run, from the origin's bracket run, from a run that never started on the origin, or without the delegate source leg never binds.",
       "notes": "The negative control is currently an absence test. R-OBS-CONT-PROVENANCE converts it into a positive origin assertion."
     },
     "backendUnavailable": {

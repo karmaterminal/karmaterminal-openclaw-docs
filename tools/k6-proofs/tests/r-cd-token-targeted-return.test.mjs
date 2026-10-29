@@ -22,26 +22,36 @@
 //   subagent_announce) is never reached for a continuation delegate.
 // - enqueueContinuationReturnDeliveries (auto-reply/continuation/targeting.ts
 //   :175-381) writes a durable systemEvent row and queues a system event whose
-//   text is the "[Internal task completion event]" block (session_key: <delegate
-//   child>, then the child result carrying RCDT-RETURN-<tag>), then requests a
-//   `delegate-return` wake on the origin child (requestContinuationWake ->
-//   enqueueSessionEventForHost, continuation-wake.ts:186-206).
-// - the wake is an ordinary session-event turn on the origin child. Its input
-//   rows (the session-event row and the runtime-context row that carries the
-//   delivered return text) are hidden from session.message and chat.history,
-//   and its lifecycle data names no delegate (the same shape R-CD-2 binds,
-//   lib/gateway-lifecycle.js). What a subscriber sees is that run's lifecycle
-//   start/end on the origin key and the run's own assistant answer, stamped
-//   __openclaw.runId.
+//   text is the runtime-context "[Internal task completion event]" block
+//   (session_key: <delegate child>, then the child result carrying
+//   RCDT-RETURN-<tag>), then requests a `delegate-return` wake on the origin
+//   child after a 250 ms coalesce (continuation-wake.ts:41, :186-206).
+// - the wake hands that text to an ordinary session-event turn on the origin
+//   child as its own user message (session-event-context.ts:87-110), with
+//   provenance { internal_system, sourceTool: "continuation", runId: <delegate
+//   run> }. Display projection strips the runtime-context block, leaving an
+//   empty user row that is hidden from session.message and chat.history
+//   (chat-display-projection.history.ts:416-421); runtime-context carriers are
+//   hidden too (:373-378). The run's lifecycle data names no delegate (the
+//   shape R-CD-2 binds, lib/gateway-lifecycle.js). What a subscriber sees is
+//   that run's lifecycle start/end on the origin key and the run's own
+//   assistant answer, stamped __openclaw.runId.
 // - the delegate child is spawned with the default cleanup "keep"
 //   (subagent-spawn-request.ts:100): its own transcript keeps its answer,
-//   stamped with its own run. The origin child is cleanup "delete": once its
-//   held announce completes, its transcript is gone.
+//   stamped with its own run. The origin child is cleanup "delete": the
+//   delegate's cleanup resumes the origin's held announce, which delivers to
+//   the parent and deletes the origin in its finally block
+//   (subagents/announce/subagent-announce.ts:659-677). Nothing orders that
+//   delete after the wake: it can follow the woken turn (the live journal),
+//   abort it, or pre-empt it ("Session event origin is missing",
+//   session-event-handoff.ts:499-501). After the delete the origin transcript
+//   reads empty.
 // The scenario bound the return only to an "[Inter-session message] ...
 // sourceTool=subagent_announce sourceSession=<delegate child>" user row (both
 // `bound-session-message-return` and `bound-target-transcript-return` used that
-// one parser). This product never writes that row for a delegate, so the row
-// could never bind.
+// one parser). This product never writes that row for a delegate, and display
+// projection hides it even where the direct announce still runs
+// (chat-display-projection.history.ts:413-415), so the row could never bind.
 //
 // Each test fires the real R-CD-TOKEN scenario (k6 runtime stubbed, see
 // helpers/k6-node-runtime.mjs) against a gateway scripted on the shapes above,
@@ -151,6 +161,7 @@ function scriptedGateway({
   delegateAnswerRunId = DELEGATE_RUN,
   originHistory = () => [],
   originDeleted = true,
+  deleteAtRound = ORIGIN_DELETED_ROUND,
   deliverUnsubscribed = false,
 }) {
   const state = {
@@ -177,7 +188,7 @@ function scriptedGateway({
       ? [stamped(text('assistant', delegateAnswer(state)), delegateAnswerRunId)]
       : []),
   ];
-  const deleted = () => originDeleted && state.round >= ORIGIN_DELETED_ROUND;
+  const deleted = () => originDeleted && state.round >= deleteAtRound;
   return (frame) => {
     if (frame?.type !== 'req') return [];
     switch (frame.method) {
@@ -453,6 +464,13 @@ test('negative: a return without the delegate source binding does not bind', asy
 
 test('the hidden delivery alone (no woken answer) does not bind', async () => {
   const fired = await fireRcdToken({ wake: (state) => [lifecycle({ runId: WAKE_RUN, sessionKey: ORIGIN, phase: 'start' })] });
+  assertReturnUnbound(fired);
+});
+
+test('cleanup "delete" that pre-empts the wake leaves nothing to bind (fail closed)', async () => {
+  // The origin's resumed announce deletes it before the 250 ms wake hands off:
+  // no woken run, an empty transcript, and the row stays PARTIAL.
+  const fired = await fireRcdToken({ wake: () => [], deleteAtRound: DELEGATE_DONE_ROUND + 1 });
   assertReturnUnbound(fired);
 });
 

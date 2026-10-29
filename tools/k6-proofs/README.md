@@ -668,6 +668,65 @@ The bracket scanner fires only on scanned-final-text (terminal position). Seats 
 
 This is **declared in the manifest before the run**, not a post-hoc excuse. The `seatClassExpectation` block in `r-cd-token.json` states the expected outcome per seat class.
 
+### Return contract (R-CD-TOKEN, karmaterminal/openclaw-bootstrap#1727)
+
+Since openclaw `2273ef64d5` (2026-09-12, "restore continuation substrate on current upstream"),
+`createDelegateRecord` binds every pending delegate to its requester as recipient. A token
+delegate's return to the origin child is therefore always a **targeted return**
+(`routeSubagentContinuationReturn`), never the direct announce. At `8ba08c76d8` the route works
+like this:
+
+- a durable `systemEvent` row and a queued system event for the origin child, then a
+  `delegate-return` wake (journal: `[continuation:targeted-return] Delivered to <origin> from
+  <delegate>`);
+- the wake runs an ordinary session-event turn on the origin child. Its user message is the
+  return text (`[Internal task completion event]`, `session_key: <delegate child>`, the child
+  result), with provenance `internal_system` / `continuation` / the delegate run;
+- display projection empties that runtime-context row and hides it from `session.message` and
+  `chat.history`. The run's lifecycle names no delegate. A subscriber sees only the woken run's
+  lifecycle on the origin key and that run's own assistant answer, stamped `__openclaw.runId`.
+
+The row binds the return to the same four things as before: (a) the origin child as target,
+(b) the delegate child as source, (c) the exact `RCDT-RETURN-<tag>` sentinel, and (d) this row
+run. It accepts either route.
+
+- **direct-announce** (unchanged): a user row on the origin headed `[Inter-session message]
+  ... sourceTool=subagent_announce` whose `sourceSession` is the delegate child. Older products
+  published it. At `8ba08c76d8` display projection hides it even where the direct announce still
+  runs, and a continuation delegate never takes that path.
+- **targeted-return**: both legs are required.
+  - Target leg: the woken run's assistant answer on the origin key carries the exact sentinel,
+    word-bounded and once, with no bracket or harness text. Its run started on the origin (a
+    lifecycle start) and is not the origin's own bracket run, which is the first run the
+    observer reports for the origin.
+  - Source leg: the delegate child's own transcript answers the same sentinel in an assistant row
+    stamped with the delegate's run (`lastRunId`). The delegate is spawned with the default
+    cleanup `keep`, so it is still readable after the return.
+  - Evidence records `return_route`, `return_run_id_hash`, `origin_spawn_run_id_hash`,
+    `source_return_run_id_hash`. Classification requires the route's bindings.
+
+A sentinel from another session, another run's nonce, the origin's bracket run, a run that never
+started on the origin, an unstamped row, or a return with no delegate leg never binds. Because the
+delivery itself is invisible, the origin child is told in its spawn task: *on a later turn, only
+after an internal task completion contains `RCDT-RETURN-<tag>`, reply exactly
+`RCDT-RETURN-<tag>`*. That instruction comes before the terminal bracket, and the bracket turn is
+excluded by run identity.
+
+`cleanup: "delete"` on the origin: the delegate's cleanup resumes the origin's held announce,
+which delivers to the parent and then deletes the origin. Nothing orders that delete after the
+wake. **The live route (`bound-session-message-return`) is the primary receipt.** Transcript
+recovery (`bound-target-transcript-return`, the origin's `chat.history` after its bracket run,
+exactly one answer, plus the source leg) works only while the origin still exists. If the delete
+pre-empts the wake, no woken answer exists and the row stays PARTIAL.
+
+The offline fossil is `tests/r-cd-token-targeted-return.test.mjs`. It fires the real scenario
+against a gateway scripted on the `8ba08c76d8` route, modeled on live run 20261029T133725Z.
+
+Stale design text in openclaw (an openclaw change, not this repo's):
+`docs/design/continue-work-signal-v2.md:211` says normal-mode delegates with no explicit target
+"keep the existing visible announce behavior", and `:513` says "the existing announce path delivers
+untargeted results back to the dispatching session". Both stopped being true at `2273ef64d5`.
+
 ## Row coverage
 
 `live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.

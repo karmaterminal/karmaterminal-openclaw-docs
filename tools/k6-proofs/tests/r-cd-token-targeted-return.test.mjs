@@ -104,11 +104,13 @@ const SENTINEL = `RCDT-RETURN-${TAG}`;
 const event = (name, payload) => ({ type: 'event', event: name, payload });
 
 function lifecycle({ runId, sessionKey, phase, data = {} }) {
-  return event('agent', { runId, stream: 'lifecycle', ts: Date.now(), sessionKey, agentId: 'main', data: { phase, ...data } });
+  const at = phase === 'start' ? { startedAt: Date.now() } : { endedAt: Date.now() };
+  return event('agent', { runId, stream: 'lifecycle', ts: Date.now(), sessionKey, agentId: 'main', data: { phase, ...at, ...data } });
 }
 
-function stamped(message, runId) {
-  return runId ? { ...message, __openclaw: { runId } } : message;
+/** A transcript row as the product stamps it: its run and its timestamp. */
+function stamped(message, runId, timestamp = Date.now()) {
+  return { ...message, timestamp, ...(runId ? { __openclaw: { runId } } : {}) };
 }
 
 function transcript({ sessionKey, message, runId }) {
@@ -121,13 +123,13 @@ const text = (role, body) => ({ role, content: [{ type: 'text', text: body }] })
  * The 8ba08c76d8 targeted return as a subscriber of the origin child sees it:
  * the woken session-event run's lifecycle start, its own assistant answer and
  * its lifecycle end. The delivery row itself is hidden from session.message.
+ * `order: 'answer-first'` delivers the answer ahead of the lifecycle start.
  */
-function targetedReturnWake({ sentinel, sessionKey = ORIGIN, answerRunId = WAKE_RUN, startRunId = WAKE_RUN, answer }) {
-  return [
-    lifecycle({ runId: startRunId, sessionKey, phase: 'start', data: { startedAt: Date.now() } }),
-    transcript({ sessionKey, runId: answerRunId, message: text('assistant', answer ?? sentinel) }),
-    lifecycle({ runId: startRunId, sessionKey, phase: 'end', data: { aborted: false, stopReason: 'stop', executionSettled: true } }),
-  ];
+function targetedReturnWake({ sentinel, sessionKey = ORIGIN, answerRunId = WAKE_RUN, startRunId = WAKE_RUN, answer, order = 'start-first' }) {
+  const start = lifecycle({ runId: startRunId, sessionKey, phase: 'start' });
+  const reply = transcript({ sessionKey, runId: answerRunId, message: text('assistant', answer ?? sentinel) });
+  const end = lifecycle({ runId: startRunId, sessionKey, phase: 'end', data: { aborted: false, stopReason: 'stop', executionSettled: true } });
+  return order === 'answer-first' ? [reply, start, end] : [start, reply, end];
 }
 
 /** The legacy direct-announce delivery (deliverSubagentAnnouncement) on the origin child. */
@@ -143,52 +145,92 @@ function directAnnounce({ sentinel, sourceSession = DELEGATE }) {
 /**
  * A gateway scripted on the 8ba08c76d8 shapes. The origin child lists under the
  * disposable parent with the row's label; the token delegate lists under the
- * origin child with its own spawn task. Wake frames arrive with the observer
- * round after the delegate finished, only on a session the scenario subscribed.
+ * origin child with its own spawn task. Session rows clear lastRunId while a
+ * run is active and set it (and endedAt) when the run settles
+ * (session-run-lifecycle-projection.ts:215, :274-281).
+ *
+ * Delivery follows the product: session.message reaches only subscribers of
+ * its session (server-session-events.ts:598), while a visible run's agent
+ * events reach every operator connection (server-chat.ts:836-841). The origin
+ * bracket run's and the delegate run's lifecycle events are broadcast too.
  *
  * Options shape the product evidence:
  * - wake(state): frames for the origin wake (default: targeted return)
- * - delegateAnswer / delegateAnswerRunId: the delegate's own final answer
+ * - wakeAtRound: the observer round the wake frames arrive with (default:
+ *   the round after the delegate finished)
+ * - delegateAnswer / delegateAnswerRunId / delegateAnswerRound: the delegate's
+ *   own final answer, its run, and when its transcript shows it
  * - originHistory(state): extra origin transcript rows after the bracket run
- * - originDeleted: cleanup "delete" removes the origin after its announce
- * - deliverUnsubscribed: also hand the scenario wake frames for sessions it
- *   never subscribed to, so the parser (not the gateway) must reject them
+ * - originDeleted / deleteAtRound: cleanup "delete" removes the origin
+ * - deliverUnsubscribed: also hand the scenario session.message frames for
+ *   sessions it never subscribed to, so the parser (not the gateway) rejects them
+ * - preIdentityFrames: frames broadcast with the dispatch, before the origin
+ *   child is known
  */
 function scriptedGateway({
   clock,
   wake = (state) => targetedReturnWake({ sentinel: state.sentinel }),
+  wakeAtRound = DELEGATE_DONE_ROUND + 1,
   delegateAnswer = (state) => state.sentinel,
   delegateAnswerRunId = DELEGATE_RUN,
+  delegateAnswerRound = DELEGATE_DONE_ROUND,
   originHistory = () => [],
   originDeleted = true,
   deleteAtRound = ORIGIN_DELETED_ROUND,
   deliverUnsubscribed = false,
+  preIdentityFrames = [],
 }) {
   const state = {
     parentKey: null, tag: null, sentinel: null, originTitle: null, childTask: null, delegateTask: null,
-    round: 0, woke: false, subscribed: new Set(), wakeFrames: [],
+    round: 0, woke: false, subscribed: new Set(), wakeFrames: [], times: {},
   };
   const ok = (frame, payload) => ({ type: 'res', id: frame.id, ok: true, payload });
-  const originRow = () => ({
-    key: ORIGIN, spawnedBy: state.parentKey, label: state.originTitle, kind: 'subagent',
-    status: state.round >= ORIGIN_DONE_ROUND ? 'done' : 'running', lastRunId: state.round >= DELEGATE_DONE_ROUND + 1 && state.woke ? WAKE_RUN : ORIGIN_RUN,
-  });
+  const originRow = () => {
+    const wakeActive = state.woke && state.round < WAKE_END_ROUND;
+    const lastRunId = state.round < ORIGIN_DONE_ROUND || wakeActive
+      ? undefined
+      : state.woke ? WAKE_RUN : ORIGIN_RUN;
+    return {
+      key: ORIGIN, spawnedBy: state.parentKey, label: state.originTitle, kind: 'subagent',
+      status: state.round >= ORIGIN_DONE_ROUND && !wakeActive ? 'done' : 'running',
+      ...(lastRunId ? { lastRunId } : {}),
+      ...(state.times.originEnded ? { endedAt: state.times.originEnded } : {}),
+    };
+  };
   const delegateRow = () => ({
     key: DELEGATE, spawnedBy: ORIGIN, kind: 'subagent',
-    status: state.round >= DELEGATE_DONE_ROUND ? 'done' : 'running', lastRunId: DELEGATE_RUN,
+    status: state.round >= DELEGATE_DONE_ROUND ? 'done' : 'running',
+    ...(state.round >= DELEGATE_DONE_ROUND ? { lastRunId: DELEGATE_RUN, endedAt: state.times.delegateEnded } : {}),
   });
   const originTranscript = () => [
-    stamped(text('user', `[Subagent Task] ${state.childTask}`), null),
-    stamped(text('assistant', `RCDT-HOP1-${state.tag}\n[[CONTINUE_DELEGATE: ${state.delegateTask} +10s]]`), ORIGIN_RUN),
+    stamped(text('user', `[Subagent Task] ${state.childTask}`), null, state.times.accepted),
+    stamped(text('assistant', `RCDT-HOP1-${state.tag}\n[[CONTINUE_DELEGATE: ${state.delegateTask} +10s]]`), ORIGIN_RUN, state.times.accepted + 1),
     ...originHistory(state),
   ];
   const delegateTranscript = () => [
-    stamped(text('user', `[Subagent Task] [continuation:chain-hop:1] Delegated task (turn 1/200): ${state.delegateTask}`), null),
-    ...(state.round >= DELEGATE_DONE_ROUND && delegateAnswer(state) !== null
-      ? [stamped(text('assistant', delegateAnswer(state)), delegateAnswerRunId)]
+    stamped(text('user', `[Subagent Task] [continuation:chain-hop:1] Delegated task (turn 1/200): ${state.delegateTask}`), null, state.times.delegateSpawned),
+    ...(state.round >= delegateAnswerRound && delegateAnswer(state) !== null
+      ? [stamped(text('assistant', delegateAnswer(state)), delegateAnswerRunId, state.times.delegateEnded - 1)]
       : []),
   ];
   const deleted = () => originDeleted && state.round >= deleteAtRound;
+  // Lifecycle broadcasts of the origin bracket run and of the delegate run.
+  const broadcasts = () => {
+    const frames = [];
+    if (state.round === ORIGIN_DONE_ROUND) {
+      state.times.originEnded = Date.now();
+      frames.push(lifecycle({ runId: ORIGIN_RUN, sessionKey: ORIGIN, phase: 'end' }));
+    }
+    if (state.round === DELEGATE_SPAWN_ROUND) {
+      state.times.delegateSpawned = Date.now();
+      frames.push(lifecycle({ runId: DELEGATE_RUN, sessionKey: DELEGATE, phase: 'start' }));
+    }
+    if (state.round === DELEGATE_DONE_ROUND) {
+      state.times.delegateEnded = Date.now();
+      frames.push(lifecycle({ runId: DELEGATE_RUN, sessionKey: DELEGATE, phase: 'end' }));
+    }
+    return frames;
+  };
   return (frame) => {
     if (frame?.type !== 'req') return [];
     switch (frame.method) {
@@ -209,7 +251,13 @@ function scriptedGateway({
         assert.ok(state.originTitle && state.childTask && state.tag && state.delegateTask, 'the dispatch names the origin label, child task and delegate task');
         state.sentinel = `RCDT-RETURN-${state.tag}`;
         clock.set(ACCEPTED_AT_MS);
-        return [ok(frame, { runId: frame.params.idempotencyKey, status: 'started' })];
+        state.times.accepted = ACCEPTED_AT_MS;
+        return [
+          ok(frame, { runId: frame.params.idempotencyKey, status: 'started' }),
+          ...preIdentityFrames,
+          // The origin's bracket run starts before the observer has seen it.
+          lifecycle({ runId: ORIGIN_RUN, sessionKey: ORIGIN, phase: 'start' }),
+        ];
       }
       case 'sessions.list': {
         const requester = frame.params?.spawnedBy;
@@ -217,14 +265,13 @@ function scriptedGateway({
           state.round += 1;
           clock.set(ACCEPTED_AT_MS + state.round * ROUND_MS);
           const sessions = state.round >= 1 && !deleted() ? [originRow()] : [];
-          const replies = [ok(frame, { sessions, hasMore: false })];
-          if (!state.woke && state.round >= DELEGATE_DONE_ROUND + 1) {
+          const replies = [ok(frame, { sessions, hasMore: false }), ...broadcasts()];
+          if (!state.woke && state.round >= wakeAtRound) {
             state.woke = true;
             state.wakeFrames = wake(state);
           }
           if (state.wakeFrames.length) {
-            // Broadcasts reach only subscribers of the frame's session.
-            const reaches = (f) => deliverUnsubscribed || state.subscribed.has(f.payload.sessionKey);
+            const reaches = (f) => f.event === 'agent' || deliverUnsubscribed || state.subscribed.has(f.payload.sessionKey);
             const deliverable = state.wakeFrames.filter(reaches);
             state.wakeFrames = state.wakeFrames.filter((f) => !reaches(f));
             replies.push(...deliverable);
@@ -370,6 +417,44 @@ test('agent lifecycle broadcasts from other sessions cannot crowd out the woken 
     deliverUnsubscribed: true,
   });
   assertReturnBound(fired, 'bound-session-message-return');
+});
+
+test('lifecycle broadcasts before the origin is known cannot crowd out the woken run', async () => {
+  const fired = await fireRcdToken({
+    preIdentityFrames: Array.from({ length: 25 }, (_, i) =>
+      lifecycle({ runId: `early-run-${i}`, sessionKey: `agent:main:early-${i}`, phase: 'start' })),
+  });
+  assertReturnBound(fired, 'bound-session-message-return');
+});
+
+test('delivery order: an answer ahead of its lifecycle start, or ahead of the source leg, still binds', async () => {
+  for (const options of [
+    { wake: (state) => targetedReturnWake({ sentinel: state.sentinel, order: 'answer-first' }) },
+    // The delegate's transcript shows its answer a few rounds after the wake.
+    { delegateAnswerRound: DELEGATE_DONE_ROUND + 4 },
+  ]) {
+    const fired = await fireRcdToken(options);
+    assertReturnBound(fired, 'bound-session-message-return');
+  }
+});
+
+test('negative: an origin run that started before the delegate finished does not bind', async () => {
+  // The origin already knows the sentinel (its own task carries it), so a
+  // later origin turn alone proves nothing: the woken run must start after the
+  // delegate run ended (row endedAt), the order the targeted return implies.
+  for (const wakeAtRound of [6, DELEGATE_SPAWN_ROUND + 1]) {
+    const fired = await fireRcdToken({ wakeAtRound });
+    assertReturnUnbound(fired);
+  }
+  // The same on transcript recovery: a sentinel answer written before the
+  // delegate ended, in a run other than the bracket run.
+  const early = ACCEPTED_AT_MS + 6 * ROUND_MS;
+  const fired = await fireRcdToken({
+    originDeleted: false,
+    wake: () => [],
+    originHistory: (state) => [stamped(text('assistant', state.sentinel), 'pre-delegate-run', early)],
+  });
+  assertReturnUnbound(fired);
 });
 
 test('both forms: the direct-announce delivery still binds', async () => {

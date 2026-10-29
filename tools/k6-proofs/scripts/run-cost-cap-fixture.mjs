@@ -280,6 +280,16 @@ export function resolvePinnedPnpm(worktreeDir) {
   if (!install.ok) {
     throw new Error(`cannot install candidate-pinned pnpm: ${install.stderr.trim()}`);
   }
+  return verifyInstalledPinnedPnpm({
+    worktreeDir,
+    toolchainDir,
+    pin: { packageManager, pnpmVersion, integrityHex },
+    packageManagerEnv,
+  });
+}
+
+export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, packageManagerEnv }) {
+  const { packageManager, pnpmVersion, integrityHex } = pin;
   const toolchainLock = JSON.parse(
     readFileSync(path.join(toolchainDir, 'node_modules', '.package-lock.json'), 'utf8'),
   );
@@ -319,6 +329,15 @@ export function resolvePinnedPnpm(worktreeDir) {
     pnpmScript: resolvedPnpmScript,
     packageManagerEnv,
   };
+}
+
+export function assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLockfile) {
+  const virtualStoreLock = path.join(worktreeDir, 'node_modules', '.pnpm', 'lock.yaml');
+  const lockfileSha256 = createHash('sha256').update(candidateLockfile).digest('hex');
+  if (!existsSync(virtualStoreLock) || fileSha256(virtualStoreLock) !== lockfileSha256) {
+    throw new Error('disposable pnpm virtual-store lock does not byte-match the committed candidate lockfile');
+  }
+  return { virtualStoreLockSha256: fileSha256(virtualStoreLock) };
 }
 
 function resolveCandidateLocalExecutable(worktreeDir, name) {
@@ -558,6 +577,10 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     if (lockfileSha256 !== sourceLockfileSha256) {
       throw new Error('disposable candidate lockfile does not match the verified source lockfile');
     }
+    const candidateLockfile = readFileSync(path.join(worktreeDir, 'pnpm-lock.yaml'));
+    if (createHash('sha256').update(candidateLockfile).digest('hex') !== lockfileSha256) {
+      throw new Error('disposable candidate lockfile changed after its integrity check');
+    }
     const packageManager = resolvePinnedPnpm(worktreeDir);
     assertReservedPathAbsent(worktreeDir, '.r-cw-5-pnpm-store');
     const pnpmStoreDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-pnpm-store');
@@ -582,10 +605,7 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     if (!existsSync(dependencyDir) || !lstatSync(dependencyDir).isDirectory() || lstatSync(dependencyDir).isSymbolicLink()) {
       throw new Error('frozen-lockfile install did not create a real disposable node_modules directory');
     }
-    const virtualStoreLock = path.join(worktreeDir, 'node_modules', '.pnpm', 'lock.yaml');
-    if (!existsSync(virtualStoreLock) || fileSha256(virtualStoreLock) !== lockfileSha256) {
-      throw new Error('disposable pnpm virtual-store lock does not byte-match the committed candidate lockfile');
-    }
+    const virtualStore = assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLockfile);
     const afterInstall = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'proof execution after install');
     const tsxExecutable = resolveCandidateLocalExecutable(worktreeDir, 'tsx');
     const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
@@ -625,7 +645,7 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
         ],
         packageManagerStateConfinedToDisposableWorktree: true,
         lockfileSha256,
-        virtualStoreLockSha256: fileSha256(virtualStoreLock),
+        virtualStoreLockSha256: virtualStore.virtualStoreLockSha256,
         frozenLockfileVerified: true,
         sourceNodeModulesTrusted: false,
         executionWorktreeIntegrity: { beforeInstall, afterInstall, afterExecution },

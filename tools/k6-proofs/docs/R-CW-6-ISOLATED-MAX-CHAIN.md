@@ -110,13 +110,23 @@ set it. It is created only when something fails. It must be new or an empty
 around the artifact dir. It holds raw candidate output: **never publish it.**
 
 Each public receipt fed by a failed surface carries `failureDiagnostics`:
-the surface, its exit code, `privateCopyRetained: true`, and a bounded excerpt
-of the failing lines. Terminal escapes are stripped. Worktree, artifact,
-private, source, home and temp paths become placeholders, and session
-identifiers become `<session-key>`. The excerpt must pass the
-public-artifact guard; otherwise it is withheld in favor of the private copy.
-`fixture-result.json` lists the surfaces with a retained private copy in
-`privateDiagnosticsRetainedFor`. The run prints the private path to stderr.
+the surface, its exit code, `privateCopyRetained`, and a bounded excerpt of
+the failing lines. Terminal sequences and control characters are stripped.
+Worktree, artifact, private, source, home and temp paths become placeholders;
+any other absolute path becomes `<path>`; session identifiers become
+`<session-key>`; credential-shaped values become `<redacted>`. The excerpt
+must pass the public-artifact guard; otherwise it is withheld in favor of
+the private copy. `fixture-result.json` lists the surfaces with a retained
+private copy in `privateDiagnosticsRetainedFor`. The run prints the private
+path to stderr.
+
+The private dir is validated at start-up. It is created at the first failure
+without reusing anything: its last component is made non-recursively, the
+whole path is validated again, and files are created exclusively. Suppose
+another process created the directory in between, or it cannot be written.
+The run then keeps no private copy, but it still writes every public receipt,
+with `privateCopyRetained: false`. It lists the surface in
+`privateDiagnosticsNotRetainedFor` and warns on stderr.
 
 The command refuses:
 

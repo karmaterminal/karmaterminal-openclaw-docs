@@ -1,0 +1,83 @@
+{
+  "schema": "openclaw.project81.r-cw-6.fixture-result.v1",
+  "verdict": "FAIL-fixture",
+  "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+  "maxChainLength": 3,
+  "dependencyProvenance": {
+    "candidateWorktreeHead": "293c977f629f872a643fb94892603310b887293b",
+    "candidateLockfileSha256": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc",
+    "candidateLockfileLayout": "env-and-lockfile-documents",
+    "candidateLockfileDocumentSha256": "39a639eee3825075709f83d176383357a07bfdfc01041ce56709397eb1e1c01d",
+    "candidatePackageManagerDependencies": {
+      "pnpm": "12.15.0"
+    },
+    "installedLockfileSha256": "39a639eee3825075709f83d176383357a07bfdfc01041ce56709397eb1e1c01d",
+    "lockfileMatchesCandidate": true,
+    "candidatePackageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "candidatePackageManagerVersion": "12.15.0",
+    "executingPackageManagerVersion": "12.15.0",
+    "installedPackageManager": "pnpm@12.15.0",
+    "installedPackageManagerVersion": "12.15.0",
+    "virtualStoreDir": ".pnpm",
+    "virtualStoreContainedWithinCandidateNodeModules": true,
+    "installCommand": [
+      "pnpm",
+      "install",
+      "--frozen-lockfile",
+      "--prefer-offline",
+      "--ignore-scripts"
+    ],
+    "installExitCode": 0,
+    "localExecutableContract": {
+      "tsx": {
+        "path": "node_modules/.bin/tsx",
+        "realpathWithinVerifiedDependencyTree": true
+      },
+      "vitest": {
+        "path": "node_modules/.bin/vitest",
+        "realpathWithinVerifiedDependencyTree": true
+      }
+    },
+    "worktreeIntegrity": {
+      "beforeInstall": {
+        "headMatchesCandidate": true,
+        "trackedClean": true
+      },
+      "afterInstall": {
+        "headMatchesCandidate": true,
+        "trackedClean": true
+      },
+      "afterProofSurfaces": {
+        "headMatchesCandidate": true,
+        "trackedClean": true
+      }
+    },
+    "hostToolchainHermetic": false
+  },
+  "receipts": {
+    "fixtureReadiness": "fixture-readiness.json",
+    "boundaryMatrix": "boundary-matrix.json",
+    "runtimeBoundary": "runtime-boundary.json",
+    "durableStateRecovery": "durable-state-recovery.json",
+    "typedToolSurface": "typed-tool-surface.json",
+    "dispatchBoundarySuite": "dispatch-boundary-suite.json",
+    "cleanup": "cleanup.json",
+    "publicArtifactSafety": "public-artifact-safety.json"
+  },
+  "checks": {
+    "matrixPassed": true,
+    "dispatchPassed": false,
+    "runtimeSurfacePassed": false,
+    "structuredChainCapped": false,
+    "noRejectedHopSpawn": false,
+    "durableRecoveryPassed": false,
+    "typedSurfacePassed": false,
+    "exactCandidateDisposableWorktree": true,
+    "candidatePackageManagerVersionMatchesExecuting": true,
+    "installedLockMatchesCandidate": true,
+    "verifiedDependencyTreeContainsLocalExecutables": true,
+    "worktreeIntegrityAfterInstall": true,
+    "worktreeIntegrityAfterProofSurfaces": true,
+    "publicArtifactsSafe": true
+  }
+}

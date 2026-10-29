@@ -5,7 +5,7 @@
   "reviewed_run": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-2/emeric-isolated-composite/20261029T213444Z-r-cd-2-7ec4c1cf",
   "docs_ref": "dfb1a388",
   "verifier": "tools/k6-proofs/lib/r-cd-2-authority-context.mjs consumeRcd2Authority",
-  "signing_key": "the isolated proof gateway's gateway.auth.token on emeric (~/proof-gw/comp-293c977f/openclaw.json); supplied via environment only, never printed or published",
+  "signing_key": "the isolated proof gateway's gateway.auth.token on emeric (~/proof-gw/comp-08c37a15/openclaw.json); supplied via environment only, never printed or published",
   "result": {
     "outcome": "PASS-candidate",
     "traceHeld": true,

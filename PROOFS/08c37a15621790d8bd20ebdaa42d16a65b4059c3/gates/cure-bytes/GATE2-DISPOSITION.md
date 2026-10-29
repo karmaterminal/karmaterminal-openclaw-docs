@@ -86,7 +86,7 @@ Each passes the counterfactual test: with continuation deleted, none of these hu
 For the reviewer, not as a flag: the `server-restart-sentinel-agent-delivery.ts` row records a restart behavior that the fork no longer provides.
 
 **Asked of 🌊:**
-1. Rule (E). Rows (i), (ii) and (iv) record continuation lines that were re-expressed, dropped or regenerated against U11. The six continuation rows in (iii) are new fork behavior, so each needs its own ruling.
+1. Rule (E). Rows (i), (ii) and (iv) record continuation lines that were re-expressed, dropped or regenerated against U11. The seven (iii) rows that pass the counterfactual are new fork behavior, so each needs its own ruling. One of them, `412b3e5394`, also carries flag 2.
 2. Decide the two flags above.
 3. If accepted, renotify the reviewer on openclaw/openclaw#129388 with (D) and (E) when the presentation advances.
 

@@ -13,4 +13,4 @@ Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's iso
 ## Refire 2 (050313Z, docs c65b9bb86a, 🌊 go 1565229430878642217)
 
 - PASS with complete receipts in refire2 050313Z (docs c65b9bb86a, #608 run-bound RCD2-WAKE-ACK wake binding). Matrix-012658Z PARTIAL (heartbeat-era binder) preserved as provenance.
-- Runs: `20261029T050321Z-r-cd-2-843e883b`
+- Runs: `emeric-isolated-composite/20261029T050321Z-r-cd-2-843e883b` (canonical seat path for the R-CD-2 authority)

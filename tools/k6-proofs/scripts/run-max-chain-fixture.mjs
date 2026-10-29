@@ -492,30 +492,55 @@ export function resolvePrivateDiagnosticsDir({ artifactDir, privateDir }) {
   return resolved;
 }
 
-const ANSI_ESCAPE = /\u001b\[[0-9;?]*[ -/]*[@-~]/gu;
+const TERMINAL_SEQUENCES = [
+  /\u001b\[[0-9;?]*[ -/]*[@-~]/gu, // CSI
+  /\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)?/gu, // OSC: hyperlinks, titles
+  /\u001b[ -/]*[0-~]?/gu, // any other escape
+];
+const CONTROL_CHARACTERS = /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/gu;
+// Characters that end a path or an identifier inside prose or punctuation.
+const TOKEN_END = String.raw`\s"'()<>[\]{}` + '`' + ',;';
 const FAILURE_SIGNAL = /\b(?:FAIL|Error|AssertionError|expected|Cannot find|No test files|Test Files|Tests)\b|[×→❯]/u;
 
 /**
- * A public excerpt of a failed proof run: terminal escapes stripped, private
- * paths and session identifiers replaced, the failure lines kept (or the
- * tail when none match), bounded in count and width.
+ * A public excerpt of a failed proof run: terminal sequences and control
+ * characters stripped, private paths replaced by placeholders, any other
+ * absolute path, session identifier, or credential-shaped value redacted, the
+ * failure lines kept (or the tail when none match), bounded in count and width.
  */
 export function sanitizeFailureExcerpt(raw, { replacements = [], maxLines = 40, maxLineLength = 240 } = {}) {
-  let text = String(raw).replaceAll(ANSI_ESCAPE, '').replaceAll('\r', '');
+  let text = String(raw).replaceAll('\r', '');
+  for (const sequence of TERMINAL_SEQUENCES) text = text.replaceAll(sequence, '');
+  text = text.replaceAll(CONTROL_CHARACTERS, '');
   for (const [privatePath, placeholder] of replacements
     .filter(([privatePath]) => privatePath)
     .toSorted(([left], [right]) => right.length - left.length)) {
     text = text.replaceAll(privatePath, placeholder);
   }
+  const notInsideToken = String.raw`(?<![\w.>/\\])`;
   text = text
-    // Vitest prints candidate module ids root-relative (/src/..., /test/...).
-    .replace(/(^|[\s("'=])\/((?:src|test|extensions|packages|apps|ui|scripts)\/)/gmu, '$1$2')
-    .replace(/(^|[\s("'=])\/(?:[^/\s"'()]+\/?)+/gmu, '$1<path>')
-    .replace(/(^|[\s("'=])[a-z]:[\\/](?:[^\\/\s"'()]+[\\/]?)+/gimu, '$1<path>')
-    .replace(/(^|[\s("'=])\\\\[^\\\s"'()]+\\[^\s"'()]+/gmu, '$1<path>')
+    // Vitest prints candidate module ids root-relative (/src/x.ts); keep
+    // those readable, but only source files under the candidate's own roots.
+    .replace(
+      new RegExp(String.raw`${notInsideToken}\/((?:src|test|extensions|packages)\/[^${TOKEN_END}]*?\.(?:[cm]?[jt]sx?|json))(?=$|[${TOKEN_END}:])`, 'gmu'),
+      '$1',
+    )
+    // Every other absolute path, whatever punctuation precedes it.
+    .replace(new RegExp(String.raw`${notInsideToken}\/[^/${TOKEN_END}]+(?:\/[^/${TOKEN_END}]*)*`, 'gmu'), '<path>')
+    .replace(new RegExp(String.raw`(?<!\w)[a-z]:[\\/][^${TOKEN_END}]*`, 'gimu'), '<path>')
+    .replace(new RegExp(String.raw`(?<!\\)\\\\[^\\${TOKEN_END}]+\\[^${TOKEN_END}]*`, 'gmu'), '<path>')
     .replace(/\bfile:\/\/\S+/giu, '<path>')
-    .replace(/(^|[\s("'=])~[\\/]\S*/gmu, '$1<path>')
-    .replace(/\bagent:[a-z0-9:_-]+/giu, '<session-key>');
+    .replace(new RegExp(String.raw`(?<![\w.])~[\\/][^${TOKEN_END}]*`, 'gmu'), '<path>')
+    .replace(new RegExp(String.raw`\bagent:[^${TOKEN_END}]+`, 'giu'), '<session-key>')
+    .replace(/\b(Bearer|Basic)\s+[^\s"'`,;]+/giu, '$1 <redacted>')
+    .replace(
+      /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{8,}|\bgh[pousr]_[A-Za-z0-9]{16,}|\bgithub_pat_[A-Za-z0-9_]{16,}|\bxox[abprs]-[A-Za-z0-9-]{8,}|\bAKIA[0-9A-Z]{16}\b|\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/gu,
+      '<redacted>',
+    )
+    .replace(
+      /\b((?:api[_-]?key|access[_-]?key|token|secret|password|passwd|authorization|cookie)s?)(\s*[=:]\s*)[^\s"'`,;]+/giu,
+      '$1$2<redacted>',
+    );
   const lines = text
     .split('\n')
     .map((line) => line.trimEnd())
@@ -788,32 +813,64 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
   return { ...result, disposableWorktreeRemoved: true, privateWorktreePath: worktreeDir };
 }
 
+// The private dir is created at the first failure, never earlier. Its last
+// component is made without `recursive`, and the result is validated again,
+// so a directory another process created after the start-up check (a second
+// run sharing it, another user under a shared temp root) is refused, never
+// reused. Files are created exclusively.
+function openPrivateDiagnosticsDir(privateDir) {
+  mkdirSync(path.dirname(privateDir), { recursive: true, mode: 0o700 });
+  try {
+    mkdirSync(privateDir, { mode: 0o700 });
+  } catch (error) {
+    if (error?.code !== 'EEXIST') throw error;
+  }
+  assertFreshPrivateDirectory(privateDir, 'private diagnostics dir');
+}
+
 // Raw output of a failed proof surface goes to the private dir; its receipt
 // carries only a sanitized excerpt that has already passed the public guard.
+// A private copy that cannot be written never costs the public receipts.
 function createFailureRetainer({ privateDir, candidateSha, replacements, privatePaths }) {
   const retained = [];
+  const notRetained = [];
+  let opened = false;
   return {
     retained,
+    notRetained,
     retain(surface, run, passed, commandInfo) {
       if (passed) return undefined;
-      mkdirSync(privateDir, { recursive: true, mode: 0o700 });
-      writeJson(path.join(privateDir, `${surface}.json`), {
-        schema: 'openclaw.project81.r-cw-6.private-proof-surface-diagnostics.v1',
-        surface,
-        candidateSha,
-        ...commandInfo,
-        exitCode: run.exitCode,
-        stdout: run.stdout,
-        stderr: run.stderr,
-      });
-      retained.push(surface);
+      let privateCopyRetained = false;
+      try {
+        if (!opened) {
+          openPrivateDiagnosticsDir(privateDir);
+          opened = true;
+        }
+        const privateCopy = {
+          schema: 'openclaw.project81.r-cw-6.private-proof-surface-diagnostics.v1',
+          surface,
+          candidateSha,
+          ...commandInfo,
+          exitCode: run.exitCode,
+          stdout: run.stdout,
+          stderr: run.stderr,
+        };
+        writeFileSync(path.join(privateDir, `${surface}.json`), `${JSON.stringify(privateCopy, null, 2)}\n`, {
+          mode: 0o600,
+          flag: 'wx',
+        });
+        privateCopyRetained = true;
+      } catch {
+        // Reported through privateCopyRetained and privateDiagnosticsNotRetainedFor.
+      }
+      (privateCopyRetained ? retained : notRetained).push(surface);
       let excerpt = sanitizeFailureExcerpt(`${run.stdout}\n${run.stderr}`, { replacements });
       try {
         assertPublicArtifactSafe({ excerpt }, { label: `${surface} failure excerpt`, privatePaths });
       } catch {
         excerpt = ['<excerpt withheld: sanitized text failed public-artifact safety; see the private copy>'];
       }
-      return { surface, privateCopyRetained: true, exitCode: run.exitCode, excerpt };
+      return { surface, privateCopyRetained, exitCode: run.exitCode, excerpt };
     },
   };
 }
@@ -1015,22 +1072,21 @@ export function runFixture(args) {
     structuredReceiptPassed &&
     durableRecoveryPassed &&
     typedSurfacePassed;
-  // One run feeds three receipts; each failed one carries the run's excerpt.
+  // One run feeds three receipts; when it fails, all three carry its excerpt.
   const runtimeDiagnostics = diagnostics.retain(
     'runtime-typed-surface',
     runtimeSurface.runtimeRun,
     runtimeSurfacePassed,
     publicVitestCommand('runtimeTypedSurface'),
   );
-  const runtimeDiagnosticsUnless = (passed) =>
-    runtimeDiagnostics && !passed ? { failureDiagnostics: runtimeDiagnostics } : {};
+  const runtimeFailure = runtimeDiagnostics ? { failureDiagnostics: runtimeDiagnostics } : {};
 
   const runtimeBoundaryReceipt = {
     ...runtimeReceipt,
     passed: structuredReceiptPassed,
     fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
     ...publicVitestCommand('runtimeTypedSurface'),
-    ...runtimeDiagnosticsUnless(structuredReceiptPassed),
+    ...runtimeFailure,
     ...candidateRuntimeReceipt,
   };
   const durableStateRecoveryReceipt = {
@@ -1038,7 +1094,7 @@ export function runFixture(args) {
     passed: durableRecoveryPassed,
     configuredMaximum: args.maxChainLength,
     ...runtimeReceipt?.durableState,
-    ...runtimeDiagnosticsUnless(durableRecoveryPassed),
+    ...runtimeFailure,
     ...candidateRuntimeReceipt,
   };
   const typedToolSurfaceReceipt = {
@@ -1046,7 +1102,7 @@ export function runFixture(args) {
     passed: typedSurfacePassed,
     fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
     ...publicVitestCommand('runtimeTypedSurface'),
-    ...runtimeDiagnosticsUnless(typedSurfacePassed),
+    ...runtimeFailure,
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceDirMutated: false,
@@ -1104,6 +1160,7 @@ export function runFixture(args) {
       publicArtifactSafety: 'public-artifact-safety.json',
     },
     privateDiagnosticsRetainedFor: diagnostics.retained,
+    privateDiagnosticsNotRetainedFor: diagnostics.notRetained,
     checks: {
       matrixPassed,
       dispatchPassed,
@@ -1175,6 +1232,11 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) try {
     if (result.privateDiagnosticsRetainedFor.length > 0) {
       console.error(
         `R-CW-6 private diagnostics for ${result.privateDiagnosticsRetainedFor.join(', ')} retained in ${privateDiagnosticsDirFor(args)}`,
+      );
+    }
+    if (result.privateDiagnosticsNotRetainedFor.length > 0) {
+      console.error(
+        `R-CW-6 could not retain private diagnostics for ${result.privateDiagnosticsNotRetainedFor.join(', ')}: ${privateDiagnosticsDirFor(args)} was not a fresh private directory or was not writable`,
       );
     }
     if (args.json) console.log(JSON.stringify(result));

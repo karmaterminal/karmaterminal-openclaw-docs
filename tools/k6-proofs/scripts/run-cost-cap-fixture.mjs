@@ -18,6 +18,7 @@ import {
   readlinkSync,
   readdirSync,
   realpathSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
@@ -27,6 +28,7 @@ import process from 'node:process';
 const DEFAULT_CAP = 100;
 const CHILD_OUTPUT_LIMIT_BYTES = 64 * 1024 * 1024;
 const TRUSTED_GIT = '/usr/bin/git';
+const TRUSTED_SH = '/bin/sh';
 const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
   'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts',
@@ -302,19 +304,20 @@ export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, pack
   if (installedIntegrityHex !== integrityHex) {
     throw new Error('installed pnpm integrity does not match candidate packageManager pin');
   }
-  const pnpmScript = path.join(toolchainDir, 'node_modules', 'pnpm', 'bin', 'pnpm.cjs');
-  if (!existsSync(pnpmScript) || !lstatSync(pnpmScript).isFile() || lstatSync(pnpmScript).isSymbolicLink()) {
-    throw new Error('candidate-pinned pnpm install did not produce a real pnpm script');
-  }
-  const resolvedPnpmScript = realpathSync(pnpmScript);
-  if (!isInside(resolvedPnpmScript, realpathSync(path.join(toolchainDir, 'node_modules')))) {
-    throw new Error('candidate-pinned pnpm script resolves outside the private toolchain');
-  }
+  const { entry, script } = resolvePinnedPnpmEntry(toolchainDir);
+  const { launcher, interpreter } = pinnedPnpmLauncher(script);
+  // pnpm 12's launcher downloads a native binary next to itself when npm
+  // installed no platform package, and no candidate integrity pins that
+  // binary. A pinned pnpm must run from its toolchain as installed.
+  const toolchainBefore = toolchainInventory(toolchainDir);
   const versionResult = run(
-    process.execPath,
-    [resolvedPnpmScript, '--version'],
+    interpreter,
+    [script, '--version'],
     { cwd: worktreeDir, env: packageManagerEnv },
   );
+  if (toolchainInventory(toolchainDir).join('\n') !== toolchainBefore.join('\n')) {
+    throw new Error('candidate-pinned pnpm changed its private toolchain while running');
+  }
   if (!versionResult.ok) {
     throw new Error(`cannot execute candidate-pinned pnpm: ${versionResult.stderr.trim()}`);
   }
@@ -326,9 +329,71 @@ export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, pack
     packageManager,
     pnpmVersion,
     pnpmIntegritySha512: integrityHex,
-    pnpmScript: resolvedPnpmScript,
+    pnpmEntry: entry,
+    pnpmLauncher: launcher,
+    pnpmInterpreter: interpreter,
+    pnpmScript: script,
     packageManagerEnv,
   };
+}
+
+// The pinned package's own package.json names its pnpm command. Published
+// layouts differ: pnpm <=10 declares bin/pnpm.cjs, pnpm 11 bin/pnpm.mjs, and
+// pnpm 12 a `pnpm` launcher at the package root with no bin/pnpm.cjs at all.
+function resolvePinnedPnpmEntry(toolchainDir) {
+  const packageDir = path.join(toolchainDir, 'node_modules', 'pnpm');
+  const manifest = JSON.parse(readFileSync(path.join(packageDir, 'package.json'), 'utf8'));
+  const declared = typeof manifest?.bin === 'string' ? manifest.bin : manifest?.bin?.pnpm;
+  if (typeof declared !== 'string' || declared === '') {
+    throw new Error('candidate-pinned pnpm package declares no pnpm bin entry');
+  }
+  const entry = path.resolve(packageDir, declared);
+  if (!isInside(entry, packageDir)) {
+    throw new Error('candidate-pinned pnpm bin entry escapes the pinned pnpm package');
+  }
+  if (!existsSync(entry) || !lstatSync(entry).isFile() || lstatSync(entry).isSymbolicLink()) {
+    throw new Error('candidate-pinned pnpm install did not produce a real pnpm script');
+  }
+  const script = realpathSync(entry);
+  if (!isInside(script, realpathSync(path.join(toolchainDir, 'node_modules')))) {
+    throw new Error('candidate-pinned pnpm script resolves outside the private toolchain');
+  }
+  return { entry: path.relative(packageDir, entry).split(path.sep).join('/'), script };
+}
+
+// npm links a declared bin and the kernel runs it: a `#!` line names the
+// interpreter, and a file without one is retried under the POSIX shell. pnpm
+// 12's launcher is shebang-less on purpose. Both kinds run here through a
+// trusted absolute interpreter, so PATH can substitute neither.
+function pinnedPnpmLauncher(script) {
+  const content = readFileSync(script);
+  if (content.subarray(0, 2).toString('latin1') === '#!') {
+    const newline = content.indexOf(0x0a);
+    const shebang = content.subarray(2, newline === -1 ? content.length : newline).toString('utf8').trim();
+    const words = shebang.split(/\s+/u);
+    const interpreter = words[0] === '/usr/bin/env' ? words.slice(1) : words;
+    if (interpreter.length === 1 && path.basename(interpreter[0]) === 'node') {
+      return { launcher: 'node', interpreter: process.execPath };
+    }
+    throw new Error(`candidate-pinned pnpm bin entry requires an unsupported interpreter: #!${shebang}`);
+  }
+  if (content.includes(0)) {
+    throw new Error('candidate-pinned pnpm bin entry is neither a script nor a shell launcher');
+  }
+  if (statSync(TRUSTED_SH, { throwIfNoEntry: false })?.isFile() !== true) {
+    throw new Error(`trusted shell is unavailable: ${TRUSTED_SH}`);
+  }
+  return { launcher: 'sh', interpreter: TRUSTED_SH };
+}
+
+function toolchainInventory(toolchainDir) {
+  return readdirSync(toolchainDir, { recursive: true, withFileTypes: true })
+    .map((dirent) => {
+      const file = path.join(dirent.parentPath, dirent.name);
+      const stats = lstatSync(file);
+      return `${path.relative(toolchainDir, file)}\0${stats.mode}\0${stats.size}\0${stats.mtimeMs}`;
+    })
+    .toSorted();
 }
 
 export function assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLockfile) {
@@ -585,7 +650,7 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     assertReservedPathAbsent(worktreeDir, '.r-cw-5-pnpm-store');
     const pnpmStoreDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-pnpm-store');
     const install = run(
-      process.execPath,
+      packageManager.pnpmInterpreter,
       [
         packageManager.pnpmScript,
         'install',
@@ -630,8 +695,10 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
         packageManager: packageManager.packageManager,
         pnpmVersion: packageManager.pnpmVersion,
         pnpmIntegritySha512: packageManager.pnpmIntegritySha512,
+        pnpmEntry: packageManager.pnpmEntry,
+        pnpmLauncher: packageManager.pnpmLauncher,
         installCommand: [
-          'node',
+          packageManager.pnpmLauncher,
           '<candidate-pinned-pnpm>',
           'install',
           '--frozen-lockfile',

@@ -25,10 +25,11 @@ import process from 'node:process';
 import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_MAX_CHAIN_LENGTH = 3;
+const CANDIDATE_DELEGATE_SUITE = 'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts';
 const SOURCE_MARKERS = [
   'src/auto-reply/continuation/scheduler.ts',
   'src/auto-reply/continuation/work-dispatch.ts',
-  'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts',
+  CANDIDATE_DELEGATE_SUITE,
   'src/agents/command/attempt-execution.ts',
   'package.json',
   'pnpm-lock.yaml',
@@ -41,6 +42,37 @@ const DELEGATE_BOUNDARY_TEMPLATE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../fixtures/r-cw-6/max-chain-delegate-boundary.test.ts',
 );
+const RUNTIME_FIXTURE_FILE = 'test/r-cw-6-runtime-fixture/max-chain-tool-surface.test.ts';
+const DELEGATE_FIXTURE_FILE = 'test/r-cw-6-delegate-fixture/max-chain-delegate-boundary.test.ts';
+// Continuation custody suites run only in the candidate's database-worker lane:
+// the infra config, whose forked pool reaches the host SQLite broker. The
+// auto-reply config excludes them, and a file filter it excludes exits 0 with
+// no tests. Generated tests join the lane through the candidate's include-file
+// override; that variable is never inherited from the operator's shell.
+const DATABASE_WORKER_VITEST_CONFIG = 'test/vitest/vitest.infra.config.ts';
+const VITEST_INCLUDE_FILE_ENV = 'OPENCLAW_VITEST_INCLUDE_FILE';
+const PROOF_SURFACE_VITEST_RUNS = Object.freeze({
+  candidateDelegateSuite: {
+    args: ['run', '--config', DATABASE_WORKER_VITEST_CONFIG, CANDIDATE_DELEGATE_SUITE, '--reporter=verbose'],
+    includeFiles: [],
+  },
+  selectedDelegateBoundary: {
+    args: ['run', '--config', DATABASE_WORKER_VITEST_CONFIG, '--reporter=verbose'],
+    includeFiles: [DELEGATE_FIXTURE_FILE],
+  },
+  runtimeTypedSurface: {
+    args: ['run', '--config', DATABASE_WORKER_VITEST_CONFIG, '--reporter=verbose'],
+    includeFiles: [RUNTIME_FIXTURE_FILE],
+  },
+});
+
+function publicVitestCommand(surface) {
+  const { args, includeFiles } = PROOF_SURFACE_VITEST_RUNS[surface];
+  return {
+    command: ['node_modules/.bin/vitest', ...args],
+    ...(includeFiles.length > 0 ? { includeFiles } : {}),
+  };
+}
 // A candidate must name one fixed pnpm release.  Corepack-style integrity
 // suffixes are allowed only when they begin with `sha`; ranges, tags, and
 // alternate package managers never identify one executable version.
@@ -591,23 +623,31 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       },
       hostToolchainHermetic: false,
     };
-    const runtimeTestDir = path.join(worktreeDir, 'test', 'r-cw-6-runtime-fixture');
-    const delegateTestDir = path.join(worktreeDir, 'test', 'r-cw-6-delegate-fixture');
-    mkdirSync(runtimeTestDir, { recursive: true, mode: 0o700 });
-    mkdirSync(delegateTestDir, { recursive: true, mode: 0o700 });
-    writeFileSync(
-      path.join(runtimeTestDir, 'max-chain-tool-surface.test.ts'),
-      renderToolSurfaceTemplate(readFileSync(TOOL_SURFACE_TEMPLATE, 'utf8'), maxChainLength),
-      { mode: 0o600 },
-    );
-    writeFileSync(
-      path.join(delegateTestDir, 'max-chain-delegate-boundary.test.ts'),
-      renderToolSurfaceTemplate(readFileSync(DELEGATE_BOUNDARY_TEMPLATE, 'utf8'), maxChainLength),
-      { mode: 0o600 },
-    );
+    for (const [file, template] of [
+      [RUNTIME_FIXTURE_FILE, TOOL_SURFACE_TEMPLATE],
+      [DELEGATE_FIXTURE_FILE, DELEGATE_BOUNDARY_TEMPLATE],
+    ]) {
+      mkdirSync(path.dirname(path.join(worktreeDir, file)), { recursive: true, mode: 0o700 });
+      writeFileSync(
+        path.join(worktreeDir, file),
+        renderToolSurfaceTemplate(readFileSync(template, 'utf8'), maxChainLength),
+        { mode: 0o600 },
+      );
+    }
     const stateDir = path.join(worktreeDir, '.rcw6-state');
     mkdirSync(stateDir, { recursive: true, mode: 0o700 });
     const isolatedEnv = { ...process.env, OPENCLAW_STATE_DIR: stateDir };
+    delete isolatedEnv[VITEST_INCLUDE_FILE_ENV];
+    const runVitestSurface = (surface, extraEnv = {}) => {
+      const { args, includeFiles } = PROOF_SURFACE_VITEST_RUNS[surface];
+      const env = { ...isolatedEnv, ...extraEnv };
+      if (includeFiles.length > 0) {
+        const includeFile = path.join(stateDir, `${surface}.include.json`);
+        writeFileSync(includeFile, `${JSON.stringify(includeFiles)}\n`, { mode: 0o600 });
+        env[VITEST_INCLUDE_FILE_ENV] = includeFile;
+      }
+      return run(verifiedDependencies.executables.vitest, args, { cwd: worktreeDir, env });
+    };
 
     const matrixRun = run(
       verifiedDependencies.executables.tsx,
@@ -623,17 +663,7 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       }
     }
 
-    const dispatchRun = run(
-      verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts',
-        '--reporter=verbose',
-      ],
-      { cwd: worktreeDir, env: isolatedEnv },
-    );
+    const dispatchRun = runVitestSurface('candidateDelegateSuite');
     const dispatchAssertions = {
       atLimitRejectsBeforeSpawn: /rejects a delegate when currentChainCount equals maxChainLength/u.test(
         dispatchRun.stdout,
@@ -641,47 +671,20 @@ function runDisposableToolSurface({ sourceDir, candidateSha, artifactDir, maxCha
       boundaryHopSpawnsThenNextRejects:
         /accepts a delegate at count 9\/10, then rejects the next at 10\/10/u.test(dispatchRun.stdout),
       rejectedFlowMarkedFailed:
-        /marks the TaskFlow record as failed for chain-depth-rejected delegates/u.test(dispatchRun.stdout),
+        /marks the custody record as failed for chain-depth-rejected delegates/u.test(dispatchRun.stdout),
     };
 
-    const selectedDelegateRun = run(
-      verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-delegate-fixture',
-        '--reporter=verbose',
-      ],
-      {
-        cwd: worktreeDir,
-        env: { ...isolatedEnv, RCW6_DELEGATE_RECEIPT_PATH: rawDelegateReceiptPath },
-      },
-    );
+    const selectedDelegateRun = runVitestSurface('selectedDelegateBoundary', {
+      RCW6_DELEGATE_RECEIPT_PATH: rawDelegateReceiptPath,
+    });
     const selectedDelegateReceipt = selectedDelegateRun.ok
       ? readJsonIfValid(rawDelegateReceiptPath)
       : null;
 
-    const test = run(
-      verifiedDependencies.executables.vitest,
-      [
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-runtime-fixture',
-        '--reporter=verbose',
-      ],
-      {
-        cwd: worktreeDir,
-        env: {
-          ...isolatedEnv,
-          RCW6_RUNTIME_RECEIPT_PATH: rawRuntimeReceiptPath,
-          RCW6_TYPED_RECEIPT_PATH: rawTypedReceiptPath,
-        },
-      },
-    );
+    const test = runVitestSurface('runtimeTypedSurface', {
+      RCW6_RUNTIME_RECEIPT_PATH: rawRuntimeReceiptPath,
+      RCW6_TYPED_RECEIPT_PATH: rawTypedReceiptPath,
+    });
     const runtimeReceipt = test.ok ? readJsonIfValid(rawRuntimeReceiptPath) : null;
     const typedReceipt = test.ok ? readJsonIfValid(rawTypedReceiptPath) : null;
     result = {
@@ -819,23 +822,12 @@ export function runFixture(args) {
       ...selectedDelegateReceipt,
       passed: selectedDelegatePassed,
       asserted: selectedDelegateAssertions,
-      command: [
-        'node_modules/.bin/vitest',
-        'run',
-        '--config',
-        'test/vitest/vitest.auto-reply.config.ts',
-        '--dir',
-        'test/r-cw-6-delegate-fixture',
-        '--reporter=verbose',
-      ],
+      ...publicVitestCommand('selectedDelegateBoundary'),
       exitCode: runtimeSurface.selectedDelegateRun.exitCode,
     },
     candidateRegressionSuite: {
       passed: candidateDispatchSuitePassed,
-      command: [
-        'node_modules/.bin/vitest', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.chain-depth-exhaustion.test.ts', '--reporter=verbose',
-      ],
+      ...publicVitestCommand('candidateDelegateSuite'),
       exitCode: dispatchRun.exitCode,
       asserted: dispatchAssertions,
     },
@@ -883,6 +875,7 @@ export function runFixture(args) {
     ...runtimeReceipt,
     passed: structuredReceiptPassed,
     fixtureKind: 'production-scheduleContinuationWorkBatch-plus-recovered-scheduleContinuationWork',
+    ...publicVitestCommand('runtimeTypedSurface'),
     ...candidateRuntimeReceipt,
   };
   const durableStateRecoveryReceipt = {
@@ -896,6 +889,7 @@ export function runFixture(args) {
     ...typedReceipt,
     passed: typedSurfacePassed,
     fixtureKind: 'disposable-exact-candidate-worktree-with-real-attempt-execution-and-typed-tool-capture',
+    ...publicVitestCommand('runtimeTypedSurface'),
     productionConfigTouched: false,
     productionStateTouched: false,
     sourceDirMutated: false,

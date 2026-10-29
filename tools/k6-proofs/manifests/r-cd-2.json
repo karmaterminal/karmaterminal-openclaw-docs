@@ -164,7 +164,7 @@
       ]
     },
     "controls": {
-      "positive": "The dispatch turn reaches its exact post-tool terminal sentinel inside its own run window, one topology-scoped typed continue_delegate completes, and a distinct same-session wake lifecycle is observed.",
+      "positive": "The dispatch turn reaches its exact post-tool terminal sentinel inside its own run window, one topology-scoped typed continue_delegate completes, and a distinct same-session wake lifecycle is observed and bound by that woken run's own nonce-bound answer.",
       "negative": "No channel message is delivered for the silent-wake return, generic delayed messages do not satisfy the lifecycle receipt, and a trace carrying older unrelated activity does not satisfy the topology receipt.",
       "notes": "The negative control is an absence proof. Without a canonical terminal outcome it cannot distinguish suppressed delivery from delivery that never happened."
     },
@@ -239,7 +239,7 @@
     {
       "name": "send-run-lifecycle",
       "required": true,
-      "description": "Accepted sessions.send run/turn ID is bound to lifecycle-start/end success, an exact sentinel observed only while that dispatch lifecycle is active, and a distinct same-session parent wake; generic delayed messages cannot satisfy it"
+      "description": "Accepted sessions.send run/turn ID is bound to lifecycle-start/end success, an exact sentinel observed only while that dispatch lifecycle is active, and a distinct same-session parent wake run that starts inside the delegate return window and gives its own receipt: the exact RCD2-WAKE-ACK nonce answer a session-event wake makes in assistant text, or a heartbeat wake's notify:false/done heartbeat_respond record; generic delayed messages cannot satisfy it"
     },
     {
       "name": "task-ledger-entry",

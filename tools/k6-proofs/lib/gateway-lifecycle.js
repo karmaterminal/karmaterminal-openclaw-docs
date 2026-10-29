@@ -55,21 +55,32 @@ export function gatewayWakeRunId(value, acceptedRunId, expectedSessionKey) {
     : null;
 }
 
-// R-CD-2 silent-wake binding. The parent's wake turn writes the
-// { notify:false, outcome:"done" } completion record itself (heartbeat_respond
-// inside the woken run), so the record necessarily arrives AFTER that run's
-// lifecycle start. Gating the start on an already-seen record made the wake
-// receipt unobtainable. Instead remember every session-bound, in-window start
-// of a run other than the dispatch run, and bind when the completion record
-// arrives from that same run (either order is accepted).
+// R-CD-2 silent-wake binding. A wake START is a session-bound, in-window
+// lifecycle start of a run other than the dispatch run; it binds only when that
+// same run gives its own wake receipt, in either order. Two receipt forms:
+// - 'heartbeat-completion-record': the { notify:false, outcome:"done" } record
+//   a heartbeat wake writes through heartbeat_respond (openclaw 14d31a81b1,
+//   whose targeting still woke through requestHeartbeatNow). The record comes
+//   from the woken run, so it arrives AFTER that run's start.
+// - 'assistant-wake-ack': the exact nonce-bound acknowledgement the woken run
+//   answers in assistant text. From openclaw 8baac2feb6 (#1475) a delegate
+//   return wakes an ordinary session-event turn (requestContinuationWake ->
+//   enqueueSessionEventForHost): no heartbeat_respond exists there, its input
+//   rows are hidden from session.message, and its lifecycle data names no
+//   delegate, so the run's own answer is the only run-bound wake receipt.
 export function createSilentWakeBinder({ acceptedRunId }) {
   const starts = new Map();
-  const records = new Set();
+  const receipts = new Map();
   let bound = null;
   const bind = (runId) => {
-    if (bound || !starts.has(runId) || !records.has(runId)) return null;
-    bound = { runId, ...starts.get(runId) };
+    if (bound || !starts.has(runId) || !receipts.has(runId)) return null;
+    bound = { runId, ...starts.get(runId), receiptSource: receipts.get(runId) };
     return bound;
+  };
+  const noteWakeReceipt = (runId, source) => {
+    if (!runId || runId === acceptedRunId || typeof source !== 'string' || !source) return null;
+    if (!receipts.has(runId)) receipts.set(runId, source);
+    return bind(runId);
   };
   return {
     noteStart(runId, meta = {}) {
@@ -77,10 +88,9 @@ export function createSilentWakeBinder({ acceptedRunId }) {
       starts.set(runId, meta);
       return bind(runId);
     },
+    noteWakeReceipt,
     noteCompletionRecord(runId) {
-      if (!runId || runId === acceptedRunId) return null;
-      records.add(runId);
-      return bind(runId);
+      return noteWakeReceipt(runId, 'heartbeat-completion-record');
     },
     bound: () => bound,
   };

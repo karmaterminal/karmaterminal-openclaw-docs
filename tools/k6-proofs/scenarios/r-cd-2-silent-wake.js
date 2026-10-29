@@ -4,7 +4,8 @@
  * Verifies:
  *   1. Gateway accepts continue_delegate with mode=silent-wake
  *   2. Child task spawns and completes
- *   3. Parent session wakes (receives internal context)
+ *   3. Parent session wakes (receives internal context): a distinct lifecycle
+ *      run in the row session, bound by that run's own nonce-bound answer
  *   4. NO channel message is delivered (silent mode)
  *
  * The key differentiator from R-CD-1: the delegate return must NOT produce
@@ -25,7 +26,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { createSilentWakeBinder, eventRunId, gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
 import { applySameRunDelegateOutcome, createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mjs';
-import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
+import { observesRcd2DispatchTerminalSentinel, observesRcd2WakeAck } from '../lib/r-cd-2-terminal-sentinel.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 
@@ -99,6 +100,7 @@ export default function () {
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
   const dispatchTerminalSentinel = `RCD2-DELEGATE-SCHEDULED ${rowNonce}`;
+  const wakeAckSentinel = `RCD2-WAKE-ACK ${rowNonce}`;
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -147,6 +149,12 @@ export default function () {
     // session.message transcript payload.
     wake_lifecycle_observed: false,
     wake_session_bound: false,
+    // wake_ack_observed: the exact wake acknowledgement arrived from a run
+    // other than the dispatch run. wake_receipt_source: which of the woken
+    // run's own receipts bound it, 'assistant-wake-ack' or
+    // 'heartbeat-completion-record' (createSilentWakeBinder).
+    wake_ack_observed: false,
+    wake_receipt_source: null,
     post_wake_quiet: false,
     post_wake_quiet_timer_started: false,
     dispatch_failure_observed: false,
@@ -217,7 +225,9 @@ export default function () {
       evidence.wake_lifecycle_observed = true;
       evidence.wake_session_bound = true;
       evidence.wake_lifecycle_at_ms = bound.atMs;
+      // Kept name: true for either receipt form; wake_receipt_source says which.
       evidence.wake_completion_record_bound = true;
+      evidence.wake_receipt_source = bound.receiptSource;
       evidence.wake_run_fingerprint = crypto.sha256(String(bound.runId), 'hex').slice(0, 16);
       if (!evidence.post_wake_quiet_timer_started) {
         evidence.post_wake_quiet_timer_started = true;
@@ -229,7 +239,7 @@ export default function () {
           socket.close();
         }, k6TimeoutMs(evidence.post_wake_quiet_ms));
       }
-      console.log('✓ delayed parent wake run bound to its own notify:false completion record');
+      console.log(`✓ delayed parent wake run bound to its own ${bound.receiptSource}`);
     }
 
     function startProofFlow(socket) {
@@ -250,7 +260,8 @@ export default function () {
         const agentInstruction =
           `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and args={task:"${prompt}", mode:"${inv.mode}", delaySeconds:${inv.delaySeconds}}. ` +
           `After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
-          'After scheduling, do not call another tool or send any channel message.';
+          'After scheduling, do not call another tool or send any channel message. ' +
+          `On a later turn, only after the delegate result returns to this session, reply exactly ${wakeAckSentinel}.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -425,8 +436,8 @@ export default function () {
             // runId.  A later, distinct lifecycle start in this subscribed
             // parent session is the only authoritative silent-wake receipt.
             // A distinct, session-bound run start inside the return window is a
-            // wake CANDIDATE; it binds only when that same run writes the
-            // notify:false/done completion record (see createSilentWakeBinder).
+            // wake CANDIDATE; it binds only when that same run gives its own wake
+            // receipt (see createSilentWakeBinder).
             const startRunId = gatewayWakeRunId(eventData, acceptedRunId, sessionKey);
             // docs#564: a distinct wake run is counted from dispatch + delegate
             // delay (the earliest the delegate can fire); the old fixed gate is
@@ -465,9 +476,22 @@ export default function () {
           if (eventName === 'session.message' && evidence.send_accepted) {
             // session.message is never a wake START receipt: only a lifecycle
             // envelope can start a wake. Its row-level __openclaw.runId is used
-            // solely to tie the notify:false/done completion record to an
-            // already-observed lifecycle wake run (createSilentWakeBinder).
+            // solely to tie the woken run's own receipt (the exact wake
+            // acknowledgement, or the notify:false/done completion record) to
+            // an observed lifecycle wake run (createSilentWakeBinder).
             evidence.agent_turn_observed = true;
+            // A session-event wake (openclaw 8baac2feb6) answers in assistant
+            // text: the exact acknowledgement the dispatch asked for, from a run
+            // other than the dispatch run, in this session.
+            const ackRunId = acceptedRunId && observesRcd2WakeAck(eventData, wakeAckSentinel, sessionKey)
+              ? eventRunId(eventData)
+              : null;
+            if (ackRunId && ackRunId !== acceptedRunId) {
+              evidence.wake_ack_observed = true;
+              if (!wakeBinder) wakeBinder = createSilentWakeBinder({ acceptedRunId });
+              const bound = wakeBinder.noteWakeReceipt(ackRunId, 'assistant-wake-ack');
+              if (bound) recordBoundWake(socket, bound);
+            }
             if (observesRcd2DispatchTerminalSentinel(
               eventData,
               dispatchTerminalSentinel,

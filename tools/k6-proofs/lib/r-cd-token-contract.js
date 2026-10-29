@@ -319,37 +319,233 @@ function contentText(message) {
     .join('\n');
 }
 
-/** Parse only the structured session.message return surface, never arbitrary JSON. */
-export function parseTokenReturnEvent(
-  eventData,
-  { expectedTargetSessionKey, expectedSentinel, expectedDelegateChildSessionKey, hash },
+// ---------------------------------------------------------------------------
+// Delegate return (karmaterminal/openclaw-bootstrap#1727).
+//
+// Two product routes carry a token delegate's return to the origin child:
+//
+// - direct-announce: deliverSubagentAnnouncement writes a user row on the
+//   requester headed "[Inter-session message] ... sourceTool=subagent_announce
+//   sourceSession=<delegate child>". The header binds the source on the row.
+// - targeted-return: since openclaw 2273ef64d5 (2026-09-12) every pending
+//   delegate carries a recipient-authority binding for its requester, so
+//   routeSubagentContinuationReturn handles every delegate return: a durable
+//   systemEvent row plus a queued system event on the origin child, then a
+//   `delegate-return` wake that runs an ordinary session-event turn there
+//   (logged `[continuation:targeted-return] Delivered to <origin> from
+//   <delegate>`). The delivered text is hidden from session.message and
+//   chat.history (input rows of an event turn), and the woken run's lifecycle
+//   names no delegate. At 8ba08c76d8 the direct-announce row is never written
+//   for a continuation delegate.
+//
+// The targeted return binds the same four things the header did, from the
+// surfaces that are visible:
+//   (a) target: the woken run's own assistant answer, top-level sessionKey ===
+//       the origin child, in a run that started on the origin (lifecycle
+//       start) and is not the origin's own bracket run;
+//   (b) source: the delegate child's own transcript (cleanup "keep") answers
+//       the sentinel in the delegate's own run;
+//   (c) the exact RCDT-RETURN-<tag> sentinel, word-bounded, once, on both legs;
+//   (d) this row run: <tag> is derived from the runner-owned nonce, and both
+//       legs are bound to run identities (delegate run, woken origin run).
+// A sentinel from another session, another run, a run that never started on
+// the origin, an unstamped row, or a return with no delegate leg never binds.
+// ---------------------------------------------------------------------------
+
+const HARNESS_MARKER = '[k6-proof-harness]';
+const BRACKET_OPEN = '[[CONTINUE_DELEGATE:';
+export const TOKEN_RETURN_ROUTES = Object.freeze(['direct-announce', 'targeted-return']);
+
+function isRecord(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Word-bounded occurrences of the exact sentinel. */
+function exactSentinelCount(text, sentinel) {
+  if (typeof text !== 'string' || !text || typeof sentinel !== 'string' || !sentinel) return 0;
+  const matches = text.match(new RegExp(
+    `(?:^|[^A-Za-z0-9_-])${escapeRegex(sentinel)}(?=$|[^A-Za-z0-9_-])`,
+    'g',
+  ));
+  return matches ? matches.length : 0;
+}
+
+/** The top-level event session; a disagreement between its two names binds nothing. */
+function eventSessionKey(eventData) {
+  if (!isRecord(eventData)) return null;
+  const keys = [eventData.sessionKey, eventData.session]
+    .filter((value) => typeof value === 'string' && value.length > 0);
+  const unique = [...new Set(keys)];
+  return unique.length === 1 ? unique[0] : null;
+}
+
+/** Run identity of a transcript row: envelope runId and __openclaw.runId must agree. */
+function rowRunId(eventData) {
+  const message = isRecord(eventData?.message) ? eventData.message : null;
+  const meta = isRecord(message?.__openclaw) ? message.__openclaw : null;
+  const ids = [eventData?.runId, meta?.runId]
+    .filter((value) => typeof value === 'string' && value.length > 0);
+  const unique = [...new Set(ids)];
+  return unique.length === 1 ? unique[0] : null;
+}
+
+/** An assistant row carrying the exact sentinel once, not a prompt or bracket echo. */
+function assistantSentinelText(message, sentinel) {
+  if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'assistant') return false;
+  const text = contentText(message);
+  return Boolean(text) &&
+    exactSentinelCount(text, sentinel) === 1 &&
+    !text.includes(HARNESS_MARKER) &&
+    !text.includes(BRACKET_OPEN);
+}
+
+/**
+ * A woken run on the origin child: a lifecycle start, on the origin's own key,
+ * of a run other than the origin's bracket run. Returns its runId or null.
+ */
+export function parseTokenOriginWakeStart(eventData, { expectedTargetSessionKey, originSpawnRunId }) {
+  if (!isRecord(eventData) || !expectedTargetSessionKey || !originSpawnRunId) return null;
+  if (eventSessionKey(eventData) !== String(expectedTargetSessionKey)) return null;
+  if (String(eventData.stream || '').toLowerCase() !== 'lifecycle') return null;
+  if (String(eventData.data?.phase || '').toLowerCase() !== 'start') return null;
+  const runId = typeof eventData.runId === 'string' && eventData.runId ? eventData.runId : null;
+  return runId && runId !== String(originSpawnRunId) ? runId : null;
+}
+
+/**
+ * The source leg: the delegate child's own transcript answers the exact
+ * sentinel, in an assistant row stamped with the delegate's own run. Exactly
+ * one such row binds; the spawn task (a user row) never counts.
+ */
+export function parseTokenSourceReturn(
+  messages,
+  { expectedDelegateChildSessionKey, expectedDelegateRunId, expectedSentinel, hash },
 ) {
-  if (!eventData || typeof hash !== 'function') return null;
-  if (String(eventData.sessionKey || '') !== String(expectedTargetSessionKey || '')) return null;
+  if (!Array.isArray(messages) || typeof hash !== 'function') return null;
+  const source = String(expectedDelegateChildSessionKey || '');
+  const run = String(expectedDelegateRunId || '');
+  if (!source || !run || !expectedSentinel) return null;
+  const matches = messages.filter((message) =>
+    assistantSentinelText(message, expectedSentinel) && rowRunId({ message }) === run);
+  if (matches.length !== 1) return null;
+  return {
+    sourceSessionKey: source,
+    sourceSessionHash: hash(source),
+    sourceRunIdHash: hash(run),
+  };
+}
+
+function directAnnounceReturn(eventData, { expectedSentinel, expectedDelegateChildSessionKey, hash }) {
   const message = eventData.message;
   if (!message || !['user', 'system'].includes(String(message.role || '').toLowerCase())) return null;
   const text = contentText(message);
-  if (!text || !text.includes(expectedSentinel) || text.includes('[k6-proof-harness]')) return null;
+  if (!text || !text.includes(expectedSentinel) || text.includes(HARNESS_MARKER)) return null;
   const header = text.match(/^\[Inter-session message\]([^\n]*)/);
   if (!header || !/\bsourceTool=subagent_announce\b/.test(header[1])) return null;
   const source = header[1].match(/\bsourceSession=([^\s]+)/)?.[1] || '';
   if (!source || source !== String(expectedDelegateChildSessionKey || '')) return null;
   return {
+    route: 'direct-announce',
     targetSessionHash: hash(String(eventData.sessionKey)),
     sourceSessionHash: hash(source),
   };
 }
 
-/** Recover a targeted return that arrived before the live subscription. */
+/**
+ * The target leg plus the source leg. Live (requireWakeStart): the answer's
+ * run must be a lifecycle-started woken run (wakeRunIds). Transcript: the row
+ * must come after the origin's own bracket-run rows (anchored by the caller)
+ * and be stamped with a run other than that bracket run.
+ */
+function targetedReturn(eventData, {
+  expectedSentinel,
+  expectedDelegateChildSessionKey,
+  originSpawnRunId,
+  wakeRunIds,
+  sourceReturn,
+  hash,
+}, { requireWakeStart }) {
+  if (!assistantSentinelText(eventData.message, expectedSentinel)) return null;
+  const runId = rowRunId(eventData);
+  if (!runId || !originSpawnRunId || runId === String(originSpawnRunId)) return null;
+  if (requireWakeStart) {
+    const started = wakeRunIds instanceof Set ? wakeRunIds : new Set(Array.isArray(wakeRunIds) ? wakeRunIds : []);
+    if (!started.has(runId)) return null;
+  }
+  const source = String(expectedDelegateChildSessionKey || '');
+  if (!source || !isRecord(sourceReturn) || sourceReturn.sourceSessionKey !== source ||
+      sourceReturn.sourceSessionHash !== hash(source) ||
+      typeof sourceReturn.sourceRunIdHash !== 'string') return null;
+  return {
+    route: 'targeted-return',
+    targetSessionHash: hash(String(eventData.sessionKey)),
+    sourceSessionHash: sourceReturn.sourceSessionHash,
+    returnRunIdHash: hash(runId),
+    sourceRunIdHash: sourceReturn.sourceRunIdHash,
+  };
+}
+
+/**
+ * Parse only the structured session.message return surface, never arbitrary
+ * JSON. Accepts the direct-announce row (header-bound source) or the
+ * targeted-return woken answer (wake-start-bound target plus the delegate's
+ * own source leg).
+ */
+export function parseTokenReturnEvent(eventData, options) {
+  const { expectedTargetSessionKey, hash } = options || {};
+  if (!eventData || typeof hash !== 'function') return null;
+  if (String(eventData.sessionKey || '') !== String(expectedTargetSessionKey || '')) return null;
+  if (eventSessionKey(eventData) !== String(expectedTargetSessionKey || '')) return null;
+  return directAnnounceReturn(eventData, options) ||
+    targetedReturn(eventData, options, { requireWakeStart: true });
+}
+
+/**
+ * Recover a return from the origin child's own transcript (chat.history).
+ * Exactly one bound return across both routes. A targeted answer counts only
+ * after the last row of the origin's own bracket run. Under cleanup "delete"
+ * this transcript is gone once the origin's announce completes; the live
+ * route is then the only one.
+ */
 export function parseTokenReturnHistory(messages, options) {
-  if (!Array.isArray(messages)) return null;
+  if (!Array.isArray(messages) || !options || typeof options.hash !== 'function') return null;
+  const target = options.expectedTargetSessionKey;
+  let anchor = -1;
+  messages.forEach((message, index) => {
+    if (options.originSpawnRunId && rowRunId({ message }) === String(options.originSpawnRunId)) anchor = index;
+  });
   const matches = messages
-    .map((message) => parseTokenReturnEvent({
-      sessionKey: options.expectedTargetSessionKey,
-      message,
-    }, options))
+    .map((message, index) => {
+      const eventData = { sessionKey: target, message };
+      return directAnnounceReturn(eventData, options) ||
+        (index > anchor && anchor >= 0
+          ? targetedReturn(eventData, options, { requireWakeStart: false })
+          : null);
+    })
     .filter(Boolean);
   return matches.length === 1 ? matches[0] : null;
+}
+
+function hex16(value) {
+  return typeof value === 'string' && /^[0-9a-f]{16}$/.test(value);
+}
+
+/** Route-specific return binding; legacy evidence without a route is the header route. */
+function returnRouteBound(evidence) {
+  const route = evidence?.return_route;
+  if (route === undefined || route === null || route === 'direct-announce') return true;
+  if (route !== 'targeted-return') return false;
+  return evidence.source_return_observed === true &&
+    hex16(evidence.source_return_run_id_hash) &&
+    evidence.source_return_run_id_hash === evidence.delegate_run_id_hash &&
+    hex16(evidence.return_run_id_hash) &&
+    hex16(evidence.origin_spawn_run_id_hash) &&
+    evidence.return_run_id_hash !== evidence.origin_spawn_run_id_hash &&
+    evidence.return_run_id_hash !== evidence.delegate_run_id_hash;
 }
 
 export function classifyTokenEvidence(evidence) {
@@ -393,6 +589,7 @@ export function classifyTokenEvidence(evidence) {
     evidence.delegate_parent_mismatch !== true &&
     evidence.return_target_session_hash === evidence.origin_child_session_hash &&
     evidence.return_source_session_hash === evidence.delegate_child_session_hash &&
+    returnRouteBound(evidence) &&
     taskStates && evidence.interrupted !== true;
   return complete ? 'PASS-candidate' : 'PARTIAL-candidate';
 }

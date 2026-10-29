@@ -141,6 +141,8 @@ function directAnnounce({ sentinel, sourceSession = DELEGATE }) {
  * - delegateAnswer / delegateAnswerRunId: the delegate's own final answer
  * - originHistory(state): extra origin transcript rows after the bracket run
  * - originDeleted: cleanup "delete" removes the origin after its announce
+ * - deliverUnsubscribed: also hand the scenario wake frames for sessions it
+ *   never subscribed to, so the parser (not the gateway) must reject them
  */
 function scriptedGateway({
   clock,
@@ -149,6 +151,7 @@ function scriptedGateway({
   delegateAnswerRunId = DELEGATE_RUN,
   originHistory = () => [],
   originDeleted = true,
+  deliverUnsubscribed = false,
 }) {
   const state = {
     parentKey: null, tag: null, sentinel: null, originTitle: null, childTask: null, delegateTask: null,
@@ -210,8 +213,9 @@ function scriptedGateway({
           }
           if (state.wakeFrames.length) {
             // Broadcasts reach only subscribers of the frame's session.
-            const deliverable = state.wakeFrames.filter((f) => state.subscribed.has(f.payload.sessionKey));
-            state.wakeFrames = state.wakeFrames.filter((f) => !state.subscribed.has(f.payload.sessionKey));
+            const reaches = (f) => deliverUnsubscribed || state.subscribed.has(f.payload.sessionKey);
+            const deliverable = state.wakeFrames.filter(reaches);
+            state.wakeFrames = state.wakeFrames.filter((f) => !reaches(f));
             replies.push(...deliverable);
           }
           return replies;
@@ -350,10 +354,53 @@ test('both forms: the direct-announce delivery still binds', async () => {
 });
 
 test('negative: the wake answer in another session does not bind', async () => {
-  for (const sessionKey of [UNRELATED, null]) {
+  for (const sessionKey of [UNRELATED, DELEGATE, null]) {
     const fired = await fireRcdToken({
       // null: the parent session (the scenario subscribes to it).
       wake: (state) => targetedReturnWake({ sentinel: state.sentinel, sessionKey: sessionKey || state.parentKey }),
+      deliverUnsubscribed: true,
+    });
+    assertReturnUnbound(fired);
+  }
+  for (const wake of [
+    // The answer on the origin, but its run started in another session.
+    (state) => [
+      lifecycle({ runId: WAKE_RUN, sessionKey: UNRELATED, phase: 'start' }),
+      transcript({ sessionKey: ORIGIN, runId: WAKE_RUN, message: text('assistant', state.sentinel) }),
+    ],
+    // The run started on the origin, but the answer is in another session.
+    (state) => [
+      lifecycle({ runId: WAKE_RUN, sessionKey: ORIGIN, phase: 'start' }),
+      transcript({ sessionKey: UNRELATED, runId: WAKE_RUN, message: text('assistant', state.sentinel) }),
+    ],
+    // A direct-announce row from the delegate, delivered to another session.
+    (state) => directAnnounce({ sentinel: state.sentinel }).map((frame) => ({
+      ...frame, payload: { ...frame.payload, sessionKey: UNRELATED },
+    })),
+  ]) {
+    const fired = await fireRcdToken({ wake, deliverUnsubscribed: true });
+    assertReturnUnbound(fired);
+  }
+});
+
+test('negative: transcript recovery keeps every binding', async () => {
+  for (const options of [
+    // The origin's own bracket run, not a woken run.
+    { originHistory: (state) => [stamped(text('assistant', state.sentinel), ORIGIN_RUN)] },
+    // An unstamped row.
+    { originHistory: (state) => [stamped(text('assistant', state.sentinel), null)] },
+    // Another row run's sentinel.
+    { originHistory: () => [stamped(text('assistant', `RCDT-RETURN-${tagOf(OTHER_RUN_NONCE)}`), WAKE_RUN)] },
+    // No delegate source leg.
+    { originHistory: (state) => [stamped(text('assistant', state.sentinel), WAKE_RUN)], delegateAnswer: () => null },
+    // Two candidate answers: not exactly one.
+    { originHistory: (state) => [stamped(text('assistant', state.sentinel), WAKE_RUN), stamped(text('assistant', state.sentinel), 'second-run')] },
+  ]) {
+    const fired = await fireRcdToken({
+      originDeleted: false,
+      wake: () => [],
+      ...options,
+      originHistory: (state) => state.round >= WAKE_END_ROUND ? options.originHistory(state) : [],
     });
     assertReturnUnbound(fired);
   }

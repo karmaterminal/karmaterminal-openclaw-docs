@@ -9,8 +9,10 @@ import {
   classifyTokenEvidence,
   createTokenSessionLedger,
   observeTokenSessionLedger,
+  parseTokenOriginWakeStart,
   parseTokenReturnEvent,
   parseTokenReturnHistory,
+  parseTokenSourceReturn,
   rejectTokenSessionLedgerObservation,
   summarizeTokenSessionLedger,
   tokenDisposableOriginReady,
@@ -79,7 +81,11 @@ export default function () {
     .replace(/\{\{marker\}\}/g, delegateMarker)
     .replace(/\{\{tag\}\}/g, tag);
   const bracket = `[[CONTINUE_DELEGATE: ${delegateTask} +${inv.delaySeconds}s]]`;
-  const childTask = `Reply exactly RCDT-HOP1-${tag}, then put this exact terminal bracket on its own final line: ${bracket} Do not call continue_delegate. Put no text after the closing brackets. Do not mutate files.`;
+  // The delegate's return reaches the origin child as a targeted return: the
+  // delivered text is hidden from subscribers and the woken turn's only
+  // run-bound receipt is its own answer (#1727), so the origin is told what to
+  // answer there. The bracket turn itself is excluded by run identity.
+  const childTask = `On a later turn, only after an internal task completion contains ${returnSentinel}, reply exactly ${returnSentinel}. Now reply exactly RCDT-HOP1-${tag}, then put this exact terminal bracket on its own final line: ${bracket} Do not call continue_delegate. Put no text after the closing brackets. Do not mutate files.`;
   const ledger = createTokenSessionLedger({ surfaceClass });
   if (!token) { console.error('OPENCLAW_GATEWAY_TOKEN is required'); failures.add(1); return; }
   if (manifest) {
@@ -99,6 +105,11 @@ export default function () {
     reason_hash: hash(delegateTask), reason_length: delegateTask.length, delegate_mode: 'normal',
     origin_subscription_accepted: false, delegate_return_observed: false,
     return_target_session_hash: null, return_source_session_hash: null,
+    // Return route (#1727): direct-announce (header-bound source) or
+    // targeted-return (woken origin answer + the delegate's own answer).
+    return_route: null, return_run_id_hash: null,
+    origin_spawn_run_id_hash: null, origin_wake_run_count: 0,
+    source_return_observed: false, source_return_run_id_hash: null,
     interrupted: true, terminal_reason: 'observation-window-open',
     dispatch_accepted_at_ms: null, trace_id: null, event_receipt_kinds: [],
     // Snapshot fields now digest complete child-observer traversals (#562).
@@ -127,22 +138,55 @@ export default function () {
     let originSubscriptionRequestId = null;
     let originSubscriptionTarget = null;
     let originHistoryPending = false;
+    let sourceHistoryPending = false;
+    // The origin child's own bracket run: the first run the observer reports
+    // for it. Its rows can never be the woken answer.
+    let originSpawnRunId = null;
+    let sourceReturn = null;
     const pendingReturnEvents = [];
+    const originLifecycleStarts = [];
 
-    function tryReturnEvent(eventData) {
-      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
-      if (!identity.originChildSessionKey || !identity.delegateChildSessionKey) return false;
-      const receipt = parseTokenReturnEvent(eventData, {
+    function returnOptions(identity) {
+      return {
         expectedTargetSessionKey: identity.originChildSessionKey,
         expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
         expectedSentinel: returnSentinel,
+        originSpawnRunId,
+        wakeRunIds: originWakeRunIds(identity),
+        sourceReturn,
         hash,
-      });
-      if (!receipt) return false;
+      };
+    }
+
+    function originWakeRunIds(identity) {
+      const runs = new Set();
+      for (const eventData of originLifecycleStarts) {
+        const runId = parseTokenOriginWakeStart(eventData, {
+          expectedTargetSessionKey: identity.originChildSessionKey,
+          originSpawnRunId,
+        });
+        if (runId) runs.add(runId);
+      }
+      evidence.origin_wake_run_count = runs.size;
+      return runs;
+    }
+
+    function recordReturn(receipt, kind) {
       evidence.delegate_return_observed = true;
       evidence.return_target_session_hash = receipt.targetSessionHash;
       evidence.return_source_session_hash = receipt.sourceSessionHash;
-      evidence.event_receipt_kinds.push('bound-session-message-return');
+      evidence.return_route = receipt.route;
+      evidence.return_run_id_hash = receipt.returnRunIdHash || null;
+      evidence.event_receipt_kinds.push(kind);
+    }
+
+    function tryReturnEvent(eventData) {
+      if (evidence.delegate_return_observed) return true;
+      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+      if (!identity.originChildSessionKey || !identity.delegateChildSessionKey) return false;
+      const receipt = parseTokenReturnEvent(eventData, returnOptions(identity));
+      if (!receipt) return false;
+      recordReturn(receipt, 'bound-session-message-return');
       return true;
     }
 
@@ -151,6 +195,26 @@ export default function () {
         if (tryReturnEvent(eventData)) break;
       }
       if (evidence.delegate_return_observed) pendingReturnEvents.length = 0;
+    }
+
+    function captureOriginSpawnRun() {
+      if (originSpawnRunId) return;
+      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+      if (!identity.originRunId) return;
+      originSpawnRunId = identity.originRunId;
+      evidence.origin_spawn_run_id_hash = hash(originSpawnRunId);
+    }
+
+    // The source leg: the delegate child (cleanup "keep") answers the sentinel
+    // in its own run, read from its own transcript once its row is done.
+    function maybeRefreshSourceHistory() {
+      if (sourceHistoryPending || sourceReturn || evidence.delegate_return_observed) return;
+      const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+      const summary = summarizeTokenSessionLedger(ledger);
+      if (!identity.delegateChildSessionKey || summary.delegate_task_status !== 'completed') return;
+      sourceHistoryPending = Boolean(observer.refreshHistory(
+        identity.delegateChildSessionKey, OBSERVER_PAGE_LIMIT, 'token-source',
+      ));
     }
 
     function maybeSubscribeOrigin() {
@@ -249,8 +313,10 @@ export default function () {
         records: observer.records(), originTitle, delegateMarker,
         parentSessionKey: sessionKey, hash,
       });
+      captureOriginSpawnRun();
       maybeSubscribeOrigin();
       reconcilePendingReturns();
+      maybeRefreshSourceHistory();
       maybeRefreshOriginHistory();
       closeComplete();
       scheduleTaskPoll();
@@ -343,21 +409,30 @@ export default function () {
         const classified = tracker.classify(msg);
         if (observed) {
           const history = observer.handle(observed, classified);
+          if (observed.purpose === 'token-source') {
+            sourceHistoryPending = false;
+            const identity = tokenSessionLedgerRuntimeIdentity(ledger);
+            if (observed.childSessionKey === identity.delegateChildSessionKey) {
+              sourceReturn = parseTokenSourceReturn(history, {
+                expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
+                expectedDelegateRunId: identity.delegateRunId,
+                expectedSentinel: returnSentinel,
+                hash,
+              });
+              if (sourceReturn) {
+                evidence.source_return_observed = true;
+                evidence.source_return_run_id_hash = sourceReturn.sourceRunIdHash;
+                reconcilePendingReturns();
+              }
+            }
+          }
           if (observed.purpose === 'token-return') {
             originHistoryPending = false;
             const identity = tokenSessionLedgerRuntimeIdentity(ledger);
-            const receipt = parseTokenReturnHistory(history, {
-              expectedTargetSessionKey: identity.originChildSessionKey,
-              expectedDelegateChildSessionKey: identity.delegateChildSessionKey,
-              expectedSentinel: returnSentinel,
-              hash,
-            });
-            if (receipt) {
-              evidence.delegate_return_observed = true;
-              evidence.return_target_session_hash = receipt.targetSessionHash;
-              evidence.return_source_session_hash = receipt.sourceSessionHash;
-              evidence.event_receipt_kinds.push('bound-target-transcript-return');
-            }
+            const receipt = evidence.delegate_return_observed
+              ? null
+              : parseTokenReturnHistory(history, returnOptions(identity));
+            if (receipt) recordReturn(receipt, 'bound-target-transcript-return');
           }
           if (observer.state.refusal && taskPollPending) {
             taskPollPending = false;
@@ -406,9 +481,23 @@ export default function () {
         }
         if (classified.kind === 'event' && classified.event === 'session.message') {
           const eventData = classified.data || {};
-          if (pendingReturnEvents.length < 20) pendingReturnEvents.push(eventData);
+          // A return lands on the origin child, never on the disposable parent;
+          // keep the bounded buffer for events that can still bind.
+          if (eventData.sessionKey !== sessionKey && pendingReturnEvents.length < 20) {
+            pendingReturnEvents.push(eventData);
+          }
           tryReturnEvent(eventData);
           closeComplete();
+        }
+        if (classified.kind === 'event' && classified.event === 'agent') {
+          const eventData = classified.data || {};
+          // Lifecycle starts off the parent: the origin's woken run is one.
+          if (eventData.sessionKey !== sessionKey && String(eventData.stream || '') === 'lifecycle' &&
+              String(eventData.data?.phase || '') === 'start' && originLifecycleStarts.length < 20) {
+            originLifecycleStarts.push(eventData);
+            reconcilePendingReturns();
+            closeComplete();
+          }
         }
       } catch (error) {
         console.warn(`parse error: ${error}`);

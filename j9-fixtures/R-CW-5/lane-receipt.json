@@ -1,0 +1,85 @@
+{
+  "schema": "frond.lane.j9-cw5-cw6-fixtures.attempt-receipt.v1",
+  "authoredBy": "lane codeagent/j9-cw5-cw6-fixtures (not fixture-emitted)",
+  "issue": "karmaterminal/openclaw-bootstrap#1727",
+  "row": "R-CW-5",
+  "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+  "docsHarnessSha": "59c328b06fe4c3fb4e420a0f8e8c7bd10ae3f374",
+  "fixture": "tools/k6-proofs/scripts/run-cost-cap-fixture.mjs",
+  "command": [
+    "node",
+    "tools/k6-proofs/scripts/run-cost-cap-fixture.mjs",
+    "--source-dir",
+    "<clean-detached-exact-candidate-worktree>",
+    "--candidate-sha",
+    "293c977f629f872a643fb94892603310b887293b",
+    "--artifact-dir",
+    "<new-empty-0700-private-dir>",
+    "--cap",
+    "100",
+    "--json"
+  ],
+  "toolchain": {
+    "node": "v26.12.1",
+    "npm": "11.20.0",
+    "hostPnpmInCandidate": "12.15.0 (corepack 0.36.0 shim, resolved from candidate packageManager)",
+    "candidatePackageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "lanePinnedEnv": ["NO_COLOR=1", "FORCE_COLOR unset"],
+    "laneEnvOverrides": [],
+    "note": "This fixture ignores host pnpm: it strips npm_/pnpm_/corepack_ env, uses a private HOME/XDG tree, npm-installs pnpm@<candidate version> into a private toolchain, and passes an explicit private --store-dir."
+  },
+  "verdict": "FAIL-fixture",
+  "verdictBasis": "Fixture fail-closed contract: the process exited 2 before writing fixture-result.json; any missing receipt is FAIL-fixture, never PASS.",
+  "failureClass": "fixture-code-vs-candidate (stale pnpm package-layout assumption); not environment",
+  "productBoundaryExercised": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAtUtc": "2026-10-29T04:18:27Z",
+      "endedAtUtc": "2026-10-29T04:18:35Z",
+      "processExitCode": 2,
+      "jsonResultLineEmitted": false,
+      "failureMessage": "R-CW-5 fixture failed: candidate-pinned pnpm install did not produce a real pnpm script",
+      "artifactFilesProduced": ["fixture-readiness.json"],
+      "fixtureResultPresent": false,
+      "publicArtifactSafetyPresent": false,
+      "disposableWorktreeRemovedVerified": true,
+      "sourceHeadAfter": "293c977f629f872a643fb94892603310b887293b",
+      "sourceTrackedCleanAfterVerified": true
+    }
+  ],
+  "receipts": {
+    "fixture-readiness.json": "produced (sha256 e7136199b6c5ce4cf108c51b8b48aa639ac1ce33480fd7e013f18d6f0af3d741); not copied, see publicCopy",
+    "boundary-matrix.json": "missing",
+    "dispatch-boundary-suite.json": "missing",
+    "typed-tool-surface.json": "missing",
+    "cleanup.json": "missing",
+    "fixture-result.json": "missing"
+  },
+  "readinessValues": {
+    "provenance": "values read from the fixture-emitted fixture-readiness.json of attempt 1",
+    "sourceHeadMatchesCandidate": true,
+    "sourceTrackedCleanBefore": true,
+    "productionConfigTouched": false,
+    "productionStateTouched": false,
+    "lockfileSha256": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc",
+    "cap": 100
+  },
+  "rootCause": {
+    "failingCheck": "resolvePinnedPnpm requires node_modules/pnpm/bin/pnpm.cjs inside the private toolchain",
+    "observed": "pnpm@12.15.0 as published ships bin/pnpm.mjs plus root launchers pnpm and pn; there is no bin/pnpm.cjs",
+    "integrityConfirmed": "registry dist.integrity for pnpm@12.15.0 decodes to the candidate packageManager sha512, so the fixture installed the correct package",
+    "contrast": "pnpm@11.22.0 (packageManager at the earlier passing candidate 80311e8aa07fd560cb957475517c5ea18164541c) ships bin/pnpm.cjs",
+    "environmentFixAvailable": false,
+    "environmentFixReason": "the fixture pins the exact candidate pnpm version and its hard-coded script path does not exist in that published package"
+  },
+  "secondLatentBlocker": {
+    "check": "run-cost-cap-fixture.mjs requires sha256(node_modules/.pnpm/lock.yaml) == sha256(candidate pnpm-lock.yaml)",
+    "status": "would also fail at this candidate; see j9-fixtures/R-CW-6/lane-receipt.json lockfileDiagnostic"
+  },
+  "publicCopy": {
+    "rule": "copy only files that the fixture's public-artifact-safety.json declares safe",
+    "fixtureEmitsPublicArtifactSafety": false,
+    "note": "run-cost-cap-fixture.mjs never writes public-artifact-safety.json (by design, not because of this failure), and this attempt produced no fixture-result.json. No fixture file was copied. Only non-sensitive readiness values are restated above."
+  }
+}

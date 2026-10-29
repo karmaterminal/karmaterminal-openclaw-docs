@@ -1,0 +1,91 @@
+{
+  "schema": "frond.lane.j9-cw5-cw6-fixtures.attempt-receipt.v1",
+  "authoredBy": "lane codeagent/j9-cw5-cw6-fixtures (not fixture-emitted)",
+  "issue": "karmaterminal/openclaw-bootstrap#1727",
+  "row": "R-CW-6",
+  "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+  "docsHarnessSha": "59c328b06fe4c3fb4e420a0f8e8c7bd10ae3f374",
+  "fixture": "tools/k6-proofs/scripts/run-max-chain-fixture.mjs",
+  "command": [
+    "node",
+    "tools/k6-proofs/scripts/run-max-chain-fixture.mjs",
+    "--source-dir",
+    "<clean-detached-exact-candidate-worktree>",
+    "--candidate-sha",
+    "293c977f629f872a643fb94892603310b887293b",
+    "--artifact-dir",
+    "<new-empty-0700-private-dir>",
+    "--max-chain-length",
+    "3",
+    "--json"
+  ],
+  "toolchain": {
+    "node": "v26.12.1",
+    "npm": "11.20.0",
+    "hostPnpmInCandidate": "12.15.0 (corepack 0.36.0 shim, resolved from candidate packageManager)",
+    "candidatePackageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "lanePinnedEnv": ["NO_COLOR=1", "FORCE_COLOR unset"],
+    "laneEnvOverrides": ["pnpm_config_store_dir=<lane-local stable pnpm store>"],
+    "envOverrideReason": "host pnpm config storeDir points into an Actions runner _temp directory that did not exist and that a live runner job may create or wipe mid-install. pnpm 12 honours pnpm_config_store_dir, not npm_config_store_dir. The store location does not affect lock.yaml contents."
+  },
+  "verdict": "FAIL-fixture",
+  "verdictBasis": "Fixture fail-closed contract: the process exited 2 before writing any receipt; any missing receipt is FAIL-fixture, never PASS.",
+  "failureClass": "fixture-code-vs-candidate (whole-file lockfile byte-equality vs pnpm 12 multi-document lockfile); not environment",
+  "productBoundaryExercised": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAtUtc": "2026-10-29T04:19:19Z",
+      "endedAtUtc": "2026-10-29T04:19:34Z",
+      "processExitCode": 2,
+      "jsonResultLineEmitted": false,
+      "failureMessage": "R-CW-6 fixture failed: installed node_modules/.pnpm/lock.yaml bytes do not match candidate pnpm-lock.yaml",
+      "failedPhase": "post-install dependency verification (assertInstalledPnpmDependencyTree), after a successful frozen install and the post-install worktree integrity check",
+      "artifactFilesProduced": [],
+      "fixtureResultPresent": false,
+      "publicArtifactSafetyPresent": false,
+      "disposableWorktreeRemovedVerified": true,
+      "sourceHeadAfter": "293c977f629f872a643fb94892603310b887293b",
+      "sourceTrackedCleanAfterVerified": true
+    }
+  ],
+  "receipts": {
+    "fixture-readiness.json": "missing",
+    "boundary-matrix.json": "missing",
+    "runtime-boundary.json": "missing",
+    "durable-state-recovery.json": "missing",
+    "typed-tool-surface.json": "missing",
+    "dispatch-boundary-suite.json": "missing",
+    "cleanup.json": "missing",
+    "public-artifact-safety.json": "missing",
+    "fixture-result.json": "missing"
+  },
+  "lockfileDiagnostic": {
+    "method": "Lane reproduction of the fixture's exact install step (pnpm install --frozen-lockfile --prefer-offline --ignore-scripts, pnpm 12.15.0, same env) in a scratch detached worktree of the candidate outside source/WORKTREES. The worktree was removed afterwards and the candidate tree stayed clean.",
+    "installSucceeded": true,
+    "candidateLockfileSha256": "01c02f06984feaa8090c17b45e80e83e1f0842f38eed2f9ab37b113f0a4627fc",
+    "candidateLockfileLines": 18883,
+    "candidateLockfileYamlDocuments": 2,
+    "candidateEnvDocument": "lines 1-157: importers['.'] configDependencies plus packageManagerDependencies pnpm 12.15.0, and the per-platform @pnpm/exe.* 12.15.0 packages",
+    "candidateMainDocument": "lines 159-18883 after the separator at line 158",
+    "candidateMainDocumentSha256": "39a639eee3825075709f83d176383357a07bfdfc01041ce56709397eb1e1c01d",
+    "installedVirtualStoreLockSha256": "39a639eee3825075709f83d176383357a07bfdfc01041ce56709397eb1e1c01d",
+    "installedVirtualStoreLockLines": 18725,
+    "installedLockEqualsCandidateMainDocumentByteForByte": true,
+    "installedModulesYamlPackageManager": "pnpm@12.15.0",
+    "installedModulesYamlVirtualStoreDir": ".pnpm",
+    "contrast": "the earlier passing candidate 80311e8aa07fd560cb957475517c5ea18164541c (pnpm 11.22.0) committed a single-document lockfile, so the whole-file equality held there",
+    "environmentFixAvailable": false,
+    "environmentFixReason": "the env document is committed candidate content and pnpm by design writes only the main document to the virtual-store lock; the fixture forbids both a candidate edit and a different pnpm version"
+  },
+  "nextLatentBlocker": {
+    "issue": "karmaterminal/karmaterminal-openclaw-docs#516 (open)",
+    "status": "Unchanged since the issue was filed and still applicable at this candidate. The delegate template mocks src/agents/subagent-spawn.js, which no longer exists; the owner is src/agents/subagents/spawn/subagent-spawn.ts. Its system-events mock also lacks enqueueSystemEventRaw, the export delegate-dispatch.ts imports.",
+    "safetyNote": "Plausible, not demonstrated: if the lockfile gate is fixed without docs#516, the stale spawn mock would not intercept the real spawn owner, which carries gateway caller wiring. Do not re-fire on a host with a live local gateway until the template is updated."
+  },
+  "publicCopy": {
+    "rule": "copy only files that the fixture's public-artifact-safety.json declares safe",
+    "fixtureEmitsPublicArtifactSafety": "yes by design, but not reached in this attempt",
+    "note": "The artifact directory was empty, so no fixture file exists to copy."
+  }
+}

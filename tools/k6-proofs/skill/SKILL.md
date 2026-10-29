@@ -228,7 +228,9 @@ fixtures, not live fleet mutation:
    `tools/k6-proofs/scripts/run-max-chain-fixture.mjs` for R-CW-6.
 2. Require the row-specific boundary, no-spawn, readiness, and cleanup
    receipts; R-CW-6 additionally requires durable recovery, typed-tool,
-   selected delegate-boundary, and public-artifact-safety receipts.
+   selected delegate-boundary, and public-artifact-safety receipts. Publish
+   only the artifact dir: R-CW-6 keeps a failed surface's raw output in
+   `<artifact-dir>.private`, which never goes into the corpus.
 3. Keep the result review-required; never infer a gateway claim or automatic
    corpus fold from the component fixture.
 

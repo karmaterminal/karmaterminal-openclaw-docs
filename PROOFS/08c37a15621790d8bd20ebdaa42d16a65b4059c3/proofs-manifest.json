@@ -431,17 +431,33 @@
       "row": "R-CW-5",
       "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond-scribe-fixture",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): pass (diagnostic only; not carried)"
+      "summary": "fixture PASS-candidate at exact 08c37a1562, all checks true; docs 860bd4ec",
+      "notes": "historical at 8ba08c76d8 (P'): pass (diagnostic only; not carried)",
+      "fixture_run": {
+        "seat": "ronan",
+        "run": "fixtures-08c37a15-20261029T213429Z",
+        "docs_sha": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19",
+        "candidate_sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+        "exit_code": 0,
+        "receipts": [
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/boundary-matrix.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/cleanup.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/dispatch-boundary-suite.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/fixture-readiness.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/fixture-result.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/runner-stdout.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-5/fixture-ronan/typed-tool-surface.json"
+        ]
+      }
     },
     {
       "row": "R-CW-5A",
@@ -466,17 +482,36 @@
       "row": "R-CW-6",
       "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond-scribe-fixture",
-      "state": "missing",
+      "state": "pass",
       "dir": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/",
       "evidence_doc": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
-      "candidate_verdict": null,
-      "review_status": "not-fired-yet",
-      "fired": false,
+      "candidate_verdict": "PASS-candidate",
+      "review_status": "reviewed",
+      "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 8ba08c76d8 (P'): pass (diagnostic only; not carried)"
+      "summary": "fixture PASS-candidate at exact 08c37a1562, all checks true; docs 860bd4ec",
+      "notes": "historical at 8ba08c76d8 (P'): pass (diagnostic only; not carried)",
+      "fixture_run": {
+        "seat": "ronan",
+        "run": "fixtures-08c37a15-20261029T213429Z",
+        "docs_sha": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19",
+        "candidate_sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+        "exit_code": 0,
+        "receipts": [
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/boundary-matrix.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/cleanup.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/dispatch-boundary-suite.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/durable-state-recovery.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/fixture-readiness.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/fixture-result.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/public-artifact-safety.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/runner-stdout.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/runtime-boundary.json",
+          "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CW-6/fixture-ronan/typed-tool-surface.json"
+        ]
+      }
     },
     {
       "row": "R-CW-6A",
@@ -749,12 +784,12 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 6,
+    "pass": 8,
     "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 32
+    "missing": 30
   },
   "method": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/METHOD.md",
   "corpus": "PROOFS/08c37a15621790d8bd20ebdaa42d16a65b4059c3/",

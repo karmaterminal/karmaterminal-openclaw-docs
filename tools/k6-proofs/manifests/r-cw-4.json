@@ -66,7 +66,7 @@
     {
       "name": "continuation-trace-correlation",
       "required": true,
-      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash and length, holding one continuation.work span, its continuation.work.fire span(s), and the originating continue_work tool span on one trace and chain."
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s hop-1 reason hash and length, holding one continuation.work span, its continuation.work.fire span(s), and the originating continue_work tool span that parents that continuation.work, on one trace and chain. Hops 2 and 3 run on the same trace; each later continue_work tool span must schedule one continuation.work on the same chain and descend from the previous hop’s wake turn, in sequence and no deeper than chainDepthTarget, and is recorded in chainHops."
     }
   ],
   "artifactDestination": {

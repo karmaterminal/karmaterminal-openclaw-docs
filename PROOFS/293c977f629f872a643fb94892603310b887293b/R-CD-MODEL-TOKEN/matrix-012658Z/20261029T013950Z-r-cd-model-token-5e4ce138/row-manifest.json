@@ -1,0 +1,296 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "issue": 140,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "rowId": "R-CD-MODEL-TOKEN",
+  "toolSurface": "bracket-token",
+  "scenario": {
+    "name": "r-cd-model-token",
+    "description": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send",
+      "sessions.list",
+      "chat.history",
+      "sessions.describe"
+    ],
+    "status": "runnable",
+    "notes": "Requires a seat/session surface where final bracket text is scanned; message-body seats remain PARTIAL by declared seat class.",
+    "file": "r-cd-model-token.js",
+    "registryNotes": "Runnable local conversion: lightContext subagent emits terminal [[CONTINUE_DELEGATE: ... | model=<alias>]] bracket; delegated child returns nonce and requested model byte."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "forms": [
+      "bracket-token-model-override"
+    ],
+    "model": "${OPENCLAW_ALT_MODEL:-}",
+    "tokenTemplate": "[[CONTINUE_DELEGATE: Proof nonce {{nonce}}: report observed provider/model and nonce only. Do not mutate files. | silent-wake | model=${OPENCLAW_ALT_MODEL:-}]]",
+    "idempotencyKeyPrefix": "R-CD-MODEL-TOKEN",
+    "delaySeconds": 1,
+    "taskNamePrefix": "r-cd-model-token"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the parent request that asks the agent to call continue_delegate for this model row"
+    },
+    {
+      "name": "child-session-observed",
+      "required": true,
+      "description": "A nonce-correlated delegate child session/run is observed on the subscribed session stream or session history"
+    },
+    {
+      "name": "child-model-byte",
+      "required": true,
+      "description": "Token delegate child SERVED provider/model from the row-bound assistant message in the child's own chat.history inside the row run window (after the row anchor, first message carrying the row sentinel; stopReason recorded). sessions.describe model/modelProvider is recorded separately as the persisted SELECTION and alone yields PARTIAL (selection matched; served route unproven). Active fallback or a mixed served window is FAIL (#561/#562 review)."
+    },
+    {
+      "name": "return-payload",
+      "required": true,
+      "description": "Delegate return includes the row nonce and observed model/provider summary"
+    },
+    {
+      "name": "trace-or-session-correlation",
+      "required": false,
+      "description": "Trace id, span tree, or session-event correlation tying dispatch to child and return"
+    },
+    {
+      "name": "bracket-parse-origin",
+      "required": true,
+      "description": "Journal/session evidence that the delegate originated from bracket-token parsing with model modifier present"
+    },
+    {
+      "name": "bracket-model-modifier",
+      "required": true,
+      "description": "Observed terminal bracket included model=<requested> modifier before scan/strip"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-MODEL-TOKEN",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate only when bracket parse origin, requested model, and observed child model all match. Declare seat-class before firing; do not retro-justify scanner suppression."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This manifest carries a bracket tokenTemplate and no invocation.promptTemplate, so collect-continuation-trace.mjs refuses to attribute the trace and the trace receipts stay pending until the manifest carries a task template the collector renders. The census also found bracket origin has no positive span attribute, so the trace cannot prove the delegate came from the token."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_delegate evidence. Joined to the dispatch span only by shared trace and causal timing."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.signal.surface",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Model and provider identifiers are published literally because they are public product identifiers. The bracket text, final reply text, raw nonces, raw session keys, and tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "bracket text",
+        "final reply text",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The terminal bracket carries model=<requested>, the delegate originates from bracket parsing, and the child’s served model in its own transcript equals the requested model.",
+      "negative": "A message-body surface cannot prove the row and stays PARTIAL, and a child that inherits the seat default fails."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Bracket parse origin, the model modifier, and the child’s run-window-bound served model all match the request. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "A message-body or unknown surface, an unset or alias requested model, only the persisted selection matched, or a required receipt is missing. Missing traces keep the row review-pending without changing its class.",
+      "fail": "The child serves a different model than requested, including silent inheritance of the seat default."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-model-token.js drives a terminal bracket from a lightContext child and reads the token delegate’s transcript.",
+      "manual": "Seat class must be declared before firing; manual scanner reasoning is never evidence.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "bracket-parse-origin",
+      "bracket-model-modifier",
+      "child-session-observed",
+      "child-model-byte",
+      "return-payload",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Bracket-token model override row. Use lightContext subagent/raw final text so scanner sees terminal bracket; message-body surfaces remain PARTIAL. PASS requires bracket origin + model modifier + delegate return with requested model byte."
+  }
+}

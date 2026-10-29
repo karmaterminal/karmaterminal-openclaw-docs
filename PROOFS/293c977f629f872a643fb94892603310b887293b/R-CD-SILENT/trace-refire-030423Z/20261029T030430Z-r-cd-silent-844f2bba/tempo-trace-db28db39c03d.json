@@ -1,0 +1,111 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "db28db39c03d141a999a7596507b0eb1",
+  "spans": [
+    {
+      "name": "openclaw.tool.execution",
+      "traceId": "db28db39c03d141a999a7596507b0eb1",
+      "spanId": "0b9f2d7abb37e17b",
+      "parentSpanId": "503399403cbe35c7",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "openclaw.toolName",
+          "value": {
+            "stringValue": "continue_delegate"
+          }
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "value": {
+            "stringValue": "continue_delegate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.delegate.fire",
+      "traceId": "db28db39c03d141a999a7596507b0eb1",
+      "spanId": "6e3277ec7a8a5fcc",
+      "parentSpanId": "9a87763a1931006f",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "71d744f0-04e1-4bb9-826c-5a0391a2b0ac"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "silent"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "160"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "877972a207b494c8"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "traceId": "db28db39c03d141a999a7596507b0eb1",
+      "spanId": "9a87763a1931006f",
+      "parentSpanId": "0b9f2d7abb37e17b",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "71d744f0-04e1-4bb9-826c-5a0391a2b0ac"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "silent"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "160"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "877972a207b494c8"
+          }
+        }
+      ]
+    }
+  ]
+}

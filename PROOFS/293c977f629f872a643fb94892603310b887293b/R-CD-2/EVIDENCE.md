@@ -1,5 +1,11 @@
-# R-CD-2: missing at `293c977f62`
+# R-CD-2 at `293c977f62`: **partial**
 
 continue_delegate(mode='silent-wake') full path.
 
-Seeded 2026-10-29. No receipt is folded yet. Live row, allocated to the emeric isolated-gateway fire at exact runtime `293c977f629f872a643fb94892603310b887293b` (emeric:~/proof-runs/J9-293c977f-20261028/live-suite); it is folded only after review.
+- Candidate verdict: PARTIAL-candidate
+- Review: reviewed: frond-scribe (single seat), 2026-10-29
+- Summary: Not overlap-contaminated (01:27:45-01:29:20Z). Resolver failureCategory missing-send-run-lifecycle with wakeLifecycle=false, but the isolated gateway journal shows the product path complete: delegate-spawned mode=silent-wake 18:28:03, child end 18:28:06, targeted-return delivered 18:28:07, parent wake turn 18:28:15 PDT. Classified harness: resolver wake binding.
+- owner: docs harness (R-CD-2 resolver); last fired PASS product 6ee7eca2 docs 246c447a run 29573369445
+- Canonical run (matrix-012658Z): `20261029T012745Z-r-cd-2-5e4ce138`
+
+Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's isolated gateway `:18797` (state `~/proof-gw/comp-293c977f`, own OpenAI sign-in), docs harness `dcc6330c40` (matrix) / `313a70c625` (refire). Nothing is transposed from the live composite.

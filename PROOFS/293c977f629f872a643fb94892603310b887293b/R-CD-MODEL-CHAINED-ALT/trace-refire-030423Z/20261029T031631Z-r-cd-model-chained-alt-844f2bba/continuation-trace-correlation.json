@@ -1,0 +1,81 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-293c977f\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"a967d8a2d5729361\" && .reason.length=810 && .delegate.mode=\"normal\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793243735,
+    "endUnixSeconds": 1793243945,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-25815fce6781.json",
+  "traceId": "25815fce67818dc3f9326c6f9ec13bfe",
+  "chainId": "a1b231ae-1fa6-409b-983d-d13727ea5179",
+  "toolSpanIds": [
+    "d1af99eae1b4d64a"
+  ],
+  "toolParentSpanIds": [
+    "3d6310f7b14f6fdf"
+  ],
+  "fireSpanId": "ab65c5c05fb7a080",
+  "fireParentSpanId": "ffa485f78af3de45",
+  "fireSpanIds": [
+    "ab65c5c05fb7a080"
+  ],
+  "fireParentSpanIds": [
+    "ffa485f78af3de45"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "2f4c1909e5c804d3"
+    },
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "ab65c5c05fb7a080"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "bd2a1bb2d808c753"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "9572252ef6190768"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "e1599f89c7830d7a"
+    }
+  ],
+  "dispatchSpanId": "ffa485f78af3de45",
+  "dispatchParentSpanId": "d1af99eae1b4d64a",
+  "reason": {
+    "hash": "a967d8a2d5729361",
+    "length": 810,
+    "source": "scenario-evidence",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "normal"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

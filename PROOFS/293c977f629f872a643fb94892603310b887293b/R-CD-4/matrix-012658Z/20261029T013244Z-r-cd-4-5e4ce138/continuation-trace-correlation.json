@@ -1,0 +1,73 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-4",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-293c977f\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"bff00203754b50c8\" && .reason.length=127 && .delegate.mode=\"silent-wake\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793237511,
+    "endUnixSeconds": 1793237721,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-72f4b337e825.json",
+  "traceId": "72f4b337e8255db4aeb46c6d96ccc7a1",
+  "chainId": "f86d3e22-03d0-4c1a-ad69-7c9c3d64524c",
+  "toolSpanIds": [
+    "23613670cbd8f3f4"
+  ],
+  "toolParentSpanIds": [
+    "0849865c5acf8e5d"
+  ],
+  "fireSpanId": "e00fd152ef438647",
+  "fireParentSpanId": "65e9953b8caf5d89",
+  "fireSpanIds": [
+    "e00fd152ef438647"
+  ],
+  "fireParentSpanIds": [
+    "65e9953b8caf5d89"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "e00fd152ef438647"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "c7ebe539801e5e17"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "0376aa1adaf8a494"
+    }
+  ],
+  "dispatchSpanId": "65e9953b8caf5d89",
+  "dispatchParentSpanId": "23613670cbd8f3f4",
+  "reason": {
+    "hash": "bff00203754b50c8",
+    "length": 127,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "silent-wake"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

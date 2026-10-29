@@ -1,5 +1,11 @@
-# R-CW-5: missing at `293c977f62`
+# R-CW-5 at `293c977f62`: **missing**
 
 Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.
 
-Seeded 2026-10-29. No receipt is folded yet. Construct-only/scaffold in the docs harness at `180ebdc41b`; not runnable, so it stays missing unless the method changes.
+- Candidate verdict: None
+- Review: not-fired-yet
+- Summary: seeded missing; awaiting a reviewed receipt
+
+- Not fired in this corpus (static validator or construct-only/scaffold; see README).
+
+Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's isolated gateway `:18797` (state `~/proof-gw/comp-293c977f`, own OpenAI sign-in), docs harness `dcc6330c40` (matrix) / `313a70c625` (refire). Nothing is transposed from the live composite.

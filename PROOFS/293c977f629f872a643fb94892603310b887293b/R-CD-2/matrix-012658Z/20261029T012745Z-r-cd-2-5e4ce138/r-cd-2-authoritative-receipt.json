@@ -1,0 +1,89 @@
+{
+  "schema": "openclaw.k6.r-cd-2-authoritative-receipt.v1",
+  "row": "R-CD-2",
+  "authoritativeSource": "r-cd-2-row-scoped-resolver",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "identity": {
+    "schema": "openclaw.k6.r-cd-2-authority-identity.v1",
+    "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+    "runtimeBuildSha": "293c977f629f872a643fb94892603310b887293b",
+    "docsRef": "dcc6330c4000b51187bf9f913137820fe2d5145a",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "seat": "emeric-isolated-composite",
+    "matrixId": "20261029T012705Z-dcc6330c4000-5e4ce138",
+    "runId": "20261029T012745Z-r-cd-2-5e4ce138",
+    "row": "R-CD-2",
+    "scenario": "r-cd-2-silent-wake.js",
+    "harness": {
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-2.json",
+      "manifestSha256": "c2620c86c0f30f11bb747569b80d2210355d41d6e3fd00181e243f51d3e7e109",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-2-silent-wake.js",
+      "scenarioSha256": "710a526c50430f1a9fe2fa076dc9382869d9b4e1d7b24cbc4800279d04c40cf8"
+    }
+  },
+  "diagnostics": {
+    "lifecycle": {
+      "sessionCreated": true,
+      "sessionUnbound": true,
+      "sendAccepted": true,
+      "sendRunCaptured": true,
+      "dispatchTerminalSentinel": true,
+      "dispatchTerminalSentinelSameRun": true,
+      "terminalSuccessSameRun": true,
+      "typedDelegateAttemptedSameRun": true,
+      "typedDelegateSuccessSameRun": true,
+      "typedDelegateFailureFree": true,
+      "replaySafe": true,
+      "wakeLifecycle": false,
+      "wakeSessionBound": false,
+      "postWakeQuiet": false,
+      "noChannelDelivery": true,
+      "dispatchFailureFree": true,
+      "sendRunFingerprint": true,
+      "wakeRunFingerprint": false,
+      "distinctWakeRun": false,
+      "rowNonceFingerprint": true,
+      "terminalRunMatchesSend": true,
+      "acceptedSendTraceShape": true,
+      "dispatchAcceptedBeforeSentinel": true,
+      "sentinelBeforeLifecycleEnd": true,
+      "lifecycleEndBeforeWake": false,
+      "wakeBeforeQuietWindow": false
+    },
+    "topology": {
+      "typedTool": true,
+      "silentWake": true,
+      "exactlyOneToolSpan": true,
+      "traceId": true,
+      "chainId": true,
+      "dispatchSpan": true,
+      "fireSpan": true,
+      "distinctDispatchAndFire": true,
+      "sendRunBinding": true,
+      "nonceBinding": true,
+      "acceptedTraceBinding": true,
+      "acceptedTraceSource": true,
+      "collectorUnique": true,
+      "authenticatedAcquisition": true
+    },
+    "joins": {
+      "acceptedTrace": true,
+      "acceptedRun": true,
+      "rowNonce": true
+    },
+    "lifecycleComplete": false,
+    "topologyComplete": true,
+    "joinComplete": true
+  },
+  "binding": {
+    "localEvidenceFingerprint": "656d25b0c34efad9a331879fe4c174ce0bdbffa4a50dacec37d277e76cc82536",
+    "topologyFingerprint": "f72c1aea360cbcd47882351f63e8269aa44963b17d8ed60a1ee5ea52b47e603c"
+  },
+  "verdict": "PARTIAL-candidate",
+  "failureCategory": "missing-send-run-lifecycle",
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "6daee5f877b43196bfccef20b19977bce0aca4c208a295f047e523be484d0eb2"
+  }
+}

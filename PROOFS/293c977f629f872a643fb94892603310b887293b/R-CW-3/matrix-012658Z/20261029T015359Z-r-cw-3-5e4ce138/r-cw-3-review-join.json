@@ -1,0 +1,6 @@
+{
+  "out": "/home/figs/proof-runs/COMP-293c977f-20261029T012658Z/293c977f629f872a643fb94892603310b887293b/R-CW-3/emeric-isolated-composite/20261029T015359Z-r-cw-3-5e4ce138/r-cw-3-reason-telemetry-review.json",
+  "verdict": "reason-telemetry-redaction-review-passed",
+  "passed": true,
+  "redactedOutgoingValues": 0
+}

@@ -1,0 +1,64 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-10-29T01:54:15Z",
+  "verdict": "PARTIAL-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PARTIAL-candidate",
+  "vuLogVerdict": "PARTIAL-candidate",
+  "summaryFiles": [
+    "r-cw-3-reason-telemetry-summary.json"
+  ],
+  "evidence": {
+    "row": "R-CW-3",
+    "manifest_loaded": true,
+    "seat": "emeric-isolated-composite",
+    "session_created": true,
+    "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+    "started": "2026-10-29T01:54:01.649Z",
+    "dispatch_accepted": true,
+    "scheduled_sentinel": true,
+    "wake_observed": true,
+    "public_artifact_raw_reason_absent": true,
+    "tempo_assertion": "pending-review",
+    "reason_hash": "95ed54fc78af8a9f",
+    "reason_length": 139,
+    "trace_id": null,
+    "trace_id_source": null,
+    "dispatch_accepted_at_ms": 1793238842972,
+    "scheduled_result_at_ms": 1793238849648,
+    "wake_delay_ms": 5720,
+    "ended": "2026-10-29T01:54:15.369Z",
+    "duration_ms": 13720
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "c3a54d3fba0d906d11ab24e1e16d3f2b",
+    "tempoTraceJson": "tempo-trace-c3a54d3fba0d.json",
+    "correlationReceipt": "continuation-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+      "reason-telemetry-redaction-review"
+    ],
+    "rowReview": {
+      "receipt": "r-cw-3-reason-telemetry-review.json",
+      "sha256": "7176971a22964bc1ecd0d4990d5ea70f889531742024f4fdcc254c5b50e85393",
+      "verdict": "reason-telemetry-redaction-review-passed",
+      "status": "review-join-passed",
+      "source": "r-cw-3-row-scoped-review-join",
+      "manualAcceptanceRequired": true,
+      "coordinatorAccepted": false
+    }
+  }
+}

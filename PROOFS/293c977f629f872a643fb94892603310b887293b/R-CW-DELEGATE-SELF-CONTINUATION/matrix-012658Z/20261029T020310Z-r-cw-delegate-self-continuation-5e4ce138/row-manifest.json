@@ -1,0 +1,254 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "issue": 118,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 120,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cw-delegate-self-continuation",
+    "description": "Fires continue_delegate that internally calls continue_work — proves hop-2 woke inside a delegate child session. The delegate dispatches, the child fires its own continue_work, and the hop-2 turn executes.",
+    "methods": [
+      "sessions.create",
+      "sessions.messages.subscribe",
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
+    ],
+    "status": "runnable",
+    "file": "r-cw-delegate-self-continuation.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "delaySeconds": 1,
+    "promptTemplate": "k6 proof R-CW-DELEGATE-SELF nonce {{nonce}}: after arriving, call continue_work(reason=\"k6-self-continuation-{{nonce}}\", delaySeconds=2). After the continue_work tool result reports scheduled, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly CHILD-CW-SCHEDULED {{nonce}} TOKEN <your token>. On hop-2 wake, reply exactly CHILD-HOP2-DONE {{nonce}}. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CW-DELEGATE-SELF"
+  },
+  "expectedReceipts": [
+    { "name": "delegate-accepted", "required": true, "description": "sessions.send dispatch accepted (agent turn triggered)" },
+    { "name": "child-spawned", "required": false, "description": "Delegate child bound through the child observer: own row spawnedBy = parent and own spawn task carries the nonce, unique; event-path child keys only cross-check (fail closed). The child transcript receipts below need this binding." },
+    { "name": "child-continue-work-accepted", "required": true, "description": "From the CHILD's own chat.history: exactly one nonce-bound continue_work call, its toolResult status \"scheduled\" (continue-work-tool.ts:86-95), and CHILD-CW-SCHEDULED <nonce> in the same turn. The parent stream cannot see child turns." },
+    { "name": "child-hop-2-woke", "required": true, "description": "From the CHILD's own chat.history: a [continuation:wake] user turn carrying the nonce after the yield (work-dispatch-execution.ts:197-215), and CHILD-HOP2-DONE <nonce> in that wake turn." },
+    { "name": "parent-return", "required": true, "description": "The child's return reached the parent: the parent reproduces, in its own transcript, the token the child minted in its turn-1 reply (CHILD-CW-SCHEDULED <nonce> TOKEN <12 chars>, absent from every harness-sent text) as PARENT-RETURN <nonce> TOKEN <token> (assistant text or heartbeat_respond), in a run other than the dispatch run, after the dispatch run and not before the child minted it. Does not claim that hop-2 OUTPUT reached the parent: only the turn-1 return is delivered." },
+    { "name": "tempo-trace-json", "required": true, "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the parent's continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)." },
+    { "name": "continuation-trace-correlation", "required": true, "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the delegate task's reason hash, length, and mode (normal), holding one dispatch, one fire, and the originating continue_delegate tool span on one trace and chain. The scenario publishes the task fingerprint so the trace can also be attributed after the run from public evidence." }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation: detector must ignore [k6-proof-harness] prompt-echo events and count only post-dispatch evidence. PASS-candidate now requires delegate-accepted + child-continue-work-accepted + child-hop-2-woke + parent-return. child-spawned is corroborative only unless a concrete lifecycle signal is available."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. The scenario publishes the delegate task fingerprint (reason_hash, reason_length, delegate_mode) in public evidence, so the collector can attribute the parent’s dispatch either in run or afterwards from the public evidence alone. The child’s own continue_work spans have no join to that dispatch and are reviewed by hand."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "The parent’s delegate dispatch the collector attributes by the task fingerprint and mode."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_delegate evidence on the parent."
+        },
+        {
+          "name": "continuation.work",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "The child’s own continue_work entry. Not joinable to the parent dispatch today; reviewed by hand."
+        },
+        {
+          "name": "continuation.work.fire",
+          "role": "fire",
+          "emittedByProduct": true,
+          "notes": "The child’s hop-2 wake fire."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Delegate task material is published only as a digest, a length and the delegate mode, inside a public-safe Tempo projection. Task text, the child-minted token, prompt bodies, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "task text",
+        "child-minted token",
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The delegate child, bound through the child observer, schedules its own nonce-bound continue_work, wakes on hop 2 with CHILD-HOP2-DONE, and the parent reproduces the child-minted token in a later run.",
+      "negative": "A harness prompt echo, or the parent’s own continue_delegate task text, cannot satisfy the parent-return receipt; an observer/event child-identity conflict is PARTIAL."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "delegate-accepted, child-continue-work-accepted, child-hop-2-woke, and parent-return from the child’s and parent’s own transcripts. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Any of those receipts is missing, the child is not bound, or the observer and event paths disagree. A missing or degraded trace keeps the row review-pending without changing its class.",
+      "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
+    },
+    "execution": {
+      "deterministicK6": "r-cw-delegate-self-continuation.js fires continue_delegate whose task makes the child call continue_work, and records the task fingerprint.",
+      "manual": "Manual Tempo review confirms the child’s work/fire spans; it cannot join them to the parent dispatch.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "delegate-accepted",
+      "child-continue-work-accepted",
+      "child-hop-2-woke",
+      "parent-return",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Delegate self-continuation row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; only post-dispatch evidence counts. PASS requires explicit post-dispatch CHILD-CW-SCHEDULED, CHILD-HOP2-DONE, and parent-return evidence; otherwise fold as PARTIAL-candidate. Since #570 the row requires two of three separate receipts: hop 2 ran (child transcript) and the child's return reached the parent (child-minted token reproduced by the parent); it does not claim that hop-2 OUTPUT reached the parent (only the turn-1 return is delivered, before hop 2). Retained PASS receipts from before #570 (2026-07-17 to 2026-08-25) are historically non-discriminating: their parent-stream substring checks could be satisfied by the parent's own continue_delegate task text (plausible, not proven); they are not re-classified as FAIL."
+  }
+}

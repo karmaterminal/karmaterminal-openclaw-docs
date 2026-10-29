@@ -2,10 +2,22 @@
 
 This is the pure continuation j9 head: the qualified-j9 fast-forward candidate for [openclaw/openclaw#129388](https://github.com/openclaw/openclaw/pull/129388). It moves from the presentation head `f4675cff00` (a verified ancestor) to this SHA.
 
-**Status: seeded, NOT acceptance-complete.** All 38 required rows are `missing` until reviewed receipts are folded. Do not read structural completeness (directories, validators) as proof.
+**Status: folded after single-seat review (frond-scribe, 2026-10-29). NOT acceptance-complete.**
 
-- **Live rows (27):** fired on an isolated proof gateway at the exact runtime `293c977f62` on emeric, 2026-10-29 from 00:44Z (🕯 owner). The live fleet gateway and its composite are untouched; nothing is transposed from the composite.
-- **Static rows (8):** static corpus-row validators; exact-SHA static evidence is still to be produced.
-- **Construct-only/scaffold (3):** `R-CD-RETURN-COVENANT-AUTHORITY`, `R-CW-5`, `R-CW-6` are not runnable in the harness at `180ebdc41b`.
+Rollup: **19 pass · 1 honest_limit (R-RC-2) · 7 partial · 11 missing · 0 fail**, out of 38 required rows.
+
+- **Live rows (27):** the canonical fire is matrix `COMP-293c977f-20261029T012658Z`, on emeric's isolated gateway `:18797` at exact runtime and candidate `293c977f62`, docs `dcc6330c40`, 0× 401. A targeted trace refire, `COMP-293c977f-20261029T030423Z` (docs `313a70c625`, 🌊 go `1565199441013645316`), re-ran 6 rows for trace receipts only; the matrix behavior receipts are preserved beside it.
+- **Partial rows, all with behavior evidence and a named owner:**
+  - R-CD-2: resolver wake binding (harness).
+  - R-CD-3: product emits no lifeboat delegate span (karmaterminal/openclaw#1497).
+  - R-CW-4: the chain-row trace topology rule (harness).
+  - R-CD-SILENT, R-CW-2: trace not obtained; behavior PASS in the matrix.
+  - R-CD-MODEL-TOKEN, R-CD-TOKEN: trace not obtained on either attempt.
+- **Missing (11):** 8 static-validator rows. Their exact-SHA static evidence has not been produced; they validate historical baseline material and need a method decision. Plus 3 construct-only or scaffold rows that are not runnable at this harness.
+- **Void runs, not folded:**
+  - duplicate concurrent matrix `013132Z`;
+  - ad-hoc smoke `012929Z`;
+  - the unauthenticated `:18792` fire (every dispatch 401).
+- **Gate 2:** accept-and-renotify-reviewer (🌊), at `gates/cure-bytes/GATE2-DISPOSITION.md`.
 
 See `RESOLVED-SHA.md` for identities and `METHOD.md` for how rows are folded.

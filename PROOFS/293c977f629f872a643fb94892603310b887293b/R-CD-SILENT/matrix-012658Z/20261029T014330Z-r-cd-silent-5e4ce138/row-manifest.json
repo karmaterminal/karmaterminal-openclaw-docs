@@ -1,0 +1,278 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-SILENT",
+  "issue": 119,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 180,
+  "gateway": {
+    "wsEnv": "OPENCLAW_GATEWAY_WS",
+    "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
+  },
+  "scenario": {
+    "name": "r-cd-silent",
+    "description": "Typed continue_delegate(mode='silent') proof. Fires a silent delegate, waits for child internal completion, then asks the parent to report the silent child token from internal context while checking no child channel delivery occurred.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe"
+    ],
+    "status": "runnable",
+    "file": "r-cd-silent.js"
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent",
+    "delaySeconds": 1,
+    "idempotencyKeyPrefix": "R-CD-SILENT"
+  },
+  "expectedReceipts": [
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "Gateway accepted the dispatching sessions.send turn that asks the agent to call continue_delegate(mode=silent)."
+    },
+    {
+      "name": "delegate-scheduled-sentinel",
+      "required": true,
+      "description": "Parent emitted RCDS-SCHEDULED only after continue_delegate returned a scheduled result."
+    },
+    {
+      "name": "child-completion-observed",
+      "required": true,
+      "description": "The silent delegate child completed on the internal subagent stream before the follow-up turn was sent."
+    },
+    {
+      "name": "followup-accepted",
+      "required": true,
+      "description": "A later follow-up turn was accepted after the silent delegate had time to return."
+    },
+    {
+      "name": "parent-internal-context-observed",
+      "required": true,
+      "description": "Parent follow-up reported the child-only SILENTCHILD token that was not included in the follow-up prompt."
+    },
+    {
+      "name": "no-channel-delivery",
+      "required": true,
+      "description": "No channel-delivery event contained the child-only silent delegate token."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from dispatch response or task metadata for Tempo fetch/review."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-SILENT",
+    "seat": "${OPENCLAW_SEAT_NAME:-ronan-dgx}",
+    "runDirPrefix": "k6-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate requires child internal completion, delayed child-token readback from parent internal context, and no child-token channel delivery. Prefer disposable sessions for repeated runs."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn, or run identity and that proof traffic carries no marker, so this row’s trace receipt joins the continue_delegate tool span to continuation.delegate.dispatch and continuation.delegate.fire only by shared trace, causal timing, and the reason fingerprint and mode. This manifest has no invocation.promptTemplate, so collect-continuation-trace.mjs refuses to attribute the trace, and the scenario publishes no reason fingerprint for a post-run attribution either; the trace receipts stay pending until the manifest carries the task template the collector renders."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed continue_delegate evidence. Joined to the dispatch span only by shared trace and causal timing."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "Emitted today and asserted by collect-continuation-trace.mjs. It is the strongest join currently available and it is not an identity."
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Accepted entry spans carry no signal.kind on the census product basis; origin is contracted by R-OBS-CONT-PROVENANCE."
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "No k6/Project-81 resource or trace marker exists, so this row’s traffic cannot be separated from organic fleet traffic in a later census."
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Delegate task material is published only as a digest, a length and the delegate mode, inside a public-safe Tempo projection. Task text, prompt bodies, raw nonces, raw session keys, and gateway tokens never enter the artifact.",
+      "forbiddenInArtifacts": [
+        "task text",
+        "prompt body",
+        "raw nonce",
+        "raw session key",
+        "gateway token"
+      ]
+    },
+    "controls": {
+      "positive": "The silent delegate is scheduled, its child completes on the internal stream, and a later follow-up turn reports the child-only SILENTCHILD token from internal context.",
+      "negative": "The child-only token must never appear in a channel-delivery event, and a harness prompt echo cannot satisfy the readback."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash"
+      ],
+      "notes": "A degraded or empty Tempo answer leaves tempo-trace-json and its correlation receipt pending. That is review debt, not evidence that the continuation did not happen, and it never changes the VU verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.candidate-run-result.v1",
+      "requiredFiles": [
+        "run-result.json",
+        "runner-metadata.json",
+        "seat-readiness.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Child internal completion, delayed child-token readback from parent internal context, and no child-token channel delivery. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Any of those receipts is missing. Missing or unattributable traces keep the row review-pending without changing its class.",
+      "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
+    },
+    "execution": {
+      "deterministicK6": "r-cd-silent.js fires continue_delegate(mode=silent) and the follow-up readback turn.",
+      "manual": "A reviewer can locate the trace by hand at fold review; that does not discharge the pending receipts.",
+      "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "delegate-scheduled-sentinel",
+      "child-completion-observed",
+      "followup-accepted",
+      "parent-internal-context-observed",
+      "no-channel-delivery",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Live silent delegate row. Uses a child-only token plus follow-up readback to prove internal parent context without treating prompt echo as success. Serialize per target session."
+  }
+}

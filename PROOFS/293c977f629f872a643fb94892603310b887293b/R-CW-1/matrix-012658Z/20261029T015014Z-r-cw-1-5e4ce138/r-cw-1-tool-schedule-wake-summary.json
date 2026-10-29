@@ -1,0 +1,18 @@
+{
+  "row": "R-CW-1",
+  "sha": "293c977f629f872a643fb94892603310b887293b",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T01:50:33.480Z",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "duration_ms": {
+      "avg": 16655,
+      "min": 16655,
+      "med": 16655,
+      "max": 16655,
+      "p(90)": 16655,
+      "p(95)": 16655
+    },
+    "failures": 0
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "openclaw.k6.harness-provenance.v1",
+  "classification": "harness-provenance",
+  "matrixId": "20261029T030428Z-313a70c6258f-844f2bba",
+  "mode": "live",
+  "docsRef": "313a70c6258f1740fcc754c7886d9f4ac66cceca",
+  "docsRefSource": "approved-input",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "harnessIdentityVerified": true,
+  "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+  "runtimeIdentity": {
+    "seat": "emeric-isolated-composite",
+    "runtimeBuildSha": "293c977f629f872a643fb94892603310b887293b",
+    "candidateMatchesRuntime": true,
+    "seatReadinessReceipt": "seat-readiness.json",
+    "seatReadinessSha256": "4daec015b19aa47b2b83c87d6e0959bbd6846d7e8d2f091f9bab5b4f173d0196"
+  },
+  "runnerScript": "tools/k6-proofs/scripts/run-proofs.sh",
+  "runnerScriptSha256": "de871d036d9cbcda72833fe56dc26609d9e0228c4b7d22b345a090264453cbce",
+  "rowSelection": [
+    "R-CD-SILENT",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CW-2",
+    "R-CW-4",
+    "R-CD-TOKEN"
+  ],
+  "rows": [
+    {
+      "rowId": "R-CD-SILENT",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-silent.json",
+      "manifestSha256": "514a522c6b9dc587ff2f14b071dc23f03ac20b9e51ac2bcb1205b1ad0bf071b5",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-silent.js",
+      "scenarioSha256": "80873054da60e9d70b4005db39e6a112fb3db70df1f916f7efc4d7493e9112f1"
+    },
+    {
+      "rowId": "R-CD-MODEL-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-token.json",
+      "manifestSha256": "858496098db3b38a9a8c3289ed21d117061439677d723dbd188c8d4a20527f0c",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-token.js",
+      "scenarioSha256": "d0b71b697e926da4384491c7a339ee64651a0ae50545fd082d0f70f7be45ab92"
+    },
+    {
+      "rowId": "R-CD-MODEL-CHAINED-ALT",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+      "manifestSha256": "648e26a9d6959e21efc72ddbc1af775eb3c3d921a8a4ee8ba2dcb3161369dea7",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-chained-alt.js",
+      "scenarioSha256": "9844a6f5c38fe2b8526aea127902e56fcdbeba5ca0f0c7a8e6054a2a36fb7f00"
+    },
+    {
+      "rowId": "R-CW-2",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-2.json",
+      "manifestSha256": "016815d35e94b0fe32e9e1b958c4e1235fffb39c80f05fac54a6d3230a446c86",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-2-immediate-wake.js",
+      "scenarioSha256": "d13caed23e9c0ee52d609d9d02c364b4618ee47a73330bbec59257bda3b1a5f4"
+    },
+    {
+      "rowId": "R-CW-4",
+      "manifestPath": "tools/k6-proofs/manifests/r-cw-4.json",
+      "manifestSha256": "371616b9931f25a9f7d065921352c87053dab9fe2bc2d788e0aa94a1daf0e22d",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cw-4-chain-depth.js",
+      "scenarioSha256": "c77c949d01838ca37e4f70861c1f281f6ae3a5835aac24b4a85b00bad36bcbb4"
+    },
+    {
+      "rowId": "R-CD-TOKEN",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+      "manifestSha256": "78406d11c4a88d2a3a1ad909ec171e7207aacd331ec87fd5a7a4d8e1ee3af943",
+      "scenarioPath": "tools/k6-proofs/scenarios/r-cd-token-bracket-delegate.js",
+      "scenarioSha256": "66712bfc6f0e9dbb5fc0ecea2a415d6c3228097608f0ad4325faf24f72ec7657"
+    }
+  ],
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "startedAt": "2026-10-29T03:04:28Z"
+}

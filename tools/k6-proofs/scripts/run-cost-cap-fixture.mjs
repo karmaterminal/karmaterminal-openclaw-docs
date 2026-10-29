@@ -251,7 +251,10 @@ function requireCandidatePackageManager(worktreeDir) {
   return { packageManager, pnpmVersion: match[1], integrityHex: match[2] };
 }
 
-export function resolvePinnedPnpm(worktreeDir) {
+// `candidateLockfile` is the committed pnpm-lock.yaml the caller has already
+// verified. The env-document pins that bind the toolchain come from those
+// bytes, never from a later read of the worktree.
+export function resolvePinnedPnpm(worktreeDir, candidateLockfile) {
   const { packageManager, pnpmVersion, integrityHex } = requireCandidatePackageManager(worktreeDir);
   const nodePrefix = path.resolve(path.dirname(process.execPath), '..');
   const npmScript = path.join(nodePrefix, 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
@@ -288,11 +291,15 @@ export function resolvePinnedPnpm(worktreeDir) {
     toolchainDir,
     pin: { packageManager, pnpmVersion, integrityHex },
     packageManagerEnv,
+    candidateLockfile,
   });
 }
 
-export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, packageManagerEnv }) {
+export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, packageManagerEnv, candidateLockfile }) {
   const { packageManager, pnpmVersion, integrityHex } = pin;
+  if (!Buffer.isBuffer(candidateLockfile)) {
+    throw new Error('pinned pnpm verification requires the verified candidate lockfile bytes');
+  }
   const toolchainLock = JSON.parse(
     readFileSync(path.join(toolchainDir, 'node_modules', '.package-lock.json'), 'utf8'),
   );
@@ -302,7 +309,7 @@ export function verifyInstalledPinnedPnpm({ worktreeDir, toolchainDir, pin, pack
   }
   const toolchain = assertToolchainPinnedByCandidateLockfile({
     toolchainLock,
-    candidateLockfile: splitPnpmLockfile(readFileSync(path.join(worktreeDir, 'pnpm-lock.yaml'))),
+    candidateLockfile: splitPnpmLockfile(candidateLockfile),
     pin,
   });
   const { entry, script } = resolvePinnedPnpmEntry(toolchainDir);
@@ -702,7 +709,7 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     if (createHash('sha256').update(candidateLockfile).digest('hex') !== lockfileSha256) {
       throw new Error('disposable candidate lockfile changed after its integrity check');
     }
-    const packageManager = resolvePinnedPnpm(worktreeDir);
+    const packageManager = resolvePinnedPnpm(worktreeDir, candidateLockfile);
     assertReservedPathAbsent(worktreeDir, '.r-cw-5-pnpm-store');
     const pnpmStoreDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-pnpm-store');
     const install = run(

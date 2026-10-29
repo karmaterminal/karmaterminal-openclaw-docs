@@ -25,7 +25,6 @@
   "R-CD-MODEL-TOKEN",
   "R-CD-MODEL-TOOL",
   "R-CD-RETURN-OVERLAP",
-  "R-CD-RETURN-COVENANT-AUTHORITY",
   "R-CD-SILENT",
   "R-CD-TOKEN",
   "R-CONFIG-DEFAULTS",
@@ -34,10 +33,6 @@
   "R-CW-2",
   "R-CW-3",
   "R-CW-4",
-  "R-CW-5",
-  "R-CW-5A",
-  "R-CW-6",
-  "R-CW-6A",
   "R-CW-7",
   "R-CW-DELEGATE-CHILD-LIVE",
   "R-CW-DELEGATE-SELF-CONTINUATION",
@@ -85,18 +80,19 @@
   ],
   "frond-scribe-static": [
    "R-CD-COLLECTION-ON-COLLAPSE",
-   "R-CW-5A",
-   "R-CW-6A",
    "R-CW-7",
    "R-CW-DELEGATE-CHILD-LIVE",
    "R-CW-DELEGATE-TOKEN",
    "R-CW-MULTI",
    "R-CW-MULTI-COLLAPSE"
   ],
-  "unfired": [
+  "unfired": [],
+  "supplemental": [
    "R-CD-RETURN-COVENANT-AUTHORITY",
    "R-CW-5",
-   "R-CW-6"
+   "R-CW-6",
+   "R-CW-5A",
+   "R-CW-6A"
   ]
  },
  "rows": [
@@ -349,7 +345,9 @@
    "exact_target_execution": false,
    "pending_receipts": [],
    "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "notes": "",
+   "required": false,
+   "supplemental": true
   },
   {
    "row": "R-CD-SILENT",
@@ -535,7 +533,9 @@
    "exact_target_execution": false,
    "pending_receipts": [],
    "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "notes": "",
+   "required": false,
+   "supplemental": true
   },
   {
    "row": "R-CW-5A",
@@ -554,7 +554,9 @@
    "notes": "owner: method decision (\ud83c\udf0a/figs)",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "required": false,
+   "supplemental": true
   },
   {
    "row": "R-CW-6",
@@ -570,7 +572,9 @@
    "exact_target_execution": false,
    "pending_receipts": [],
    "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "notes": "",
+   "required": false,
+   "supplemental": true
   },
   {
    "row": "R-CW-6A",
@@ -589,7 +593,9 @@
    "notes": "owner: method decision (\ud83c\udf0a/figs)",
    "test_cases_executed": [
     "static-validator-20261029T035307Z"
-   ]
+   ],
+   "required": false,
+   "supplemental": true
   },
   {
    "row": "R-CW-7",
@@ -886,13 +892,13 @@
   }
  ],
  "rollup": {
-  "total_rows": 38,
+  "total_rows": 33,
   "pass": 25,
   "partial": 7,
   "thin": 0,
   "fail": 0,
   "honest_limit": 1,
-  "missing": 5
+  "missing": 0
  },
  "method": "PROOFS/293c977f629f872a643fb94892603310b887293b/METHOD.md",
  "corpus": "PROOFS/293c977f629f872a643fb94892603310b887293b/",
@@ -929,5 +935,20 @@
    "run": "J9-293c977f-20261028 (:18792)",
    "why": "isolated gateway without model auth; every dispatch 401, infra-void"
   }
- ]
+ ],
+ "supplemental_rows": [
+  "R-CD-RETURN-COVENANT-AUTHORITY",
+  "R-CW-5",
+  "R-CW-6",
+  "R-CW-5A",
+  "R-CW-6A"
+ ],
+ "rollup_supplemental": {
+  "total_rows": 5,
+  "missing": 5
+ },
+ "method_change": {
+  "status": "PROPOSED \u2014 not adopted until reviewed (\ud83c\udf0a ruling B, Discord 1565214416730066967)",
+  "doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/METHOD.md#method-change-proposal-supplemental-rows"
+ }
 }

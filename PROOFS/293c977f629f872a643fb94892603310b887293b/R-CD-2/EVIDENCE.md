@@ -14,3 +14,7 @@ Runtime and candidate `293c977f629f872a643fb94892603310b887293b` on emeric's iso
 
 - PASS with complete receipts in refire2 050313Z (docs c65b9bb86a, #608 run-bound RCD2-WAKE-ACK wake binding). Matrix-012658Z PARTIAL (heartbeat-era binder) preserved as provenance.
 - Runs: `emeric-isolated-composite/20261029T050321Z-r-cd-2-843e883b` (canonical seat path for the R-CD-2 authority)
+
+## Keyed authority review (2026-10-29T05:40Z)
+
+`consumeRcd2Authority` on the proof seat, with the isolated gateway signing key supplied through the environment only: **PASS-candidate, traceHeld=true, complete=true** (`KEYED-AUTHORITY-REVIEW.json`). The public `validate-corpus` cannot verify an HMAC-signed authority without that key, so the canonical state stays partial pending a method ruling.

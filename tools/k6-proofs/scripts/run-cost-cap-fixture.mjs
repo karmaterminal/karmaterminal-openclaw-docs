@@ -25,7 +25,11 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
 import { resolveCandidateNodeBin } from './lib/candidate-executables.mjs';
-import { runCandidateVitestSuite, selectCandidateVitestConfig } from './lib/candidate-vitest-suite.mjs';
+import {
+  candidateVitestEnv,
+  runCandidateVitestSuite,
+  selectCandidateVitestConfig,
+} from './lib/candidate-vitest-suite.mjs';
 import { readPnpmEnvDocumentPins, splitPnpmLockfile } from './lib/pnpm-lockfile-documents.mjs';
 
 const DEFAULT_CAP = 100;
@@ -775,12 +779,12 @@ export function runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir }
     renderToolSurfaceTemplate(readFileSync(surface.template, 'utf8'), cap),
     { mode: 0o600 },
   );
-  let env = process.env;
+  let env = candidateVitestEnv();
   let extraArgs = [];
   if (surface.collectBy === 'include-file') {
     const includeFile = path.join(reportDir, 'typed-tool-surface.include.json');
     writeFileSync(includeFile, `${JSON.stringify([TOOL_SURFACE_TEST_FILE])}\n`, { mode: 0o600, flag: 'wx' });
-    env = { ...process.env, OPENCLAW_VITEST_INCLUDE_FILE: includeFile };
+    env = candidateVitestEnv({ OPENCLAW_VITEST_INCLUDE_FILE: includeFile });
   } else {
     extraArgs = ['--dir', 'test/r-cw-5-fixture'];
   }

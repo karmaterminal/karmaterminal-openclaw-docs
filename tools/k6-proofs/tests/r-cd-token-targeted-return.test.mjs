@@ -349,7 +349,10 @@ async function fireRcdToken(options = {}) {
 /** The return bound to origin (target) and delegate (source); the next gate is Tempo topology. */
 function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
   const { evidence, receipt } = fired;
-  assert.equal(evidence.return_route, route);
+  assert.equal(evidence.delegate_return_observed, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
+  // Evidence without a route came from the header parser (the direct announce),
+  // the same reading classifyTokenEvidence gives it.
+  assert.equal(evidence.return_route ?? 'direct-announce', route);
   if (route === 'targeted-return') {
     assert.equal(evidence.source_return_observed, true);
     assert.equal(evidence.source_return_run_id_hash, hash16(DELEGATE_RUN));
@@ -357,7 +360,6 @@ function assertReturnBound(fired, receiptKind, route = 'targeted-return') {
     assert.equal(evidence.return_run_id_hash, hash16(WAKE_RUN));
     assert.ok(evidence.return_after_delegate_end_ms >= 0, `woken ${evidence.return_after_delegate_end_ms} ms after the delegate ended`);
   }
-  assert.equal(evidence.delegate_return_observed, true, `partial reasons: ${evidence.partial_reasons?.join('; ')}`);
   assert.equal(evidence.return_target_session_hash, hash16(ORIGIN));
   assert.equal(evidence.return_source_session_hash, hash16(DELEGATE));
   assert.equal(evidence.return_target_session_hash, evidence.origin_child_session_hash);

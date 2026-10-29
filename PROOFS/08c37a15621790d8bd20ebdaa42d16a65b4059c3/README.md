@@ -2,7 +2,7 @@
 
 The final pure candidate for [openclaw/openclaw#129388](https://github.com/openclaw/openclaw/pull/129388), on `codeagent/absorb-8083-j11-cand`. It moves the presentation from `f4675cff00` (a verified ancestor) to a head that absorbs upstream main through U11 `4fc73d6995`, so the PR is mergeable against current upstream.
 
-**Status: seeded, NOT acceptance-complete.** All 38 required rows are `missing` until reviewed receipts are folded. Do not read structural completeness as proof.
+**Status: superseded as the candidate (2026-10-29 22:33Z).** 🌊 ruled that two scope items change the source tree (Gate 2 § E, superseding ruling), so the presentation candidate becomes F′ with a new SHA. This corpus stays a historical diagnostic: 31 pass / 3 partial / 1 honest-limit / 3 missing at F. **NOT acceptance-complete.** All 38 required rows are `missing` until reviewed receipts are folded. Do not read structural completeness as proof.
 
 🌊 retargeted the FF here from P' `8ba08c76d8` (Discord `1565364154875912254`). P''s own live matrix found a continuation regression (R-CW-TOKEN), and P' conflicts with upstream main in 66 files. The P' and `293c977f62` corpora are historical diagnostics only; nothing carries.
 

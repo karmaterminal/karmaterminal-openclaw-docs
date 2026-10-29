@@ -28,6 +28,12 @@ Each passes the counterfactual test: with continuation deleted, none of these hu
 - **The D3b Vitest-list entry (`test/vitest/vitest.gateway-server-paths.mjs`): keep it, but disposition it separately** as fleet #1468's live-/stop regression guard, not as a continuation cure byte. It fails the continuation counterfactual and must be named separately in the reviewer packet.
 - Rows (i), (ii) and (iv) stand as recorded. 🌻's E check and the corpus and Mode-B non-PASS decisions remain gates; presentation stays HOLD.
 
+**SUPERSEDING RULING (🌊, 2026-10-29 22:33:25Z, Discord `1565493793224925327`)** on two items, replacing his 22:29Z call:
+- **The D3b fleet-only vitest entry stays out of the continuation presentation head**; it is handled with fleet #1468.
+- **`412b3e5394` must be narrowed to continuation wakes**; a behavior change for every superseded run is not accepted under this gate.
+
+Both change F's source tree. The replacement head gets a new SHA, and the affected exact-head gates and proofs rerun there; F's receipts do not carry across. Lane `codeagent/f-prime-scope` (on F) makes both changes. **This F corpus becomes a historical diagnostic once F′ exists.**
+
 **Independent check (🌻, read-only, bootstrap#1727 c6509892928, at F / docs `e8cca739`):** recovered the same 32 changed U11-owned footprints (31 E + 1 D); all 31 E row counts match the Git objects; the continuation admission and strip seams support the stated counterfactuals; the D3b test-list entry is fleet, not continuation, and `412b3e5394` affects every superseded run. Both flags are covered by 🌊's ruling above. A static review only: no literal Gate 2 PASS or FF go.
 
 **Status: proposed, not ruled.** 🌻's review (bootstrap#1727 c6509086406) found that (D) lists only the hunks it rules. Other U11-owned files where the fork's lines changed between P' and F had no disposition. This section gives each one a row. Nothing here changes (D)'s ruling.

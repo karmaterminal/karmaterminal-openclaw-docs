@@ -39,10 +39,37 @@ const SOURCE_MARKERS = [
   'package.json',
   'pnpm-lock.yaml',
 ];
-const TOOL_SURFACE_TEMPLATE = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../fixtures/r-cw-5/cost-cap-tool-surface.test.ts',
-);
+const TOOL_SURFACE_FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/r-cw-5');
+const TOOL_SURFACE_TEST_FILE = 'test/r-cw-5-fixture/cost-cap-tool-surface.test.ts';
+const OVER_CAP_TOOL_TEST = 'rejects exhausted typed-tool elections without a durable continuation';
+// Where a candidate records continuation work durably, newest first. Custody
+// (fork #1408; its test support since 91aaf10f9f) runs through the shared-state
+// worker, so its template runs in the database-worker lane of the infra config,
+// which collects it from the include file the candidate's scoped configs read.
+// Its positive control fails closed if a candidate that ships custody still
+// records continuation work elsewhere. Upstream 6652f7eac8 removed the TaskFlow
+// runtime, which the auto-reply shard observed through --dir.
+const TOOL_SURFACE_STORES = [
+  {
+    durableStore: 'continuation-custody',
+    marker: 'src/auto-reply/continuation/custody/custody.test-support.ts',
+    template: 'cost-cap-tool-surface.custody.test.ts',
+    config: 'test/vitest/vitest.infra.config.ts',
+    collectBy: 'include-file',
+    expectedTests: {
+      overCapRejected: [OVER_CAP_TOOL_TEST],
+      belowCapSchedulesDurableWork: ['schedules a below-cap typed-tool election as one durable custody record'],
+    },
+  },
+  {
+    durableStore: 'task-flow',
+    marker: 'src/tasks/task-flow-registry.ts',
+    template: 'cost-cap-tool-surface.test.ts',
+    config: 'test/vitest/vitest.auto-reply.config.ts',
+    collectBy: 'dir',
+    expectedTests: { overCapRejected: [OVER_CAP_TOOL_TEST] },
+  },
+];
 
 function usage() {
   return `Usage: node tools/k6-proofs/scripts/run-cost-cap-fixture.mjs \\
@@ -713,13 +740,25 @@ export function runDispatchBoundarySuite({ worktreeDir, vitestExecutable, report
 }
 
 // The typed-tool template the fixture renders into the candidate, and the
-// Vitest config it runs under.
-export function selectToolSurface(_worktreeDir) {
-  return { template: TOOL_SURFACE_TEMPLATE, config: 'test/vitest/vitest.auto-reply.config.ts' };
+// Vitest config it runs under, for the durable store the candidate has.
+export function selectToolSurface(worktreeDir) {
+  const store = TOOL_SURFACE_STORES.find(({ marker }) =>
+    statSync(path.join(worktreeDir, marker), { throwIfNoEntry: false })?.isFile() === true);
+  return store ? { ...store, template: path.join(TOOL_SURFACE_FIXTURES, store.template) } : null;
 }
 
-function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
+export function runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir }) {
   const surface = selectToolSurface(worktreeDir);
+  if (!surface) {
+    return {
+      passed: false,
+      exitCode: null,
+      durableStore: null,
+      command: null,
+      asserted: { typedToolCaptured: false, overCapRejected: false, rejectedHopNoDurableWork: false },
+      results: null,
+    };
+  }
   if (!existsSync(surface.template)) {
     throw new Error(`tool-surface template missing: ${surface.template}`);
   }
@@ -732,23 +771,54 @@ function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
   }
   const testDir = preparePrivateWorktreeDirectory(worktreeDir, 'test/r-cw-5-fixture');
   writeFileSync(
-    path.join(testDir, 'cost-cap-tool-surface.test.ts'),
+    path.join(testDir, path.basename(TOOL_SURFACE_TEST_FILE)),
     renderToolSurfaceTemplate(readFileSync(surface.template, 'utf8'), cap),
     { mode: 0o600 },
   );
-  const test = run(
-    process.execPath,
-    [vitestExecutable, 'run', '--config', surface.config, '--dir', 'test/r-cw-5-fixture', '--reporter=verbose'],
-    { cwd: worktreeDir },
-  );
+  let env = process.env;
+  let extraArgs = [];
+  if (surface.collectBy === 'include-file') {
+    const includeFile = path.join(reportDir, 'typed-tool-surface.include.json');
+    writeFileSync(includeFile, `${JSON.stringify([TOOL_SURFACE_TEST_FILE])}\n`, { mode: 0o600, flag: 'wx' });
+    env = { ...process.env, OPENCLAW_VITEST_INCLUDE_FILE: includeFile };
+  } else {
+    extraArgs = ['--dir', 'test/r-cw-5-fixture'];
+  }
+  const suiteRun = runCandidateVitestSuite({
+    worktreeDir,
+    vitestScript: vitestExecutable,
+    config: surface.config,
+    files: [TOOL_SURFACE_TEST_FILE],
+    extraArgs,
+    env,
+    reportPath: path.join(reportDir, 'typed-tool-surface.vitest.json'),
+    expectedTests: surface.expectedTests,
+  });
+  // The over-cap test asserts the system event that names both typed
+  // elections, so its pass shows the real attempt runner captured them.
+  const overCapRejected = suiteRun.tests.overCapRejected.passed;
+  // Its "no durable work" counts only beside a passing positive control, where
+  // the template has one, so that it cannot hold vacuously.
+  const durableWorkObservable = Object.hasOwn(surface.expectedTests, 'belowCapSchedulesDurableWork')
+    ? suiteRun.tests.belowCapSchedulesDurableWork.passed
+    : true;
+  const asserted = {
+    typedToolCaptured: overCapRejected,
+    overCapRejected,
+    rejectedHopNoDurableWork: overCapRejected && durableWorkObservable,
+  };
   return {
-    passed: test.ok && /1 passed/u.test(test.stdout),
-    exitCode: test.exitCode,
-    asserted: {
-      typedToolCaptured: /disposable typed tool surface/u.test(test.stdout),
-      overCapRejected: /rejects exhausted typed-tool elections/u.test(test.stdout),
-      rejectedHopNoDurableWork: /1 passed/u.test(test.stdout),
-    },
+    passed: suiteRun.passed && Object.values(asserted).every(Boolean),
+    exitCode: suiteRun.exitCode,
+    durableStore: surface.durableStore,
+    command: [
+      ...(surface.collectBy === 'include-file' ? ['OPENCLAW_VITEST_INCLUDE_FILE=<private-include-file>'] : []),
+      'node', '<candidate-local-vitest>',
+      ...suiteRun.args.map((arg) =>
+        arg.startsWith('--outputFile.json=') ? '--outputFile.json=<private-vitest-report>' : arg),
+    ],
+    asserted,
+    results: { ...suiteRun.results, tests: suiteRun.tests },
   };
 }
 
@@ -802,7 +872,7 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     assertReservedPathAbsent(worktreeDir, '.r-cw-5-reports');
     const reportDir = preparePrivateWorktreeDirectory(worktreeDir, '.r-cw-5-reports');
     const dispatchSuite = runDispatchBoundarySuite({ worktreeDir, vitestExecutable, reportDir });
-    const toolSurface = runToolSurface({ worktreeDir, cap, vitestExecutable });
+    const toolSurface = runToolSurface({ worktreeDir, cap, vitestExecutable, reportDir });
     const afterExecution = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'final receipt emission');
     return {
       matrixRun,

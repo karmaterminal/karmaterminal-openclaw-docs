@@ -15,15 +15,36 @@ attempt:
    `costCapTokens=100` and a session entry whose accumulated tokens are `101`.
 3. Have the embedded-agent test double call the supplied
    `continueWorkOpts.requestContinuation` callback twice.
-4. Require both elections to be rejected, no TaskFlow row to exist, and the
-   cost-cap system event to name both dropped elections.
+4. Require both elections to be rejected, no durable continuation record to
+   exist, and the cost-cap system event to name both dropped elections.
 5. Remove the disposable worktree and temporary store regardless of outcome.
 
 This is not a synthetic copy of the policy: the fixture enters the production
 attempt runner, receives its real typed callback, persists/reserves through
-the real continuation scheduling path, and observes the real TaskFlow
-registry.  The companion production-module matrix and dispatcher suite cover
+the real continuation scheduling path, and observes the real durable store.
+The companion production-module matrix and dispatcher suite cover
 the below/equal/over boundary plus rejected-hop no-spawn/failed-flow behavior.
+
+The durable store depends on the candidate, and the fixture picks the template
+for the newest store the candidate ships:
+
+- **Continuation custody** (fork #1408; its test support since `91aaf10f9f`).
+  `cost-cap-tool-surface.custody.test.ts` runs in a per-test custody state
+  directory through the real shared-state worker. So it runs in the
+  database-worker lane of `vitest.infra.config.ts`, which collects it from
+  the `OPENCLAW_VITEST_INCLUDE_FILE` list the candidate's scoped configs read.
+  The over-cap test requires no custody record for the session, and none at
+  all in its store. A positive control makes one below-cap election through
+  the same attempt runner and requires exactly one queued `work` record for
+  that session. "No record" therefore cannot hold vacuously. The control also
+  fails closed where a candidate ships custody but still records continuation
+  work elsewhere.
+- **TaskFlow** (removed upstream by `6652f7eac8`).
+  `cost-cap-tool-surface.test.ts` requires no TaskFlow row and runs in the
+  auto-reply shard through `--dir test/r-cw-5-fixture`.
+
+A candidate with neither store fails the typed-tool receipt. Its result is
+judged from Vitest's JSON report, as for the dispatch suite below.
 
 ## Why the fixture is process-local
 

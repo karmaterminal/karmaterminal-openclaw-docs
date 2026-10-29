@@ -13,7 +13,10 @@
 //     assertionResults, and a skipped test is `skipped` and counted pending;
 //   - the candidate's reporter redacts a credential-looking span of a test
 //     name to `<redacted len=N>` in the report, and on stdout a second pass
-//     also swallows the duration after it.
+//     also swallows the duration after it;
+//   - a scoped config without its own dir (the infra config) collects
+//     exactly the files an OPENCLAW_VITEST_INCLUDE_FILE JSON array names, and
+//     one with a dir (auto-reply) collects what `--dir D` holds.
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -72,6 +75,42 @@ export function costCapSuiteBefore311bc66fca() {
   };
 }
 
+export const TOOL_SURFACE_TEST_FILE = 'test/r-cw-5-fixture/cost-cap-tool-surface.test.ts';
+export const CUSTODY_TEST_SUPPORT = 'src/auto-reply/continuation/custody/custody.test-support.ts';
+export const TASK_FLOW_REGISTRY = 'src/tasks/task-flow-registry.ts';
+const TOOL_SURFACE_DESCRIBE = ['R-CW-5 disposable typed tool surface'];
+const OVER_CAP_TOOL_TEST = 'rejects exhausted typed-tool elections without a durable continuation';
+const BELOW_CAP_TOOL_TEST = 'schedules a below-cap typed-tool election as one durable custody record';
+
+/**
+ * The typed-tool surface at a candidate that records continuation work in
+ * custody (293c977f62): the infra config collects the rendered template from
+ * the include file, and auto-reply would collect it through --dir.
+ */
+export function typedToolSurfaceWithCustody() {
+  return {
+    markers: [CUSTODY_TEST_SUPPORT],
+    sourceWrittenByFixture: [TOOL_SURFACE_TEST_FILE],
+    configs: {
+      [INFRA_CONFIG]: { project: 'infra', files: [], includeFile: true, passWithNoTests: true },
+      [AUTO_REPLY_CONFIG]: { project: 'auto-reply', files: [], dirArgument: true, passWithNoTests: true },
+    },
+    suites: {
+      [TOOL_SURFACE_TEST_FILE]: [OVER_CAP_TOOL_TEST, BELOW_CAP_TOOL_TEST].map((name) => ({
+        name, ancestorTitles: TOOL_SURFACE_DESCRIBE, status: 'passed',
+      })),
+    },
+  };
+}
+
+/** The same surface at a TaskFlow-era candidate (80311e8a): one test, auto-reply --dir. */
+export function typedToolSurfaceWithTaskFlow() {
+  const model = typedToolSurfaceWithCustody();
+  model.markers = [TASK_FLOW_REGISTRY];
+  model.suites[TOOL_SURFACE_TEST_FILE] = model.suites[TOOL_SURFACE_TEST_FILE].slice(0, 1);
+  return model;
+}
+
 const MODELED_VITEST_CLI = `#!/usr/bin/env node
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -84,8 +123,16 @@ if (rest.indexOf('--config') === -1 || !config) {
   console.error('modeled vitest: unknown config ' + configPath);
   process.exit(1);
 }
-const filters = rest.filter((arg, index) => !arg.startsWith('-') && rest[index - 1] !== '--config');
-const selected = config.files.filter((file) => filters.length === 0 || filters.some((filter) => file.includes(filter)));
+const optionValues = new Set(['--config', '--dir']);
+const filters = rest.filter((arg, index) => !arg.startsWith('-') && !optionValues.has(rest[index - 1]));
+const dir = rest.includes('--dir') ? rest[rest.indexOf('--dir') + 1] : undefined;
+let collectable = config.files;
+if (config.includeFile && process.env.OPENCLAW_VITEST_INCLUDE_FILE) {
+  collectable = JSON.parse(readFileSync(process.env.OPENCLAW_VITEST_INCLUDE_FILE, 'utf8'));
+} else if (config.dirArgument && dir) {
+  collectable = Object.keys(model.suites).filter((file) => file.startsWith(dir + '/'));
+}
+const selected = collectable.filter((file) => filters.length === 0 || filters.some((filter) => file.includes(filter)));
 if (command === 'list') {
   for (const file of selected) console.log(config.project ? '[' + config.project + '] ' + file : file);
   process.exit(0);
@@ -166,12 +213,18 @@ export async function modeledVitestCandidate(model) {
     await writeFile(path.join(worktree, config), '// modeled Vitest config\n');
   }
   for (const [file, tests] of Object.entries(model.suites)) {
+    // The fixture writes its own rendered templates into the candidate.
+    if (model.sourceWrittenByFixture?.includes(file)) continue;
     await mkdir(path.dirname(path.join(worktree, file)), { recursive: true });
     const declarations = tests.map((test) => `  it(${JSON.stringify(test.name)}, async () => {});`);
     await writeFile(
       path.join(worktree, file),
       `describe(${JSON.stringify(tests[0]?.ancestorTitles?.[0] ?? 'suite')}, () => {\n${declarations.join('\n')}\n});\n`,
     );
+  }
+  for (const marker of model.markers ?? []) {
+    await mkdir(path.dirname(path.join(worktree, marker)), { recursive: true });
+    await writeFile(path.join(worktree, marker), '// modeled candidate module\n');
   }
   const vitestScript = path.join(worktree, 'modeled-vitest.mjs');
   await writeFile(vitestScript, MODELED_VITEST_CLI);

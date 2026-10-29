@@ -214,13 +214,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-COLLECTION-ON-COLLAPSE/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CD-MODEL-CHAINED-ALT",
@@ -540,13 +543,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-5A/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-5A/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "construct-only (static boundary variant; by design never a fresh R-CW-5/6 cap receipt)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "The static boundary variant always emits construct-only by design (it validates the same committed source/harness material as R-CW-5/6 and must never pass as a fresh cap receipt). It cannot PASS under the current harness, so it needs a method decision (remove from required, or accept construct-only).",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-6",
@@ -572,13 +578,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-6A/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-6A/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "construct-only (static boundary variant; by design never a fresh R-CW-5/6 cap receipt)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "The static boundary variant always emits construct-only by design (it validates the same committed source/harness material as R-CW-5/6 and must never pass as a fresh cap receipt). It cannot PASS under the current harness, so it needs a method decision (remove from required, or accept construct-only).",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-7",
@@ -588,13 +597,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-7/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-7/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-7/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-DELEGATE-CHILD-LIVE",
@@ -604,13 +616,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-CHILD-LIVE/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-CHILD-LIVE/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
@@ -642,13 +657,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-TOKEN/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-TOKEN/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-MULTI",
@@ -658,13 +676,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-MULTI/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-MULTI-COLLAPSE",
@@ -674,13 +695,16 @@
    "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI-COLLAPSE/",
    "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
    "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
-   "candidate_verdict": null,
-   "review_status": "not-fired-yet",
-   "fired": false,
+   "candidate_verdict": "PASS-candidate (static validator over pinned historical baseline 1cc8f4e3)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
    "exact_target_execution": false,
    "pending_receipts": [],
-   "summary": "seeded missing; awaiting a reviewed receipt",
-   "notes": ""
+   "summary": "Offline static-corpus-row-validator run at this corpus (k6 2.0.0, docs 9f23640b) PASSes, but it validates live evidence captured historically at PROOFS/1cc8f4e3\u2026/R-CW-MULTI-COLLAPSE/cael-dgx (INDEX static_evidence_sha), not evidence produced at 293c977f62. Kept missing until a reviewed method decision: accept carrying the pinned static baseline (as earlier corpora did) or require an exact-SHA recapture.",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
   },
   {
    "row": "R-CW-TOKEN",

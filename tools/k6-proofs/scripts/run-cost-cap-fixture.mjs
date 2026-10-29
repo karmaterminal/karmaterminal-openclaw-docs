@@ -468,7 +468,7 @@ export function assertVirtualStoreLockMatchesCandidate(worktreeDir, candidateLoc
   };
 }
 
-function resolveCandidateLocalExecutable(worktreeDir, name) {
+export function resolveCandidateLocalExecutable(worktreeDir, name) {
   const nodeModules = realpathSync(path.join(worktreeDir, 'node_modules'));
   const bin = path.join(worktreeDir, 'node_modules', '.bin', name);
   if (!existsSync(bin)) throw new Error(`candidate-local ${name} executable is missing after frozen install`);
@@ -659,6 +659,29 @@ function parseLastJson(stdout, label) {
   return JSON.parse(line);
 }
 
+export function runDispatchBoundarySuite({ worktreeDir, vitestExecutable }) {
+  const command = [
+    'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
+    'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
+  ];
+  const dispatchRun = run(process.execPath, [vitestExecutable, ...command], { cwd: worktreeDir });
+  const asserted = {
+    belowCapAllowsSpawn: /allows dispatch when accumulatedChainTokens is 1 below costCapTokens/u.test(dispatchRun.stdout),
+    exactCapAllowsSpawn: /rejects at exact boundary \(accumulatedChainTokens === costCapTokens is NOT over\)/u.test(dispatchRun.stdout),
+    overCapRejectsSpawn: /rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1/u.test(dispatchRun.stdout),
+    overCapMarksFlowFailed: /marks TaskFlow records as failed for cost-cap-rejected delegates/u.test(dispatchRun.stdout),
+  };
+  return {
+    // A green process alone is insufficient: this fixture must keep pinning the
+    // four observable contract points, especially the rejected-hop no-spawn
+    // behavior and durable failed-flow side effect.
+    passed: dispatchRun.ok && Object.values(asserted).every(Boolean),
+    exitCode: dispatchRun.exitCode,
+    command: ['node', '<candidate-local-vitest>', ...command],
+    asserted,
+  };
+}
+
 function runToolSurface({ worktreeDir, cap, vitestExecutable }) {
   if (!existsSync(TOOL_SURFACE_TEMPLATE)) {
     throw new Error(`tool-surface template missing: ${TOOL_SURFACE_TEMPLATE}`);
@@ -739,20 +762,13 @@ function runVerifiedCandidateWorktree({ sourceDir, candidateSha, artifactDir, ca
     const vitestExecutable = resolveCandidateLocalExecutable(worktreeDir, 'vitest');
     const matrixRun = run(process.execPath, [tsxExecutable, '--eval', matrixEval(cap)], { cwd: worktreeDir });
     const matrix = matrixRun.ok ? parseLastJson(matrixRun.stdout, 'boundary matrix') : null;
-    const dispatchRun = run(
-      process.execPath,
-      [
-        vitestExecutable, 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts',
-        'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose',
-      ],
-      { cwd: worktreeDir },
-    );
+    const dispatchSuite = runDispatchBoundarySuite({ worktreeDir, vitestExecutable });
     const toolSurface = runToolSurface({ worktreeDir, cap, vitestExecutable });
     const afterExecution = assertCandidateWorktreeIntegrity(worktreeDir, candidateSha, 'final receipt emission');
     return {
       matrixRun,
       matrix,
-      dispatchRun,
+      dispatchSuite,
       toolSurface,
       dependency: {
         packageManager: packageManager.packageManager,
@@ -809,7 +825,7 @@ export function runFixture(args) {
     cap: args.cap,
     sourceLockfileSha256: lockfileSha256,
   });
-  const { matrixRun, matrix, dispatchRun, toolSurface } = verified;
+  const { matrixRun, matrix, dispatchSuite, toolSurface } = verified;
   const matrixPassed = Boolean(
     matrix?.cases?.length === 3 &&
     matrix.cases[0]?.outcome === null &&
@@ -826,24 +842,15 @@ export function runFixture(args) {
     dependency: verified.dependency,
   });
 
-  const dispatchAssertions = {
-    belowCapAllowsSpawn: /allows dispatch when accumulatedChainTokens is 1 below costCapTokens/u.test(dispatchRun.stdout),
-    exactCapAllowsSpawn: /rejects at exact boundary \(accumulatedChainTokens === costCapTokens is NOT over\)/u.test(dispatchRun.stdout),
-    overCapRejectsSpawn: /rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1/u.test(dispatchRun.stdout),
-    overCapMarksFlowFailed: /marks TaskFlow records as failed for cost-cap-rejected delegates/u.test(dispatchRun.stdout),
-  };
-  // A green process alone is insufficient: this fixture must keep pinning the
-  // four observable contract points, especially the rejected-hop no-spawn
-  // behavior and durable failed-flow side effect.
-  const dispatchPassed = dispatchRun.ok && Object.values(dispatchAssertions).every(Boolean);
+  const dispatchPassed = dispatchSuite.passed;
   writeJson(path.join(artifactDir, 'dispatch-boundary-suite.json'), {
     schema: 'openclaw.project81.r-cw-5.dispatch-boundary-suite.v1',
     passed: dispatchPassed,
-    exitCode: dispatchRun.exitCode,
-    command: ['node', '<candidate-local-vitest>', 'run', '--config', 'test/vitest/vitest.auto-reply.config.ts', 'src/auto-reply/continuation/delegate-dispatch.cost-cap-exhaustion.test.ts', '--reporter=verbose'],
+    exitCode: dispatchSuite.exitCode,
+    command: dispatchSuite.command,
     // Test names, not raw logs, are public-safe and pin the no-spawn/cascade
     // assertion without copying arbitrary candidate output into the corpus.
-    asserted: dispatchAssertions,
+    asserted: dispatchSuite.asserted,
     dependency: verified.dependency,
   });
 

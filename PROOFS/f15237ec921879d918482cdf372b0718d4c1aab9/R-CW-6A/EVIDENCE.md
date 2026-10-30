@@ -3,3 +3,7 @@
 Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.
 
 Seeded 2026-10-30. No receipt is folded yet. Static row, allocated to the frond-scribe static validator run at exact `f15237ec921879d918482cdf372b0718d4c1aab9`. It is folded only after review. The F (`08c37a1562`) receipt for this row is a historical diagnostic and is not carried.
+
+## Static validator run (20261030T013043Z)
+
+**missing (construct-only).** The static validator at docs `215235ed` reports `construct-only` for this row, by design: it validates the same committed material as R-CW-5/6 but never emits a cap receipt. Artifacts: `static-validator-20261030T013043Z/`.

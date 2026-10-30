@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-MULTI-COLLAPSE",
+  "sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "p(90)": 1,
+      "p(95)": 1,
+      "avg": 1,
+      "min": 1,
+      "med": 1,
+      "max": 1
+    }
+  }
+}

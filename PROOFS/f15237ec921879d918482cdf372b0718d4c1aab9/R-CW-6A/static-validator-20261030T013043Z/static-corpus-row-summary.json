@@ -1,0 +1,16 @@
+{
+  "row": "R-CW-6A",
+  "sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "verdict": "construct-only",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "max": 0,
+      "p(90)": 0,
+      "p(95)": 0,
+      "avg": 0,
+      "min": 0,
+      "med": 0
+    }
+  }
+}

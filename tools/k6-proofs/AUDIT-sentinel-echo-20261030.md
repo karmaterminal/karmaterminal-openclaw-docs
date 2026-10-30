@@ -267,3 +267,49 @@ event stream is not in the public corpus, so these readings rest on `k6.log` con
    - The two offline checks bind each marker to the targeted-return line from its own child.
 3. **Tests:** for each fix, an echo-only event must not satisfy the observation, and the true
    event must.
+
+## Fix status (added after the audit commit `ed28bb0e`)
+
+Each fix has a test where an echo-only event must not satisfy the observation and the true record
+must. Each echo test imports nothing added with the fix. Run against the pre-fix tree (`git
+archive 7ac3e7b8 tools/k6-proofs`, plus the two offline rows' committed `PROOFS` files), it fails
+for the expected reason: the old scenario credits the echo. On this branch it passes. Nothing was
+re-fired.
+
+| Row | Fix commit | Binding now | Echo test (fails on `7ac3e7b8`, passes here) |
+| --- | --- | --- | --- |
+| R-CD-3 | `fb48f7f2` | (a) see note 1. (b) the fill takes real prior turns until fresh `totalTokens/contextTokens` from `sessions.describe` passes the threshold; it is disposable-only and budgeted, with no threshold or config change. (c) unknown/unmeasured rejection is PARTIAL, never PASS; a measured below-threshold rejection is a separate PARTIAL reason | `tests/r-cd-3-post-compaction.test.mjs` "F′ echo" |
+| R-CW-1, R-CW-2, R-CW-3, R-CW-4 | `02327fb0` | turn order in the session's own transcript (see note 2); the shipped reasons drop the wake sentinel | `tests/r-cw-wake-binding.test.mjs` |
+| R-CW-TOKEN | `5eba53bf` | `sessions_spawn` toolResult → childSessionKey. The child's own rows: TOKEN-HOP1, then hop 2 after a wake row or in another run, with a token minted in hop 2; no typed `continue_work`. The parent reproduces the hop-2 token outside the dispatch run | `tests/r-cw-token-binding.test.mjs` "F′ echo" |
+| R-RC-2 | `8f051313` | every child report from the child's own transcript; parent-stream sightings are diagnostics. The post-compaction report binds in a later turn or run after the accepted toolResult | `tests/r-rc-2-sentinel-echo.test.mjs` "F′ echo" |
+| R-CD-SILENT | `ce022ac6`, `1ba9e374` | the child mints a token in its own chat final (spawnedBy the parent); the parent reproduces it in a run other than the dispatch run; scheduled needs the toolResult | `tests/r-cd-silent-readback.test.mjs` "F′ echo" |
+| R-CD-CHAINED-DEPTH-2 | `8782bed7` | CHILD-DONE and GRANDCHILD-DONE only in the lineage-bound hop's own transcript; the root ack excludes the dispatch run | `tests/r-cd-chained-depth-2-echo.test.mjs` "F′ echo" |
+| R-CD-1 | `e8baa61a` | scheduled needs the toolResult plus the parent's text; the child mints in its own transcript; a later parent run reproduces the token; the docs#564 window is now diagnostic | `tests/r-cd-1-return-binding.test.mjs` "F′ echo" |
+| R-CD-MODEL-TOKEN | `6d2182c0` | see note 3 | `tests/r-cd-model-token-bracket-form.test.mjs` "F′ echo" |
+| R-CD-4 | `472072ed` | the target ack excludes the priming run on the live and transcript paths; the transcript path is anchored after the priming reply | `tests/r-cd-4-authority.test.mjs` (#1727 cases), `tests/r-cd-4-priming-echo.test.mjs` |
+| R-CD-RETURN-OVERLAP, R-CD-COLLECTION-ON-COLLAPSE (offline) | `2cac8da4` | each marker binds to its writer and that writer's targeted-return line (`lib/journal-return-binding.mjs`). The committed corpus still validates | `tests/offline-return-binding.test.mjs` (outbound-only copies) |
+
+Notes:
+
+1. **R-CD-3 (a).** Staging and request_compaction come from their toolResults, bound by
+   `toolCallId`. The lifeboat is a child whose own spawn task carries the product prefix
+   `[continuation:post-compaction]` and the row token. Its report is a token it mints. The return
+   is the requester reproducing that token outside the proof and fill runs.
+2. **R-CW-1/2/3/4.** The nonce-bound `continue_work` call's `scheduled` toolResult, with the
+   hop's scheduled sentinel in that turn. Then a `[continuation:wake]` user row, and the next hop
+   or the done sentinel inside the wake turn.
+3. **R-CD-MODEL-TOKEN.**
+   - Spawn: the `sessions_spawn` toolResult, or hop-1 bound by the observer.
+   - Token form: hop-1's own transcript has its turn and no typed `continue_delegate` call, and
+     the delegate's own task carries the product prefix `[continuation:chain-hop:`.
+   - Model modifier: the delegate's served or selected model equals the requested one.
+
+`recover-session-receipts.mjs` uses the same bindings for R-CW-1, R-CW-4 and R-CW-TOKEN. The
+k6 authoring skill's scenario rules now require these bindings, so a new row cannot repeat the
+pattern.
+
+Rows noted at observation level only (R-CD-MODEL-DEFAULT, R-CD-MODEL-TOOL,
+R-CD-MODEL-CHAINED-ALT) were left unchanged: their verdicts already rest on structural receipts.
+
+The F′ readings above (R-CW-TOKEN, R-RC-2, R-CD-SILENT, and the timing reads of the others) are
+for 🌊's ruling. No corpus file is edited here.

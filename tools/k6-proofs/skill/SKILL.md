@@ -120,9 +120,24 @@ Every scenario keeps these properties; the gateway and nonce rules are for live 
   `{ type: "res", id, payload?, error? }`, not `{ result }`.
 - **Redacted.** Store event payloads only through `redactEvent()`; the post-processor refuses
   evidence that carries raw `events` without `redacted_events`.
-- **Nonce per fire (live rows).** A fresh `nonce()` and idempotency key for every fire. Where the
-  row prompts an agent, ignore harness prompt echoes, so a sentinel only counts when the agent
-  produced it.
+- **Nonce per fire (live rows).** A fresh `nonce()` and idempotency key for every fire.
+- **Receipts the agent cannot author (live rows).** Never credit a sentinel found anywhere in a
+  subscribed event. The subscriber sees the agent's own tool-call arguments, thinking, a session
+  snapshot on every message and, unscoped, every session's `chat`/`agent` events. A delegate task
+  comes back in the return's `task:` line and a `continue_work` reason in the wake input. Skipping
+  `[k6-proof-harness]` events is not enough.
+
+  Bind instead to one of these:
+  - a toolResult paired to its call by `toolCallId`;
+  - an assistant row's text parts in the expected session, from a run other than the dispatch run;
+  - the hop's own transcript, bound by spawnedBy and its own spawn task;
+  - a product prefix such as `[continuation:wake]`;
+  - a token the child mints and the parent reproduces.
+
+  Keep sentinels out of the tasks and reasons the agent sends. Use
+  `tools/k6-proofs/lib/sentinel-binding.mjs` and `tools/k6-proofs/lib/continue-work-chain.mjs`.
+  `tools/k6-proofs/AUDIT-sentinel-echo-20261030.md` records why: R-CD-3 credited a "return" from
+  its own `continue_delegate` call.
 - **Single VU, serialized.** `shared-iterations` with one VU and one iteration, a `maxDuration`,
   and, over WebSocket, a socket timeout that closes the connection.
 - **Metrics.** A `proof_failures` Counter with threshold `count==0`, plus a duration Trend named

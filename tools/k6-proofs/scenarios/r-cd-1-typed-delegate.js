@@ -16,6 +16,17 @@
  * disposable parent session — proof does not touch the live #sprites/main
  * Discord lane for repeatability runs.
  *
+ * Receipts are product records the agent cannot author
+ * (openclaw-bootstrap#1727). The return sentinel used to be written into the
+ * delegate task, so the parent's own continue_delegate call carried it and
+ * only a timing window kept that echo out:
+ *   - scheduled: the nonce-bound continue_delegate toolResult (toolCallId)
+ *     reports "scheduled", and CD1-DELEGATE-SCHEDULED is in the parent's text;
+ *   - child return: the bound child's own transcript says
+ *     CD1-DONE <nonce> TOKEN <12 chars>, a token minted there;
+ *   - parent return: a parent run other than the dispatch run reproduces
+ *     CD1-RETURN <nonce> TOKEN <that token>, not earlier than the token.
+ *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#103
  *   - Manifest: tools/k6-proofs/manifests/r-cd-1.json
@@ -29,6 +40,8 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
+import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
+import { assistantSentinelFromEvent, createToolReceiptTracker, mintedTokenFromHistory, tokenReplyFromHistory } from '../lib/sentinel-binding.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
@@ -55,7 +68,7 @@ const DEFAULTS = {
   seat: 'ronan-dgx',
   mode: 'normal',
   delaySeconds: 1,
-  promptTemplate: 'Proof nonce {{nonce}}: reply with DONE and the nonce only. Do not mutate files.',
+  promptTemplate: 'Proof nonce {{nonce}}: after you arrive, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly CD1-DONE {{nonce}} TOKEN <your token>. Do not mutate files.',
   idempotencyKeyPrefix: 'R-CD-1',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -131,6 +144,16 @@ export default function () {
     return_window_opens_at_ms: null,
     return_before_legacy_wake_gate: false,
     prompt_echoes_ignored: 0,
+    scheduled_receipt_observed: false,
+    scheduled_text_bound: false,
+    child_return_bound: false,
+    child_return_reason: null,
+    child_token_fingerprint: null,
+    parent_return_reason: null,
+    child_history_reads: 0,
+    parent_history_reads: 0,
+    // Diagnostics only: return text on the event stream inside the return window.
+    return_text_seen: false,
     trace_id: null,
     preflight: null,
     observation_refused: null,
@@ -142,10 +165,75 @@ export default function () {
   const gate = createPreflightGate('R-CD-1');
   const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
+  const sentTexts = [];
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     const traceIngestGraceMs = Number(__ENV.OPENCLAW_TRACE_INGEST_GRACE_MS || 10000);
     let traceCloseScheduled = false;
+    let scheduledTracker = null;
+    let dispatchRunId = null;
+    let childToken = null;
+    let childTokenTimestamp = null;
+    let childReadScheduled = false;
+    let parentReadScheduled = false;
+    const parentHistoryIds = {};
+
+    function markScheduled() {
+      if (evidence.delegate_scheduled_sentinel || !evidence.scheduled_receipt_observed || !evidence.scheduled_text_bound) return;
+      evidence.delegate_scheduled_sentinel = true;
+      evidence.delegate_scheduled_at_ms = Date.now();
+      evidence.trace_collect_after_ms = evidence.delegate_scheduled_at_ms + evidence.delegate_wake_gate_ms + traceIngestGraceMs;
+      console.log('✓ continue_delegate toolResult scheduled and CD1-DELEGATE-SCHEDULED in the parent\'s own text');
+    }
+
+    // The child's own transcript carries its return and the token it minted.
+    function requestChildHistory(delayMs) {
+      if (!evidence.child_session_key || childToken || childReadScheduled || evidence.child_history_reads >= 40) return;
+      childReadScheduled = true;
+      socket.setTimeout(() => {
+        childReadScheduled = false;
+        evidence.child_history_reads += 1;
+        if (!observer.refreshHistory(evidence.child_session_key, 200, 'cd1-child')) requestChildHistory(3000);
+      }, k6TimeoutMs(delayMs));
+    }
+
+    function onChildHistory(messages) {
+      const minted = mintedTokenFromHistory(messages, { marker: 'CD1-DONE', nonce: rowNonce, sentTexts });
+      evidence.child_return_reason = minted.reason;
+      if (!minted.token) { requestChildHistory(3000); return; }
+      childToken = minted.token;
+      childTokenTimestamp = minted.timestamp;
+      evidence.child_return_bound = true;
+      evidence.child_token_fingerprint = crypto.sha256(minted.token, 'hex').slice(0, 16);
+      console.log('✓ the bound child returned CD1-DONE with a token it minted (its own transcript)');
+      requestParentHistory(1000);
+    }
+
+    // The return reached the parent only if a later parent run reproduces the token.
+    function requestParentHistory(delayMs) {
+      if (!childToken || evidence.parent_return_event || parentReadScheduled || evidence.parent_history_reads >= 40) return;
+      parentReadScheduled = true;
+      socket.setTimeout(() => {
+        parentReadScheduled = false;
+        evidence.parent_history_reads += 1;
+        parentHistoryIds[tracker.send(socket, 'chat.history', { sessionKey, limit: 200 })] = true;
+      }, k6TimeoutMs(delayMs));
+    }
+
+    function onParentHistory(messages) {
+      const bound = tokenReplyFromHistory(messages, {
+        marker: 'CD1-RETURN',
+        nonce: rowNonce,
+        token: childToken,
+        excludeRunIds: [dispatchRunId],
+        notBeforeTimestamp: childTokenTimestamp,
+      });
+      evidence.parent_return_reason = bound.reason;
+      if (!bound.bound) { requestParentHistory(4000); return; }
+      evidence.parent_return_event = true;
+      evidence.parent_return_event_at_ms = Date.now();
+      console.log('✓ a parent run outside the dispatch reproduced the child token');
+    }
 
     function maybeCloseAfterTraceGrace() {
       if (!evidence.tool_invoke_accepted ||
@@ -178,8 +266,11 @@ export default function () {
         const agentInstruction =
           `[k6-proof-harness] Call continue_delegate with task="${task}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
           `After the continue_delegate tool result reports scheduled, reply exactly CD1-DELEGATE-SCHEDULED ${rowNonce}. ` +
+          `Later, when the delegate's return arrives, reply exactly CD1-RETURN ${rowNonce} TOKEN <the TOKEN value from that return>. ` +
           `idempotencyKey="${inv.idempotencyKeyPrefix}-${rowNonce}". ` +
           `This is a proof run — no other action needed.`;
+        sentTexts.push(task, agentInstruction);
+        scheduledTracker = createToolReceiptTracker({ sessionKey, toolName: 'continue_delegate', argField: 'task', needle: rowNonce });
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -229,8 +320,17 @@ export default function () {
         }
         if (preflight === 'ready') afterHello(socket);
         const observed = observer.claim(msg);
+        const parentHistory = !observed && msg && msg.type === 'res' && parentHistoryIds[msg.id];
+        if (parentHistory) delete parentHistoryIds[msg.id];
         const classified = tracker.classify(msg);
-        if (observed) observer.handle(observed, classified);
+        if (observed) {
+          const childMessages = observer.handle(observed, classified);
+          if (observed.purpose === 'cd1-child' && Array.isArray(childMessages)) onChildHistory(childMessages);
+        }
+        if (parentHistory) {
+          if (classified.ok) onParentHistory(Array.isArray(classified.payload?.messages) ? classified.payload.messages : []);
+          else requestParentHistory(4000);
+        }
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -262,6 +362,7 @@ export default function () {
           if (classified.ok) {
             evidence.tool_invoke_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            dispatchRunId = gatewayLifecycleRunId(classified.payload);
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered (will call continue_delegate)');
           } else {
@@ -277,31 +378,32 @@ export default function () {
           if (bound.childSessionKey) {
             evidence.child_record_observed_optional = true;
             evidence.child_session_key = bound.childSessionKey;
-            console.log(`ℹ Optional row-bound child observed: status=${observer.childStatus(bound.childSessionKey) || 'unknown'}`);
+            console.log(`ℹ Row-bound child observed: status=${observer.childStatus(bound.childSessionKey) || 'unknown'}`);
+            requestChildHistory(1000);
           }
         }
+        if (evidence.child_session_key && !childToken) requestChildHistory(3000);
 
         // Session events — parent return surface.
         if (classified.kind === 'event') {
           const eventName = classified.event || '';
-          const eventStr = JSON.stringify(classified.data || {});
+          const eventData = classified.data || {};
+          const eventStr = JSON.stringify(eventData);
+          if (scheduledTracker) {
+            const receipt = scheduledTracker.observe(eventName, eventData);
+            if (receipt && !receipt.isError && receipt.status === 'scheduled') {
+              evidence.scheduled_receipt_observed = true;
+              if (!dispatchRunId && receipt.runId) dispatchRunId = receipt.runId;
+            }
+          }
+          if (assistantSentinelFromEvent(eventName, eventData, { sessionKey, marker: 'CD1-DELEGATE-SCHEDULED', nonce: rowNonce, requireRunId: false })) {
+            evidence.scheduled_text_bound = true;
+          }
+          markScheduled();
           if (eventStr.includes(HARNESS_MARKER)) {
             console.log('ℹ Ignoring harness prompt echo event');
           } else {
-            // Parent scheduled sentinel emitted only after continue_delegate tool result.
-            if (eventStr.includes(`CD1-DELEGATE-SCHEDULED ${rowNonce}`)) {
-              evidence.delegate_scheduled_sentinel = true;
-              if (evidence.delegate_scheduled_at_ms === null) {
-                evidence.delegate_scheduled_at_ms = Date.now();
-                evidence.trace_collect_after_ms =
-                  evidence.delegate_scheduled_at_ms +
-                  evidence.delegate_wake_gate_ms +
-                  traceIngestGraceMs;
-              }
-              console.log(`✓ CD1-DELEGATE-SCHEDULED sentinel observed post-dispatch: ${eventName}`);
-            }
-
-            // Child return sentinel from delegate child arrival.
+            // Diagnostics only: return-like text on the stream, inside or before the window.
             const returnSentinel = eventStr.includes(`CD1-DONE ${rowNonce}`) || eventName === 'delegate.return';
             const returnWindow = delegateReturnWindow({
               anchorAtMs: evidence.delegate_scheduled_at_ms,
@@ -311,13 +413,10 @@ export default function () {
             });
             evidence.return_window_opens_at_ms = returnWindow.opensAtMs;
             if (returnSentinel && returnWindow.open) {
-              evidence.parent_return_event = true;
-              evidence.parent_return_event_at_ms = Date.now();
+              evidence.return_text_seen = true;
               if (returnWindow.beforeLegacyGate) evidence.return_before_legacy_wake_gate = true;
-              console.log(`✓ CD1-DONE/delegate return evidence observed post-dispatch: ${eventName}`);
             } else if (returnSentinel) {
               evidence.prompt_echoes_ignored += 1;
-              console.log('ℹ Ignored delegate return-like event before the scheduled sentinel + delegate delay');
             }
 
             // Channel message (soft — expected for mode=normal, unlike R-CD-2)
@@ -360,7 +459,8 @@ export default function () {
   }
 
   const passed = (!createDisposableSession || evidence.session_created) &&
-    evidence.tool_invoke_accepted && evidence.delegate_scheduled_sentinel && evidence.parent_return_event;
+    evidence.tool_invoke_accepted && evidence.delegate_scheduled_sentinel &&
+    evidence.child_return_bound && evidence.parent_return_event;
   const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate, observer });
   evidence.verdict_reason = finalVerdict.reason;
   if (finalVerdict.reason) failures.add(1);

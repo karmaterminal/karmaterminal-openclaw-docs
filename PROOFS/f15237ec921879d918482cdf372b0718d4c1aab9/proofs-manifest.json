@@ -122,7 +122,14 @@
       ],
       "traces": [
         "tempo-trace-869c48f0971d.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: parent echoes were refused by the window, and the later matches fit real child output. Only the window separated them.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-2",
@@ -162,7 +169,14 @@
       "test_cases_executed": [
         "20261030T013104Z-r-cd-3-44aa4c89"
       ],
-      "traces": []
+      "traces": [],
+      "audit_status": {
+        "status": "confirmed-echo",
+        "reading": "Producer and order confirmed for the false return; the row was corrected to missing at 7ac3e7b8.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-4",
@@ -184,7 +198,14 @@
       ],
       "traces": [
         "tempo-trace-7299a66eb650.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: a live ack 20 s after dispatch fits a real woken turn, but the history path would also accept an ack inside the priming run.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-CHAINED-DEPTH-2",
@@ -206,7 +227,14 @@
       ],
       "traces": [
         "tempo-trace-dd9e8ae2a23e.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: the timing fits real hop output, but both hop sentinels are in the root's own call.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-COLLECTION-ON-COLLAPSE",
@@ -227,7 +255,14 @@
         "static-validator-20261030T013043Z"
       ],
       "carried": true,
-      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+      "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734",
+      "audit_status": {
+        "status": "unverified-loose-check",
+        "reading": "Audit: the evidence is sound (targeted-return line plus session-bound sentinel), but the check reads outbound copies.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-MODEL-CHAINED-ALT",
@@ -293,7 +328,14 @@
       ],
       "traces": [
         "tempo-trace-d7ba1032f3e6.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: the spawn acceptance matched the parent's own sessions_spawn events; nothing shows hop-1 used the bracket rather than the typed tool.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-MODEL-TOOL",
@@ -335,7 +377,14 @@
       "test_cases_executed": [
         "20261030T013904Z-r-cd-return-overlap-44aa4c89"
       ],
-      "traces": []
+      "traces": [],
+      "audit_status": {
+        "status": "unverified-loose-check",
+        "reading": "Audit: the evidence is sound (journal marker lines are bound to child sessions, each with a targeted-return line), but the check is loose.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-RETURN-COVENANT-AUTHORITY",
@@ -373,7 +422,14 @@
       ],
       "traces": [
         "tempo-trace-e7416e936f8e.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: the child's completion is real, but the parent's readback names a token the parent wrote into its own continue_delegate call.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CD-TOKEN",
@@ -458,7 +514,14 @@
       ],
       "traces": [
         "tempo-trace-9faee627cf5b.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: CW-WOKE came 5.69 s after CW-SCHEDULED (5 s delay); most likely the wake input row quoting the reason, not the woken agent.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CW-2",
@@ -480,7 +543,14 @@
       ],
       "traces": [
         "tempo-trace-54115140f9ea.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: CW2-WOKE came 38.4 s after CW2-SCHEDULED (delay 0). The timing doesn't identify the source, and the reason carries the sentinel.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CW-3",
@@ -502,7 +572,14 @@
       ],
       "traces": [
         "tempo-trace-218a5f43c0da.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: CW3-WOKE came 5.296 s after CW3-SCHEDULED (5 s delay); fits the wake input row quoting the reason, not the woken agent.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CW-4",
@@ -524,7 +601,14 @@
       ],
       "traces": [
         "tempo-trace-d2fb7cf6c27d.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: hop spacing and the trace topology (three continue_work spans) corroborate three hops. A prompt echo is structurally possible.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-CW-5",
@@ -749,7 +833,14 @@
       ],
       "traces": [
         "tempo-trace-df53f133c050.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: TOKEN-HOP2-DONE was matched 160 ms after the hop-1 work-wake, too soon for a model turn; likely an echo of the spawn task. The wake itself fired (journal).",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-OBS-1",
@@ -831,7 +922,14 @@
       ],
       "traces": [
         "tempo-trace-aadcbb78740e.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-unmeasured-receipt",
+        "reading": "Lane f2-compaction-unmeasured-text @ 412ef5f1: this PASS rests on a request_compaction receipt with context_usage null (unmeasured), not a measured threshold.",
+        "source": "openclaw branch codeagent/f2-compaction-unmeasured-text @ 412ef5f19d",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-RC-2",
@@ -853,7 +951,14 @@
       ],
       "traces": [
         "tempo-trace-550e4725d1f5.json"
-      ]
+      ],
+      "audit_status": {
+        "status": "unverified-echo-vulnerable",
+        "reading": "Audit: the measured toolResult receipt is real (context 13, threshold 70, threshold_rejected_measured). The child-report half parsed context=unknown from the parent-stream path; likely an echo of the child task.",
+        "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
+        "recorded": "2026-10-30",
+        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+      }
     },
     {
       "row": "R-REGRESSION-TRAP-TESTS",

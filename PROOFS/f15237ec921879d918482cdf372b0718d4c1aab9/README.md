@@ -15,3 +15,5 @@ F (`08c37a1562`) and earlier corpora are historical diagnostics only; nothing ca
 See `RESOLVED-SHA.md`, `METHOD.md`, and `gates/`.
 
 **Correction, 2026-10-30:** R-CD-3 is now **missing**, not partial. Its "behavior observed" was a harness false positive, and the lifeboat never fired. See `R-CD-3/EVIDENCE.md` § Correction.
+
+**Audit status, 2026-10-30:** 15 rows carry an `audit_status` (echo-vulnerable harness, or an unmeasured receipt). See `AUDIT-STATUS.md`. Their pass states are **unverified**, not proven, until F″ re-fires them with the fixed harness.

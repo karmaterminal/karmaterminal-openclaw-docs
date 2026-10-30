@@ -21,6 +21,18 @@
  *
  * Exit code is non-zero on current-board check failure; --all exits 0 unless
  * --strict is supplied.
+ *
+ * Supplemental rows: when a manifest declares `required_rows`, its required set
+ * is `required_rows` and its supplemental set is `dispatch_allocation.supplemental`
+ * (absent means empty). The two sets must be disjoint, `rows[]` must be exactly
+ * their union, only supplemental rows carry `"supplemental": true`, the firing
+ * buckets (every other `dispatch_allocation` key) must allocate each required
+ * row exactly once, `rollup` must equal the required-row tally, and
+ * `rollup_supplemental` (when present) must equal the supplemental-row tally.
+ * `--index` compares INDEX.rollup with the required-row tally. Evidence and row
+ * directory checks still cover every row. Manifests without `required_rows`
+ * keep exactly the old checks, plus one that fails only if they carry a
+ * supplemental marker (supplemental-requires-required-rows).
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -309,16 +321,7 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
   );
   report.rCd2AuthorityValid = rCd2AuthorityFailures.length === 0;
 
-  const tallied = { pass: 0, partial: 0, thin: 0, fail: 0, honest_limit: 0, missing: 0 };
-  const unknownStates = [];
-  let authorizedRowCount = 0;
-  for (const [index, row] of manifest.rows.entries()) {
-    if (unauthorizedRcd2Passes.has(index)) continue;
-    authorizedRowCount += 1;
-    if (Object.prototype.hasOwnProperty.call(tallied, row.state)) tallied[row.state] += 1;
-    else unknownStates.push({ row: row.row, state: row.state });
-  }
-  tallied.total_rows = authorizedRowCount;
+  const { tallied, unknownStates } = tallyRows(manifest.rows, unauthorizedRcd2Passes);
   pushCheck(
     report,
     'state-values-known',
@@ -339,7 +342,322 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
       : stale.map((h) => `${relative(root, h.file)}:${h.token}`).join('; '),
   );
 
+  if (hasOwn(manifest, 'required_rows')) {
+    validateRowSets(report, manifest, unauthorizedRcd2Passes);
+  } else {
+    // Legacy manifests keep exactly the checks above, and every row counts as
+    // required. A supplemental marker would contradict that silently, so it fails.
+    const markers = supplementalMarkers(manifest);
+    if (markers.length) {
+      pushCheck(
+        report,
+        'supplemental-requires-required-rows',
+        false,
+        `manifest has no required_rows but carries supplemental markers: ${markers.join('; ')}`,
+      );
+    }
+  }
+
   return report;
+}
+
+function hasOwn(value, key) {
+  return value !== null && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key);
+}
+
+/**
+ * Tally row states, skipping excluded row indexes and rows that fail `include`.
+ * total_rows counts every included row, including rows with an unknown state.
+ */
+function tallyRows(rows, excludedIndexes, include = () => true) {
+  const tallied = { pass: 0, partial: 0, thin: 0, fail: 0, honest_limit: 0, missing: 0 };
+  const unknownStates = [];
+  let includedRowCount = 0;
+  for (const [index, row] of rows.entries()) {
+    if (excludedIndexes.has(index) || !include(row)) continue;
+    includedRowCount += 1;
+    if (Object.prototype.hasOwnProperty.call(tallied, row.state)) tallied[row.state] += 1;
+    else unknownStates.push({ row: row.row, state: row.state });
+  }
+  tallied.total_rows = includedRowCount;
+  return { tallied, unknownStates };
+}
+
+function formatRollup(rollup) {
+  return ROLLUP_KEYS.map((k) => `${k}=${rollup[k]}`).join(', ');
+}
+
+/** Describe each row-id list problem: not an array, a non-string or empty id, a duplicate. */
+function rowListProblems(label, value) {
+  if (!Array.isArray(value)) return [`${label} is not an array`];
+  const problems = [];
+  const seen = new Set();
+  for (const id of value) {
+    if (typeof id !== 'string' || id.length === 0) {
+      problems.push(`${label} has a non-string or empty entry ${JSON.stringify(id)}`);
+      continue;
+    }
+    if (seen.has(id)) problems.push(`${label} lists ${id} twice`);
+    seen.add(id);
+  }
+  return problems;
+}
+
+function showId(id) {
+  return JSON.stringify(id) ?? String(id);
+}
+
+function stringIds(value) {
+  return Array.isArray(value) ? value.filter((id) => typeof id === 'string' && id.length > 0) : [];
+}
+
+function supplementalMarkers(manifest) {
+  const markers = [];
+  if (hasOwn(manifest.dispatch_allocation, 'supplemental')) markers.push('dispatch_allocation.supplemental');
+  if (hasOwn(manifest, 'supplemental_rows')) markers.push('supplemental_rows');
+  if (hasOwn(manifest, 'rollup_supplemental')) markers.push('rollup_supplemental');
+  const flaggedRows = manifest.rows.filter((row) => notRequiredFlags(row).length).map((row) => showId(row?.row));
+  if (flaggedRows.length) markers.push(`rows flagged as not required: ${flaggedRows.join(', ')}`);
+  return markers;
+}
+
+/** Flags on a row that is counted as required: `supplemental` must be absent or false, `required` absent or true. */
+function notRequiredFlags(row) {
+  const flags = [];
+  if (hasOwn(row, 'supplemental') && row.supplemental !== false) flags.push(`supplemental=${JSON.stringify(row.supplemental)}`);
+  if (hasOwn(row, 'required') && row.required !== true) flags.push(`required=${JSON.stringify(row.required)}`);
+  return flags;
+}
+
+/**
+ * Supplemental-aware row-set checks, run only when the manifest declares
+ * required_rows. The required set is required_rows; the supplemental set is
+ * dispatch_allocation.supplemental (absent means empty). Supplemental rows keep
+ * their rows[] entry, directory and evidence (checked above with every row) but
+ * are excluded from the required tally that manifest.rollup and INDEX.rollup
+ * must match.
+ */
+function validateRowSets(report, manifest, unauthorizedRcd2Passes) {
+  const allocation = manifest.dispatch_allocation;
+  const keyedAllocation = allocation !== null && typeof allocation === 'object' && !Array.isArray(allocation);
+  const hasSupplementalBucket = keyedAllocation && hasOwn(allocation, 'supplemental');
+
+  const setProblems = [
+    ...rowListProblems('required_rows', manifest.required_rows),
+    ...(hasSupplementalBucket
+      ? rowListProblems('dispatch_allocation.supplemental', allocation.supplemental)
+      : []),
+  ];
+  const requiredIds = stringIds(manifest.required_rows);
+  const supplementalIds = hasSupplementalBucket ? stringIds(allocation.supplemental) : [];
+  const required = new Set(requiredIds);
+  const supplemental = new Set(supplementalIds);
+  if (hasOwn(manifest, 'supplemental_rows')) {
+    const listProblems = rowListProblems('supplemental_rows', manifest.supplemental_rows);
+    setProblems.push(...listProblems);
+    if (!listProblems.length) {
+      const declared = new Set(manifest.supplemental_rows);
+      const onlyDeclared = [...declared].filter((id) => !supplemental.has(id));
+      const onlyBucket = [...supplemental].filter((id) => !declared.has(id));
+      if (onlyDeclared.length || onlyBucket.length) {
+        setProblems.push(
+          'supplemental_rows disagrees with dispatch_allocation.supplemental' +
+            `${onlyDeclared.length ? `; only in supplemental_rows: ${onlyDeclared.join(', ')}` : ''}` +
+            `${onlyBucket.length ? `; only in the bucket: ${onlyBucket.join(', ')}` : ''}`,
+        );
+      }
+    }
+  }
+  pushCheck(
+    report,
+    'row-sets-defined',
+    setProblems.length === 0,
+    setProblems.length === 0
+      ? `${required.size} required (required_rows), ${supplemental.size} supplemental (dispatch_allocation.supplemental${hasSupplementalBucket ? '' : ' absent'})`
+      : setProblems.join('; '),
+  );
+
+  const overlap = requiredIds.filter((id) => supplemental.has(id));
+  pushCheck(
+    report,
+    'row-sets-disjoint',
+    overlap.length === 0,
+    overlap.length === 0
+      ? 'no row is both required and supplemental'
+      : `in both required_rows and dispatch_allocation.supplemental: ${overlap.join(', ')}`,
+  );
+
+  const seenRows = new Set();
+  const duplicateRows = [];
+  const unknownRows = [];
+  for (const row of manifest.rows) {
+    const id = row?.row;
+    if (seenRows.has(id)) duplicateRows.push(id);
+    seenRows.add(id);
+    if (!required.has(id) && !supplemental.has(id)) unknownRows.push(id);
+  }
+  const absentRows = [...new Set([...requiredIds, ...supplementalIds])].filter((id) => !seenRows.has(id));
+  const rowProblems = [
+    ...(unknownRows.length ? [`in neither set: ${unknownRows.map(showId).join(', ')}`] : []),
+    ...(duplicateRows.length ? [`duplicate rows[] entries: ${duplicateRows.map(showId).join(', ')}`] : []),
+    ...(absentRows.length ? [`declared but absent from rows[]: ${absentRows.join(', ')}`] : []),
+  ];
+  pushCheck(
+    report,
+    'rows-match-row-sets',
+    rowProblems.length === 0,
+    rowProblems.length === 0
+      ? `rows[] is exactly required ∪ supplemental (${manifest.rows.length} rows)`
+      : rowProblems.join('; '),
+  );
+
+  const flagProblems = [];
+  for (const row of manifest.rows) {
+    const id = row?.row;
+    if (supplemental.has(id)) {
+      if (row?.supplemental !== true) {
+        flagProblems.push(`supplemental row ${id} has supplemental=${JSON.stringify(row?.supplemental)}, expected true`);
+      }
+      if (hasOwn(row, 'required') && row.required !== false) {
+        flagProblems.push(`supplemental row ${id} has required=${JSON.stringify(row.required)}`);
+      }
+    } else {
+      for (const flag of notRequiredFlags(row)) flagProblems.push(`non-supplemental row ${showId(id)} has ${flag}`);
+    }
+  }
+  pushCheck(
+    report,
+    'supplemental-flags-agree',
+    flagProblems.length === 0,
+    flagProblems.length === 0
+      ? `exactly the ${supplemental.size} supplemental rows carry "supplemental": true`
+      : flagProblems.join('; '),
+  );
+
+  pushFiringBucketCheck(report, allocation, keyedAllocation, required);
+
+  const authorityValid = report.rCd2AuthorityValid !== false;
+  const { tallied: requiredRollup } = tallyRows(manifest.rows, unauthorizedRcd2Passes, (row) => required.has(row?.row));
+  const { tallied: supplementalRollup } = tallyRows(
+    manifest.rows,
+    unauthorizedRcd2Passes,
+    (row) => supplemental.has(row?.row),
+  );
+  report.requiredRollup = requiredRollup;
+  report.supplementalRollup = supplementalRollup;
+
+  const declaredRollup = manifest.rollup;
+  const rollupIsObject = declaredRollup !== null && typeof declaredRollup === 'object' && !Array.isArray(declaredRollup);
+  const rollupDiffs = rollupIsObject
+    ? ROLLUP_KEYS.filter((k) => declaredRollup[k] !== requiredRollup[k]).map(
+        (k) => `${k}: manifest=${declaredRollup[k]} required-tally=${requiredRollup[k]}`,
+      )
+    : [`manifest rollup is ${declaredRollup === undefined ? 'missing' : 'not an object'}`];
+  // total_rows is the declared required count too, not only the rows[] entries
+  // that happen to carry a required id.
+  if (rollupIsObject && declaredRollup.total_rows !== required.size) {
+    rollupDiffs.push(`total_rows: manifest=${declaredRollup.total_rows} required_rows=${required.size}`);
+  }
+  pushCheck(
+    report,
+    'manifest-rollup-matches-required',
+    authorityValid && rollupDiffs.length === 0,
+    authorityValid && rollupDiffs.length === 0
+      ? `manifest rollup matches the required-row tally (${formatRollup(requiredRollup)})`
+      : [...(!authorityValid ? ['R-CD-2 reviewed authority failed'] : []), ...rollupDiffs].join('; '),
+  );
+
+  if (!hasOwn(manifest, 'rollup_supplemental')) {
+    pushCheck(report, 'rollup-supplemental-matches', true, 'not applicable: no rollup_supplemental declared');
+    return;
+  }
+  // rollup_supplemental may omit a state whose supplemental tally is zero (the
+  // #607/#613 shape is {"total_rows":3,"missing":3}); total_rows is required and
+  // unknown keys are rejected so a misspelled state cannot hide a count.
+  const declaredSupplemental = manifest.rollup_supplemental;
+  const supplementalProblems = [];
+  if (declaredSupplemental === null || typeof declaredSupplemental !== 'object' || Array.isArray(declaredSupplemental)) {
+    supplementalProblems.push('rollup_supplemental is not an object');
+  } else {
+    const unknownKeys = Object.keys(declaredSupplemental).filter((k) => !ROLLUP_KEYS.includes(k));
+    if (unknownKeys.length) supplementalProblems.push(`unknown keys: ${unknownKeys.join(', ')}`);
+    if (!hasOwn(declaredSupplemental, 'total_rows')) supplementalProblems.push('total_rows missing');
+    for (const k of ROLLUP_KEYS) {
+      const declared = hasOwn(declaredSupplemental, k) ? declaredSupplemental[k] : 0;
+      if (declared !== supplementalRollup[k]) {
+        supplementalProblems.push(
+          `${k}: rollup_supplemental=${hasOwn(declaredSupplemental, k) ? JSON.stringify(declared) : '(absent)'} supplemental-tally=${supplementalRollup[k]}`,
+        );
+      }
+    }
+  }
+  pushCheck(
+    report,
+    'rollup-supplemental-matches',
+    authorityValid && supplementalProblems.length === 0,
+    authorityValid && supplementalProblems.length === 0
+      ? `rollup_supplemental matches the supplemental-row tally (${formatRollup(supplementalRollup)})`
+      : [...(!authorityValid ? ['R-CD-2 reviewed authority failed'] : []), ...supplementalProblems].join('; '),
+  );
+}
+
+/**
+ * Firing buckets are every dispatch_allocation key except `supplemental`; together
+ * they must allocate each required row exactly once and nothing else. A
+ * per-row list (`[{ row, owner, status }]`, an older allocation shape) is
+ * checked the same way. Corpora that predate dispatch_allocation have nothing
+ * to check.
+ */
+function pushFiringBucketCheck(report, allocation, keyedAllocation, required) {
+  if (allocation === undefined) {
+    pushCheck(report, 'firing-buckets-cover-required', true, 'not applicable: no dispatch_allocation');
+    return;
+  }
+  const problems = [];
+  const allocations = [];
+  let bucketCount = 0;
+  if (Array.isArray(allocation)) {
+    for (const [index, entry] of allocation.entries()) {
+      if (typeof entry?.row === 'string' && entry.row.length > 0) allocations.push(entry.row);
+      else problems.push(`dispatch_allocation[${index}] has no row id`);
+    }
+    bucketCount = allocation.length;
+  } else if (keyedAllocation) {
+    for (const [bucket, ids] of Object.entries(allocation)) {
+      if (bucket === 'supplemental') continue;
+      bucketCount += 1;
+      if (!Array.isArray(ids)) {
+        problems.push(`bucket ${bucket} is not an array of row ids`);
+        continue;
+      }
+      for (const id of ids) {
+        if (typeof id === 'string' && id.length > 0) allocations.push(id);
+        else problems.push(`bucket ${bucket} has a non-string or empty entry ${JSON.stringify(id)}`);
+      }
+    }
+  } else {
+    problems.push(`dispatch_allocation is ${allocation === null ? 'null' : typeof allocation}, not row buckets`);
+  }
+  const counts = new Map();
+  for (const id of allocations) counts.set(id, (counts.get(id) || 0) + 1);
+  const uncovered = [...required].filter((id) => !counts.has(id));
+  const repeated = [...counts]
+    .filter(([id, count]) => required.has(id) && count > 1)
+    .map(([id, count]) => `${id}×${count}`);
+  const notRequired = [...counts.keys()].filter((id) => !required.has(id));
+  if (uncovered.length) problems.push(`required rows in no firing bucket: ${uncovered.join(', ')}`);
+  if (repeated.length) problems.push(`required rows allocated more than once: ${repeated.join(', ')}`);
+  if (notRequired.length) problems.push(`non-required rows in firing buckets: ${notRequired.join(', ')}`);
+  pushCheck(
+    report,
+    'firing-buckets-cover-required',
+    problems.length === 0,
+    problems.length === 0
+      ? Array.isArray(allocation)
+        ? `per-row dispatch_allocation covers the ${required.size} required rows exactly once`
+        : `${bucketCount} firing buckets cover the ${required.size} required rows exactly once`
+      : problems.join('; '),
+  );
 }
 
 function validateIndex(root) {
@@ -373,12 +691,17 @@ function validateIndex(root) {
   report.shaReport = validateSha(root, index.current_sha, { manifestRequired: true });
 
   if (index.rollup && report.shaReport.talliedRollup) {
-    const tallied = report.shaReport.talliedRollup;
+    // A manifest that declares required_rows is gated on its required-row tally,
+    // so supplemental rows never count toward the current board. Legacy
+    // manifests keep the all-rows tally.
+    const requiredOnly = report.shaReport.requiredRollup !== undefined;
+    const tallied = requiredOnly ? report.shaReport.requiredRollup : report.shaReport.talliedRollup;
+    const tallyLabel = requiredOnly ? 'required-tally' : 'tallied';
     const diffs = [];
     for (const k of ROLLUP_KEYS) {
       const got = index.rollup[k];
       const expect = tallied[k];
-      if (got !== expect) diffs.push(`${k}: index=${got} tallied=${expect}`);
+      if (got !== expect) diffs.push(`${k}: index=${got} ${tallyLabel}=${expect}`);
     }
     const authorityValid = report.shaReport.rCd2AuthorityValid !== false;
     pushCheck(
@@ -386,7 +709,10 @@ function validateIndex(root) {
       'rollup-matches-manifest',
       authorityValid && diffs.length === 0,
       authorityValid && diffs.length === 0
-        ? `INDEX rollup matches manifest tally (${ROLLUP_KEYS.map((k) => `${k}=${tallied[k]}`).join(', ')})`
+        ? requiredOnly
+          ? `INDEX rollup matches manifest required-row tally (${formatRollup(tallied)}); ` +
+            `${report.shaReport.supplementalRollup.total_rows} supplemental rows excluded`
+          : `INDEX rollup matches manifest tally (${formatRollup(tallied)})`
         : [
             ...(!authorityValid ? ['R-CD-2 reviewed authority failed'] : []),
             ...diffs,

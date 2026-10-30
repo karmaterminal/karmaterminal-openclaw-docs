@@ -1,0 +1,765 @@
+{
+  "schema": "openclaw.k6.test-fossil.v1",
+  "source": {
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "pr": "karmaterminal/karmaterminal-openclaw-docs#613",
+    "corpus": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/proofs-manifest.json",
+    "base_ref": "96b4335bfcaf9179b74033d420c74a9100380266",
+    "head_ref": "729f9b3623fb828d9fcbfa5a61d7d29bddfe40c1"
+  },
+  "projection": "{schema, capture_sha, required_rows, dispatch_allocation, rows: [.rows[] | {row, state, owner, dir, evidence_doc} + (if has(\"required\") then {required} else {} end) + (if has(\"supplemental\") then {supplemental} else {} end)], rollup} + (if has(\"supplemental_rows\") then {supplemental_rows} else {} end) + (if has(\"rollup_supplemental\") then {rollup_supplemental} else {} end)",
+  "extraction": "git show <ref>:<corpus> | jq <projection>",
+  "manifests": {
+    "base": {
+      "schema": "openclaw.proofs.manifest.v1",
+      "capture_sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+      "required_rows": [
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-RETURN-COVENANT-AUTHORITY",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-5A",
+        "R-CW-6",
+        "R-CW-6A",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ],
+      "dispatch_allocation": {
+        "emeric": [
+          "R-CD-1",
+          "R-CD-2",
+          "R-CD-3",
+          "R-CD-4",
+          "R-CD-CHAINED-DEPTH-2",
+          "R-CD-MODEL-CHAINED-ALT",
+          "R-CD-MODEL-DEFAULT",
+          "R-CD-MODEL-TOKEN",
+          "R-CD-MODEL-TOOL",
+          "R-CD-RETURN-OVERLAP",
+          "R-CD-SILENT",
+          "R-CD-TOKEN",
+          "R-CONFIG-DEFAULTS",
+          "R-CONFIG-INTERSESSION",
+          "R-CW-1",
+          "R-CW-2",
+          "R-CW-3",
+          "R-CW-4",
+          "R-CW-DELEGATE-SELF-CONTINUATION",
+          "R-CW-TOKEN",
+          "R-OBS-1",
+          "R-OBS-2",
+          "R-OBS-STATUS",
+          "R-RC-1",
+          "R-RC-2",
+          "R-REGRESSION-TRAP-TESTS",
+          "R-TRACE-REDACTION-1121"
+        ],
+        "frond-scribe-static": [
+          "R-CD-COLLECTION-ON-COLLAPSE",
+          "R-CW-5A",
+          "R-CW-6A",
+          "R-CW-7",
+          "R-CW-DELEGATE-CHILD-LIVE",
+          "R-CW-DELEGATE-TOKEN",
+          "R-CW-MULTI",
+          "R-CW-MULTI-COLLAPSE"
+        ],
+        "frond-scribe-fixture": [
+          "R-CW-5",
+          "R-CW-6"
+        ],
+        "unfired": [
+          "R-CD-RETURN-COVENANT-AUTHORITY"
+        ]
+      },
+      "rows": [
+        {
+          "row": "R-CD-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-2",
+          "state": "partial",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-3",
+          "state": "partial",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-3/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-3/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-4",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-4/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-4/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-CHAINED-DEPTH-2",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-CHAINED-DEPTH-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-COLLECTION-ON-COLLAPSE",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-COLLECTION-ON-COLLAPSE/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-CHAINED-ALT",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-CHAINED-ALT/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-DEFAULT",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-DEFAULT/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-DEFAULT/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-TOKEN",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-TOOL",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOOL/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOOL/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-RETURN-OVERLAP",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-OVERLAP/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-OVERLAP/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+          "state": "missing",
+          "owner": "unfired",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-COVENANT-AUTHORITY/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-COVENANT-AUTHORITY/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-SILENT",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-SILENT/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-SILENT/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-TOKEN",
+          "state": "partial",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-CONFIG-DEFAULTS",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-DEFAULTS/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-DEFAULTS/EVIDENCE.md"
+        },
+        {
+          "row": "R-CONFIG-INTERSESSION",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-INTERSESSION/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-INTERSESSION/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-2",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-3",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-4",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-4/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-4/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-5",
+          "state": "pass",
+          "owner": "frond-scribe-fixture",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-5A",
+          "state": "missing",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5A/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5A/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-6",
+          "state": "pass",
+          "owner": "frond-scribe-fixture",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-6A",
+          "state": "missing",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6A/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6A/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-7",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-7/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-7/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-DELEGATE-CHILD-LIVE",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-CHILD-LIVE/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-SELF-CONTINUATION/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-DELEGATE-TOKEN",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-MULTI",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-MULTI-COLLAPSE",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI-COLLAPSE/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-TOKEN",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-OBS-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-OBS-2",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-OBS-STATUS",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-STATUS/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-STATUS/EVIDENCE.md"
+        },
+        {
+          "row": "R-RC-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-RC-2",
+          "state": "honest_limit",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-REGRESSION-TRAP-TESTS",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-REGRESSION-TRAP-TESTS/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
+        },
+        {
+          "row": "R-TRACE-REDACTION-1121",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-TRACE-REDACTION-1121/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-TRACE-REDACTION-1121/EVIDENCE.md"
+        }
+      ],
+      "rollup": {
+        "total_rows": 38,
+        "pass": 31,
+        "partial": 3,
+        "thin": 0,
+        "fail": 0,
+        "honest_limit": 1,
+        "missing": 3
+      }
+    },
+    "head": {
+      "schema": "openclaw.proofs.manifest.v1",
+      "capture_sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+      "required_rows": [
+        "R-CD-1",
+        "R-CD-2",
+        "R-CD-3",
+        "R-CD-4",
+        "R-CD-CHAINED-DEPTH-2",
+        "R-CD-COLLECTION-ON-COLLAPSE",
+        "R-CD-MODEL-CHAINED-ALT",
+        "R-CD-MODEL-DEFAULT",
+        "R-CD-MODEL-TOKEN",
+        "R-CD-MODEL-TOOL",
+        "R-CD-RETURN-OVERLAP",
+        "R-CD-SILENT",
+        "R-CD-TOKEN",
+        "R-CONFIG-DEFAULTS",
+        "R-CONFIG-INTERSESSION",
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4",
+        "R-CW-5",
+        "R-CW-6",
+        "R-CW-7",
+        "R-CW-DELEGATE-CHILD-LIVE",
+        "R-CW-DELEGATE-SELF-CONTINUATION",
+        "R-CW-DELEGATE-TOKEN",
+        "R-CW-MULTI",
+        "R-CW-MULTI-COLLAPSE",
+        "R-CW-TOKEN",
+        "R-OBS-1",
+        "R-OBS-2",
+        "R-OBS-STATUS",
+        "R-RC-1",
+        "R-RC-2",
+        "R-REGRESSION-TRAP-TESTS",
+        "R-TRACE-REDACTION-1121"
+      ],
+      "dispatch_allocation": {
+        "emeric": [
+          "R-CD-1",
+          "R-CD-2",
+          "R-CD-3",
+          "R-CD-4",
+          "R-CD-CHAINED-DEPTH-2",
+          "R-CD-MODEL-CHAINED-ALT",
+          "R-CD-MODEL-DEFAULT",
+          "R-CD-MODEL-TOKEN",
+          "R-CD-MODEL-TOOL",
+          "R-CD-RETURN-OVERLAP",
+          "R-CD-SILENT",
+          "R-CD-TOKEN",
+          "R-CONFIG-DEFAULTS",
+          "R-CONFIG-INTERSESSION",
+          "R-CW-1",
+          "R-CW-2",
+          "R-CW-3",
+          "R-CW-4",
+          "R-CW-DELEGATE-SELF-CONTINUATION",
+          "R-CW-TOKEN",
+          "R-OBS-1",
+          "R-OBS-2",
+          "R-OBS-STATUS",
+          "R-RC-1",
+          "R-RC-2",
+          "R-REGRESSION-TRAP-TESTS",
+          "R-TRACE-REDACTION-1121"
+        ],
+        "frond-scribe-static": [
+          "R-CD-COLLECTION-ON-COLLAPSE",
+          "R-CW-7",
+          "R-CW-DELEGATE-CHILD-LIVE",
+          "R-CW-DELEGATE-TOKEN",
+          "R-CW-MULTI",
+          "R-CW-MULTI-COLLAPSE"
+        ],
+        "frond-scribe-fixture": [
+          "R-CW-5",
+          "R-CW-6"
+        ],
+        "unfired": [],
+        "supplemental": [
+          "R-CD-RETURN-COVENANT-AUTHORITY",
+          "R-CW-5A",
+          "R-CW-6A"
+        ]
+      },
+      "rows": [
+        {
+          "row": "R-CD-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-2",
+          "state": "partial",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-3",
+          "state": "partial",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-3/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-3/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-4",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-4/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-4/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-CHAINED-DEPTH-2",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-CHAINED-DEPTH-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-CHAINED-DEPTH-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-COLLECTION-ON-COLLAPSE",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-COLLECTION-ON-COLLAPSE/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-CHAINED-ALT",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-CHAINED-ALT/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-DEFAULT",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-DEFAULT/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-DEFAULT/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-TOKEN",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-MODEL-TOOL",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOOL/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-MODEL-TOOL/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-RETURN-OVERLAP",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-OVERLAP/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-OVERLAP/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+          "state": "missing",
+          "owner": "unfired",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-COVENANT-AUTHORITY/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-RETURN-COVENANT-AUTHORITY/EVIDENCE.md",
+          "required": false,
+          "supplemental": true
+        },
+        {
+          "row": "R-CD-SILENT",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-SILENT/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-SILENT/EVIDENCE.md"
+        },
+        {
+          "row": "R-CD-TOKEN",
+          "state": "partial",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-CONFIG-DEFAULTS",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-DEFAULTS/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-DEFAULTS/EVIDENCE.md"
+        },
+        {
+          "row": "R-CONFIG-INTERSESSION",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-INTERSESSION/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CONFIG-INTERSESSION/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-2",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-3",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-4",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-4/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-4/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-5",
+          "state": "pass",
+          "owner": "frond-scribe-fixture",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-5A",
+          "state": "missing",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5A/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5A/EVIDENCE.md",
+          "required": false,
+          "supplemental": true
+        },
+        {
+          "row": "R-CW-6",
+          "state": "pass",
+          "owner": "frond-scribe-fixture",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-6A",
+          "state": "missing",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6A/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6A/EVIDENCE.md",
+          "required": false,
+          "supplemental": true
+        },
+        {
+          "row": "R-CW-7",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-7/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-7/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-DELEGATE-CHILD-LIVE",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-CHILD-LIVE/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-SELF-CONTINUATION/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-DELEGATE-TOKEN",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-DELEGATE-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-MULTI",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-MULTI-COLLAPSE",
+          "state": "pass",
+          "owner": "frond-scribe-static",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI-COLLAPSE/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-MULTI-COLLAPSE/EVIDENCE.md"
+        },
+        {
+          "row": "R-CW-TOKEN",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-TOKEN/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-TOKEN/EVIDENCE.md"
+        },
+        {
+          "row": "R-OBS-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-OBS-2",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-OBS-STATUS",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-STATUS/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-OBS-STATUS/EVIDENCE.md"
+        },
+        {
+          "row": "R-RC-1",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-1/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-1/EVIDENCE.md"
+        },
+        {
+          "row": "R-RC-2",
+          "state": "honest_limit",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-2/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-2/EVIDENCE.md"
+        },
+        {
+          "row": "R-REGRESSION-TRAP-TESTS",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-REGRESSION-TRAP-TESTS/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-REGRESSION-TRAP-TESTS/EVIDENCE.md"
+        },
+        {
+          "row": "R-TRACE-REDACTION-1121",
+          "state": "pass",
+          "owner": "emeric-exact-fire",
+          "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-TRACE-REDACTION-1121/",
+          "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-TRACE-REDACTION-1121/EVIDENCE.md"
+        }
+      ],
+      "rollup": {
+        "total_rows": 35,
+        "pass": 31,
+        "partial": 3,
+        "thin": 0,
+        "fail": 0,
+        "honest_limit": 1,
+        "missing": 0
+      },
+      "supplemental_rows": [
+        "R-CD-RETURN-COVENANT-AUTHORITY",
+        "R-CW-5A",
+        "R-CW-6A"
+      ],
+      "rollup_supplemental": {
+        "total_rows": 3,
+        "missing": 3
+      }
+    }
+  }
+}

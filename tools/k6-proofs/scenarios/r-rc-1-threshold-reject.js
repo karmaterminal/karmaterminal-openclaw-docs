@@ -455,7 +455,10 @@ export default function () {
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             if (typeof classified.payload?.runId === 'string' && classified.payload.runId) {
               evidence.send_run_id = classified.payload.runId;
-              if (heldLifecycleEndRunIds.has(evidence.send_run_id)) markTurnEnded('lifecycle-end');
+              if (heldLifecycleEndRunIds.has(evidence.send_run_id)) {
+                markTurnEnded('lifecycle-end');
+                if (!evidence.history_requested) readTranscript('receipt');
+              }
             }
             heldLifecycleEndRunIds.clear();
             console.log('✓ sessions.send accepted — awaiting authoritative request_compaction tool result');

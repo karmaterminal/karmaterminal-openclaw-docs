@@ -120,18 +120,220 @@ export function classifyRequestCompactionReceipt(eventPayload) {
   };
 }
 
-// Causes a live runner reports for usage it has not measured. On a live
-// session, inventory_only means the runner's origin wiring regressed.
-const LIVE_UNMEASURED_CAUSES = Object.freeze(['no_fresh_usage', 'unknown_context_window']);
+// ---------------------------------------------------------------------------
+// R-RC-1 PASS rule: manifests/r-rc-1.json telemetryContract.verdictAuthority.pass
+// (approved by 🌊 at docs b37adbda). The nonce-bound toolResult is a structured
+// rejection, either guard=context_threshold measured below the floor (usage and
+// threshold both numbers, usage < threshold, no inventory-only wording) or
+// guard=context_unmeasured with a live cause. An unmeasured rejection is never
+// measured proof, and inventory-only in either form is non-PASS.
+//
+// Receipt shapes at karmaterminal/openclaw 542d1cac46 (#1506),
+// src/agents/tools/request-compaction-tool.ts: context_unmeasured carries a cause
+// and no numbers (:252-265), context_threshold carries contextUsage and threshold
+// (:266-277). The pre-#1727 unknown branch answered context_threshold with no
+// numbers and the inventory stub's wording (:40-41).
+// ---------------------------------------------------------------------------
+
+// Causes a live runner reports for usage it has not measured
+// (request-compaction-tool.ts:35). On a live session, inventory_only means the
+// runner's origin wiring regressed.
+export const LIVE_UNMEASURED_CAUSES = Object.freeze(['no_fresh_usage', 'unknown_context_window']);
+
+const INVENTORY_ONLY_WORDING = /inventory[-_ ]only/i;
+
+function finiteNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
 
 /**
- * A context-guard rejection receipt from a live session (R-RC-1): a
- * context_threshold rejection (measured, or the pre-#1727 unknown shape), or a
- * context_unmeasured rejection naming a live runner's cause.
+ * What the R-RC-1 PASS rule reads from one request_compaction receipt. The
+ * scenario records these facts in its evidence, so the verdict can be computed
+ * again from the evidence alone (classifyRrc1Evidence).
+ */
+export function rrc1RejectionFacts(receipt) {
+  const r = isRecord(receipt) ? receipt : {};
+  return {
+    status: typeof r.status === 'string' ? r.status : null,
+    guard: typeof r.guard === 'string' ? r.guard : null,
+    cause: typeof r.cause === 'string' ? r.cause : null,
+    contextUsage: finiteNumber(r.contextUsage),
+    threshold: finiteNumber(r.threshold),
+    usageFieldsPresent: 'contextUsage' in r || 'threshold' in r,
+    inventoryOnlyWording: typeof r.reason === 'string' && INVENTORY_ONLY_WORDING.test(r.reason),
+  };
+}
+
+/**
+ * The R-RC-1 PASS rule over rrc1RejectionFacts. Returns { pass, shape, reason }:
+ * shape is 'measured_below_threshold' or 'unmeasured_live_cause' when it passes,
+ * otherwise reason names the first part of the rule the receipt breaks. Facts
+ * that were not recorded fail closed.
+ */
+export function rrc1RejectionVerdict(facts) {
+  const f = facts || {};
+  const fail = (reason) => ({ pass: false, shape: null, reason });
+  if (f.status !== 'rejected') return fail(`request_compaction did not return a rejection (status ${f.status ?? 'missing'})`);
+  if (f.inventoryOnlyWording === true) return fail(`guard ${f.guard ?? 'missing'} answered with inventory-only wording on the live seat`);
+  if (f.inventoryOnlyWording !== false) return fail('the rejection wording was not checked for inventory-only');
+  if (f.guard === 'context_threshold') {
+    if (finiteNumber(f.contextUsage) === null || finiteNumber(f.threshold) === null) {
+      return fail('context_threshold without a measured contextUsage and threshold');
+    }
+    if (!(f.contextUsage < f.threshold)) {
+      return fail(`context_threshold usage ${f.contextUsage} is not below threshold ${f.threshold}`);
+    }
+    return { pass: true, shape: 'measured_below_threshold', reason: null };
+  }
+  if (f.guard === 'context_unmeasured') {
+    if (f.cause === 'inventory_only') return fail('context_unmeasured cause inventory_only on the live seat');
+    if (!LIVE_UNMEASURED_CAUSES.includes(f.cause)) return fail(`context_unmeasured without a live cause (cause ${f.cause ?? 'missing'})`);
+    if (f.usageFieldsPresent === true) return fail('context_unmeasured carries usage numbers, which contradict it');
+    if (f.usageFieldsPresent !== false) return fail('the unmeasured rejection was not checked for usage numbers');
+    return { pass: true, shape: 'unmeasured_live_cause', reason: null };
+  }
+  return fail(`not a context-guard rejection (guard ${f.guard ?? 'missing'})`);
+}
+
+/** The R-RC-1 PASS rule over a classifyRequestCompactionReceipt result. */
+export function classifyLiveContextGuardRejection(result) {
+  if (result?.kind !== 'threshold_rejected' && result?.kind !== 'unmeasured_rejected') {
+    return { pass: false, shape: null, reason: `no context-guard rejection receipt (${result?.kind || 'missing'})` };
+  }
+  return rrc1RejectionVerdict(rrc1RejectionFacts(result.receipt));
+}
+
+/**
+ * A rejection receipt that meets the R-RC-1 PASS rule: context_threshold
+ * measured below the floor, or context_unmeasured with a live cause, and no
+ * inventory-only wording in either.
  */
 export function isLiveContextGuardRejection(result) {
-  if (result?.kind === 'threshold_rejected') return true;
-  return result?.kind === 'unmeasured_rejected' && LIVE_UNMEASURED_CAUSES.includes(result.receipt?.cause);
+  return classifyLiveContextGuardRejection(result).pass;
+}
+
+// ---------------------------------------------------------------------------
+// R-RC-1 compaction side effect.
+//
+// At openclaw 542d1cac46 the operator-visible mark of a committed compaction is
+// the transcript compaction record, which sessions.get returns as
+// { role: "system", content: [{ text: "Compaction" }], __openclaw: { kind: "compaction", id } }
+// (src/gateway/session-transcript-entry-message.ts:82-112). It is written when
+// the compaction commits, after its summary call, in the same session. No
+// compaction counter is readable, no session.message carries the row (the
+// gateway only sends sessions.changed { phase: "message" } with no messageId),
+// and the queued request_compaction path emits no compaction event. In-attempt
+// and recovery compaction do emit agent events { stream: "compaction" }
+// (src/agents/embedded-agent-runner/run/compaction-runtime.ts:102-120), which
+// sessions.messages subscribers receive for phases start and end
+// (src/gateway/server-chat-event-admission.ts:15); any of those after dispatch
+// is a compaction too. Absence only means something once the turn has ended
+// and a window has passed, and it is bounded by that window.
+// ---------------------------------------------------------------------------
+
+export function isCompactionMarker(message) {
+  return isRecord(message) && isRecord(message.__openclaw) && message.__openclaw.kind === 'compaction';
+}
+
+/**
+ * Compaction rows in `messages` that are not in `baselineMessages`, matched by
+ * their record id. A row without an id never matches, so it always counts.
+ */
+export function newCompactionMarkerCount(baselineMessages, messages) {
+  const baselineIds = new Set();
+  for (const message of Array.isArray(baselineMessages) ? baselineMessages : []) {
+    if (isCompactionMarker(message) && typeof message.__openclaw.id === 'string') baselineIds.add(message.__openclaw.id);
+  }
+  let count = 0;
+  for (const message of Array.isArray(messages) ? messages : []) {
+    if (!isCompactionMarker(message)) continue;
+    const id = message.__openclaw.id;
+    if (!(typeof id === 'string' && baselineIds.has(id))) count += 1;
+  }
+  return count;
+}
+
+function sessionKeyTail(key) {
+  return String(key).trim().toLowerCase().replace(/^agent:[^:]+:/, '');
+}
+
+/**
+ * True only when the event payload names this session (with or without its
+ * agent:<id>: prefix). Used where a false match would start the side-effect
+ * window early, so an event that names no session does not match.
+ */
+export function eventNamesSession(eventPayload, sessionKey) {
+  const named = isRecord(eventPayload) && typeof eventPayload.sessionKey === 'string' && eventPayload.sessionKey.trim();
+  if (!named || typeof sessionKey !== 'string' || !sessionKey.trim()) return false;
+  return sessionKeyTail(eventPayload.sessionKey) === sessionKeyTail(sessionKey);
+}
+
+/**
+ * A compaction signal on the subscribed stream: an agent compaction event or a
+ * session.message carrying a compaction row. `eventPayload` is the event
+ * frame's payload. An event that names another session is not this one's; an
+ * event that names no session counts, so a missing key cannot hide a compaction.
+ * Returns { source, phase } or null.
+ */
+export function compactionStreamSignal(eventPayload, sessionKey) {
+  if (!isRecord(eventPayload)) return null;
+  const named = typeof eventPayload.sessionKey === 'string' && eventPayload.sessionKey.trim();
+  if (named && !eventNamesSession(eventPayload, sessionKey)) return null;
+  if (eventPayload.stream === 'compaction') {
+    return { source: 'agent-compaction-event', phase: typeof eventPayload.data?.phase === 'string' ? eventPayload.data.phase : null };
+  }
+  if (isCompactionMarker(eventPayload.message)) return { source: 'session-message-compaction-row', phase: null };
+  return null;
+}
+
+/**
+ * The one R-RC-1 verdict, printed by the scenario's VERDICT line (the verdict
+ * run-proofs.sh reads) and asserted by its tests, so the two cannot drift.
+ * PASS-candidate needs every required receipt, the PASS rule above over the
+ * recorded receipt facts, and no_compaction_side_effect proven true by the
+ * scenario's bounded window. Anything else is PARTIAL-candidate with the first
+ * missing piece named; this scenario never emits FAIL
+ * (verdictAuthority.fail).
+ */
+export function classifyRrc1Evidence(evidence) {
+  const e = evidence || {};
+  const partial = (reason) => ({ verdict: 'PARTIAL-candidate', reason, shape: null });
+  if (e.row !== undefined && e.row !== 'R-RC-1') return partial(`not R-RC-1 evidence (${e.row})`);
+  if (e.tool_inventory_checked !== true || e.tool_registered !== true) {
+    return partial('request_compaction is not in the effective tool inventory');
+  }
+  if (e.dispatch_accepted !== true) return partial('sessions.send was not accepted');
+  if (e.tool_result_observed !== true) return partial('no authoritative request_compaction toolResult');
+  if (e.tool_call_nonce_bound !== true || e.tool_invocation_observed !== true) {
+    return partial("the toolResult is not bound to this row's nonce-bearing invocation");
+  }
+  const rejection = rrc1RejectionVerdict({
+    status: e.tool_result_status,
+    guard: e.guard,
+    cause: e.cause,
+    contextUsage: e.context_usage,
+    threshold: e.threshold,
+    usageFieldsPresent: e.usage_fields_present,
+    inventoryOnlyWording: e.inventory_only_wording,
+  });
+  if (!rejection.pass) return partial(rejection.reason);
+  if (e.no_compaction_side_effect === false) {
+    const seen = e.side_effect || {};
+    return partial(`a compaction followed the rejection (stream signals ${seen.stream_compaction_signals ?? '?'}, new transcript compaction rows ${seen.new_compaction_markers ?? '?'})`);
+  }
+  if (e.no_compaction_side_effect !== true) {
+    return partial(`no compaction side effect is unproven: ${e.side_effect?.unproven_reason || 'the side-effect window did not complete'}`);
+  }
+  // The claim stands only on the window that produced it.
+  const window = isRecord(e.side_effect) ? e.side_effect : {};
+  const windowComplete = window.baseline_read === true && window.turn_end_observed === true &&
+    window.window_elapsed === true && window.final_read === true &&
+    window.new_compaction_markers === 0 && window.stream_compaction_signals === 0 &&
+    finiteNumber(window.window_ms) !== null && window.window_ms > 0;
+  if (!windowComplete) {
+    return partial('no compaction side effect is claimed, but its baseline read, turn end, window or final read is missing or saw a compaction');
+  }
+  return { verdict: 'PASS-candidate', reason: null, shape: rejection.shape };
 }
 
 export function findRequestCompactionReceipt(messages, { rowNonce, toolCallId } = {}) {

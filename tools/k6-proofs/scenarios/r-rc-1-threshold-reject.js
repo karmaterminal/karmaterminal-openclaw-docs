@@ -5,18 +5,58 @@
  * that session's effective tool inventory, then captures the authoritative
  * role=toolResult receipt for the invocation. Assistant sentinel prose is
  * retained as diagnostic evidence only and can never satisfy the row.
+ *
+ * PASS (manifests/r-rc-1.json telemetryContract.verdictAuthority.pass) needs
+ * the receipt to meet the rule in lib/request-compaction-receipt.js
+ * (context_threshold measured below the floor, or context_unmeasured with a
+ * live cause; never inventory-only) and no compaction side effect.
+ *
+ * The side effect is observed, never assumed, and the claim is bounded. At
+ * openclaw 542d1cac46 the one operator-visible mark of a compaction is the
+ * transcript compaction row sessions.get returns, written when the compaction
+ * commits (no counter is readable, and the queued request_compaction path
+ * emits no compaction event). So: the transcript is read before dispatch, the
+ * turn has to end (lifecycle end for this session, or a reply row after the
+ * toolResult), and SIDE_EFFECT_WINDOW_MS later it is read again. A compaction
+ * row new since the baseline, or a compaction signal on the subscribed stream
+ * at any point after dispatch, makes no_compaction_side_effect false. A window
+ * that does not complete leaves it null (unproven), which is not PASS.
+ * classifyRrc1Evidence is the one verdict.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
+  classifyLiveContextGuardRejection,
   classifyRequestCompactionReceipt,
+  classifyRrc1Evidence,
+  compactionStreamSignal,
+  eventNamesSession,
   findRequestCompactionReceipt,
   hasEffectiveTool,
-  isLiveContextGuardRejection,
+  newCompactionMarkerCount,
+  rrc1RejectionFacts,
 } from '../lib/request-compaction-receipt.js';
+
+// How long after the turn ends the row keeps watching for a compaction. The
+// compaction row lands only when a compaction commits, after its summary call
+// (embedded compaction safety timeout 180s at openclaw 542d1cac46). The
+// default suits a one-turn disposable session; OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS
+// may lengthen it (up to 300s), never shorten it. The evidence records the
+// window used.
+const DEFAULT_SIDE_EFFECT_WINDOW_MS = 30000;
+const MAX_SIDE_EFFECT_WINDOW_MS = 300000;
+const requestedWindowMs = Number(__ENV.OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS);
+const SIDE_EFFECT_WINDOW_MS = Number.isFinite(requestedWindowMs) && requestedWindowMs > DEFAULT_SIDE_EFFECT_WINDOW_MS
+  ? Math.min(Math.floor(requestedWindowMs), MAX_SIDE_EFFECT_WINDOW_MS)
+  : DEFAULT_SIDE_EFFECT_WINDOW_MS;
+// Setup and the turn get TURN_BUDGET_MS; the window and its final read follow.
+const TURN_BUDGET_MS = 60000;
+const SOCKET_TIMEOUT_MS = TURN_BUDGET_MS + SIDE_EFFECT_WINDOW_MS + 5000;
+const TURN_END_POLL_MS = 1000;
 
 export const options = {
   scenarios: {
@@ -24,12 +64,12 @@ export const options = {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
-      maxDuration: '90s',
+      maxDuration: `${Math.ceil((SOCKET_TIMEOUT_MS + 15000) / 1000)}s`,
     },
   },
   thresholds: {
     proof_failures: ['count==0'],
-    r_rc_1_duration: ['p(95)<75000'],
+    r_rc_1_duration: [`p(95)<${SOCKET_TIMEOUT_MS + 10000}`],
   },
 };
 
@@ -63,6 +103,9 @@ export default function () {
     const errors = validateManifest(manifest);
     if (errors.length > 0) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
   }
+  if (Number.isFinite(requestedWindowMs) && requestedWindowMs < DEFAULT_SIDE_EFFECT_WINDOW_MS) {
+    console.warn(`OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS=${requestedWindowMs} is shorter than ${DEFAULT_SIDE_EFFECT_WINDOW_MS}ms; using ${SIDE_EFFECT_WINDOW_MS}ms`);
+  }
 
   const evidence = {
     row: 'R-RC-1',
@@ -90,22 +133,71 @@ export default function () {
     cause: null,
     context_usage: null,
     threshold: null,
-    no_compaction_side_effect: false,
+    usage_fields_present: null,
+    inventory_only_wording: null,
+    rejection_meets_contract: false,
+    rejection_shape: null,
+    rejection_reason: null,
+    // true: watched and none seen; false: a compaction followed; null: unproven.
+    no_compaction_side_effect: null,
+    side_effect: {
+      window_ms: SIDE_EFFECT_WINDOW_MS,
+      baseline_read: false,
+      baseline_compaction_markers: null,
+      turn_end_observed: false,
+      turn_end_source: null,
+      window_elapsed: false,
+      final_read: false,
+      cue_reads: 0,
+      new_compaction_markers: 0,
+      stream_compaction_signals: 0,
+      stream_compaction_sources: [],
+      unproven_reason: null,
+    },
+    send_run_id: null,
     assistant_sentinel_observed: false,
     history_requested: false,
     history_attempts: 0,
     trace_id: null,
+    verdict: null,
+    verdict_reason: null,
     redacted_events: [],
   };
+  const sideEffect = evidence.side_effect;
+  let baselineMessages = [];
 
   const started = Date.now();
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    // sessions.get request id -> 'baseline' | 'receipt' | 'turn-end' | 'cue' | 'final'
+    const readPurposes = {};
+    let dispatched = false;
+    let receiptRecorded = false;
+    let watchingSideEffect = false;
+    let windowArmed = false;
+    let cueReadPending = false;
+    let finished = false;
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      socket.close();
+    }
+
+    function readTranscript(purpose) {
+      if (finished) return;
+      if (purpose === 'receipt') {
+        evidence.history_requested = true;
+        evidence.history_attempts += 1;
+      }
+      const id = tracker.send(socket, 'sessions.get', { key: sessionKey, limit: 20 });
+      readPurposes[id] = purpose;
+    }
 
     function startProofFlow() {
       tracker.send(socket, 'tools.effective', { sessionKey });
-      socket.setTimeout(() => socket.close(), 60000);
+      socket.setTimeout(finish, k6TimeoutMs(SOCKET_TIMEOUT_MS));
     }
 
     function dispatchRequestCompaction() {
@@ -114,6 +206,7 @@ export default function () {
         `${HARNESS_MARKER} Call request_compaction with reason=${JSON.stringify(reason)}. ` +
         `After the tool returns, reply exactly RC1-RESULT-OBSERVED ${rowNonce}. ` +
         `Do not infer or restate the receipt, and take no other action.`;
+      dispatched = true;
       tracker.send(socket, 'sessions.send', {
         key: sessionKey,
         message: instruction,
@@ -121,45 +214,161 @@ export default function () {
       });
     }
 
-    function recordAuthoritativeReceipt(receiptResult) {
+    function recordSideEffect(where) {
+      evidence.no_compaction_side_effect = false;
+      console.error(`✗ compaction side effect observed after dispatch (${where})`);
+      // Once the receipt is recorded nothing else can change the verdict.
+      if (receiptRecorded) finish();
+    }
+
+    function recordStreamCompaction(source) {
+      sideEffect.stream_compaction_signals += 1;
+      if (!sideEffect.stream_compaction_sources.includes(source)) sideEffect.stream_compaction_sources.push(source);
+      recordSideEffect(source);
+    }
+
+    function checkTranscriptForCompaction(messages) {
+      const fresh = newCompactionMarkerCount(baselineMessages, messages);
+      if (fresh > sideEffect.new_compaction_markers) sideEffect.new_compaction_markers = fresh;
+      if (fresh > 0) recordSideEffect(`${fresh} transcript compaction row(s) new since the baseline`);
+    }
+
+    // The turn has replied once an assistant row with no further tool call
+    // follows the nonce-bound toolResult.
+    function transcriptShowsReplyAfterReceipt(messages) {
+      const items = Array.isArray(messages) ? messages : [];
+      const resultIndex = items.findIndex((message) => {
+        const result = classifyRequestCompactionReceipt(message);
+        return result.kind !== 'unrelated' && evidence.tool_call_id && result.toolCallId === evidence.tool_call_id;
+      });
+      if (resultIndex < 0) return false;
+      return items.slice(resultIndex + 1).some((message) =>
+        String(message?.role || '').toLowerCase() === 'assistant' &&
+        !(Array.isArray(message.content) && message.content.some((part) => part?.type === 'toolCall')));
+    }
+
+    function markTurnEnded(source) {
+      if (!sideEffect.turn_end_observed) {
+        sideEffect.turn_end_observed = true;
+        sideEffect.turn_end_source = source;
+        console.log(`✓ turn end observed (${source})`);
+      }
+      armSideEffectWindow();
+    }
+
+    function armSideEffectWindow() {
+      if (!watchingSideEffect || windowArmed || !sideEffect.turn_end_observed || finished) return;
+      windowArmed = true;
+      socket.setTimeout(() => {
+        sideEffect.window_elapsed = true;
+        readTranscript('final');
+      }, k6TimeoutMs(SIDE_EFFECT_WINDOW_MS));
+    }
+
+    function recordReceiptFacts(receiptResult) {
+      const receipt = receiptResult.receipt || {};
+      const facts = rrc1RejectionFacts(receipt);
+      evidence.tool_result_observed = true;
+      evidence.tool_call_id = receiptResult.toolCallId || null;
+      evidence.tool_call_nonce_bound = receiptResult.nonceBound === true;
+      evidence.tool_invocation_observed = evidence.tool_call_nonce_bound;
+      evidence.tool_result_status = facts.status || 'invalid';
+      evidence.guard = facts.guard;
+      evidence.cause = facts.cause;
+      evidence.context_usage = facts.contextUsage;
+      evidence.threshold = facts.threshold;
+      evidence.usage_fields_present = facts.usageFieldsPresent;
+      evidence.inventory_only_wording = facts.inventoryOnlyWording;
+      const rule = classifyLiveContextGuardRejection(receiptResult);
+      evidence.rejection_meets_contract = rule.pass;
+      evidence.rejection_shape = rule.shape;
+      evidence.rejection_reason = rule.reason;
+      receiptRecorded = true;
+    }
+
+    function recordAuthoritativeReceipt(receiptResult, messages) {
       // A disposable session's first turn has no measured usage, so builds with
       // openclaw-bootstrap#1727 answer context_unmeasured where older builds
-      // answered context_threshold without numbers. Both are the rejection path,
-      // but cause inventory_only on this live session is a wiring regression.
-      if (isLiveContextGuardRejection(receiptResult)) {
+      // answered context_threshold without numbers. Both are rejections, and
+      // the evidence names what came back; only the rule in
+      // classifyLiveContextGuardRejection can make one a PASS receipt.
+      if (receiptResult.kind === 'threshold_rejected' || receiptResult.kind === 'unmeasured_rejected') {
+        recordReceiptFacts(receiptResult);
         const receipt = receiptResult.receipt;
-        evidence.tool_result_observed = true;
-        evidence.tool_call_id = receiptResult.toolCallId;
-        evidence.tool_call_nonce_bound = receiptResult.nonceBound === true;
-        evidence.tool_invocation_observed = evidence.tool_call_nonce_bound;
-        evidence.tool_result_status = receipt.status;
         evidence.tool_invoke_rejected = true;
-        evidence.guard = receipt.guard;
-        evidence.cause = receipt.cause || null;
-        evidence.context_usage = Number.isFinite(receipt.contextUsage) ? receipt.contextUsage : null;
-        evidence.threshold = Number.isFinite(receipt.threshold) ? receipt.threshold : null;
-        evidence.no_compaction_side_effect = true;
-        console.log(`✓ authoritative toolResult: status=${receipt.status} guard=${receipt.guard} context=${receipt.contextUsage ?? 'unknown'} threshold=${receipt.threshold ?? 'unknown'}`);
-        socket.close();
+        console.log(`✓ authoritative toolResult: status=${receipt.status} guard=${receipt.guard} cause=${receipt.cause ?? 'none'} context=${receipt.contextUsage ?? 'unknown'} threshold=${receipt.threshold ?? 'unknown'}`);
+        if (!evidence.rejection_meets_contract) {
+          console.error(`✗ the rejection does not meet the R-RC-1 PASS rule: ${evidence.rejection_reason}`);
+          finish();
+          return true;
+        }
+        if (evidence.no_compaction_side_effect === false) {
+          finish();
+          return true;
+        }
+        watchingSideEffect = true;
+        if (transcriptShowsReplyAfterReceipt(messages)) markTurnEnded('transcript-reply');
+        else if (sideEffect.turn_end_observed) armSideEffectWindow();
+        else socket.setTimeout(() => readTranscript('turn-end'), k6TimeoutMs(TURN_END_POLL_MS));
         return true;
       }
-      if (['invalid', 'non_threshold_result', 'unmeasured_rejected'].includes(receiptResult.kind)) {
-        evidence.tool_result_observed = true;
-        evidence.tool_call_id = receiptResult.toolCallId || null;
-        evidence.tool_result_status = receiptResult.receipt?.status || 'invalid';
-        evidence.cause = receiptResult.receipt?.cause || null;
+      if (['invalid', 'non_threshold_result'].includes(receiptResult.kind)) {
+        recordReceiptFacts(receiptResult);
         console.error(`✗ authoritative request_compaction tool result did not prove a context-guard rejection: ${JSON.stringify(receiptResult)}`);
-        failures.add(1);
-        socket.close();
+        finish();
         return true;
       }
       return false;
     }
 
-    function requestTranscriptReceipt() {
-      evidence.history_requested = true;
-      evidence.history_attempts += 1;
-      tracker.send(socket, 'sessions.get', { key: sessionKey, limit: 20 });
+    function handleTranscriptRead(purpose, classified) {
+      const messages = classified.ok ? classified.payload?.messages : null;
+      if (purpose === 'baseline') {
+        if (classified.ok) {
+          baselineMessages = Array.isArray(messages) ? messages : [];
+          sideEffect.baseline_read = true;
+          sideEffect.baseline_compaction_markers = newCompactionMarkerCount([], baselineMessages);
+        } else {
+          console.error(`✗ baseline sessions.get rejected: ${JSON.stringify(classified.error)}`);
+        }
+        dispatchRequestCompaction();
+        return;
+      }
+      if (purpose === 'cue') cueReadPending = false;
+      if (purpose === 'final') sideEffect.final_read = classified.ok;
+      if (!classified.ok) {
+        console.error(`✗ sessions.get (${purpose}) rejected: ${JSON.stringify(classified.error)}`);
+        // A rejected cue read loses nothing: the final read still decides.
+        if (purpose !== 'cue') finish();
+        return;
+      }
+      checkTranscriptForCompaction(messages);
+      if (finished || purpose === 'cue') return;
+      if (purpose === 'receipt') {
+        const receiptResult = findRequestCompactionReceipt(messages, { rowNonce });
+        if (!recordAuthoritativeReceipt(receiptResult, messages)) {
+          if (evidence.history_attempts < 8) {
+            socket.setTimeout(() => readTranscript('receipt'), 250);
+          } else {
+            console.error('✗ sessions.get contained no authoritative request_compaction tool result after bounded retries');
+            finish();
+          }
+        }
+        return;
+      }
+      if (purpose === 'turn-end') {
+        if (transcriptShowsReplyAfterReceipt(messages)) markTurnEnded('transcript-reply');
+        else if (!sideEffect.turn_end_observed) socket.setTimeout(() => readTranscript('turn-end'), k6TimeoutMs(TURN_END_POLL_MS));
+        return;
+      }
+      if (purpose === 'final') {
+        // Without the baseline there is nothing to compare the final read with.
+        if (evidence.no_compaction_side_effect !== false && sideEffect.baseline_read) {
+          evidence.no_compaction_side_effect = true;
+          console.log(`✓ no compaction side effect: none on the stream or in the transcript ${SIDE_EFFECT_WINDOW_MS}ms after the turn ended`);
+        }
+        finish();
+      }
     }
 
     socket.on('open', () => {
@@ -175,8 +384,11 @@ export default function () {
     });
 
     socket.on('message', (raw) => {
+      if (finished) return;
       try {
         const msg = JSON.parse(raw);
+        const readPurpose = msg?.type === 'res' && msg.id ? readPurposes[msg.id] : undefined;
+        if (readPurpose) delete readPurposes[msg.id];
         const classified = tracker.classify(msg);
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -197,8 +409,7 @@ export default function () {
             startProofFlow();
           } else {
             console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-            socket.close();
+            finish();
           }
         }
 
@@ -207,8 +418,7 @@ export default function () {
           evidence.tool_registered = classified.ok && hasEffectiveTool(classified.payload, 'request_compaction');
           if (!evidence.tool_registered) {
             console.error(`✗ request_compaction absent from effective inventory: ${JSON.stringify(classified.error || classified.payload)}`);
-            failures.add(1);
-            socket.close();
+            finish();
           } else {
             console.log('✓ request_compaction present in effective inventory');
             tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -217,11 +427,11 @@ export default function () {
 
         if (classified.kind === 'response' && classified.method === 'sessions.messages.subscribe') {
           if (classified.ok) {
-            dispatchRequestCompaction();
+            // The side-effect baseline: compaction rows already in the transcript.
+            readTranscript('baseline');
           } else {
             console.error(`✗ sessions.messages.subscribe rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-            socket.close();
+            finish();
           }
         }
 
@@ -230,50 +440,58 @@ export default function () {
             evidence.dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
+            if (typeof classified.payload?.runId === 'string') evidence.send_run_id = classified.payload.runId;
             console.log('✓ sessions.send accepted — awaiting authoritative request_compaction tool result');
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-            socket.close();
+            finish();
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'sessions.get') {
-          if (!classified.ok) {
-            console.error(`✗ sessions.get rejected: ${JSON.stringify(classified.error)}`);
-            failures.add(1);
-            socket.close();
-          } else {
-            const receiptResult = findRequestCompactionReceipt(classified.payload?.messages, { rowNonce });
-            if (!recordAuthoritativeReceipt(receiptResult)) {
-              if (evidence.history_attempts < 8) {
-                socket.setTimeout(requestTranscriptReceipt, 250);
-              } else {
-                console.error('✗ sessions.get contained no authoritative request_compaction tool result after bounded retries');
-                failures.add(1);
-                socket.close();
-              }
-            }
-          }
+        if (classified.kind === 'response' && classified.method === 'sessions.get' && readPurpose) {
+          handleTranscriptRead(readPurpose, classified);
         }
 
-        if (classified.kind === 'event') {
-          const receiptResult = classifyRequestCompactionReceipt(classified.data);
+        if (classified.kind === 'event' && dispatched) {
+          const data = classified.data || {};
+          const signal = compactionStreamSignal(data, sessionKey);
+          if (signal) recordStreamCompaction(signal.source);
+
+          // Only this session's own run ends the turn: a lifecycle end that
+          // names no session, or another run, would open the window early.
+          const runId = typeof data.runId === 'string' ? data.runId : null;
+          if (data.stream === 'lifecycle' && data.data?.phase === 'end' && eventNamesSession(data, sessionKey) &&
+              (!evidence.send_run_id || !runId || runId === evidence.send_run_id)) {
+            markTurnEnded('lifecycle-end');
+            if (!evidence.history_requested) readTranscript('receipt');
+          }
+
+          // A transcript update without a message (sessions.changed, phase
+          // "message") is how the gateway announces a committed compaction row
+          // to subscribers; read the transcript again rather than wait.
+          if (classified.event === 'sessions.changed' && data.phase === 'message' && data.messageId === undefined &&
+              watchingSideEffect && !cueReadPending && !finished && eventNamesSession(data, sessionKey)) {
+            cueReadPending = true;
+            sideEffect.cue_reads += 1;
+            readTranscript('cue');
+          }
+
+          const receiptResult = classifyRequestCompactionReceipt(data);
           // Subscription events can be delayed or replayed. Never accept an
           // unbound tool result directly; use it only as a signal to fetch the
           // transcript, where the nonce-bearing tool call and toolCallId can be
           // correlated in the same disposable session.
           if (receiptResult.kind !== 'unrelated' && !evidence.history_requested) {
-            requestTranscriptReceipt();
+            readTranscript('receipt');
           }
 
-          const eventMessage = classified.data?.message;
+          const eventMessage = data.message;
           const eventStr = JSON.stringify(eventMessage?.content || '');
           if (eventMessage?.role === 'assistant' && eventStr.includes(`RC1-RESULT-OBSERVED ${rowNonce}`)) {
             evidence.assistant_sentinel_observed = true;
             console.log('ℹ assistant sentinel observed (diagnostic only; not accepted as row evidence)');
             if (!evidence.history_requested && !evidence.tool_result_observed) {
-              requestTranscriptReceipt();
+              readTranscript('receipt');
             }
           }
         }
@@ -292,6 +510,21 @@ export default function () {
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
 
+  if (evidence.no_compaction_side_effect === null) {
+    sideEffect.unproven_reason = !evidence.rejection_meets_contract
+      ? 'not watched: no rejection that meets the PASS rule'
+      : !sideEffect.baseline_read
+        ? 'the baseline transcript read before dispatch did not answer'
+        : !sideEffect.turn_end_observed
+          ? 'the turn did not end before the socket closed'
+          : !sideEffect.window_elapsed
+            ? `the ${SIDE_EFFECT_WINDOW_MS}ms window after the turn did not elapse before the socket closed`
+            : 'the final transcript read did not answer';
+  }
+  const classified = classifyRrc1Evidence(evidence);
+  evidence.verdict = classified.verdict;
+  evidence.verdict_reason = classified.reason;
+
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'request_compaction registered': () => evidence.tool_inventory_checked && evidence.tool_registered,
@@ -301,21 +534,20 @@ export default function () {
     'tool result bound to current nonce-bearing call': () => evidence.tool_call_nonce_bound,
     'request_compaction rejected': () => evidence.tool_invoke_rejected,
     'context guard observed': () => CONTEXT_GUARDS.includes(evidence.guard),
-    'no compaction side effect': () => evidence.no_compaction_side_effect,
+    'rejection meets the R-RC-1 PASS rule': () => evidence.rejection_meets_contract,
+    'no compaction side effect': () => evidence.no_compaction_side_effect === true,
   });
 
-  if (!evidence.tool_inventory_checked || !evidence.tool_registered || !evidence.dispatch_accepted ||
-      !evidence.tool_invocation_observed || !evidence.tool_result_observed ||
-      !evidence.tool_invoke_rejected ||
-      !evidence.tool_call_nonce_bound || !CONTEXT_GUARDS.includes(evidence.guard) ||
-      !evidence.no_compaction_side_effect) {
+  // proof_failures==0 is handleSummary's PASS, so every non-PASS run counts one.
+  if (evidence.verdict !== 'PASS-candidate') {
     failures.add(1);
   }
 
   console.log(`\n--- R-RC-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-RC-1] VERDICT: ${evidence.tool_invoke_rejected ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  if (evidence.verdict_reason) console.log(`[R-RC-1] verdict reason: ${evidence.verdict_reason}`);
+  console.log(`\n[R-RC-1] VERDICT: ${evidence.verdict}`);
 }
 
 export function handleSummary(data) {

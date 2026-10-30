@@ -2,10 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   classifyRequestCompactionReceipt,
+  classifyRrc1Evidence,
+  compactionStreamSignal,
   effectiveToolNames,
+  eventNamesSession,
   findRequestCompactionReceipt,
   hasEffectiveTool,
   isLiveContextGuardRejection,
+  newCompactionMarkerCount,
   requestCompactionToolCallIdForNonce,
 } from '../../lib/request-compaction-receipt.js';
 
@@ -152,6 +156,108 @@ test('R-RC-1 contract: only a rejected status counts', () => {
   assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'compaction_requested', guard: 'context_threshold', contextUsage: 12, threshold: 70 })), false);
   assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'rejected', guard: 'rate_limit', retryAfterSeconds: 30 })), false);
   assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'already_pending', reason: 'in flight' })), false);
+});
+
+// Evidence as the R-RC-1 scenario writes it for a measured below-floor rejection
+// with a completed side-effect window.
+function rrc1PassEvidence(overrides = {}) {
+  return {
+    row: 'R-RC-1',
+    tool_inventory_checked: true,
+    tool_registered: true,
+    dispatch_accepted: true,
+    tool_result_observed: true,
+    tool_call_nonce_bound: true,
+    tool_invocation_observed: true,
+    tool_result_status: 'rejected',
+    guard: 'context_threshold',
+    cause: null,
+    context_usage: 12,
+    threshold: 70,
+    usage_fields_present: true,
+    inventory_only_wording: false,
+    no_compaction_side_effect: true,
+    side_effect: {
+      window_ms: 30000,
+      baseline_read: true,
+      turn_end_observed: true,
+      window_elapsed: true,
+      final_read: true,
+      new_compaction_markers: 0,
+      stream_compaction_signals: 0,
+    },
+    ...overrides,
+  };
+}
+
+test('classifyRrc1Evidence: PASS only on a contract rejection with a completed side-effect window', () => {
+  assert.deepEqual(classifyRrc1Evidence(rrc1PassEvidence()), { verdict: 'PASS-candidate', reason: null, shape: 'measured_below_threshold' });
+  assert.equal(classifyRrc1Evidence(rrc1PassEvidence({
+    guard: 'context_unmeasured', cause: 'no_fresh_usage', context_usage: null, threshold: null, usage_fields_present: false,
+  })).verdict, 'PASS-candidate');
+  const partial = (overrides) => classifyRrc1Evidence(rrc1PassEvidence(overrides));
+  assert.equal(partial({ row: 'R-RC-2' }).verdict, 'PARTIAL-candidate');
+  assert.equal(partial({ tool_registered: false }).verdict, 'PARTIAL-candidate');
+  assert.equal(partial({ dispatch_accepted: false }).verdict, 'PARTIAL-candidate');
+  assert.equal(partial({ tool_call_nonce_bound: false }).verdict, 'PARTIAL-candidate');
+  assert.match(partial({ context_usage: 70 }).reason, /usage 70 is not below threshold 70/u);
+  assert.match(partial({ context_usage: null }).reason, /without a measured contextUsage and threshold/u);
+  assert.match(partial({ inventory_only_wording: true }).reason, /inventory-only wording/u);
+  assert.match(partial({ no_compaction_side_effect: false }).reason, /a compaction followed the rejection/u);
+  assert.match(partial({ no_compaction_side_effect: null, side_effect: { unproven_reason: 'the turn did not end before the socket closed' } }).reason,
+    /unproven: the turn did not end/u);
+});
+
+test('classifyRrc1Evidence: facts that were not recorded fail closed', () => {
+  // Evidence written before this rule existed cannot pass by omission.
+  const { inventory_only_wording: _wording, ...noWording } = rrc1PassEvidence();
+  assert.match(classifyRrc1Evidence(noWording).reason, /not checked for inventory-only/u);
+  const unmeasured = rrc1PassEvidence({ guard: 'context_unmeasured', cause: 'no_fresh_usage', context_usage: null, threshold: null });
+  delete unmeasured.usage_fields_present;
+  assert.match(classifyRrc1Evidence(unmeasured).reason, /not checked for usage numbers/u);
+  const { side_effect: _window, ...noWindow } = rrc1PassEvidence();
+  assert.equal(classifyRrc1Evidence(noWindow).verdict, 'PARTIAL-candidate');
+  // A true side-effect flag needs the window that produced it.
+  for (const key of ['baseline_read', 'turn_end_observed', 'window_elapsed', 'final_read']) {
+    const evidence = rrc1PassEvidence();
+    evidence.side_effect[key] = false;
+    assert.match(classifyRrc1Evidence(evidence).reason, /claimed, but its baseline read, turn end, window or final read/u, key);
+  }
+  const sawOne = rrc1PassEvidence();
+  sawOne.side_effect.new_compaction_markers = 1;
+  assert.equal(classifyRrc1Evidence(sawOne).verdict, 'PARTIAL-candidate');
+});
+
+test('newCompactionMarkerCount counts compaction rows not in the baseline; an id-less row always counts', () => {
+  const row = (id) => ({ role: 'system', content: [{ type: 'text', text: 'Compaction' }], __openclaw: { kind: 'compaction', ...(id ? { id } : {}) } });
+  const reset = { role: 'system', content: [{ type: 'text', text: 'Reset' }], __openclaw: { kind: 'reset', id: 'r-1' } };
+  assert.equal(newCompactionMarkerCount([], [reset, { role: 'assistant', content: 'Compaction' }]), 0);
+  assert.equal(newCompactionMarkerCount([], [row('c-1')]), 1);
+  assert.equal(newCompactionMarkerCount([row('c-1')], [row('c-1')]), 0);
+  assert.equal(newCompactionMarkerCount([row('c-1')], [row('c-1'), row('c-2')]), 1);
+  assert.equal(newCompactionMarkerCount([row(null)], [row(null)]), 1);
+});
+
+test('compactionStreamSignal: agent compaction events and compaction rows; another session is not this one', () => {
+  const key = 'agent:main:r-rc-1-n';
+  assert.deepEqual(compactionStreamSignal({ stream: 'compaction', sessionKey: key, data: { phase: 'start' } }, key), { source: 'agent-compaction-event', phase: 'start' });
+  assert.deepEqual(compactionStreamSignal({ stream: 'compaction', sessionKey: 'r-rc-1-n', data: { phase: 'end' } }, key), { source: 'agent-compaction-event', phase: 'end' });
+  assert.deepEqual(compactionStreamSignal({ stream: 'compaction', data: {} }, key), { source: 'agent-compaction-event', phase: null });
+  assert.equal(compactionStreamSignal({ stream: 'compaction', sessionKey: 'agent:main:other', data: { phase: 'start' } }, key), null);
+  assert.deepEqual(compactionStreamSignal({ sessionKey: key, message: { role: 'system', __openclaw: { kind: 'compaction', id: 'c' } } }, key),
+    { source: 'session-message-compaction-row', phase: null });
+  assert.equal(compactionStreamSignal({ stream: 'lifecycle', sessionKey: key, data: { phase: 'end' } }, key), null);
+  assert.equal(compactionStreamSignal(null, key), null);
+});
+
+test('eventNamesSession matches only an event that names this session', () => {
+  const key = 'agent:main:r-rc-1-n';
+  assert.equal(eventNamesSession({ sessionKey: key }, key), true);
+  assert.equal(eventNamesSession({ sessionKey: 'R-RC-1-N' }, key), true);
+  assert.equal(eventNamesSession({ sessionKey: 'agent:main:other' }, key), false);
+  assert.equal(eventNamesSession({}, key), false);
+  assert.equal(eventNamesSession({ sessionKey: '' }, key), false);
+  assert.equal(eventNamesSession({ sessionKey: key }, ''), false);
 });
 
 test('does not accept assistant sentinel prose as a tool receipt', () => {

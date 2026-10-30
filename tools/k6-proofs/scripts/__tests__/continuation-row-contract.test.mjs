@@ -161,8 +161,8 @@ const DELEGATE_FINGERPRINT_DEBT = ['R-CD-COLLECTION-ON-COLLAPSE'];
 const WORK_FINGERPRINT_DEBT = ['R-CW-5', 'R-CW-6'];
 
 /**
- * Rows whose dispatched delegate task no manifest template renders from the
- * nonce alone: a random child token (R-CD-SILENT), a bracket delegate built
+ * Rows whose dispatched delegate task no manifest template renders: a
+ * scenario-owned task asking the child to mint its token (R-CD-SILENT), a bracket delegate built
  * around row tokens (R-CD-MODEL-TOKEN), or a depth-1 task that embeds the
  * depth-2 task, model and disposable session key (R-CD-MODEL-CHAINED-ALT).
  * The scenario fingerprints the variable it dispatches and the manifest

@@ -312,10 +312,11 @@ test('R-CD-SILENT: a typed silent delegate is attributed by the task it dispatch
   const row = 'R-CD-SILENT';
   const manifest = 'r-cd-silent.json';
   const { privateEvidence, publicEvidence, dispatch } = await fireScenario({ row, scenario: 'r-cd-silent.js', manifest });
-  // The task embeds a child token with a random suffix: no manifest field can
-  // rebuild it, so only the scenario knows the dispatched fingerprint.
+  // The task is scenario-owned: no manifest field renders it, so only the
+  // scenario knows the dispatched fingerprint.
   const reason = typedReason(dispatch);
-  assert.match(reason, /return exactly SILENTCHILD-/u);
+  // The child mints its own token; no harness-written token rides the task (#1727).
+  assert.match(reason, /return exactly SILENTCHILD R-CD-SILENT-\d+-[a-z0-9]+ TOKEN <your token>\./u);
   const trace = traceOf(delegateHop({ reason, mode: 'silent', delayMs: 1000, originNs: ORIGIN_NS, typedOrigin: true, ids: ROOT_HOP_IDS }));
   const collected = await collect({ manifest, evidence: privateEvidence, trace });
   assertAttributed(collected, { reason, mode: 'silent', originSurface: 'typed-tool', privateEvidence });

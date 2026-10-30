@@ -72,8 +72,8 @@ export default function () {
     scheduled_receipt_observed: false, scheduled_text_bound: false, child_token_fingerprint: null, child_report_reason: null,
     // Diagnostics only: sentinel text seen anywhere on the event stream.
     scheduled_text_seen: false, parent_observed_text_seen: false,
-    // The task carries a random child token, so only this scenario can name the
-    // delegate reason the collector matches the trace by (#600).
+    // The task is scenario-owned (the manifest declares no template), so only this
+    // scenario can name the delegate reason the collector matches the trace by (#600).
     reason_hash: null, reason_length: null, delegate_mode: null, redacted_events: [],
   };
   const started = Date.now();

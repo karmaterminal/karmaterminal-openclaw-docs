@@ -935,8 +935,8 @@
     "missing": 3
   },
   "method_change": {
-    "status": "PROPOSED: adopted only when merged to docs main, with review by 🌊 and figs (🌊 Gate 5 ruling, Discord 2026-10-30 13:49Z)",
+    "status": "PROPOSED until merged to docs main; needs 🌊 and figs, and merging is the adoption (🌊 Gate 5 ruling, Discord 2026-10-30 13:49Z, recorded in karmaterminal/openclaw-bootstrap#1727 comment 6524467488)",
     "doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/METHOD.md#method-change-proposal-f",
-    "supersedes": "docs#607 for F′ only (#607 proposed the same move for the j9 corpus PROOFS/293c977f629f872a643fb94892603310b887293b/, which F′ superseded; #607 and that corpus are unchanged)"
+    "supersedes": "docs#607 for F′ only (#607, open and not merged, proposed the same move for the j9 corpus PROOFS/293c977f629f872a643fb94892603310b887293b/, since superseded by P′ 8ba08c76d8, F 08c37a1562 and F′; #607 and that corpus are unchanged)"
   }
 }

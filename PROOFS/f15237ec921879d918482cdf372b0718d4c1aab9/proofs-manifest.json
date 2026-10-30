@@ -148,17 +148,17 @@
       "row": "R-CD-3",
       "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
       "owner": "emeric-exact-fire",
-      "state": "partial",
+      "state": "missing",
       "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-3/",
       "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-3/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
-      "candidate_verdict": "PASS-candidate (trace correlation failed; envelope withheld)",
-      "review_status": "reviewed: frond-scribe (single seat), 2026-10-30",
+      "candidate_verdict": "none: the run's PASS-candidate was a harness false positive (corrected 2026-10-30)",
+      "review_status": "re-reviewed: frond-scribe, 2026-10-30 (correction; see EVIDENCE.md § Correction)",
       "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "Behavior observed, but continuation trace correlation failed, so the candidate envelope was withheld. Same class as at 08c37a1562 and 293c977f62: product span gap openclaw#1497 (a lifeboat release emits no delegate span). Last-known: 08c37a1562 partial for the same reason.",
-      "notes": "owner: product: openclaw#1497",
+      "summary": "Correction 2026-10-30: the lifeboat never fired. The proof session shows the delegate staged (queued-for-compaction), then request_compaction rejected with \"Context usage is unknown for this session\" (fresh session, first turn, no measured usage), then the agent's threshold-limit sentinel. The harness recorded \"lifeboat return\" from the agent's own continue_delegate call, whose task text contains the RCD3-LIFEBOAT-RECEIVED sentinel. No compaction, release or fire happened, so no trace or journal line could exist. The earlier \"behavior observed\" was false; the same scenario and fold made that claim at 08c37a1562 and 293c977f62.",
+      "notes": "owners: harness (sentinel in task text; fresh-session scenario cannot reach compaction) and product openclaw#1497 (lifeboat release emits no delegate dispatch/fire span), plus misleading rejection text for live runners. Findings: openclaw-bootstrap#1727 comment 6532342767.",
       "test_cases_executed": [
         "20261030T013104Z-r-cd-3-44aa4c89"
       ],
@@ -899,11 +899,11 @@
   "rollup": {
     "total_rows": 38,
     "pass": 31,
-    "partial": 3,
+    "partial": 2,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 3
+    "missing": 4
   },
   "method": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/METHOD.md",
   "corpus": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/",

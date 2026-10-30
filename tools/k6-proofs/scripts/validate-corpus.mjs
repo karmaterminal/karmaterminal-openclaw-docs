@@ -31,7 +31,8 @@
  * `rollup_supplemental` (when present) must equal the supplemental-row tally.
  * `--index` compares INDEX.rollup with the required-row tally. Evidence and row
  * directory checks still cover every row. Manifests without `required_rows`
- * validate exactly as before.
+ * keep exactly the old checks, plus one that fails only if they carry a
+ * supplemental marker (supplemental-requires-required-rows).
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -344,8 +345,8 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
   if (hasOwn(manifest, 'required_rows')) {
     validateRowSets(report, manifest, unauthorizedRcd2Passes);
   } else {
-    // Legacy manifests keep exactly the checks above. Supplemental markers are
-    // only meaningful against required_rows, so they may not appear without it.
+    // Legacy manifests keep exactly the checks above, and every row counts as
+    // required. A supplemental marker would contradict that silently, so it fails.
     const markers = supplementalMarkers(manifest);
     if (markers.length) {
       pushCheck(
@@ -415,11 +416,17 @@ function supplementalMarkers(manifest) {
   if (hasOwn(manifest.dispatch_allocation, 'supplemental')) markers.push('dispatch_allocation.supplemental');
   if (hasOwn(manifest, 'supplemental_rows')) markers.push('supplemental_rows');
   if (hasOwn(manifest, 'rollup_supplemental')) markers.push('rollup_supplemental');
-  const flaggedRows = manifest.rows
-    .filter((row) => hasOwn(row, 'supplemental') || hasOwn(row, 'required'))
-    .map((row) => row?.row);
-  if (flaggedRows.length) markers.push(`rows with a supplemental/required flag: ${flaggedRows.join(', ')}`);
+  const flaggedRows = manifest.rows.filter((row) => notRequiredFlags(row).length).map((row) => showId(row?.row));
+  if (flaggedRows.length) markers.push(`rows flagged as not required: ${flaggedRows.join(', ')}`);
   return markers;
+}
+
+/** Flags on a row that is counted as required: `supplemental` must be absent or false, `required` absent or true. */
+function notRequiredFlags(row) {
+  const flags = [];
+  if (hasOwn(row, 'supplemental') && row.supplemental !== false) flags.push(`supplemental=${JSON.stringify(row.supplemental)}`);
+  if (hasOwn(row, 'required') && row.required !== true) flags.push(`required=${JSON.stringify(row.required)}`);
+  return flags;
 }
 
 /**
@@ -515,12 +522,7 @@ function validateRowSets(report, manifest, unauthorizedRcd2Passes) {
         flagProblems.push(`supplemental row ${id} has required=${JSON.stringify(row.required)}`);
       }
     } else {
-      if (hasOwn(row, 'supplemental') && row.supplemental !== false) {
-        flagProblems.push(`non-supplemental row ${showId(id)} has supplemental=${JSON.stringify(row.supplemental)}`);
-      }
-      if (hasOwn(row, 'required') && row.required !== true) {
-        flagProblems.push(`non-supplemental row ${showId(id)} has required=${JSON.stringify(row.required)}`);
-      }
+      for (const flag of notRequiredFlags(row)) flagProblems.push(`non-supplemental row ${showId(id)} has ${flag}`);
     }
   }
   pushCheck(
@@ -551,6 +553,11 @@ function validateRowSets(report, manifest, unauthorizedRcd2Passes) {
         (k) => `${k}: manifest=${declaredRollup[k]} required-tally=${requiredRollup[k]}`,
       )
     : [`manifest rollup is ${declaredRollup === undefined ? 'missing' : 'not an object'}`];
+  // total_rows is the declared required count too, not only the rows[] entries
+  // that happen to carry a required id.
+  if (rollupIsObject && declaredRollup.total_rows !== required.size) {
+    rollupDiffs.push(`total_rows: manifest=${declaredRollup.total_rows} required_rows=${required.size}`);
+  }
   pushCheck(
     report,
     'manifest-rollup-matches-required',

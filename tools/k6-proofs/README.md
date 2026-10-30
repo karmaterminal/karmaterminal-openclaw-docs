@@ -1023,15 +1023,17 @@ these checks too. Its required set is `required_rows`; its supplemental set is
 | `rows-match-row-sets` | `rows[].row` is exactly required ∪ supplemental: no unknown, duplicate or absent row |
 | `supplemental-flags-agree` | every supplemental row has `"supplemental": true` (and `required`, if set, is `false`); no required row has `supplemental` other than `false` or `required` other than `true` |
 | `firing-buckets-cover-required` | every `dispatch_allocation` key except `supplemental` is a row list, and together they allocate each required row exactly once and nothing else (a per-row `[{row, …}]` allocation is checked the same way; not applicable without `dispatch_allocation`) |
-| `manifest-rollup-matches-required` | `rollup` equals the required-row tally on every key (`total_rows` = required count) |
+| `manifest-rollup-matches-required` | `rollup` carries every key and equals the required-row tally; `total_rows` also equals the length of `required_rows` |
 | `rollup-supplemental-matches` | `rollup_supplemental`, if present, equals the supplemental-row tally; it may omit a zero-count state but needs `total_rows` and no unknown key |
 
 `--index` / `--current` compare `INDEX.rollup` with the required-row tally, so
 an INDEX on a corpus with supplemental rows carries the required rollup. The
 evidence-doc and row-dir checks still cover every row. An unauthorized R-CD-2
 pass is left out of every tally and fails every rollup comparison. A manifest
-without `required_rows` gets exactly the checks above this paragraph, except
-that it may not carry supplemental markers (`supplemental-requires-required-rows`).
+without `required_rows` gets exactly the checks above this paragraph. It fails
+`supplemental-requires-required-rows` only if it carries a supplemental marker:
+`dispatch_allocation.supplemental`, `supplemental_rows`, `rollup_supplemental`, or
+a row with `supplemental` other than `false` or `required` other than `true`.
 
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with

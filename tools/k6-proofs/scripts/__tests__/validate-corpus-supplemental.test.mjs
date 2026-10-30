@@ -328,9 +328,129 @@ test('supplemental markers without required_rows fail instead of being ignored',
   delete manifest.required_rows;
   const report = await assertRejected(manifest, {
     'supplemental-requires-required-rows':
-      /dispatch_allocation\.supplemental; supplemental_rows; rollup_supplemental; rows with a supplemental\/required flag: R-CD-RETURN-COVENANT-AUTHORITY, R-CW-5A, R-CW-6A/,
+      /dispatch_allocation\.supplemental; supplemental_rows; rollup_supplemental; rows flagged as not required: "R-CD-RETURN-COVENANT-AUTHORITY", "R-CW-5A", "R-CW-6A"$/,
   });
   assert.equal(report.requiredRollup, undefined);
+
+  // Each marker fails on its own.
+  for (const [label, mutate, detail] of [
+    ['row supplemental true', (m) => { rowOf(m, 'R-CW-1').supplemental = true; }, /^[^;]*rows flagged as not required: "R-CW-1"$/],
+    ['row required false', (m) => { rowOf(m, 'R-CW-1').required = false; }, /rows flagged as not required: "R-CW-1"$/],
+    ['rollup_supplemental alone', (m) => { m.rollup_supplemental = { total_rows: 0 }; }, /markers: rollup_supplemental$/],
+    ['supplemental bucket alone', (m) => { m.dispatch_allocation = { emeric: [], supplemental: [] }; }, /markers: dispatch_allocation\.supplemental$/],
+  ]) {
+    const legacy = base();
+    delete legacy.required_rows;
+    delete legacy.dispatch_allocation;
+    mutate(legacy);
+    await assertRejected(legacy, { 'supplemental-requires-required-rows': detail }).catch((error) => {
+      error.message = `${label}: ${error.message}`;
+      throw error;
+    });
+  }
+
+  // Flags that agree with "every row is required" are not markers.
+  const agreeing = base();
+  delete agreeing.required_rows;
+  delete agreeing.dispatch_allocation;
+  Object.assign(rowOf(agreeing, 'R-CW-1'), { required: true, supplemental: false });
+  const { status, report: agreeingReport } = await validateManifest(agreeing);
+  assert.equal(status, 0);
+  assert.deepEqual(agreeingReport.checks.map((c) => c.name), LEGACY_CHECKS);
+});
+
+test('supplemental rows keep their evidence: a missing EVIDENCE.md or row dir fails', async () => {
+  // writeCorpus materializes every declared path, so point one supplemental row
+  // at paths that are never written.
+  const evidence = head();
+  rowOf(evidence, 'R-CW-5A').evidence_doc = `PROOFS/${SHA}/R-CW-5A/NOT-WRITTEN.md`;
+  await withRoot(async (root) => {
+    await writeCorpus(root, SHA, evidence);
+    await rm(join(root, 'PROOFS', SHA, 'R-CW-5A', 'NOT-WRITTEN.md'));
+    const { status, payload } = run(root, ['--sha', SHA]);
+    const [report] = payload.reports;
+    assert.equal(status, 1);
+    assert.deepEqual(failedChecks(report), ['evidence-doc-exists']);
+    assert.equal(
+      check(report, 'evidence-doc-exists').detail,
+      `1 missing: R-CW-5A→PROOFS/${SHA}/R-CW-5A/NOT-WRITTEN.md`,
+    );
+  });
+
+  await withRoot(async (root) => {
+    await writeCorpus(root, SHA, head());
+    await rm(join(root, 'PROOFS', SHA, 'R-CW-6A'), { recursive: true });
+    const { status, payload } = run(root, ['--sha', SHA]);
+    const [report] = payload.reports;
+    assert.equal(status, 1);
+    assert.deepEqual(failedChecks(report).sort(), ['evidence-doc-exists', 'row-dirs-exist']);
+    assert.match(check(report, 'evidence-doc-exists').detail, /^1 missing: R-CW-6A→/);
+    assert.equal(check(report, 'row-dirs-exist').detail, `1 missing: R-CW-6A→PROOFS/${SHA}/R-CW-6A/`);
+  });
+});
+
+test('rollup total_rows must equal the declared required count, not only the rows present', async () => {
+  // A required row dropped from rows[] with the rollup recounted to match: the
+  // tally agrees, but total_rows no longer equals required_rows.
+  const manifest = head();
+  manifest.rows = manifest.rows.filter((row) => row.row !== 'R-CW-1');
+  manifest.rollup = { ...REQUIRED_ROLLUP, total_rows: 34, pass: 30 };
+  assert.equal(rowOf(head(), 'R-CW-1').state, 'pass');
+  await assertRejected(manifest, {
+    'rows-match-row-sets': /^declared but absent from rows\[\]: R-CW-1$/,
+    'manifest-rollup-matches-required': /^total_rows: manifest=34 required_rows=35$/,
+  });
+});
+
+test('remaining malformed shapes fail the check that owns them', async () => {
+  for (const [label, mutate, expected] of [
+    ['required_rows not an array', (m) => { m.required_rows = 'R-CW-1'; }, {
+      'row-sets-defined': /^required_rows is not an array$/,
+      // The required set is then empty, so nothing is required or tallied.
+      'rows-match-row-sets': /^in neither set: /,
+      'firing-buckets-cover-required': /^non-required rows in firing buckets: /,
+      'manifest-rollup-matches-required': /^total_rows: manifest=35 required-tally=0; .*total_rows: manifest=35 required_rows=0$/,
+    }],
+    ['required_rows with a non-string id', (m) => { m.required_rows.push(7); }, {
+      'row-sets-defined': /^required_rows has a non-string or empty entry 7$/,
+    }],
+    ['only in supplemental_rows', (m) => { m.supplemental_rows = [...SUPPLEMENTAL, 'R-CW-1']; }, {
+      'row-sets-defined': /^supplemental_rows disagrees with dispatch_allocation\.supplemental; only in supplemental_rows: R-CW-1$/,
+    }],
+    ['dispatch_allocation null', (m) => { m.dispatch_allocation = null; }, {
+      'firing-buckets-cover-required': /^dispatch_allocation is null, not row buckets; required rows in no firing bucket: /,
+      // With no bucket, the flagged rows are no longer supplemental.
+      'row-sets-defined': /only in supplemental_rows/,
+      'rows-match-row-sets': /in neither set/,
+      'supplemental-flags-agree': /non-supplemental row/,
+      'rollup-supplemental-matches': /supplemental-tally=0/,
+    }],
+    ['manifest rollup not an object', (m) => { m.rollup = [35]; }, {
+      'manifest-rollup-matches-required': /^manifest rollup is not an object$/,
+    }],
+  ]) {
+    const manifest = head();
+    mutate(manifest);
+    await assertRejected(manifest, expected).catch((error) => {
+      error.message = `${label}: ${error.message}`;
+      throw error;
+    });
+  }
+
+  // A scalar dispatch_allocation on a manifest without supplemental rows.
+  const scalar = base();
+  scalar.dispatch_allocation = 'emeric';
+  await assertRejected(scalar, {
+    'firing-buckets-cover-required': /^dispatch_allocation is string, not row buckets; required rows in no firing bucket: /,
+  });
+});
+
+test('required_rows without dispatch_allocation reports bucket coverage as not applicable', async () => {
+  const manifest = base();
+  delete manifest.dispatch_allocation;
+  const { status, report } = await validateManifest(manifest);
+  assert.equal(status, 0);
+  assert.equal(check(report, 'firing-buckets-cover-required').detail, 'not applicable: no dispatch_allocation');
 });
 
 test('a per-row dispatch_allocation list is checked for required coverage', async () => {
@@ -338,6 +458,12 @@ test('a per-row dispatch_allocation list is checked for required coverage', asyn
   const manifest = base();
   manifest.dispatch_allocation = manifest.required_rows.map((row) => ({ row, owner: 'ronan', status: 'fired' }));
   assert.equal((await validateManifest(manifest)).status, 0);
+
+  const duplicated = structuredClone(manifest);
+  duplicated.dispatch_allocation.push({ row: 'R-CW-1', owner: 'emeric', status: 'fired' });
+  await assertRejected(duplicated, {
+    'firing-buckets-cover-required': /^required rows allocated more than once: R-CW-1×2$/,
+  });
 
   manifest.dispatch_allocation.pop();
   manifest.dispatch_allocation.push({ owner: 'ronan' });
@@ -383,6 +509,22 @@ test('--index passes on the 35-row required rollup and fails on the 38-row all-r
       check(report, 'rollup-matches-manifest').detail,
       'total_rows: index=38 required-tally=35; missing: index=3 required-tally=0',
     );
+  });
+});
+
+test('--index fails an unauthorized R-CD-2 pass in a supplemental corpus even on a matching rollup', async () => {
+  await withRoot(async (root) => {
+    const manifest = head();
+    rowOf(manifest, 'R-CD-2').state = 'pass';
+    manifest.rollup = { ...REQUIRED_ROLLUP, pass: 32, partial: 2 };
+    await writeCorpus(root, SHA, manifest);
+    // Even an INDEX that matches the tally without the unauthorized pass fails.
+    await writeIndex(root, SHA, { ...REQUIRED_ROLLUP, total_rows: 34, partial: 2 });
+    const { status, payload } = run(root, ['--index']);
+    const [report] = payload.reports;
+    assert.equal(status, 1);
+    assert.equal(check(report, 'rollup-matches-manifest').detail, 'R-CD-2 reviewed authority failed');
+    assert.deepEqual(report.shaReport.requiredRollup, { ...REQUIRED_ROLLUP, total_rows: 34, partial: 2 });
   });
 });
 

@@ -508,8 +508,8 @@ function validateRowSets(report, manifest, unauthorizedRcd2Passes) {
   for (const row of manifest.rows) {
     const id = row?.row;
     if (supplemental.has(id)) {
-      if (row.supplemental !== true) {
-        flagProblems.push(`supplemental row ${id} has supplemental=${JSON.stringify(row.supplemental)}, expected true`);
+      if (row?.supplemental !== true) {
+        flagProblems.push(`supplemental row ${id} has supplemental=${JSON.stringify(row?.supplemental)}, expected true`);
       }
       if (hasOwn(row, 'required') && row.required !== false) {
         flagProblems.push(`supplemental row ${id} has required=${JSON.stringify(row.required)}`);

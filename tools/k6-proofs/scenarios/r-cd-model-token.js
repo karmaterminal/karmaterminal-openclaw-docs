@@ -17,6 +17,28 @@ import {
 } from '../lib/model-identity.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
+import { assistantSentinelFromHistory, assistantText, createToolReceiptTracker } from '../lib/sentinel-binding.mjs';
+
+// Bracket-form evidence comes from product records, never from the parent's
+// stream (openclaw-bootstrap#1727): the hop-1 spawn task carries
+// MODEL-TOKEN-HOP1, the whole bracket and its model= modifier, so the parent's
+// own sessions_spawn call used to satisfy every bracket flag.
+//   - spawn: the parent's sessions_spawn toolResult (toolCallId) answered
+//     accepted, or hop-1 is bound by the observer (own spawnedBy + own task);
+//   - token form: hop-1's own transcript holds its MODEL-TOKEN-HOP1 turn and no
+//     typed continue_delegate call, and the bound delegate's own spawn task
+//     carries the product's "[continuation:chain-hop:" prefix, which only the
+//     continuation dispatch writes;
+//   - model modifier: the delegate's served (else selected) model is the
+//     requested one.
+const CONTINUATION_DELEGATE_TASK_PREFIX = '[continuation:chain-hop:';
+
+function typedContinueDelegate(messages) {
+  return (Array.isArray(messages) ? messages : []).some((m) => String(m?.role || '').toLowerCase() === 'assistant' &&
+    Array.isArray(m.content) && m.content.some((part) => part && part.type === 'toolCall' &&
+      typeof (part.name || part.toolName) === 'string' &&
+      ((part.name || part.toolName) === 'continue_delegate' || (part.name || part.toolName).endsWith('__continue_delegate'))));
+}
 export const options = {
   scenarios: { r_cd_model_token: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
   thresholds: { proof_failures: ['count==0'], r_cd_model_token_duration: ['p(95)<180000'] },
@@ -80,6 +102,10 @@ export default function () {
     // known only here; the collector matches the trace by it (#600).
     reason_hash: null, reason_length: null, delegate_mode: null,
     dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null,
+    spawn_receipt_status: null, hop1_turn_bound: false, hop1_typed_continue_delegate: false, hop1_history_reads: 0,
+    delegate_task_continuation_prefix: false, hop1_bracket_text_seen: false,
+    // Diagnostics only: substrings seen on the parent stream.
+    spawn_text_seen: false, bracket_text_seen: false, model_modifier_text_seen: false,
     preflight: null, observation_refused: null, verdict_reason: null, redacted_events: [],
   };
   const started = Date.now();
@@ -99,6 +125,38 @@ export default function () {
   }
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let spawnTracker = null;
+    let hop1ReadScheduled = false;
+    function updateBracketForm() {
+      const delegateTask = evidence.child_session_key ? observer.record(evidence.child_session_key)?.task : null;
+      evidence.delegate_task_continuation_prefix = typeof delegateTask === 'string' && delegateTask.includes(CONTINUATION_DELEGATE_TASK_PREFIX);
+      const bound = evidence.hop1_turn_bound && !evidence.hop1_typed_continue_delegate &&
+        evidence.child_session_observed && evidence.delegate_task_continuation_prefix;
+      if (bound && !evidence.bracket_token_observed) console.log('✓ token form bound: hop-1 turn without a typed call, continuation-dispatched delegate');
+      evidence.bracket_token_observed = bound;
+    }
+    function requestHop1History(delayMs) {
+      if (!evidence.hop1_child_session_key || evidence.hop1_turn_bound || hop1ReadScheduled || evidence.hop1_history_reads >= 40) return;
+      hop1ReadScheduled = true;
+      socket.setTimeout(() => {
+        hop1ReadScheduled = false;
+        evidence.hop1_history_reads += 1;
+        if (!observer.refreshHistory(evidence.hop1_child_session_key, 200, 'hop1')) requestHop1History(3000);
+      }, k6TimeoutMs(delayMs));
+    }
+    function onHop1History(messages) {
+      evidence.hop1_typed_continue_delegate = evidence.hop1_typed_continue_delegate || typedContinueDelegate(messages);
+      evidence.hop1_bracket_text_seen = evidence.hop1_bracket_text_seen || messages.some((m) => {
+        const text = assistantText(m);
+        return Boolean(text) && text.includes('[[CONTINUE_DELEGATE:') && text.includes(delegateToken);
+      });
+      if (assistantSentinelFromHistory(messages, { marker: 'MODEL-TOKEN-HOP1', nonce: rowNonce, requireRunId: false })) {
+        evidence.hop1_turn_bound = true;
+      } else {
+        requestHop1History(3000);
+      }
+      updateBracketForm();
+    }
     let childMetadataAttempts = 0;
     let childMetadataRequestInFlight = false;
     function requestChildMetadata(socket, delayMs = 1) {
@@ -149,7 +207,12 @@ export default function () {
       if (hop1.conflict) return markConflict(`hop-1: ${hop1.reason}`);
       if (!hop1.childSessionKey) return;
       if (evidence.hop1_child_session_key && evidence.hop1_child_session_key !== hop1.childSessionKey) return markConflict('hop-1 identity changed');
-      evidence.hop1_child_session_key = hop1.childSessionKey;
+      if (!evidence.hop1_child_session_key) {
+        evidence.hop1_child_session_key = hop1.childSessionKey;
+        // A hop-1 child bound by its own row and task is an accepted spawn.
+        evidence.subagent_spawn_accepted = true;
+        requestHop1History(500);
+      }
       const delegate = reconcileChildIdentity({
         observerBinding: observer.boundChildTokenOnly(delegateToken, hop1Token, { spawnedBy: hop1.childSessionKey }),
         eventCandidates: evidence.event_child_candidates,
@@ -161,6 +224,7 @@ export default function () {
       evidence.child_session_observed = true;
       evidence.child_session_key = delegate.childSessionKey;
       requestChildMetadata(socket);
+      updateBracketForm();
     }
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -175,6 +239,7 @@ export default function () {
         const childTask = hop1Token + ' k6 proof R-CD-MODEL-TOKEN nonce ' + rowNonce + '. Reply exactly MODEL-TOKEN-HOP1 ' + rowNonce + ', then end your entire response with this exact terminal bracket on its own final line: ' + bracket + ' Do not call continue_delegate tool. Do not put any text after the closing brackets. Do not mutate files.';
         const agentInstruction = HARNESS_MARKER + ' Call sessions_spawn exactly once with runtime="subagent", mode="run", taskName="' + taskName + '", label="k6 R-CD-MODEL-TOKEN ' + rowNonce + '", lightContext=' + (inv.lightContext ? 'true' : 'false') + ', context="isolated", cleanup="delete", and task=' + JSON.stringify(childTask) + '. After the sessions_spawn tool result is accepted, reply exactly MODEL-TOKEN-PARENT-SPAWNED ' + rowNonce + '. This is a proof run.';
         evidence.subagent_spawn_requested = true;
+        spawnTracker = createToolReceiptTracker({ sessionKey, toolName: 'sessions_spawn', argField: 'task', needle: hop1Token });
         tracker.send(socket, 'sessions.send', { key: sessionKey, message: agentInstruction, idempotencyKey: inv.idempotencyKeyPrefix + '-DISPATCH-' + rowNonce });
       }, 500);
       for (const delayMs of [15000, 30000, 60000, 90000]) socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
@@ -223,6 +288,10 @@ export default function () {
             if (history) onServedHistory(history);
             else { served.inFlight = false; if (!observer.state.refusal) requestServed(2000); }
           }
+          if (observed.purpose === 'hop1') {
+            if (Array.isArray(history)) onHop1History(history);
+            else requestHop1History(3000);
+          }
           observeDelegateLineage(socket);
         }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
@@ -245,12 +314,20 @@ export default function () {
           if (eventData.childSessionKey && eventStr.includes(hop1Token)) noteEventCandidate(evidence.event_hop1_candidates, eventData.childSessionKey);
           noteEventCandidate(evidence.event_child_candidates, childSessionKeyForTokenOnly(eventData, delegateToken, hop1Token));
           observeDelegateLineage(socket);
+          if (spawnTracker) {
+            const receipt = spawnTracker.observe(classified.event || '', eventData);
+            if (receipt) {
+              evidence.spawn_receipt_status = receipt.status;
+              if (!receipt.isError && receipt.status === 'accepted') evidence.subagent_spawn_accepted = true;
+            }
+          }
           if (eventStr.includes(rowNonce)) {
             if (eventStr.includes(HARNESS_MARKER)) console.log('ℹ Ignoring harness prompt echo event');
             else if (evidence.prompt_injected && evidence.dispatch_accepted_at_ms && (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-              if (eventStr.includes('MODEL-TOKEN-PARENT-SPAWNED') || eventStr.includes('sessions_spawn') || eventStr.includes('childSessionKey')) { evidence.subagent_spawn_accepted = true; console.log('✓ parent sessions_spawn acceptance signal observed'); }
-              if (eventStr.includes('MODEL-TOKEN-HOP1 ' + rowNonce) || eventStr.includes('[[CONTINUE_DELEGATE:') || eventStr.includes('bracket')) { evidence.bracket_token_observed = true; console.log('✓ bracket-token child turn observed'); }
-              if (eventStr.includes('model=' + evidence.requested_model_byte)) { evidence.bracket_model_modifier_observed = true; console.log('✓ bracket model modifier observed'); }
+              // Diagnostics only: the parent's own call carries all of these.
+              if (eventStr.includes('MODEL-TOKEN-PARENT-SPAWNED') || eventStr.includes('sessions_spawn')) evidence.spawn_text_seen = true;
+              if (eventStr.includes('MODEL-TOKEN-HOP1 ' + rowNonce) || eventStr.includes('[[CONTINUE_DELEGATE:')) evidence.bracket_text_seen = true;
+              if (eventStr.includes('model=' + evidence.requested_model_byte)) evidence.model_modifier_text_seen = true;
               const done = eventStr.match(new RegExp('MODEL-TOKEN-DELEGATE-DONE\\s+' + escapeRegex(rowNonce) + '\\s+MODEL\\s+([A-Za-z0-9_.\\/-]+)'));
               if (done) {
                 evidence.return_payload = true;
@@ -262,12 +339,15 @@ export default function () {
           }
         }
         if (evidence.return_payload && evidence.child_session_key && !served.done) requestServed(500);
-        if (evidence.prompt_injected && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.return_payload && evidence.child_session_metadata_observed && served.done) { console.log('All required R-CD-MODEL-TOKEN evidence gathered, closing early'); socket.close(); }
+        if (evidence.prompt_injected && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.return_payload && evidence.child_session_metadata_observed && served.done) { console.log('All required R-CD-MODEL-TOKEN evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });
     socket.on('error', (e) => { console.error('ws error: ' + (e && e.error ? e.error() : e)); failures.add(1); });
   });
   evidence.ended = new Date().toISOString(); evidence.duration_ms = Date.now() - started; duration.add(evidence.duration_ms);
+  const delegateModel = evidence.child_served_model_byte || evidence.child_selected_model_byte;
+  evidence.bracket_model_modifier_observed = Boolean(delegateModel && evidence.requested_model_byte &&
+    normalizeModel(delegateModel) === normalizeModel(evidence.requested_model_byte));
   const complete = (!createDisposableSession || evidence.session_created) && evidence.prompt_injected && evidence.subagent_spawn_requested && evidence.subagent_spawn_accepted && evidence.bracket_token_observed && evidence.bracket_model_modifier_observed && evidence.child_session_observed && evidence.return_payload;
   evidence.preflight = gate.result;
   Object.assign(evidence, observer.summary());

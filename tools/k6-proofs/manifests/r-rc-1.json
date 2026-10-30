@@ -8,10 +8,10 @@
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 60,
+  "timeoutSeconds": 110,
   "scenario": {
     "name": "r-rc-1-threshold-reject",
-    "description": "request_compaction structured context-guard reject via disposable session (below threshold, or usage not measured yet)",
+    "description": "request_compaction structured context-guard reject via disposable session (measured below threshold, or unmeasured with a live cause), with no compaction after it",
     "methods": [
       "sessions.create",
       "tools.effective",
@@ -39,7 +39,7 @@
     {
       "name": "tool-invoke-rejected",
       "required": true,
-      "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold (measured below the floor) or guard=context_unmeasured (usage not measured yet)"
+      "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold measured below the floor (contextUsage and threshold both present, contextUsage < threshold) or guard=context_unmeasured with a live cause (no_fresh_usage | unknown_context_window), never inventory-only"
     },
     {
       "name": "tempo-trace-json",
@@ -62,7 +62,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Threshold Reject. Validates direct typed-tool registration, this row's nonce-bearing invocation, and the matching structured toolResult rejection. Safe to run: mutates=false. Assistant sentinel prose cannot satisfy this synchronous reject row, and the Tempo trace is never its verdict authority. Since #600 the trace is review-completeness debt: tempo-trace-json and tool-trace-correlation are required receipts, so a missing trace keeps the row review-pending without changing its verdict."
+    "notes": "Threshold Reject. Validates direct typed-tool registration, this row's nonce-bearing invocation, the matching structured toolResult rejection, and that no compaction follows it. Safe to run: mutates=false. Assistant sentinel prose cannot satisfy this synchronous reject row, and the Tempo trace is never its verdict authority. Since #600 the trace is review-completeness debt: tempo-trace-json and tool-trace-correlation are required receipts, so a missing trace keeps the row review-pending without changing its verdict."
   },
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
@@ -160,8 +160,8 @@
       ]
     },
     "controls": {
-      "positive": "tools.effective lists request_compaction, this row’s nonce-bearing typed invocation is observed, and its toolResult returns status=rejected with guard=context_threshold or guard=context_unmeasured.",
-      "negative": "Assistant prose cannot pass the row, and a trace alone can neither satisfy nor block its verdict."
+      "positive": "tools.effective lists request_compaction, this row’s nonce-bearing typed invocation is observed, its toolResult returns status=rejected with guard=context_threshold measured below the floor or guard=context_unmeasured with a live cause, and no transcript compaction row or compaction signal follows it within the side-effect window after the turn ends.",
+      "negative": "Assistant prose cannot pass the row, and a trace alone can neither satisfy nor block its verdict. Nor can context_threshold without both numbers or at or above its threshold, inventory-only wording or an inventory_only cause, an unmeasured rejection without a live cause or carrying usage numbers, or a rejection followed by a compaction."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -197,8 +197,8 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "The nonce-bound request_compaction toolResult returns a structured rejection with no compaction side effect: either guard=context_threshold (measured below the floor) or guard=context_unmeasured with a live cause (no_fresh_usage | unknown_context_window). An unmeasured rejection never counts as measured below-threshold proof. guard=context_threshold with inventory-only wording, or any inventory_only cause on the live seat, is non-PASS. Behavioral only; the trace receipts decide review completeness, not the verdict.",
-      "partial": "Registration, invocation, or the structured rejection is missing. A missing trace keeps the row review-pending without changing its class.",
+      "pass": "The nonce-bound request_compaction toolResult returns a structured rejection with no compaction side effect: either guard=context_threshold (measured below the floor: contextUsage and threshold both numbers, contextUsage < threshold) or guard=context_unmeasured with a live cause (no_fresh_usage | unknown_context_window) and no usage numbers. An unmeasured rejection never counts as measured below-threshold proof. Inventory-only wording under either guard, or any inventory_only cause, on the live seat is non-PASS. No compaction side effect is observed, never assumed: no transcript compaction row new since the sessions.get read before dispatch when the transcript is read again 30s after the turn ends (OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS may lengthen that window, never shorten it), and no compaction signal on the subscribed stream after dispatch. A window that does not complete leaves it unproven, which is non-PASS. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "Registration, invocation, or a structured rejection that meets the PASS rule is missing; or no compaction side effect is unproven (the window did not complete) or contradicted (a compaction followed the rejection, kept PARTIAL with its reason for review). verdict_reason names the first missing piece. A missing trace keeps the row review-pending without changing its class.",
       "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
     },
     "execution": {
@@ -224,6 +224,6 @@
       "tool-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult rejection: guard=context_threshold (measured) or guard=context_unmeasured with its live cause, and no compaction side effect. The folded evidence names the guard and the cause. Inventory-only on the live seat is non-PASS. Assistant prose cannot pass the row. The verdict needs no Tempo trace, but review completeness does (#600): tempo-trace-json and tool-trace-correlation stay pending until the collector attributes the request_compaction tool span."
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult rejection: guard=context_threshold measured below the floor (contextUsage < threshold) or guard=context_unmeasured with its live cause, and no compaction side effect. The side effect is a bounded observation: sessions.get before dispatch and again 30s after the turn ends (OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS may lengthen that window, never shorten it) shows no new transcript compaction row, and the subscribed stream carries no compaction signal; an incomplete window is unproven and PARTIAL. At openclaw 542d1cac46 that transcript row, written when a compaction commits, is the only operator-visible mark of a volitional compaction. The folded evidence names the guard, the cause and the window. Inventory-only on the live seat is non-PASS. Assistant prose cannot pass the row. The verdict needs no Tempo trace, but review completeness does (#600): tempo-trace-json and tool-trace-correlation stay pending until the collector attributes the request_compaction tool span."
   }
 }

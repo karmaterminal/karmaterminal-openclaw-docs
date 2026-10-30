@@ -6,7 +6,7 @@ This document defines the scenario groups for safety-sensitive operations and ob
 
 ### 1. `R-RC-*` (Request Compaction)
 Validates the `request_compaction` tool's gating and execution semantics.
-- **R-RC-1 (Threshold Reject)**: Ensures `request_compaction()` is rejected when context usage is below the 70% threshold or rate-limited. This is a non-mutating, boundary-enforcement row.
+- **R-RC-1 (Threshold Reject)**: Ensures `request_compaction()` returns a structured rejection, and no compaction follows it, when context usage is measured below the 70% threshold or not yet measured on a live session. A rate-limit rejection does not satisfy it. This is a non-mutating, boundary-enforcement row.
 - **R-RC-2 (Threshold Accept)**: Ensures `request_compaction()` is accepted and triggers the compaction cycle when context usage is $\ge70\%$. This is a **state-mutating** row.
 
 ### 2. `R-OBS-*` (Observer / Telemetry)

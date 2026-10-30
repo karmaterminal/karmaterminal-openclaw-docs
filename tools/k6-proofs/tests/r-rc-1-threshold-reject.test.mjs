@@ -32,15 +32,17 @@
 // VERDICT line and evidence through the real extractor. No live gateway is used.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classifyRrc1Evidence } from '../lib/request-compaction-receipt.js';
+import { classifyRrc1Evidence, LIVE_UNMEASURED_CAUSES } from '../lib/request-compaction-receipt.js';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const scenarioPath = path.join(root, 'scenarios/r-rc-1-threshold-reject.js');
 const manifestPath = path.join(root, 'manifests/r-rc-1.json');
+const pipelinePath = path.join(root, 'k6-proofs-pipeline.xml');
 const RUN_ID = '4c1f9a2e-0b7d-4e3a-9c55-1d2e3f4a5b6c';
 const OTHER_SESSION = 'agent:main:somebody-else';
 
@@ -420,4 +422,42 @@ test('the side-effect window can be lengthened, never shortened', async () => {
   assertPass(shorter);
   assert.equal(shorter.evidence.side_effect.window_ms, 30000);
   assert.match(shorter.log, /shorter than 30000ms; using 30000ms/u);
+});
+
+// The manifest is the declaration of record and the scenario's classifier is the
+// verdict. If one moves without the other, these fail.
+test('drift: the R-RC-1 manifest prose says what the grader enforces', async () => {
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  const pass = manifest.telemetryContract.verdictAuthority.pass;
+  const notes = manifest.liveRunSafety.notes;
+  const rejected = manifest.expectedReceipts.find((receipt) => receipt.name === 'tool-invoke-rejected').description;
+  const positive = manifest.telemetryContract.controls.positive;
+  const pipelineRow = /<Row id="R-RC-1"[\s\S]*?<\/Row>/u.exec(readFileSync(pipelinePath, 'utf8'))?.[0] ?? '';
+
+  // The live-cause list each document names is exactly the grader's.
+  const causeList = (text) => /\(((?:[a-z_]+\s*\|\s*)+[a-z_]+)\)/u.exec(text)?.[1].split('|').map((cause) => cause.trim()).sort();
+  for (const [name, text] of Object.entries({ pass, rejected, pipelineRow })) {
+    assert.deepEqual(causeList(text), [...LIVE_UNMEASURED_CAUSES].sort(), `${name} names the live causes`);
+  }
+  for (const [name, text] of Object.entries({ pass, notes, rejected, positive, pipelineRow })) {
+    assert.match(text, /measured below the floor/u, `${name} requires a measurement below the floor`);
+    assert.match(text, /context_unmeasured/u, `${name} names the unmeasured guard`);
+  }
+  for (const [name, text] of Object.entries({ pass, notes, rejected, pipelineRow })) {
+    assert.match(text, /inventory-only/iu, `${name} refuses inventory-only`);
+  }
+  assert.match(pass, /contextUsage < threshold/u);
+  assert.match(pass, /no usage numbers/u);
+  assert.match(manifest.telemetryContract.verdictAuthority.partial, /unproven/u);
+
+  // The side-effect window the scenario uses is the one the prose names.
+  const fired = await fireRrc1();
+  const seconds = `${fired.evidence.side_effect.window_ms / 1000}s after the turn ends`;
+  for (const [name, text] of Object.entries({ pass, notes })) {
+    assert.ok(text.includes(seconds), `${name} names the ${seconds} window`);
+    assert.match(text, /OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS may lengthen that window, never shorten it/u, `${name} names the window override`);
+    assert.match(text, /no compaction side effect/iu, `${name} requires no compaction side effect`);
+  }
+  // The manifest's timeout covers the scenario's longest default run.
+  assert.ok(manifest.timeoutSeconds * 1000 >= 60000 + fired.evidence.side_effect.window_ms + 5000);
 });

@@ -311,6 +311,43 @@ export function childReportAfterReceipt(messages, { rowNonce } = {}) {
 }
 
 /**
+ * The child's post-compaction report, from the CHILD's own transcript
+ * (openclaw-bootstrap#1727): after the nonce-bound request_compaction
+ * toolResult answered compaction_requested, an assistant row whose text parts
+ * carry the exact `REQUEST_COMPACTION_POST_COMPACTION <nonce>`, in a later
+ * turn (after a user row) or in a run other than the one that made the call.
+ * The parent stream used to set this flag from the parent's own
+ * continue_delegate call, whose child task carries every R-RC-2 sentinel.
+ * Returns { index } with -1 when unbound.
+ */
+export function childPostCompactionReport(messages, { rowNonce } = {}) {
+  const items = Array.isArray(messages) ? messages : [];
+  if (typeof rowNonce !== 'string' || !rowNonce) return { index: -1 };
+  const toolCallId = requestCompactionToolCallIdForNonce(items, rowNonce);
+  if (!toolCallId) return { index: -1 };
+  const runOf = (m) => (typeof m?.__openclaw?.runId === 'string' && m.__openclaw.runId) || null;
+  let callRun = null;
+  let resultIndex = -1;
+  items.forEach((m, i) => {
+    if (m?.role === 'assistant' && Array.isArray(m.content) && m.content.some((p) => p?.type === 'toolCall' && p.id === toolCallId)) callRun = runOf(m);
+    const result = classifyRequestCompactionReceipt(m);
+    if (resultIndex < 0 && result.kind !== 'unrelated' && result.toolCallId === toolCallId &&
+        RC2_ACCEPTED_STATUSES.includes(result.receipt?.status)) resultIndex = i;
+  });
+  if (resultIndex < 0) return { index: -1 };
+  let laterTurn = false;
+  for (let i = resultIndex + 1; i < items.length; i += 1) {
+    const role = String(items[i]?.role || '').toLowerCase();
+    if (role === 'user') { laterTurn = true; continue; }
+    if (role !== 'assistant') continue;
+    const run = runOf(items[i]);
+    const otherRun = Boolean(run && callRun && run !== callRun);
+    if ((laterTurn || otherRun) && hasExactSentinelText(plainText(items[i]), 'REQUEST_COMPACTION_POST_COMPACTION', rowNonce)) return { index: i };
+  }
+  return { index: -1 };
+}
+
+/**
  * The one R-RC-2 verdict, shared by the scenario and the manual
  * postprocessor (scripts/postprocess-k6-summary.mjs) so the two cannot drift
  * (#563 review item 1). Fail closed first: a preflight that did not pass, a

@@ -25,7 +25,6 @@
     "R-CD-MODEL-TOKEN",
     "R-CD-MODEL-TOOL",
     "R-CD-RETURN-OVERLAP",
-    "R-CD-RETURN-COVENANT-AUTHORITY",
     "R-CD-SILENT",
     "R-CD-TOKEN",
     "R-CONFIG-DEFAULTS",
@@ -35,9 +34,7 @@
     "R-CW-3",
     "R-CW-4",
     "R-CW-5",
-    "R-CW-5A",
     "R-CW-6",
-    "R-CW-6A",
     "R-CW-7",
     "R-CW-DELEGATE-CHILD-LIVE",
     "R-CW-DELEGATE-SELF-CONTINUATION",
@@ -85,8 +82,6 @@
     ],
     "frond-scribe-static": [
       "R-CD-COLLECTION-ON-COLLAPSE",
-      "R-CW-5A",
-      "R-CW-6A",
       "R-CW-7",
       "R-CW-DELEGATE-CHILD-LIVE",
       "R-CW-DELEGATE-TOKEN",
@@ -97,8 +92,11 @@
       "R-CW-5",
       "R-CW-6"
     ],
-    "unfired": [
-      "R-CD-RETURN-COVENANT-AUTHORITY"
+    "unfired": [],
+    "supplemental": [
+      "R-CD-RETURN-COVENANT-AUTHORITY",
+      "R-CW-5A",
+      "R-CW-6A"
     ]
   },
   "rows": [
@@ -351,7 +349,9 @@
       "exact_target_execution": false,
       "pending_receipts": [],
       "summary": "seeded missing; awaiting a reviewed receipt",
-      "notes": "historical at 08c37a1562 (F, superseded): missing (diagnostic only; not carried)"
+      "notes": "historical at 08c37a1562 (F, superseded): missing (diagnostic only; not carried)",
+      "required": false,
+      "supplemental": true
     },
     {
       "row": "R-CD-SILENT",
@@ -562,7 +562,9 @@
       "notes": "historical at 08c37a1562 (F): missing (diagnostic only; not carried)",
       "test_cases_executed": [
         "static-validator-20261030T013043Z"
-      ]
+      ],
+      "required": false,
+      "supplemental": true
     },
     {
       "row": "R-CW-6",
@@ -600,7 +602,9 @@
       "notes": "historical at 08c37a1562 (F): missing (diagnostic only; not carried)",
       "test_cases_executed": [
         "static-validator-20261030T013043Z"
-      ]
+      ],
+      "required": false,
+      "supplemental": true
     },
     {
       "row": "R-CW-7",
@@ -897,13 +901,13 @@
     }
   ],
   "rollup": {
-    "total_rows": 38,
+    "total_rows": 35,
     "pass": 31,
     "partial": 3,
     "thin": 0,
     "fail": 0,
     "honest_limit": 1,
-    "missing": 3
+    "missing": 0
   },
   "method": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/METHOD.md",
   "corpus": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/",
@@ -920,5 +924,19 @@
   ],
   "promotion": "none",
   "build_string": "Replacement pure candidate f15237ec92 (F′): F 08c37a1562 + 🌊's Gate 2 scope ruling (412b3e5394 narrowed to continuation wakes; the fleet-only D3b fossil moved off the presentation head to fleet #1468) + the 63 native locale entries for the three continuation tool display names (🌊 ruling (a), authored outside upstream's sync tool, disclosed). The FF candidate for openclaw/openclaw#129388 from f4675cff. Seeded before review: every row is missing.",
-  "notes": "🌊 superseded F with F′ (Discord 1565493793224925327, 1565517991683031191). F (08c37a1562) receipts are historical diagnostics only; every row rebinds here. R-CD-TOKEN is expected PARTIAL by method (docs#612; delivery-run join gap openclaw#1504). Mode-B 40984406891 runs at this exact head; classification pending. The fleet serves the j8 composite 2915ea02dc; nothing here is transposed from it."
+  "notes": "🌊 superseded F with F′ (Discord 1565493793224925327, 1565517991683031191). F (08c37a1562) receipts are historical diagnostics only; every row rebinds here. R-CD-TOKEN is expected PARTIAL by method (docs#612; delivery-run join gap openclaw#1504). Mode-B 40984406891 runs at this exact head; classification pending. The fleet serves the j8 composite 2915ea02dc; nothing here is transposed from it.",
+  "supplemental_rows": [
+    "R-CD-RETURN-COVENANT-AUTHORITY",
+    "R-CW-5A",
+    "R-CW-6A"
+  ],
+  "rollup_supplemental": {
+    "total_rows": 3,
+    "missing": 3
+  },
+  "method_change": {
+    "status": "PROPOSED: adopted only when merged to docs main, with review by 🌊 and figs (🌊 Gate 5 ruling, Discord 2026-10-30 13:49Z)",
+    "doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/METHOD.md#method-change-proposal-f",
+    "supersedes": "docs#607 for F′ only (#607 proposed the same move for the j9 corpus PROOFS/293c977f629f872a643fb94892603310b887293b/, which F′ superseded; #607 and that corpus are unchanged)"
+  }
 }

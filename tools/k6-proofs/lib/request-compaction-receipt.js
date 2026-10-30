@@ -120,6 +120,20 @@ export function classifyRequestCompactionReceipt(eventPayload) {
   };
 }
 
+// Causes a live runner reports for usage it has not measured. On a live
+// session, inventory_only means the runner's origin wiring regressed.
+const LIVE_UNMEASURED_CAUSES = Object.freeze(['no_fresh_usage', 'unknown_context_window']);
+
+/**
+ * A context-guard rejection receipt from a live session (R-RC-1): a
+ * context_threshold rejection (measured, or the pre-#1727 unknown shape), or a
+ * context_unmeasured rejection naming a live runner's cause.
+ */
+export function isLiveContextGuardRejection(result) {
+  if (result?.kind === 'threshold_rejected') return true;
+  return result?.kind === 'unmeasured_rejected' && LIVE_UNMEASURED_CAUSES.includes(result.receipt?.cause);
+}
+
 export function findRequestCompactionReceipt(messages, { rowNonce, toolCallId } = {}) {
   const items = Array.isArray(messages) ? messages : [];
   const expectedToolCallId = toolCallId || requestCompactionToolCallIdForNonce(items, rowNonce);

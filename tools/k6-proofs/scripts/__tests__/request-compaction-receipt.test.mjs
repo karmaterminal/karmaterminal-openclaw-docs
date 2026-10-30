@@ -5,6 +5,7 @@ import {
   effectiveToolNames,
   findRequestCompactionReceipt,
   hasEffectiveTool,
+  isLiveContextGuardRejection,
   requestCompactionToolCallIdForNonce,
 } from '../../lib/request-compaction-receipt.js';
 
@@ -74,6 +75,15 @@ test('bootstrap#1727: classifies a context_unmeasured rejection as unmeasured, n
     receipt,
     toolCallId: 'call-unmeasured',
   });
+});
+
+test('bootstrap#1727: a live session passes on a live unmeasured cause, never on inventory_only', () => {
+  const unmeasured = (cause) => ({ kind: 'unmeasured_rejected', receipt: { status: 'rejected', guard: 'context_unmeasured', cause } });
+  assert.equal(isLiveContextGuardRejection({ kind: 'threshold_rejected', receipt: { guard: 'context_threshold' } }), true);
+  assert.equal(isLiveContextGuardRejection(unmeasured('no_fresh_usage')), true);
+  assert.equal(isLiveContextGuardRejection(unmeasured('unknown_context_window')), true);
+  assert.equal(isLiveContextGuardRejection(unmeasured('inventory_only')), false);
+  assert.equal(isLiveContextGuardRejection({ kind: 'non_threshold_result', receipt: { status: 'compaction_requested' } }), false);
 });
 
 test('does not accept assistant sentinel prose as a tool receipt', () => {

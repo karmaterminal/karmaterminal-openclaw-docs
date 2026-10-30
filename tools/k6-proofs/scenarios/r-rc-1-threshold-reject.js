@@ -15,6 +15,7 @@ import {
   classifyRequestCompactionReceipt,
   findRequestCompactionReceipt,
   hasEffectiveTool,
+  isLiveContextGuardRejection,
 } from '../lib/request-compaction-receipt.js';
 
 export const options = {
@@ -86,6 +87,7 @@ export default function () {
     tool_result_status: null,
     tool_invoke_rejected: false,
     guard: null,
+    cause: null,
     context_usage: null,
     threshold: null,
     no_compaction_side_effect: false,
@@ -122,8 +124,9 @@ export default function () {
     function recordAuthoritativeReceipt(receiptResult) {
       // A disposable session's first turn has no measured usage, so builds with
       // openclaw-bootstrap#1727 answer context_unmeasured where older builds
-      // answered context_threshold without numbers. Both are the rejection path.
-      if (receiptResult.kind === 'threshold_rejected' || receiptResult.kind === 'unmeasured_rejected') {
+      // answered context_threshold without numbers. Both are the rejection path,
+      // but cause inventory_only on this live session is a wiring regression.
+      if (isLiveContextGuardRejection(receiptResult)) {
         const receipt = receiptResult.receipt;
         evidence.tool_result_observed = true;
         evidence.tool_call_id = receiptResult.toolCallId;
@@ -132,6 +135,7 @@ export default function () {
         evidence.tool_result_status = receipt.status;
         evidence.tool_invoke_rejected = true;
         evidence.guard = receipt.guard;
+        evidence.cause = receipt.cause || null;
         evidence.context_usage = Number.isFinite(receipt.contextUsage) ? receipt.contextUsage : null;
         evidence.threshold = Number.isFinite(receipt.threshold) ? receipt.threshold : null;
         evidence.no_compaction_side_effect = true;
@@ -139,10 +143,11 @@ export default function () {
         socket.close();
         return true;
       }
-      if (receiptResult.kind === 'invalid' || receiptResult.kind === 'non_threshold_result') {
+      if (['invalid', 'non_threshold_result', 'unmeasured_rejected'].includes(receiptResult.kind)) {
         evidence.tool_result_observed = true;
         evidence.tool_call_id = receiptResult.toolCallId || null;
         evidence.tool_result_status = receiptResult.receipt?.status || 'invalid';
+        evidence.cause = receiptResult.receipt?.cause || null;
         console.error(`✗ authoritative request_compaction tool result did not prove a context-guard rejection: ${JSON.stringify(receiptResult)}`);
         failures.add(1);
         socket.close();

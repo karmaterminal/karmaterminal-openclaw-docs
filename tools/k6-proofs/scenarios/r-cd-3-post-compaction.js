@@ -87,6 +87,9 @@ export default function () {
     delegate_staging_requested: false,
     compaction_requested: false,
     threshold_refusal_observed: false,
+    // openclaw-bootstrap#1727: a fresh session's first turn is refused as unmeasured.
+    unmeasured_refusal_observed: false,
+    unmeasured_cause: null,
     compaction_accepted: false,
     lifeboat_return_observed: false,
     guard: null,
@@ -122,6 +125,7 @@ export default function () {
           `First call continue_delegate with mode="post-compaction", task="${lifeboatTask}", delaySeconds=0. ` +
           `Then call request_compaction with reason="${reason}". ` +
           `If request_compaction is rejected because context is below threshold, reply exactly RCD3-THRESHOLD-LIMIT ${rowNonce} GUARD context_threshold CONTEXT <contextUsage> THRESHOLD <threshold>. ` +
+          `If request_compaction is rejected because context usage is unmeasured, reply exactly RCD3-CONTEXT-UNMEASURED ${rowNonce} CAUSE <cause>. ` +
           `If request_compaction is accepted, reply exactly RCD3-COMPACTION-ACCEPTED ${rowNonce} and wait for the lifeboat return if it arrives. ` +
           `No config changes, no files.`;
         evidence.delegate_staging_requested = true;
@@ -212,6 +216,12 @@ export default function () {
             evidence.threshold = threshold !== 'unknown' ? Number(threshold) : null;
             console.log(`✓ R-CD-3 threshold refusal observed: context=${usage} threshold=${threshold}`);
             socket.close();
+          } else if (eventStr.includes(`RCD3-CONTEXT-UNMEASURED ${rowNonce}`)) {
+            evidence.unmeasured_refusal_observed = true;
+            evidence.guard = 'context_unmeasured';
+            evidence.unmeasured_cause = eventStr.match(/CAUSE[^a-z_]+([a-z_]+)/)?.[1] || null;
+            console.log(`✓ R-CD-3 unmeasured refusal observed: cause=${evidence.unmeasured_cause ?? 'unknown'}`);
+            socket.close();
           } else if (eventStr.includes(`RCD3-COMPACTION-ACCEPTED ${rowNonce}`)) {
             evidence.compaction_accepted = true;
             console.log('✓ R-CD-3 compaction accepted sentinel observed; waiting briefly for lifeboat');
@@ -237,21 +247,24 @@ export default function () {
   evidence.preflight = gate.result;
   const rawVerdict = evidence.lifeboat_return_observed
     ? 'PASS-candidate'
-    : (evidence.threshold_refusal_observed || evidence.compaction_accepted ? 'PARTIAL-candidate' : 'FAIL-candidate');
+    : (evidence.threshold_refusal_observed || evidence.unmeasured_refusal_observed || evidence.compaction_accepted
+      ? 'PARTIAL-candidate'
+      : 'FAIL-candidate');
   const finalVerdict = failClosedVerdict(rawVerdict, { gate });
   evidence.verdict = finalVerdict.verdict;
   evidence.verdict_reason = finalVerdict.reason;
   finalEvidence = evidence;
   duration.add(evidence.duration_ms);
 
-  const acceptedOutcome = evidence.threshold_refusal_observed || evidence.lifeboat_return_observed;
+  const refusalObserved = evidence.threshold_refusal_observed || evidence.unmeasured_refusal_observed;
+  const acceptedOutcome = refusalObserved || evidence.lifeboat_return_observed;
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'dispatch accepted': () => evidence.dispatch_accepted,
     'delegate staging requested': () => evidence.delegate_staging_requested,
     'compaction requested': () => evidence.compaction_requested,
     'accepted outcome observed': () => acceptedOutcome,
-    'threshold refusal or lifeboat': () => evidence.threshold_refusal_observed || evidence.lifeboat_return_observed,
+    'refusal or lifeboat': () => acceptedOutcome,
   });
   if (!evidence.dispatch_accepted || !evidence.delegate_staging_requested || !evidence.compaction_requested || !acceptedOutcome) {
     failures.add(1);

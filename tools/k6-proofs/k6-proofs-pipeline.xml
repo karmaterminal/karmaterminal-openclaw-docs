@@ -193,7 +193,7 @@
     <!-- request_compaction family -->
     <Row id="R-RC-1" owner="silas" forms="tool-only" issue="104">
       <Behavior>request_compaction() threshold REJECT (context below 70%)</Behavior>
-      <Evidence>Structured JSON rejection: {status:"rejected", guard:"context_threshold", ...}</Evidence>
+      <Evidence>Structured JSON rejection: {status:"rejected", guard:"context_threshold", ...}, or guard:"context_unmeasured" with a live cause (no_fresh_usage | unknown_context_window) on a fresh session</Evidence>
       <Constraint>Requires low-context main-session</Constraint>
     </Row>
     <Row id="R-RC-2" owner="cael" forms="tool-only" issue="104">

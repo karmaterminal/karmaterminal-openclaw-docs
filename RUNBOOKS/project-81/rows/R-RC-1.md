@@ -72,4 +72,4 @@ Both are valid rejection-path receipts. `guard=context_threshold` with numeric `
 
 ## Fold guidance
 
-PASS-candidate requires `tool-invoke-rejected` with `guard=context_threshold` or `guard=context_unmeasured` and no compaction side effect. Name the guard (and, for `context_unmeasured`, the cause) in the fold. If the tool rejects for another guard, fold as PARTIAL with the exact guard/reason.
+PASS-candidate requires `tool-invoke-rejected` with `guard=context_threshold`, or `guard=context_unmeasured` with a live cause (`no_fresh_usage` or `unknown_context_window`), and no compaction side effect. The evidence records `guard` and `cause`; name both in the fold. `cause=inventory_only` on this live disposable session means the runner's origin wiring regressed: fold as PARTIAL. If the tool rejects for another guard, fold as PARTIAL with the exact guard/reason.

@@ -37,6 +37,14 @@ const UNKNOWN_REJECTION = {
   guard: 'context_threshold',
   reason: 'Context usage is unknown for this session; request_compaction is unavailable on inventory-only paths.',
 };
+// openclaw bootstrap#1727 (request-compaction-tool.ts at 7c69117d0d): unmeasured
+// usage is its own guard and names its cause.
+const UNMEASURED_REJECTION = {
+  status: 'rejected',
+  guard: 'context_unmeasured',
+  cause: 'no_fresh_usage',
+  reason: 'Context usage has not been measured yet: this session has no fresh token totals from a completed model turn (as on its first turn). Retry request_compaction on a later turn, after usage has been recorded.',
+};
 
 function measuredWake(resultPayload) {
   return [
@@ -75,6 +83,16 @@ test('first-turn read: the unknown branch is context_unknown, never a threshold 
   assert.equal(outcome.yieldBound, false);
   // Even after a yield, an unknown answer stays unknown.
   assert.equal(measuredRequestCompactionOutcome(measuredWake(UNKNOWN_REJECTION), { rowNonce: NONCE }).kind, 'context_unknown');
+});
+
+test('bootstrap#1727: a context_unmeasured rejection is context_unknown, never a threshold receipt', () => {
+  const outcome = measuredRequestCompactionOutcome(measuredWake(UNMEASURED_REJECTION), { rowNonce: NONCE });
+  assert.equal(outcome.kind, 'context_unknown');
+  assert.equal(outcome.measured, false);
+  assert.equal(outcome.yieldBound, true);
+  // Numbers on an unmeasured rejection contradict it: invalid, not unknown.
+  const contradictory = { ...UNMEASURED_REJECTION, contextUsage: 12, threshold: 70 };
+  assert.equal(measuredRequestCompactionOutcome(measuredWake(contradictory), { rowNonce: NONCE }).kind, 'invalid');
 });
 
 test('a request_compaction call before the continue_work yield is not yield-bound', () => {

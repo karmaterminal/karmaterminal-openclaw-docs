@@ -55,6 +55,27 @@ test('accepts details-backed structured receipts', () => {
   }).kind, 'threshold_rejected');
 });
 
+test('bootstrap#1727: classifies a context_unmeasured rejection as unmeasured, not a threshold receipt', () => {
+  const receipt = {
+    status: 'rejected',
+    guard: 'context_unmeasured',
+    cause: 'no_fresh_usage',
+    reason: 'Context usage has not been measured yet.',
+  };
+  assert.deepEqual(classifyRequestCompactionReceipt({
+    message: {
+      role: 'toolResult',
+      toolName: 'request_compaction',
+      toolCallId: 'call-unmeasured',
+      content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }],
+    },
+  }), {
+    kind: 'unmeasured_rejected',
+    receipt,
+    toolCallId: 'call-unmeasured',
+  });
+});
+
 test('does not accept assistant sentinel prose as a tool receipt', () => {
   assert.deepEqual(classifyRequestCompactionReceipt({
     message: { role: 'assistant', content: [{ type: 'text', text: 'RC1-REJECTED' }] },

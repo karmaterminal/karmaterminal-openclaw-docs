@@ -6,6 +6,11 @@
  * agent to call continue_delegate(..., targetSessionKey=<target>). The harness
  * subscribes to both sessions and verifies the delayed return/wake lands in the
  * target session and not the dispatching parent.
+ *
+ * The target's TARGET-ACK counts only from a stamped run other than the
+ * priming run, after the priming reply, on both the live and the transcript
+ * path (openclaw-bootstrap#1727): the priming prompt names the ack, so the
+ * priming run restating it used to satisfy the assistant-text path.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -490,6 +495,8 @@ export default function () {
               nonce: rowNonce,
               elapsedMs: elapsed,
               wakeGateMs: evidence.wake_gate_ms,
+              // #1727: the priming run's own words never count as the woken ack.
+              excludeTargetRunIds: [evidence.target_priming_run_id],
             });
             // #567: a continuation return wakes the target as a heartbeat turn,
             // answered through heartbeat_respond. Bound to the target session,

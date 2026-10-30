@@ -24,7 +24,7 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
-import { assistantText, boundToolCalls, isContinuationWakeInput, toolResultPayload } from './sentinel-binding.mjs';
+import { assistantText, boundToolCalls, isContinuationWakeInput, mintedTokenFromHistory, toolResultPayload } from './sentinel-binding.mjs';
 import { hasExactSentinelText } from './wake-turn-receipt.mjs';
 
 function role(message) {
@@ -103,4 +103,69 @@ export function continueWorkChain(messages, { nonce, scheduledMarkers = [], done
   const doneIndex = sentinelIndex(list, doneMarker, nonce, windowStart, turnEnd(list, windowStart));
   if (doneIndex < 0) return out(`${doneMarker} is not in the final wake turn`);
   return out(null, doneIndex);
+}
+
+// ---------------------------------------------------------------------------
+// Bare CONTINUE_WORK token hops (R-CW-TOKEN)
+// ---------------------------------------------------------------------------
+
+function boundRows(rows) {
+  return Array.isArray(rows) ? rows : [];
+}
+
+function typedContinueWork(message) {
+  return role(message) === 'assistant' && Array.isArray(message.content) &&
+    message.content.some((part) => part && part.type === 'toolCall' &&
+      typeof (part.name || part.toolName) === 'string' &&
+      ((part.name || part.toolName) === 'continue_work' || (part.name || part.toolName).endsWith('__continue_work')));
+}
+
+/**
+ * The child's own rows for a bare CONTINUE_WORK token chain, in order:
+ *   hop 1: an assistant row whose text says `<hop1Marker> <nonce>`;
+ *   hop 2: after a "[continuation:wake]" user row (product text) or in a run
+ *          other than hop 1's, an assistant row whose text carries
+ *          `<hop2Marker> <nonce> TOKEN <minted>`, a token absent from every
+ *          harness-sent text (mintedTokenFromHistory).
+ * A typed continue_work call anywhere in the child means the token form is
+ * not what scheduled the wake. Rows come from one session only (the caller
+ * binds the session). Returns { hop1Index, hop1RunId, wakeIndex, hop2Index,
+ * hop2RunId, token, tokenTimestamp, typedToolUsed, complete, reason }.
+ */
+export function tokenWorkHops(rows, { nonce, hop1Marker, hop2Marker, sentTexts = [] } = {}) {
+  const list = boundRows(rows);
+  const out = {
+    hop1Index: -1, hop1RunId: null, wakeIndex: -1, hop2Index: -1, hop2RunId: null,
+    token: null, tokenTimestamp: null, typedToolUsed: list.some(typedContinueWork), complete: false, reason: null,
+  };
+  const runOf = (m) => (typeof m?.__openclaw?.runId === 'string' && m.__openclaw.runId) || null;
+  out.hop1Index = list.findIndex((m) => {
+    const text = assistantText(m);
+    return Boolean(text) && hasExactSentinelText(text, hop1Marker, nonce);
+  });
+  if (out.hop1Index < 0) return { ...out, reason: `no child assistant row says ${hop1Marker}` };
+  out.hop1RunId = runOf(list[out.hop1Index]);
+  for (let i = out.hop1Index + 1; i < list.length; i += 1) {
+    const text = role(list[i]) === 'user' ? textOfUser(list[i]) : null;
+    if (text && text.startsWith('[continuation:wake]')) { out.wakeIndex = i; break; }
+  }
+  const after = list.slice(out.hop1Index + 1);
+  const minted = mintedTokenFromHistory(after, { marker: hop2Marker, nonce, sentTexts });
+  if (!minted.token) return { ...out, reason: `hop 2: ${minted.reason}` };
+  const index = out.hop1Index + 1 + minted.index;
+  const runId = minted.runId || null;
+  const afterWake = out.wakeIndex >= 0 && index > out.wakeIndex;
+  const otherRun = Boolean(runId && out.hop1RunId && runId !== out.hop1RunId);
+  if (!afterWake && !otherRun) return { ...out, reason: 'hop 2 is neither after a [continuation:wake] row nor in a run other than hop 1' };
+  Object.assign(out, { hop2Index: index, hop2RunId: runId, token: minted.token, tokenTimestamp: minted.timestamp });
+  if (out.typedToolUsed) return { ...out, reason: 'the child called the typed continue_work tool; the token form is not proven' };
+  return { ...out, complete: true };
+}
+
+function textOfUser(message) {
+  const content = message?.content;
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return null;
+  const parts = content.filter((p) => p && p.type === 'text' && typeof p.text === 'string').map((p) => p.text);
+  return parts.length ? parts.join('\n') : null;
 }

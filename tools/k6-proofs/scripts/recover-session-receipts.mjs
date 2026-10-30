@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { continueWorkChain } from '../lib/continue-work-chain.mjs';
+import { continueWorkChain, tokenWorkHops } from '../lib/continue-work-chain.mjs';
+import { toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/recover-session-receipts.mjs \\
@@ -157,13 +158,20 @@ function evaluate(row, nonce, messages) {
     ];
   }
 
+  // One transcript holds either the parent (spawn receipt) or the child (hops); the
+  // spawn task carries every child sentinel, so no substring of it counts (#1727).
+  // The return needs the child's hop-2 token and the parent transcript together,
+  // which one recovery read cannot give.
   if (row === 'R-CW-TOKEN') {
+    const spawn = toolReceiptsFromHistory(messages, { toolName: 'sessions_spawn', argField: 'task', needle: nonce });
+    const spawned = spawn.length === 1 && spawn[0].status === 'accepted' && typeof spawn[0].payload?.childSessionKey === 'string';
+    const hops = tokenWorkHops(messages, { nonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE' });
     return [
       receipt('parent-dispatch-accepted', true, messages.some((m) => m.role === 'user' && messageText(m).includes('[k6-proof-harness]') && messageText(m).includes(nonce)) ? 'present' : 'missing'),
-      receipt('subagent-spawn-accepted', true, allText.includes(`PARENT-SPAWNED ${nonce}`) || allText.includes('sessions_spawn') ? 'present' : 'missing'),
-      receipt('token-emitted-or-stripped', true, allText.includes(`TOKEN-HOP1 ${nonce}`) || allText.includes('CONTINUE_WORK') ? 'present' : 'missing'),
-      receipt('hop-2-executed', true, allText.includes(`TOKEN-HOP2-DONE ${nonce}`) ? 'present' : 'missing'),
-      receipt('parent-return', true, allText.includes(`TOKEN-HOP2-DONE ${nonce}`) ? 'present' : 'missing'),
+      receipt('subagent-spawn-accepted', true, spawned ? 'present' : 'missing'),
+      receipt('token-emitted-or-stripped', true, hops.hop1Index >= 0 && !hops.typedToolUsed ? 'present' : 'missing'),
+      receipt('hop-2-executed', true, hops.complete ? 'present' : 'missing', hops.reason ? { reason: hops.reason } : {}),
+      receipt('parent-return', true, 'missing', { reason: 'needs the child hop-2 token and the parent transcript; one recovery read cannot bind it' }),
     ];
   }
 

@@ -19,7 +19,8 @@
     "methods": [
       "sessions.send",
       "sessions.messages.subscribe",
-      "subagents.spawn"
+      "subagents.spawn",
+      "chat.history"
     ],
     "status": "runnable",
     "registryNotes": "Local scratch conversion: runnable k6 scenario exercises lightContext sessions_spawn child emitting bare CONTINUE_WORK:N and requiring TOKEN-HOP2-DONE hop-2 sentinel.",
@@ -44,22 +45,22 @@
     {
       "name": "subagent-spawn-accepted",
       "required": true,
-      "description": "parent observed sessions_spawn acceptance/final sentinel"
+      "description": "The parent's sessions_spawn toolResult, bound by toolCallId to the call whose task carries the nonce, answered accepted with a childSessionKey"
     },
     {
       "name": "token-emitted-or-stripped",
       "required": true,
-      "description": "child first turn reached TOKEN-HOP1 and emitted/stripped bare CONTINUE_WORK:N token"
+      "description": "The child's own assistant row (on the childSessionKey from the spawn receipt) says TOKEN-HOP1 <nonce>, and the child made no typed continue_work call"
     },
     {
       "name": "hop-2-executed",
       "required": true,
-      "description": "TOKEN-HOP2-DONE sentinel from continuation wake/hop-2"
+      "description": "After a [continuation:wake] row or in a run other than hop 1, the child's own assistant row says TOKEN-HOP2-DONE <nonce> TOKEN <12 chars>, a token minted in hop 2 and absent from every harness-sent text"
     },
     {
       "name": "parent-return",
       "required": true,
-      "description": "hop-2 result returned/observable on parent session"
+      "description": "The parent reproduces TOKEN-HOP2-RETURN <nonce> TOKEN <hop-2 token> in a run other than the dispatch run, not earlier than the token: hop 2's own result reached the parent"
     },
     {
       "name": "journal-work-wake-hop-2",
@@ -208,7 +209,7 @@
     },
     "controls": {
       "positive": "The lightContext child reaches TOKEN-HOP1 and emits the bare CONTINUE_WORK token, its hop-2 turn emits TOKEN-HOP2-DONE, the journal records the child’s [continuation:work-wake], and one trace on this seat carries the sessions_spawn span inside the row window.",
-      "negative": "Token parse or strip alone is insufficient, a harness prompt echo cannot satisfy TOKEN-HOP2-DONE, and more than one sessions_spawn trace in the window is refused as ambiguous."
+      "negative": "Token parse or strip alone is insufficient, a harness prompt echo cannot satisfy TOKEN-HOP2-DONE, and more than one sessions_spawn trace in the window is refused as ambiguous. No substring of the parent's own sessions_spawn call or stream counts: the spawn task carries TOKEN-HOP1, CONTINUE_WORK and TOKEN-HOP2-DONE, and at F′ every receipt flipped on them (openclaw-bootstrap#1727)."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",

@@ -8,55 +8,73 @@
   "transport": "websocket",
   "toolSurface": "typed-tool",
   "mutates": false,
-  "timeoutSeconds": 300,
+  "timeoutSeconds": 1200,
   "gateway": {
     "wsEnv": "OPENCLAW_GATEWAY_WS",
     "tokenEnv": "OPENCLAW_GATEWAY_TOKEN"
   },
   "scenario": {
     "name": "r-cd-3-post-compaction",
-    "description": "Stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the post-compaction lifeboat return; a structured below-threshold refusal remains PARTIAL.",
+    "description": "Fill a disposable session with real prior turns until its measured usage passes the request_compaction threshold, stage continue_delegate(mode=post-compaction), then call request_compaction. PASS requires the bound accepted request_compaction toolResult, the released lifeboat child, the lifeboat's own minted token and the requester reproducing it outside the proof and fill runs. An unknown or unmeasured rejection is PARTIAL, never PASS; a measured below-threshold rejection is a separate PARTIAL reason.",
     "methods": [
       "sessions.create",
       "sessions.messages.subscribe",
       "sessions.send",
-      "request_compaction-threshold-guard"
+      "sessions.describe",
+      "sessions.list",
+      "chat.history",
+      "request_compaction-measured-fill"
     ],
     "status": "runnable",
     "file": "r-cd-3-post-compaction.js",
-    "notes": "Does not lower thresholds or mutate config. In ordinary disposable sessions a below-threshold refusal is retained as PARTIAL proof debt."
+    "notes": "Does not lower thresholds or mutate config: the fill sends inert filler turns and reads fresh totalTokens/contextTokens from sessions.describe, the inputs request_compaction measures. The fill runs only in a disposable session and stops, with the reason named, when the measured gap cannot be closed within OPENCLAW_RCD3_FILL_MAX_TURNS (default 6) or OPENCLAW_RCD3_FILL_BUDGET_TOKENS (default 300000). No sentinel is read from the requester's event stream (openclaw-bootstrap#1727)."
   },
   "invocation": {
     "tool": "continue_delegate",
     "mode": "post-compaction",
     "delaySeconds": 0,
-    "promptTemplate": "R-CD-3 post-compaction lifeboat nonce {{nonce}}: if you run after compaction, reply exactly RCD3-LIFEBOAT-RECEIVED {{nonce}}. Do not mutate files.",
+    "promptTemplate": "RCD3:{{nonceSuffix16}} R-CD-3 post-compaction lifeboat nonce {{nonce}}: when you run, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly RCD3-LIFEBOAT {{nonce}} TOKEN <your token>. Requester: when this lifeboat result reaches you, reply exactly RCD3-PARENT-RETURN {{nonce}} TOKEN <the TOKEN value from this result>. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-3"
   },
   "prerequisites": {
-    "contextUsage": "Any; < threshold is retained as PARTIAL-candidate proof debt",
-    "notes": "If context is below compaction threshold, request_compaction should reject structurally and the scenario records that environmental limit. If context is above threshold, the staged post-compaction lifeboat may fire after compaction."
+    "contextUsage": "Established by the scenario: inert filler turns until fresh totalTokens/contextTokens reaches the fill target (default 75%, above the fixed 70% threshold, below the automatic-compaction line near window minus reserve). A 200k window needs about 150k filler tokens; a window too large for the fill budget stops the fill and the row is PARTIAL.",
+    "notes": "The accepted path compacts the disposable proof session only. Cost scales with the context window: each fill turn re-sends the growing context."
   },
   "expectedReceipts": [
     {
       "name": "dispatch-accepted",
       "required": true,
-      "description": "Gateway accepted the sessions.send proof turn"
+      "description": "Gateway accepted the sessions.send proof turn after the measured fill reached its target"
     },
     {
-      "name": "delegate-staging-requested",
+      "name": "measured-context-fill",
       "required": true,
-      "description": "Agent was instructed to stage continue_delegate(mode=post-compaction)"
+      "description": "sessions.describe reported fresh totalTokens/contextTokens at or above the fill target before the proof turn"
     },
     {
-      "name": "compaction-requested",
+      "name": "delegate-staging-receipt",
       "required": true,
-      "description": "Agent was instructed to call request_compaction after staging the delegate"
+      "description": "The continue_delegate toolResult bound by toolCallId to the call whose task carries the row token answered queued-for-compaction in post-compaction mode"
     },
     {
-      "name": "threshold-refusal-or-lifeboat",
+      "name": "request-compaction-receipt",
       "required": true,
-      "description": "Either structured below-threshold request_compaction refusal is observed, or post-compaction lifeboat return is observed"
+      "description": "The request_compaction toolResult bound by toolCallId to the call whose reason carries the row nonce; accepted (compaction_requested) for PASS. Unknown usage and measured below-threshold rejections are distinct PARTIAL reasons"
+    },
+    {
+      "name": "released-lifeboat-child",
+      "required": true,
+      "description": "A child whose own row names the proof session in spawnedBy and whose own spawn task carries the product [continuation:post-compaction] prefix and the row token"
+    },
+    {
+      "name": "lifeboat-minted-token",
+      "required": true,
+      "description": "The lifeboat's own assistant text carries RCD3-LIFEBOAT <nonce> TOKEN <12 chars>, a token absent from every harness-sent text"
+    },
+    {
+      "name": "lifeboat-return-bound",
+      "required": true,
+      "description": "The proof session reproduces RCD3-PARENT-RETURN <nonce> TOKEN <token> in a run other than the proof and fill runs, not earlier than the token"
     },
     {
       "name": "trace-id",
@@ -84,7 +102,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "R-CD-3 is PASS-candidate on real lifeboat return after compaction. A below-threshold request_compaction refusal remains PARTIAL-candidate; do not overclaim compaction firing."
+    "notes": "R-CD-3 is PASS-candidate only on the bound chain: accepted request_compaction, released lifeboat child, its minted token, and the requester reproducing it. An unknown or unmeasured request_compaction rejection is PARTIAL with its own reason, distinct from R-RC-2's measured threshold rejection; never overclaim compaction firing."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -208,8 +226,8 @@
       ]
     },
     "controls": {
-      "positive": "continue_delegate(mode=post-compaction) is staged, request_compaction is called, and the post-compaction lifeboat return carrying the nonce is observed.",
-      "negative": "A structured below-threshold refusal is PARTIAL, never PASS, and a prose-only report of compaction does not satisfy the row."
+      "positive": "After a measured fill, continue_delegate(mode=post-compaction) is staged (bound toolResult), request_compaction is accepted (bound toolResult), the released lifeboat child mints a token in its own transcript, and the requester reproduces it in a later run.",
+      "negative": "A sentinel in the requester's own tool call or event stream never counts. An unknown or unmeasured rejection is PARTIAL, never PASS; a measured below-threshold rejection is PARTIAL; a prose-only report of compaction does not satisfy the row."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -246,12 +264,12 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "The post-compaction lifeboat return is observed after the staged delegate. Behavioral only; the trace receipts decide review completeness, not the verdict.",
-      "partial": "A structured below-threshold refusal, or an accepted compaction without the lifeboat return. A missing or degraded trace keeps the row review-pending without changing its class.",
-      "fail": "Neither a threshold refusal, an accepted compaction, nor a lifeboat return is observed."
+      "pass": "The bound chain: accepted request_compaction toolResult, queued-for-compaction staging toolResult, released lifeboat child (own spawnedBy + own post-compaction spawn task), its minted token, and the requester reproducing that token outside the proof and fill runs. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "partial": "A fill that cannot reach the measured target; an unknown or unmeasured rejection (never PASS); a measured below-threshold rejection; any other request_compaction answer; or an accepted compaction whose lifeboat, report or return is not bound. A missing or degraded trace keeps the row review-pending without changing its class.",
+      "fail": "The proof turn was rejected, or neither a staging receipt nor a request_compaction result is bound to it."
     },
     "execution": {
-      "deterministicK6": "r-cd-3-post-compaction.js stages the delegate and calls request_compaction in a disposable session.",
+      "deterministicK6": "r-cd-3-post-compaction.js fills a disposable session with measured prior turns, stages the delegate and calls request_compaction, then binds the lifeboat and its return from product records.",
       "manual": "Manual Tempo review confirms the dispatch/fire topology; it cannot supply the missing identity attributes.",
       "relationship": "The deterministic row owns the verdict. The Tempo trace receipts decide only whether review is complete; manual review corroborates topology and never upgrades a missing receipt."
     }
@@ -267,13 +285,16 @@
     "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "dispatch-accepted",
-      "delegate-staging-requested",
-      "compaction-requested",
-      "threshold-refusal-or-lifeboat",
+      "measured-context-fill",
+      "delegate-staging-receipt",
+      "request-compaction-receipt",
+      "released-lifeboat-child",
+      "lifeboat-minted-token",
+      "lifeboat-return-bound",
       "tempo-trace-json",
       "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "Runs in a disposable session by default. Does not mutate config; if compaction is accepted it only compacts that proof session. Public/dry environments commonly retain a below-threshold refusal as PARTIAL proof debt."
+    "notes": "Runs only in a disposable session: the fill refuses OPENCLAW_CREATE_DISPOSABLE_SESSION=false. Does not mutate config or thresholds; an accepted compaction compacts that proof session only. The fill sends real model turns sized to the measured context window, so cost grows with the window; the token and turn budgets bound it."
   }
 }

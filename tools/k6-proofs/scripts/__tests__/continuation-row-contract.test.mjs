@@ -233,9 +233,14 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
         assert.match(scenario, RENDERED_DELEGATE_TEMPLATES[manifest.rowId]);
         assert.match(scenario, /evidence\.reason_hash = crypto\.sha256\((?:childTask|lifeboatTask), 'hex'\)\.slice\(0, 16\)/);
         if (manifest.rowId === 'R-CD-3') {
-          // The lifeboat task comes from the manifest; its return sentinel is what the scenario detects.
-          assert.match(manifest.invocation.promptTemplate, /reply exactly RCD3-LIFEBOAT-RECEIVED \{\{nonce\}\}/);
-          assert.match(scenario, /eventStr\.includes\(`RCD3-LIFEBOAT-RECEIVED \$\{rowNonce\}`\)/);
+          // The lifeboat task comes from the manifest. Its report is a token the
+          // lifeboat mints, read only from its own transcript; no sentinel is ever
+          // matched on the requester's stream, which carries its own call (#1727).
+          assert.match(manifest.invocation.promptTemplate, /^RCD3:\{\{nonceSuffix16\}\}/);
+          assert.match(manifest.invocation.promptTemplate, /reply exactly RCD3-LIFEBOAT \{\{nonce\}\} TOKEN <your token>/);
+          assert.doesNotMatch(manifest.invocation.promptTemplate, /RCD3-LIFEBOAT-RECEIVED/);
+          assert.doesNotMatch(scenario, /eventStr|JSON\.stringify\(classified\.data/);
+          assert.match(scenario, /lifeboatReport\(messages, \{ rowNonce, sentTexts \}\)/);
         }
       } else {
         assert.match(scenario, /promptTemplate\.replace\(\/\\\{\\\{nonce\\\}\\\}\/g,/);

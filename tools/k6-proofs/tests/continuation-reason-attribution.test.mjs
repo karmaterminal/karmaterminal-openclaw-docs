@@ -70,7 +70,13 @@ async function readManifest(file) {
   return JSON.parse(await readFile(manifestPath(file), 'utf8'));
 }
 
+// R-CD-3 fills its disposable session with measured prior turns before the
+// proof turn (#1727): each fill turn ends (lifecycle end) and raises the fresh
+// total that sessions.describe reports, until usage passes the threshold.
+const FILL_TURN = / context fill \d+ for nonce /u;
+
 function gatewayFor(row) {
+  const fill = { turns: 0, total: 0 };
   return (frame) => {
     if (frame?.type !== 'req') return [];
     const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
@@ -82,13 +88,22 @@ function gatewayFor(row) {
       case 'sessions.messages.subscribe':
         return ok({ subscribed: true, key: frame.params?.key });
       case 'sessions.send':
+        if (FILL_TURN.test(String(frame.params?.message || ''))) {
+          fill.turns += 1;
+          fill.total += 80000;
+          const runId = `run-${row.toLowerCase()}-fill-${fill.turns}`;
+          return [
+            ...ok({ runId, traceId: null }),
+            { type: 'event', event: 'agent', payload: { runId, stream: 'lifecycle', data: { phase: 'end', aborted: false } } },
+          ];
+        }
         return ok({ runId: `run-${row.toLowerCase()}`, traceId: null });
       case 'sessions.list':
         return ok({ sessions: [] });
       case 'chat.history':
         return ok({ messages: [] });
       case 'sessions.describe':
-        return ok({ session: null });
+        return ok({ session: fill.turns > 0 ? { totalTokens: fill.total, totalTokensFresh: true, contextTokens: 200000 } : null });
       default:
         return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `unknown method: ${frame.method}` } }];
     }
@@ -115,7 +130,7 @@ async function fireScenario({ row, scenario, manifest, env = {} }) {
   assert.equal(records.length, 1, `expected one evidence record in the ${row} scenario log:\n${log}`);
   const [privateEvidence] = records;
   const { sanitized: [publicEvidence] } = sanitizeEvidenceRecords(records);
-  const dispatches = frames.filter((frame) => frame.method === 'sessions.send');
+  const dispatches = frames.filter((frame) => frame.method === 'sessions.send' && !FILL_TURN.test(String(frame.params?.message || '')));
   assert.ok(dispatches.length >= 1, `${row} dispatched its proof instruction`);
   return { privateEvidence, publicEvidence, dispatch: dispatches[0].params.message };
 }

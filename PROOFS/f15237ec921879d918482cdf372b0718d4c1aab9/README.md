@@ -16,4 +16,4 @@ See `RESOLVED-SHA.md`, `METHOD.md`, and `gates/`.
 
 **Correction, 2026-10-30:** R-CD-3 is now **missing**, not partial. Its "behavior observed" was a harness false positive, and the lifeboat never fired. See `R-CD-3/EVIDENCE.md` § Correction.
 
-**Audit status, 2026-10-30:** 15 rows carry an `audit_status` (echo-vulnerable harness, or an unmeasured receipt). See `AUDIT-STATUS.md`. Their pass states are **unverified**, not proven, until F″ re-fires them with the fixed harness.
+**Audit status, 2026-10-30:** 15 rows carry an `audit_status` (echo-vulnerable harness, or an unmeasured receipt): **13 of the 31 PASS rows**, plus R-RC-2 (honest-limit; its child-report half is unverified) and R-CD-3 (already corrected to missing). See `AUDIT-STATUS.md`. Those 13 passes are **unverified**, not proven, until F″ re-fires them with the fixed harness. No row state is changed by this note.

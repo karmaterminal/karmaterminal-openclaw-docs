@@ -79,11 +79,79 @@ test('bootstrap#1727: classifies a context_unmeasured rejection as unmeasured, n
 
 test('bootstrap#1727: a live session passes on a live unmeasured cause, never on inventory_only', () => {
   const unmeasured = (cause) => ({ kind: 'unmeasured_rejected', receipt: { status: 'rejected', guard: 'context_unmeasured', cause } });
-  assert.equal(isLiveContextGuardRejection({ kind: 'threshold_rejected', receipt: { guard: 'context_threshold' } }), true);
   assert.equal(isLiveContextGuardRejection(unmeasured('no_fresh_usage')), true);
   assert.equal(isLiveContextGuardRejection(unmeasured('unknown_context_window')), true);
   assert.equal(isLiveContextGuardRejection(unmeasured('inventory_only')), false);
   assert.equal(isLiveContextGuardRejection({ kind: 'non_threshold_result', receipt: { status: 'compaction_requested' } }), false);
+});
+
+// R-RC-1 PASS rule (manifests/r-rc-1.json telemetryContract.verdictAuthority.pass,
+// approved by 🌊 at docs b37adbda). Receipt reasons are the product's own text at
+// karmaterminal/openclaw 542d1cac46 (PR #1506), src/agents/tools/request-compaction-tool.ts:37-42,
+// 259-276. 🍃's repro (frond-gloss breadcrumbs/receipts/rrc1-grader-repro-b37adbda.mjs)
+// showed b37adbda passing a context_threshold rejection with no numbers, with
+// inventory-only wording, and with usage above the threshold.
+const RC1_REASONS = Object.freeze({
+  below: 'Context usage (12%) is below the minimum threshold (70%). Compaction is not needed yet.',
+  no_fresh_usage: 'Context usage has not been measured: this session has no fresh token totals from a completed model turn (as on its first turn, or when the provider reported no usage). request_compaction can check the 70% threshold only after a completed turn records them.',
+  unknown_context_window: "Context usage cannot be measured: the context window of this session's model is unknown, so usage cannot be compared with the 70% threshold.",
+  inventory_only: 'Context usage is unknown for this session; request_compaction is unavailable on inventory-only paths.',
+});
+
+function rc1Receipt(details) {
+  return classifyRequestCompactionReceipt({
+    message: { role: 'toolResult', toolName: 'request_compaction', toolCallId: 'call-rc1', details },
+  });
+}
+
+test('R-RC-1 contract: a context_threshold rejection passes only when measured below the floor', () => {
+  const threshold = (fields) => rc1Receipt({ status: 'rejected', guard: 'context_threshold', ...fields });
+  assert.equal(isLiveContextGuardRejection(threshold({ contextUsage: 12, threshold: 70, reason: RC1_REASONS.below })), true);
+  // No numbers: the pre-#1727 unknown branch, which never measured anything.
+  assert.equal(isLiveContextGuardRejection(threshold({ reason: 'Compaction is not needed yet.' })), false);
+  assert.equal(isLiveContextGuardRejection({ kind: 'threshold_rejected', receipt: { guard: 'context_threshold' } }), false);
+  // One number without the other is not a measurement.
+  assert.equal(isLiveContextGuardRejection(threshold({ threshold: 70, reason: RC1_REASONS.below })), false);
+  assert.equal(isLiveContextGuardRejection(threshold({ contextUsage: 12, reason: RC1_REASONS.below })), false);
+  // Usage at or above the threshold is not below the floor.
+  assert.equal(isLiveContextGuardRejection(threshold({ contextUsage: 80, threshold: 70, reason: RC1_REASONS.below })), false);
+  assert.equal(isLiveContextGuardRejection(threshold({ contextUsage: 70, threshold: 70, reason: RC1_REASONS.below })), false);
+  // Numbers must be finite numbers, not strings.
+  assert.equal(isLiveContextGuardRejection(threshold({ contextUsage: '12', threshold: '70', reason: RC1_REASONS.below })), false);
+});
+
+test('R-RC-1 contract: inventory-only wording is non-PASS in either form', () => {
+  // 🍃's threshold_inventory_wording case, verbatim.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'rejected', guard: 'context_threshold', reason: RC1_REASONS.inventory_only })), false);
+  // Measured numbers do not launder inventory-only wording.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_threshold', contextUsage: 12, threshold: 70, reason: RC1_REASONS.inventory_only,
+  })), false);
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_unmeasured', cause: 'inventory_only', reason: RC1_REASONS.inventory_only,
+  })), false);
+  // A live cause does not launder inventory-only wording either.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_unmeasured', cause: 'no_fresh_usage', reason: RC1_REASONS.inventory_only,
+  })), false);
+});
+
+test('R-RC-1 contract: a context_unmeasured rejection passes only with a live cause and no usage numbers', () => {
+  const unmeasured = (fields) => rc1Receipt({ status: 'rejected', guard: 'context_unmeasured', ...fields });
+  assert.equal(isLiveContextGuardRejection(unmeasured({ cause: 'no_fresh_usage', reason: RC1_REASONS.no_fresh_usage })), true);
+  assert.equal(isLiveContextGuardRejection(unmeasured({ cause: 'unknown_context_window', reason: RC1_REASONS.unknown_context_window })), true);
+  assert.equal(isLiveContextGuardRejection(unmeasured({ reason: RC1_REASONS.no_fresh_usage })), false);
+  assert.equal(isLiveContextGuardRejection(unmeasured({ cause: 'something_else', reason: RC1_REASONS.no_fresh_usage })), false);
+  // Usage numbers contradict an unmeasured rejection.
+  assert.equal(isLiveContextGuardRejection(unmeasured({
+    cause: 'no_fresh_usage', contextUsage: 12, threshold: 70, reason: RC1_REASONS.no_fresh_usage,
+  })), false);
+});
+
+test('R-RC-1 contract: only a rejected status counts', () => {
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'compaction_requested', guard: 'context_threshold', contextUsage: 12, threshold: 70 })), false);
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'rejected', guard: 'rate_limit', retryAfterSeconds: 30 })), false);
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({ status: 'already_pending', reason: 'in flight' })), false);
 });
 
 test('does not accept assistant sentinel prose as a tool receipt', () => {

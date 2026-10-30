@@ -36,12 +36,13 @@ function k6LogLine(level, args) {
  * @param {string} options.scenarioPath absolute path of the scenario under test
  * @param {Record<string, string>} options.env the k6 __ENV the scenario sees
  * @param {(frame: object) => object[]} options.gateway replies for each frame the scenario sends
- * @returns {Promise<{log: string, frames: object[], checks: object[]}>}
+ * @returns {Promise<{log: string, frames: object[], checks: object[], metrics: object[]}>}
  */
 export async function runK6Scenario({ scenarioPath, env, gateway }) {
   registerK6Modules();
   const frames = [];
   const checks = [];
+  const metrics = [];
   const lines = [];
   globalThis.__ENV = { ...env };
   globalThis.__VU = 1;
@@ -50,6 +51,7 @@ export async function runK6Scenario({ scenarioPath, env, gateway }) {
   globalThis.__k6NodeRuntime = {
     record(kind, name, value) {
       if (kind === 'check') checks.push({ name, passed: value });
+      if (kind === 'metric') metrics.push({ name, value });
     },
     connect(url, _params, callback) {
       const handlers = {};
@@ -100,5 +102,5 @@ export async function runK6Scenario({ scenarioPath, env, gateway }) {
     Object.assign(console, original);
     delete globalThis.__k6NodeRuntime;
   }
-  return { log: `${lines.join('\n')}\n`, frames, checks };
+  return { log: `${lines.join('\n')}\n`, frames, checks, metrics };
 }

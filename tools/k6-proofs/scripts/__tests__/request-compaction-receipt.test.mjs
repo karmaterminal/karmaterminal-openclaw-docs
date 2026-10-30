@@ -11,6 +11,8 @@ import {
   isLiveContextGuardRejection,
   newCompactionMarkerCount,
   requestCompactionToolCallIdForNonce,
+  RRC1_MIN_SIDE_EFFECT_WINDOW_MS,
+  rrc1RejectionVerdict,
 } from '../../lib/request-compaction-receipt.js';
 
 test('reads request_compaction from the effective tool inventory', () => {
@@ -140,6 +142,38 @@ test('R-RC-1 contract: inventory-only wording is non-PASS in either form', () =>
   })), false);
 });
 
+// 🌊's head-pinned review of docs 3e2c83c7, point 1: 3e2c83c7 refused cause
+// inventory_only only inside the context_unmeasured branch, so a measured
+// context_threshold naming it passed.
+test('R-RC-1 contract: a cause of inventory_only is non-PASS whatever the guard', () => {
+  const below10 = 'Context usage (10%) is below the minimum threshold (70%). Compaction is not needed yet.';
+  // 🌊's case: measured 10 below 70, ordinary wording.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_threshold', contextUsage: 10, threshold: 70, cause: 'inventory_only', reason: below10,
+  })), false);
+  // The cause is refused before any guard branch, so the reason is the cause for every guard.
+  for (const guard of ['context_threshold', 'context_unmeasured', 'rate_limit', 'a_future_guard', null]) {
+    const verdict = rrc1RejectionVerdict({
+      status: 'rejected', guard, cause: 'inventory_only', contextUsage: 10, threshold: 70, usageFieldsPresent: true, inventoryOnlyWording: false,
+    });
+    assert.equal(verdict.pass, false, String(guard));
+    assert.match(verdict.reason, /cause inventory_only/u, String(guard));
+  }
+  // Spelled as the wording check spells it.
+  for (const cause of ['inventory-only', 'INVENTORY_ONLY', 'inventory only']) {
+    assert.equal(isLiveContextGuardRejection(rc1Receipt({
+      status: 'rejected', guard: 'context_threshold', contextUsage: 10, threshold: 70, cause, reason: below10,
+    })), false, cause);
+  }
+});
+
+test('R-RC-1 contract: context_unmeasured naming cause inventory_only is non-PASS without the inventory-only wording', () => {
+  // A guard on behaviour 3e2c83c7 already had.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_unmeasured', cause: 'inventory_only', reason: RC1_REASONS.no_fresh_usage,
+  })), false);
+});
+
 test('R-RC-1 contract: a context_unmeasured rejection passes only with a live cause and no usage numbers', () => {
   const unmeasured = (fields) => rc1Receipt({ status: 'rejected', guard: 'context_unmeasured', ...fields });
   assert.equal(isLiveContextGuardRejection(unmeasured({ cause: 'no_fresh_usage', reason: RC1_REASONS.no_fresh_usage })), true);
@@ -178,17 +212,42 @@ function rrc1PassEvidence(overrides = {}) {
     inventory_only_wording: false,
     no_compaction_side_effect: true,
     side_effect: {
-      window_ms: 30000,
+      window_ms: 240000,
       baseline_read: true,
       turn_end_observed: true,
       window_elapsed: true,
       final_read: true,
       new_compaction_markers: 0,
       stream_compaction_signals: 0,
+      stream_compaction_sources: [],
+      compaction_observations: [],
     },
     ...overrides,
   };
 }
+
+// The same run with a compaction observed: `observations` as the scenario records them.
+function rrc1CompactionEvidence(observations, overrides = {}) {
+  const streamed = observations.filter((observation) => observation.source !== 'transcript-compaction-row');
+  return rrc1PassEvidence({
+    no_compaction_side_effect: false,
+    side_effect: {
+      window_ms: 240000,
+      baseline_read: true,
+      turn_end_observed: true,
+      window_elapsed: false,
+      final_read: false,
+      new_compaction_markers: observations.length - streamed.length,
+      stream_compaction_signals: streamed.length,
+      stream_compaction_sources: [...new Set(streamed.map((observation) => observation.source))],
+      compaction_observations: observations,
+    },
+    ...overrides,
+  });
+}
+
+const TRANSCRIPT_ROW_AFTER = Object.freeze({ source: 'transcript-compaction-row', record_id: 'cmp-1', read: 'cue', after_rejection: true });
+const STREAM_EVENT_AFTER = Object.freeze({ source: 'agent-compaction-event', phase: 'start', session_named: true, after_rejection: true });
 
 test('classifyRrc1Evidence: PASS only on a contract rejection with a completed side-effect window', () => {
   assert.deepEqual(classifyRrc1Evidence(rrc1PassEvidence()), { verdict: 'PASS-candidate', reason: null, shape: 'measured_below_threshold' });
@@ -203,9 +262,71 @@ test('classifyRrc1Evidence: PASS only on a contract rejection with a completed s
   assert.match(partial({ context_usage: 70 }).reason, /usage 70 is not below threshold 70/u);
   assert.match(partial({ context_usage: null }).reason, /without a measured contextUsage and threshold/u);
   assert.match(partial({ inventory_only_wording: true }).reason, /inventory-only wording/u);
-  assert.match(partial({ no_compaction_side_effect: false }).reason, /a compaction followed the rejection/u);
+  // 🌊's case on recorded evidence: measured 10 below 70, ordinary wording, cause inventory_only.
+  const inventoryCause = partial({ cause: 'inventory_only', context_usage: 10 });
+  assert.equal(inventoryCause.verdict, 'PARTIAL-candidate');
+  assert.match(inventoryCause.reason, /cause inventory_only/u);
+  // A side effect claimed false with no compaction receipt to show cannot be FAIL.
+  assert.match(partial({ no_compaction_side_effect: false }).reason, /not shown to follow the rejection/u);
   assert.match(partial({ no_compaction_side_effect: null, side_effect: { unproven_reason: 'the turn did not end before the socket closed' } }).reason,
     /unproven: the turn did not end/u);
+});
+
+// Contract change (🌊's review of docs 3e2c83c7, point 3): a compaction observed after a
+// rejection that meets the PASS rule is FAIL-candidate and carries its evidence; an
+// incomplete observation stays PARTIAL.
+test('classifyRrc1Evidence: a compaction shown after a contract rejection is FAIL-candidate with its evidence', () => {
+  const transcript = classifyRrc1Evidence(rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER]));
+  assert.equal(transcript.verdict, 'FAIL-candidate');
+  assert.equal(transcript.shape, 'measured_below_threshold');
+  assert.match(transcript.reason, /a compaction followed the rejection/u);
+  assert.match(transcript.reason, /stream signals 0\b/u);
+  assert.match(transcript.reason, /new transcript compaction rows 1\b/u);
+  assert.match(transcript.reason, /1 shown after the rejection/u);
+  const stream = classifyRrc1Evidence(rrc1CompactionEvidence([STREAM_EVENT_AFTER, { ...STREAM_EVENT_AFTER, phase: 'end' }]));
+  assert.equal(stream.verdict, 'FAIL-candidate');
+  assert.match(stream.reason, /stream signals 2 \(agent-compaction-event\)/u);
+  // The unmeasured shape is contradicted the same way.
+  const unmeasured = classifyRrc1Evidence(rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER], {
+    guard: 'context_unmeasured', cause: 'no_fresh_usage', context_usage: null, threshold: null, usage_fields_present: false,
+  }));
+  assert.equal(unmeasured.verdict, 'FAIL-candidate');
+  assert.equal(unmeasured.shape, 'unmeasured_live_cause');
+  // A contradiction outranks an incomplete window: the run stopped once it saw one.
+  const windowDone = rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER]);
+  windowDone.side_effect.window_elapsed = true;
+  windowDone.side_effect.final_read = true;
+  assert.equal(classifyRrc1Evidence(windowDone).verdict, 'FAIL-candidate');
+});
+
+test('classifyRrc1Evidence: compaction evidence that does not show a compaction after the rejection is PARTIAL, never FAIL', () => {
+  const graded = (observations, overrides) => classifyRrc1Evidence(rrc1CompactionEvidence(observations, overrides));
+  // Before the toolResult in the same read, or order not shown.
+  for (const after of [false, null, undefined]) {
+    const result = graded([{ ...TRANSCRIPT_ROW_AFTER, after_rejection: after }]);
+    assert.equal(result.verdict, 'PARTIAL-candidate', String(after));
+    assert.match(result.reason, /not shown to follow the rejection/u);
+  }
+  // A stream event that names no session, or another one, is not this session's.
+  for (const named of [false, undefined]) {
+    assert.equal(graded([{ ...STREAM_EVENT_AFTER, session_named: named }]).verdict, 'PARTIAL-candidate', String(named));
+  }
+  // Evidence from before compaction_observations existed cannot be FAIL.
+  const legacy = rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER]);
+  delete legacy.side_effect.compaction_observations;
+  assert.equal(classifyRrc1Evidence(legacy).verdict, 'PARTIAL-candidate');
+  // Observations without the side-effect flag they imply are inconsistent.
+  assert.equal(graded([TRANSCRIPT_ROW_AFTER], { no_compaction_side_effect: null }).verdict, 'PARTIAL-candidate');
+  // An incomplete receipt chain is PARTIAL whatever followed.
+  for (const missing of [{ tool_registered: false }, { dispatch_accepted: false }, { tool_result_observed: false }, { tool_call_nonce_bound: false }]) {
+    assert.equal(graded([TRANSCRIPT_ROW_AFTER], missing).verdict, 'PARTIAL-candidate', JSON.stringify(missing));
+  }
+  // A rejection that breaks the PASS rule stays PARTIAL on the rule and names the compaction.
+  for (const broken of [{ context_usage: 80 }, { cause: 'inventory_only' }, { inventory_only_wording: true }, { tool_result_status: 'compaction_requested' }]) {
+    const result = graded([TRANSCRIPT_ROW_AFTER], broken);
+    assert.equal(result.verdict, 'PARTIAL-candidate', JSON.stringify(broken));
+    assert.match(result.reason, /a compaction was also observed/u, JSON.stringify(broken));
+  }
 });
 
 test('classifyRrc1Evidence: facts that were not recorded fail closed', () => {
@@ -226,10 +347,30 @@ test('classifyRrc1Evidence: facts that were not recorded fail closed', () => {
   const sawOne = rrc1PassEvidence();
   sawOne.side_effect.new_compaction_markers = 1;
   assert.equal(classifyRrc1Evidence(sawOne).verdict, 'PARTIAL-candidate');
-  // The contract's window is at least 30s; a recomputed verdict cannot accept less.
-  const shortWindow = rrc1PassEvidence();
-  shortWindow.side_effect.window_ms = 1000;
-  assert.equal(classifyRrc1Evidence(shortWindow).verdict, 'PARTIAL-candidate');
+  // A no-side-effect claim cannot sit beside a recorded compaction observation.
+  const observed = rrc1PassEvidence();
+  observed.side_effect.compaction_observations = [TRANSCRIPT_ROW_AFTER];
+  assert.equal(classifyRrc1Evidence(observed).verdict, 'PARTIAL-candidate');
+  const { compaction_observations: _observations, ...unrecorded } = rrc1PassEvidence().side_effect;
+  assert.equal(classifyRrc1Evidence(rrc1PassEvidence({ side_effect: unrecorded })).verdict, 'PARTIAL-candidate');
+});
+
+// 🌊's review of docs 3e2c83c7, point 2: 30s is only a 30s bounded observation; the
+// negative claim needs the product's 180s compaction timeout plus a scheduling margin.
+test('classifyRrc1Evidence: a no-side-effect claim over a window under 180s plus the margin is not PASS', () => {
+  assert.equal(RRC1_MIN_SIDE_EFFECT_WINDOW_MS, 240000);
+  for (const windowMs of [1000, 30000, 180000, 239999]) {
+    const shortWindow = rrc1PassEvidence();
+    shortWindow.side_effect.window_ms = windowMs;
+    const result = classifyRrc1Evidence(shortWindow);
+    assert.equal(result.verdict, 'PARTIAL-candidate', String(windowMs));
+    assert.match(result.reason, new RegExp(`side-effect window ${windowMs}ms is shorter than the contract's 240000ms`, 'u'));
+  }
+  for (const windowMs of [240000, 600000]) {
+    const enough = rrc1PassEvidence();
+    enough.side_effect.window_ms = windowMs;
+    assert.equal(classifyRrc1Evidence(enough).verdict, 'PASS-candidate', String(windowMs));
+  }
 });
 
 test('newCompactionMarkerCount counts compaction rows not in the baseline; an id-less row always counts', () => {

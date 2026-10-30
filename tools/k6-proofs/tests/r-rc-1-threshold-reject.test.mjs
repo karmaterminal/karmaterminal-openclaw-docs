@@ -27,6 +27,14 @@
 //   and reach sessions.messages subscribers for phases start and end
 //   (src/gateway/server-chat-event-admission.ts:15), as does the lifecycle stream.
 //
+// Round 2 (🌊's head-pinned review of docs 3e2c83c7, Discord 1565869199908282472):
+// 1. cause=inventory_only is non-PASS whatever the guard; 3e2c83c7 rejected it only
+//    under context_unmeasured and passed a measured context_threshold naming it.
+// 2. the side-effect window defaults to, and never drops below, the product's 180s
+//    compaction timeout plus a scheduling margin.
+// 3. contract change: a compaction observed after the rejection is FAIL-candidate,
+//    carrying its compaction evidence; an incomplete observation stays PARTIAL.
+//
 // Each test fires the real R-RC-1 scenario (k6 runtime stubbed, see
 // helpers/k6-node-runtime.mjs) against a gateway scripted on those shapes and reads its
 // VERDICT line and evidence through the real extractor. No live gateway is used.
@@ -35,7 +43,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classifyRrc1Evidence, LIVE_UNMEASURED_CAUSES } from '../lib/request-compaction-receipt.js';
+import { classifyRrc1Evidence, LIVE_UNMEASURED_CAUSES, RRC1_MIN_SIDE_EFFECT_WINDOW_MS } from '../lib/request-compaction-receipt.js';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
 
@@ -79,6 +87,22 @@ const RECEIPTS = Object.freeze({
     cause: 'inventory_only',
     reason: 'Context usage is unknown for this session; request_compaction is unavailable on inventory-only paths.',
   },
+  // 🌊's case on docs 3e2c83c7: measured 10 below 70, ordinary wording, cause inventory_only.
+  thresholdInventoryOnlyCause: {
+    status: 'rejected',
+    guard: 'context_threshold',
+    contextUsage: 10,
+    threshold: 70,
+    cause: 'inventory_only',
+    reason: 'Context usage (10%) is below the minimum threshold (70%). Compaction is not needed yet.',
+  },
+  // inventory_only under the unmeasured guard, without the inventory-only wording.
+  unmeasuredInventoryOnlyCause: {
+    status: 'rejected',
+    guard: 'context_unmeasured',
+    cause: 'inventory_only',
+    reason: 'Context usage has not been measured: this session has no fresh token totals from a completed model turn (as on its first turn, or when the provider reported no usage). request_compaction can check the 70% threshold only after a completed turn records them.',
+  },
   rateLimit: {
     status: 'rejected',
     guard: 'rate_limit',
@@ -112,6 +136,8 @@ const COMPACTION_MARKER = Object.freeze({
  *   'cue'             a compaction row announced by sessions.changed after the first
  *                     post-turn read
  *   'both'            stream events and the transcript row
+ *   'before-rejection' stream events and a transcript row inside the turn, after the
+ *                     request_compaction call and before its toolResult
  * compactionEventSessionKey: the session the compaction events name (null: none).
  * turnEnds: false leaves the run open (no reply row, no lifecycle end).
  * replyRow / lifecycleEnd / lifecycleEndSessionKey: the two turn-end marks, separately.
@@ -206,8 +232,12 @@ function scriptedGateway({
           lifecycle('start'),
           append({ role: 'user', content: [{ type: 'text', text: frame.params.message }] }),
           append({ role: 'assistant', content: [{ type: 'toolCall', id: 'call_rc1', name: 'request_compaction', arguments: { reason } }], stopReason: 'toolUse' }),
-          append({ role: 'toolResult', toolCallId: 'call_rc1', toolName: 'request_compaction', isError: false, content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }] }),
         ];
+        if (compaction === 'before-rejection') {
+          replies.push(compactionEvent('start'), compactionEvent('end'));
+          state.transcript.push(COMPACTION_MARKER);
+        }
+        replies.push(append({ role: 'toolResult', toolCallId: 'call_rc1', toolName: 'request_compaction', isError: false, content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }] }));
         if (toolCallAfterResult) {
           replies.push(append({ role: 'assistant', content: [{ type: 'text', text: 'checking' }, { type: 'toolCall', id: 'call_other', name: 'session_status', arguments: {} }], stopReason: 'toolUse' }));
         }
@@ -249,7 +279,7 @@ async function fireRrc1({ env = {}, ...options } = {}) {
   const proofFailures = (fired.metrics || [])
     .filter((metric) => metric.name === 'proof_failures')
     .reduce((sum, metric) => sum + metric.value, 0);
-  const result = { verdict: verdicts[0], evidence: records[0], proofFailures, frames: fired.frames, log: fired.log };
+  const result = { verdict: verdicts[0], evidence: records[0], proofFailures, frames: fired.frames, log: fired.log, options: fired.options };
   // The VERDICT line, the evidence and the shared classifier say the same thing.
   assert.equal(result.evidence.verdict, result.verdict);
   assert.equal(classifyRrc1Evidence(result.evidence).verdict, result.verdict);
@@ -261,6 +291,23 @@ function assertNotPass(fired, reasonPattern) {
   assert.equal(fired.evidence.verdict, 'PARTIAL-candidate');
   assert.ok(fired.proofFailures > 0, 'a non-PASS run must count a proof failure, or handleSummary would say PASS');
   if (reasonPattern) assert.match(fired.evidence.verdict_reason ?? '', reasonPattern);
+}
+
+// A compaction observed after a rejection that meets the PASS rule: FAIL-candidate, with
+// the compaction evidence in the reason and in side_effect.compaction_observations.
+function assertFail(fired) {
+  assert.equal(fired.verdict, 'FAIL-candidate', fired.evidence.verdict_reason ?? '');
+  assert.equal(fired.evidence.verdict, 'FAIL-candidate');
+  assert.ok(fired.proofFailures > 0, 'a FAIL run must count a proof failure, or handleSummary would say PASS');
+  assert.equal(fired.evidence.rejection_meets_contract, true);
+  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  assert.match(fired.evidence.verdict_reason ?? '', /a compaction followed the rejection/u);
+  const seen = fired.evidence.side_effect;
+  assert.match(fired.evidence.verdict_reason, new RegExp(`stream signals ${seen.stream_compaction_signals}\\b`, 'u'));
+  assert.match(fired.evidence.verdict_reason, new RegExp(`new transcript compaction rows ${seen.new_compaction_markers}\\b`, 'u'));
+  const after = (seen.compaction_observations ?? []).filter((observation) => observation.after_rejection === true);
+  assert.ok(after.length >= 1, 'FAIL carries at least one compaction shown after the rejection');
+  return after;
 }
 
 function assertPass(fired) {
@@ -288,7 +335,9 @@ test('positive control: a measured below-floor rejection with no compaction afte
   assert.equal(fired.evidence.no_compaction_side_effect, true);
   assertPass(fired);
   assert.equal(fired.evidence.rejection_shape, 'measured_below_threshold');
-  assert.equal(fired.evidence.side_effect.window_ms, 30000);
+  // 180s compaction timeout plus the 60s margin.
+  assert.equal(fired.evidence.side_effect.window_ms, 240000);
+  assert.deepEqual(fired.evidence.side_effect.compaction_observations, []);
   // A baseline read before the dispatch, the receipt read, and the final read after the window.
   const dispatchIndex = fired.frames.findIndex((frame) => frame.method === 'sessions.send');
   const getIndexes = fired.frames.map((frame, index) => (frame.method === 'sessions.get' ? index : -1)).filter((index) => index >= 0);
@@ -340,60 +389,114 @@ test('inventory_only, rate_limit and an accepted request are not PASS', async ()
   assert.equal(accepted.evidence.tool_result_status, 'compaction_requested');
 });
 
-test('side effect: a compaction after the rejection, on the stream and in the transcript, is not PASS', async () => {
-  const fired = await fireRrc1({ compaction: 'both' });
-  assertNotPass(fired, /a compaction followed the rejection/u);
-  assert.equal(fired.evidence.no_compaction_side_effect, false);
-  assert.ok(fired.evidence.side_effect.new_compaction_markers >= 1);
+test('🌊 repro (docs 3e2c83c7): a measured below-floor context_threshold naming cause inventory_only is not PASS', async () => {
+  const fired = await fireRrc1({ receipt: RECEIPTS.thresholdInventoryOnlyCause });
+  assertNotPass(fired, /cause inventory_only/u);
+  assert.equal(fired.evidence.guard, 'context_threshold');
+  assert.equal(fired.evidence.cause, 'inventory_only');
+  assert.equal(fired.evidence.context_usage, 10);
+  assert.equal(fired.evidence.threshold, 70);
+  // Ordinary wording: only the cause can refuse it.
+  assert.equal(fired.evidence.inventory_only_wording, false);
+  assert.equal(fired.evidence.rejection_meets_contract, false);
+  assert.equal(fired.evidence.no_compaction_side_effect, null);
 });
 
-test('side effect: compaction events on the subscribed stream alone are not PASS', async () => {
+test('guard: context_unmeasured naming cause inventory_only is not PASS, with or without the inventory-only wording', async () => {
+  const ordinary = await fireRrc1({ receipt: RECEIPTS.unmeasuredInventoryOnlyCause });
+  assertNotPass(ordinary, /cause inventory_only/u);
+  assert.equal(ordinary.evidence.guard, 'context_unmeasured');
+  assert.equal(ordinary.evidence.inventory_only_wording, false);
+  assert.equal(ordinary.evidence.rejection_meets_contract, false);
+  assertNotPass(await fireRrc1({ receipt: RECEIPTS.inventoryOnly }), /inventory-only wording/u);
+});
+
+// Contract change (🌊, docs 3e2c83c7 review point 3): a compaction observed after a
+// rejection that meets the PASS rule contradicts it, so it is FAIL-candidate.
+
+test('side effect: a compaction after the rejection, on the stream and in the transcript, is FAIL', async () => {
+  const fired = await fireRrc1({ compaction: 'both' });
+  const after = assertFail(fired);
+  assert.ok(fired.evidence.side_effect.new_compaction_markers >= 1);
+  const sources = new Set(after.map((observation) => observation.source));
+  assert.ok(sources.has('agent-compaction-event'));
+  assert.ok(sources.has('transcript-compaction-row'));
+});
+
+test('side effect: compaction events on the subscribed stream alone are FAIL, each event carried', async () => {
   const fired = await fireRrc1({ compaction: 'stream' });
-  assertNotPass(fired, /a compaction followed the rejection/u);
-  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  const after = assertFail(fired);
   assert.equal(fired.evidence.side_effect.stream_compaction_signals, 2);
   assert.deepEqual(fired.evidence.side_effect.stream_compaction_sources, ['agent-compaction-event']);
+  assert.deepEqual(after.map(({ source, phase, session_named }) => ({ source, phase, session_named })), [
+    { source: 'agent-compaction-event', phase: 'start', session_named: true },
+    { source: 'agent-compaction-event', phase: 'end', session_named: true },
+  ]);
 });
 
-test('side effect: a compaction row in the transcript alone is not PASS', async () => {
+test('side effect: a compaction row in the transcript alone is FAIL, its record id carried', async () => {
   const fired = await fireRrc1({ compaction: 'transcript' });
-  assertNotPass(fired, /a compaction followed the rejection/u);
-  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  const after = assertFail(fired);
   assert.equal(fired.evidence.side_effect.new_compaction_markers, 1);
   assert.equal(fired.evidence.side_effect.stream_compaction_signals, 0);
+  assert.deepEqual(after.map(({ source, record_id }) => ({ source, record_id })), [
+    { source: 'transcript-compaction-row', record_id: 'cmp-0001' },
+  ]);
 });
 
-test('side effect: a compaction record that lands in the transcript after the turn is not PASS', async () => {
+test('side effect: a compaction record that lands in the transcript after the turn is FAIL', async () => {
   const fired = await fireRrc1({ compaction: 'late-transcript' });
-  assertNotPass(fired, /a compaction followed the rejection/u);
-  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  const after = assertFail(fired);
   // Seen by the final read, after the window.
   assert.equal(fired.evidence.side_effect.window_elapsed, true);
   assert.equal(fired.evidence.side_effect.final_read, true);
   assert.equal(fired.evidence.side_effect.new_compaction_markers, 1);
+  assert.equal(after[0].read, 'final');
 });
 
-test('side effect: a sessions.changed cue rereads the transcript and catches the row before the window ends', async () => {
+test('side effect: a sessions.changed cue catches the row before the window ends; an observed compaction is FAIL without the full window', async () => {
   const fired = await fireRrc1({ compaction: 'cue' });
-  assertNotPass(fired, /a compaction followed the rejection/u);
-  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  const after = assertFail(fired);
   assert.equal(fired.evidence.side_effect.cue_reads, 1);
   assert.equal(fired.evidence.side_effect.window_elapsed, false);
+  assert.equal(after[0].read, 'cue');
 });
 
-test('side effect: a compaction event naming no session counts; one naming another session does not', async () => {
+test('side effect: a compaction inside the turn, before the toolResult, blocks PASS but is not FAIL', async () => {
+  const fired = await fireRrc1({ compaction: 'before-rejection' });
+  assertNotPass(fired, /not shown to follow the rejection/u);
+  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  assert.equal(fired.evidence.side_effect.stream_compaction_signals, 2);
+  assert.equal(fired.evidence.side_effect.new_compaction_markers, 1);
+  const observations = fired.evidence.side_effect.compaction_observations;
+  assert.equal(observations.length, 3);
+  assert.ok(observations.every((observation) => observation.after_rejection !== true));
+  assert.equal(observations.find((observation) => observation.source === 'transcript-compaction-row').after_rejection, false);
+});
+
+test('side effect: a compaction after a rejection that breaks the PASS rule stays PARTIAL on the rule, naming the compaction', async () => {
+  const fired = await fireRrc1({ receipt: RECEIPTS.aboveThreshold, compaction: 'stream' });
+  assertNotPass(fired, /usage 80 is not below threshold 70/u);
+  assert.match(fired.evidence.verdict_reason, /a compaction was also observed/u);
+  assert.equal(fired.evidence.no_compaction_side_effect, false);
+});
+
+test('side effect: a compaction event naming no session blocks PASS but is not FAIL; one naming another session does not count', async () => {
   const unnamed = await fireRrc1({ compaction: 'stream', compactionEventSessionKey: null });
-  assertNotPass(unnamed, /a compaction followed the rejection/u);
+  assertNotPass(unnamed, /not shown to follow the rejection/u);
   assert.equal(unnamed.evidence.no_compaction_side_effect, false);
+  assert.ok(unnamed.evidence.side_effect.compaction_observations.every((observation) => observation.session_named === false));
   assertPass(await fireRrc1({ compaction: 'stream', compactionEventSessionKey: OTHER_SESSION }));
 });
 
-test('side effect: compaction rows already in the baseline are not new; an id-less one cannot be matched and counts', async () => {
+test('side effect: compaction rows already in the baseline are not new; an id-less one cannot be matched, blocks PASS, and is not FAIL', async () => {
   assertPass(await fireRrc1({ baseline: [COMPACTION_MARKER] }));
   const idless = { ...COMPACTION_MARKER, __openclaw: { kind: 'compaction' } };
   const fired = await fireRrc1({ baseline: [idless] });
-  assertNotPass(fired, /a compaction followed the rejection/u);
+  // It sits before the toolResult in every read, so it is not shown to follow the rejection.
+  assertNotPass(fired, /not shown to follow the rejection/u);
   assert.equal(fired.evidence.side_effect.baseline_compaction_markers, 1);
+  assert.equal(fired.evidence.side_effect.compaction_observations[0].after_rejection, false);
 });
 
 test('turn end: the reply row alone, or this session\'s lifecycle end alone, opens the window', async () => {
@@ -485,14 +588,40 @@ test('turn end: a held end matched at the ack also fetches the receipt when no t
   assertPass(await fireRrc1({ replyRow: false, transcriptEvents: false }));
 });
 
-test('the side-effect window can be lengthened, never shortened', async () => {
-  const longer = await fireRrc1({ env: { OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS: '180000' } });
+test('the side-effect window defaults to 180s plus a margin, and can be lengthened, never shortened (🌊, docs 3e2c83c7)', async () => {
+  const byDefault = await fireRrc1();
+  assertPass(byDefault);
+  assert.ok(byDefault.evidence.side_effect.window_ms > 180000, 'the window covers the product compaction timeout and a margin');
+  assert.equal(byDefault.evidence.side_effect.window_ms, RRC1_MIN_SIDE_EFFECT_WINDOW_MS);
+  // The old 30s default, the bare 180s timeout, and anything under the margin.
+  for (const requested of ['1000', '30000', '180000', '239999']) {
+    const shorter = await fireRrc1({ env: { OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS: requested } });
+    assertPass(shorter);
+    assert.equal(shorter.evidence.side_effect.window_ms, 240000, requested);
+    assert.match(shorter.log, /shorter than 240000ms; using 240000ms/u, requested);
+  }
+  const longer = await fireRrc1({ env: { OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS: '600000' } });
   assertPass(longer);
-  assert.equal(longer.evidence.side_effect.window_ms, 180000);
-  const shorter = await fireRrc1({ env: { OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS: '1000' } });
-  assertPass(shorter);
-  assert.equal(shorter.evidence.side_effect.window_ms, 30000);
-  assert.match(shorter.log, /shorter than 30000ms; using 30000ms/u);
+  assert.equal(longer.evidence.side_effect.window_ms, 600000);
+  const capped = await fireRrc1({ env: { OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS: '900000' } });
+  assert.equal(capped.evidence.side_effect.window_ms, 600000);
+  // k6 keeps the iteration alive through the turn budget, the window and the final read.
+  for (const fired of [byDefault, longer]) {
+    const maxDuration = /^(\d+)s$/u.exec(fired.options.scenarios.r_rc_1_threshold_reject.maxDuration)?.[1];
+    assert.ok(Number(maxDuration) * 1000 >= 60000 + fired.evidence.side_effect.window_ms + 5000, `maxDuration ${maxDuration}s`);
+  }
+});
+
+test('a negative claim over a window shorter than the contract minimum is not PASS, even recomputed from evidence', async () => {
+  const fired = await fireRrc1();
+  assertPass(fired);
+  for (const windowMs of [30000, 180000, 239999]) {
+    const evidence = structuredClone(fired.evidence);
+    evidence.side_effect.window_ms = windowMs;
+    const classified = classifyRrc1Evidence(evidence);
+    assert.equal(classified.verdict, 'PARTIAL-candidate', String(windowMs));
+    assert.match(classified.reason, new RegExp(`side-effect window ${windowMs}ms is shorter than the contract's 240000ms`, 'u'));
+  }
 });
 
 // The manifest is the declaration of record and the scenario's classifier is the
@@ -517,18 +646,39 @@ test('drift: the R-RC-1 manifest prose says what the grader enforces', async () 
   for (const [name, text] of Object.entries({ pass, notes, rejected, pipelineRow })) {
     assert.match(text, /inventory-only/iu, `${name} refuses inventory-only`);
   }
+  // The inventory_only cause is refused whatever the guard (round 2, point 1).
+  for (const [name, text] of Object.entries({ pass, notes, rejected })) {
+    assert.match(text, /inventory_only cause[^.]*whatever the guard/u, `${name} refuses an inventory_only cause whatever the guard`);
+  }
   assert.match(pass, /contextUsage < threshold/u);
   assert.match(pass, /no usage numbers/u);
-  assert.match(manifest.telemetryContract.verdictAuthority.partial, /unproven/u);
 
-  // The side-effect window the scenario uses is the one the prose names.
+  // Verdict authority after the round-2 contract change (point 3): an observed
+  // compaction after the rejection is FAIL; an incomplete observation stays PARTIAL.
+  const { partial, fail } = manifest.telemetryContract.verdictAuthority;
+  assert.match(partial, /unproven/u);
+  assert.doesNotMatch(partial, /kept PARTIAL/u, 'a contradicted side effect is no longer PARTIAL');
+  assert.match(fail, /FAIL-candidate/u);
+  assert.match(fail, /compaction[^.]*after the rejection/u);
+  assert.match(fail, /compaction_observations/u, 'the FAIL carries its compaction evidence');
+  assert.doesNotMatch(fail, /Not emitted/u);
+  assert.match(notes, /FAIL-candidate/u);
+
+  // The side-effect window the scenario uses is the one the prose names (point 2).
   const fired = await fireRrc1();
-  const seconds = `${fired.evidence.side_effect.window_ms / 1000}s after the turn ends`;
+  const windowMs = fired.evidence.side_effect.window_ms;
+  const seconds = `${windowMs / 1000}s after the turn ends`;
+  const timeoutPlusMargin = `180s compaction timeout plus a ${(windowMs - 180000) / 1000}s scheduling margin`;
   for (const [name, text] of Object.entries({ pass, notes })) {
     assert.ok(text.includes(seconds), `${name} names the ${seconds} window`);
+    assert.ok(text.includes(timeoutPlusMargin), `${name} names the ${timeoutPlusMargin}`);
     assert.match(text, /OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS may lengthen that window, never shorten it/u, `${name} names the window override`);
+    assert.match(text, /bounded/u, `${name} keeps the negative claim bounded by its window`);
     assert.match(text, /no compaction side effect/iu, `${name} requires no compaction side effect`);
   }
-  // The manifest's timeout covers the scenario's longest default run.
-  assert.ok(manifest.timeoutSeconds * 1000 >= 60000 + fired.evidence.side_effect.window_ms + 5000);
+  // The manifest's run budget covers the scenario's default maxDuration, which covers
+  // the turn budget, the window and the final read.
+  const maxDuration = Number(/^(\d+)s$/u.exec(fired.options.scenarios.r_rc_1_threshold_reject.maxDuration)?.[1]);
+  assert.ok(maxDuration * 1000 >= 60000 + windowMs + 5000, `maxDuration ${maxDuration}s`);
+  assert.ok(manifest.timeoutSeconds >= maxDuration, `timeoutSeconds ${manifest.timeoutSeconds} covers maxDuration ${maxDuration}s`);
 });

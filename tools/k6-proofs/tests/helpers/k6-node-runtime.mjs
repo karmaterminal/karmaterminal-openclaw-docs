@@ -36,7 +36,8 @@ function k6LogLine(level, args) {
  * @param {string} options.scenarioPath absolute path of the scenario under test
  * @param {Record<string, string>} options.env the k6 __ENV the scenario sees
  * @param {(frame: object) => object[]} options.gateway replies for each frame the scenario sends
- * @returns {Promise<{log: string, frames: object[], checks: object[], metrics: object[]}>}
+ * @returns {Promise<{log: string, frames: object[], checks: object[], metrics: object[], options: object | undefined}>}
+ *   options is the scenario's exported k6 options as this __ENV resolved them.
  */
 export async function runK6Scenario({ scenarioPath, env, gateway }) {
   registerK6Modules();
@@ -44,6 +45,7 @@ export async function runK6Scenario({ scenarioPath, env, gateway }) {
   const checks = [];
   const metrics = [];
   const lines = [];
+  let options;
   globalThis.__ENV = { ...env };
   globalThis.__VU = 1;
   globalThis.__ITER = 0;
@@ -97,10 +99,11 @@ export async function runK6Scenario({ scenarioPath, env, gateway }) {
   try {
     runs += 1;
     const scenario = await import(`${pathToFileURL(scenarioPath).href}?k6-node-run=${runs}`);
+    options = scenario.options;
     scenario.default();
   } finally {
     Object.assign(console, original);
     delete globalThis.__k6NodeRuntime;
   }
-  return { log: `${lines.join('\n')}\n`, frames, checks, metrics };
+  return { log: `${lines.join('\n')}\n`, frames, checks, metrics, options };
 }

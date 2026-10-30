@@ -125,6 +125,8 @@ const COMPACTION_MARKER = Object.freeze({
  *   20-row read no longer reaches back to the toolResult).
  * ackRunId / lifecycleEndRunId: the runId the sessions.send ack and the lifecycle
  *   end carry (null: none). ackLast: the turn's events arrive before the ack.
+ * transcriptEvents: false writes the turn's rows to the transcript without a
+ *   session.message event for them (only lifecycle events reach the socket).
  */
 function scriptedGateway({
   receipt = RECEIPTS.measured,
@@ -142,6 +144,7 @@ function scriptedGateway({
   ackRunId = RUN_ID,
   lifecycleEndRunId = RUN_ID,
   ackLast = false,
+  transcriptEvents = true,
 } = {}) {
   const state = { sessionKey: null, transcript: [...baseline], sent: false, turnDone: false, readsAfterTurn: 0 };
   const lifecycle = (phase, sessionKey = state.sessionKey, runId = RUN_ID) => event('agent', { ...(runId ? { runId } : {}), stream: 'lifecycle', ts: 1, sessionKey, agentId: 'main', data: { phase } });
@@ -151,6 +154,7 @@ function scriptedGateway({
   };
   const append = (message) => {
     state.transcript.push(message);
+    if (!transcriptEvents) return null;
     return event('session.message', { sessionKey: state.sessionKey, agentId: 'main', message: { ...message, __openclaw: { ...(message.__openclaw || {}), runId: RUN_ID } } });
   };
   const refuse = (frame) => ({ type: 'res', id: frame.id, ok: false, error: { code: 'UNAVAILABLE', message: 'transcript read unavailable' } });
@@ -214,7 +218,8 @@ function scriptedGateway({
           if (compaction === 'stream' || compaction === 'both') replies.push(compactionEvent('start'), compactionEvent('end'));
           if (compaction === 'transcript' || compaction === 'both') state.transcript.push(COMPACTION_MARKER);
         }
-        return ackLast ? [...replies, ack] : [ack, ...replies];
+        const turn = replies.filter(Boolean);
+        return ackLast ? [...turn, ack] : [ack, ...turn];
       }
       default:
         return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `unknown method: ${frame.method}` } }];
@@ -467,6 +472,17 @@ test('turn end: an end that arrives before the ack counts once the ack names its
   const noAckRunId = await fireRrc1({ ackRunId: null });
   assertPass(noAckRunId);
   assert.equal(noAckRunId.evidence.side_effect.turn_end_source, 'transcript-reply');
+});
+
+test('turn end: a held end matched at the ack also fetches the receipt when no transcript event prompted it', async () => {
+  // Second independent review of 27afed10: the whole run, end included, arrives
+  // before the ack and no session.message names a row, so only the matched end
+  // can prompt the transcript read.
+  const fired = await fireRrc1({ replyRow: false, ackLast: true, transcriptEvents: false });
+  assertPass(fired);
+  assert.equal(fired.evidence.side_effect.turn_end_source, 'lifecycle-end');
+  // The same run with the ack first, for comparison.
+  assertPass(await fireRrc1({ replyRow: false, transcriptEvents: false }));
 });
 
 test('the side-effect window can be lengthened, never shortened', async () => {

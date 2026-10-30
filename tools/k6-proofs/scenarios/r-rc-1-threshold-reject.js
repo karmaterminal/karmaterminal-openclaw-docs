@@ -16,8 +16,10 @@
  * transcript compaction row sessions.get returns, written when the compaction
  * commits (no counter is readable, and the queued request_compaction path
  * emits no compaction event). So: the transcript is read before dispatch, the
- * turn has to end (lifecycle end for this session, or a reply row after the
- * toolResult), and SIDE_EFFECT_WINDOW_MS later it is read again. A compaction
+ * turn has to end (lifecycle end for this session's acknowledged send run, or
+ * a reply row after the toolResult), and SIDE_EFFECT_WINDOW_MS later it is read
+ * again; that read must still hold the toolResult, so it covers everything
+ * after it. A compaction
  * row new since the baseline, or a compaction signal on the subscribed stream
  * at any point after dispatch, makes no_compaction_side_effect false. A window
  * that does not complete leaves it null (unproven), which is not PASS.
@@ -38,6 +40,8 @@ import {
   findRequestCompactionReceipt,
   hasEffectiveTool,
   newCompactionMarkerCount,
+  requestCompactionResultIndex,
+  RRC1_MIN_SIDE_EFFECT_WINDOW_MS,
   rrc1RejectionFacts,
 } from '../lib/request-compaction-receipt.js';
 
@@ -47,7 +51,7 @@ import {
 // default suits a one-turn disposable session; OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS
 // may lengthen it (up to 300s), never shorten it. The evidence records the
 // window used.
-const DEFAULT_SIDE_EFFECT_WINDOW_MS = 30000;
+const DEFAULT_SIDE_EFFECT_WINDOW_MS = RRC1_MIN_SIDE_EFFECT_WINDOW_MS;
 const MAX_SIDE_EFFECT_WINDOW_MS = 300000;
 const requestedWindowMs = Number(__ENV.OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS);
 const SIDE_EFFECT_WINDOW_MS = Number.isFinite(requestedWindowMs) && requestedWindowMs > DEFAULT_SIDE_EFFECT_WINDOW_MS
@@ -165,6 +169,8 @@ export default function () {
   };
   const sideEffect = evidence.side_effect;
   let baselineMessages = [];
+  // Why the final read did not count, for unproven_reason.
+  let finalReadProblem = null;
 
   const started = Date.now();
 
@@ -177,6 +183,8 @@ export default function () {
     let watchingSideEffect = false;
     let windowArmed = false;
     let cueReadPending = false;
+    // Lifecycle ends for this session that arrived before the send ack named its run.
+    const heldLifecycleEndRunIds = new Set();
     let finished = false;
 
     function finish() {
@@ -236,13 +244,9 @@ export default function () {
     // The turn has replied once an assistant row with no further tool call
     // follows the nonce-bound toolResult.
     function transcriptShowsReplyAfterReceipt(messages) {
-      const items = Array.isArray(messages) ? messages : [];
-      const resultIndex = items.findIndex((message) => {
-        const result = classifyRequestCompactionReceipt(message);
-        return result.kind !== 'unrelated' && evidence.tool_call_id && result.toolCallId === evidence.tool_call_id;
-      });
+      const resultIndex = requestCompactionResultIndex(messages, evidence.tool_call_id);
       if (resultIndex < 0) return false;
-      return items.slice(resultIndex + 1).some((message) =>
+      return messages.slice(resultIndex + 1).some((message) =>
         String(message?.role || '').toLowerCase() === 'assistant' &&
         !(Array.isArray(message.content) && message.content.some((part) => part?.type === 'toolCall')));
     }
@@ -260,6 +264,7 @@ export default function () {
       if (!watchingSideEffect || windowArmed || !sideEffect.turn_end_observed || finished) return;
       windowArmed = true;
       socket.setTimeout(() => {
+        if (finished) return;
         sideEffect.window_elapsed = true;
         readTranscript('final');
       }, k6TimeoutMs(SIDE_EFFECT_WINDOW_MS));
@@ -321,28 +326,35 @@ export default function () {
       return false;
     }
 
-    function handleTranscriptRead(purpose, classified) {
-      const messages = classified.ok ? classified.payload?.messages : null;
+    // answered: the response is not a refusal. RequestTracker reads ok as !error,
+    // so a bare { ok: false } is a refusal here too.
+    function handleTranscriptRead(purpose, classified, answered) {
+      const messages = answered && Array.isArray(classified.payload?.messages) ? classified.payload.messages : null;
       if (purpose === 'baseline') {
-        if (classified.ok) {
-          baselineMessages = Array.isArray(messages) ? messages : [];
+        if (messages) {
+          baselineMessages = messages;
           sideEffect.baseline_read = true;
           sideEffect.baseline_compaction_markers = newCompactionMarkerCount([], baselineMessages);
         } else {
-          console.error(`✗ baseline sessions.get rejected: ${JSON.stringify(classified.error)}`);
+          console.error(`✗ baseline sessions.get gave no transcript: ${JSON.stringify(classified.error || classified.payload)}`);
         }
         dispatchRequestCompaction();
         return;
       }
       if (purpose === 'cue') cueReadPending = false;
-      if (purpose === 'final') sideEffect.final_read = classified.ok;
-      if (!classified.ok) {
+      if (!answered) {
         console.error(`✗ sessions.get (${purpose}) rejected: ${JSON.stringify(classified.error)}`);
+        if (purpose === 'final') finalReadProblem = 'was refused';
         // A rejected cue read loses nothing: the final read still decides.
         if (purpose !== 'cue') finish();
         return;
       }
       checkTranscriptForCompaction(messages);
+      if (purpose === 'final') {
+        // Only a read that still holds the toolResult covers what came after it.
+        sideEffect.final_read = requestCompactionResultIndex(messages, evidence.tool_call_id) >= 0;
+        if (!sideEffect.final_read) finalReadProblem = 'did not reach back to the toolResult';
+      }
       if (finished || purpose === 'cue') return;
       if (purpose === 'receipt') {
         const receiptResult = findRequestCompactionReceipt(messages, { rowNonce });
@@ -363,7 +375,7 @@ export default function () {
       }
       if (purpose === 'final') {
         // Without the baseline there is nothing to compare the final read with.
-        if (evidence.no_compaction_side_effect !== false && sideEffect.baseline_read) {
+        if (evidence.no_compaction_side_effect !== false && sideEffect.baseline_read && sideEffect.final_read) {
           evidence.no_compaction_side_effect = true;
           console.log(`✓ no compaction side effect: none on the stream or in the transcript ${SIDE_EFFECT_WINDOW_MS}ms after the turn ended`);
         }
@@ -388,6 +400,7 @@ export default function () {
       try {
         const msg = JSON.parse(raw);
         const readPurpose = msg?.type === 'res' && msg.id ? readPurposes[msg.id] : undefined;
+        const answered = msg?.type === 'res' && msg.ok !== false && !msg.error;
         if (readPurpose) delete readPurposes[msg.id];
         const classified = tracker.classify(msg);
         evidence.redacted_events.push({
@@ -440,7 +453,11 @@ export default function () {
             evidence.dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
-            if (typeof classified.payload?.runId === 'string') evidence.send_run_id = classified.payload.runId;
+            if (typeof classified.payload?.runId === 'string' && classified.payload.runId) {
+              evidence.send_run_id = classified.payload.runId;
+              if (heldLifecycleEndRunIds.has(evidence.send_run_id)) markTurnEnded('lifecycle-end');
+            }
+            heldLifecycleEndRunIds.clear();
             console.log('✓ sessions.send accepted — awaiting authoritative request_compaction tool result');
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
@@ -449,7 +466,7 @@ export default function () {
         }
 
         if (classified.kind === 'response' && classified.method === 'sessions.get' && readPurpose) {
-          handleTranscriptRead(readPurpose, classified);
+          handleTranscriptRead(readPurpose, classified, answered);
         }
 
         if (classified.kind === 'event' && dispatched) {
@@ -457,13 +474,18 @@ export default function () {
           const signal = compactionStreamSignal(data, sessionKey);
           if (signal) recordStreamCompaction(signal.source);
 
-          // Only this session's own run ends the turn: a lifecycle end that
-          // names no session, or another run, would open the window early.
-          const runId = typeof data.runId === 'string' ? data.runId : null;
-          if (data.stream === 'lifecycle' && data.data?.phase === 'end' && eventNamesSession(data, sessionKey) &&
-              (!evidence.send_run_id || !runId || runId === evidence.send_run_id)) {
-            markTurnEnded('lifecycle-end');
-            if (!evidence.history_requested) readTranscript('receipt');
+          // Only this session's acknowledged send run ends the turn: a lifecycle
+          // end that names no session, no run or another run would open the
+          // window early. One that arrives before the ack waits for the ack to
+          // name its run; with no run id in the ack the reply row decides.
+          const runId = typeof data.runId === 'string' && data.runId ? data.runId : null;
+          if (data.stream === 'lifecycle' && data.data?.phase === 'end' && eventNamesSession(data, sessionKey) && runId) {
+            if (evidence.send_run_id && runId === evidence.send_run_id) {
+              markTurnEnded('lifecycle-end');
+              if (!evidence.history_requested) readTranscript('receipt');
+            } else if (!evidence.dispatch_accepted) {
+              heldLifecycleEndRunIds.add(runId);
+            }
           }
 
           // A transcript update without a message (sessions.changed, phase
@@ -519,7 +541,7 @@ export default function () {
           ? 'the turn did not end before the socket closed'
           : !sideEffect.window_elapsed
             ? `the ${SIDE_EFFECT_WINDOW_MS}ms window after the turn did not elapse before the socket closed`
-            : 'the final transcript read did not answer';
+            : `the final transcript read ${finalReadProblem || 'did not answer'}`;
   }
   const classified = classifyRrc1Evidence(evidence);
   evidence.verdict = classified.verdict;

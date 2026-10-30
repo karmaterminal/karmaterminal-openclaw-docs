@@ -428,7 +428,7 @@ test('side effect unproven: a refused baseline read or a refused final read is n
   // The rejection is still recorded, so the fold can name it.
   assert.equal(noBaseline.evidence.guard, 'context_threshold');
   const noFinal = await fireRrc1({ failFinalRead: true });
-  assertNotPass(noFinal, /unproven: the final transcript read did not answer/u);
+  assertNotPass(noFinal, /unproven: the final transcript read was refused/u);
   assert.equal(noFinal.evidence.side_effect.window_elapsed, true);
   assert.equal(noFinal.evidence.side_effect.final_read, false);
   assert.equal(noFinal.evidence.no_compaction_side_effect, null);

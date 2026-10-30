@@ -231,6 +231,22 @@ export function isLiveContextGuardRejection(result) {
 // and a window has passed, and it is bounded by that window.
 // ---------------------------------------------------------------------------
 
+// The contract's side-effect window (manifests/r-rc-1.json verdictAuthority.pass):
+// 30s after the turn ends, which may be lengthened, never shortened.
+export const RRC1_MIN_SIDE_EFFECT_WINDOW_MS = 30000;
+
+/**
+ * Index of the toolResult for `toolCallId` in a transcript read, or -1. A read
+ * that still holds it covers everything that came after it.
+ */
+export function requestCompactionResultIndex(messages, toolCallId) {
+  if (!Array.isArray(messages) || typeof toolCallId !== 'string' || !toolCallId) return -1;
+  return messages.findIndex((message) => {
+    const result = classifyRequestCompactionReceipt(message);
+    return result.kind !== 'unrelated' && result.toolCallId === toolCallId;
+  });
+}
+
 export function isCompactionMarker(message) {
   return isRecord(message) && isRecord(message.__openclaw) && message.__openclaw.kind === 'compaction';
 }
@@ -329,7 +345,7 @@ export function classifyRrc1Evidence(evidence) {
   const windowComplete = window.baseline_read === true && window.turn_end_observed === true &&
     window.window_elapsed === true && window.final_read === true &&
     window.new_compaction_markers === 0 && window.stream_compaction_signals === 0 &&
-    finiteNumber(window.window_ms) !== null && window.window_ms > 0;
+    finiteNumber(window.window_ms) !== null && window.window_ms >= RRC1_MIN_SIDE_EFFECT_WINDOW_MS;
   if (!windowComplete) {
     return partial('no compaction side effect is claimed, but its baseline read, turn end, window or final read is missing or saw a compaction');
   }

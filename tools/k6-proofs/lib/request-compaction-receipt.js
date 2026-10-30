@@ -126,7 +126,8 @@ export function classifyRequestCompactionReceipt(eventPayload) {
 // rejection, either guard=context_threshold measured below the floor (usage and
 // threshold both numbers, usage < threshold, no inventory-only wording) or
 // guard=context_unmeasured with a live cause. An unmeasured rejection is never
-// measured proof, and inventory-only in either form is non-PASS.
+// measured proof, and inventory-only in either form is non-PASS: the wording, or
+// a cause of inventory_only whatever the guard (🌊's review of docs 3e2c83c7).
 //
 // Receipt shapes at karmaterminal/openclaw 542d1cac46 (#1506),
 // src/agents/tools/request-compaction-tool.ts: context_unmeasured carries a cause
@@ -140,7 +141,8 @@ export function classifyRequestCompactionReceipt(eventPayload) {
 // runner's origin wiring regressed.
 export const LIVE_UNMEASURED_CAUSES = Object.freeze(['no_fresh_usage', 'unknown_context_window']);
 
-const INVENTORY_ONLY_WORDING = /inventory[-_ ]only/i;
+// Inventory-only in a receipt's reason or its cause.
+const INVENTORY_ONLY = /inventory[-_ ]only/i;
 
 function finiteNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -160,7 +162,7 @@ export function rrc1RejectionFacts(receipt) {
     contextUsage: finiteNumber(r.contextUsage),
     threshold: finiteNumber(r.threshold),
     usageFieldsPresent: 'contextUsage' in r || 'threshold' in r,
-    inventoryOnlyWording: typeof r.reason === 'string' && INVENTORY_ONLY_WORDING.test(r.reason),
+    inventoryOnlyWording: typeof r.reason === 'string' && INVENTORY_ONLY.test(r.reason),
   };
 }
 
@@ -176,6 +178,11 @@ export function rrc1RejectionVerdict(facts) {
   if (f.status !== 'rejected') return fail(`request_compaction did not return a rejection (status ${f.status ?? 'missing'})`);
   if (f.inventoryOnlyWording === true) return fail(`guard ${f.guard ?? 'missing'} answered with inventory-only wording on the live seat`);
   if (f.inventoryOnlyWording !== false) return fail('the rejection wording was not checked for inventory-only');
+  // Before any guard branch: a runner that names inventory_only has lost its live
+  // usage wiring, whatever guard and numbers come with it.
+  if (typeof f.cause === 'string' && INVENTORY_ONLY.test(f.cause)) {
+    return fail(`guard ${f.guard ?? 'missing'} named cause ${f.cause} on the live seat`);
+  }
   if (f.guard === 'context_threshold') {
     if (finiteNumber(f.contextUsage) === null || finiteNumber(f.threshold) === null) {
       return fail('context_threshold without a measured contextUsage and threshold');
@@ -186,7 +193,6 @@ export function rrc1RejectionVerdict(facts) {
     return { pass: true, shape: 'measured_below_threshold', reason: null };
   }
   if (f.guard === 'context_unmeasured') {
-    if (f.cause === 'inventory_only') return fail('context_unmeasured cause inventory_only on the live seat');
     if (!LIVE_UNMEASURED_CAUSES.includes(f.cause)) return fail(`context_unmeasured without a live cause (cause ${f.cause ?? 'missing'})`);
     if (f.usageFieldsPresent === true) return fail('context_unmeasured carries usage numbers, which contradict it');
     if (f.usageFieldsPresent !== false) return fail('the unmeasured rejection was not checked for usage numbers');
@@ -206,7 +212,7 @@ export function classifyLiveContextGuardRejection(result) {
 /**
  * A rejection receipt that meets the R-RC-1 PASS rule: context_threshold
  * measured below the floor, or context_unmeasured with a live cause, and no
- * inventory-only wording in either.
+ * inventory-only wording or inventory_only cause in either.
  */
 export function isLiveContextGuardRejection(result) {
   return classifyLiveContextGuardRejection(result).pass;
@@ -231,9 +237,30 @@ export function isLiveContextGuardRejection(result) {
 // and a window has passed, and it is bounded by that window.
 // ---------------------------------------------------------------------------
 
-// The contract's side-effect window (manifests/r-rc-1.json verdictAuthority.pass):
-// 30s after the turn ends, which may be lengthened, never shortened.
-export const RRC1_MIN_SIDE_EFFECT_WINDOW_MS = 30000;
+// The contract's side-effect window (manifests/r-rc-1.json verdictAuthority.pass),
+// per 🌊's review of docs 3e2c83c7: the product's compaction timeout plus a
+// scheduling margin after the turn ends, as the default and the minimum. At
+// openclaw 542d1cac46 a queued (volitional) compaction starts once the turn
+// releases the session lane (src/agents/tools/request-compaction-tool.ts:305-306),
+// and its summary call runs under EMBEDDED_COMPACTION_TIMEOUT_MS = 180_000
+// (src/agents/embedded-agent-runner/compaction-safety-timeout.ts:9). A summary
+// that times out still commits, with a deterministic summary
+// (compaction-session-execution.ts:570-577, #164220), so the transcript row can
+// land just after the 180s.
+export const RRC1_COMPACTION_TIMEOUT_MS = 180000;
+// The margin covers what runs outside that timeout: the lane handoff after the
+// turn's lifecycle end, the compaction session's setup before its watchdog arms,
+// and the deterministic fallback and transcript commit after it fires. All of it
+// is local work with no model call, so 60s is headroom for a loaded seat, not a
+// measured bound. The window stays a bounded observation, not a categorical
+// proof: the 180s is a silence timeout that summary progress re-arms
+// (compaction-session-execution.ts:248-252) up to COMPACTION_CEILING_WINDOWS = 10
+// (compaction-safety-timeout.ts:13), and agents.defaults.compaction.timeoutSeconds
+// changes it (:15-21). A compaction still streaming its summary, or one on a seat
+// with a longer timeout, can commit after the window;
+// OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS lengthens the window for that seat.
+export const RRC1_SIDE_EFFECT_MARGIN_MS = 60000;
+export const RRC1_MIN_SIDE_EFFECT_WINDOW_MS = RRC1_COMPACTION_TIMEOUT_MS + RRC1_SIDE_EFFECT_MARGIN_MS;
 
 /**
  * Index of the toolResult for `toolCallId` in a transcript read, or -1. A read
@@ -253,20 +280,25 @@ export function isCompactionMarker(message) {
 
 /**
  * Compaction rows in `messages` that are not in `baselineMessages`, matched by
- * their record id. A row without an id never matches, so it always counts.
+ * their record id, as { index, id } (id null when the row has none). A row
+ * without an id never matches, so it always counts.
  */
-export function newCompactionMarkerCount(baselineMessages, messages) {
+export function newCompactionRows(baselineMessages, messages) {
   const baselineIds = new Set();
   for (const message of Array.isArray(baselineMessages) ? baselineMessages : []) {
     if (isCompactionMarker(message) && typeof message.__openclaw.id === 'string') baselineIds.add(message.__openclaw.id);
   }
-  let count = 0;
-  for (const message of Array.isArray(messages) ? messages : []) {
-    if (!isCompactionMarker(message)) continue;
-    const id = message.__openclaw.id;
-    if (!(typeof id === 'string' && baselineIds.has(id))) count += 1;
-  }
-  return count;
+  const rows = [];
+  (Array.isArray(messages) ? messages : []).forEach((message, index) => {
+    if (!isCompactionMarker(message)) return;
+    const id = typeof message.__openclaw.id === 'string' ? message.__openclaw.id : null;
+    if (!(id !== null && baselineIds.has(id))) rows.push({ index, id });
+  });
+  return rows;
+}
+
+export function newCompactionMarkerCount(baselineMessages, messages) {
+  return newCompactionRows(baselineMessages, messages).length;
 }
 
 function sessionKeyTail(key) {
@@ -303,13 +335,37 @@ export function compactionStreamSignal(eventPayload, sessionKey) {
 }
 
 /**
+ * One compaction the scenario recorded in side_effect.compaction_observations
+ * that shows a compaction in this session after the rejection: a transcript row
+ * after the nonce-bound toolResult in the same sessions.get read, or a stream
+ * signal naming this session that arrived after the toolResult.
+ */
+export function rrc1CompactionShownAfterRejection(observation) {
+  if (!isRecord(observation) || observation.after_rejection !== true) return false;
+  return observation.source === 'transcript-compaction-row' || observation.session_named === true;
+}
+
+function describeCompactionEvidence(sideEffect) {
+  const sources = Array.isArray(sideEffect.stream_compaction_sources) && sideEffect.stream_compaction_sources.length > 0
+    ? ` (${sideEffect.stream_compaction_sources.join(', ')})`
+    : '';
+  const observations = Array.isArray(sideEffect.compaction_observations) ? sideEffect.compaction_observations : [];
+  return `stream signals ${sideEffect.stream_compaction_signals ?? '?'}${sources}, ` +
+    `new transcript compaction rows ${sideEffect.new_compaction_markers ?? '?'}; ` +
+    `${observations.filter(rrc1CompactionShownAfterRejection).length} shown after the rejection in this session`;
+}
+
+/**
  * The one R-RC-1 verdict, printed by the scenario's VERDICT line (the verdict
  * run-proofs.sh reads) and asserted by its tests, so the two cannot drift.
  * PASS-candidate needs every required receipt, the PASS rule above over the
- * recorded receipt facts, and no_compaction_side_effect proven true by the
- * scenario's bounded window. Anything else is PARTIAL-candidate with the first
- * missing piece named; this scenario never emits FAIL
- * (verdictAuthority.fail).
+ * recorded receipt facts, and no_compaction_side_effect proven true by a
+ * complete window of at least RRC1_MIN_SIDE_EFFECT_WINDOW_MS.
+ * FAIL-candidate (verdictAuthority.fail, the contract change in 🌊's review of
+ * docs 3e2c83c7): the same receipts and a rejection that meets the PASS rule,
+ * then a compaction shown after it in this session, which contradicts it. It
+ * outranks an incomplete window, since the run stops once it sees one.
+ * Anything else is PARTIAL-candidate with the first missing piece named.
  */
 export function classifyRrc1Evidence(evidence) {
   const e = evidence || {};
@@ -332,20 +388,31 @@ export function classifyRrc1Evidence(evidence) {
     usageFieldsPresent: e.usage_fields_present,
     inventoryOnlyWording: e.inventory_only_wording,
   });
-  if (!rejection.pass) return partial(rejection.reason);
+  const window = isRecord(e.side_effect) ? e.side_effect : {};
+  const observations = Array.isArray(window.compaction_observations) ? window.compaction_observations : null;
+  if (!rejection.pass) {
+    // Still the rule's PARTIAL, but a compaction the run saw is never silent.
+    const sawCompaction = e.no_compaction_side_effect === false || (observations?.length ?? 0) > 0;
+    return partial(sawCompaction ? `${rejection.reason}; a compaction was also observed (${describeCompactionEvidence(window)})` : rejection.reason);
+  }
   if (e.no_compaction_side_effect === false) {
-    const seen = e.side_effect || {};
-    return partial(`a compaction followed the rejection (stream signals ${seen.stream_compaction_signals ?? '?'}, new transcript compaction rows ${seen.new_compaction_markers ?? '?'})`);
+    if ((observations || []).some(rrc1CompactionShownAfterRejection)) {
+      return { verdict: 'FAIL-candidate', reason: `a compaction followed the rejection (${describeCompactionEvidence(window)})`, shape: rejection.shape };
+    }
+    return partial(`a compaction was observed but is not shown to follow the rejection in this session (${describeCompactionEvidence(window)})`);
   }
   if (e.no_compaction_side_effect !== true) {
-    return partial(`no compaction side effect is unproven: ${e.side_effect?.unproven_reason || 'the side-effect window did not complete'}`);
+    return partial(`no compaction side effect is unproven: ${window.unproven_reason || 'the side-effect window did not complete'}`);
   }
   // The claim stands only on the window that produced it.
-  const window = isRecord(e.side_effect) ? e.side_effect : {};
+  const windowMs = finiteNumber(window.window_ms);
+  if (windowMs !== null && windowMs < RRC1_MIN_SIDE_EFFECT_WINDOW_MS) {
+    return partial(`no compaction side effect is claimed, but the side-effect window ${windowMs}ms is shorter than the contract's ${RRC1_MIN_SIDE_EFFECT_WINDOW_MS}ms (the ${RRC1_COMPACTION_TIMEOUT_MS / 1000}s compaction timeout plus a ${RRC1_SIDE_EFFECT_MARGIN_MS / 1000}s scheduling margin)`);
+  }
   const windowComplete = window.baseline_read === true && window.turn_end_observed === true &&
     window.window_elapsed === true && window.final_read === true &&
     window.new_compaction_markers === 0 && window.stream_compaction_signals === 0 &&
-    finiteNumber(window.window_ms) !== null && window.window_ms >= RRC1_MIN_SIDE_EFFECT_WINDOW_MS;
+    observations !== null && observations.length === 0 && windowMs !== null;
   if (!windowComplete) {
     return partial('no compaction side effect is claimed, but its baseline read, turn end, window or final read is missing or saw a compaction');
   }

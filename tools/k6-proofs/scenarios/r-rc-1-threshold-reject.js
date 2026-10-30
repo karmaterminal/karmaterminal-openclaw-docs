@@ -9,7 +9,8 @@
  * PASS (manifests/r-rc-1.json telemetryContract.verdictAuthority.pass) needs
  * the receipt to meet the rule in lib/request-compaction-receipt.js
  * (context_threshold measured below the floor, or context_unmeasured with a
- * live cause; never inventory-only) and no compaction side effect.
+ * live cause; never inventory-only wording, never an inventory_only cause) and
+ * no compaction side effect.
  *
  * The side effect is observed, never assumed, and the claim is bounded. At
  * openclaw 542d1cac46 the one operator-visible mark of a compaction is the
@@ -19,11 +20,17 @@
  * turn has to end (lifecycle end for this session's acknowledged send run, or
  * a reply row after the toolResult), and SIDE_EFFECT_WINDOW_MS later it is read
  * again; that read must still hold the toolResult, so it covers everything
- * after it. A compaction
- * row new since the baseline, or a compaction signal on the subscribed stream
- * at any point after dispatch, makes no_compaction_side_effect false. A window
- * that does not complete leaves it null (unproven), which is not PASS.
- * classifyRrc1Evidence is the one verdict.
+ * after it. A compaction row new since the baseline, or a compaction signal on
+ * the subscribed stream at any point after dispatch, makes
+ * no_compaction_side_effect false. A window that does not complete leaves it
+ * null (unproven), which is not PASS.
+ *
+ * Each compaction seen goes into side_effect.compaction_observations, ordered
+ * against the nonce-bound toolResult where the run can show the order: a
+ * transcript row by its position in the same read, a stream signal by whether
+ * the toolResult had already arrived. One shown after a rejection that meets
+ * the PASS rule is FAIL-candidate (verdictAuthority.fail); one whose order is
+ * not shown is PARTIAL. classifyRrc1Evidence is the one verdict.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -40,19 +47,25 @@ import {
   findRequestCompactionReceipt,
   hasEffectiveTool,
   newCompactionMarkerCount,
+  newCompactionRows,
   requestCompactionResultIndex,
+  requestCompactionToolCallIdForNonce,
   RRC1_MIN_SIDE_EFFECT_WINDOW_MS,
   rrc1RejectionFacts,
 } from '../lib/request-compaction-receipt.js';
 
-// How long after the turn ends the row keeps watching for a compaction. The
-// compaction row lands only when a compaction commits, after its summary call
-// (embedded compaction safety timeout 180s at openclaw 542d1cac46). The
-// default suits a one-turn disposable session; OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS
-// may lengthen it (up to 300s), never shorten it. The evidence records the
-// window used.
+// How long after the turn ends the row keeps watching for a compaction: by
+// default and at least RRC1_MIN_SIDE_EFFECT_WINDOW_MS, the product's 180s
+// compaction timeout plus a 60s scheduling margin (the margin is justified in
+// lib/request-compaction-receipt.js). OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS may
+// lengthen it, never shorten it, up to 600s, for a seat whose
+// agents.defaults.compaction.timeoutSeconds is longer. At 600s one run (turn
+// budget, window, final read) still fits the 20-minute k6-proof.yml job. The
+// evidence records the window used.
 const DEFAULT_SIDE_EFFECT_WINDOW_MS = RRC1_MIN_SIDE_EFFECT_WINDOW_MS;
-const MAX_SIDE_EFFECT_WINDOW_MS = 300000;
+const MAX_SIDE_EFFECT_WINDOW_MS = 600000;
+// Enough for every compaction one disposable turn can show; the counts keep going.
+const MAX_COMPACTION_OBSERVATIONS = 20;
 const requestedWindowMs = Number(__ENV.OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS);
 const SIDE_EFFECT_WINDOW_MS = Number.isFinite(requestedWindowMs) && requestedWindowMs > DEFAULT_SIDE_EFFECT_WINDOW_MS
   ? Math.min(Math.floor(requestedWindowMs), MAX_SIDE_EFFECT_WINDOW_MS)
@@ -156,6 +169,10 @@ export default function () {
       new_compaction_markers: 0,
       stream_compaction_signals: 0,
       stream_compaction_sources: [],
+      // Each compaction seen after dispatch. after_rejection: true when it is
+      // shown to follow the nonce-bound toolResult, false when shown before it,
+      // null when the order is not shown.
+      compaction_observations: [],
       unproven_reason: null,
     },
     send_run_id: null,
@@ -171,6 +188,17 @@ export default function () {
   let baselineMessages = [];
   // Why the final read did not count, for unproven_reason.
   let finalReadProblem = null;
+  // toolCallIds of the request_compaction toolResult events that named this session.
+  const toolResultEventCallIds = new Set();
+  // Stream observations made before the receipt was recorded, with the
+  // toolResult events seen by then; ordered once the receipt names its call.
+  const pendingStreamOrder = [];
+
+  function addCompactionObservation(observation) {
+    if (sideEffect.compaction_observations.length >= MAX_COMPACTION_OBSERVATIONS) return false;
+    sideEffect.compaction_observations.push(observation);
+    return true;
+  }
 
   const started = Date.now();
 
@@ -229,16 +257,50 @@ export default function () {
       if (receiptRecorded) finish();
     }
 
-    function recordStreamCompaction(source) {
+    // A signal after the receipt was recorded follows the toolResult; an earlier
+    // one is ordered at the end, against the toolResult events seen before it.
+    function recordStreamCompaction(signal, data) {
       sideEffect.stream_compaction_signals += 1;
-      if (!sideEffect.stream_compaction_sources.includes(source)) sideEffect.stream_compaction_sources.push(source);
-      recordSideEffect(source);
+      if (!sideEffect.stream_compaction_sources.includes(signal.source)) sideEffect.stream_compaction_sources.push(signal.source);
+      const observation = {
+        source: signal.source,
+        phase: signal.phase,
+        record_id: typeof data.message?.__openclaw?.id === 'string' ? data.message.__openclaw.id : null,
+        session_named: eventNamesSession(data, sessionKey),
+        after_rejection: receiptRecorded ? true : null,
+      };
+      if (addCompactionObservation(observation) && !receiptRecorded) {
+        pendingStreamOrder.push({ observation, seenCallIds: [...toolResultEventCallIds] });
+      }
+      recordSideEffect(signal.source);
     }
 
-    function checkTranscriptForCompaction(messages) {
-      const fresh = newCompactionMarkerCount(baselineMessages, messages);
-      if (fresh > sideEffect.new_compaction_markers) sideEffect.new_compaction_markers = fresh;
-      if (fresh > 0) recordSideEffect(`${fresh} transcript compaction row(s) new since the baseline`);
+    // Transcript rows already observed, by record id (or by place among the id-less rows).
+    const transcriptObservations = new Map();
+
+    function checkTranscriptForCompaction(messages, purpose) {
+      const rows = newCompactionRows(baselineMessages, messages);
+      if (rows.length > sideEffect.new_compaction_markers) sideEffect.new_compaction_markers = rows.length;
+      if (rows.length === 0) return;
+      // A row after the nonce-bound toolResult in the same read follows the rejection.
+      const callId = evidence.tool_call_id || requestCompactionToolCallIdForNonce(messages, rowNonce);
+      const resultIndex = requestCompactionResultIndex(messages, callId);
+      let idless = 0;
+      for (const row of rows) {
+        const key = row.id !== null ? `id:${row.id}` : `idless:${idless++}`;
+        const afterRejection = resultIndex < 0 ? null : row.index > resultIndex;
+        const known = transcriptObservations.get(key);
+        if (known) {
+          if (known.after_rejection === null && afterRejection !== null) {
+            known.after_rejection = afterRejection;
+            known.read = purpose;
+          }
+        } else {
+          const observation = { source: 'transcript-compaction-row', record_id: row.id, read: purpose, after_rejection: afterRejection };
+          if (addCompactionObservation(observation)) transcriptObservations.set(key, observation);
+        }
+      }
+      recordSideEffect(`${rows.length} transcript compaction row(s) new since the baseline`);
     }
 
     // The turn has replied once an assistant row with no further tool call
@@ -349,7 +411,7 @@ export default function () {
         if (purpose !== 'cue') finish();
         return;
       }
-      checkTranscriptForCompaction(messages);
+      checkTranscriptForCompaction(messages, purpose);
       if (purpose === 'final') {
         // Only a read that still holds the toolResult covers what came after it.
         sideEffect.final_read = requestCompactionResultIndex(messages, evidence.tool_call_id) >= 0;
@@ -475,7 +537,7 @@ export default function () {
         if (classified.kind === 'event' && dispatched) {
           const data = classified.data || {};
           const signal = compactionStreamSignal(data, sessionKey);
-          if (signal) recordStreamCompaction(signal.source);
+          if (signal) recordStreamCompaction(signal, data);
 
           // Only this session's acknowledged send run ends the turn: a lifecycle
           // end that names no session, no run or another run would open the
@@ -505,7 +567,11 @@ export default function () {
           // Subscription events can be delayed or replayed. Never accept an
           // unbound tool result directly; use it only as a signal to fetch the
           // transcript, where the nonce-bearing tool call and toolCallId can be
-          // correlated in the same disposable session.
+          // correlated in the same disposable session, and to order the
+          // compaction signals that follow it.
+          if (receiptResult.kind !== 'unrelated' && receiptResult.toolCallId && eventNamesSession(data, sessionKey)) {
+            toolResultEventCallIds.add(receiptResult.toolCallId);
+          }
           if (receiptResult.kind !== 'unrelated' && !evidence.history_requested) {
             readTranscript('receipt');
           }
@@ -534,6 +600,15 @@ export default function () {
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
+
+  // Order the stream signals that came before the receipt was recorded: after
+  // the toolResult if its event (for the nonce-bound call) had arrived, before
+  // it if that event came later, otherwise not shown.
+  for (const { observation, seenCallIds } of pendingStreamOrder) {
+    if (!evidence.tool_call_id) continue;
+    if (seenCallIds.includes(evidence.tool_call_id)) observation.after_rejection = true;
+    else if (toolResultEventCallIds.has(evidence.tool_call_id)) observation.after_rejection = false;
+  }
 
   if (evidence.no_compaction_side_effect === null) {
     sideEffect.unproven_reason = !evidence.rejection_meets_contract

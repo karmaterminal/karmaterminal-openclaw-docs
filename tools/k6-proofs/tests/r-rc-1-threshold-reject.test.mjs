@@ -119,6 +119,12 @@ const COMPACTION_MARKER = Object.freeze({
  * baseline: transcript rows already in the session before dispatch.
  * failBaseline / failFinalRead: the read before dispatch, or every read after the
  *   first post-turn read, is refused.
+ * finalRead: what every read after the first post-turn read returns instead of the
+ *   transcript: 'ok-false-no-error' ({ ok: false } with no error), 'empty-payload',
+ *   'empty-messages', or 'truncated' (a compaction row and 20 rows after it, so the
+ *   20-row read no longer reaches back to the toolResult).
+ * ackRunId / lifecycleEndRunId: the runId the sessions.send ack and the lifecycle
+ *   end carry (null: none). ackLast: the turn's events arrive before the ack.
  */
 function scriptedGateway({
   receipt = RECEIPTS.measured,
@@ -132,9 +138,13 @@ function scriptedGateway({
   failBaseline = false,
   failFinalRead = false,
   toolCallAfterResult = false,
+  finalRead = null,
+  ackRunId = RUN_ID,
+  lifecycleEndRunId = RUN_ID,
+  ackLast = false,
 } = {}) {
   const state = { sessionKey: null, transcript: [...baseline], sent: false, turnDone: false, readsAfterTurn: 0 };
-  const lifecycle = (phase, sessionKey = state.sessionKey) => event('agent', { runId: RUN_ID, stream: 'lifecycle', ts: 1, sessionKey, agentId: 'main', data: { phase } });
+  const lifecycle = (phase, sessionKey = state.sessionKey, runId = RUN_ID) => event('agent', { ...(runId ? { runId } : {}), stream: 'lifecycle', ts: 1, sessionKey, agentId: 'main', data: { phase } });
   const compactionEvent = (phase) => {
     const sessionKey = compactionEventSessionKey === undefined ? state.sessionKey : compactionEventSessionKey;
     return event('agent', { runId: RUN_ID, stream: 'compaction', ts: 2, ...(sessionKey ? { sessionKey } : {}), agentId: 'main', data: { phase, itemId: 'diag-0001' } });
@@ -163,6 +173,15 @@ function scriptedGateway({
           state.readsAfterTurn += 1;
           if (failFinalRead && state.readsAfterTurn > 1) return [refuse(frame)];
           if (compaction === 'late-transcript' && state.readsAfterTurn === 2) state.transcript.push(COMPACTION_MARKER);
+          if (finalRead && state.readsAfterTurn > 1) {
+            if (finalRead === 'ok-false-no-error') return [{ type: 'res', id: frame.id, ok: false }];
+            if (finalRead === 'empty-payload') return [ok({})];
+            if (finalRead === 'empty-messages') return [ok({ messages: [] })];
+            if (finalRead === 'truncated' && state.readsAfterTurn === 2) {
+              state.transcript.push(COMPACTION_MARKER);
+              for (let row = 0; row < 20; row += 1) state.transcript.push({ role: 'assistant', content: [{ type: 'text', text: `filler ${row}` }], stopReason: 'stop' });
+            }
+          }
         }
         const replies = [ok({ messages: state.transcript.slice(-(frame.params.limit || 200)) })];
         if (compaction === 'cue' && state.turnDone && state.readsAfterTurn === 1) {
@@ -178,8 +197,8 @@ function scriptedGateway({
         const reason = JSON.parse(reasonJson);
         const nonce = /nonce (\S+?):/u.exec(reason)?.[1];
         assert.ok(nonce, 'the request_compaction reason carries the row nonce');
+        const ack = ok({ ...(ackRunId ? { runId: ackRunId } : {}), status: 'started' });
         const replies = [
-          ok({ runId: RUN_ID, status: 'started' }),
           lifecycle('start'),
           append({ role: 'user', content: [{ type: 'text', text: frame.params.message }] }),
           append({ role: 'assistant', content: [{ type: 'toolCall', id: 'call_rc1', name: 'request_compaction', arguments: { reason } }], stopReason: 'toolUse' }),
@@ -189,12 +208,13 @@ function scriptedGateway({
           replies.push(append({ role: 'assistant', content: [{ type: 'text', text: 'checking' }, { type: 'toolCall', id: 'call_other', name: 'session_status', arguments: {} }], stopReason: 'toolUse' }));
         }
         if (replyRow) replies.push(append({ role: 'assistant', content: [{ type: 'text', text: `RC1-RESULT-OBSERVED ${nonce}` }], stopReason: 'stop' }));
-        if (lifecycleEnd) replies.push(lifecycle('end', lifecycleEndSessionKey ?? state.sessionKey));
-        if (!replyRow && !lifecycleEnd) return replies;
-        state.turnDone = true;
-        if (compaction === 'stream' || compaction === 'both') replies.push(compactionEvent('start'), compactionEvent('end'));
-        if (compaction === 'transcript' || compaction === 'both') state.transcript.push(COMPACTION_MARKER);
-        return replies;
+        if (lifecycleEnd) replies.push(lifecycle('end', lifecycleEndSessionKey ?? state.sessionKey, lifecycleEndRunId));
+        if (replyRow || lifecycleEnd) {
+          state.turnDone = true;
+          if (compaction === 'stream' || compaction === 'both') replies.push(compactionEvent('start'), compactionEvent('end'));
+          if (compaction === 'transcript' || compaction === 'both') state.transcript.push(COMPACTION_MARKER);
+        }
+        return ackLast ? [...replies, ack] : [ack, ...replies];
       }
       default:
         return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `unknown method: ${frame.method}` } }];
@@ -412,6 +432,41 @@ test('side effect unproven: a refused baseline read or a refused final read is n
   assert.equal(noFinal.evidence.side_effect.window_elapsed, true);
   assert.equal(noFinal.evidence.side_effect.final_read, false);
   assert.equal(noFinal.evidence.no_compaction_side_effect, null);
+});
+
+// Independent review of 85a197cf: two ways to PASS without the observation.
+
+test('side effect unproven: a final read that does not show the transcript back to the toolResult is not PASS', async () => {
+  for (const finalRead of ['ok-false-no-error', 'empty-payload', 'empty-messages', 'truncated']) {
+    const fired = await fireRrc1({ finalRead });
+    assertNotPass(fired, /unproven: the final transcript read/u);
+    assert.equal(fired.evidence.side_effect.final_read, false, finalRead);
+    assert.equal(fired.evidence.no_compaction_side_effect, null, finalRead);
+  }
+});
+
+test('turn end: only a lifecycle end whose runId is the acknowledged send run opens the window', async () => {
+  // The real turn never replies and never ends; only a stray lifecycle end arrives.
+  const noRunIdOnEnd = await fireRrc1({ replyRow: false, lifecycleEndRunId: null });
+  assertNotPass(noRunIdOnEnd, /unproven: the turn did not end/u);
+  assert.equal(noRunIdOnEnd.evidence.side_effect.turn_end_observed, false);
+  const noRunIdOnAck = await fireRrc1({ replyRow: false, ackRunId: null, lifecycleEndRunId: 'run-other' });
+  assertNotPass(noRunIdOnAck, /unproven: the turn did not end/u);
+  const neither = await fireRrc1({ replyRow: false, ackRunId: null, lifecycleEndRunId: null });
+  assertNotPass(neither, /unproven: the turn did not end/u);
+  const otherRun = await fireRrc1({ replyRow: false, lifecycleEndRunId: 'run-other' });
+  assertNotPass(otherRun, /unproven: the turn did not end/u);
+});
+
+test('turn end: an end that arrives before the ack counts once the ack names its run; without a run id the reply row decides', async () => {
+  const early = await fireRrc1({ replyRow: false, ackLast: true });
+  assertPass(early);
+  assert.equal(early.evidence.side_effect.turn_end_source, 'lifecycle-end');
+  const earlyOther = await fireRrc1({ replyRow: false, ackLast: true, lifecycleEndRunId: 'run-other' });
+  assertNotPass(earlyOther, /unproven: the turn did not end/u);
+  const noAckRunId = await fireRrc1({ ackRunId: null });
+  assertPass(noAckRunId);
+  assert.equal(noAckRunId.evidence.side_effect.turn_end_source, 'transcript-reply');
 });
 
 test('the side-effect window can be lengthened, never shortened', async () => {

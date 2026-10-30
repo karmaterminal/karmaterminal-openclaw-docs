@@ -226,6 +226,10 @@ test('classifyRrc1Evidence: facts that were not recorded fail closed', () => {
   const sawOne = rrc1PassEvidence();
   sawOne.side_effect.new_compaction_markers = 1;
   assert.equal(classifyRrc1Evidence(sawOne).verdict, 'PARTIAL-candidate');
+  // The contract's window is at least 30s; a recomputed verdict cannot accept less.
+  const shortWindow = rrc1PassEvidence();
+  shortWindow.side_effect.window_ms = 1000;
+  assert.equal(classifyRrc1Evidence(shortWindow).verdict, 'PARTIAL-candidate');
 });
 
 test('newCompactionMarkerCount counts compaction rows not in the baseline; an id-less row always counts', () => {

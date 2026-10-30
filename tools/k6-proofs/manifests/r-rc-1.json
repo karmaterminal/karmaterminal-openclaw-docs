@@ -197,7 +197,7 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "The nonce-bound request_compaction toolResult returns a structured context_threshold rejection. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "pass": "The nonce-bound request_compaction toolResult returns a structured rejection with no compaction side effect: either guard=context_threshold (measured below the floor) or guard=context_unmeasured with a live cause (no_fresh_usage | unknown_context_window). An unmeasured rejection never counts as measured below-threshold proof. guard=context_threshold with inventory-only wording, or any inventory_only cause on the live seat, is non-PASS. Behavioral only; the trace receipts decide review completeness, not the verdict.",
       "partial": "Registration, invocation, or the structured rejection is missing. A missing trace keeps the row review-pending without changing its class.",
       "fail": "Not emitted by this scenario: an incomplete run is PARTIAL-candidate. Neither trace receipt can produce or clear a FAIL."
     },
@@ -224,6 +224,6 @@
       "tool-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult context_threshold rejection. Assistant prose cannot pass the row. The verdict needs no Tempo trace, but review completeness does (#600): tempo-trace-json and tool-trace-correlation stay pending until the collector attributes the request_compaction tool span."
+    "notes": "Live request_compaction reject row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true. Requires direct tools.effective registration, this row's nonce-bearing typed invocation, and the matching authoritative role=toolResult rejection: guard=context_threshold (measured) or guard=context_unmeasured with its live cause, and no compaction side effect. The folded evidence names the guard and the cause. Inventory-only on the live seat is non-PASS. Assistant prose cannot pass the row. The verdict needs no Tempo trace, but review completeness does (#600): tempo-trace-json and tool-trace-correlation stay pending until the collector attributes the request_compaction tool span."
   }
 }

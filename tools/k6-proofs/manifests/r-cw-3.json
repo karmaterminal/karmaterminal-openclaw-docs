@@ -20,7 +20,8 @@
       "sessions.create",
       "sessions.send",
       "sessions.messages.subscribe",
-      "tempo-trace-review"
+      "tempo-trace-review",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cw-3-reason-telemetry.js"
@@ -28,7 +29,7 @@
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 5,
-    "reason": "k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}",
+    "reason": "k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-3"
   },
   "expectedReceipts": [

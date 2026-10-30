@@ -19,7 +19,8 @@
     "methods": [
       "sessions.create",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cw-2-immediate-wake.js"
@@ -27,7 +28,7 @@
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 0,
-    "reason": "k6-proof-R-CW-2-immediate-{{nonce}} -- on continuation wake reply exactly CW2-WOKE {{nonce}}",
+    "reason": "k6-proof-R-CW-2-immediate-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-2"
   },
   "expectedReceipts": [

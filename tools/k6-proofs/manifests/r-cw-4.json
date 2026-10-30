@@ -18,7 +18,8 @@
     "description": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
     "methods": [
       "tools.invoke",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "chat.history"
     ],
     "status": "runnable",
     "expectedFile": "r-cw-4-chain-depth.js",

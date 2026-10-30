@@ -1,10 +1,21 @@
-/** Scenario: R-CW-2 — continue_work(delaySeconds=0) immediate schedule + wake. */
+/**
+ * Scenario: R-CW-2 — continue_work(delaySeconds=0) immediate schedule + wake.
+ *
+ * Both receipts come from the session's own transcript, bound by turn order
+ * (lib/continue-work-chain.mjs): the nonce-bound call's "scheduled"
+ * toolResult with CW2-SCHEDULED in that turn, then a "[continuation:wake]"
+ * turn answering CW2-WOKE. The reason no longer carries the wake sentinel: the
+ * wake input quotes the reason, and event-stream matches credited that echo
+ * (openclaw-bootstrap#1727). Event-text sightings are diagnostics only.
+ */
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { continueWorkChain } from '../lib/continue-work-chain.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = { scenarios: { r_cw_2_immediate_wake: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '120s' } }, thresholds: { proof_failures: ['count==0'], r_cw_2_duration: ['p(95)<90000'] } };
 const failures = new Counter('proof_failures');
@@ -14,7 +25,7 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 0, idempotencyKeyPrefix: 'R-CW-2' };
 let finalEvidence = null;
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
-function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-2-immediate-{{nonce}} -- on continuation wake reply exactly CW2-WOKE {{nonce}}' }; }
+function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-2-immediate-{{nonce}}' }; }
 function safeRedact(classified) { return redactEvent(classified.payload || classified.data || {}); }
 
 export default function () {
@@ -31,10 +42,31 @@ export default function () {
   // The manifest reason is the whole dispatched reason, so the collector can
   // reproduce the fingerprint recorded here from the nonce (#600).
   const wakeReason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
-  const evidence = { row: 'R-CW-2', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, immediate_wake_observed: false, prompt_echo_ignored: false, reason_hash: crypto.sha256(wakeReason, 'hex').slice(0, 16), reason_length: wakeReason.length, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, trace_id: null, redacted_events: [] };
+  const evidence = { row: 'R-CW-2', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, immediate_wake_observed: false, chain_reason: null, history_reads: 0, scheduled_text_seen: false, woke_text_seen: false, prompt_echo_ignored: false, reason_hash: crypto.sha256(wakeReason, 'hex').slice(0, 16), reason_length: wakeReason.length, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, trace_id: null, redacted_events: [] };
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let historyScheduled = false;
+    // The session's own transcript decides both receipts; events only prompt a read.
+    function requestHistory(delayMs) {
+      if (historyScheduled || evidence.immediate_wake_observed || !evidence.dispatch_accepted) return;
+      historyScheduled = true;
+      socket.setTimeout(() => { historyScheduled = false; evidence.history_reads += 1; tracker.send(socket, 'chat.history', { sessionKey, limit: 200 }); }, k6TimeoutMs(delayMs));
+    }
+    function onHistory(messages) {
+      const chain = continueWorkChain(messages, { nonce: rowNonce, scheduledMarkers: ['CW2-SCHEDULED'], doneMarker: 'CW2-WOKE' });
+      evidence.chain_reason = chain.reason;
+      if (chain.scheduled >= 1 && !evidence.scheduled_sentinel) { evidence.scheduled_sentinel = true; evidence.scheduled_result_at_ms = Date.now(); console.log('✓ continue_work toolResult scheduled, CW2-SCHEDULED in that turn (transcript)'); }
+      if (chain.complete) {
+        const resultAt = messages[chain.hops[0].resultIndex]?.timestamp;
+        const wokeAt = messages[chain.doneIndex]?.timestamp;
+        evidence.immediate_wake_observed = true;
+        evidence.wake_delay_ms = Number.isFinite(resultAt) && Number.isFinite(wokeAt) ? wokeAt - resultAt : null;
+        console.log('✓ [continuation:wake] turn answered CW2-WOKE (transcript)');
+        return;
+      }
+      requestHistory(5000);
+    }
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
@@ -49,12 +81,21 @@ export default function () {
         const msg = JSON.parse(raw); const classified = tracker.classify(msg);
         evidence.redacted_events.push({ ts: Date.now(), kind: classified.kind, method: classified.method || null, event: classified.event || null, ok: classified.ok !== undefined ? classified.ok : null, data: safeRedact(classified) });
         if (classified.kind === 'response' && classified.method === 'sessions.create') { if (classified.ok && classified.payload) { sessionKey = classified.payload.key || sessionKey; evidence.sessionKey = sessionKey; evidence.session_created = true; evidence.created_session_key = sessionKey; console.log('✓ disposable session created: ' + sessionKey); startProofFlow(socket); } else { console.error('✗ sessions.create rejected: ' + JSON.stringify(classified.error)); failures.add(1); socket.close(); } }
-        if (classified.kind === 'response' && classified.method === 'sessions.send') { if (classified.ok) { evidence.dispatch_accepted = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — immediate continue_work turn triggered'); } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); } }
+        if (classified.kind === 'response' && classified.method === 'sessions.send') { if (classified.ok) { evidence.dispatch_accepted = true; evidence.dispatch_accepted_at_ms = Date.now(); if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId; console.log('✓ sessions.send accepted — immediate continue_work turn triggered'); requestHistory(5000); } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); } }
+        if (classified.kind === 'response' && classified.method === 'chat.history') {
+          if (classified.ok) onHistory(Array.isArray(classified.payload?.messages) ? classified.payload.messages : []);
+          else requestHistory(5000);
+        }
+        // Session events prompt a transcript read; their text is diagnostic only.
         if (classified.kind === 'event') {
           const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
+          if (classified.event === 'session.message') requestHistory(1500);
           if (eventStr.includes(HARNESS_MARKER)) { evidence.prompt_echo_ignored = true; return; }
-          if (!evidence.scheduled_sentinel && eventStr.includes(`CW2-SCHEDULED ${rowNonce}`)) { evidence.scheduled_sentinel = true; evidence.scheduled_result_at_ms = Date.now(); if (eventData.traceId) evidence.trace_id = eventData.traceId; console.log('✓ CW2-SCHEDULED sentinel observed'); }
-          if (evidence.scheduled_sentinel && !evidence.immediate_wake_observed && eventStr.includes(`CW2-WOKE ${rowNonce}`)) { evidence.immediate_wake_observed = true; evidence.wake_delay_ms = evidence.scheduled_result_at_ms ? Date.now() - evidence.scheduled_result_at_ms : null; console.log('✓ CW2-WOKE sentinel observed'); }
+          if (eventStr.includes(`CW2-SCHEDULED ${rowNonce}`)) {
+            evidence.scheduled_text_seen = true;
+            if (eventData.traceId && !evidence.trace_id) evidence.trace_id = eventData.traceId;
+          }
+          if (eventStr.includes(`CW2-WOKE ${rowNonce}`)) evidence.woke_text_seen = true;
         }
         if (evidence.dispatch_accepted && evidence.scheduled_sentinel && evidence.immediate_wake_observed) { console.log('All required R-CW-2 evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }

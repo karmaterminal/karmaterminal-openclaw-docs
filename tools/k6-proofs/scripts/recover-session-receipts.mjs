@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { continueWorkChain } from '../lib/continue-work-chain.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/recover-session-receipts.mjs \\
@@ -94,14 +95,6 @@ function receipt(name, required, status, extra = {}) {
   return { name, required, status, ...extra };
 }
 
-function hasContinuationWake(messages, nonce, hop) {
-  return messages.some((m) => {
-    const text = messageText(m);
-    return m.role === 'user' && text.includes('[continuation:wake]') && text.includes(nonce) &&
-      (hop === undefined || text.includes(`hop ${hop}/200`));
-  });
-}
-
 function evaluate(row, nonce, messages) {
   const allText = messages.map(messageText).join('\n');
   const cwToolCalls = messages.flatMap(toolCalls).filter((c) => c.name === 'continue_work');
@@ -137,27 +130,30 @@ function evaluate(row, nonce, messages) {
     ];
   }
 
+  // Schedule and wake are bound by turn order in the transcript (lib/continue-work-chain.mjs):
+  // allText also holds tool arguments and the wake input, which quotes the reason (#1727).
   if (row === 'R-CW-1') {
+    const chain = continueWorkChain(messages, { nonce, scheduledMarkers: ['CW-SCHEDULED'], doneMarker: 'CW-WOKE' });
     return [
       receipt('tool-invoke-accepted', true, cwToolCalls.some((c) => JSON.stringify(c).includes(nonce)) ? 'present' : 'missing'),
       receipt('continue-work-tool-result-scheduled', true,
-        scheduledToolResults.length > 0 && allText.includes(`CW-SCHEDULED ${nonce}`) ? 'present' : 'missing',
+        chain.scheduled >= 1 ? 'present' : 'missing',
         scheduledToolResults[0] ? { delaySeconds: scheduledToolResults[0].delaySeconds } : {}),
-      receipt('work-woke-event', true,
-        hasContinuationWake(messages, nonce, 1) && allText.includes(`CW-WOKE ${nonce}`) ? 'present' : 'missing'),
+      receipt('work-woke-event', true, chain.complete ? 'present' : 'missing', chain.reason ? { reason: chain.reason } : {}),
     ];
   }
 
   if (row === 'R-CW-4') {
+    const chain = continueWorkChain(messages, { nonce, scheduledMarkers: ['CW4-HOP1-SCHEDULED', 'CW4-HOP2-SCHEDULED', 'CW4-HOP3-SCHEDULED'], doneMarker: 'CW4-DONE' });
     return [
       receipt('dispatch-accepted', true, messages.some((m) => m.role === 'user' && messageText(m).includes('[k6-proof-harness]') && messageText(m).includes(nonce)) ? 'present' : 'missing'),
-      receipt('hop1-scheduled', true, allText.includes(`CW4-HOP1-SCHEDULED ${nonce}`) ? 'present' : 'missing'),
-      receipt('hop2-scheduled', true, allText.includes(`CW4-HOP2-SCHEDULED ${nonce}`) ? 'present' : 'missing'),
-      receipt('hop3-scheduled', true, allText.includes(`CW4-HOP3-SCHEDULED ${nonce}`) ? 'present' : 'missing'),
-      receipt('wake-hop-1', true, hasContinuationWake(messages, nonce, 1) ? 'present' : 'missing'),
-      receipt('wake-hop-2', true, hasContinuationWake(messages, nonce, 2) ? 'present' : 'missing'),
-      receipt('wake-hop-3', true, hasContinuationWake(messages, nonce, 3) ? 'present' : 'missing'),
-      receipt('final-done', true, allText.includes(`CW4-DONE ${nonce}`) ? 'present' : 'missing'),
+      receipt('hop1-scheduled', true, chain.scheduled >= 1 ? 'present' : 'missing'),
+      receipt('hop2-scheduled', true, chain.scheduled >= 2 ? 'present' : 'missing'),
+      receipt('hop3-scheduled', true, chain.scheduled >= 3 ? 'present' : 'missing'),
+      receipt('wake-hop-1', true, chain.woke >= 1 ? 'present' : 'missing'),
+      receipt('wake-hop-2', true, chain.woke >= 2 ? 'present' : 'missing'),
+      receipt('wake-hop-3', true, chain.woke >= 3 ? 'present' : 'missing'),
+      receipt('final-done', true, chain.complete ? 'present' : 'missing', chain.reason ? { reason: chain.reason } : {}),
     ];
   }
 

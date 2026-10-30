@@ -442,7 +442,9 @@ test('R-CW-2: an immediate continue_work wake is attributed by the reason it dis
   const manifest = 'r-cw-2.json';
   const { privateEvidence, dispatch } = await fireScenario({ row, scenario: 'r-cw-2-immediate-wake.js', manifest });
   const reason = typedReason(dispatch, 'reason', 1024);
-  assert.match(reason, /-- on continuation wake reply exactly CW2-WOKE /u);
+  // The reason carries the nonce, not the wake sentinel: the wake input quotes it (#1727).
+  assert.match(reason, /^k6-proof-R-CW-2-immediate-R-CW-2-\d+-[a-z0-9]+$/u);
+  assert.doesNotMatch(reason, /CW2-WOKE/u);
   // delaySeconds=0: the work span is emitted at election, the fire span when
   // the parked work runs after the electing turn ends.
   const continuation = [...reasonAttrs(reason), attr('chain.id', chainId), attr('delay.ms', 0)];

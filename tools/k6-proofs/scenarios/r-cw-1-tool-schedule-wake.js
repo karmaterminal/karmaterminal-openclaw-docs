@@ -3,9 +3,16 @@
  *
  * Proves the typed continue_work() tool fires successfully and delivers:
  *   1. Gateway accepts the continue_work invocation (tool-invoke-accepted)
- *   2. An observable scheduled tool-result/status signal appears on WS
- *      (status:"scheduled" with nonce correlation)
- *   3. The session wakes after delaySeconds (work-woke-event)
+ *   2. The nonce-bound continue_work call's own toolResult reports
+ *      "scheduled", and CW-SCHEDULED follows in that turn
+ *   3. A "[continuation:wake]" turn carrying the nonce follows, and the woken
+ *      turn answers CW-WOKE (work-woke-event)
+ *
+ * Both receipts are bound by turn order in the session's own transcript
+ * (lib/continue-work-chain.mjs). The reason no longer carries the wake
+ * sentinel: the wake input quotes the reason, and at F′ the event stream
+ * credited that echo as the woken agent (openclaw-bootstrap#1727). Event-text
+ * sightings are kept only as diagnostics.
  *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
  * fresh disposable session, avoiding the live #sprites/main Discord lane.
@@ -20,6 +27,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { continueWorkChain } from '../lib/continue-work-chain.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
@@ -45,7 +53,7 @@ const DEFAULTS = {
   sessionKey: 'main',
   seat: 'cael-dgx',
   delaySeconds: 5,
-  reason: 'k6-proof-R-CW-1',
+  reason: 'k6-proof-R-CW-1-{{nonce}}',
   idempotencyKeyPrefix: 'R-CW-1',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -103,6 +111,11 @@ export default function () {
     tool_invoke_accepted: false,
     continue_work_tool_result_scheduled: false,
     work_woke_event: false,
+    chain_reason: null,
+    history_reads: 0,
+    // Diagnostics only: sentinel text seen anywhere on the event stream.
+    scheduled_text_seen: false,
+    woke_text_seen: false,
     dispatch_accepted_at_ms: null,
     scheduled_result_at_ms: null,
     wake_delay_ms: null,
@@ -116,6 +129,38 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let historyScheduled = false;
+
+    // The session's own transcript decides both receipts; events only prompt a read.
+    function requestHistory(delayMs) {
+      if (historyScheduled || evidence.work_woke_event || !evidence.dispatch_accepted_at_ms) return;
+      historyScheduled = true;
+      socket.setTimeout(() => {
+        historyScheduled = false;
+        evidence.history_reads += 1;
+        tracker.send(socket, 'chat.history', { sessionKey, limit: 200 });
+      }, k6TimeoutMs(delayMs));
+    }
+
+    function onHistory(messages) {
+      const chain = continueWorkChain(messages, { nonce: rowNonce, scheduledMarkers: ['CW-SCHEDULED'], doneMarker: 'CW-WOKE' });
+      evidence.chain_reason = chain.reason;
+      if (chain.scheduled >= 1 && !evidence.continue_work_tool_result_scheduled) {
+        evidence.continue_work_tool_result_scheduled = true;
+        evidence.scheduled_result_at_ms = Date.now();
+        console.log('✓ continue_work toolResult scheduled, CW-SCHEDULED in that turn (transcript)');
+      }
+      if (chain.complete && !evidence.work_woke_event) {
+        const hop = chain.hops[0];
+        const resultAt = messages[hop.resultIndex]?.timestamp;
+        const wokeAt = messages[chain.doneIndex]?.timestamp;
+        evidence.work_woke_event = true;
+        evidence.wake_delay_ms = Number.isFinite(resultAt) && Number.isFinite(wokeAt) ? wokeAt - resultAt : null;
+        console.log('✓ [continuation:wake] turn answered CW-WOKE (transcript)');
+        return;
+      }
+      requestHistory(5000);
+    }
 
     function startProofFlow(socket) {
       // Subscribe to session events — scheduled result + wake surface.
@@ -193,42 +238,25 @@ export default function () {
             evidence.dispatch_accepted_at_ms = Date.now();
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — agent turn triggered (will call continue_work)');
+            requestHistory(5000);
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
           }
         }
 
-        // Session events — primary proof surface for schedule + wake.
+        if (classified.kind === 'response' && classified.method === 'chat.history') {
+          if (classified.ok) onHistory(Array.isArray(classified.payload?.messages) ? classified.payload.messages : []);
+          else requestHistory(5000);
+        }
+
+        // Session events prompt a transcript read; their text is diagnostic only.
         if (classified.kind === 'event') {
-          const eventName = classified.event || '';
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
-          if (eventStr.includes(HARNESS_MARKER)) {
-            console.log('ℹ Ignoring harness prompt echo event');
-          } else if (evidence.dispatch_accepted_at_ms) {
-            const elapsedSinceDispatch = Date.now() - evidence.dispatch_accepted_at_ms;
-
-            // Scheduled receipt: explicit assistant sentinel emitted only after
-            // the continue_work tool result reports scheduled.
-            if (!evidence.continue_work_tool_result_scheduled && eventStr.includes(`CW-SCHEDULED ${rowNonce}`)) {
-              evidence.continue_work_tool_result_scheduled = true;
-              evidence.scheduled_result_at_ms = Date.now();
-              if (eventData.traceId) evidence.trace_id = eventData.traceId;
-              console.log(`✓ CW-SCHEDULED sentinel observed: ${eventName}`);
-            }
-
-            // Wake receipt: explicit sentinel emitted by the continuation wake turn.
-            if (evidence.continue_work_tool_result_scheduled && !evidence.work_woke_event &&
-                eventStr.includes(`CW-WOKE ${rowNonce}`) &&
-                elapsedSinceDispatch >= (inv.delaySeconds * 1000)) {
-              const elapsedSinceSchedule = evidence.scheduled_result_at_ms
-                ? Date.now() - evidence.scheduled_result_at_ms : 0;
-              evidence.work_woke_event = true;
-              evidence.wake_delay_ms = elapsedSinceSchedule;
-              console.log(`✓ CW-WOKE sentinel observed: ${eventName} (${elapsedSinceSchedule}ms after scheduled)`);
-            }
-          }
+          if (eventStr.includes(`CW-SCHEDULED ${rowNonce}`) && !eventStr.includes(HARNESS_MARKER)) evidence.scheduled_text_seen = true;
+          if (eventStr.includes(`CW-WOKE ${rowNonce}`) && !eventStr.includes(HARNESS_MARKER)) evidence.woke_text_seen = true;
+          if (classified.event === 'session.message') requestHistory(1500);
         }
 
         // Early close when all required evidence collected

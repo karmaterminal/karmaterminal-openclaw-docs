@@ -1,0 +1,12 @@
+2026-10-29T18:39:21.286469-07:00 emeric node[1197767]: 2026-10-29T18:39:21.286-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:39:21.286985-07:00 emeric node[1197767]: 2026-10-29T18:39:21.286-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:39:21.287385-07:00 emeric node[1197767]: 2026-10-29T18:39:21.287-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:39:21.287682-07:00 emeric node[1197767]: 2026-10-29T18:39:21.287-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:39:21.317644-07:00 emeric node[1197767]: 2026-10-29T18:39:21.317-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3134ms fireAt=1793324364451 session=<redacted-session-key>
+2026-10-29T18:39:24.452647-07:00 emeric node[1197767]: 2026-10-29T18:39:24.452-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:39:24.459161-07:00 emeric node[1197767]: 2026-10-29T18:39:24.459-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-29T18:39:24.499667-07:00 emeric node[1197767]: 2026-10-29T18:39:24.499-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent session=<redacted-session-key> task=<redacted-payload>
+2026-10-29T18:39:28.385454-07:00 emeric node[1197767]: 2026-10-29T18:39:28.385-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:39:28.385820-07:00 emeric node[1197767]: 2026-10-29T18:39:28.385-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:39:28.396550-07:00 emeric node[1197767]: 2026-10-29T18:39:28.396-07:00 [agents/agent-command] [agent] run continuation:01a18a76-1f1b-76c3-b7d6-3de13e643618:1 ended with stopReason=stop
+2026-10-29T18:39:28.467130-07:00 emeric node[1197767]: 2026-10-29T18:39:28.466-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>

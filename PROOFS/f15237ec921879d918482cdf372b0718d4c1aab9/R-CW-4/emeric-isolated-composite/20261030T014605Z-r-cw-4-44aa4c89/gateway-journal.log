@@ -1,0 +1,47 @@
+2026-10-29T18:46:14.070862-07:00 emeric node[1197767]: 2026-10-29T18:46:14.070-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:14.071106-07:00 emeric node[1197767]: 2026-10-29T18:46:14.071-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-10-29T18:46:14.071229-07:00 emeric node[1197767]: 2026-10-29T18:46:14.071-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:14.071358-07:00 emeric node[1197767]: 2026-10-29T18:46:14.071-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:46:14.102595-07:00 emeric node[1197767]: 2026-10-29T18:46:14.102-07:00 [continuation:work-turn-end-parked-coalesced] session=<redacted-session-key> folded=0
+2026-10-29T18:46:14.103102-07:00 emeric node[1197767]: 2026-10-29T18:46:14.103-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1 reasonCategory=follow-up-work
+2026-10-29T18:46:14.103305-07:00 emeric node[1197767]: 2026-10-29T18:46:14.103-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-10-29T18:46:14.106074-07:00 emeric node[1197767]: 2026-10-29T18:46:14.106-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=86399991ms fireAt=1793411174096 session=<redacted-session-key>
+2026-10-29T18:46:14.113765-07:00 emeric node[1197767]: 2026-10-29T18:46:14.113-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=10 session=<redacted-session-key>
+2026-10-29T18:46:14.120840-07:00 emeric node[1197767]: 2026-10-29T18:46:14.120-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4993ms fireAt=1793324779113 session=<redacted-session-key>
+2026-10-29T18:46:19.115400-07:00 emeric node[1197767]: 2026-10-29T18:46:19.115-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:46:19.127238-07:00 emeric node[1197767]: 2026-10-29T18:46:19.127-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59993ms fireAt=1793324839119 session=<redacted-session-key>
+2026-10-29T18:46:19.127775-07:00 emeric node[1197767]: 2026-10-29T18:46:19.127-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=1/200 session=<redacted-session-key> reasonCategory=follow-up-work
+2026-10-29T18:46:24.401499-07:00 emeric node[1197767]: 2026-10-29T18:46:24.401-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:24.401800-07:00 emeric node[1197767]: 2026-10-29T18:46:24.401-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-10-29T18:46:24.401800-07:00 emeric node[1197767]: 2026-10-29T18:46:24.401-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:24.401979-07:00 emeric node[1197767]: 2026-10-29T18:46:24.401-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:46:24.430399-07:00 emeric node[1197767]: 2026-10-29T18:46:24.430-07:00 [continuation:work-turn-end-parked-coalesced] session=<redacted-session-key> folded=0
+2026-10-29T18:46:24.430906-07:00 emeric node[1197767]: 2026-10-29T18:46:24.430-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=2 reasonCategory=follow-up-work
+2026-10-29T18:46:24.431141-07:00 emeric node[1197767]: 2026-10-29T18:46:24.431-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-10-29T18:46:24.434790-07:00 emeric node[1197767]: 2026-10-29T18:46:24.434-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=54685ms fireAt=1793324839119 session=<redacted-session-key>
+2026-10-29T18:46:24.443384-07:00 emeric node[1197767]: 2026-10-29T18:46:24.443-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=13 session=<redacted-session-key>
+2026-10-29T18:46:24.459454-07:00 emeric node[1197767]: 2026-10-29T18:46:24.459-07:00 [continuation/work-store] [continuation:work-finish-not-committed] flowId=01a18a7c-72d0-7810-b92a-67c7a37447ca expectedRevision=3
+2026-10-29T18:46:24.461932-07:00 emeric node[1197767]: 2026-10-29T18:46:24.461-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4982ms fireAt=1793324789443 session=<redacted-session-key>
+2026-10-29T18:46:29.149072-07:00 emeric node[1197767]: 2026-10-29T18:46:29.148-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:46:29.149731-07:00 emeric node[1197767]: 2026-10-29T18:46:29.149-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:46:29.444708-07:00 emeric node[1197767]: 2026-10-29T18:46:29.444-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:46:29.466416-07:00 emeric node[1197767]: 2026-10-29T18:46:29.466-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59982ms fireAt=1793324849447 session=<redacted-session-key>
+2026-10-29T18:46:29.467006-07:00 emeric node[1197767]: 2026-10-29T18:46:29.466-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=2/200 session=<redacted-session-key> reasonCategory=follow-up-work
+2026-10-29T18:46:33.501430-07:00 emeric node[1197767]: 2026-10-29T18:46:33.501-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:33.501775-07:00 emeric node[1197767]: 2026-10-29T18:46:33.501-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=tool-call kind=work session=<redacted-session-key>
+2026-10-29T18:46:33.501775-07:00 emeric node[1197767]: 2026-10-29T18:46:33.501-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:33.501812-07:00 emeric node[1197767]: 2026-10-29T18:46:33.501-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:46:33.524431-07:00 emeric node[1197767]: 2026-10-29T18:46:33.524-07:00 [continuation:work-turn-end-parked-coalesced] session=<redacted-session-key> folded=0
+2026-10-29T18:46:33.525093-07:00 emeric node[1197767]: 2026-10-29T18:46:33.524-07:00 [continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=3 reasonCategory=follow-up-work
+2026-10-29T18:46:33.525218-07:00 emeric node[1197767]: 2026-10-29T18:46:33.525-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-armed] trigger=reply-run-ended session=<redacted-session-key>
+2026-10-29T18:46:33.527918-07:00 emeric node[1197767]: 2026-10-29T18:46:33.527-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=55920ms fireAt=1793324849447 session=<redacted-session-key>
+2026-10-29T18:46:33.535000-07:00 emeric node[1197767]: 2026-10-29T18:46:33.534-07:00 [continuation/work-dispatch] [continuation:work-idle-retry-fired] trigger=reply-run-ended waitMs=10 session=<redacted-session-key>
+2026-10-29T18:46:33.545845-07:00 emeric node[1197767]: 2026-10-29T18:46:33.545-07:00 [continuation/work-store] [continuation:work-finish-not-committed] flowId=01a18a7c-9b29-7b17-8cb4-f1290600d8b5 expectedRevision=3
+2026-10-29T18:46:33.547550-07:00 emeric node[1197767]: 2026-10-29T18:46:33.547-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=4988ms fireAt=1793324798535 session=<redacted-session-key>
+2026-10-29T18:46:38.535700-07:00 emeric node[1197767]: 2026-10-29T18:46:38.535-07:00 [continuation/work-dispatch] [continuation:work-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:46:38.545617-07:00 emeric node[1197767]: 2026-10-29T18:46:38.545-07:00 [continuation/work-dispatch] [continuation:work-hedge-armed] fireIn=59994ms fireAt=1793324858539 session=<redacted-session-key>
+2026-10-29T18:46:38.546059-07:00 emeric node[1197767]: 2026-10-29T18:46:38.546-07:00 [continuation/work-dispatch] [continuation:work-wake] hop=3/200 session=<redacted-session-key> reasonCategory=follow-up-work
+2026-10-29T18:46:40.689988-07:00 emeric node[1197767]: 2026-10-29T18:46:40.689-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:40.690284-07:00 emeric node[1197767]: 2026-10-29T18:46:40.690-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:46:40.690284-07:00 emeric node[1197767]: 2026-10-29T18:46:40.690-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:46:40.690355-07:00 emeric node[1197767]: 2026-10-29T18:46:40.690-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

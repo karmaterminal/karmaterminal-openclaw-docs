@@ -3,7 +3,7 @@ Gate 2 — feature-byte preservation check
   CANDIDATE: f15237ec92
   UPSTREAM:  4fc73d6995
   BASE:      eb7a4b1574
-  CORES:     /home/figs/flesh_beast_best_beast/source/openclaw-bootstrap/tools/drift-cure-gate.primitive-cores.txt
+  CORES:     openclaw-bootstrap/tools/drift-cure-gate.primitive-cores.txt
 
   FAIL: src/agents/openclaw-tools.ts (blob dec42b291f04b164307b6182b39a88cfb7be8d75 → ceca1932571c4f75a2c1aa8e073d37ce62480f60; 31596 bytes diff; upstream delta does not apply cleanly to PR_HEAD: Applied patch to 'src/agents/openclaw-tools.ts' with conflicts. U src/agents/openclaw-tools.ts )
   FAIL: src/agents/tools/continue-work-tool.ts (blob d840e5e51ecf72f6925e30b24e74f43fabad5271 → e5900fdc18fbb5c170200eebd3650a1bb4736fd7; 3727 bytes diff; candidate changed but upstream has no delta for this path)

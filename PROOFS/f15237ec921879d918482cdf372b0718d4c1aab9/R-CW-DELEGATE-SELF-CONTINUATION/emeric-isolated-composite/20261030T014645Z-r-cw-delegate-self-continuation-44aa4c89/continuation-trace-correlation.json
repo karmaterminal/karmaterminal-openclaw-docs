@@ -1,0 +1,73 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-f15237ec\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"19f27ebe2a9f3445\" && .reason.length=566 && .delegate.mode=\"normal\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793324749,
+    "endUnixSeconds": 1793324898,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 4,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-5b7c61181ff4.json",
+  "traceId": "5b7c61181ff4d395f451f9a081c47eab",
+  "chainId": "24c692dc-c158-44a6-ab82-f6f8febbbbe5",
+  "toolSpanIds": [
+    "5c9ed6f19048d8aa"
+  ],
+  "toolParentSpanIds": [
+    "9946e6c9b31d6779"
+  ],
+  "fireSpanId": "2a20072d3f2b479a",
+  "fireParentSpanId": "95d20c3b298e3790",
+  "fireSpanIds": [
+    "2a20072d3f2b479a"
+  ],
+  "fireParentSpanIds": [
+    "95d20c3b298e3790"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "2a20072d3f2b479a"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "7a736439a6d43128"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "e52d7f81ffb78f06"
+    }
+  ],
+  "dispatchSpanId": "95d20c3b298e3790",
+  "dispatchParentSpanId": "5c9ed6f19048d8aa",
+  "reason": {
+    "hash": "19f27ebe2a9f3445",
+    "length": 566,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "normal"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

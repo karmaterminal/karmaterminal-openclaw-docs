@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-MODEL-TOOL",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-f15237ec\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"5105d04af22d6433\" && .reason.length=397 && .delegate.mode=\"normal\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793324248,
+    "endUnixSeconds": 1793324399,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-4977b00d91d5.json",
+  "traceId": "4977b00d91d52441faeea66b7133fbf3",
+  "chainId": "2339be2d-6097-4e2e-a5ba-60923ea3b60c",
+  "toolSpanIds": [
+    "a1a58402b1ccc371"
+  ],
+  "toolParentSpanIds": [
+    "4248289fb35a45c1"
+  ],
+  "fireSpanId": "256dbe1bf52902f1",
+  "fireParentSpanId": "a5d84c15b9961a98",
+  "fireSpanIds": [
+    "256dbe1bf52902f1"
+  ],
+  "fireParentSpanIds": [
+    "a5d84c15b9961a98"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "256dbe1bf52902f1"
+    }
+  ],
+  "dispatchSpanId": "a5d84c15b9961a98",
+  "dispatchParentSpanId": "a1a58402b1ccc371",
+  "reason": {
+    "hash": "5105d04af22d6433",
+    "length": 397,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "normal"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

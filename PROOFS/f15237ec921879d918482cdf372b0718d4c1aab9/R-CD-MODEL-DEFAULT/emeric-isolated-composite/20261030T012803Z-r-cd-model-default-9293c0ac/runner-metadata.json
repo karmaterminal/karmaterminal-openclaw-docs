@@ -1,0 +1,28 @@
+{
+  "row": "R-CD-MODEL-DEFAULT",
+  "scenario": "r-cd-model-default.js",
+  "candidateSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "runtimeBuildSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "seat": "emeric-isolated-composite",
+  "sessionConfigured": true,
+  "startedAt": "2026-10-30T01:28:03Z",
+  "docsRef": "215235ed73a6926a0610d91814b02f25a4836ed1",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "matrixId": "20261030T012800Z-215235ed73a6-9293c0ac",
+  "runId": "20261030T012803Z-r-cd-model-default-9293c0ac",
+  "manifestPath": "tools/k6-proofs/manifests/r-cd-model-default.json",
+  "manifestSha256": "c22f0b26b5b7332c21c5167b7de38108b3127f67ef8aed8cea172eede660849e",
+  "scenarioPath": "tools/k6-proofs/scenarios/r-cd-model-default.js",
+  "scenarioSha256": "014ed541c56c149b6a9e80cf9625f102bd1f3f1d223b76e15c45e080e83acd58",
+  "readiness": {
+    "receipt": "seat-readiness.json",
+    "sha256": "c733e3c71d650b2574a995841bbab9a4efd7b839814f5c5342096f265f34173c",
+    "gatewayUrlFingerprint": "51aa6c291aa35eeb8cbb706d3ba6c3901bd85ce317d54813b02c0237e16b58f5",
+    "unit": "openclaw-proof-comp-f15237ec",
+    "selectedRows": [
+      "R-CD-MODEL-DEFAULT"
+    ],
+    "requiredMaxSpawnDepth": 2,
+    "expectedMaxSpawnDepth": 5
+  }
+}

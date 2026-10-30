@@ -1,0 +1,20 @@
+2026-10-29T18:34:28.096421-07:00 emeric node[1197767]: 2026-10-29T18:34:28.096-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:28.096844-07:00 emeric node[1197767]: 2026-10-29T18:34:28.096-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:34:28.096893-07:00 emeric node[1197767]: 2026-10-29T18:34:28.096-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:28.097056-07:00 emeric node[1197767]: 2026-10-29T18:34:28.097-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:34:36.237331-07:00 emeric node[1197767]: 2026-10-29T18:34:36.237-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:36.237741-07:00 emeric node[1197767]: 2026-10-29T18:34:36.237-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:34:36.237895-07:00 emeric node[1197767]: 2026-10-29T18:34:36.237-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:36.238029-07:00 emeric node[1197767]: 2026-10-29T18:34:36.238-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:34:36.267639-07:00 emeric node[1197767]: 2026-10-29T18:34:36.267-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=3184ms fireAt=1793324079451 session=<redacted-session-key>
+2026-10-29T18:34:39.452811-07:00 emeric node[1197767]: 2026-10-29T18:34:39.452-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-10-29T18:34:39.459538-07:00 emeric node[1197767]: 2026-10-29T18:34:39.459-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-29T18:34:39.509212-07:00 emeric node[1197767]: 2026-10-29T18:34:39.509-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=silent-wake session=<redacted-session-key> task=<redacted-payload>
+2026-10-29T18:34:42.972217-07:00 emeric node[1197767]: 2026-10-29T18:34:42.972-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:42.972534-07:00 emeric node[1197767]: 2026-10-29T18:34:42.972-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:34:42.984397-07:00 emeric node[1197767]: 2026-10-29T18:34:42.984-07:00 [agents/agent-command] [agent] run continuation:01a18a71-c5d3-7f1b-8d93-8f5e34036bb3:1 ended with stopReason=stop
+2026-10-29T18:34:43.077932-07:00 emeric node[1197767]: 2026-10-29T18:34:43.077-07:00 [continuation:targeted-return] Delivered to <redacted-session-key> from <redacted-session-key>
+2026-10-29T18:34:47.989402-07:00 emeric node[1197767]: 2026-10-29T18:34:47.989-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:47.989682-07:00 emeric node[1197767]: 2026-10-29T18:34:47.989-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:34:47.989920-07:00 emeric node[1197767]: 2026-10-29T18:34:47.989-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:34:47.990092-07:00 emeric node[1197767]: 2026-10-29T18:34:47.990-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

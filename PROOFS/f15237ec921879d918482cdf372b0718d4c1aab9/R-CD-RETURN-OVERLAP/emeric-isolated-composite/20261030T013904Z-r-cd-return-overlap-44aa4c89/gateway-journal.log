@@ -1,0 +1,4 @@
+2026-10-29T18:39:06.658562-07:00 emeric node[1197767]: 2026-10-29T18:39:06.658-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:39:06.658883-07:00 emeric node[1197767]: 2026-10-29T18:39:06.658-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T18:39:06.658957-07:00 emeric node[1197767]: 2026-10-29T18:39:06.658-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T18:39:06.659085-07:00 emeric node[1197767]: 2026-10-29T18:39:06.659-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>

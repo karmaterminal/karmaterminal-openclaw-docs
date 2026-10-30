@@ -101,6 +101,18 @@ export function classifyRequestCompactionReceipt(eventPayload) {
     };
   }
 
+  // Builds with openclaw-bootstrap#1727 reject usage that was never measured
+  // under its own guard, naming a cause (no_fresh_usage, unknown_context_window
+  // or inventory_only). Older builds report it as context_threshold with no
+  // contextUsage/threshold.
+  if (receipt.status === 'rejected' && receipt.guard === 'context_unmeasured') {
+    return {
+      kind: 'unmeasured_rejected',
+      receipt,
+      toolCallId: message.toolCallId || null,
+    };
+  }
+
   return {
     kind: 'non_threshold_result',
     receipt,
@@ -140,6 +152,11 @@ export function findRequestCompactionReceipt(messages, { rowNonce, toolCallId } 
 // chat.history keeps the toolResult content text (the pretty-printed JSON,
 // tool-results.ts:10-11) but drops `details` (chat-display-projection
 // sanitize.ts:441-460), so the receipt is parsed from content text.
+//
+// With openclaw-bootstrap#1727 the unknown branch becomes
+// { status: "rejected", guard: "context_unmeasured", cause, reason }: a fresh
+// child's first turn answers cause "no_fresh_usage". It is classified
+// context_unknown the same way.
 // ---------------------------------------------------------------------------
 
 // Exact status strings at openclaw 41b8d69b90 request-compaction-tool.ts:
@@ -238,6 +255,10 @@ export function measuredRequestCompactionOutcome(messages, { rowNonce } = {}) {
   const hasThreshold = typeof receipt.threshold === 'number' && Number.isFinite(receipt.threshold);
   const measured = hasUsage && hasThreshold;
   const partialFields = 'contextUsage' in receipt || 'threshold' in receipt;
+  if (receipt.status === 'rejected' && receipt.guard === 'context_unmeasured') {
+    // Usage numbers contradict an unmeasured rejection.
+    return { ...base, kind: partialFields ? 'invalid' : 'context_unknown', measured: false };
+  }
   if (receipt.status === 'rejected' && receipt.guard === 'context_threshold') {
     // The unknown branch carries neither field (request-compaction-tool.ts:211-217).
     if (!measured && partialFields) return { ...base, kind: 'invalid', measured: false };

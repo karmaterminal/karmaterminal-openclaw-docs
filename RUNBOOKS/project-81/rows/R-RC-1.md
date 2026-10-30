@@ -11,7 +11,7 @@ Runnable local k6 scenario exists.
 
 ## Purpose
 
-Verify the `request_compaction` rejection path. A below-threshold or inventory-only session must return a structured rejection instead of triggering compaction. The rejection is the proof receipt.
+Verify the `request_compaction` rejection path. A below-threshold session, or one whose context usage is not measured yet, must return a structured rejection instead of triggering compaction. The rejection is the proof receipt.
 
 ## Commands
 
@@ -43,19 +43,25 @@ OPENCLAW_CANDIDATE_SHA=<candidate-sha> \
 - Confirms `request_compaction` is present in the disposable session's effective tool inventory.
 - Fetches the session transcript and binds the current row nonce to the assistant's `request_compaction` tool-call ID.
 - Accepts only the `role=toolResult`, `toolName=request_compaction` receipt with that exact tool-call ID.
-- Requires structured `status=rejected` and `guard=context_threshold`.
+- Requires structured `status=rejected` and `guard=context_threshold` or `guard=context_unmeasured`.
 - Treats the assistant's `RC1-RESULT-OBSERVED <nonce>` sentinel as diagnostic only; sentinel prose can never satisfy the row.
 - Fails closed if a prior valid result exists but the current nonce has no matching call/result pair.
 
 ## Receipt nuances
 
-Disposable sessions may be inventory-only for context accounting. In that case the rejection reason may be:
+A disposable session is on its first turn, so its context usage has not been measured yet: no completed turn has recorded token totals. Builds with openclaw-bootstrap#1727 answer that with its own guard and cause:
+
+```json
+{ "status": "rejected", "guard": "context_unmeasured", "cause": "no_fresh_usage", "reason": "Context usage has not been measured yet: ..." }
+```
+
+Older builds (F′ `f15237ec92` and before) answered the same case with `guard=context_threshold`, no `contextUsage` or `threshold`, and a misleading reason, though the session was not on an inventory-only path:
 
 ```text
 Context usage is unknown for this session; request_compaction is unavailable on inventory-only paths.
 ```
 
-This is still a valid rejection-path receipt when `guard=context_threshold`. A main-session/direct-tool companion receipt can provide numeric `contextUsage < threshold` when needed.
+Both are valid rejection-path receipts. `guard=context_threshold` with numeric `contextUsage < threshold` is the measured below-threshold receipt; a main-session/direct-tool companion receipt can provide it when needed.
 
 ## Manual collection still needed
 
@@ -66,4 +72,4 @@ This is still a valid rejection-path receipt when `guard=context_threshold`. A m
 
 ## Fold guidance
 
-PASS-candidate requires `tool-invoke-rejected` with `guard=context_threshold` and no compaction side effect. If the tool rejects for another guard, fold as PARTIAL with the exact guard/reason.
+PASS-candidate requires `tool-invoke-rejected` with `guard=context_threshold` or `guard=context_unmeasured` and no compaction side effect. Name the guard (and, for `context_unmeasured`, the cause) in the fold. If the tool rejects for another guard, fold as PARTIAL with the exact guard/reason.

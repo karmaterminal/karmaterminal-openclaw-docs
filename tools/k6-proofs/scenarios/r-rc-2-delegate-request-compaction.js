@@ -405,8 +405,8 @@ export default function () {
               evidence.request_compaction_rejected_context_threshold = true;
               console.log('✓ nonce-bound request_compaction toolResult rejected by context_threshold (measured, after the yield)');
               maybeCloseCompletedProof();
-            } else if (receipt.kind === 'threshold_rejected' && receipt.nonceBound === true &&
-                measured.kind === 'context_unknown') {
+            } else if ((receipt.kind === 'threshold_rejected' || receipt.kind === 'unmeasured_rejected') &&
+                receipt.nonceBound === true && measured.kind === 'context_unknown') {
               // The unknown branch is a final answer for that call, never HONEST-LIMIT.
               console.log('ℹ request_compaction answered context unknown; not a measured threshold receipt');
             } else if (

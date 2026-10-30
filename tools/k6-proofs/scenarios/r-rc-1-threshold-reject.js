@@ -36,6 +36,9 @@ const failures = new Counter('proof_failures');
 const duration = new Trend('r_rc_1_duration');
 const manifest = loadManifestFromEnv();
 const HARNESS_MARKER = '[k6-proof-harness]';
+// The structured context-guard rejections: measured usage below the floor, or
+// usage not measured yet (openclaw-bootstrap#1727).
+const CONTEXT_GUARDS = Object.freeze(['context_threshold', 'context_unmeasured']);
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -117,7 +120,10 @@ export default function () {
     }
 
     function recordAuthoritativeReceipt(receiptResult) {
-      if (receiptResult.kind === 'threshold_rejected') {
+      // A disposable session's first turn has no measured usage, so builds with
+      // openclaw-bootstrap#1727 answer context_unmeasured where older builds
+      // answered context_threshold without numbers. Both are the rejection path.
+      if (receiptResult.kind === 'threshold_rejected' || receiptResult.kind === 'unmeasured_rejected') {
         const receipt = receiptResult.receipt;
         evidence.tool_result_observed = true;
         evidence.tool_call_id = receiptResult.toolCallId;
@@ -137,7 +143,7 @@ export default function () {
         evidence.tool_result_observed = true;
         evidence.tool_call_id = receiptResult.toolCallId || null;
         evidence.tool_result_status = receiptResult.receipt?.status || 'invalid';
-        console.error(`✗ authoritative request_compaction tool result did not prove threshold rejection: ${JSON.stringify(receiptResult)}`);
+        console.error(`✗ authoritative request_compaction tool result did not prove a context-guard rejection: ${JSON.stringify(receiptResult)}`);
         failures.add(1);
         socket.close();
         return true;
@@ -289,14 +295,14 @@ export default function () {
     'authoritative tool result observed': () => evidence.tool_result_observed,
     'tool result bound to current nonce-bearing call': () => evidence.tool_call_nonce_bound,
     'request_compaction rejected': () => evidence.tool_invoke_rejected,
-    'context_threshold guard observed': () => evidence.guard === 'context_threshold',
+    'context guard observed': () => CONTEXT_GUARDS.includes(evidence.guard),
     'no compaction side effect': () => evidence.no_compaction_side_effect,
   });
 
   if (!evidence.tool_inventory_checked || !evidence.tool_registered || !evidence.dispatch_accepted ||
       !evidence.tool_invocation_observed || !evidence.tool_result_observed ||
       !evidence.tool_invoke_rejected ||
-      !evidence.tool_call_nonce_bound || evidence.guard !== 'context_threshold' ||
+      !evidence.tool_call_nonce_bound || !CONTEXT_GUARDS.includes(evidence.guard) ||
       !evidence.no_compaction_side_effect) {
     failures.add(1);
   }

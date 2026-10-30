@@ -11,7 +11,7 @@
   "timeoutSeconds": 60,
   "scenario": {
     "name": "r-rc-1-threshold-reject",
-    "description": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+    "description": "request_compaction structured context-guard reject via disposable session (below threshold, or usage not measured yet)",
     "methods": [
       "sessions.create",
       "tools.effective",
@@ -39,7 +39,7 @@
     {
       "name": "tool-invoke-rejected",
       "required": true,
-      "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold"
+      "description": "Authoritative request_compaction toolResult is bound by toolCallId to this row's nonce-bearing invocation and returned status=rejected with guard=context_threshold (measured below the floor) or guard=context_unmeasured (usage not measured yet)"
     },
     {
       "name": "tempo-trace-json",
@@ -160,7 +160,7 @@
       ]
     },
     "controls": {
-      "positive": "tools.effective lists request_compaction, this row’s nonce-bearing typed invocation is observed, and its toolResult returns status=rejected with guard=context_threshold.",
+      "positive": "tools.effective lists request_compaction, this row’s nonce-bearing typed invocation is observed, and its toolResult returns status=rejected with guard=context_threshold or guard=context_unmeasured.",
       "negative": "Assistant prose cannot pass the row, and a trace alone can neither satisfy nor block its verdict."
     },
     "backendUnavailable": {

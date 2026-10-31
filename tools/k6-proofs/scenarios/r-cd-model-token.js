@@ -28,7 +28,11 @@ import { assistantSentinelFromHistory, assistantText, callsTool, createToolRecei
 //   - token form: hop-1's own transcript holds its MODEL-TOKEN-HOP1 turn and no
 //     typed continue_delegate call, by name or through Tool Search's
 //     dispatch_action (review F1: with Tool Search on, a typed call is recorded
-//     as dispatch_action { id: "continue_delegate", args });
+//     as dispatch_action { id: "continue_delegate", args }). The call check
+//     counts only from a read sent after hop 1 ended (its row terminal) or
+//     after the delegate child was bound (review N10): a typed call persisted
+//     later in hop 1's turn than its sentinel is otherwise never read, and the
+//     call row that created a delegate is persisted before the delegate spawns;
 //   - continuation dispatch: the bound delegate's own spawn task carries the
 //     product's "[continuation:chain-hop:" prefix. The typed tool and the
 //     bracket write the same prefix (delegate-dispatch-request.ts:43), so it
@@ -104,7 +108,7 @@ export default function () {
     // known only here; the collector matches the trace by it (#600).
     reason_hash: null, reason_length: null, delegate_mode: null,
     dispatch_accepted_at_ms: null, trace_id: null, model_classification_reason: null,
-    spawn_receipt_status: null, hop1_turn_bound: false, hop1_typed_continue_delegate: false, hop1_history_reads: 0,
+    spawn_receipt_status: null, hop1_turn_bound: false, hop1_typed_continue_delegate: false, hop1_history_reads: 0, hop1_post_end_read: false,
     delegate_task_continuation_prefix: false, hop1_bracket_text_seen: false,
     // Diagnostics only: substrings seen on the parent stream.
     spawn_text_seen: false, bracket_text_seen: false, model_modifier_text_seen: false,
@@ -129,24 +133,36 @@ export default function () {
     const tracker = new RequestTracker();
     let spawnTracker = null;
     let hop1ReadScheduled = false;
+    let hop1ReadInFlight = false;
+    let hop1ReadAfterEnd = false;
+    // Hop 1 has ended, or its delegate exists (so any typed call that made it is persisted).
+    function hop1Settled() {
+      return Boolean(evidence.hop1_child_session_key) &&
+        (observer.childTerminal(evidence.hop1_child_session_key) || Boolean(evidence.child_session_key));
+    }
     function updateBracketForm() {
       const delegateTask = evidence.child_session_key ? observer.record(evidence.child_session_key)?.task : null;
       evidence.delegate_task_continuation_prefix = typeof delegateTask === 'string' && delegateTask.includes(CONTINUATION_DELEGATE_TASK_PREFIX);
-      const bound = evidence.hop1_turn_bound && !evidence.hop1_typed_continue_delegate &&
+      const bound = evidence.hop1_turn_bound && evidence.hop1_post_end_read && !evidence.hop1_typed_continue_delegate &&
         evidence.child_session_observed && evidence.delegate_task_continuation_prefix;
       if (bound && !evidence.bracket_token_observed) console.log('✓ token form bound: hop-1 turn with no typed continue_delegate call (by name or dispatch_action), plus a continuation-dispatched delegate');
       evidence.bracket_token_observed = bound;
     }
+    // Read hop 1 until its turn is bound, then once more after it settles (N10).
     function requestHop1History(delayMs) {
-      if (!evidence.hop1_child_session_key || evidence.hop1_turn_bound || hop1ReadScheduled || evidence.hop1_history_reads >= 40) return;
+      if (!evidence.hop1_child_session_key || evidence.hop1_post_end_read || hop1ReadScheduled || hop1ReadInFlight || evidence.hop1_history_reads >= 40) return;
+      if (evidence.hop1_turn_bound && !hop1Settled()) return;
       hop1ReadScheduled = true;
       socket.setTimeout(() => {
         hop1ReadScheduled = false;
         evidence.hop1_history_reads += 1;
-        if (!observer.refreshHistory(evidence.hop1_child_session_key, 200, 'hop1')) requestHop1History(3000);
+        hop1ReadAfterEnd = hop1Settled();
+        if (observer.refreshHistory(evidence.hop1_child_session_key, 200, 'hop1')) hop1ReadInFlight = true;
+        else requestHop1History(3000);
       }, k6TimeoutMs(delayMs));
     }
     function onHop1History(messages) {
+      hop1ReadInFlight = false;
       evidence.hop1_typed_continue_delegate = evidence.hop1_typed_continue_delegate || typedContinueDelegate(messages);
       evidence.hop1_bracket_text_seen = evidence.hop1_bracket_text_seen || messages.some((m) => {
         const text = assistantText(m);
@@ -154,9 +170,9 @@ export default function () {
       });
       if (assistantSentinelFromHistory(messages, { marker: 'MODEL-TOKEN-HOP1', nonce: rowNonce, requireRunId: false })) {
         evidence.hop1_turn_bound = true;
-      } else {
-        requestHop1History(3000);
+        if (hop1ReadAfterEnd) evidence.hop1_post_end_read = true;
       }
+      if (!evidence.hop1_post_end_read) requestHop1History(3000);
       updateBracketForm();
     }
     let childMetadataAttempts = 0;
@@ -292,9 +308,10 @@ export default function () {
           }
           if (observed.purpose === 'hop1') {
             if (Array.isArray(history)) onHop1History(history);
-            else requestHop1History(3000);
+            else { hop1ReadInFlight = false; requestHop1History(3000); }
           }
           observeDelegateLineage(socket);
+          if (evidence.hop1_turn_bound && !evidence.hop1_post_end_read) requestHop1History(500);
         }
         if (classified.kind === 'response' && classified.method === 'sessions.describe') {
           childMetadataRequestInFlight = false;

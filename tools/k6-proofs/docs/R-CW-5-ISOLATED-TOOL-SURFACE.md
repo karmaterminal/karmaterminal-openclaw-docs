@@ -72,16 +72,23 @@ the real delegate-dispatch boundary suite.
 ## Required preflight: R-CW-5A
 
 `r-cw-5.json` declares `R-CW-5A` in `requiredPreflights` (🌊's F″ method
-ruling). The fixture's verdict is behavioral only: R-CW-5 is PASS only when the
-R-CW-5A static check, run at the same exact candidate, wrote a passing
-`required-preflight-receipt.json`. That check reads
+ruling). The fixture's verdict is behavioral only. The row verdict is the minimum
+of that verdict, the row's declared cap and the preflight cap: `r-cw-5.json`
+declares `verdictCap.rowCap` `PARTIAL-candidate`, because this process-local
+fixture is the row's only producer (🌊's ruling on docs#616). A passing R-CW-5A
+is necessary, not sufficient: the row stays at `PARTIAL-candidate` even when the
+fixture reports `PASS-candidate` and the R-CW-5A static check, run at the same
+exact candidate, wrote a passing `required-preflight-receipt.json`. Lifting the
+cap needs a superseding authority receipt from a different artifact class,
+adopted by an explicit method change; none is adopted. That check reads
 `PROOFS/<candidate>/R-CW-5/cael-dgx/`, never INDEX `static_evidence_sha`, and that
 material must be bound to the candidate: a `source-sha.txt` that is exactly the
 candidate SHA, and no provenance file naming another commit.
-`grade-preflight-gated-row.mjs` joins `fixture-result.json` with that receipt and
-caps the row at `PARTIAL-candidate` when the receipt is missing, failed, malformed
-or bound to another SHA. In an F″ corpus `validate-corpus.mjs` refuses an R-CW-5
-`pass` without it. See "Required preflights" in `tools/k6-proofs/README.md`.
+`grade-preflight-gated-row.mjs` joins `fixture-result.json` with the row cap and
+that receipt; a missing, failed, malformed or other-SHA receipt is a second
+reason for `PARTIAL-candidate`. In an F″ corpus `validate-corpus.mjs` refuses any
+R-CW-5 `pass`, with or without the receipt. See "Required preflights" and "The
+process-local cap" in `tools/k6-proofs/README.md`.
 
 ## Command and receipts
 
@@ -137,7 +144,8 @@ OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.js
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.
 Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 
-The fixture is a reviewed `PASS-candidate`, not an automatic corpus promotion.
+The fixture's `PASS-candidate` is behavioral and review-required, not an automatic
+corpus promotion: the row stays capped at `PARTIAL-candidate`.
 The legacy k6 entry remains scaffolded and fail-closed because its shared
 config mutation is neither required nor a valid way to invoke this internal
 tool.

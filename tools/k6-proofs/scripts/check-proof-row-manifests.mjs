@@ -18,6 +18,11 @@
  * every attachment is required by the row it names. The rule is owned by
  * lib/required-preflight.mjs.
  *
+ * And it keeps declared verdict caps (🌊's ruling on docs#616) in place: a
+ * process-local row must declare `verdictCap` (rowCap PARTIAL-candidate, no
+ * adopted superseding authority), and no row's expected artifact class may lie
+ * above its cap. The rule is owned by lib/row-verdict-cap.mjs.
+ *
  * The repository root comes from the shared repo-root contract, so running this
  * from the repository root and from tools/k6-proofs inspects the same files.
  */
@@ -25,6 +30,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { manifestTraceReceiptFailures } from '../lib/continuation-trace-requirement.mjs';
 import { catalogPreflightFailures } from '../lib/required-preflight.mjs';
+import { catalogVerdictCapFailures } from '../lib/row-verdict-cap.mjs';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
@@ -74,6 +80,7 @@ if (!failures.length) {
   }
 }
 const preflightFailures = catalogPreflightFailures(catalogEntries);
+const verdictCapFailures = catalogVerdictCapFailures(catalogEntries);
 
 const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
 const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
@@ -112,6 +119,7 @@ if (duplicateManifestRows.length) {
 }
 failures.push(...traceReceiptFailures);
 failures.push(...preflightFailures);
+failures.push(...verdictCapFailures);
 
 console.log(`Current corpus: PROOFS/${currentSha}`);
 console.log(`Proof rows: ${proofRows.length}`);
@@ -127,6 +135,7 @@ if (manifestOnly.length) {
 }
 console.log(`Trace receipt rule failures: ${traceReceiptFailures.length}`);
 console.log(`Required preflight rule failures: ${preflightFailures.length}`);
+console.log(`Verdict cap rule failures: ${verdictCapFailures.length}`);
 
 if (failures.length) {
   console.error('\nProof row manifest coverage check failed:');

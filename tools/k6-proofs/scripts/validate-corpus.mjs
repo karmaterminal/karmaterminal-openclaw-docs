@@ -49,7 +49,21 @@
  * lies under PROOFS/<sha>/<attachment>/, and its declared state agrees with the
  * receipt judged at this corpus's SHA) and `live-rows-gated-by-preflights` (a gated
  * live row, its id compared canonically and required to be spelled canonically,
- * is `pass` only when every required preflight's receipt passed at this SHA).
+ * is not `pass` unless every required preflight's receipt passed at this SHA).
+ * A passing preflight is necessary, not sufficient.
+ *
+ * Declared row caps (🌊's ruling on docs#616, Discord 1565925290008387728): a row
+ * manifest may declare `verdictCap` (lib/row-verdict-cap.mjs), and a process-local
+ * row must; R-CW-5/6 declare PARTIAL-candidate. Every corpus not frozen in
+ * pre-f2-ruling-corpora.json that carries such a row, its id compared
+ * canonically, gets `rows-within-declared-cap`: the row is not recorded above its
+ * cap (state `pass`), whatever its preflights say. Lifting a cap needs a
+ * superseding authority receipt from a different artifact class, adopted by an
+ * explicit method change; none is adopted, so a `superseding_authority` on the
+ * row does not lift it either. The pre-ruling corpora are exempt by the same list
+ * (52 of the 71 record R-CW-5/6 `pass`; F′ was corrected to partial on docs main
+ * 7e544c04). If the catalog's cap declarations cannot be trusted, every such
+ * corpus gets the check, failed.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -62,6 +76,13 @@ import {
   evaluateRequiredPreflight,
   preflightCatalog,
 } from '../lib/required-preflight.mjs';
+import {
+  canonicalCorpusState,
+  catalogVerdictCapFailures,
+  corpusStateAboveCap,
+  ROW_CAP_NOTE,
+  verdictCapCatalog,
+} from '../lib/row-verdict-cap.mjs';
 
 const STALE_TOKENS = [
   'pending_push',
@@ -75,8 +96,9 @@ const ROLLUP_KEYS = ['total_rows', 'pass', 'partial', 'thin', 'fail', 'honest_li
 const STATE_KEYS = ['pass', 'partial', 'thin', 'fail', 'honest_limit', 'missing'];
 
 // The row-manifest catalog that declares which live rows require which
-// preflights. It is the harness's own catalog, next to this script, so a
-// corpus under --root is judged by the method this checkout carries.
+// preflights, and which rows are capped. It is the harness's own catalog, next to
+// this script, so a corpus under --root is judged by the method this checkout
+// carries.
 const PREFLIGHT_CATALOG_DIR = fileURLToPath(new URL('../manifests/', import.meta.url));
 const ATTACHMENT_STATES = ['pass', 'fail', 'missing'];
 const PREFLIGHT_CAP_NOTE = 'a live row without a passing same-candidate preflight is capped at partial';
@@ -407,32 +429,43 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
   }
 
   validatePreflightAttachments(report, root, sha, manifest);
+  validateDeclaredCaps(report, sha, manifest);
 
   return report;
 }
 
 let preflightCatalogCache;
 
-/** The catalog's preflight index, plus every reason it cannot be trusted. */
+/**
+ * The catalog's preflight and cap indexes, plus every reason each cannot be
+ * trusted: `errors` for the preflight index, `capErrors` for the cap index.
+ */
 function loadPreflightCatalog() {
   if (preflightCatalogCache) return preflightCatalogCache;
   const entries = [];
-  const errors = [];
+  const readErrors = [];
   let files = [];
   try {
     files = readdirSync(PREFLIGHT_CATALOG_DIR).filter((name) => name.endsWith('.json')).sort();
   } catch (err) {
-    errors.push(`manifest catalog unreadable: ${err.message}`);
+    readErrors.push(`manifest catalog unreadable: ${err.message}`);
   }
   for (const file of files) {
     try {
       entries.push({ file, manifest: JSON.parse(readFileSync(join(PREFLIGHT_CATALOG_DIR, file), 'utf8')) });
     } catch (err) {
-      errors.push(`${file}: ${err.message}`);
+      readErrors.push(`${file}: ${err.message}`);
     }
   }
-  errors.push(...catalogPreflightFailures(entries));
-  preflightCatalogCache = { ...preflightCatalog(entries), errors };
+  if (!readErrors.length && entries.length === 0) readErrors.push('manifest catalog is empty');
+  // Canonical ids, so a corpus row spelled another way still finds its cap.
+  const capsByRow = new Map([...verdictCapCatalog(entries)].map(([rowId, cap]) => [canonicalRowId(rowId), cap]));
+  preflightCatalogCache = {
+    ...preflightCatalog(entries),
+    errors: [...readErrors, ...catalogPreflightFailures(entries)],
+    capsByRow,
+    capErrors: [...readErrors, ...catalogVerdictCapFailures(entries)],
+  };
   return preflightCatalogCache;
 }
 
@@ -648,7 +681,8 @@ function validatePreflightAttachments(report, root, sha, manifest) {
       for (const { preflight, status } of blocked) {
         gateProblems.push(`${id} is pass but its required preflight ${preflight} is ${status} at ${short}`);
       }
-      if (!blocked.length) gateLines.push(`${id} pass with ${passedText}`);
+      // The gate is satisfied; whether pass is allowed at all is rows-within-declared-cap's call.
+      if (!blocked.length) gateLines.push(`${id} pass; ${passedText}`);
     } else if (blocked.length) {
       gateLines.push(`${id} ${row.state} (capped): ${blocked.map(({ preflight, status }) => `${preflight} ${status}`).join(', ')}`);
     } else {
@@ -664,6 +698,45 @@ function validatePreflightAttachments(report, root, sha, manifest) {
       : gateLines.length
         ? gateLines.join('; ')
         : 'no row of this corpus requires a preflight',
+  );
+}
+
+/**
+ * The declared-cap check (see the header): a row whose catalog manifest declares
+ * `verdictCap` is never recorded above it. A pre-ruling corpus, or one with no
+ * capped row under a trustworthy catalog, gets no check.
+ */
+function validateDeclaredCaps(report, sha, manifest) {
+  if (loadPreRulingCorpora().corpora.has(sha)) return;
+  const catalog = loadPreflightCatalog();
+  const capped = manifest.rows
+    .map((row) => ({ row, id: canonicalRowId(row?.row) }))
+    .filter(({ id }) => catalog.capsByRow.has(id));
+  if (capped.length === 0 && catalog.capErrors.length === 0) return;
+
+  const problems = [];
+  if (catalog.capErrors.length) problems.push(`the verdict-cap catalog is inconsistent: ${catalog.capErrors.join('; ')}`);
+  const lines = [];
+  for (const { row, id } of capped) {
+    const cap = catalog.capsByRow.get(id);
+    const state = canonicalCorpusState(row.state);
+    const written = row.state === state ? state : `${state} (recorded as ${showId(row.state)})`;
+    if (!corpusStateAboveCap(row.state, cap.rowCap)) {
+      lines.push(`${id} ${written}, within the ${cap.rowCap} cap ${cap.file} declares (${cap.artifactClass})`);
+      continue;
+    }
+    // No superseding authority is adopted (the catalog rule keeps
+    // supersedingAuthorities empty), so a declared one cannot lift the cap.
+    const authority = hasOwn(row, 'superseding_authority')
+      ? `its superseding_authority ${showId(row.superseding_authority)} is not adopted: ${cap.file} adopts no superseding authority`
+      : 'it declares no superseding authority';
+    problems.push(`${id} is ${written}, above the ${cap.rowCap} cap ${cap.file} declares (verdictCap.rowCap; ${cap.artifactClass}), and ${authority}`);
+  }
+  pushCheck(
+    report,
+    'rows-within-declared-cap',
+    problems.length === 0,
+    problems.length ? [...problems, ROW_CAP_NOTE].join('; ') : lines.join('; '),
   );
 }
 

@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
- * grade-preflight-gated-row.mjs — the required-preflight gate for a live cap row.
+ * grade-preflight-gated-row.mjs — the row verdict of a preflight-gated cap row.
  *
- * 🌊's F″ method ruling (Discord 1565895695586558120; openclaw-bootstrap#1727):
- * R-CW-5 and R-CW-6 are PASS only when their required preflight (the R-CW-5A or
- * R-CW-6A static check) passed at the same candidate. The fixture
- * (run-cost-cap-fixture.mjs / run-max-chain-fixture.mjs) owns the behavioral
- * verdict in fixture-result.json; this joins it with the preflight receipts the
- * row manifest's `requiredPreflights` names and caps a PASS-candidate at
- * PARTIAL-candidate unless every preflight passed at that candidate. It never
- * raises a verdict, and its output is still candidate-only and review-gated.
+ * The fixture (run-cost-cap-fixture.mjs / run-max-chain-fixture.mjs) owns the
+ * behavioral verdict in fixture-result.json. The row verdict is the minimum of
+ * that verdict and two caps, each read from the row manifest:
+ *   - the row's declared cap, `verdictCap.rowCap` (🌊's ruling on docs#616,
+ *     Discord 1565925290008387728): R-CW-5 and R-CW-6 are process-local fixture
+ *     rows, so they are at most PARTIAL-candidate (lib/row-verdict-cap.mjs);
+ *   - the preflight cap (🌊's F″ method ruling, Discord 1565895695586558120):
+ *     unless every preflight `requiredPreflights` names (the R-CW-5A or R-CW-6A
+ *     static check) passed at the same candidate, a PASS-candidate is capped at
+ *     PARTIAL-candidate (lib/required-preflight.mjs).
+ * A passing preflight is necessary, not sufficient: it never lifts the row cap.
+ * openclaw-bootstrap#1727. The grader never raises a verdict, and its output is
+ * still candidate-only and review-gated.
  *
  * Usage:
  *   node tools/k6-proofs/scripts/grade-preflight-gated-row.mjs \
@@ -22,7 +27,9 @@
  * which case each preflight is missing. Exit 0 when the gated verdict is
  * PASS-candidate, 1 for any other gated verdict, 2 when the inputs cannot be
  * bound (unknown row, a receipt for a preflight the row does not require, a
- * live result without an exact candidate).
+ * live result without an exact candidate, a malformed or missing verdictCap). A
+ * row whose declared cap is PARTIAL-candidate, as R-CW-5/6 are, therefore never
+ * exits 0: read `verdict` and `cappedBy` from the output.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -32,8 +39,10 @@ import {
   evaluateRequiredPreflight,
   gatePreflightedVerdict,
   isFullSha,
+  PREFLIGHT_CAP,
   PREFLIGHT_GATED_VERDICT_SCHEMA,
 } from '../lib/required-preflight.mjs';
+import { capVerdict, declaredRowCap, manifestVerdictCapFailures } from '../lib/row-verdict-cap.mjs';
 
 class BindError extends Error {}
 
@@ -79,6 +88,9 @@ function liveResultRow(result) {
 export function gradeRow({ manifest, liveResult, receipts }) {
   const requirements = Array.isArray(manifest?.requiredPreflights) ? manifest.requiredPreflights : [];
   if (requirements.length === 0) throw new BindError(`${manifest?.rowId} declares no requiredPreflights`);
+  const capFailures = manifestVerdictCapFailures(manifest);
+  if (capFailures.length) throw new BindError(`${manifest.rowId} verdict cap: ${capFailures.join('; ')}`);
+  const rowCap = declaredRowCap(manifest);
   const resultRow = liveResultRow(liveResult);
   if (resultRow !== manifest.rowId) throw new BindError(`live result is for ${resultRow}, not ${manifest.rowId}`);
   const candidateSha = liveResult.candidateSha;
@@ -119,14 +131,29 @@ export function gradeRow({ manifest, liveResult, receipts }) {
       receiptSha256: receipt ? receipt.sha256 : null,
     };
   });
-  const gated = gatePreflightedVerdict({ verdict: liveResult.verdict, statuses: preflights.map((p) => p.status) });
+  // Each cap is judged against the behavioral verdict on its own, so the output
+  // names every cap that applies; the row verdict is their minimum.
+  const cappedBy = [];
+  let verdict = liveResult.verdict;
+  const byRowCap = rowCap ? capVerdict(liveResult.verdict, rowCap.verdict) : null;
+  if (byRowCap?.capped) {
+    cappedBy.push('row-cap');
+    verdict = byRowCap.verdict;
+  }
+  const preflightGate = gatePreflightedVerdict({ verdict: liveResult.verdict, statuses: preflights.map((p) => p.status) });
+  if (preflightGate.capped) {
+    cappedBy.push('required-preflight');
+    verdict = capVerdict(verdict, PREFLIGHT_CAP).verdict;
+  }
   return {
     schema: PREFLIGHT_GATED_VERDICT_SCHEMA,
     row: manifest.rowId,
     candidateSha,
     behavioralVerdict: liveResult.verdict,
-    verdict: gated.verdict,
-    capped: gated.capped,
+    verdict,
+    capped: cappedBy.length > 0,
+    rowCap,
+    cappedBy,
     preflights,
     candidateOnly: true,
     foldRequiresReview: true,
@@ -152,7 +179,8 @@ function main(argv) {
   if (args.json) process.stdout.write(text);
   else {
     const detail = result.preflights.map((p) => `${p.rowId} ${p.status}`).join(', ');
-    console.log(`${result.row}: ${result.verdict}${result.capped ? ` (capped from ${result.behavioralVerdict})` : ''}; ${detail} (${result.candidateSha})`);
+    const capped = result.capped ? ` (capped from ${result.behavioralVerdict} by ${result.cappedBy.join(' and ')})` : '';
+    console.log(`${result.row}: ${result.verdict}${capped}; ${detail} (${result.candidateSha})`);
   }
   return result.verdict === 'PASS-candidate' ? 0 : 1;
 }

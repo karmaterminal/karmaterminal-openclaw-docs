@@ -834,8 +834,8 @@ true at `2273ef64d5`.
 | R-CW-2 | `r-cw-2-immediate-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | PARTIAL-candidate until reason telemetry/redaction review closes |
 | R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate; exact-candidate fixture, review required before fold |
-| R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PASS-candidate component evidence; manual-only exact-candidate fixture, review required before fold |
+| R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate (`verdictCap`: the fixture's behavioral PASS-candidate does not lift it); exact-candidate fixture, review required before fold |
+| R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate (`verdictCap`: the fixture's behavioral PASS-candidate does not lift it); manual-only exact-candidate fixture, review required before fold |
 | R-CW-7 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-CHILD-LIVE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
@@ -862,7 +862,9 @@ openclaw-bootstrap#1727), `R-CW-5A` and `R-CW-6A` are not proof rows of a new
 corpus. They are the required preflights of `R-CW-5` and `R-CW-6`. The live row's
 manifest names its preflight in `requiredPreflights`, and the preflight's
 manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`);
-`check-proof-row-manifests.mjs` keeps the two in agreement.
+`check-proof-row-manifests.mjs` keeps the two in agreement. A passing preflight is
+necessary, not sufficient: it never lifts R-CW-5/6 above the cap their manifests
+declare (see "The process-local cap" below).
 
 1. **Run the preflight at the exact candidate.** For a preflight manifest,
    `static-corpus-row-validator.js` reads `PROOFS/<candidate>/R-CW-5/cael-dgx/`
@@ -892,10 +894,12 @@ manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`
    ```
 
 2. **Grade the live row.** The fixture's `fixture-result.json` owns the
-   behavioral verdict, and the grader caps a `PASS-candidate` at
-   `PARTIAL-candidate` unless every required preflight passed at the same
-   candidate. A missing, failed, malformed or other-SHA receipt never counts, and
-   the grader never raises a verdict:
+   behavioral verdict. The row verdict is the minimum of that verdict, the row's
+   declared cap (`verdictCap.rowCap`, `PARTIAL-candidate` for R-CW-5/6) and the
+   preflight cap, which lowers a `PASS-candidate` to `PARTIAL-candidate` unless
+   every required preflight passed at the same candidate. A missing, failed,
+   malformed or other-SHA receipt never counts, a passing one never lifts the row
+   cap, and the grader never raises a verdict:
 
    ```bash
    node tools/k6-proofs/scripts/grade-preflight-gated-row.mjs \
@@ -906,10 +910,14 @@ manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`
    ```
 
    It exits 0 only for a gated `PASS-candidate`, 1 for any other verdict, and 2
-   when it cannot bind the inputs. Its `preflight-gate.json`
-   (`openclaw.k6.preflight-gated-row-verdict.v1`) records each preflight's status
-   (`passed`, `missing`, `failed`, `wrong-candidate` or `invalid`), the receipt's
-   basename and its sha256.
+   when it cannot bind the inputs, including a process-local manifest without a
+   well-formed `verdictCap`. R-CW-5/6 therefore never exit 0: at best they grade
+   `PARTIAL-candidate` with `cappedBy: ["row-cap"]`. Its `preflight-gate.json`
+   (`openclaw.k6.preflight-gated-row-verdict.v1`) records the behavioral and row
+   verdicts, the declared `rowCap`, `cappedBy` (`row-cap`, `required-preflight`,
+   each judged against the behavioral verdict on its own), and each preflight's
+   status (`passed`, `missing`, `failed`, `wrong-candidate` or `invalid`), the
+   receipt's basename and its sha256.
 
 3. **Fold it as an attachment.** An F″ corpus keeps `R-CW-5A`/`R-CW-6A` out of
    `rows[]`, `required_rows` and every firing bucket. It records them in the
@@ -919,6 +927,36 @@ manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`
 F′ (`f15237ec92`) and every older corpus keep R-CW-5A/6A as the rows they folded.
 Their historical MISSING verdicts and reports are unchanged; the 71 corpora folded
 before the ruling are listed by name in `scripts/pre-f2-ruling-corpora.json`.
+
+### The process-local cap: the preflight is necessary, not sufficient
+
+🌊's ruling on docs#616 (his CHANGES_REQUESTED review and issue comment, Discord
+1565925290008387728, 2026-10-31; openclaw-bootstrap#1727): R-CW-5 and R-CW-6 are
+capped at `PARTIAL-candidate` while their only producer is a process-local
+fixture, which is not an external gateway invocation. Each manifest declares the
+cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
+`artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
+requires that declaration of every process-local row. The cap is read from the
+declaration, never inferred from prose, and the rules live in
+`lib/row-verdict-cap.mjs`.
+
+- The row verdict is the minimum of the fixture's verdict, the declared cap and
+  the preflight cap. A fixture `PASS-candidate` is behavioral only.
+- The required preflight (R-CW-5A, R-CW-6A) is necessary, not sufficient. Without
+  it the row is capped at `PARTIAL-candidate`; with it the row stays at its cap.
+- Lifting the cap needs a superseding authority receipt from a different
+  artifact class, adopted by an explicit method change. None is adopted:
+  `verdictCap.supersedingAuthorities` must be empty, and adopting one widens the
+  schema and teaches the grader and `validate-corpus.mjs` to judge its receipt.
+- In a corpus folded after the ruling, `validate-corpus.mjs` refuses R-CW-5/6
+  `pass` (`rows-within-declared-cap`), a `superseding_authority` on the row
+  included.
+
+F′ recorded both rows as PASS without a superseding authority receipt. docs main
+`7e544c04` corrects them to partial (the fixture receipts are kept; rollup
+27/5/0/6), and F′ still validates 18/18. The 71 pre-ruling corpora are exempt from
+the new check by the same frozen list: 52 of them record R-CW-5/6 `pass`, and they
+validate exactly as before.
 
 ### R-CW-5 isolated cost-cap fixture
 
@@ -1132,12 +1170,25 @@ whatever its shape, `required_rows` or not:
 | check | requires |
 |---|---|
 | `preflight-attachments-valid` | no preflight is in any row set (`rows[]`, `required_rows`, the supplemental set), however its id is spelled. If `preflight_attachments` is declared: `required_rows` is declared too; each record names a catalog preflight, spelled canonically, and the live row the catalog attaches it to, which must be a row of this corpus; `state` is `pass`, `fail` or `missing`; `candidate_sha` is this corpus; `dir`, if given, is `PROOFS/<sha>/<attachment>/` on disk; the receipt is a plain path under that directory; and `state` agrees with the receipt, which is read and judged again at this corpus's SHA. A `pass` needs a passing receipt, a `fail` a failed one, and a `missing` no receipt. Declared attachment directories are not orphans. |
-| `live-rows-gated-by-preflights` | a live row the catalog gates is `pass` only when every required preflight's receipt passed at this SHA and its record says `pass`. Row ids are compared canonically (case, dash variants, whitespace and invisible characters), and a gated row spelled any other way than canonically fails. Every row id in `rows[]`, `required_rows` and the supplemental sets must also be plain ASCII (`^[A-Z0-9]+(-[A-Z0-9]+)*$`), so no gated row can hide behind a look-alike letter or an invisible character. Any other state of the live row is reported as capped. |
+| `live-rows-gated-by-preflights` | a live row the catalog gates is not `pass` unless every required preflight's receipt passed at this SHA and its record says `pass`. That is necessary, not sufficient: `rows-within-declared-cap` still applies. Row ids are compared canonically (case, dash variants, whitespace and invisible characters), and a gated row spelled any other way than canonically fails. Every row id in `rows[]`, `required_rows` and the supplemental sets must also be plain ASCII (`^[A-Z0-9]+(-[A-Z0-9]+)*$`), so no gated row can hide behind a look-alike letter or an invisible character. Any other state of the live row is reported as capped. |
 
 A corpus with no gated live rows, no preflights, no row id outside plain ASCII
 and no `preflight_attachments` gets neither check. The receipt rules and the canonical
 row id live in `lib/required-preflight.mjs`, shared with the scenario and the
 grader.
+
+**Declared row caps (🌊's ruling on docs#616).** Every corpus not in
+`scripts/pre-f2-ruling-corpora.json` that carries a row whose catalog manifest
+declares `verdictCap` (today R-CW-5 and R-CW-6), its id compared canonically,
+gets one more check:
+
+| check | requires |
+|---|---|
+| `rows-within-declared-cap` | the row is not recorded above its declared cap: with `rowCap` `PARTIAL-candidate`, its `state` (trimmed, any case) is not `pass`, whatever its preflights say. A `superseding_authority` on the row does not lift the cap, because the method adopts none (`verdictCap.supersedingAuthorities` is empty). If the catalog's cap declarations cannot be read or break the catalog rule, the check runs on every corpus not in that list, and fails. |
+
+The 71 pre-ruling corpora get no such check (52 of them record R-CW-5/6 `pass`).
+The rules live in `lib/row-verdict-cap.mjs`, shared with the grader and the
+catalog check.
 
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with

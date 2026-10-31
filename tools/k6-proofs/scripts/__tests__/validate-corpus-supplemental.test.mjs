@@ -559,11 +559,13 @@ test('--all reports a supplemental corpus failure as archival unless --strict', 
     const bySha = Object.fromEntries(archival.payload.reports.map((report) => [report.sha, report]));
     assert.equal(bySha[SHA].failed, 0);
     // ffff… is not a corpus folded before 🌊's F″ ruling, so it is also held to it:
-    // R-CW-5A/6A may not be (supplemental) rows there, and R-CW-5/6 pass ungated.
+    // R-CW-5A/6A may not be (supplemental) rows there, R-CW-5/6 pass ungated, and
+    // that pass lies above the PARTIAL-candidate cap their manifests declare.
     assert.deepEqual(failedChecks(bySha[otherSha]), [
       'firing-buckets-cover-required',
       'preflight-attachments-valid',
       'live-rows-gated-by-preflights',
+      'rows-within-declared-cap',
     ]);
 
     assert.equal(run(root, ['--all', '--strict']).status, 1);

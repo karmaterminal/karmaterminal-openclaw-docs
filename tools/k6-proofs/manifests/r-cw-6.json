@@ -43,9 +43,16 @@
       "passVerdict": "construct-only",
       "capOnMissingOrFailed": "PARTIAL-candidate",
       "receipt": "required-preflight-receipt.json",
-      "description": "R-CW-6A's static source/harness check, run at the exact candidate: it reads PROOFS/<candidate>/R-CW-6/, never INDEX static_evidence_sha, and its receipt must carry this row's candidate SHA. Missing, failed, malformed or bound to another SHA, it caps R-CW-6 at PARTIAL-candidate; it never raises a verdict (🌊's F″ method ruling, Discord 1565895695586558120 (2026-10-31); openclaw-bootstrap#1727)."
+      "description": "R-CW-6A's static source/harness check, run at the exact candidate: it reads PROOFS/<candidate>/R-CW-6/, never INDEX static_evidence_sha, and its receipt must carry this row's candidate SHA. Missing, failed, malformed or bound to another SHA, it caps R-CW-6 at PARTIAL-candidate; passing, it is necessary, not sufficient, and never lifts verdictCap. It never raises a verdict (🌊's F″ method ruling, Discord 1565895695586558120 (2026-10-31); openclaw-bootstrap#1727)."
     }
   ],
+  "verdictCap": {
+    "rowCap": "PARTIAL-candidate",
+    "artifactClass": "process-local-fixture",
+    "supersedingAuthorities": [],
+    "ruling": "🌊's CHANGES_REQUESTED review on docs#616 (5720773113, 2026-10-31) and his #616 issue comment, Discord 1565925290008387728; openclaw-bootstrap#1727",
+    "description": "This row's only producer is the process-local exact-candidate fixture (run-max-chain-fixture.mjs), which is not an external gateway invocation, so the row verdict is at most PARTIAL-candidate: the minimum of the fixture's verdict, this cap and the R-CW-6A preflight cap. A fixture PASS-candidate is behavioral only, and a passing R-CW-6A preflight at the same candidate is necessary, not sufficient; neither lifts the cap. Lifting it needs a superseding authority receipt from a different artifact class, adopted by an explicit method change; none is adopted."
+  },
   "expectedReceipts": [
     {
       "name": "fixture-readiness",
@@ -108,7 +115,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "This is an exact-candidate process-local typed-tool/runtime claim. It is not an external gateway invocation and is not promoted automatically. Its required preflight R-CW-6A must pass at the same candidate before it can be PASS (requiredPreflights; grade-preflight-gated-row.mjs)."
+    "notes": "This is an exact-candidate process-local typed-tool/runtime claim. It is not an external gateway invocation and is not promoted automatically. The row is capped at PARTIAL-candidate (verdictCap) while this fixture is its only producer. Its required preflight R-CW-6A must pass at the same candidate, which is necessary, not sufficient: it never lifts the cap (requiredPreflights; grade-preflight-gated-row.mjs)."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -263,8 +270,8 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "fixture-result.json reports PASS-candidate: every fixture receipt in liveRunSafety.requiredReceipts except the trace receipts holds. Behavioral only; the trace receipts decide review completeness, not the verdict. A PASS-candidate also needs the required preflight R-CW-6A passed at the same candidate; without it the row is capped at PARTIAL-candidate (requiredPreflights).",
-      "partial": "Any fixture receipt is missing or unproven.",
+      "pass": "fixture-result.json reports PASS-candidate: every fixture receipt in liveRunSafety.requiredReceipts except the trace receipts holds. That is the fixture's behavioral verdict, not the row's: the manifest caps this process-local row at PARTIAL-candidate (verdictCap). The trace receipts decide review completeness, not the verdict. The required preflight R-CW-6A passed at the same candidate is necessary, not sufficient: without it the row is capped at PARTIAL-candidate, and with it the row stays at the cap (requiredPreflights).",
+      "partial": "The row’s artifact class (verdictCap): a process-local fixture is not an external gateway invocation, so the row is not promoted past PARTIAL-candidate, whatever the fixture reports and whether or not R-CW-6A passed. Lifting the cap needs a superseding authority receipt from a different artifact class, adopted by an explicit method change. Any fixture receipt missing or unproven is also at most PARTIAL-candidate.",
       "fail": "fixture-result.json reports a failure: an over-limit election that is not rejected, a rejected hop that spawns, or a recovered state that admits the over-limit election."
     },
     "execution": {
@@ -281,7 +288,7 @@
     "requiresExternalAgentOrToolInvocation": false,
     "requiresHumanConfirmation": false,
     "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PASS-candidate",
+    "expectedArtifactClass": "PARTIAL-candidate",
     "requiredReceipts": [
       "fixture-readiness",
       "boundary-matrix",

@@ -4,9 +4,12 @@
  *
  * R-CW-5A/6A are not proof rows of an F″ corpus. They are required preflights
  * of R-CW-5/6: a static source/harness check that must run at the exact
- * candidate, and a live cap row is PASS only when its preflight receipt passed
- * at that same candidate. A missing, failed, malformed or other-SHA receipt caps
- * the live row at PARTIAL-candidate; the gate never raises a verdict.
+ * candidate. A missing, failed, malformed or other-SHA receipt caps the live row
+ * at PARTIAL-candidate; the gate never raises a verdict. A passing receipt is
+ * necessary, not sufficient: the row verdict is also capped by the row
+ * manifest's own `verdictCap` (lib/row-verdict-cap.mjs; 🌊's ruling on docs#616,
+ * Discord 1565925290008387728), and R-CW-5/6 declare PARTIAL-candidate there
+ * while their only producer is a process-local fixture.
  *
  * The row manifest is the declaration of record: a live row lists
  * `requiredPreflights`, and each preflight manifest names its live row in
@@ -89,7 +92,8 @@ export function buildRequiredPreflightReceipt({ preflightRow, attachedTo, candid
  *   invalid         not a receipt for this preflight and live row
  *   wrong-candidate a receipt bound to another SHA, or not to the candidate
  *   failed          bound to the candidate, but the check did not pass
- *   passed          the only status that lets the live row keep PASS
+ *   passed          the only status that leaves the live row uncapped by this
+ *                   gate; the row's own verdictCap still applies
  */
 export function evaluateRequiredPreflight({ requirement, liveRowId, candidateSha, receipt }) {
   if (receipt === undefined || receipt === null) return { status: 'missing', reasons: ['no receipt supplied'] };
@@ -134,6 +138,7 @@ export function evaluateRequiredPreflight({ requirement, liveRowId, candidateSha
 /**
  * Cap a live row's verdict on its preflight statuses. Only PASS-candidate is
  * capped; every other verdict passes through, so the gate never raises one.
+ * An uncapped result is not a row PASS: the row's verdictCap applies on top.
  */
 export function gatePreflightedVerdict({ verdict, statuses }) {
   const blocked = statuses.some((status) => status !== 'passed');

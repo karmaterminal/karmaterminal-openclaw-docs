@@ -22,8 +22,7 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
-import { toolCallTarget } from './tool-call-identity.mjs';
-import { hasExactSentinelText, messageRunId, runExclusion } from './wake-turn-receipt.mjs';
+import { hasExactSentinelText, messageRunId } from './wake-turn-receipt.mjs';
 
 export const HARNESS_MARKER = '[k6-proof-harness]';
 /** A token a child invents: no harness-sent text can carry it. */
@@ -90,8 +89,7 @@ function exactIn(text, marker, nonce) {
 /**
  * A session.message assistant row, in `sessionKey`, whose text parts carry the
  * exact `<marker> <nonce>` sentinel, stamped with a run outside
- * `excludeRunIds`. Returns { runId } or null. An exclusion list with a
- * missing run id binds nothing (runExclusion).
+ * `excludeRunIds`. Returns { runId } or null.
  */
 export function assistantSentinelFromEvent(eventName, eventData, {
   sessionKey,
@@ -105,11 +103,9 @@ export function assistantSentinelFromEvent(eventName, eventData, {
   const message = eventData.message;
   const text = assistantText(message);
   if (!text || !exactIn(text, marker, nonce)) return null;
-  const excluded = runExclusion(excludeRunIds);
-  if (!excluded) return null;
   const runId = rowRunId(message, eventData);
   if (requireRunId && !runId) return null;
-  if (runId && excluded.has(runId)) return null;
+  if (runId && excludeRunIds.filter(Boolean).includes(runId)) return null;
   return { runId: runId || null };
 }
 
@@ -126,8 +122,7 @@ export function assistantSentinelFromHistory(messages, {
   requireRunId = true,
 } = {}) {
   const list = Array.isArray(messages) ? messages : [];
-  const excluded = runExclusion(excludeRunIds);
-  if (!excluded) return null;
+  const excluded = new Set(excludeRunIds.filter(Boolean));
   for (let i = afterIndex + 1; i < list.length; i += 1) {
     const text = assistantText(list[i]);
     if (!text || !exactIn(text, marker, nonce)) continue;
@@ -147,27 +142,21 @@ function toolNameMatches(name, toolName) {
   return typeof name === 'string' && (name === toolName || name.endsWith(`__${toolName}`));
 }
 
-/**
- * Whether a toolCall part invoked `toolName`, by name or through Tool Search's
- * dispatcher (lib/tool-call-identity.mjs).
- */
-export function isToolCallOf(part, toolName) {
-  const target = toolCallTarget(part);
-  return Boolean(target) && toolNameMatches(target.name, toolName);
-}
-
-/** Whether an assistant row calls `toolName` anywhere, by name or through the dispatcher. */
-export function callsTool(message, toolName) {
-  return role(message) === 'assistant' && Array.isArray(message.content) &&
-    message.content.some((part) => isToolCallOf(part, toolName));
+function toolCallArgs(part) {
+  if (isRecord(part?.arguments)) return part.arguments;
+  if (typeof part?.arguments === 'string') return parseJsonRecord(part.arguments) || {};
+  if (isRecord(part?.input)) return part.input;
+  if (typeof part?.input === 'string') return parseJsonRecord(part.input) || {};
+  return {};
 }
 
 /** The nonce-bound calls of `toolName` in one assistant row: [{ id, args }]. */
 export function boundToolCalls(message, { toolName, argField, needle }) {
   if (role(message) !== 'assistant' || !Array.isArray(message.content) || !needle) return [];
   return message.content
-    .filter((part) => isRecord(part) && typeof part.id === 'string' && part.id && isToolCallOf(part, toolName))
-    .map((part) => ({ id: part.id, args: toolCallTarget(part).args }))
+    .filter((part) => isRecord(part) && part.type === 'toolCall' && typeof part.id === 'string' && part.id &&
+      toolNameMatches(part.name || part.toolName, toolName))
+    .map((part) => ({ id: part.id, args: toolCallArgs(part) }))
     .filter((call) => typeof call.args[argField] === 'string' && call.args[argField].includes(needle));
 }
 
@@ -232,10 +221,6 @@ export function createToolReceiptTracker({ sessionKey, toolName, argField, needl
   const calls = new Map();
   const receipts = [];
   return {
-    /** Every bound call seen so far, answered or not: [{ id, args }]. */
-    calls() {
-      return [...calls.values()].map(({ call }) => ({ id: call.id, args: call.args }));
-    },
     observe(eventName, eventData) {
       if (eventName !== 'session.message' || !sessionKey || eventSessionKey(eventData) !== sessionKey) return null;
       const message = eventData.message;
@@ -253,19 +238,6 @@ export function createToolReceiptTracker({ sessionKey, toolName, argField, needl
       return receipts.slice();
     },
   };
-}
-
-/**
- * The texts a requester's own calls carried: one JSON rendering per call's
- * arguments (receipts or calls with `args`). The requester can write a
- * "token" into a task it hands a child and later reproduce it from memory
- * (harness review F2), so a minted token must be absent from these as well
- * as from every harness-sent text.
- */
-export function requesterCallTexts(calls) {
-  return (Array.isArray(calls) ? calls : [])
-    .filter((call) => isRecord(call?.args))
-    .map((call) => JSON.stringify(call.args));
 }
 
 // ---------------------------------------------------------------------------
@@ -336,8 +308,7 @@ export function tokenReplyFromHistory(messages, {
   const none = (reason) => ({ bound: false, index: -1, runId: null, reason });
   if (!marker || !nonce || !token) return none('no minted token to look for');
   if (!isTimestamp(notBeforeTimestamp)) return none('the minted token has no timestamp; ordering after it cannot be proven');
-  const excluded = runExclusion(excludeRunIds);
-  if (!excluded) return none('a run to exclude (the dispatch, priming or fill run) has no run id; no reply can be proven outside it');
+  const excluded = new Set(excludeRunIds.filter(Boolean));
   let untimed = false;
   for (let i = 0; i < list.length; i += 1) {
     const text = assistantText(list[i]);

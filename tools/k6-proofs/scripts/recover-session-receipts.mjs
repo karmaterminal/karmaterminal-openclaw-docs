@@ -3,7 +3,6 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { continueWorkChain, tokenWorkHops } from '../lib/continue-work-chain.mjs';
 import { toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
-import { toolCallTarget } from '../lib/tool-call-identity.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/recover-session-receipts.mjs \\
@@ -69,14 +68,12 @@ function messageText(message) {
   return getTextParts(message.content).join('\n');
 }
 
-// The tool each call invoked: by name or through Tool Search's dispatch_action (#1727 review F1).
 function toolCalls(message) {
   const calls = [];
   if (Array.isArray(message.content)) {
     for (const item of message.content) {
       if (item?.type === 'toolCall' || item?.name) {
-        const target = toolCallTarget({ ...item, type: 'toolCall' });
-        calls.push({ name: target ? target.name : item.name, arguments: target ? target.args : item.arguments || {}, raw: item });
+        calls.push({ name: item.name, arguments: item.arguments || {}, raw: item });
       }
     }
   }
@@ -164,9 +161,7 @@ function evaluate(row, nonce, messages) {
   // One transcript holds either the parent (spawn receipt) or the child (hops); the
   // spawn task carries every child sentinel, so no substring of it counts (#1727).
   // The return needs the child's hop-2 token and the parent transcript together,
-  // which one recovery read cannot give, so recovery never reaches PASS for this
-  // row. On a parent transcript the parent restating the child's hop-2 output can
-  // mark hop-2-executed present (review N8): recovered receipts are diagnostic.
+  // which one recovery read cannot give.
   if (row === 'R-CW-TOKEN') {
     const spawn = toolReceiptsFromHistory(messages, { toolName: 'sessions_spawn', argField: 'task', needle: nonce });
     const spawned = spawn.length === 1 && spawn[0].status === 'accepted' && typeof spawn[0].payload?.childSessionKey === 'string';

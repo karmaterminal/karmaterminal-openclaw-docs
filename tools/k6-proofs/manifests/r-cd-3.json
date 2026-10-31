@@ -27,7 +27,7 @@
     ],
     "status": "runnable",
     "file": "r-cd-3-post-compaction.js",
-    "notes": "Does not lower thresholds or mutate config: the fill sends inert filler turns and reads fresh totalTokens/contextTokens from sessions.describe, the inputs request_compaction measures. The fill runs only in a disposable session (sessions.create must answer a key other than the configured session) and stops, with the reason named, when the measured gap cannot be closed within OPENCLAW_RCD3_FILL_MAX_TURNS (default 6) or OPENCLAW_RCD3_FILL_BUDGET_TOKENS (default 300000), when the target is not reachable below the automatic-compaction line (window - min(max(reserve, 20000), window/4), minus a margin; OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS declares a larger configured reserve), or when the describe row shows a mid-fill compaction (a falling total or a changed sessionId). No sentinel is read from the requester's event stream (openclaw-bootstrap#1727)."
+    "notes": "Does not lower thresholds or mutate config: the fill sends inert filler turns and reads fresh totalTokens/contextTokens from sessions.describe, the inputs request_compaction measures. The fill runs only in a disposable session and stops, with the reason named, when the measured gap cannot be closed within OPENCLAW_RCD3_FILL_MAX_TURNS (default 6) or OPENCLAW_RCD3_FILL_BUDGET_TOKENS (default 300000). No sentinel is read from the requester's event stream (openclaw-bootstrap#1727)."
   },
   "invocation": {
     "tool": "continue_delegate",
@@ -102,7 +102,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "R-CD-3 is PASS-candidate only on the bound chain: accepted request_compaction, released lifeboat child, its minted token, and the requester reproducing it. An unknown or unmeasured request_compaction rejection is PARTIAL with its own reason, distinct from R-RC-2's measured threshold rejection; never overclaim compaction firing. Expected PARTIAL cause (harness review N3, openclaw-bootstrap#1727): the fill reads sessions.describe, whose contextTokens denominator passes a provenance check and can take a minimum (src/config/sessions/context-token-provenance.ts:50-108), while request_compaction divides the same fresh total by the raw entry.contextTokens (src/auto-reply/reply/agent-runner-post-compaction-release.ts:149-170). A fill that reads as reached can therefore meet a measured below-threshold rejection; that is PARTIAL with that reason, never PASS."
+    "notes": "R-CD-3 is PASS-candidate only on the bound chain: accepted request_compaction, released lifeboat child, its minted token, and the requester reproducing it. An unknown or unmeasured request_compaction rejection is PARTIAL with its own reason, distinct from R-RC-2's measured threshold rejection; never overclaim compaction firing."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -295,6 +295,6 @@
       "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "Runs only in a disposable session: OPENCLAW_CREATE_DISPOSABLE_SESSIONS (plural, default true) controls it and the fill refuses OPENCLAW_CREATE_DISPOSABLE_SESSIONS=false; OPENCLAW_CREATE_DISPOSABLE_SESSION=true also enables it, but =false alone does not disable it. A sessions.create answer without a key, or naming the configured session, sends nothing. Does not mutate config or thresholds; an accepted compaction compacts that proof session only. The fill sends real model turns sized to the measured context window, so cost grows with the window; the token and turn budgets bound it, and it never plans past the automatic-compaction line."
+    "notes": "Runs only in a disposable session: the fill refuses OPENCLAW_CREATE_DISPOSABLE_SESSION=false. Does not mutate config or thresholds; an accepted compaction compacts that proof session only. The fill sends real model turns sized to the measured context window, so cost grows with the window; the token and turn budgets bound it."
   }
 }

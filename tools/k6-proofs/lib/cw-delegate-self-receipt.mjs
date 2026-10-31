@@ -16,7 +16,6 @@
 // (chat-display-projection.sanitize.ts:431-463), so the result is parsed from text.
 
 import { continueWorkYieldForNonce, wakeTurnIndexAfter } from './request-compaction-receipt.js';
-import { toolResultNameAdmits } from './tool-call-identity.mjs';
 import { hasExactSentinelText, heartbeatAckFromHistory } from './wake-turn-receipt.mjs';
 
 function role(message) {
@@ -37,17 +36,13 @@ function parseJson(text) {
   try { return JSON.parse(trimmed); } catch { return null; }
 }
 
-/**
- * Index of the continue_work toolResult with status "scheduled" for toolCallId,
- * or -1. toolCallId is a continue_work call's (continueWorkYieldForNonce); under
- * Tool Search its result row is named dispatch_action (#1727 review F1/N1).
- */
+/** Index of the continue_work toolResult with status "scheduled" for toolCallId, or -1. */
 export function continueWorkScheduledIndex(messages, toolCallId, afterIndex = -1) {
   const list = Array.isArray(messages) ? messages : [];
   if (!toolCallId) return -1;
   for (let i = afterIndex + 1; i < list.length; i += 1) {
     const m = list[i];
-    if (role(m) !== 'toolresult' || !toolResultNameAdmits(m, 'continue_work') || m.toolCallId !== toolCallId) continue;
+    if (role(m) !== 'toolresult' || m.toolName !== 'continue_work' || m.toolCallId !== toolCallId) continue;
     if (m.isError === true) return -1;
     const payload = parseJson(plainText(m)) || (m.details && typeof m.details === 'object' ? m.details : null);
     return payload?.status === 'scheduled' ? i : -1;

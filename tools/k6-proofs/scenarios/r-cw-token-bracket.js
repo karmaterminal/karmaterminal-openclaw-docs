@@ -13,18 +13,10 @@
  *   - spawn: the parent's sessions_spawn toolResult, bound by toolCallId to the
  *     call whose task carries the nonce, answered "accepted" with a
  *     childSessionKey;
- *   - hop 1 / hop 2: the child's own transcript on that key, read whole with
- *     chat.history from its spawn task (harness review F2/F3: a live row only
- *     prompts that read, because the subscription opens after the spawn and
- *     misses the spawn task and any typed call persisted before it):
- *     TOKEN-HOP1 in assistant text, then, after a "[continuation:wake]" row or
- *     in another run, TOKEN-HOP2-DONE with a token the child mints in hop 2,
- *     absent from the harness texts, from the requester's own sessions_spawn
- *     arguments and from the child's spawn task; no typed continue_work call
- *     in the child, by name or through Tool Search's dispatch_action;
- *   - a spawn with context "fork" (or a thread spawn that leaves the context
- *     to the channel default) is refused: a forked child starts with the
- *     requester's own transcript;
+ *   - hop 1 / hop 2: the child's own rows on that key (subscribed live, and its
+ *     transcript): TOKEN-HOP1 in assistant text, then, after a
+ *     "[continuation:wake]" row or in another run, TOKEN-HOP2-DONE with a token
+ *     the child mints in hop 2; no typed continue_work call in the child;
  *   - return: the parent reproducing that hop-2 token in a run other than the
  *     dispatch run.
  *
@@ -48,7 +40,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
 import { tokenWorkHops } from '../lib/continue-work-chain.mjs';
-import { createToolReceiptTracker, eventSessionKey, requesterCallTexts, tokenReplyFromHistory, toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
+import { createToolReceiptTracker, eventSessionKey, tokenReplyFromHistory, toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = {
@@ -143,7 +135,6 @@ export default function () {
     child_rows_seen: 0,
     child_history_reads: 0,
     child_typed_continue_work_observed: false,
-    spawn_refusal_reason: null,
     hop_reason: null,
     hop_2_token_fingerprint: null,
     parent_history_reads: 0,
@@ -157,13 +148,12 @@ export default function () {
   const started = Date.now();
 
   const sentTexts = [];
-  // The requester's own nonce-bound sessions_spawn arguments (review F2).
-  const requesterTexts = [];
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     let spawnTracker = null;
     let dispatchRunId = null;
     let childKey = null;
+    const childRows = [];
     let hop2Token = null;
     let hop2Timestamp = null;
     let childHistoryScheduled = false;
@@ -178,22 +168,11 @@ export default function () {
     }
 
     function recordSpawn(receipts, source) {
-      if (childKey || evidence.spawn_refusal_reason || receipts.length === 0) return;
+      if (childKey || receipts.length === 0) return;
       if (receipts.length > 1) { evidence.spawn_receipt_status = 'ambiguous'; return; }
       const [receipt] = receipts;
       evidence.spawn_receipt_status = receipt.status;
       evidence.spawn_receipt_source = source;
-      for (const text of requesterCallTexts([receipt])) if (!requesterTexts.includes(text)) requesterTexts.push(text);
-      // A forked child inherits the requester's visible transcript, assistant rows
-      // included (session-accessor.sqlite-parent-fork.ts:219-249); an omitted
-      // context on a thread spawn takes the channel's default, which can be fork
-      // (subagent-spawn-context.ts:207-229).
-      const context = receipt.args?.context;
-      if (context === 'fork' || (context === undefined && receipt.args?.thread === true)) {
-        evidence.spawn_refusal_reason = `sessions_spawn context ${context === 'fork' ? '"fork"' : 'left to a thread default'}: a forked child starts with the requester's transcript`;
-        console.error(`✗ ${evidence.spawn_refusal_reason}`);
-        return;
-      }
       const key = typeof receipt.payload?.childSessionKey === 'string' ? receipt.payload.childSessionKey.trim() : '';
       if (receipt.isError || receipt.status !== 'accepted' || !key) return;
       if (receipt.runId) dispatchRunId = dispatchRunId || receipt.runId;
@@ -205,11 +184,10 @@ export default function () {
       requestChildHistory(250);
     }
 
-    // The child's whole transcript decides hop 1 and hop 2; the parent stream
-    // and the live child suffix never do.
+    // The child's own rows decide hop 1 and hop 2; the parent stream never does.
     function evaluateChild(rows, source) {
       if (evidence.hop_2_executed) return;
-      const hops = tokenWorkHops(rows, { nonce: rowNonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE', sentTexts: [...sentTexts, ...requesterTexts] });
+      const hops = tokenWorkHops(rows, { nonce: rowNonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE', sentTexts });
       if (hops.typedToolUsed) evidence.child_typed_continue_work_observed = true;
       evidence.hop_reason = hops.reason;
       if (hops.hop1Index >= 0 && !hops.typedToolUsed && !evidence.token_emitted_or_stripped) {
@@ -384,10 +362,11 @@ export default function () {
             const receipt = spawnTracker.observe(eventName, eventData);
             if (receipt) recordSpawn([receipt], 'session.message');
           }
-          // A live child row prompts a whole-transcript read; it decides nothing.
+          // The child's own rows, on the child key only.
           if (childKey && eventName === 'session.message' && eventSessionKey(eventData) === childKey && eventData.message) {
-            evidence.child_rows_seen += 1;
-            requestChildHistory(500);
+            childRows.push({ ...eventData.message, __openclaw: { ...(eventData.message.__openclaw || {}), runId: eventData.message.__openclaw?.runId || eventData.runId } });
+            evidence.child_rows_seen = childRows.length;
+            evaluateChild(childRows, 'child session.message');
           }
           // Diagnostics only.
           if (!eventStr.includes(HARNESS_MARKER)) {

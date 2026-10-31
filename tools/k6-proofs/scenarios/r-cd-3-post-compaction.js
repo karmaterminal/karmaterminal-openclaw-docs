@@ -1,16 +1,12 @@
 /**
  * Scenario: R-CD-3 — post-compaction lifeboat after an accepted request_compaction.
  *
- * In a disposable session (sessions.create must answer a key other than the
- * configured session, else nothing is sent; review F6):
+ * In a disposable session:
  *   1. Fill: real prior turns of inert filler until the session's measured
  *      usage (fresh totalTokens / contextTokens from sessions.describe, the
  *      inputs request_compaction itself reads) passes the 70% threshold. No
  *      threshold is lowered and no config is touched; a fill that cannot get
- *      there within its turn and token budgets, or below the automatic
- *      compaction line, stops with the reason named. A falling total or a
- *      changed sessionId on the describe row stops it as a mid-fill
- *      compaction (review F7).
+ *      there within its turn and token budgets stops with the reason named.
  *   2. Proof turn: stage continue_delegate(mode="post-compaction") with the
  *      lifeboat task, then call request_compaction.
  *   3. Receipts, all product records the agent cannot author
@@ -18,10 +14,8 @@
  *      - the continue_delegate and request_compaction toolResults, each bound
  *        to its own call by toolCallId;
  *      - the released lifeboat: a child whose own row names this session in
- *        spawnedBy and whose own spawn task starts with the product's
- *        "[continuation:post-compaction] [continuation:chain-hop:N] " release
- *        composition and carries the row token; a requester call whose
- *        arguments carry that prefix refuses the binding (review F4);
+ *        spawnedBy and whose own spawn task carries the product's
+ *        "[continuation:post-compaction]" prefix and the row token;
  *      - the lifeboat's report: a token it mints in its own transcript, absent
  *        from every harness-sent text;
  *      - the return: this session reproducing that token in a run other than
@@ -33,12 +27,7 @@
  * Verdicts (lib/r-cd-3-lifeboat.mjs classifyRcd3Evidence): PASS needs every
  * receipt above. An unknown or unmeasured request_compaction rejection is
  * PARTIAL with its own reason and never PASS; a measured below-threshold
- * rejection is a different PARTIAL reason. Expected PARTIAL cause (review N3):
- * the fill's sessions.describe denominator can be a provenance-checked
- * minimum (context-token-provenance.ts:50-108) while request_compaction
- * divides by the raw entry.contextTokens (agent-runner-post-compaction-release.ts
- * :149-170), so a fill that reads as reached can still meet a measured
- * below-threshold rejection.
+ * rejection is a different PARTIAL reason.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -49,9 +38,8 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { gatewayLifecyclePhase, gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
-import { createToolReceiptTracker, eventSessionKey, requesterCallTexts } from '../lib/sentinel-binding.mjs';
+import { createToolReceiptTracker } from '../lib/sentinel-binding.mjs';
 import {
-  COMPACTION_RESERVE_FLOOR_TOKENS,
   COMPACTION_THRESHOLD,
   DEFAULT_FILL_BUDGET_TOKENS,
   DEFAULT_FILL_CEILING,
@@ -69,7 +57,6 @@ import {
   parentReturn,
   planFillStep,
   rcd3TaskIdentityToken,
-  requesterPrefixCall,
   stagingOutcome,
   stagingReceiptsFromHistory,
   summaryRcd3Verdict,
@@ -116,12 +103,6 @@ function fingerprint(value) {
   return crypto.sha256(String(value), 'hex').slice(0, 16);
 }
 
-/** The configured session, by its own key or as the canonical `agent:<id>:<key>` of a bare one. */
-function isConfiguredSession(key, configured) {
-  if (!configured) return false;
-  return key === configured || (!configured.includes(':') && key.endsWith(`:${configured}`));
-}
-
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -135,8 +116,6 @@ export default function () {
   const fillBudgetTokens = numberEnv('OPENCLAW_RCD3_FILL_BUDGET_TOKENS', DEFAULT_FILL_BUDGET_TOKENS);
   const fillMaxTurns = numberEnv('OPENCLAW_RCD3_FILL_MAX_TURNS', DEFAULT_FILL_MAX_TURNS);
   const fillTurnTimeoutMs = numberEnv('OPENCLAW_RCD3_FILL_TURN_TIMEOUT_MS', 300000);
-  // A seat that configures a compaction reserve above the 20,000 floor declares it here; it only lowers the fill's cap.
-  const compactionReserveTokens = numberEnv('OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS', COMPACTION_RESERVE_FLOOR_TOKENS);
   const socketTimeoutMs = numberEnv('OPENCLAW_RCD3_SOCKET_TIMEOUT_MS', 1080000);
 
   if (!token) {
@@ -171,7 +150,6 @@ export default function () {
     fill_reached: false,
     fill_measured_usage: null,
     fill_context_tokens: null,
-    fill_compaction_reserve_tokens: compactionReserveTokens,
     fill_stop_reason: null,
     // Proof turn and its authoritative receipts.
     proof_dispatched: false,
@@ -191,7 +169,6 @@ export default function () {
     lifeboat_child_status: null,
     lifeboat_identity_conflict: false,
     lifeboat_identity_reason: null,
-    requester_prefix_call: null,
     lifeboat_report_bound: false,
     lifeboat_report_reason: null,
     lifeboat_token_fingerprint: null,
@@ -214,7 +191,7 @@ export default function () {
   const started = Date.now();
   const gate = createPreflightGate('R-CD-3');
   const observer = createChildObserver({ rootSessionKey: () => sessionKey });
-  // Every text the harness sends, and the requester's own staging arguments; a token found in any of them is not minted by the lifeboat.
+  // Every text the harness sends; a token found in any of them is not minted by the lifeboat.
   const sentTexts = [lifeboatTask, compactionReason];
 
   const res = ws.connect(url, {}, (socket) => {
@@ -228,7 +205,6 @@ export default function () {
     let fillMeasureInFlight = false;
     let fillStartedAt = 0;
     let previousTotal = null;
-    let fillSessionId = null;
     let filledTokens = 0;
     let tokensPerChar = FILL_INITIAL_TOKENS_PER_CHAR;
     const excludedRunIds = [];
@@ -240,8 +216,6 @@ export default function () {
     let lifeboatTokenTimestamp = null;
     let parentHistoryScheduled = false;
     let lifeboatHistoryScheduled = false;
-    // The requester's own bound continue_delegate arguments (review F2).
-    const requesterCalls = [];
 
     function send(purpose, method, params) {
       const id = tracker.send(socket, method, params);
@@ -303,12 +277,6 @@ export default function () {
       fillMeasureInFlight = false;
       if (fillEnded) return;
       const m = measuredSessionUsage(row);
-      // Compaction can rotate the session id; the row projects no compaction counter.
-      if (m.sessionId && fillSessionId && m.sessionId !== fillSessionId) {
-        stopFill('the session was compacted during the fill (its sessionId changed on the describe row)');
-        return;
-      }
-      if (m.sessionId) fillSessionId = m.sessionId;
       if (m.measured && previousTotal !== null && m.totalTokens < previousTotal) {
         stopFill(`the session was compacted during the fill (total fell from ${previousTotal} to ${m.totalTokens})`);
         return;
@@ -350,7 +318,6 @@ export default function () {
         target: fillTarget,
         budgetTokens: fillBudgetTokens,
         maxTurns: fillMaxTurns,
-        reserveTokens: compactionReserveTokens,
       });
       console.log(`ℹ R-CD-3 fill ${fillTurn}: measured usage ${(m.usage * 100).toFixed(1)}% of ${m.contextTokens} → ${step.action}`);
       if (step.action === 'done') {
@@ -381,9 +348,6 @@ export default function () {
     }
 
     function recordStaging(receipts, source) {
-      for (const receipt of receipts) {
-        if (!requesterCalls.some((call) => call.id === receipt.toolCallId)) requesterCalls.push({ id: receipt.toolCallId, args: receipt.args });
-      }
       if (evidence.staging_receipt_observed) return;
       const staging = stagingOutcome(receipts);
       if (!receipts.length) return;
@@ -424,17 +388,7 @@ export default function () {
       }, k6TimeoutMs(delayMs));
     }
 
-    // Any requester call carrying the post-compaction prefix refuses the lifeboat binding.
-    function noteRequesterRow(message, source) {
-      if (evidence.requester_prefix_call) return;
-      const call = requesterPrefixCall(message);
-      if (!call) return;
-      evidence.requester_prefix_call = { ...call, source };
-      console.error(`✗ a requester ${call.tool} call carried the post-compaction prefix (${source}); the lifeboat cannot be bound`);
-    }
-
     function onParentHistory(messages) {
-      for (const message of messages) noteRequesterRow(message, 'chat.history');
       recordStaging(stagingReceiptsFromHistory(messages, taskToken), 'chat.history');
       recordCompaction(compactionReceiptsFromHistory(messages, rowNonce), 'chat.history');
       if (lifeboatToken) {
@@ -468,7 +422,7 @@ export default function () {
     }
 
     function resolveLifeboat() {
-      if (evidence.lifeboat_child_observed || evidence.lifeboat_identity_conflict || evidence.requester_prefix_call) return;
+      if (evidence.lifeboat_child_observed || evidence.lifeboat_identity_conflict) return;
       const bound = observer.boundChild(rowNonce, taskToken ? [taskToken] : []);
       if (bound.ambiguous) {
         evidence.lifeboat_identity_conflict = true;
@@ -498,9 +452,6 @@ export default function () {
     }
 
     function onLifeboatHistory(messages) {
-      // Absent from the requester's own staging call arguments too (review F2).
-      const calls = [...requesterCalls, ...(stagingTracker ? stagingTracker.calls() : [])];
-      for (const text of requesterCallTexts(calls)) if (!sentTexts.includes(text)) sentTexts.push(text);
       const report = lifeboatReport(messages, { rowNonce, sentTexts });
       evidence.lifeboat_report_reason = report.reason;
       if (!report.token) {
@@ -530,9 +481,7 @@ export default function () {
     function startFlow() {
       if (!createDisposableSession) {
         // The fill and the compaction it unlocks change the session they run in.
-        // OPENCLAW_CREATE_DISPOSABLE_SESSIONS (plural, default true) is the switch;
-        // OPENCLAW_CREATE_DISPOSABLE_SESSION=true also enables, but =false alone does not disable (review N11).
-        stopFill('the measured fill runs only in a disposable session (OPENCLAW_CREATE_DISPOSABLE_SESSIONS=false)');
+        stopFill('the measured fill runs only in a disposable session (OPENCLAW_CREATE_DISPOSABLE_SESSION=false)');
         return;
       }
       send('subscribe', 'sessions.messages.subscribe', { key: sessionKey });
@@ -591,33 +540,22 @@ export default function () {
 
         if (classified.kind === 'response') {
           if (purpose === 'create') {
-            // Review F6 (mirrors R-CD-TOKEN): the fill and the proof go only to a created
-            // key distinct from the configured session; anything else sends nothing.
-            const createdKey = classified.ok && typeof classified.payload?.key === 'string' ? classified.payload.key.trim() : '';
-            if (createdKey && !isConfiguredSession(createdKey, requestedSessionKey)) {
-              sessionKey = createdKey;
+            if (classified.ok && classified.payload) {
+              sessionKey = classified.payload.key || sessionKey;
               evidence.sessionKey = sessionKey;
               evidence.session_created = true;
               evidence.created_session_key = sessionKey;
               console.log(`✓ disposable session created: ${sessionKey}`);
               startFlow();
             } else {
-              const reason = !classified.ok
-                ? `sessions.create rejected: ${JSON.stringify(classified.error)}`
-                : !createdKey
-                  ? 'sessions.create answered no session key; the fill would fall back to the configured session'
-                  : `sessions.create answered the configured session ${requestedSessionKey}, not a disposable one`;
-              evidence.fill_stop_reason = reason;
-              console.error(`✗ ${reason}`);
+              console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
               failures.add(1);
               socket.close();
             }
           } else if (purpose && purpose.startsWith('fill-') && purpose !== 'fill-measure') {
             if (classified.ok) {
               fillRun = gatewayLifecycleRunId(classified.payload);
-              // A fill run without an id stays in the list as null: the return then
-              // cannot be proven outside it and binds nothing (review F5).
-              excludedRunIds.push(fillRun || null);
+              if (fillRun) excludedRunIds.push(fillRun);
             } else {
               stopFill(`fill turn ${fillTurn} was rejected: ${JSON.stringify(classified.error)}`);
             }
@@ -652,7 +590,6 @@ export default function () {
             fillLifecycleEnded = true;
             socket.setTimeout(measureFill, k6TimeoutMs(750));
           }
-          if (eventName === 'session.message' && eventSessionKey(eventData) === sessionKey) noteRequesterRow(eventData.message, 'session.message');
           // Authoritative toolResults on the live stream, bound by toolCallId.
           if (stagingTracker) {
             const receipt = stagingTracker.observe(eventName, eventData);

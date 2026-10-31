@@ -1,16 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 // 🌊's F″ method ruling (Discord 1565895695586558120, 2026-10-31; bound to
 // openclaw-bootstrap#1727): R-CW-5A/6A leave the required proof tally and become
-// required preflight attachments of R-CW-5/6. A live row is PASS only when its
-// preflight receipt passes at the same candidate. The corpora folded before the
-// ruling (every manifest-bearing PROOFS dir at docs f17d784d, F′ included) keep
-// the method they were folded under; every other corpus is held to the ruling.
+// required preflight attachments of R-CW-5/6. A preflight receipt that passed at
+// the same candidate is necessary for a live row, never sufficient: 🌊's ruling on
+// docs#616 (Discord 1565925290008387728) keeps R-CW-5/6 at partial, the cap their
+// manifests declare in `verdictCap`, while their only producer is a process-local
+// fixture. The corpora folded before the ruling (every manifest-bearing PROOFS dir
+// at docs f17d784d, F′ included) keep the method they were folded under; every
+// other corpus is held to the ruling.
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const validator = join(repoRoot, 'tools/k6-proofs/scripts/validate-corpus.mjs');
 const legacyList = join(repoRoot, 'tools/k6-proofs/scripts/pre-f2-ruling-corpora.json');
@@ -48,9 +51,18 @@ const ROW_SET_CHECKS = [
   'rollup-supplemental-matches',
 ];
 const PREFLIGHT_CHECKS = ['preflight-attachments-valid', 'live-rows-gated-by-preflights'];
+const ROW_CAP_CHECKS = ['rows-within-declared-cap'];
 const CAP_NOTE = 'a live row without a passing same-candidate preflight is capped at partial';
-// F′ is 38 required rows with R-CW-5A/6A missing; retiring them leaves 36.
-const FDOUBLE_ROLLUP = { total_rows: 36, pass: 29, partial: 3, thin: 0, fail: 0, honest_limit: 0, missing: 4 };
+const ROW_CAP_NOTE =
+  'a passing preflight is necessary, not sufficient; lifting a declared cap needs a superseding authority ' +
+  'receipt from a different artifact class, adopted by an explicit method change';
+/** The cap-check problem for one live row recorded above its declared cap. */
+const OVER_CAP = (live) => new RegExp(
+  `${live} is pass, above the PARTIAL-candidate cap ${live.toLowerCase()}\\.json declares \\(verdictCap\\.rowCap; process-local-fixture\\)`,
+);
+// F′ is 38 required rows with R-CW-5A/6A missing; retiring them leaves 36. R-CW-5/6
+// are partial, as F′ was corrected on docs main 7e544c04.
+const FDOUBLE_ROLLUP = { total_rows: 36, pass: 27, partial: 5, thin: 0, fail: 0, honest_limit: 0, missing: 4 };
 
 function receiptPath(attachment, sha = SHA) {
   return `PROOFS/${sha}/${attachment}/static-validator-20261031T000000Z/required-preflight-receipt.json`;
@@ -97,9 +109,13 @@ function fprimeAt(sha) {
   return manifest;
 }
 
-/** The F″ seed: F′ with R-CW-5A/6A retired from rows, required_rows and firing buckets. */
+/**
+ * The F″ seed: F′ as corrected (R-CW-5/6 partial), with R-CW-5A/6A retired from
+ * rows, required_rows and firing buckets.
+ */
 function fDouble({ attachments = ['R-CW-5A', 'R-CW-6A'] } = {}) {
   const manifest = fprimeAt(SHA);
+  for (const id of ['R-CW-5', 'R-CW-6']) rowOf(manifest, id).state = 'partial';
   const retired = new Set(Object.keys(PREFLIGHTS));
   manifest.required_rows = manifest.required_rows.filter((id) => !retired.has(id));
   manifest.rows = manifest.rows.filter((row) => !retired.has(row.row));
@@ -108,6 +124,17 @@ function fDouble({ attachments = ['R-CW-5A', 'R-CW-6A'] } = {}) {
   }
   manifest.rollup = { ...FDOUBLE_ROLLUP };
   if (attachments !== null) manifest.preflight_attachments = attachments.map((id) => attachment(id));
+  return manifest;
+}
+
+/** Record partial rows as pass, the over-credit 🌊's ruling forbids, keeping the rollup tallied. */
+function overCredit(manifest, ids) {
+  for (const id of ids) {
+    const row = rowOf(manifest, id);
+    assert.equal(row.state, 'partial', id);
+    row.state = 'pass';
+  }
+  manifest.rollup = { ...manifest.rollup, pass: manifest.rollup.pass + ids.length, partial: manifest.rollup.partial - ids.length };
   return manifest;
 }
 
@@ -207,7 +234,7 @@ async function assertRejected(manifest, receipts, expected) {
 test('(e) an F″ corpus without R-CW-5A/6A in required_rows validates, and its rollup is the 36-row tally', async () => {
   const { status, report } = await validate(fDouble());
   assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
-  assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...PREFLIGHT_CHECKS]);
+  assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...PREFLIGHT_CHECKS, ...ROW_CAP_CHECKS]);
   assert.match(check(report, 'row-sets-defined').detail, /^36 required \(required_rows\), 0 supplemental/);
   assert.match(check(report, 'firing-buckets-cover-required').detail, /cover the 36 required rows exactly once/);
   assert.deepEqual(report.requiredRollup, FDOUBLE_ROLLUP);
@@ -217,7 +244,13 @@ test('(e) an F″ corpus without R-CW-5A/6A in required_rows validates, and its 
   assert.match(check(report, 'preflight-attachments-valid').detail, /^2 preflight attachments: R-CW-5A→R-CW-5 pass, R-CW-6A→R-CW-6 pass/);
   assert.equal(
     check(report, 'live-rows-gated-by-preflights').detail,
-    `R-CW-5 pass with R-CW-5A passed at ${SHORT}; R-CW-6 pass with R-CW-6A passed at ${SHORT}`,
+    `R-CW-5 partial; R-CW-5A passed at ${SHORT}; R-CW-6 partial; R-CW-6A passed at ${SHORT}`,
+  );
+  // Both preflights passed, and both live rows are still partial: their cap.
+  assert.equal(
+    check(report, 'rows-within-declared-cap').detail,
+    'R-CW-5 partial, within the PARTIAL-candidate cap r-cw-5.json declares (process-local-fixture); ' +
+      'R-CW-6 partial, within the PARTIAL-candidate cap r-cw-6.json declares (process-local-fixture)',
   );
   assert.deepEqual(report.preflightAttachments, [
     { attachment: 'R-CW-5A', attachedTo: 'R-CW-5', state: 'pass', receiptStatus: 'passed' },
@@ -247,7 +280,8 @@ test('(e) --index on the F″ corpus compares INDEX with the 36-row required tal
     assert.equal(stale.status, 1);
     assert.equal(
       check(stale.payload.reports[0], 'rollup-matches-manifest').detail,
-      'total_rows: index=38 required-tally=36; missing: index=6 required-tally=4',
+      // The fossil is F′ as folded (29/3); the F″ seed starts from F′ as corrected (27/5).
+      'total_rows: index=38 required-tally=36; pass: index=29 required-tally=27; partial: index=3 required-tally=5; missing: index=6 required-tally=4',
     );
   });
 });
@@ -256,34 +290,37 @@ test('(a) an F″ R-CW-5 or R-CW-6 pass with no preflight receipt fails the live
   for (const [live, preflight] of [['R-CW-5', 'R-CW-5A'], ['R-CW-6', 'R-CW-6A']]) {
     const withoutReceipt = passingReceipts();
     delete withoutReceipt[receiptPath(preflight)];
-    const declaredMissing = fDouble();
+    const declaredMissing = overCredit(fDouble(), [live]);
     const index = declaredMissing.preflight_attachments.findIndex((entry) => entry.attachment === preflight);
     declaredMissing.preflight_attachments[index] = attachment(preflight, 'missing');
     await assertRejected(declaredMissing, withoutReceipt, {
       'live-rows-gated-by-preflights': new RegExp(`^${live} is pass but its required preflight ${preflight} is missing at ${SHORT}; ${CAP_NOTE}$`),
+      'rows-within-declared-cap': OVER_CAP(live),
     }).catch((error) => { error.message = `${live} declared missing: ${error.message}`; throw error; });
 
     // No attachment entry at all; nothing is on disk for it either.
-    const absent = fDouble({ attachments: Object.keys(PREFLIGHTS).filter((id) => id !== preflight) });
+    const absent = overCredit(fDouble({ attachments: Object.keys(PREFLIGHTS).filter((id) => id !== preflight) }), [live]);
     await assertRejected(absent, withoutReceipt, {
       'live-rows-gated-by-preflights': new RegExp(`^${live} is pass but its required preflight ${preflight} is missing`),
+      'rows-within-declared-cap': OVER_CAP(live),
     }).catch((error) => { error.message = `${live} no entry: ${error.message}`; throw error; });
 
     // Declared pass with the receipt file absent.
-    await assertRejected(fDouble(), withoutReceipt, {
+    await assertRejected(overCredit(fDouble(), [live]), withoutReceipt, {
       'preflight-attachments-valid': new RegExp(`${preflight} declares pass but its receipt is missing: .*not found`),
       'live-rows-gated-by-preflights': new RegExp(`^${live} is pass but its required preflight ${preflight} is missing`),
+      'rows-within-declared-cap': OVER_CAP(live),
     }).catch((error) => { error.message = `${live} receipt file absent: ${error.message}`; throw error; });
   }
 });
 
 test('(a) a corpus that records a CW-5/6 pass without declaring preflight_attachments fails, whatever its shape', async () => {
-  // The F″ shape with the attachment field forgotten.
-  const forgotten = fDouble({ attachments: null });
+  // The F″ shape with the attachment field forgotten, and both live rows over-credited.
+  const forgotten = overCredit(fDouble({ attachments: null }), ['R-CW-5', 'R-CW-6']);
   const { status, report } = await validate(forgotten, {});
   assert.equal(status, 1);
-  assert.deepEqual(failedChecks(report), ['live-rows-gated-by-preflights']);
-  assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...PREFLIGHT_CHECKS]);
+  assert.deepEqual(failedChecks(report), ['live-rows-gated-by-preflights', 'rows-within-declared-cap']);
+  assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...PREFLIGHT_CHECKS, ...ROW_CAP_CHECKS]);
   assert.equal(check(report, 'preflight-attachments-valid').detail, 'no preflight attachments declared');
   assert.equal(
     check(report, 'live-rows-gated-by-preflights').detail,
@@ -291,21 +328,21 @@ test('(a) a corpus that records a CW-5/6 pass without declaring preflight_attach
       `R-CW-6 is pass but its required preflight R-CW-6A is missing at ${SHORT}; ${CAP_NOTE}`,
   );
 
-  // Without required_rows (the all-rows legacy shape), the same passes are still gated.
-  const noRequiredRows = fDouble({ attachments: null });
+  // Without required_rows (the all-rows legacy shape), the same passes are still gated and capped.
+  const noRequiredRows = overCredit(fDouble({ attachments: null }), ['R-CW-5', 'R-CW-6']);
   delete noRequiredRows.required_rows;
   delete noRequiredRows.dispatch_allocation;
   const legacyShape = await validate(noRequiredRows, {});
   assert.equal(legacyShape.status, 1);
-  assert.deepEqual(failedChecks(legacyShape.report), ['live-rows-gated-by-preflights']);
-  assert.deepEqual(legacyShape.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...PREFLIGHT_CHECKS]);
+  assert.deepEqual(failedChecks(legacyShape.report), ['live-rows-gated-by-preflights', 'rows-within-declared-cap']);
+  assert.deepEqual(legacyShape.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...PREFLIGHT_CHECKS, ...ROW_CAP_CHECKS]);
 
   // The same shapes with both live rows capped at partial validate: nothing passes ungated.
-  for (const shape of [fDouble({ attachments: null }), noRequiredRows]) {
+  for (const shape of [forgotten, noRequiredRows]) {
     const capped = structuredClone(shape);
     rowOf(capped, 'R-CW-5').state = 'partial';
     rowOf(capped, 'R-CW-6').state = 'partial';
-    capped.rollup = { ...FDOUBLE_ROLLUP, pass: 27, partial: 5 };
+    capped.rollup = { ...FDOUBLE_ROLLUP };
     const ok = await validate(capped, {});
     assert.equal(ok.status, 0, JSON.stringify(ok.report.checks.filter((c) => !c.ok)));
     assert.equal(
@@ -324,7 +361,9 @@ test('(a) a corpus folded after the ruling may not keep R-CW-5A/6A as rows: the 
   manifest.rollup = { ...fossil.manifest.rollup, fail: 2, missing: 4 };
   const { status, report } = await validate(manifest, {});
   assert.equal(status, 1);
-  assert.deepEqual(failedChecks(report).sort(), PREFLIGHT_CHECKS.slice().sort());
+  assert.deepEqual(failedChecks(report).sort(), [...PREFLIGHT_CHECKS, ...ROW_CAP_CHECKS].sort());
+  assert.match(check(report, 'rows-within-declared-cap').detail, OVER_CAP('R-CW-5'));
+  assert.match(check(report, 'rows-within-declared-cap').detail, OVER_CAP('R-CW-6'));
   assert.match(
     check(report, 'preflight-attachments-valid').detail,
     /^R-CW-5A is a retired preflight attachment and cannot be a row of a corpus folded after the F″ ruling \(in rows\[\], required_rows\); R-CW-6A is a retired preflight attachment/,
@@ -376,7 +415,7 @@ test('a gated row id spelled another way is refused, not ungated', async () => {
     for (const [bucket, ids] of Object.entries(alone.dispatch_allocation)) {
       alone.dispatch_allocation[bucket] = ids.filter((id) => id !== 'R-CW-6');
     }
-    alone.rollup = { ...FDOUBLE_ROLLUP, total_rows: 35, pass: 28 };
+    alone.rollup = { ...FDOUBLE_ROLLUP, total_rows: 35, partial: 4 };
     const bare = await validate(alone, {});
     assert.equal(bare.status, 1, JSON.stringify(spelling));
     assert.deepEqual(failedChecks(bare.report), ['live-rows-gated-by-preflights'], JSON.stringify(spelling));
@@ -413,16 +452,15 @@ test('(b) a failed preflight caps the live row: pass fails validation, partial v
   for (const [live, preflight] of [['R-CW-5', 'R-CW-5A'], ['R-CW-6', 'R-CW-6A']]) {
     const receipts = { ...passingReceipts(), [receiptPath(preflight)]: receipt(preflight, { preflightStatus: 'failed' }) };
 
-    const stillPass = fDouble();
+    const stillPass = overCredit(fDouble(), [live]);
     attachmentOf(stillPass, preflight).state = 'fail';
     await assertRejected(stillPass, receipts, {
       'live-rows-gated-by-preflights': new RegExp(`^${live} is pass but its required preflight ${preflight} is failed at ${SHORT}`),
+      'rows-within-declared-cap': OVER_CAP(live),
     }).catch((error) => { error.message = `${live}: ${error.message}`; throw error; });
 
     const capped = fDouble();
     attachmentOf(capped, preflight).state = 'fail';
-    rowOf(capped, live).state = 'partial';
-    capped.rollup = { ...FDOUBLE_ROLLUP, pass: 28, partial: 4 };
     const { status, report } = await validate(capped, receipts);
     assert.equal(status, 0, `${live}: ${JSON.stringify(report.checks.filter((c) => !c.ok))}`);
     assert.match(check(report, 'live-rows-gated-by-preflights').detail, new RegExp(`${live} partial \\(capped\\): ${preflight} failed`));
@@ -431,9 +469,10 @@ test('(b) a failed preflight caps the live row: pass fails validation, partial v
 
 test('(b) a failed receipt declared pass is a false attachment record', async () => {
   const receipts = { ...passingReceipts(), [receiptPath('R-CW-5A')]: receipt('R-CW-5A', { preflightStatus: 'failed' }) };
-  await assertRejected(fDouble(), receipts, {
+  await assertRejected(overCredit(fDouble(), ['R-CW-5']), receipts, {
     'preflight-attachments-valid': /R-CW-5A declares pass but its receipt is failed: preflightStatus=failed, verdict=FAIL-candidate, failed checks: sourceGuard/,
     'live-rows-gated-by-preflights': /^R-CW-5 is pass but its required preflight R-CW-5A is failed/,
+    'rows-within-declared-cap': OVER_CAP('R-CW-5'),
   });
 
   // A receipt that passes overall but carries a false check, the wrong verdict,
@@ -445,9 +484,10 @@ test('(b) a failed receipt declared pass is a false attachment record', async ()
     ['unpinned checks', { checks: { x: true } }, /receipt is invalid: checks lacks exactCandidateBinding, materialNamesCandidate, nonLiveBoundary/],
   ]) {
     const mutated = { ...passingReceipts(), [receiptPath('R-CW-5A')]: receipt('R-CW-5A', overrides) };
-    await assertRejected(fDouble(), mutated, {
+    await assertRejected(overCredit(fDouble(), ['R-CW-5']), mutated, {
       'preflight-attachments-valid': detail,
       'live-rows-gated-by-preflights': /^R-CW-5 is pass but its required preflight R-CW-5A is (failed|invalid)/,
+      'rows-within-declared-cap': OVER_CAP('R-CW-5'),
     }).catch((error) => { error.message = `${label}: ${error.message}`; throw error; });
   }
 });
@@ -459,9 +499,10 @@ test('(c) a passing preflight receipt bound to a different SHA does not count', 
     ['evidenceBinding', { evidenceBinding: 'index-static-evidence-sha' }],
   ]) {
     const receipts = { ...passingReceipts(), [receiptPath('R-CW-6A')]: receipt('R-CW-6A', overrides) };
-    await assertRejected(fDouble(), receipts, {
+    await assertRejected(overCredit(fDouble(), ['R-CW-6']), receipts, {
       'preflight-attachments-valid': /R-CW-6A declares pass but its receipt is wrong-candidate: /,
       'live-rows-gated-by-preflights': new RegExp(`^R-CW-6 is pass but its required preflight R-CW-6A is wrong-candidate at ${SHORT}`),
+      'rows-within-declared-cap': OVER_CAP('R-CW-6'),
     }).catch((error) => { error.message = `${label}: ${error.message}`; throw error; });
   }
 
@@ -477,13 +518,11 @@ test('partial failure: one passing and one failed preflight gate only their own 
   const receipts = { ...passingReceipts(), [receiptPath('R-CW-6A')]: receipt('R-CW-6A', { preflightStatus: 'failed' }) };
   const manifest = fDouble();
   attachmentOf(manifest, 'R-CW-6A').state = 'fail';
-  rowOf(manifest, 'R-CW-6').state = 'partial';
-  manifest.rollup = { ...FDOUBLE_ROLLUP, pass: 28, partial: 4 };
   const { status, report } = await validate(manifest, receipts);
   assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
   assert.equal(
     check(report, 'live-rows-gated-by-preflights').detail,
-    `R-CW-5 pass with R-CW-5A passed at ${SHORT}; R-CW-6 partial (capped): R-CW-6A failed`,
+    `R-CW-5 partial; R-CW-5A passed at ${SHORT}; R-CW-6 partial (capped): R-CW-6A failed`,
   );
 });
 
@@ -495,9 +534,10 @@ test('a receipt that is malformed, for the wrong row, or outside the corpus is i
   ]) {
     const receipts = passingReceipts();
     mutate(receipts);
-    await assertRejected(fDouble(), receipts, {
+    await assertRejected(overCredit(fDouble(), ['R-CW-5']), receipts, {
       'preflight-attachments-valid': detail,
       'live-rows-gated-by-preflights': /^R-CW-5 is pass but its required preflight R-CW-5A is invalid/,
+      'rows-within-declared-cap': OVER_CAP('R-CW-5'),
     }).catch((error) => { error.message = `${label}: ${error.message}`; throw error; });
   }
 
@@ -508,11 +548,12 @@ test('a receipt that is malformed, for the wrong row, or outside the corpus is i
     ['another corpus', receiptPath('R-CW-5A', OTHER_SHA)],
     ['outside its dir', `PROOFS/${SHA}/R-CW-5/required-preflight-receipt.json`],
   ]) {
-    const manifest = fDouble();
+    const manifest = overCredit(fDouble(), ['R-CW-5']);
     attachmentOf(manifest, 'R-CW-5A').receipt = path;
     await assertRejected(manifest, { ...passingReceipts(), [path]: receipt('R-CW-5A') }, {
       'preflight-attachments-valid': new RegExp(`R-CW-5A receipt .* is not a file under PROOFS/${SHA}/R-CW-5A/`),
       'live-rows-gated-by-preflights': /^R-CW-5 is pass but its required preflight R-CW-5A is invalid/,
+      'rows-within-declared-cap': OVER_CAP('R-CW-5'),
     }).catch((error) => { error.message = `${label}: ${error.message}`; throw error; });
   }
 });
@@ -558,8 +599,6 @@ test('malformed preflight_attachments records fail preflight-attachments-valid',
 test('an undeclared attachment directory in an F″ corpus is still an orphan', async () => {
   // Only declared attachment dirs are exempt from no-orphan-row-dirs.
   const manifest = fDouble({ attachments: ['R-CW-5A'] });
-  rowOf(manifest, 'R-CW-6').state = 'partial';
-  manifest.rollup = { ...FDOUBLE_ROLLUP, pass: 28, partial: 4 };
   await withRoot(async (root) => {
     await writeCorpus(root, SHA, manifest, passingReceipts());
     await mkdir(join(root, 'PROOFS', SHA, 'R-CW-6A'), { recursive: true });
@@ -579,7 +618,7 @@ test('a corpus with neither gated live rows nor preflights gets no preflight che
   for (const [bucket, ids] of Object.entries(manifest.dispatch_allocation)) {
     manifest.dispatch_allocation[bucket] = ids.filter((id) => !gone.has(id));
   }
-  manifest.rollup = { ...FDOUBLE_ROLLUP, total_rows: 34, pass: 27 };
+  manifest.rollup = { ...FDOUBLE_ROLLUP, total_rows: 34, partial: 3 };
   const { status, report } = await validate(manifest, {});
   assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
@@ -606,11 +645,150 @@ test('(d) F′ validates 18/18 unchanged: R-CW-5A/6A stay required MISSING rows 
 });
 
 test('(d) the F′ fossil validates 18/18 in isolation too', async () => {
+  // The fossil is F′ as folded (R-CW-5/6 pass, before the correction): F′ is a
+  // pre-ruling corpus, so neither the preflight gate nor the cap check runs on it.
   const { status, report } = await validate(structuredClone(fossil.manifest), {});
   assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
   assert.equal(report.passed, 18);
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
   assert.deepEqual(report.requiredRollup, fossil.manifest.rollup);
+});
+
+// 🌊's ruling on docs#616 (Discord 1565925290008387728; review 5720773113): the
+// row verdict is the minimum of the fixture's verdict, the cap the row manifest
+// declares (verdictCap.rowCap) and the preflight cap. A passing preflight is
+// necessary, not sufficient, and R-CW-5/6 stay partial while their only producer
+// is a process-local fixture.
+test('cap (d): a passing preflight never lifts R-CW-5/6 above partial; a pass without a superseding authority fails', async () => {
+  for (const live of ['R-CW-5', 'R-CW-6']) {
+    const preflight = `${live}A`;
+    const { status, report } = await validate(overCredit(fDouble(), [live]));
+    assert.equal(status, 1, live);
+    // The preflight gate is satisfied, so the cap is the only failure.
+    assert.deepEqual(failedChecks(report), ['rows-within-declared-cap'], live);
+    assert.match(check(report, 'live-rows-gated-by-preflights').detail, new RegExp(`${live} pass; ${preflight} passed at ${SHORT}`), live);
+    assert.match(
+      check(report, 'rows-within-declared-cap').detail,
+      new RegExp(`^${OVER_CAP(live).source}, and it declares no superseding authority; ${ROW_CAP_NOTE}$`),
+      live,
+    );
+  }
+
+  const both = await validate(overCredit(fDouble(), ['R-CW-5', 'R-CW-6']));
+  assert.equal(both.status, 1);
+  assert.deepEqual(failedChecks(both.report), ['rows-within-declared-cap']);
+  assert.match(check(both.report, 'rows-within-declared-cap').detail, new RegExp(`^${OVER_CAP('R-CW-5').source}.*; ${OVER_CAP('R-CW-6').source}`));
+});
+
+test('cap (d): a superseding authority the method has not adopted does not lift the cap', async () => {
+  const supersedingReceipt = `PROOFS/${SHA}/R-CW-5/live-gateway/superseding-authority-receipt.json`;
+  const manifest = overCredit(fDouble(), ['R-CW-5']);
+  rowOf(manifest, 'R-CW-5').superseding_authority = { authority: 'live-gateway-fire', receipt: supersedingReceipt };
+  await assertRejected(manifest, { ...passingReceipts(), [supersedingReceipt]: { schema: 'x', candidateSha: SHA, verdict: 'PASS-candidate' } }, {
+    'rows-within-declared-cap': new RegExp(
+      `^${OVER_CAP('R-CW-5').source}, and its superseding_authority \\{"authority":"live-gateway-fire",.*\\} is not adopted: ` +
+        `r-cw-5\\.json adopts no superseding authority; ${ROW_CAP_NOTE}$`,
+    ),
+  });
+});
+
+test('cap (d): a capped row spelled or stated another way is still capped', async () => {
+  for (const spelling of ['r-cw-5', 'R‐CW‐5', 'R-CW-5 ']) {
+    const manifest = overCredit(fDouble(), ['R-CW-5']);
+    renameRow(manifest, 'R-CW-5', spelling);
+    const { status, report } = await validate(manifest);
+    assert.equal(status, 1, JSON.stringify(spelling));
+    assert.ok(failedChecks(report).includes('rows-within-declared-cap'), `${JSON.stringify(spelling)}: ${failedChecks(report)}`);
+    assert.match(check(report, 'rows-within-declared-cap').detail, OVER_CAP('R-CW-5'), JSON.stringify(spelling));
+  }
+
+  // An upper-case state fails state-values-known, and it is still not under the cap.
+  const shouted = fDouble();
+  rowOf(shouted, 'R-CW-5').state = 'PASS';
+  const { status, report } = await validate(shouted);
+  assert.equal(status, 1);
+  assert.ok(failedChecks(report).includes('state-values-known'), JSON.stringify(failedChecks(report)));
+  assert.ok(failedChecks(report).includes('rows-within-declared-cap'), JSON.stringify(failedChecks(report)));
+  assert.match(check(report, 'rows-within-declared-cap').detail, /^R-CW-5 is pass \(recorded as "PASS"\), above the PARTIAL-candidate cap/);
+});
+
+test('cap (d): a catalog that loses a process-local row\'s verdictCap cannot un-cap it', async () => {
+  // The validator judges every corpus by the catalog next to it, so run a copy
+  // of the harness whose R-CW-5 manifest has lost its verdictCap.
+  await withRoot(async (root) => {
+    const harness = join(root, 'harness');
+    await cp(join(repoRoot, 'tools/k6-proofs/scripts'), join(harness, 'scripts'), {
+      recursive: true,
+      filter: (source) => !source.includes('__tests__'),
+    });
+    await cp(join(repoRoot, 'tools/k6-proofs/lib'), join(harness, 'lib'), { recursive: true });
+    await cp(join(repoRoot, 'tools/k6-proofs/manifests'), join(harness, 'manifests'), { recursive: true });
+    const r5 = join(harness, 'manifests/r-cw-5.json');
+    const uncapped = JSON.parse(await readFile(r5, 'utf8'));
+    delete uncapped.verdictCap;
+    await writeFile(r5, `${JSON.stringify(uncapped, null, 2)}\n`);
+
+    const runCopy = (sha) => {
+      const result = spawnSync(process.execPath, [join(harness, 'scripts/validate-corpus.mjs'), '--root', root, '--sha', sha, '--json'], { encoding: 'utf8' });
+      assert.equal(result.stderr, '', result.stderr);
+      return { status: result.status, report: JSON.parse(result.stdout).reports[0] };
+    };
+    const inconsistent = /^the verdict-cap catalog is inconsistent: r-cw-5\.json: R-CW-5 is process-local, so it must declare verdictCap/;
+
+    await writeCorpus(root, SHA, overCredit(fDouble(), ['R-CW-5']), passingReceipts());
+    const over = runCopy(SHA);
+    assert.equal(over.status, 1);
+    assert.deepEqual(failedChecks(over.report), ['rows-within-declared-cap']);
+    assert.match(check(over.report, 'rows-within-declared-cap').detail, inconsistent);
+
+    // Even a corpus with no capped row is held to the broken catalog: the cap
+    // check cannot know which rows the catalog would have capped.
+    const noCappedRows = fDouble({ attachments: null });
+    const gone = new Set(['R-CW-5', 'R-CW-6']);
+    noCappedRows.required_rows = noCappedRows.required_rows.filter((id) => !gone.has(id));
+    noCappedRows.rows = noCappedRows.rows.filter((row) => !gone.has(row.row));
+    for (const [bucket, ids] of Object.entries(noCappedRows.dispatch_allocation)) {
+      noCappedRows.dispatch_allocation[bucket] = ids.filter((id) => !gone.has(id));
+    }
+    noCappedRows.capture_sha = OTHER_SHA;
+    for (const row of noCappedRows.rows) {
+      row.dir = row.dir.replace(SHA, OTHER_SHA);
+      row.evidence_doc = row.evidence_doc.replace(SHA, OTHER_SHA);
+    }
+    noCappedRows.rollup = { ...FDOUBLE_ROLLUP, total_rows: 34, partial: 3 };
+    await writeCorpus(root, OTHER_SHA, noCappedRows);
+    const bare = runCopy(OTHER_SHA);
+    assert.equal(bare.status, 1);
+    assert.deepEqual(failedChecks(bare.report), ['rows-within-declared-cap']);
+    assert.match(check(bare.report, 'rows-within-declared-cap').detail, inconsistent);
+  });
+});
+
+test('cap: the 71 pre-ruling corpora keep their method; 52 of them record R-CW-5/6 pass and none gets the cap check', async () => {
+  const list = JSON.parse(await readFile(legacyList, 'utf8'));
+  const overCredited = [];
+  for (const sha of list.corpora) {
+    const manifest = JSON.parse(await readFile(join(repoRoot, 'PROOFS', sha, 'proofs-manifest.json'), 'utf8'));
+    // Three early corpora key their rows by id instead of listing them.
+    const rows = Array.isArray(manifest.rows)
+      ? manifest.rows
+      : Object.entries(manifest.rows || {}).map(([row, value]) => ({ ...value, row }));
+    if (rows.some((row) => (row?.row === 'R-CW-5' || row?.row === 'R-CW-6') && row.state === 'pass')) overCredited.push(sha);
+  }
+  // The cap rule therefore applies only to corpora seeded after the ruling, by
+  // the same frozen list as the F″ preflight checks.
+  assert.equal(overCredited.length, 52);
+  assert.ok(!overCredited.includes(FPRIME_SHA), 'F′ is corrected to partial on docs main 7e544c04');
+
+  const result = spawnSync(process.execPath, [validator, '--root', repoRoot, '--all', '--json'], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
+  assert.equal(result.status, 0, result.stderr);
+  const reports = JSON.parse(result.stdout).reports.filter((report) => list.corpora.includes(report.sha));
+  assert.equal(reports.length, 71);
+  for (const report of reports) {
+    const names = report.checks.map((c) => c.name);
+    assert.ok(!names.includes('rows-within-declared-cap'), report.sha);
+    assert.ok(!names.some((name) => PREFLIGHT_CHECKS.includes(name)), report.sha);
+  }
 });
 
 test('the pre-ruling corpora are frozen by name: exactly the manifest-bearing corpora at docs f17d784d', async () => {
@@ -651,6 +829,7 @@ test('a pre-ruling corpus keeps its method; the same shape at any other SHA is h
   }
   const { report } = await validate(moved, {});
   assert.ok(failedChecks(report).includes('live-rows-gated-by-preflights'), JSON.stringify(failedChecks(report)));
+  assert.ok(failedChecks(report).includes('rows-within-declared-cap'), JSON.stringify(failedChecks(report)));
 });
 
 test('the docs#613 supplemental shape at F′ stays a pre-ruling corpus', async () => {

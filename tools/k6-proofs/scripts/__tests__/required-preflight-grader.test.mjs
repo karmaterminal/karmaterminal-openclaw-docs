@@ -7,14 +7,19 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 // The grader joins a live cap row's behavioral verdict (the fixture's
-// fixture-result.json) with its required preflight receipts, per 🌊's F″ method
-// ruling: PASS-candidate survives only when every preflight the row manifest
-// requires passed at the same candidate. The live results below are the real
-// F′ fixture outputs, so the grader is exercised on what the fixtures write.
+// fixture-result.json) with the cap its row manifest declares (verdictCap) and its
+// required preflight receipts. The row verdict is the minimum of the three (🌊's
+// ruling on docs#616, Discord 1565925290008387728): a missing, failed or
+// other-SHA preflight caps a PASS-candidate at PARTIAL-candidate (🌊's F″ method
+// ruling), and a passing one is necessary, not sufficient, because R-CW-5/6
+// declare a PARTIAL-candidate cap while their only producer is a process-local
+// fixture. The live results below are the real F′ fixture outputs, so the grader
+// is exercised on what the fixtures write.
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const grader = join(repoRoot, 'tools/k6-proofs/scripts/grade-preflight-gated-row.mjs');
 const FPRIME_SHA = 'f15237ec921879d918482cdf372b0718d4c1aab9';
 const OTHER_SHA = 'b'.repeat(40);
+const ROW_CAP = { verdict: 'PARTIAL-candidate', artifactClass: 'process-local-fixture' };
 const ROWS = {
   'R-CW-5': {
     preflight: 'R-CW-5A',
@@ -84,7 +89,7 @@ test('the real F′ fixture results are PASS-candidate at F′, so every cap bel
   }
 });
 
-test('(a) a live PASS-candidate with no preflight receipt is capped at PARTIAL-candidate', async () => {
+test('(a) cap (b): a live PASS-candidate with no preflight receipt is capped at PARTIAL-candidate', async () => {
   for (const [live, { preflight }] of Object.entries(ROWS)) {
     const { status, payload, stderr } = await gradeRow(live, []);
     assert.equal(status, 1, stderr);
@@ -94,6 +99,9 @@ test('(a) a live PASS-candidate with no preflight receipt is capped at PARTIAL-c
     assert.equal(payload.behavioralVerdict, 'PASS-candidate');
     assert.equal(payload.verdict, 'PARTIAL-candidate');
     assert.equal(payload.capped, true);
+    // Both caps apply on their own: the row's declared cap and the missing preflight.
+    assert.deepEqual(payload.rowCap, ROW_CAP);
+    assert.deepEqual(payload.cappedBy, ['row-cap', 'required-preflight']);
     assert.equal(payload.candidateOnly, true);
     assert.equal(payload.foldRequiresReview, true);
     assert.deepEqual(payload.preflights, [{
@@ -108,6 +116,7 @@ test('(b) a failed preflight caps the live row at PARTIAL-candidate', async () =
     assert.equal(status, 1);
     assert.equal(payload.verdict, 'PARTIAL-candidate');
     assert.equal(payload.capped, true);
+    assert.deepEqual(payload.cappedBy, ['row-cap', 'required-preflight']);
     assert.equal(payload.preflights[0].rowId, preflight);
     assert.equal(payload.preflights[0].status, 'failed');
     assert.deepEqual(payload.preflights[0].reasons, ['preflightStatus=failed', 'verdict=FAIL-candidate', 'failed checks: sourceGuard']);
@@ -124,13 +133,14 @@ test('(c) a passing preflight at a different SHA does not count', async () => {
       const { status, payload } = await gradeRow(live, [receipt(live, overrides)]);
       assert.equal(status, 1, `${label} ${live}`);
       assert.equal(payload.verdict, 'PARTIAL-candidate', `${label} ${live}`);
+      assert.deepEqual(payload.cappedBy, ['row-cap', 'required-preflight'], `${label} ${live}`);
       assert.equal(payload.preflights[0].status, 'wrong-candidate', `${label} ${live}`);
       assert.deepEqual(payload.preflights[0].reasons, [reason], `${label} ${live}`);
     }
   }
 });
 
-test('a passing same-candidate preflight leaves the behavioral verdict in place', async () => {
+test('cap (a): a fixture PASS-candidate with a passing same-candidate preflight is PARTIAL-candidate, not PASS', async () => {
   for (const live of Object.keys(ROWS)) {
     await withDir(async (dir) => {
       const receiptFile = await writeJson(dir, 'required-preflight-receipt.json', receipt(live));
@@ -141,9 +151,13 @@ test('a passing same-candidate preflight leaves the behavioral verdict in place'
         '--preflight-receipt', receiptFile,
         '--out', out,
       ]);
-      assert.equal(status, 0);
-      assert.equal(payload.verdict, 'PASS-candidate');
-      assert.equal(payload.capped, false);
+      // The preflight is necessary, not sufficient: the row's declared cap holds.
+      assert.equal(status, 1);
+      assert.equal(payload.behavioralVerdict, 'PASS-candidate');
+      assert.equal(payload.verdict, 'PARTIAL-candidate');
+      assert.equal(payload.capped, true);
+      assert.deepEqual(payload.rowCap, ROW_CAP);
+      assert.deepEqual(payload.cappedBy, ['row-cap']);
       assert.equal(payload.preflights[0].status, 'passed');
       assert.deepEqual(payload.preflights[0].reasons, []);
       assert.equal(payload.preflights[0].receiptFile, 'required-preflight-receipt.json');
@@ -160,16 +174,45 @@ test('a passing same-candidate preflight leaves the behavioral verdict in place'
   }
 });
 
-test('the gate never upgrades: a failed fixture stays failed with a passing preflight', async () => {
+test('cap (c): the gate never upgrades: a failed fixture stays failed, with a passing or a missing preflight', async () => {
+  for (const live of Object.keys(ROWS)) {
+    await withDir(async (dir) => {
+      const failed = JSON.parse(await readFile(ROWS[live].liveResult, 'utf8'));
+      failed.verdict = 'FAIL-fixture';
+      const liveResult = await writeJson(dir, 'fixture-result.json', failed);
+      for (const receipts of [[receipt(live)], []]) {
+        const { status, payload } = await gradeRow(live, receipts, { liveResult });
+        assert.equal(status, 1, `${live} ${receipts.length}`);
+        assert.equal(payload.behavioralVerdict, 'FAIL-fixture', `${live} ${receipts.length}`);
+        assert.equal(payload.verdict, 'FAIL-fixture', `${live} ${receipts.length}`);
+        assert.equal(payload.capped, false, `${live} ${receipts.length}`);
+        assert.deepEqual(payload.cappedBy, [], `${live} ${receipts.length}`);
+        assert.deepEqual(payload.rowCap, ROW_CAP, `${live} ${receipts.length}`);
+      }
+    });
+  }
+});
+
+test('cap: the grader reads the cap from the manifest declaration and refuses a process-local row without a well-formed one', async () => {
   await withDir(async (dir) => {
-    const failed = JSON.parse(await readFile(ROWS['R-CW-5'].liveResult, 'utf8'));
-    failed.verdict = 'FAIL-fixture';
-    const liveResult = await writeJson(dir, 'fixture-result.json', failed);
-    const { status, payload } = await gradeRow('R-CW-5', [receipt('R-CW-5')], { liveResult });
-    assert.equal(status, 1);
-    assert.equal(payload.behavioralVerdict, 'FAIL-fixture');
-    assert.equal(payload.verdict, 'FAIL-fixture');
-    assert.equal(payload.capped, false);
+    const base = JSON.parse(await readFile(ROWS['R-CW-5'].manifest, 'utf8'));
+    for (const [label, mutate, detail] of [
+      ['no verdictCap', (m) => { delete m.verdictCap; }, /R-CW-5 is process-local, so it must declare verdictCap/],
+      ['a PASS cap', (m) => { m.verdictCap = { ...m.verdictCap, rowCap: 'PASS-candidate' }; }, /verdictCap\.rowCap must be "PARTIAL-candidate"/],
+      ['an adopted authority', (m) => { m.verdictCap = { ...m.verdictCap, supersedingAuthorities: [{ id: 'live-gateway-fire' }] }; }, /verdictCap\.supersedingAuthorities must be empty/],
+      ['another artifact class', (m) => { m.verdictCap = { ...m.verdictCap, artifactClass: 'live-gateway' }; }, /verdictCap\.artifactClass must be "process-local-fixture"/],
+    ]) {
+      const manifest = structuredClone(base);
+      mutate(manifest);
+      const result = grade([
+        '--manifest', await writeJson(dir, 'r-cw-5.json', manifest),
+        '--live-result', ROWS['R-CW-5'].liveResult,
+        '--preflight-receipt', await writeJson(dir, 'receipt.json', receipt('R-CW-5')),
+      ]);
+      assert.equal(result.status, 2, `${label}: ${result.stderr}`);
+      assert.equal(result.payload, null, label);
+      assert.match(result.stderr, detail, label);
+    }
   });
 });
 

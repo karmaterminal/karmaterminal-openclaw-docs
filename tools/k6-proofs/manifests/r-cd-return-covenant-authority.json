@@ -4,45 +4,63 @@
   "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
   "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
   "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
-  "transport": "offline",
+  "transport": "websocket",
   "toolSurface": "read-only",
-  "mutates": false,
-  "timeoutSeconds": 15,
+  "mutates": true,
+  "timeoutSeconds": 300,
   "scenario": {
-    "status": "construct-only",
+    "status": "scaffold",
     "name": "r-cd-return-covenant-authority",
-    "description": "Return-covenant authority must survive a gateway-restart transition: the current generation may not be cleared before its replacement is usable, and the transition's failure body must be retained rather than lost.",
+    "expectedFile": "r-cd-return-covenant-authority.js",
+    "description": "Return-covenant authority must survive a real gateway restart. The recipient session's authority generation (the session_recipient_authority epoch) must stay present and unchanged through the gap where no process serves. The observer must keep the old generation as the last usable authority until a replacement is verified, and the transition's bodies and the replacement's output must be retained rather than lost.",
     "methods": [
-      "manual-corpus-review"
+      "sessions.create",
+      "session.visibility.set",
+      "gateway.restart.request",
+      "gateway restart-handoff consume",
+      "GET /readyz",
+      "GET /startupz",
+      "session_recipient_authority (read-only)"
     ],
-    "notes": "Construct-only. Ledger command AUTHORITY-RESTART-CONTROL, state missing, gate reviewed-restart-control-on-final-successor. The rejected base is that the first gateway-restart transition cleared the current generation before the replacement became usable and the exact failure body was lost. The only attempt on record is historical-baseline-review: the repaired launcher reached readiness and read-only mounts, but fixture gateway phase calls failed, yielding zero of 24 observations and no signed cleanup/observer receipt. The corpus row therefore holds EVIDENCE.md alone, so there are no committed artifacts for a static validator to parse and no validators[rowId] implementation exists in scenarios/static-corpus-row-validator.js. Binding it to that generic validator would fail closed on a missing implementation rather than record the row's real state, so it is declared non-runnable until a successor restart control exists.",
-    "registryNotes": "Catalogued to close a fail-closed gap: check-proof-row-manifests.mjs requires every corpus row to carry a manifest, and this row had none, which blocked every catalog-mode proof run rather than only this row."
+    "notes": "Fixture-gated: k6 cannot start, observe or replace a gateway, so the k6 entry fails closed and the executable control is scripts/run-return-covenant-restart-control.mjs (see the product-path map, with F′ path:line anchors, in scenarios/r-cd-return-covenant-authority.js). The control is the declared external supervisor (OPENCLAW_SUPERVISOR_MODE=external) of one disposable gateway that composite-launcher.sh set up and then stopped. It refuses any target that is not $HOME/proof-gw/comp-<sha8> with a matching receipts/identity.json, a stopped openclaw-proof-comp-<sha8> unit, a free loopback port that is not the live gateway's, no channels, and a stage whose dist/build-info.json commit is the candidate. Grading, from the signed record only: PASS-candidate needs all five receipts plus the positive behaviour (old generation ready before the transition; restart accepted; old exits 0 through an accepted full-process external handoff bound to its PID; every sample shows the same authority epoch; every sample before replacement readiness names the old generation; replacement ready within the deadline with a new PID, socket inode and bootId, both generations reporting the staged buildId; full planned window observed without blind gaps; clean docs harness; cleanup left nothing running). FAIL-candidate when the behaviour is contradicted: authority cleared or advanced, old generation dropped before a replacement was ready (the rejected base), no handoff, replacement never usable, generations not distinct, or residue after cleanup. MISSING-candidate when there is nothing to judge: no observation matrix, no established authority, or a restart that was never accepted (its failure body is still kept). PARTIAL-candidate when the restart was observed uncontradicted but a receipt or bound is missing (lost transition body, process output, fingerprint, unsigned cleanup, unreadable authority sample, short window, dirty harness). The negative case holds the port with a control-owned socket before the replacement starts. It must grade non-PASS while still showing the old authority and the failure body (negativeControl.holds). The only earlier attempt (historical-baseline-review: zero of 24 observations, no signed cleanup/observer receipt) is not evidence.",
+    "registryNotes": "Ledger command AUTHORITY-RESTART-CONTROL, gate reviewed-restart-control-on-final-successor. Rejected base: the first gateway-restart transition cleared the current generation before the replacement became usable, and the exact failure body was lost. The row stays required and MISSING at F′ until this control runs on the final successor (🌊, Discord msg 1565895695586558120)."
+  },
+  "invocation": {
+    "fixture": "tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs",
+    "cases": [
+      "positive",
+      "negative-replacement-never-usable"
+    ],
+    "transition": "gateway.restart.request {reason: gateway.restart, skipDeferral: true} with operator.admin",
+    "authority": "sessions.create then session.visibility.set(suggest); the narrowing advances session_recipient_authority",
+    "supervisor": "OPENCLAW_SUPERVISOR_MODE=external; the control consumes the restart handoff and starts the replacement",
+    "fixtureState": "an existing proof-gw directory (composite-launcher.sh setup, then stop); its state is kept for composite-launcher.sh shred"
   },
   "expectedReceipts": [
     {
       "name": "transition-http-body",
       "required": true,
-      "description": "The gateway-restart transition's HTTP response body is retained; the rejected base lost it."
+      "description": "The gateway.restart.request response frame (private verbatim, public redacted, SHA-256 of the canonical frame), plus the /readyz and /startupz bodies at the transition edges: the last pre-transition body, the first not-ready body (draining 503 or refused), the replacement's first ready body, and the last not-ready body when no replacement serves. The rejected base lost the failure body."
     },
     {
       "name": "replacement-process-output",
       "required": true,
-      "description": "Replacement process stdout and stderr are captured across the transition."
+      "description": "The replacement's stdout and stderr, captured by the control as its supervisor: byte counts and SHA-256 in public with a redacted tail, raw logs in the private directory. A replacement that never serves keeps them as the failure text."
     },
     {
       "name": "generation-fingerprints",
       "required": true,
-      "description": "Old and new process and socket fingerprints identify both generations across the restart."
+      "description": "Old and replacement process fingerprints (PID, kernel start ticks), each one's listening socket inode and port read from /proc, and the hello-ok bootId SHA-256 and buildId. A replacement that never listened keeps its PID and start ticks."
     },
     {
       "name": "observation-record",
       "required": true,
-      "description": "Observations are recorded for the restart case; the baseline attempt produced zero of twenty-four."
+      "description": "The observation window planned before the transition (sample interval, pre-transition samples, transition, readiness and window bounds, maximum sample gap) and the matrix: per sample the phase, the last usable generation, the listener owner and inode, /readyz and /startupz status with a body SHA-256, and the authority epoch SHA-256. The baseline attempt produced zero of twenty-four."
     },
     {
       "name": "signed-cleanup-receipt",
       "required": true,
-      "description": "A signed cleanup and observer receipt closes the case; the baseline attempt produced none."
+      "description": "Cleanup stops only processes this run started (PID, start ticks and run marker re-verified before any signal), closes the negative's socket, and records that no run process or listener remains. The whole observer receipt is HMAC-SHA256-signed (hmac-sha256-proof-observer-key-v1) with a launcher-held key that the gateway processes never receive. The baseline attempt produced none."
     }
   ],
   "artifactDestination": {
@@ -50,22 +68,22 @@
     "sha": "${OPENCLAW_CANDIDATE_SHA}",
     "row": "R-CD-RETURN-COVENANT-AUTHORITY",
     "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
-    "runDirPrefix": "manual-corpus"
+    "runDirPrefix": "restart-control"
   },
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Declaring this row in the catalog records its state; it does not promote it. The row remains MISSING until a reviewed restart control runs on the final successor product."
+    "notes": "The control writes a candidate receipt only. Folding it is a reviewed corpus step on the final successor product. The row is not promoted by this manifest and stays MISSING at F′."
   },
   "liveRunSafety": {
-    "classification": "construct-only",
+    "classification": "orchestration-required",
     "requiresLiveGatewayToken": false,
     "requiresTargetSessionKey": false,
     "requiresCandidateSha": true,
     "requiresExternalAgentOrToolInvocation": false,
-    "requiresHumanConfirmation": false,
-    "sameSessionConcurrencySafe": true,
-    "expectedArtifactClass": "construct-only",
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
     "requiredReceipts": [
       "transition-http-body",
       "replacement-process-output",
@@ -74,6 +92,6 @@
       "signed-cleanup-receipt"
     ],
     "foldRequiresReview": true,
-    "notes": "Construct-only rows are rejected by the live-run guard, so cataloguing this row cannot cause it to fire. A future live restart control requires its own review before any fold."
+    "notes": "run-proof.sh and run-proofs.sh refuse orchestration-required rows, so a catalog or live-suite run never fires this control. An operator runs the fixture against a stopped proof-gw gateway: positive case, then the negative. The fixture never reads OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_WS; it takes the disposable gateway's own token from the proof-gw config. It never restarts, stops or signals a live gateway or any process it did not start."
   }
 }

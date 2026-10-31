@@ -165,6 +165,13 @@
       <Evidence>Root(A) receives C sentinel across dead intermediate; negative-guard no-orphan</Evidence>
       <Constraint>Mode-conditional: default=one-level-up; fanoutMode="tree"=reaches-root</Constraint>
     </Row>
+    <Row id="R-CD-RETURN-COVENANT-AUTHORITY" owner="proof-conductor" forms="restart-control" issue="bootstrap#1727" procedure="disposable-real-restart-control">
+      <Behavior>The recipient session's return authority (session_recipient_authority epoch) survives a real gateway restart: unchanged through the gap with no serving process, the old generation kept as the last usable authority until a replacement is verified, failure text retained</Behavior>
+      <FireMethod>Run tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs as the external supervisor of a stopped proof-gw gateway at the exact candidate: positive case, then negative-replacement-never-usable</FireMethod>
+      <Evidence>Signed observer receipt: transition body and edge probe bodies, replacement stdout/stderr, old/new PID, start ticks, socket inode and bootId, planned window plus observation matrix, cleanup</Evidence>
+      <Constraint>Refuses any target that is not a stopped $HOME/proof-gw/comp-&lt;sha8&gt; gateway on a non-live loopback port; never touches a live gateway; review-required, no automatic fold</Constraint>
+      <Manifest>tools/k6-proofs/manifests/r-cd-return-covenant-authority.json</Manifest>
+    </Row>
     <Row id="R-CD-MODEL-DEFAULT" owner="unclaimed" forms="tool+token" issue="140">
       <Behavior>continue_delegate with no model override inherits the parent provider/model</Behavior>
       <FireMethod>Fire both typed-tool and bracket/token no-override forms</FireMethod>

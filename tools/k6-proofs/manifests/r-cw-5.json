@@ -30,6 +30,17 @@
     "fixtureCap": 100,
     "fixtureState": "temporary session store seeded with accumulatedChainTokens=101"
   },
+  "requiredPreflights": [
+    {
+      "rowId": "R-CW-5A",
+      "manifest": "r-cw-5a-static.json",
+      "binding": "exact-candidate-sha",
+      "passVerdict": "construct-only",
+      "capOnMissingOrFailed": "PARTIAL-candidate",
+      "receipt": "required-preflight-receipt.json",
+      "description": "R-CW-5A's static source/harness check, run at the exact candidate: it reads PROOFS/<candidate>/R-CW-5/, never INDEX static_evidence_sha, and its receipt must carry this row's candidate SHA. Missing, failed, malformed or bound to another SHA, it caps R-CW-5 at PARTIAL-candidate; it never raises a verdict (🌊's F″ method ruling, Discord 1565895695586558120 (2026-10-31); openclaw-bootstrap#1727)."
+    }
+  ],
   "expectedReceipts": [
     {"name":"fixture-readiness","required":true,"description":"Exact source/SHA, installed dependencies, and zero production mutation are proven before execution."},
     {"name":"boundary-matrix","required":true,"description":"Below/equal/over cap results are null/null/cost-capped at the production budget predicate."},
@@ -40,7 +51,7 @@
     {"name":"continuation-trace-correlation","required":true,"description":"continuation-trace-correlation.json for the same live fire: one trace matched by reason fingerprint with the admitted elections and their fire spans. The fixture cannot produce it."}
   ],
   "artifactDestination": {"root":"PROOFS","sha":"${OPENCLAW_CANDIDATE_SHA}","row":"R-CW-5","seat":"${OPENCLAW_SEAT_NAME:-cael-dgx}","runDirPrefix":"k6-run"},
-  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is an exact-candidate process-local typed-tool claim. It is not an external gateway invocation and is not promoted automatically."},
+  "review": {"candidateOnly":true,"foldRequiresReview":true,"notes":"This is an exact-candidate process-local typed-tool claim. It is not an external gateway invocation and is not promoted automatically. Its required preflight R-CW-5A must pass at the same candidate before it can be PASS (requiredPreflights; grade-preflight-gated-row.mjs)."},
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
     "census": {
@@ -191,7 +202,7 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "fixture-result.json reports PASS-candidate when the boundary matrix, typed-tool surface, and dispatch suite all hold; the manifest still caps this process-local row at PARTIAL-candidate. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "pass": "fixture-result.json reports PASS-candidate when the boundary matrix, typed-tool surface, and dispatch suite all hold; the manifest still caps this process-local row at PARTIAL-candidate. Behavioral only; the trace receipts decide review completeness, not the verdict. A PASS-candidate also needs the required preflight R-CW-5A passed at the same candidate; without it the row is capped at PARTIAL-candidate (requiredPreflights).",
       "partial": "The row’s artifact class: a process-local fixture is not an external gateway invocation, so the row is not promoted past PARTIAL-candidate.",
       "fail": "fixture-result.json reports FAIL-fixture: an over-cap election that is not cost-capped, or durable work or a spawn for the rejected hop."
     },

@@ -77,6 +77,54 @@
       "additionalProperties": true,
       "description": "Exact-SHA source-contract binding for rows proven against committed product source rather than a live gateway."
     },
+    "requiredPreflights": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Required preflight attachments of this live row (🌊's F″ method ruling, Discord 1565895695586558120). Each names a static check that must run at the exact candidate and pass there before this row can be PASS; a missing, failed, malformed or other-SHA receipt caps the row at PARTIAL-candidate. Enforced by grade-preflight-gated-row.mjs and validate-corpus.mjs; check-proof-row-manifests.mjs keeps it in agreement with the preflight manifest's preflightAttachment.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rowId", "manifest", "binding", "passVerdict", "capOnMissingOrFailed", "receipt"],
+        "properties": {
+          "rowId": { "type": "string", "minLength": 1 },
+          "manifest": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+\\.json$",
+            "description": "The preflight's row manifest basename under tools/k6-proofs/manifests/."
+          },
+          "binding": {
+            "const": "exact-candidate-sha",
+            "description": "The preflight reads PROOFS/<candidate>/ and its receipt's candidateSha and sourceEvidenceSha must equal this row's candidate. Never the INDEX static_evidence_sha."
+          },
+          "passVerdict": {
+            "enum": ["PASS-candidate", "HONEST-LIMIT-candidate", "PARTIAL-candidate", "FAIL-candidate", "construct-only"],
+            "description": "The verdict a passing preflight run emits: the preflight manifest's liveRunSafety.expectedArtifactClass."
+          },
+          "capOnMissingOrFailed": {
+            "const": "PARTIAL-candidate",
+            "description": "The highest verdict this row may carry while the preflight is missing or not passed."
+          },
+          "receipt": {
+            "const": "required-preflight-receipt.json",
+            "description": "The receipt file the preflight run writes (schema openclaw.k6.required-preflight-receipt.v1)."
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "preflightAttachment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attachedTo", "proofRow", "binding", "ruling"],
+      "description": "Marks this manifest as a required preflight attachment of a live row rather than a proof row. An F″ corpus records it under proofs-manifest preflight_attachments, never in rows[] or required_rows; corpora folded before the ruling keep it as the row they folded.",
+      "properties": {
+        "attachedTo": { "type": "string", "minLength": 1, "description": "The live row whose requiredPreflights names this manifest." },
+        "proofRow": { "const": "retired", "description": "Retired as a proof row for new corpora." },
+        "binding": { "const": "exact-candidate-sha" },
+        "ruling": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    },
     "telemetryContract": {
       "type": "object",
       "additionalProperties": false,

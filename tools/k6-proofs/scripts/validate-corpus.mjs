@@ -33,11 +33,34 @@
  * directory checks still cover every row. Manifests without `required_rows`
  * keep exactly the old checks, plus one that fails only if they carry a
  * supplemental marker (supplemental-requires-required-rows).
+ *
+ * Required preflight attachments (🌊's F″ method ruling, Discord
+ * 1565895695586558120): R-CW-5A/6A are not proof rows of an F″ corpus but
+ * required preflights of R-CW-5/6, as the row manifests' `requiredPreflights`
+ * declare. An F″ corpus records them in `preflight_attachments`
+ * ([{ attachment, attached_to, state, candidate_sha, dir, receipt, … }]), never in
+ * rows[] or required_rows, so the required tally and rollup leave them out. Two
+ * checks run when a manifest declares `preflight_attachments`:
+ * `preflight-attachments-valid` (each record names a catalog preflight of a row
+ * of this corpus, its receipt lies under PROOFS/<sha>/<attachment>/, and its
+ * declared state agrees with the receipt judged at this corpus's SHA) and
+ * `live-rows-gated-by-preflights` (a gated live row is `pass` only when every
+ * required preflight's receipt passed at this SHA). A manifest that declares
+ * required_rows, records a gated live row `pass`, and carries none of its
+ * preflights as rows gets the gate check too, and fails it. Every other manifest,
+ * F′ and older, keeps exactly the checks above; so does 4c235d8c, the one corpus
+ * folded before the ruling in that retired shape.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { consumeRcd2Authority } from '../lib/r-cd-2-authority-context.mjs';
+import {
+  catalogPreflightFailures,
+  evaluateRequiredPreflight,
+  preflightCatalog,
+} from '../lib/required-preflight.mjs';
 
 const STALE_TOKENS = [
   'pending_push',
@@ -49,6 +72,17 @@ const STALE_TOKENS = [
 
 const ROLLUP_KEYS = ['total_rows', 'pass', 'partial', 'thin', 'fail', 'honest_limit', 'missing'];
 const STATE_KEYS = ['pass', 'partial', 'thin', 'fail', 'honest_limit', 'missing'];
+
+// The row-manifest catalog that declares which live rows require which
+// preflights. It is the harness's own catalog, next to this script, so a
+// corpus under --root is judged by the method this checkout carries.
+const PREFLIGHT_CATALOG_DIR = fileURLToPath(new URL('../manifests/', import.meta.url));
+const ATTACHMENT_STATES = ['pass', 'fail', 'missing'];
+const PREFLIGHT_CAP_NOTE = 'a live row without a passing same-candidate preflight is capped at partial';
+// Folded 2026-07-19, before the F″ ruling: required_rows declared, R-CW-5/6
+// pass, never any R-CW-5A/6A row. It keeps the method it was folded under. This
+// list is frozen; a corpus folded after the ruling never joins it.
+const PRE_RULING_RETIRED_SHAPE_CORPORA = new Set(['4c235d8c1997e8964160117f8d6bf650ad1e8203']);
 
 function parseArgs(argv) {
   const out = { _: [] };
@@ -253,7 +287,15 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
 
   const onDiskRowDirs = listSubdirs(shaDir) || [];
   const supportDirs = new Set(['artifacts', 'gates']);
+  // A declared preflight attachment's directory is referenced too; its own
+  // check (preflight-attachments-valid) judges what is in it.
+  const attachmentDirs = new Set(
+    (Array.isArray(manifest.preflight_attachments) ? manifest.preflight_attachments : [])
+      .filter((entry) => typeof entry?.dir === 'string')
+      .map((entry) => entry.dir.replace(/\/+$/, '')),
+  );
   const ignoredSupportDirs = [];
+  const referencedAttachmentDirs = [];
   const orphanDirs = [];
   for (const sub of onDiskRowDirs) {
     if (supportDirs.has(sub) || sub.startsWith('_')) {
@@ -261,16 +303,19 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
       continue;
     }
     const candidate = join('PROOFS', sha, sub);
-    if (!declaredDirs.has(candidate)) {
-      orphanDirs.push(`PROOFS/${sha}/${sub}/`);
-    }
+    if (declaredDirs.has(candidate)) continue;
+    if (attachmentDirs.has(candidate)) referencedAttachmentDirs.push(`PROOFS/${sha}/${sub}/`);
+    else orphanDirs.push(`PROOFS/${sha}/${sub}/`);
   }
+  const rowDirCount = onDiskRowDirs.length - ignoredSupportDirs.length - referencedAttachmentDirs.length;
   pushCheck(
     report,
     'no-orphan-row-dirs',
     orphanDirs.length === 0,
     orphanDirs.length === 0
-      ? `${onDiskRowDirs.length - ignoredSupportDirs.length} on-disk row dirs all referenced; ignored support dirs: ${ignoredSupportDirs.length ? ignoredSupportDirs.join(', ') : 'none'}`
+      ? `${rowDirCount} on-disk row dirs all referenced; ` +
+          `${referencedAttachmentDirs.length ? `preflight attachment dirs: ${referencedAttachmentDirs.join(', ')}; ` : ''}` +
+          `ignored support dirs: ${ignoredSupportDirs.length ? ignoredSupportDirs.join(', ') : 'none'}`
       : `orphans: ${orphanDirs.join(', ')}`,
   );
 
@@ -358,7 +403,215 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
     }
   }
 
+  validatePreflightAttachments(report, root, sha, manifest);
+
   return report;
+}
+
+let preflightCatalogCache;
+
+/** The catalog's preflight index, plus every reason it cannot be trusted. */
+function loadPreflightCatalog() {
+  if (preflightCatalogCache) return preflightCatalogCache;
+  const entries = [];
+  const errors = [];
+  let files = [];
+  try {
+    files = readdirSync(PREFLIGHT_CATALOG_DIR).filter((name) => name.endsWith('.json')).sort();
+  } catch (err) {
+    errors.push(`manifest catalog unreadable: ${err.message}`);
+  }
+  for (const file of files) {
+    try {
+      entries.push({ file, manifest: JSON.parse(readFileSync(join(PREFLIGHT_CATALOG_DIR, file), 'utf8')) });
+    } catch (err) {
+      errors.push(`${file}: ${err.message}`);
+    }
+  }
+  errors.push(...catalogPreflightFailures(entries));
+  preflightCatalogCache = { ...preflightCatalog(entries), errors };
+  return preflightCatalogCache;
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function listIds(ids) {
+  return ids.length <= 2 ? ids.join(' and ') : `${ids.slice(0, -1).join(', ')} and ${ids.at(-1)}`;
+}
+
+/** A receipt path is a plain relative file path under the attachment's own directory. */
+function receiptPathIsUnder(path, dir) {
+  if (typeof path !== 'string' || !path.startsWith(dir) || path.length <= dir.length) return false;
+  return path.split('/').every((segment) => segment && segment !== '.' && segment !== '..');
+}
+
+/**
+ * Judge one attachment's receipt at this corpus's SHA. The receipt is read from
+ * disk and re-judged; a record's declared state is never taken on its word.
+ */
+function judgeAttachmentReceipt(root, sha, entry, requirement, liveRowId) {
+  const dir = `PROOFS/${sha}/${entry.attachment}/`;
+  if (!hasOwn(entry, 'receipt')) return { status: 'missing', reasons: ['no receipt declared'] };
+  if (!receiptPathIsUnder(entry.receipt, dir)) {
+    return { status: 'invalid', reasons: [`receipt ${entry.receipt} is not a file under ${dir}`], location: true };
+  }
+  const file = join(root, entry.receipt);
+  if (!existsSync(file) || !statSync(file).isFile()) return { status: 'missing', reasons: [`${entry.receipt} not found`] };
+  let receipt;
+  try {
+    receipt = JSON.parse(readFileSync(file, 'utf8'));
+  } catch (err) {
+    return { status: 'invalid', reasons: [`receipt is not JSON (${err.message})`] };
+  }
+  return evaluateRequiredPreflight({ requirement, liveRowId, candidateSha: sha, receipt });
+}
+
+/**
+ * The F″ required-preflight checks (see the header). A manifest that neither
+ * declares preflight_attachments nor has the retired shape gets no check, so F′
+ * and every older corpus keep exactly their previous report.
+ */
+function validatePreflightAttachments(report, root, sha, manifest) {
+  const declared = hasOwn(manifest, 'preflight_attachments');
+  if (!declared && !hasOwn(manifest, 'required_rows')) return;
+  const catalog = loadPreflightCatalog();
+  const short = sha.slice(0, 10);
+  const rowIds = new Set(manifest.rows.map((row) => row?.row));
+  const requiredIds = new Set(stringIds(manifest.required_rows));
+  const isRow = (id) => rowIds.has(id) || requiredIds.has(id);
+  const gatedRows = manifest.rows.filter((row) => catalog.requirementsByLiveRow.has(row?.row));
+
+  if (!declared) {
+    if (PRE_RULING_RETIRED_SHAPE_CORPORA.has(sha)) return;
+    const retired = [];
+    const ungated = [];
+    for (const row of gatedRows) {
+      if (row.state !== 'pass') continue;
+      for (const requirement of catalog.requirementsByLiveRow.get(row.row)) {
+        if (isRow(requirement.rowId)) continue;
+        retired.push(requirement.rowId);
+        ungated.push(`${row.row} is pass but its required preflight ${requirement.rowId} is missing at ${short}`);
+      }
+    }
+    if (!ungated.length) return;
+    pushCheck(report, 'live-rows-gated-by-preflights', false, [
+      `${listIds(retired)} ${retired.length === 1 ? 'is not a row' : 'are not rows'} of this corpus and no preflight_attachments are declared`,
+      ...ungated,
+      PREFLIGHT_CAP_NOTE,
+    ].join('; '));
+    return;
+  }
+
+  const problems = [];
+  if (!hasOwn(manifest, 'required_rows')) {
+    problems.push('preflight_attachments requires required_rows (the tally its attachments are retired from)');
+  }
+  if (catalog.errors.length) problems.push(`the preflight catalog is inconsistent: ${catalog.errors.join('; ')}`);
+  const records = new Map();
+  const list = manifest.preflight_attachments;
+  if (!Array.isArray(list)) problems.push('preflight_attachments is not an array');
+  for (const [index, entry] of (Array.isArray(list) ? list : []).entries()) {
+    if (!isPlainObject(entry) || typeof entry.attachment !== 'string' || !entry.attachment) {
+      problems.push(`preflight_attachments[${index}] has no attachment id`);
+      continue;
+    }
+    const id = entry.attachment;
+    if (records.has(id)) {
+      problems.push(`${id} is listed twice`);
+      continue;
+    }
+    const live = catalog.liveRowByPreflight.get(id);
+    if (!live) {
+      problems.push(`${id} is not a required preflight of any catalog row`);
+      continue;
+    }
+    if (entry.attached_to !== live) problems.push(`${id} is attached to ${entry.attached_to}, but the catalog attaches it to ${live}`);
+    if (!rowIds.has(live)) problems.push(`${id} is attached to ${live}, which is not a row of this corpus`);
+    if (isRow(id)) problems.push(`${id} is a retired preflight attachment and cannot also be in rows[] or required_rows`);
+    const requirement = catalog.requirementsByLiveRow.get(live).find((candidate) => candidate.rowId === id);
+    if (hasOwn(entry, 'manifest') && entry.manifest !== requirement.manifestPath) {
+      problems.push(`${id} manifest ${entry.manifest} is not ${requirement.manifestPath}`);
+    }
+    if (!ATTACHMENT_STATES.includes(entry.state)) {
+      problems.push(`${id} state ${showId(entry.state)} is not one of ${ATTACHMENT_STATES.join(', ')}`);
+    }
+    if (entry.candidate_sha !== sha) problems.push(`${id} candidate_sha ${entry.candidate_sha} is not this corpus (${sha})`);
+    const dir = `PROOFS/${sha}/${id}/`;
+    if (hasOwn(entry, 'dir')) {
+      const fullDir = typeof entry.dir === 'string' ? join(root, entry.dir) : null;
+      if (entry.dir !== dir || !fullDir || !existsSync(fullDir) || !statSync(fullDir).isDirectory()) {
+        problems.push(`${id} dir ${entry.dir} is not ${dir} on disk`);
+      }
+    }
+    if (hasOwn(entry, 'evidence_doc') && (typeof entry.evidence_doc !== 'string' || !existsSync(join(root, entry.evidence_doc)))) {
+      problems.push(`${id} evidence_doc ${entry.evidence_doc} does not exist`);
+    }
+    const judged = judgeAttachmentReceipt(root, sha, entry, requirement, live);
+    if (judged.location) problems.push(`${id} ${judged.reasons[0]}`);
+    else if (entry.state === 'pass' && judged.status !== 'passed') {
+      problems.push(`${id} declares pass but its receipt is ${judged.status}: ${judged.reasons.join(', ')}`);
+    } else if (entry.state === 'fail' && judged.status !== 'failed') {
+      problems.push(`${id} declares fail but its receipt is ${judged.status}: ${judged.reasons.join(', ') || 'it passed'}`);
+    } else if (entry.state === 'missing' && hasOwn(entry, 'receipt')) {
+      problems.push(`${id} declares missing but its receipt is ${judged.status}`);
+    }
+    records.set(id, { entry, live, status: judged.status });
+  }
+  report.preflightAttachments = [...records.values()].map(({ entry, status }) => ({
+    attachment: entry.attachment,
+    attachedTo: entry.attached_to,
+    state: entry.state,
+    receiptStatus: status,
+  }));
+  pushCheck(
+    report,
+    'preflight-attachments-valid',
+    problems.length === 0,
+    problems.length === 0
+      ? `${records.size} preflight attachment${records.size === 1 ? '' : 's'}: ` +
+          (records.size ? [...records.values()].map(({ entry }) => `${entry.attachment}→${entry.attached_to} ${entry.state}`).join(', ') : 'none')
+      : problems.join('; '),
+  );
+
+  // The gate: the receipt decides, and a passing receipt also needs a record
+  // that says pass. Anything else leaves the live row capped below pass.
+  const gateProblems = [];
+  const gateLines = [];
+  for (const row of gatedRows) {
+    const statuses = catalog.requirementsByLiveRow.get(row.row).map((requirement) => {
+      const record = records.get(requirement.rowId);
+      let status = record ? record.status : 'missing';
+      if (status === 'passed' && record.entry.state !== 'pass') status = `declared ${record.entry.state}`;
+      return { id: requirement.rowId, status };
+    });
+    const blocked = statuses.filter(({ status }) => status !== 'passed');
+    const passedText = `${statuses.map(({ id }) => `${id} passed`).join(', ')} at ${short}`;
+    if (row.state === 'pass') {
+      if (blocked.length) {
+        for (const { id, status } of blocked) {
+          gateProblems.push(`${row.row} is pass but its required preflight ${id} is ${status} at ${short}`);
+        }
+      } else {
+        gateLines.push(`${row.row} pass with ${passedText}`);
+      }
+    } else if (blocked.length) {
+      gateLines.push(`${row.row} ${row.state} (capped): ${blocked.map(({ id, status }) => `${id} ${status}`).join(', ')}`);
+    } else {
+      gateLines.push(`${row.row} ${row.state}; ${passedText}`);
+    }
+  }
+  pushCheck(
+    report,
+    'live-rows-gated-by-preflights',
+    gateProblems.length === 0,
+    gateProblems.length
+      ? [...gateProblems, PREFLIGHT_CAP_NOTE].join('; ')
+      : gateLines.length
+        ? gateLines.join('; ')
+        : 'no row of this corpus requires a preflight',
+  );
 }
 
 function hasOwn(value, key) {

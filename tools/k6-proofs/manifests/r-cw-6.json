@@ -35,6 +35,17 @@
     "fixtureMaxChainLength": 3,
     "fixtureState": "temporary session store seeded at maxChainLength-2; two valid elections advance to the limit and the first over-limit election is rejected"
   },
+  "requiredPreflights": [
+    {
+      "rowId": "R-CW-6A",
+      "manifest": "r-cw-6a-static.json",
+      "binding": "exact-candidate-sha",
+      "passVerdict": "construct-only",
+      "capOnMissingOrFailed": "PARTIAL-candidate",
+      "receipt": "required-preflight-receipt.json",
+      "description": "R-CW-6A's static source/harness check, run at the exact candidate: it reads PROOFS/<candidate>/R-CW-6/, never INDEX static_evidence_sha, and its receipt must carry this row's candidate SHA. Missing, failed, malformed or bound to another SHA, it caps R-CW-6 at PARTIAL-candidate; it never raises a verdict (🌊's F″ method ruling, Discord 1565895695586558120 (2026-10-31); openclaw-bootstrap#1727)."
+    }
+  ],
   "expectedReceipts": [
     {
       "name": "fixture-readiness",
@@ -97,7 +108,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "This is an exact-candidate process-local typed-tool/runtime claim. It is not an external gateway invocation and is not promoted automatically."
+    "notes": "This is an exact-candidate process-local typed-tool/runtime claim. It is not an external gateway invocation and is not promoted automatically. Its required preflight R-CW-6A must pass at the same candidate before it can be PASS (requiredPreflights; grade-preflight-gated-row.mjs)."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -252,7 +263,7 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "fixture-result.json reports PASS-candidate: every fixture receipt in liveRunSafety.requiredReceipts except the trace receipts holds. Behavioral only; the trace receipts decide review completeness, not the verdict.",
+      "pass": "fixture-result.json reports PASS-candidate: every fixture receipt in liveRunSafety.requiredReceipts except the trace receipts holds. Behavioral only; the trace receipts decide review completeness, not the verdict. A PASS-candidate also needs the required preflight R-CW-6A passed at the same candidate; without it the row is capped at PARTIAL-candidate (requiredPreflights).",
       "partial": "Any fixture receipt is missing or unproven.",
       "fail": "fixture-result.json reports a failure: an over-limit election that is not rejected, a rejected hop that spawns, or a recovered state that admits the over-limit election."
     },

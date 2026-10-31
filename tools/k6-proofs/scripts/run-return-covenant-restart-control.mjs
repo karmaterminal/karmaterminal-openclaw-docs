@@ -70,7 +70,12 @@ import {
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const CLIENT = Object.freeze({ id: 'cli', mode: 'cli', version: 'k6-proof-rcc-v1', platform: 'node' });
-const RETARGETING_ENV = /^(?:HOME|PATH|INVOCATION_ID|SYSTEMD_EXEC_PID|JOURNAL_STREAM|OPENCLAW_(?:STATE_DIR|CONFIG_PATH|GATEWAY_PORT|SUPERVISOR_MODE|SYSTEMD_UNIT|PROOF_RCC_RUN|GATEWAY_TOKEN|GATEWAY_URL|GATEWAY_WS|PROFILE|HOME|LAUNCHD_LABEL|WINDOWS_TASK_NAME|SERVICE_MARKER|SERVICE_KIND|NO_RESPAWN))$/u;
+// --gateway-env is an allowlist: a denylist cannot fail closed (OPENCLAW_AGENT_DIR, for one,
+// would point the credential store at the live agent). Allowed: the two settings the
+// proof-gw unit itself passes, and the scripted test gateway's RCC_SCRIPT_* switches, which
+// the product ignores.
+const GATEWAY_ENV_ALLOWED = /^(?:NODE_OPTIONS|OPENCLAW_CODEX_APP_SERVER_BIN|RCC_SCRIPT_[A-Z0-9_]+)$/u;
+const NODE_OPTIONS_ALLOWED = /^(?:--max-old-space-size=\d+|--inspect=127\.0\.0\.1:\d{4,5})$/u;
 const STOP_GRACE_MS = 10_000;
 const KILL_GRACE_MS = 5_000;
 
@@ -143,14 +148,20 @@ function procEnvironHas(pid, entry, procRoot = '/proc') {
   }
 }
 
-function processGroupMembers(pgrp, procRoot = '/proc') {
-  const members = [];
+/**
+ * Every live process carrying this run's marker, wherever it is: a descendant that called
+ * setsid leaves the generation's process group but keeps the environment. The marker is a
+ * fresh 128-bit run id, so a match is a process this control started or its descendant.
+ * Only same-user environ files are readable, and only those can be ours.
+ */
+function processesWithMarker(marker, procRoot = '/proc') {
+  const found = [];
   for (const entry of readdirSync(procRoot)) {
-    if (!/^\d+$/u.test(entry)) continue;
+    if (!/^\d+$/u.test(entry) || Number(entry) === process.pid) continue;
     const stat = procStat(Number(entry), procRoot);
-    if (stat && stat.pgrp === pgrp && stat.state !== 'Z') members.push(Number(entry));
+    if (stat && stat.state !== 'Z' && procEnvironHas(Number(entry), marker, procRoot)) found.push(Number(entry));
   }
-  return members;
+  return found;
 }
 
 /* ------------------------------------------------------------------------------------ */
@@ -459,11 +470,13 @@ function refusalResult({ artifactDir, refusals, options, candidateSha }) {
     processesStarted: 0,
     refusals: refusals.map(({ code, detail }) => ({ code, detail })),
   };
-  if (artifactDir) {
+  // Never create anything inside a directory the guard refused to write to.
+  const unwritable = refusals.some((entry) => entry.code === 'artifact-dir-in-target' || entry.code === 'artifact-dir-in-repo');
+  if (artifactDir && !unwritable) {
     mkdirSync(artifactDir, { recursive: true });
     writeJson(path.join(artifactDir, 'refusal.json'), refusal);
   }
-  return { status: 'refused', refusals: refusal.refusals, refusal };
+  return { status: 'refused', refusals: refusal.refusals, refusal, refusalWritten: Boolean(artifactDir && !unwritable) };
 }
 
 /** Run one control case. Returns { status, record, grade, receipt } or a refusal. */
@@ -481,8 +494,14 @@ export async function runRestartControl(options, overrides = {}) {
   if (!RCC_CASES.includes(caseKind)) refuse('case-unknown', `--case must be one of ${RCC_CASES.join(', ')}`);
   if (!isSha40(options.docsSha)) refuse('docs-sha-invalid', '--docs-sha must be 40 lowercase hex');
   if (!/^[a-z0-9][a-z0-9_-]{0,63}$/u.test(agentId)) refuse('agent-id-invalid', '--agent-id must be a plain agent id');
-  for (const key of Object.keys(options.gatewayEnv ?? {})) {
-    if (RETARGETING_ENV.test(key)) refuse('gateway-env-retargets', `--gateway-env may not set ${key}`);
+  for (const [key, value] of Object.entries(options.gatewayEnv ?? {})) {
+    if (!GATEWAY_ENV_ALLOWED.test(key)) {
+      refuse('gateway-env-not-allowed', `--gateway-env may set only NODE_OPTIONS or OPENCLAW_CODEX_APP_SERVER_BIN, not ${key}`);
+    } else if (key === 'NODE_OPTIONS' && !String(value).trim().split(/\s+/u).every((part) => NODE_OPTIONS_ALLOWED.test(part))) {
+      refuse('gateway-env-not-allowed', 'NODE_OPTIONS may carry only --max-old-space-size=<n> and --inspect=127.0.0.1:<port>');
+    } else if (key === 'OPENCLAW_CODEX_APP_SERVER_BIN' && !path.isAbsolute(String(value))) {
+      refuse('gateway-env-not-allowed', 'OPENCLAW_CODEX_APP_SERVER_BIN must be an absolute path');
+    }
   }
   let plan;
   try {
@@ -509,10 +528,15 @@ export async function runRestartControl(options, overrides = {}) {
     refuse('docs-sha-mismatch', 'the docs SHA is not the harness checkout executing this control');
   }
   if (artifactDir) {
+    const inside = (dir) => artifactDir === dir || artifactDir.startsWith(`${dir}${path.sep}`);
     for (const forbidden of [target.proofGwDir, path.join(home, '.openclaw')].filter(Boolean)) {
-      if (artifactDir === forbidden || artifactDir.startsWith(`${forbidden}${path.sep}`)) {
+      if (inside(forbidden)) {
         refuse('artifact-dir-in-target', 'the artifact directory must live outside the gateway-under-test and the live state');
       }
+    }
+    // The private sibling keeps raw logs; it must never land in a repository tree.
+    if (inside(path.resolve(repoRoot))) {
+      refuse('artifact-dir-in-repo', 'write receipts outside the docs repository (for example ~/proof-runs/...); publishing is a separate reviewed step');
     }
     if (existsSync(path.join(artifactDir, 'observer-receipt.json')) || existsSync(`${artifactDir}.private`)) {
       refuse('artifact-dir-used', 'the artifact directory already holds a control run; use a new one');
@@ -1024,18 +1048,14 @@ async function cleanup({ record, generations, blocker, target, runId }) {
   }
   const marker = `OPENCLAW_PROOF_RCC_RUN=${runId}`;
   const runMembers = () => {
-    const found = new Set();
+    const found = new Set(processesWithMarker(marker));
     for (const generation of Object.values(generations)) {
-      if (!generation.pid) continue;
-      if (!generation.exited) found.add(generation.pid);
-      for (const member of processGroupMembers(generation.pid)) {
-        if (procEnvironHas(member, marker)) found.add(member);
-      }
+      if (generation.pid && !generation.exited) found.add(generation.pid);
     }
     return [...found].sort((a, b) => a - b);
   };
-  // A process left in one of our groups with this run's marker is ours by construction
-  // (a generation's descendant). Stop it, but record it: a generation that leaves a
+  // A process still carrying this run's marker is ours by construction (a generation or its
+  // descendant, detached or not). Stop it, but record it: a generation that leaves a
   // descendant behind did not retire cleanly.
   const orphans = runMembers();
   for (const [signalName, graceMs] of [['SIGTERM', STOP_GRACE_MS], ['SIGKILL', KILL_GRACE_MS]]) {
@@ -1106,6 +1126,16 @@ function finishReceipt({ record, observerKey, artifactDir, secrets, state }) {
 /** On SIGINT/SIGTERM, stop every generation this process started, then exit. */
 function installInterruptCleanup() {
   const interrupt = (signal) => {
+    const runIds = new Set([...liveGenerations].map((generation) => generation.runId));
+    for (const runId of runIds) {
+      for (const pid of processesWithMarker(`OPENCLAW_PROOF_RCC_RUN=${runId}`)) {
+        try {
+          process.kill(pid, 'SIGKILL');
+        } catch {
+          // Already gone.
+        }
+      }
+    }
     for (const generation of liveGenerations) {
       const stat = procStat(generation.pid);
       if (stat && stat.startTicks === generation.startTicks && procEnvironHas(generation.pid, `OPENCLAW_PROOF_RCC_RUN=${generation.runId}`)) {

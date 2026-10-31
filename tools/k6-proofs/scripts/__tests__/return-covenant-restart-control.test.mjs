@@ -386,6 +386,54 @@ test('a rejected restart request keeps its failure body and grades MISSING-candi
   assert.ok(processGone(result.record.generations.old.pid));
 });
 
+test('a refusal never writes into the live state or the docs repository', async () => {
+  for (const [code, dirFor] of [
+    ['artifact-dir-in-target', (layout) => path.join(layout.home, '.openclaw', 'rcc-run')],
+    ['artifact-dir-in-repo', () => path.join(here, 'rcc-artifacts-must-not-exist')],
+  ]) {
+    const layout = await disposableLayout();
+    const artifactDir = dirFor(layout);
+    const result = await runRestartControl(controlOptions(layout, { artifactDir }), {
+      ...testPlatform,
+      spawnGateway: () => {
+        throw new Error('the guard let a process start');
+      },
+    });
+    assert.equal(result.status, 'refused');
+    assert.ok(result.refusals.some((entry) => entry.code === code), JSON.stringify(result.refusals));
+    assert.equal(result.refusalWritten, false);
+    assert.equal(existsSync(artifactDir), false);
+  }
+});
+
+test('negative control does not hold when the failure text is empty', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(controlOptions(layout, { caseKind: 'negative-replacement-never-usable' }), testPlatform);
+  assert.equal(result.grade.negativeControl.holds, true);
+  const record = structuredClone(result.record);
+  const empty = { bytes: 0, sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', tail: '' };
+  record.generations.replacement.stdout = empty;
+  record.generations.replacement.stderr = empty;
+  const grade = gradeRestartControl(record);
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.equal(grade.negativeControl.failureBodyRetained, false);
+  assert.equal(grade.negativeControl.holds, false);
+});
+
+test('a detached descendant left by the old generation is found by its marker, stopped and graded FAIL', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { gatewayEnv: { RCC_SCRIPT_ORPHAN: 'detached' } }),
+    testPlatform,
+  );
+  const { record, grade } = result;
+  assert.equal(record.cleanup.orphansTerminated.length, 1, JSON.stringify(record.cleanup));
+  assert.deepEqual(record.cleanup.residualPids, []);
+  assert.ok(processGone(record.cleanup.orphansTerminated[0]));
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.failures.some((entry) => entry.code === 'resource-retention'));
+});
+
 /* ---------------------------------------------------------------------------------- */
 /* Guard: refuse to run against anything that is not a disposable proof-gw gateway     */
 /* ---------------------------------------------------------------------------------- */
@@ -463,8 +511,28 @@ const guardCases = [
   },
   {
     name: 'a proof-gw unit that is still running',
-    code: 'unit-active',
+    code: 'unit-not-stopped',
     platform: { unitState: () => 'active' },
+  },
+  {
+    name: 'a proof-gw unit that is still deactivating',
+    code: 'unit-not-stopped',
+    platform: { unitState: () => 'deactivating' },
+  },
+  {
+    name: 'a proof-gw unit whose state cannot be read',
+    code: 'unit-not-stopped',
+    platform: { unitState: () => 'unknown' },
+  },
+  {
+    name: 'a gateway environment that would move the credential store',
+    code: 'gateway-env-not-allowed',
+    mutate: async (layout) => ({ gatewayEnv: { OPENCLAW_AGENT_DIR: path.join(layout.home, '.openclaw', 'agents', 'main', 'agent') } }),
+  },
+  {
+    name: 'NODE_OPTIONS that preloads code',
+    code: 'gateway-env-not-allowed',
+    mutate: async () => ({ gatewayEnv: { NODE_OPTIONS: '--max-old-space-size=4096 --require /tmp/x.js' } }),
   },
   {
     name: 'a config that carries channels',

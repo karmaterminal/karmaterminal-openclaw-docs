@@ -293,10 +293,12 @@ export function evaluateDisposableTarget({
     if (portListening(target.port)) refuse('port-in-use', `something already listens on ${target.port}; stop the proof-gw unit first`);
   }
   if (target.unit) {
+    // Only a unit known to be down is safe: deactivating can hold the state for the
+    // launcher's TimeoutStopSec, and unknown (no user bus) proves nothing.
     const state = unitState(target.unit);
     target.unitState = state;
-    if (state === 'active' || state === 'activating' || state === 'reloading') {
-      refuse('unit-active', `${target.unit} is ${state}; run composite-launcher.sh stop first`);
+    if (state !== 'inactive' && state !== 'failed') {
+      refuse('unit-not-stopped', `${target.unit} is ${state || 'unknown'}; run composite-launcher.sh stop first (a user systemd bus is required to confirm it)`);
     }
   }
 
@@ -324,7 +326,7 @@ export function redactText(text, secrets = []) {
   return out
     .replace(/[A-Fa-f0-9]{32,}/gu, '<redacted-hex>')
     .replace(/[A-Za-z0-9_-]{40,}/gu, '<redacted-token>')
-    .replace(/\b(?:token|bearer|password|secret)\b\s*[:=]\s*\S+/giu, '$1=<redacted>');
+    .replace(/\b(token|bearer|password|secret)\b\s*[:=]\s*\S+/giu, '$1=<redacted>');
 }
 
 /** Redact every string inside a JSON value, keeping its structure. */
@@ -589,11 +591,16 @@ export function gradeRestartControl(record) {
         positiveInteger(old.startTicks) &&
         positiveInteger(old.listen?.inode),
     );
+    // Failure text must actually exist: process output with bytes and a non-empty tail,
+    // and a not-ready probe that kept a body or an error.
+    const hasText = (capture) => Number.isSafeInteger(capture?.bytes) && capture.bytes > 0 && String(capture.tail ?? '').trim().length > 0;
+    const keptProbe = (edge) => Boolean(edge && ['readyz', 'startupz'].some((probe) => edge[probe]?.body || edge[probe]?.error));
     const failureBodyRetained = Boolean(
       replacement.failure?.kind &&
         receipts['replacement-process-output'] &&
+        (hasText(replacement.stderr) || hasText(replacement.stdout)) &&
         transition.response?.frame &&
-        (transition.httpBodies?.lastObservedNotReady || transition.httpBodies?.firstPostTriggerNotReady),
+        (keptProbe(transition.httpBodies?.lastObservedNotReady) || keptProbe(transition.httpBodies?.firstPostTriggerNotReady)),
     );
     const replacementNeverUsable = !finiteTime(readyAt);
     negativeControl = {

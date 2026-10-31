@@ -21,7 +21,8 @@
  * row when boot n starts (a product that clears the covenant on restart);
  * RCC_SCRIPT_NO_HANDOFF=1 exits without a handoff row; RCC_SCRIPT_REJECT_RESTART=1 rejects
  * the restart request; RCC_SCRIPT_NEVER_READY_ON_BOOT=<n> keeps boot n listening but 503;
- * RCC_SCRIPT_ORPHAN=1 leaves a descendant in its process group when it exits;
+ * RCC_SCRIPT_ORPHAN=1 leaves a descendant in its process group when it exits, =detached leaves
+ * one in a new session (setsid);
  * RCC_SCRIPT_DROP_RESTART_RESPONSE=1 restarts without answering the request;
  * RCC_SCRIPT_BOOT_DELAY_MS delays each listen. The consume command prints a log line before
  * its JSON, as a product CLI may.
@@ -317,9 +318,13 @@ function restart(reason) {
       db.close();
     }
     agentDb.close();
-    if (process.env.RCC_SCRIPT_ORPHAN === '1') {
-      // Same process group and environment: a descendant the old generation leaves behind.
-      spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' }).unref();
+    if (process.env.RCC_SCRIPT_ORPHAN === '1' || process.env.RCC_SCRIPT_ORPHAN === 'detached') {
+      // Same environment: a descendant the old generation leaves behind, in its process group
+      // or (detached) in a session of its own.
+      spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
+        stdio: 'ignore',
+        detached: process.env.RCC_SCRIPT_ORPHAN === 'detached',
+      }).unref();
     }
     process.stdout.write('[gateway] restart mode: full process restart (supervisor restart)\n');
     process.exit(0);

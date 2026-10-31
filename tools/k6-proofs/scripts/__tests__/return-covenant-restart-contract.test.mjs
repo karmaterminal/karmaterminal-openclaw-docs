@@ -13,6 +13,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const MANIFEST = path.join(repoRoot, 'tools/k6-proofs/manifests/r-cd-return-covenant-authority.json');
 const SCENARIO = path.join(repoRoot, 'tools/k6-proofs/scenarios/r-cd-return-covenant-authority.js');
+const DOC = path.join(repoRoot, 'tools/k6-proofs/docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md');
+const PIPELINE = path.join(repoRoot, 'tools/k6-proofs/k6-proofs-pipeline.xml');
+const README = path.join(repoRoot, 'tools/k6-proofs/README.md');
 const FIXTURE = 'tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs';
 const RECEIPTS = [
   'transition-http-body',
@@ -25,6 +28,38 @@ const RECEIPTS = [
 async function manifest() {
   return JSON.parse(await readFile(MANIFEST, 'utf8'));
 }
+
+// Every place the row's contract is written down, cut to this row where the file is shared.
+async function contractTexts() {
+  const pipeline = await readFile(PIPELINE, 'utf8');
+  const readme = await readFile(README, 'utf8');
+  const rowStart = pipeline.indexOf('<Row id="R-CD-RETURN-COVENANT-AUTHORITY"');
+  const sectionStart = readme.indexOf('### R-CD-RETURN-COVENANT-AUTHORITY');
+  assert.ok(rowStart >= 0 && sectionStart >= 0);
+  return {
+    doc: await readFile(DOC, 'utf8'),
+    manifest: await readFile(MANIFEST, 'utf8'),
+    scenario: await readFile(SCENARIO, 'utf8'),
+    pipeline: pipeline.slice(rowStart, pipeline.indexOf('</Row>', rowStart)),
+    readme: readme.slice(sectionStart, readme.indexOf('\n### ', sectionStart + 1)),
+  };
+}
+
+test('no contract text credits a non-serving generation as usable or claims continuous service', async () => {
+  // 🌊's ruling: the old server closes before the replacement is ready, so continuous service
+  // is not an invariant, and an unchanged epoch alone is not usability.
+  const texts = await contractTexts();
+  for (const [name, text] of Object.entries(texts)) {
+    assert.doesNotMatch(text, /last[ -]usable/iu, `${name} still credits a "last usable" generation`);
+    assert.doesNotMatch(text, /\b(?:stays|remains|keeps?|kept)\s+(?:\w+\s+)?usable\b/iu, `${name} still claims a generation stays usable`);
+    assert.doesNotMatch(text, /continuous(?:ly)?\s+(?:service|serving)\s+(?:until|through)/iu, `${name} still claims continuous service`);
+  }
+  for (const name of ['doc', 'manifest', 'scenario']) {
+    assert.match(texts[name], /outageInterval/u, `${name} does not report the outage interval`);
+    assert.match(texts[name], /hello-ok/u, `${name} does not define usable as serving`);
+  }
+  assert.match(texts.doc, /not an invariant/u);
+});
 
 test('the row manifest names the restart control and its receipts, and stays non-runnable', async () => {
   const row = await manifest();

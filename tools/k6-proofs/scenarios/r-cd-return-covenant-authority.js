@@ -71,14 +71,16 @@
  *    (src/gateway/server/readiness.ts:29-33 and 46-72, src/gateway/server-http-probes.ts:12-24);
  *    hello-ok carries server.buildId and a per-process server.bootId
  *    (src/gateway/server/ws-connection/connect-hello.ts:173-182; buildId from dist/build-info.json,
- *    src/version.ts:83-95 and 181-186). A generation is usable only when it owns the listening
- *    socket, both probes pass and hello-ok answers with a new bootId.
+ *    src/version.ts:83-95 and 181-186). A generation is usable only while it owns the
+ *    listening socket, /readyz passes and hello-ok answers; the control observes all three at
+ *    every sample. An unchanged epoch alone is not usability.
  *
- * "The old authority stays usable until the replacement is ready" therefore means: the
- * durable epoch is present and unchanged at every sample through the gap where no process
- * serves, and the observer keeps the old generation's fingerprint as the last usable
- * authority until a replacement is verified. The rejected base cleared that generation
- * first and lost the failure body.
+ * At F′ the old server closes before any successor is ready, so continuous service across a
+ * restart is not an invariant (🌊, Discord msg 1565903655885082677). The control asserts what
+ * holds: the durable epoch is present and unchanged at every sample, including the outage where
+ * no process serves, and the failure text survives. It reports the outage as outageInterval
+ * (last serving old sample -> first serving sample after it). The rejected base lost the
+ * failure body.
  */
 export const options = {
   scenarios: {

@@ -95,11 +95,26 @@ export function planObservationWindow(overrides = {}) {
   if (plan.transitionDeadlineMs >= plan.observationWindowMs) {
     throw new Error('transitionDeadlineMs must be shorter than observationWindowMs');
   }
-  // One sample may wait on two HTTP probes and a read-only SQLite open; anything slower
-  // than this between consecutive samples is an observation gap, not a quiet window.
+  // One sample may wait on two HTTP probes, a hello-ok handshake and a read-only SQLite open;
+  // anything slower than this between consecutive samples is an observation gap, not a quiet
+  // window.
   plan.probeTimeoutMs = Math.min(1000, Math.max(100, plan.sampleIntervalMs * 2));
-  plan.maxSampleGapMs = plan.sampleIntervalMs * 4 + plan.probeTimeoutMs * 2 + 1000;
+  plan.helloTimeoutMs = plan.probeTimeoutMs * 2;
+  plan.maxSampleGapMs = plan.sampleIntervalMs * 4 + plan.probeTimeoutMs * 2 + plan.helloTimeoutMs + 1000;
   return plan;
+}
+
+/**
+ * Which generation a sample saw serving. 🌊's ruling: a generation is usable only while it
+ * owns the listening socket, /readyz passes and hello-ok answers. The control records the three
+ * observations per sample; nothing else (an unchanged authority epoch, an observer's notion of
+ * the "current" generation) makes a generation usable.
+ */
+export function servingGenerationOf(sample) {
+  const owner = sample?.listener?.owner;
+  if (owner !== 'old' && owner !== 'replacement') return null;
+  if (sample.readyz?.status !== 200 || sample.readyz?.ready !== true) return null;
+  return sample.hello?.ok === true ? owner : null;
 }
 
 /* ------------------------------------------------------------------------------------ */
@@ -366,6 +381,54 @@ function samplesOf(record) {
   return Array.isArray(record?.observation?.samples) ? record.observation.samples : [];
 }
 
+function sortedSamples(record) {
+  return [...samplesOf(record)].sort((a, b) => a.atMs - b.atMs);
+}
+
+function servingPoint(sample) {
+  return sample
+    ? {
+        atMs: sample.atMs,
+        generation: servingGenerationOf(sample),
+        listenerInode: sample.listener?.inode ?? null,
+        ownerPid: sample.listener?.ownerPid ?? null,
+      }
+    : null;
+}
+
+/**
+ * The outage a restart opens, measured from the matrix: the last sample that saw a generation
+ * serving before the first unserved post-transition sample, to the first sample after it that
+ * saw a generation serving again. Every full-process path at F′ closes the old server first,
+ * so the interval exists on every branch; its precision is one sample interval.
+ * `firstServingAfter.generation` is `replacement` for a fresh successor and `old` when the
+ * original process serves again (the spawned branch's in-process fallback). `open` means
+ * nothing served again before the observation ended.
+ */
+export function computeOutageInterval(record) {
+  const samples = sortedSamples(record);
+  const triggerAtMs = record?.observation?.triggerAtMs;
+  const resolutionMs = record?.plan?.sampleIntervalMs ?? null;
+  const base = { observed: false, lastServingBefore: null, firstServingAfter: null, ms: null, open: false, unservedSamples: 0, resolutionMs };
+  if (!finiteTime(triggerAtMs) || samples.length === 0) return { ...base, reason: 'no-transition-observed' };
+  const gapStart = samples.findIndex((sample) => sample.atMs >= triggerAtMs && servingGenerationOf(sample) === null);
+  if (gapStart < 0) return { ...base, reason: 'no-unserved-sample-after-transition' };
+  let beforeIndex = gapStart - 1;
+  while (beforeIndex >= 0 && servingGenerationOf(samples[beforeIndex]) === null) beforeIndex -= 1;
+  const afterIndex = samples.findIndex((sample, index) => index > gapStart && servingGenerationOf(sample) !== null);
+  const before = beforeIndex < 0 ? null : samples[beforeIndex];
+  const after = afterIndex < 0 ? null : samples[afterIndex];
+  return {
+    ...base,
+    observed: true,
+    lastServingBefore: servingPoint(before),
+    firstServingAfter: servingPoint(after),
+    ms: before && after ? after.atMs - before.atMs : null,
+    open: after === null,
+    unservedSamples: (afterIndex < 0 ? samples.length : afterIndex) - beforeIndex - 1,
+  };
+}
+
 function receiptPresence(record) {
   const old = record?.generations?.old;
   const replacement = record?.generations?.replacement;
@@ -457,7 +520,6 @@ export function gradeRestartControl(record) {
 
   const established = authority.epochSha256;
   const preSamples = samples.filter((sample) => finiteTime(triggerAtMs) && sample.atMs < triggerAtMs);
-  const postSamples = samples.filter((sample) => finiteTime(triggerAtMs) && sample.atMs >= triggerAtMs);
   const readyAt = replacement.readyAtMs;
 
   // B2: the authority generation is present and unchanged at every sample.
@@ -474,13 +536,15 @@ export function gradeRestartControl(record) {
     fail('authority-cleared-or-advanced', 'the replacement-time authority read differs from the established generation');
   }
 
-  // B3: the old generation served before the transition.
+  // B3: the old generation served before the transition: it owned the listener, /readyz
+  // passed and hello-ok answered at each counted sample.
   if (observed && transitionHappened) {
-    const servedBefore = preSamples.filter((sample) => sample.listener?.owner === 'old' && sample.readyz?.status === 200 && sample.readyz?.ready === true);
+    const servedBefore = preSamples.filter((sample) => servingGenerationOf(sample) === 'old');
     if (servedBefore.length < (plan.preTriggerSamples ?? 1)) {
-      fail('old-not-serving-before-transition', `${servedBefore.length} ready old-generation sample(s) before the transition; plan needs ${plan.preTriggerSamples}`);
+      fail('old-not-serving-before-transition', `${servedBefore.length} serving old-generation sample(s) before the transition; plan needs ${plan.preTriggerSamples}`);
     }
   }
+  const outage = observed ? computeOutageInterval(record) : computeOutageInterval(null);
 
   // B5: the old generation left through the product's external-supervisor handoff.
   if (transitionHappened) {
@@ -500,17 +564,9 @@ export function gradeRestartControl(record) {
     }
   }
 
-  // B6 (the rejected base): the observer may not clear the current generation before the
-  // replacement is usable. Every sample before replacement readiness names the old
-  // generation as the last usable authority; after it, only a serving replacement.
-  if (observed && finiteTime(triggerAtMs)) {
-    // A sample taken in the same millisecond readiness was verified may carry either label.
-    const beforeReady = samples.filter((sample) => !finiteTime(readyAt) || sample.atMs < readyAt);
-    const clearedRecord = beforeReady.filter((sample) => sample.lastUsableGeneration !== 'old');
-    if (clearedRecord.length) {
-      fail('current-generation-cleared-before-replacement-ready', `${clearedRecord.length} sample(s) before replacement readiness do not name the old generation`);
-    }
-  }
+  // No predicate credits a generation as usable through the outage: at F′ the old server
+  // closes before any successor is ready (🌊's ruling), so continuous service is not an
+  // invariant. The outage is measured and reported instead (grade.outageInterval).
 
   // B7/B8/B10: the replacement became ready, distinct, and stayed serving.
   if (transitionHappened && finiteTime(old.exitedAtMs)) {
@@ -528,12 +584,15 @@ export function gradeRestartControl(record) {
       if (observed) {
         const settle = samples.filter((sample) => sample.atMs > readyAt);
         const unstable = settle.filter((sample) =>
-          sample.listener?.owner !== 'replacement' ||
-          sample.listener?.inode !== replacement.listen?.inode ||
-          sample.readyz?.status !== 200 ||
-          sample.lastUsableGeneration !== 'replacement');
-        if (unstable.length) fail('replacement-unstable', `${unstable.length} settle sample(s) did not show the same ready replacement`);
+          servingGenerationOf(sample) !== 'replacement' ||
+          sample.listener?.inode !== replacement.listen?.inode);
+        if (unstable.length) fail('replacement-unstable', `${unstable.length} settle sample(s) did not show the same replacement serving`);
         if (settle.length === 0) partial('settle-unobserved', 'no samples followed replacement readiness');
+        const firstServing = outage.firstServingAfter;
+        if (firstServing?.generation === 'replacement' && firstServing.atMs - triggerAtMs > plan.readinessDeadlineMs) {
+          fail('replacement-ready-late', 'the first serving replacement sample came after the planned deadline');
+        }
+        if (!outage.observed) partial('outage-unobserved', 'no sample fell between the old generation and the replacement');
       }
     }
   }
@@ -579,17 +638,31 @@ export function gradeRestartControl(record) {
   else verdict = 'PASS-candidate';
 
   // The negative control holds only when it refuses PASS *and* still shows the old
-  // authority and the failure body.
+  // authority and the failure body. "Old authority" is the unchanged epoch plus the old
+  // generation's retained fingerprint, never a claim that it was usable.
   let negativeControl = null;
+  const epochUnchanged = Boolean(
+    isHex64(established) &&
+      samples.length > 0 &&
+      samples.every((sample) => sample.authority?.state === 'present' && sample.authority.epochSha256 === established),
+  );
   if (caseKind === 'negative-replacement-never-usable') {
     const oldAuthorityRetained = Boolean(
-      isHex64(established) &&
-        samples.length > 0 &&
-        samples.every((sample) => sample.authority?.state === 'present' && sample.authority.epochSha256 === established) &&
-        postSamples.every((sample) => sample.lastUsableGeneration === 'old') &&
+      epochUnchanged &&
         positiveInteger(old.pid) &&
         positiveInteger(old.startTicks) &&
         positiveInteger(old.listen?.inode),
+    );
+    // This supervised branch has no in-process fallback: the old generation left through the
+    // accepted handoff, and nothing served again before the window ended.
+    const handoff = transition.handoff;
+    const noFallback = Boolean(
+      finiteTime(old.exitedAtMs) &&
+        old.exit?.code === 0 &&
+        handoff?.status === 'accepted' &&
+        handoff.pid === old.pid &&
+        outage.open === true &&
+        samples.every((sample) => sample.atMs <= old.exitedAtMs || servingGenerationOf(sample) === null),
     );
     // Failure text must actually exist: process output with bytes and a non-empty tail,
     // and a not-ready probe that kept a body or an error.
@@ -602,13 +675,14 @@ export function gradeRestartControl(record) {
         transition.response?.frame &&
         (keptProbe(transition.httpBodies?.lastObservedNotReady) || keptProbe(transition.httpBodies?.firstPostTriggerNotReady)),
     );
-    const replacementNeverUsable = !finiteTime(readyAt);
+    const replacementNeverUsable = !finiteTime(readyAt) && samples.every((sample) => servingGenerationOf(sample) !== 'replacement');
     negativeControl = {
-      expected: 'non-PASS with the old authority and the failure body retained',
+      expected: 'non-PASS with the old authority (epoch and fingerprint) and the failure body retained, and no fallback on the supervised branch',
       replacementNeverUsable,
       oldAuthorityRetained,
       failureBodyRetained,
-      holds: verdict !== 'PASS-candidate' && replacementNeverUsable && oldAuthorityRetained && failureBodyRetained,
+      noFallback,
+      holds: verdict !== 'PASS-candidate' && replacementNeverUsable && oldAuthorityRetained && failureBodyRetained && noFallback,
     };
   }
 
@@ -626,6 +700,12 @@ export function gradeRestartControl(record) {
     partials,
     missingBehaviour,
     negativeControl,
+    outageInterval: outage,
+    fallback: {
+      branch: 'none-on-supervised-branch',
+      class: 'not-applicable',
+      detail: 'the supervised branch (src/cli/gateway-cli/run-loop.ts:497-561) writes the handoff and exits; it has no in-process fallback once the handoff is written',
+    },
   };
 }
 

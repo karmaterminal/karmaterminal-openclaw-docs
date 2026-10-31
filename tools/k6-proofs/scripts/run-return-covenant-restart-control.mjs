@@ -11,8 +11,9 @@
  *   2. start the old generation (OPENCLAW_SUPERVISOR_MODE=external) and wait for readiness;
  *   3. establish one return authority: sessions.create, then a narrowing
  *      session.visibility.set, which advances (creates) the session_recipient_authority epoch;
- *   4. sample the observation matrix (listener owner, /readyz, /startupz, authority epoch,
- *      last usable generation) through a window planned before the transition;
+ *   4. sample the observation matrix (listener owner and its PID/start ticks, /readyz,
+ *      /startupz, hello-ok, the generation observed serving, authority epoch) through a window
+ *      planned before the transition;
  *   5. request a real restart (gateway.restart.request), wait for the old generation to
  *      close and exit, consume the product's restart handoff, start the replacement, and
  *      verify it (owned listener, /readyz, /startupz, hello-ok with a new bootId);
@@ -63,6 +64,7 @@ import {
   redactDeep,
   redactText,
   sealObserverReceipt,
+  servingGenerationOf,
   sha256,
   textCapture,
   verifyObserverReceipt,
@@ -679,21 +681,26 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const map = new Map();
     for (const name of ['old', 'replacement']) {
       const generation = generations[name];
-      if (generation && !generation.exited) for (const inode of socketInodesOf(generation.pid)) map.set(inode, name);
+      if (generation && !generation.exited) for (const inode of socketInodesOf(generation.pid)) map.set(inode, { name, pid: generation.pid });
     }
-    for (const inode of socketInodesOf(process.pid)) if (!map.has(inode)) map.set(inode, 'control-blocker');
+    for (const inode of socketInodesOf(process.pid)) if (!map.has(inode)) map.set(inode, { name: 'control-blocker', pid: process.pid });
     return map;
   };
 
+  // The listener's owner by process: the owning PID and its current kernel start ticks, so a
+  // serving sample is tied to one exact process, not merely to a port.
   const listenerFor = () => {
     const inodes = listenInodes(target.port);
-    if (inodes.length === 0) return { owner: null, inode: null, inodes };
+    if (inodes.length === 0) return { owner: null, inode: null, inodes, ownerPid: null, ownerStartTicks: null };
     const owned = owners();
     for (const preferred of ['replacement', 'old', 'control-blocker']) {
-      const inode = inodes.find((candidate) => owned.get(candidate) === preferred);
-      if (inode) return { owner: preferred, inode, inodes };
+      const inode = inodes.find((candidate) => owned.get(candidate)?.name === preferred);
+      if (inode) {
+        const { pid } = owned.get(inode);
+        return { owner: preferred, inode, inodes, ownerPid: pid, ownerStartTicks: procStat(pid)?.startTicks ?? null };
+      }
     }
-    return { owner: 'foreign', inode: inodes[0], inodes };
+    return { owner: 'foreign', inode: inodes[0], inodes, ownerPid: null, ownerStartTicks: null };
   };
 
   const probeBodies = async () => {
@@ -720,36 +727,45 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     startupz: { status: bodies.startupz.status, body: bodies.startupz.body === null ? null : boundedBody(bodies.startupz.body, secrets), error: bodies.startupz.error },
   });
 
+  // hello-ok is the third leg of "serving"; it is only attempted when the first two hold, so an
+  // outage costs no handshakes.
+  const helloProbe = async (listener, readyz) => {
+    if (!['old', 'replacement'].includes(listener.owner) || readyz.status !== 200 || readyz.ready !== true) return null;
+    const rpc = await gatewayRpc({ port: target.port, token: target.token, scopes: ['operator.read'], calls: [], timeoutMs: plan.helloTimeoutMs });
+    const bootId = rpc.hello?.server?.bootId;
+    return typeof bootId === 'string'
+      ? { ok: true, bootIdSha256: sha256(bootId), error: null }
+      : { ok: false, bootIdSha256: null, error: rpc.error ?? 'hello-missing-boot-id' };
+  };
+
   const takeSample = async () => {
     const atMs = now();
-    const lastUsableGeneration = state.replacementReadyAt !== null ? 'replacement' : 'old';
     const triggered = state.triggerAtMs !== null && atMs >= state.triggerAtMs;
-    const oldAlive = Boolean(generations.old && !generations.old.exited);
-    const phase = !triggered
-      ? 'pre-trigger'
-      : state.replacementReadyAt !== null
-        ? 'replacement-serving'
-        : oldAlive
-          ? 'old-draining'
-          : 'awaiting-replacement';
     const listener = listenerFor();
     const bodies = await probeBodies();
+    const readyz = projectProbe(bodies.readyz, 'readyz');
+    const hello = await helloProbe(listener, readyz);
     const authority = readAuthority(agentDatabase, [state.authorityKey]);
     const sample = {
       atMs,
-      phase,
-      lastUsableGeneration,
-      oldAlive,
+      phase: null,
+      oldAlive: Boolean(generations.old && !generations.old.exited),
       replacementAlive: Boolean(generations.replacement && !generations.replacement.exited),
       listener,
-      readyz: projectProbe(bodies.readyz, 'readyz'),
+      readyz,
       startupz: projectProbe(bodies.startupz, 'startupz'),
+      hello,
+      servingGeneration: null,
       authority: authority.state === 'present'
         ? { state: 'present', epochSha256: sha256(authority.epoch) }
         : { state: authority.state, reason: authority.reason },
     };
+    // Observed, not assigned: the generation serving is whichever owns the listener while
+    // /readyz passes and hello-ok answers. The phase only names what the sample saw.
+    sample.servingGeneration = servingGenerationOf(sample);
+    sample.phase = !triggered ? 'pre-trigger' : sample.servingGeneration ? `${sample.servingGeneration}-serving` : 'outage';
     record.observation.samples.push(sample);
-    const readyNow = sample.readyz.status === 200 && sample.readyz.ready === true;
+    const readyNow = readyz.status === 200 && readyz.ready === true;
     if (!triggered) {
       state.lastPreTrigger = edge(atMs, bodies);
     } else if (!readyNow) {

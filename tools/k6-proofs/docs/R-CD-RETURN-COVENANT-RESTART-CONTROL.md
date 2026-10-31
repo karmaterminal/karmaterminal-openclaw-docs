@@ -13,11 +13,16 @@ with `path:line` anchors at F′ `f15237ec92`, is in the header of
 A delegate's return is bound to the recipient session's authority generation: one UUID epoch per
 logical session key, stored in `session_recipient_authority` in the per-agent database. A gateway
 restart is not a generation edge. So across a real restart, the epoch must stay present and
-unchanged, including the interval where no gateway process serves (at F′ every full-process
-restart closes the old server before the successor starts). The observer must keep the old
-generation as the last usable authority until a replacement is verified usable, and the failure
-text must survive. The rejected base cleared the current generation first and lost the failure
-body.
+unchanged, including the outage where no gateway process serves, and the failure text must
+survive. The rejected base lost the failure body.
+
+**Usable means serving.** A generation is usable only while it owns the listening socket,
+`/readyz` passes and hello-ok answers; the control observes all three at every sample. An
+unchanged epoch alone is not usability. At F′ every full-process restart closes the old server
+before any successor is ready (🌊's ruling, Discord msg 1565903655885082677), so continuous
+service across a restart is not an invariant and the control does not assert it. It measures the
+outage instead: `outageInterval` runs from the last sample that saw the old generation serving to
+the first sample that saw a generation serving again, with a precision of one sample interval.
 
 The control establishes that generation without a model turn: `sessions.create`, then
 `session.visibility.set` to `suggest`. The narrowing advances, and so creates, the epoch row. The
@@ -53,9 +58,13 @@ the ruling's receipt list. The product covers the durable-row half in
 3. **Authority.** It establishes the epoch (above).
 4. **Window and matrix.** It freezes the plan, then samples every interval:
    - phase;
-   - last usable generation;
-   - listener owner and inode, from `/proc/net/tcp*` and each process's fds;
+   - listener owner and inode, from `/proc/net/tcp*` and each process's fds, with the owner's
+     PID and kernel start ticks;
    - `/readyz` and `/startupz` status with a body hash;
+   - hello-ok (attempted only while a generation owns the listener and `/readyz` passes), with a
+     bootId hash;
+   - the generation observed serving: the one that owns the listener while `/readyz` passes and
+     hello-ok answers, or none;
    - the authority epoch hash.
 5. **Transition.** It sends `gateway.restart.request {reason:"gateway.restart", skipDeferral:true}`
    with `operator.admin`. It waits for the old generation to close and exit 0, then runs
@@ -88,14 +97,21 @@ The verdicts, from the signed record only:
   - the old generation exited 0 through an accepted full-process external handoff bound to its
     PID;
   - every sample shows the same epoch;
-  - every sample before readiness names the old generation;
+  - the old generation was observed serving before the transition, and the replacement was
+    observed serving from its first serving sample to the end of the window;
   - the replacement was ready by the deadline, with a new PID, inode and bootId, and both
     generations reported the staged buildId;
   - the full window was observed without blind gaps;
   - the docs harness was clean;
   - cleanup left nothing running.
-- **FAIL-candidate** means the behaviour was contradicted. That includes the rejected base (old
-  generation dropped before a replacement was ready) and a replacement that never becomes usable.
+- **FAIL-candidate** means the behaviour was contradicted: the epoch was cleared or advanced, the
+  old generation did not serve before the transition, there was no handoff, the replacement never
+  served or stopped serving, the generations were not distinct, or something survived cleanup.
+
+Every receipt reports `outageInterval`: `lastServingBefore` and `firstServingAfter` (time,
+generation, listener inode, owner PID), `ms` between them, `open` when nothing served again
+before the window ended, the count of unserved samples, and `resolutionMs` (the sample interval).
+It is reported, not graded against a bound: no restart path at F′ avoids it.
 - **MISSING-candidate** means there is nothing to judge: no matrix, no established authority, or a
   rejected restart (its body is still kept).
 - **PARTIAL-candidate** means an observed, uncontradicted restart with a missing receipt or bound:

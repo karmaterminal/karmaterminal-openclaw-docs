@@ -126,6 +126,29 @@ function postTrigger(record) {
   return record.observation.samples.filter((sample) => sample.atMs >= record.observation.triggerAtMs);
 }
 
+// 🌊's ruling: a generation is usable only while it owns the listener, /readyz passes and
+// hello-ok answers. Recompute that from the raw sample fields, independently of the control.
+function observedServing(sample) {
+  const owner = sample.listener?.owner;
+  return ['old', 'replacement'].includes(owner) &&
+    sample.readyz?.status === 200 &&
+    sample.readyz?.ready === true &&
+    sample.hello?.ok === true
+    ? owner
+    : null;
+}
+
+// Strip hello-ok from the chosen samples, so they keep the listener and /readyz but stop serving.
+function withoutHello(record, pick) {
+  const copy = structuredClone(record);
+  for (const sample of copy.observation.samples) {
+    if (!pick(sample, copy)) continue;
+    sample.hello = { ok: false, bootIdSha256: null, error: 'connect-failed' };
+    sample.servingGeneration = null;
+  }
+  return copy;
+}
+
 let positiveRun;
 async function positive() {
   if (!positiveRun) {
@@ -156,17 +179,41 @@ test('positive: a real restart keeps the return authority through the gap and gr
   assert.equal(record.transition.response.ok, true);
   assert.equal(record.transition.response.frame.payload.status, 'scheduled');
 
-  // The authority generation is the same at every sample, including the gap with no listener.
-  const gap = record.observation.samples.filter((sample) => sample.phase === 'awaiting-replacement');
-  assert.ok(gap.length > 0, 'the matrix must observe the gap between generations');
+  // The authority generation is the same at every sample, including the outage.
   for (const sample of record.observation.samples) {
     assert.equal(sample.authority.state, 'present');
     assert.equal(sample.authority.epochSha256, record.authority.epochSha256);
   }
-  // The old generation stays the last usable authority until the replacement is ready.
-  for (const sample of postTrigger(record)) {
-    if (sample.atMs === replacement.readyAtMs) continue;
-    assert.equal(sample.lastUsableGeneration, sample.atMs < replacement.readyAtMs ? 'old' : 'replacement');
+  // Usable means serving, observed per sample; no sample carries an observer-assigned
+  // "last usable" label, and a serving listener belongs to that generation's exact process.
+  for (const sample of record.observation.samples) {
+    assert.equal('lastUsableGeneration' in sample, false, 'samples must not carry a last-usable label');
+    assert.equal(sample.servingGeneration, observedServing(sample), JSON.stringify(sample));
+    if (sample.servingGeneration) {
+      const generation = record.generations[sample.servingGeneration];
+      assert.equal(sample.listener.ownerPid, generation.pid);
+      assert.equal(sample.listener.ownerStartTicks, generation.startTicks);
+      assert.match(sample.hello.bootIdSha256, /^[0-9a-f]{64}$/u);
+    }
+  }
+  // The outage: last serving old sample -> first serving replacement sample. Nothing serves in
+  // between, though the epoch is unchanged there; the epoch alone is not usability.
+  const outage = grade.outageInterval;
+  assert.equal(outage.observed, true, JSON.stringify(outage));
+  assert.equal(outage.lastServingBefore.generation, 'old');
+  assert.equal(outage.firstServingAfter.generation, 'replacement');
+  assert.equal(outage.open, false);
+  assert.equal(outage.ms, outage.firstServingAfter.atMs - outage.lastServingBefore.atMs);
+  assert.ok(outage.ms > 0);
+  assert.equal(outage.resolutionMs, FAST_PLAN.sampleIntervalMs);
+  const gap = record.observation.samples.filter((sample) =>
+    sample.atMs > outage.lastServingBefore.atMs && sample.atMs < outage.firstServingAfter.atMs);
+  assert.ok(gap.length > 0, 'the matrix must observe the outage between generations');
+  assert.equal(outage.unservedSamples, gap.length);
+  for (const sample of gap) {
+    assert.equal(sample.servingGeneration, null);
+    assert.equal(sample.phase, 'outage');
+    assert.equal(sample.authority.epochSha256, record.authority.epochSha256);
   }
   assert.ok(record.observation.endAtMs - record.observation.triggerAtMs >= FAST_PLAN.observationWindowMs);
 
@@ -178,6 +225,7 @@ test('positive: a real restart keeps the return authority through the gap and gr
   // The public receipt is signed with the observer key and carries no private value.
   const receipt = JSON.parse(await readFile(path.join(layout.artifactDir, 'observer-receipt.json'), 'utf8'));
   assert.equal(verifyObserverReceipt(receipt, OBSERVER_KEY), true);
+  assert.deepEqual(receipt.grade.outageInterval, outage, 'the signed receipt reports the outage interval');
   assert.equal(verifyObserverReceipt({ ...receipt, grade: { ...receipt.grade, verdict: 'FAIL-candidate' } }, OBSERVER_KEY), false);
   assert.equal(verifyObserverReceipt(receipt, 'some-other-key-0123456789abcdef'), false);
   const text = JSON.stringify(receipt);
@@ -209,13 +257,23 @@ test('negative: a replacement that never becomes usable keeps the old authority 
   assert.equal(replacement.exit.code, 1);
   assert.match(replacement.stderr.tail, /EADDRINUSE/u);
   assert.ok(positiveIntegers(replacement.pid, replacement.startTicks));
-  // The old generation's record and the authority survive to the end of the window.
+  // The old generation's fingerprint and the authority epoch survive to the end of the window,
+  // but nothing is usable after the old generation exits: this supervised branch has no
+  // in-process fallback, so the outage never closes.
   assert.ok(positiveIntegers(old.pid, old.startTicks, old.listen.inode));
   for (const sample of postTrigger(record)) {
-    assert.equal(sample.lastUsableGeneration, 'old');
     assert.equal(sample.authority.epochSha256, record.authority.epochSha256);
     assert.notEqual(sample.listener.owner, 'replacement');
   }
+  const afterExit = record.observation.samples.filter((sample) => sample.atMs > old.exitedAtMs);
+  assert.ok(afterExit.length > 0);
+  assert.ok(afterExit.every((sample) => sample.servingGeneration === null));
+  assert.equal(grade.outageInterval.lastServingBefore.generation, 'old');
+  assert.equal(grade.outageInterval.firstServingAfter, null);
+  assert.equal(grade.outageInterval.open, true);
+  assert.equal(grade.outageInterval.ms, null);
+  assert.equal(grade.negativeControl.noFallback, true);
+  assert.equal(grade.fallback.branch, 'none-on-supervised-branch');
   assert.ok(record.transition.httpBodies.lastObservedNotReady);
   assert.equal(record.cleanup.completed, true);
   assert.equal(record.cleanup.blockerClosed, true);
@@ -264,21 +322,57 @@ test('missing signing key end to end: the cleanup receipt is unsigned and the ro
   assert.equal(receipt.integrity, undefined);
 });
 
-test('rejected base: an observer that clears the current generation before the replacement is ready grades FAIL', async () => {
+test('usable means serving: an old generation whose hello-ok never answered did not serve before the transition', async () => {
+  const { result } = await positive();
+  const record = withoutHello(result.record, (sample, copy) => sample.atMs < copy.observation.triggerAtMs);
+  // Listener and /readyz alone still look fine; only hello-ok is gone.
+  const pre = record.observation.samples.filter((sample) => sample.atMs < record.observation.triggerAtMs);
+  assert.ok(pre.every((sample) => sample.listener.owner === 'old' && sample.readyz.status === 200));
+  const grade = gradeRestartControl(record);
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.failures.some((entry) => entry.code === 'old-not-serving-before-transition'));
+});
+
+test('usable means serving: a replacement whose hello-ok never answered is not a serving successor', async () => {
+  const { result } = await positive();
+  const record = withoutHello(result.record, (sample) => sample.listener.owner === 'replacement');
+  const grade = gradeRestartControl(record);
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.failures.some((entry) => entry.code === 'replacement-unstable'));
+  assert.equal(grade.outageInterval.firstServingAfter, null);
+  assert.equal(grade.outageInterval.open, true);
+});
+
+test('usable is observed, not labelled: PASS needs no observer-assigned last-usable generation', async () => {
   const { result } = await positive();
   const record = structuredClone(result.record);
-  const readyAt = record.generations.replacement.readyAtMs;
-  let cleared = 0;
-  for (const sample of record.observation.samples) {
-    if (sample.atMs >= record.observation.triggerAtMs && sample.atMs < readyAt && sample.phase === 'awaiting-replacement') {
-      sample.lastUsableGeneration = null;
-      cleared += 1;
-    }
-  }
-  assert.ok(cleared > 0);
+  for (const sample of record.observation.samples) delete sample.lastUsableGeneration;
   const grade = gradeRestartControl(record);
-  assert.equal(grade.verdict, 'FAIL-candidate');
-  assert.ok(grade.failures.some((entry) => entry.code === 'current-generation-cleared-before-replacement-ready'));
+  assert.equal(grade.verdict, 'PASS-candidate', JSON.stringify(grade, null, 2));
+  // A label claiming the old generation during the outage changes nothing either.
+  const labelled = structuredClone(record);
+  for (const sample of labelled.observation.samples) sample.lastUsableGeneration = 'old';
+  assert.deepEqual(gradeRestartControl(labelled).outageInterval, grade.outageInterval);
+});
+
+test('an unchanged epoch through the outage is not usability: the outage interval counts it as unserved', async () => {
+  const { result } = await positive();
+  const { record } = result;
+  const grade = gradeRestartControl(record);
+  const outage = grade.outageInterval;
+  const during = record.observation.samples.filter((sample) =>
+    sample.atMs > outage.lastServingBefore.atMs && sample.atMs < outage.firstServingAfter.atMs);
+  assert.ok(during.length > 0);
+  assert.ok(during.every((sample) => sample.authority.state === 'present' && sample.authority.epochSha256 === record.authority.epochSha256));
+  assert.ok(during.every((sample) => sample.servingGeneration === null));
+  // Moving the replacement's first serving sample later lengthens the outage one-for-one.
+  const later = structuredClone(record);
+  const first = later.observation.samples.find((sample) => sample.atMs === outage.firstServingAfter.atMs);
+  first.hello = { ok: false, bootIdSha256: null, error: 'connect-failed' };
+  first.servingGeneration = null;
+  const next = later.observation.samples.find((sample) => sample.atMs > first.atMs && sample.servingGeneration === 'replacement');
+  assert.equal(gradeRestartControl(later).outageInterval.ms, next.atMs - outage.lastServingBefore.atMs);
 });
 
 test('a replacement that advances the recipient authority at boot grades FAIL-candidate', async () => {
@@ -315,7 +409,8 @@ test('a replacement that listens but never reports ready grades FAIL and is stop
   assert.equal(record.generations.replacement.failure.kind, 'not-ready-by-deadline');
   assert.equal(record.generations.replacement.failure.lastProbe.readyz.status, 503);
   assert.equal(record.generations.replacement.stoppedByCleanup, true);
-  assert.ok(postTrigger(record).every((sample) => sample.lastUsableGeneration === 'old'));
+  assert.ok(postTrigger(record).every((sample) => sample.servingGeneration !== 'replacement'));
+  assert.equal(grade.outageInterval.open, true);
   assert.ok(processGone(record.generations.replacement.pid));
   assert.equal(await portFree(layout.port), true);
 });

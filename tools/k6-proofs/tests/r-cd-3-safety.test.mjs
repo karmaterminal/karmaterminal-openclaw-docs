@@ -185,6 +185,12 @@ test('F6: the canonical key of a bare configured session is the configured sessi
   assert.deepEqual(sends, []);
 });
 
+test('F6: a bare key naming the canonical configured session is the configured session', async () => {
+  const sends = [];
+  await fire({ createPayload: { key: 'main' }, sends }, { OPENCLAW_SESSION_KEY: 'agent:main:main' });
+  assert.deepEqual(sends, []);
+});
+
 // F7 siblings.
 test('F7: a target not reachable below automatic compaction stops before any turn past it', async () => {
   // 64k window: the line is 48,000 (75%); the 75% target sits on it.

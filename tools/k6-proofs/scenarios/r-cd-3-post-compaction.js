@@ -116,10 +116,12 @@ function fingerprint(value) {
   return crypto.sha256(String(value), 'hex').slice(0, 16);
 }
 
-/** The configured session, by its own key or as the canonical `agent:<id>:<key>` of a bare one. */
+/** The configured session: the same key, or a bare key and its canonical `agent:<id>:<key>`, either way round. */
 function isConfiguredSession(key, configured) {
   if (!configured) return false;
-  return key === configured || (!configured.includes(':') && key.endsWith(`:${configured}`));
+  if (key === configured) return true;
+  if (!configured.includes(':') && key.endsWith(`:${configured}`)) return true;
+  return !key.includes(':') && configured.endsWith(`:${key}`);
 }
 
 export default function () {

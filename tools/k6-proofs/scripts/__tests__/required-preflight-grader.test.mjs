@@ -201,6 +201,10 @@ test('cap: the grader reads the cap from the manifest declaration and refuses a 
       ['a PASS cap', (m) => { m.verdictCap = { ...m.verdictCap, rowCap: 'PASS-candidate' }; }, /verdictCap\.rowCap must be "PARTIAL-candidate"/],
       ['an adopted authority', (m) => { m.verdictCap = { ...m.verdictCap, supersedingAuthorities: [{ id: 'live-gateway-fire' }] }; }, /verdictCap\.supersedingAuthorities must be empty/],
       ['another artifact class', (m) => { m.verdictCap = { ...m.verdictCap, artifactClass: 'live-gateway' }; }, /verdictCap\.artifactClass must be "process-local-fixture"/],
+      // The cap never hangs on the transport string alone.
+      ['no cap, transport spelled another way', (m) => { delete m.verdictCap; m.transport = 'Process-Local'; }, /R-CW-5 is process-local, so it must declare verdictCap/],
+      ['no cap, no transport', (m) => { delete m.verdictCap; delete m.transport; }, /transport undefined is not a known transport/],
+      ['no cap, another transport', (m) => { delete m.verdictCap; m.transport = 'websocket'; }, /R-CW-5 names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap/],
     ]) {
       const manifest = structuredClone(base);
       mutate(manifest);
@@ -212,6 +216,19 @@ test('cap: the grader reads the cap from the manifest declaration and refuses a 
       assert.equal(result.status, 2, `${label}: ${result.stderr}`);
       assert.equal(result.payload, null, label);
       assert.match(result.stderr, detail, label);
+    }
+  });
+});
+
+test('cap: the grader refuses a fixture verdict it does not know instead of passing it through uncapped', async () => {
+  await withDir(async (dir) => {
+    for (const verdict of ['PASS-candidate ', 'pass-candidate', 'PASS-Candidate', 'PASS', 'PASSED']) {
+      const result = JSON.parse(await readFile(ROWS['R-CW-5'].liveResult, 'utf8'));
+      result.verdict = verdict;
+      const { status, stderr, payload } = await gradeRow('R-CW-5', [receipt('R-CW-5')], { liveResult: await writeJson(dir, 'odd.json', result) });
+      assert.equal(status, 2, `${JSON.stringify(verdict)}: ${stderr}`);
+      assert.equal(payload, null, JSON.stringify(verdict));
+      assert.match(stderr, /live result verdict .* is not a known verdict/, JSON.stringify(verdict));
     }
   });
 });

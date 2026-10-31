@@ -135,6 +135,17 @@ test('every malformed or missing verdict cap fails the catalog', async () => {
     ['no ruling', cap({ ruling: '' }), /r-live\.json: verdictCap\.ruling must name the ruling/],
     ['expected class above the cap', processLocal({ liveRunSafety: { classification: 'orchestration-required', expectedArtifactClass: 'PASS-candidate' } }),
       /r-live\.json: liveRunSafety\.expectedArtifactClass PASS-candidate is above verdictCap\.rowCap PARTIAL-candidate/],
+    // Whether a row is process-local never hangs on one exact spelling.
+    ['process-local spelled another way, no cap', processLocal({ transport: 'Process-Local', verdictCap: undefined }),
+      /r-live\.json: R-LIVE is process-local, so it must declare verdictCap/],
+    ['process_local, no cap', processLocal({ transport: 'process_local', verdictCap: undefined }),
+      /r-live\.json: R-LIVE is process-local, so it must declare verdictCap/],
+    ['an unknown transport', processLocal({ transport: 'carrier-pigeon' }),
+      /r-live\.json: transport "carrier-pigeon" is not a known transport .*so whether R-LIVE is process-local cannot be decided/],
+    ['no transport', processLocal({ transport: undefined }),
+      /r-live\.json: transport undefined is not a known transport/],
+    ['a process-local fixture under another transport, no cap', processLocal({ transport: 'websocket', invocation: { fixture: 'tools/k6-proofs/scripts/x.mjs' }, verdictCap: undefined }),
+      /r-live\.json: R-LIVE names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap/],
   ]) {
     const result = await runCatalog({ 'r-live.json': row });
     assert.notEqual(result.status, 0, `${label}: ${result.stdout}`);
@@ -215,7 +226,8 @@ const WORDING_FILES = [
 
 test('no doc, manifest or comment says a passing preflight makes R-CW-5/6 PASS', async () => {
   for (const file of WORDING_FILES) {
-    const text = await readFile(join(repoRoot, file), 'utf8');
+    // Whitespace folded, so a claim wrapped across lines is still found.
+    const text = (await readFile(join(repoRoot, file), 'utf8')).replace(/\s+/g, ' ');
     for (const claim of LIFTING_CLAIMS) assert.doesNotMatch(text, claim, `${file}: ${claim}`);
   }
   // The replacement is stated where a reader of the row looks first.

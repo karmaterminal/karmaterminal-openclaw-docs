@@ -195,6 +195,11 @@ test(`the manifest checker refuses each of the 14 manifests as committed at ${FO
 
 test('the manifest checker accepts the committed form of the same 14 manifests', async () => {
   const manifests = await Promise.all(fossil.manifests.map(async ({ file }) => ({ file, manifest: await committedManifest(file) })));
+  // R-CW-5/6 now name a required preflight manifest (requiredPreflights), which the
+  // checker requires to be in the catalog; carry those static manifests alongside.
+  for (const file of manifests.flatMap(({ manifest }) => (manifest.requiredPreflights || []).map((entry) => entry.manifest))) {
+    manifests.push({ file, manifest: await committedManifest(file) });
+  }
   const root = await checkerFixture(manifests);
   try {
     const result = await runChecker(root);

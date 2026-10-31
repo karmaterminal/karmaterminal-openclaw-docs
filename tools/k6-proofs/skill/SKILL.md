@@ -253,7 +253,24 @@ fixtures, not live fleet mutation:
    selected delegate-boundary, and public-artifact-safety receipts. Publish
    only the artifact dir: R-CW-6 keeps a failed surface's raw output in
    `<artifact-dir>.private`, which never goes into the corpus.
-3. Keep the result review-required; never infer a gateway claim or automatic
+3. Run the row's required preflight (`requiredPreflights`: R-CW-5A for R-CW-5,
+   R-CW-6A for R-CW-6) at the same exact candidate through
+   `tools/k6-proofs/scenarios/static-corpus-row-validator.js`. It reads
+   `PROOFS/<candidate>/`, never the INDEX `static_evidence_sha`, and writes
+   `required-preflight-receipt.json`. Then grade the fixture result with
+   `tools/k6-proofs/scripts/grade-preflight-gated-row.mjs`: the row verdict is the
+   minimum of the fixture's verdict, the manifest's `verdictCap` and the
+   preflight cap. R-CW-5/6 declare `verdictCap.rowCap` `PARTIAL-candidate` while
+   their only producer is process-local, so the preflight is necessary, not
+   sufficient: a missing, failed or other-SHA preflight caps the row at
+   `PARTIAL-candidate`, and a passing one leaves it there. Lifting the cap needs
+   a superseding authority receipt from a different artifact class, adopted by an
+   explicit method change (rules in `tools/k6-proofs/lib/row-verdict-cap.mjs`).
+   In an F″ corpus,
+   R-CW-5A/6A go in the manifest's `preflight_attachments`, never in `rows[]` or
+   `required_rows` (🌊's F″ method ruling; rules in
+   `tools/k6-proofs/lib/required-preflight.mjs`).
+4. Keep the result review-required; never infer a gateway claim or automatic
    corpus fold from the component fixture.
 
 Only a future row whose manifest and runbook explicitly authorize live config

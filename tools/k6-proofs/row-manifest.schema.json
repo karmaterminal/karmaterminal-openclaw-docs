@@ -25,7 +25,10 @@
     "candidateSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "seat": { "type": "string", "minLength": 1 },
     "sessionKey": { "type": "string", "minLength": 1 },
-    "transport": { "enum": ["websocket", "http-tools-invoke", "offline"] },
+    "transport": {
+      "enum": ["websocket", "http-tools-invoke", "offline", "process-local", "github-source-contract"],
+      "description": "A process-local row must declare verdictCap; check-proof-row-manifests.mjs refuses a declared transport outside this list rather than read it as not process-local, and grade-preflight-gated-row.mjs refuses a manifest without one (lib/row-verdict-cap.mjs)."
+    },
     "toolSurface": { "enum": ["typed-tool", "token", "bracket-token", "read-only", "mixed"] },
     "mutates": { "type": "boolean" },
     "timeoutSeconds": { "type": "integer", "minimum": 1 },
@@ -76,6 +79,88 @@
       "type": "object",
       "additionalProperties": true,
       "description": "Exact-SHA source-contract binding for rows proven against committed product source rather than a live gateway."
+    },
+    "requiredPreflights": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Required preflight attachments of this live row (🌊's F″ method ruling, Discord 1565895695586558120). Each names a static check that must run at the exact candidate and pass there. A passing preflight is necessary, not sufficient: it never lifts the row above its verdictCap. A missing, failed, malformed or other-SHA receipt caps the row at PARTIAL-candidate. Enforced by grade-preflight-gated-row.mjs and validate-corpus.mjs; check-proof-row-manifests.mjs keeps it in agreement with the preflight manifest's preflightAttachment.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rowId", "manifest", "binding", "passVerdict", "capOnMissingOrFailed", "receipt"],
+        "properties": {
+          "rowId": { "type": "string", "minLength": 1 },
+          "manifest": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+\\.json$",
+            "description": "The preflight's row manifest basename under tools/k6-proofs/manifests/."
+          },
+          "binding": {
+            "const": "exact-candidate-sha",
+            "description": "The preflight reads PROOFS/<candidate>/ and its receipt's candidateSha and sourceEvidenceSha must equal this row's candidate. Never the INDEX static_evidence_sha."
+          },
+          "passVerdict": {
+            "enum": ["PASS-candidate", "HONEST-LIMIT-candidate", "PARTIAL-candidate", "FAIL-candidate", "construct-only"],
+            "description": "The verdict a passing preflight run emits: the preflight manifest's liveRunSafety.expectedArtifactClass."
+          },
+          "capOnMissingOrFailed": {
+            "const": "PARTIAL-candidate",
+            "description": "The highest verdict this row may carry while the preflight is missing or not passed."
+          },
+          "receipt": {
+            "const": "required-preflight-receipt.json",
+            "description": "The receipt file the preflight run writes (schema openclaw.k6.required-preflight-receipt.v1)."
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "verdictCap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowCap",
+        "artifactClass",
+        "supersedingAuthorities",
+        "ruling"
+      ],
+      "description": "The highest verdict this row may carry, declared machine-readably (🌊's ruling on docs#616, Discord 1565925290008387728). The row verdict is the minimum of the fixture's or harness's verdict, this cap and the preflight cap; a passing required preflight is necessary, not sufficient, and never lifts it. A process-local row must declare it (check-proof-row-manifests.mjs). Enforced by grade-preflight-gated-row.mjs and validate-corpus.mjs (rows-within-declared-cap); the rules live in lib/row-verdict-cap.mjs.",
+      "properties": {
+        "rowCap": {
+          "const": "PARTIAL-candidate",
+          "description": "The cap. A row recorded above it (corpus state pass) fails validation without an adopted superseding authority."
+        },
+        "artifactClass": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The artifact class the cap belongs to; process-local-fixture for a process-local row."
+        },
+        "supersedingAuthorities": {
+          "type": "array",
+          "maxItems": 0,
+          "description": "Superseding authorities the method has adopted. Lifting the cap needs a superseding authority receipt from a different artifact class, adopted by an explicit method change; none is adopted. Adopting one widens this schema and teaches validate-corpus.mjs and grade-preflight-gated-row.mjs to judge its receipt."
+        },
+        "ruling": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "preflightAttachment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attachedTo", "proofRow", "binding", "ruling"],
+      "description": "Marks this manifest as a required preflight attachment of a live row rather than a proof row. An F″ corpus records it under proofs-manifest preflight_attachments, never in rows[] or required_rows; corpora folded before the ruling keep it as the row they folded.",
+      "properties": {
+        "attachedTo": { "type": "string", "minLength": 1, "description": "The live row whose requiredPreflights names this manifest." },
+        "proofRow": { "const": "retired", "description": "Retired as a proof row for new corpora." },
+        "binding": { "const": "exact-candidate-sha" },
+        "ruling": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
     },
     "telemetryContract": {
       "type": "object",

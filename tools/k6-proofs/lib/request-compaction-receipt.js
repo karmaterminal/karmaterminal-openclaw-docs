@@ -1,3 +1,4 @@
+import { isToolSearchDispatcherName, toolCallTarget } from './tool-call-identity.mjs';
 import { hasExactSentinelText } from './wake-turn-receipt.mjs';
 function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -44,14 +45,6 @@ export function hasEffectiveTool(payload, expectedName) {
   return effectiveToolNames(payload).includes(expectedName);
 }
 
-function toolCallArguments(part) {
-  if (isRecord(part?.arguments)) return part.arguments;
-  if (typeof part?.arguments === 'string') return parseJsonText(part.arguments);
-  if (isRecord(part?.input)) return part.input;
-  if (typeof part?.input === 'string') return parseJsonText(part.input);
-  return null;
-}
-
 export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
   if (typeof rowNonce !== 'string' || !rowNonce) return null;
   const matchingCallIds = new Set();
@@ -59,9 +52,10 @@ export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
   for (const message of Array.isArray(messages) ? messages : []) {
     if (message?.role !== 'assistant' || !Array.isArray(message.content)) continue;
     for (const part of message.content) {
-      if (part?.type !== 'toolCall') continue;
-      if ((part.name || part.toolName) !== 'request_compaction') continue;
-      const reason = toolCallArguments(part)?.reason;
+      // By name or through Tool Search's dispatch_action (#1727 review F1/N1).
+      const target = toolCallTarget(part);
+      if (!target || target.name !== 'request_compaction') continue;
+      const reason = target.args.reason;
       if (typeof reason === 'string' && reason.includes(rowNonce)) {
         if (typeof part.id === 'string' && part.id) matchingCallIds.add(part.id);
         else unidentifiedMatch = true;
@@ -75,12 +69,15 @@ export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
 /**
  * Classify one sessions.messages session.message event for an authoritative
  * request_compaction tool-result receipt. Assistant prose is intentionally not
- * accepted here: only role=toolResult + toolName=request_compaction can pass.
+ * accepted here: only role=toolResult + toolName=request_compaction can pass,
+ * or, given the bound call's `toolCallId`, the Tool Search dispatcher's result
+ * for exactly that call (its row is named dispatch_action).
  */
-export function classifyRequestCompactionReceipt(eventPayload) {
+export function classifyRequestCompactionReceipt(eventPayload, { toolCallId = null } = {}) {
   const message = eventPayload?.message || eventPayload?.payload?.message || eventPayload;
   if (!isRecord(message) || message.role !== 'toolResult') return { kind: 'unrelated' };
-  if (message.toolName !== 'request_compaction') return { kind: 'unrelated' };
+  const dispatchedResult = Boolean(toolCallId) && message.toolCallId === toolCallId && isToolSearchDispatcherName(message.toolName);
+  if (message.toolName !== 'request_compaction' && !dispatchedResult) return { kind: 'unrelated' };
 
   const receipt = isRecord(message.details)
     ? message.details
@@ -114,7 +111,7 @@ export function findRequestCompactionReceipt(messages, { rowNonce, toolCallId } 
   if (!expectedToolCallId) return { kind: 'missing' };
 
   for (let index = items.length - 1; index >= 0; index -= 1) {
-    const result = classifyRequestCompactionReceipt(items[index]);
+    const result = classifyRequestCompactionReceipt(items[index], { toolCallId: expectedToolCallId });
     if (result.kind === 'unrelated' || result.toolCallId !== expectedToolCallId) continue;
     return { ...result, nonceBound: true };
   }
@@ -155,9 +152,9 @@ function toolCallsFor(messages, toolName) {
   (Array.isArray(messages) ? messages : []).forEach((message, index) => {
     if (message?.role !== 'assistant' || !Array.isArray(message.content)) return;
     for (const part of message.content) {
-      if (part?.type !== 'toolCall') continue;
-      if ((part.name || part.toolName) !== toolName) continue;
-      calls.push({ index, id: typeof part.id === 'string' ? part.id : null, args: toolCallArguments(part) || {} });
+      const target = toolCallTarget(part);
+      if (!target || target.name !== toolName) continue;
+      calls.push({ index, id: typeof part.id === 'string' ? part.id : null, args: target.args });
     }
   });
   return calls;
@@ -287,7 +284,7 @@ export function childReportAfterReceipt(messages, { rowNonce } = {}) {
   if (!toolCallId) return none;
   let resultIndex = -1;
   for (let i = 0; i < items.length; i += 1) {
-    const result = classifyRequestCompactionReceipt(items[i]);
+    const result = classifyRequestCompactionReceipt(items[i], { toolCallId });
     if (result.kind !== 'unrelated' && result.toolCallId === toolCallId) { resultIndex = i; break; }
   }
   if (resultIndex < 0) return none;
@@ -308,6 +305,43 @@ export function childReportAfterReceipt(messages, { rowNonce } = {}) {
     if (hasExactSentinelText(text, 'REQUEST_COMPACTION_ACCEPTED', rowNonce)) return { kind: 'accepted', usage: null, threshold: null, index: i };
   }
   return none;
+}
+
+/**
+ * The child's post-compaction report, from the CHILD's own transcript
+ * (openclaw-bootstrap#1727): after the nonce-bound request_compaction
+ * toolResult answered compaction_requested, an assistant row whose text parts
+ * carry the exact `REQUEST_COMPACTION_POST_COMPACTION <nonce>`, in a later
+ * turn (after a user row) or in a run other than the one that made the call.
+ * The parent stream used to set this flag from the parent's own
+ * continue_delegate call, whose child task carries every R-RC-2 sentinel.
+ * Returns { index } with -1 when unbound.
+ */
+export function childPostCompactionReport(messages, { rowNonce } = {}) {
+  const items = Array.isArray(messages) ? messages : [];
+  if (typeof rowNonce !== 'string' || !rowNonce) return { index: -1 };
+  const toolCallId = requestCompactionToolCallIdForNonce(items, rowNonce);
+  if (!toolCallId) return { index: -1 };
+  const runOf = (m) => (typeof m?.__openclaw?.runId === 'string' && m.__openclaw.runId) || null;
+  let callRun = null;
+  let resultIndex = -1;
+  items.forEach((m, i) => {
+    if (m?.role === 'assistant' && Array.isArray(m.content) && m.content.some((p) => p?.type === 'toolCall' && p.id === toolCallId)) callRun = runOf(m);
+    const result = classifyRequestCompactionReceipt(m, { toolCallId });
+    if (resultIndex < 0 && result.kind !== 'unrelated' && result.toolCallId === toolCallId &&
+        RC2_ACCEPTED_STATUSES.includes(result.receipt?.status)) resultIndex = i;
+  });
+  if (resultIndex < 0) return { index: -1 };
+  let laterTurn = false;
+  for (let i = resultIndex + 1; i < items.length; i += 1) {
+    const role = String(items[i]?.role || '').toLowerCase();
+    if (role === 'user') { laterTurn = true; continue; }
+    if (role !== 'assistant') continue;
+    const run = runOf(items[i]);
+    const otherRun = Boolean(run && callRun && run !== callRun);
+    if ((laterTurn || otherRun) && hasExactSentinelText(plainText(items[i]), 'REQUEST_COMPACTION_POST_COMPACTION', rowNonce)) return { index: i };
+  }
+  return { index: -1 };
 }
 
 /**

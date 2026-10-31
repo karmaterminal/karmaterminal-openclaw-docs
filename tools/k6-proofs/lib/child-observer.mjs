@@ -50,7 +50,8 @@ const BASE = ['sessions.create', 'sessions.messages.subscribe', 'sessions.send']
 export const ROW_METHODS = Object.freeze({
   'R-CD-1': Object.freeze([...BASE, ...OBSERVER_METHODS]),
   'R-CD-2': Object.freeze([...BASE, ...OBSERVER_METHODS]),
-  'R-CD-3': Object.freeze([...BASE]),
+  // The fill reads measured usage with sessions.describe; the lifeboat is a child (#1727).
+  'R-CD-3': Object.freeze([...BASE, ...OBSERVER_METHODS, 'sessions.describe']),
   'R-CD-4': Object.freeze([...BASE, ...OBSERVER_METHODS]),
   'R-CD-CHAINED-DEPTH-2': Object.freeze([...BASE, ...OBSERVER_METHODS]),
   'R-CD-MODEL-DEFAULT': Object.freeze([...BASE, ...OBSERVER_METHODS, 'sessions.describe']),

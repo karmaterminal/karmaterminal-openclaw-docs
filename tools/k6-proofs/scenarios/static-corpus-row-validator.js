@@ -8,6 +8,7 @@
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { delegateDispatcherBefore, markerReturn, markerWriterInJournal } from '../lib/journal-return-binding.mjs';
 import {
   buildRequiredPreflightReceipt,
   isFullSha,
@@ -237,15 +238,21 @@ function validateRcwMulti() {
 
 function validateCdCollectionOnCollapse() {
   const root = roots.cdCollection;
-  const { evidence, evaluation, flowRows, taskRows, rootReceipt, journal, traceSummary } = corpus.cdCollection;
+  const { evidence, evaluation, flowRows, taskRows, journal, traceSummary } = corpus.cdCollection;
   const cSentinel = 'RCD_COLLECTION_BCA2B0B_CAEL_20260704_1316_C_REACHED_AFTER_B_FINAL';
+  const cReturn = markerReturn(journal, cSentinel);
+  const cDispatcher = delegateDispatcherBefore(journal, markerWriterInJournal(journal, cSentinel).line);
   const checks = {
     verdictPass: evidence.includes('Verdict') && evidence.includes('PASS'),
     methodScope: evidence.includes('A→B→delayed-C') && evidence.includes('B finalized before C'),
     bTypedDelegate: evidence.includes('typed `continue_delegate`') && evidence.includes('delaySeconds') && evidence.includes('fanoutMode'),
     cAfterB: evidence.includes('B finalized before C was created') || evidence.includes('B finalized before C was due'),
-    cSentinelPresent: evidence.includes(cSentinel) && journal.includes(cSentinel),
-    rootCollection: rootReceipt.includes(cSentinel) || evidence.includes('root/main receives or can observe'),
+    // #1727: C's sentinel binds only where C wrote it; the root's collection only
+    // as a targeted return from C to a session other than its dispatcher B. The
+    // journal's C_SENTINEL_SCHEDULED= line and the root receipt's copies of the
+    // task text are outbound and never count.
+    cSentinelPresent: evidence.includes(cSentinel) && cReturn.writer !== null,
+    rootCollection: cReturn.returns.some((r) => r.targets.some((target) => target !== cDispatcher && target !== cReturn.writer)),
     durableRows: flowRows.includes('core/continuation-delegate') && taskRows.includes('status') && taskRows.includes('succeeded'),
     evaluationPass: evaluation.includes('PASS') || evaluation.includes('pass') || evidence.includes('PASS'),
     tracePresent: traceSummary.includes('ecda443e0038fb9a38fc33a8b98d7d02') || traceSummary.includes('continuation.delegate'),

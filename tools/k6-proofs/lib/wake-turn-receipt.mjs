@@ -37,6 +37,8 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
+import { toolCallTarget, toolResultNameAdmits } from './tool-call-identity.mjs';
+
 export const HEARTBEAT_RESPOND_TOOL = 'heartbeat_respond';
 const HARNESS_MARKER = '[k6-proof-harness]';
 const SENTINEL_FIELDS = ['notificationText', 'notification_text', 'summary'];
@@ -77,6 +79,19 @@ function sentinelField(record, marker, nonce) {
   return null;
 }
 
+/**
+ * The runs a receipt must lie outside, or null when the list names a run the
+ * caller could not resolve (openclaw-bootstrap#1727 review F5). A missing
+ * dispatch or priming run id used to drop out of the list (`[null]` excluded
+ * nothing), so the very run the exclusion guards against could bind. An
+ * exclusion with a missing member cannot prove "outside": callers bind
+ * nothing on null. An empty list excludes nothing, by the caller's choice.
+ */
+export function runExclusion(excludeRunIds) {
+  if (!Array.isArray(excludeRunIds)) return null;
+  return excludeRunIds.every((id) => typeof id === 'string' && id.length > 0) ? new Set(excludeRunIds) : null;
+}
+
 export function messageRunId(message, eventData = null) {
   const meta = isRecord(message?.__openclaw) ? message.__openclaw : null;
   const fromMessage = typeof meta?.runId === 'string' && meta.runId ? meta.runId : null;
@@ -84,23 +99,27 @@ export function messageRunId(message, eventData = null) {
   return fromMessage || fromEvent;
 }
 
-/** heartbeat_respond toolCall parts of one assistant message. */
+/**
+ * heartbeat_respond toolCall parts of one assistant message, by name or
+ * through Tool Search's dispatch_action (lib/tool-call-identity.mjs).
+ */
 export function heartbeatRespondCalls(message) {
   if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'assistant') return [];
   if (!Array.isArray(message.content)) return [];
   return message.content
-    .filter((part) => isRecord(part) && part.type === 'toolCall' &&
-      (part.name || part.toolName) === HEARTBEAT_RESPOND_TOOL)
-    .map((part) => {
-      const args = isRecord(part.arguments) ? part.arguments : (parseJsonRecord(part.arguments) || {});
-      return { id: typeof part.id === 'string' ? part.id : null, args };
-    });
+    .map((part) => ({ part, target: toolCallTarget(part) }))
+    .filter(({ target }) => target && target.name === HEARTBEAT_RESPOND_TOOL)
+    .map(({ part, target }) => ({ id: typeof part.id === 'string' ? part.id : null, args: target.args }));
 }
 
-/** The heartbeat_respond toolResult in one message, or null. */
+/**
+ * A toolResult row that can answer a heartbeat_respond call, or null. Under
+ * Tool Search the row is named dispatch_action, so every caller pairs it with
+ * a heartbeatRespondCalls call by toolCallId.
+ */
 export function heartbeatRespondResult(message) {
   if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'toolresult') return null;
-  if (message.toolName !== HEARTBEAT_RESPOND_TOOL) return null;
+  if (!toolResultNameAdmits(message, HEARTBEAT_RESPOND_TOOL)) return null;
   // chat.history drops details; prefer the content text, fall back to details.
   let payload = null;
   if (Array.isArray(message.content)) {
@@ -158,7 +177,8 @@ export function heartbeatAckFromHistory(messages, {
   requireRunId = false,
 } = {}) {
   const list = Array.isArray(messages) ? messages : [];
-  const excluded = new Set(excludeRunIds.filter(Boolean));
+  const excluded = runExclusion(excludeRunIds);
+  if (!excluded) return null;
   for (let i = afterIndex + 1; i < list.length; i += 1) {
     for (const call of heartbeatRespondCalls(list[i])) {
       if (!call.id || !sentinelField(call.args, marker, nonce)) continue;
@@ -194,7 +214,8 @@ export function createHeartbeatAckTracker({ sessionKey, marker, nonce }) {
       if ([...new Set(keys)].length !== 1 || keys[0] !== sessionKey) return null;
       const message = eventData.message;
       const runId = messageRunId(message, eventData);
-      const excluded = new Set(excludeRunIds.filter(Boolean));
+      const excluded = runExclusion(excludeRunIds);
+      if (!excluded) return null;
       for (const call of heartbeatRespondCalls(message)) {
         if (!windowOpen || !call.id || !sentinelField(call.args, marker, nonce)) continue;
         if (runId && excluded.has(runId)) continue;

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { continueWorkChain, tokenWorkHops } from '../lib/continue-work-chain.mjs';
+import { toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
+import { toolCallTarget } from '../lib/tool-call-identity.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/recover-session-receipts.mjs \\
@@ -66,12 +69,14 @@ function messageText(message) {
   return getTextParts(message.content).join('\n');
 }
 
+// The tool each call invoked: by name or through Tool Search's dispatch_action (#1727 review F1).
 function toolCalls(message) {
   const calls = [];
   if (Array.isArray(message.content)) {
     for (const item of message.content) {
       if (item?.type === 'toolCall' || item?.name) {
-        calls.push({ name: item.name, arguments: item.arguments || {}, raw: item });
+        const target = toolCallTarget({ ...item, type: 'toolCall' });
+        calls.push({ name: target ? target.name : item.name, arguments: target ? target.args : item.arguments || {}, raw: item });
       }
     }
   }
@@ -92,14 +97,6 @@ function toolResultObject(message) {
 
 function receipt(name, required, status, extra = {}) {
   return { name, required, status, ...extra };
-}
-
-function hasContinuationWake(messages, nonce, hop) {
-  return messages.some((m) => {
-    const text = messageText(m);
-    return m.role === 'user' && text.includes('[continuation:wake]') && text.includes(nonce) &&
-      (hop === undefined || text.includes(`hop ${hop}/200`));
-  });
 }
 
 function evaluate(row, nonce, messages) {
@@ -137,37 +134,49 @@ function evaluate(row, nonce, messages) {
     ];
   }
 
+  // Schedule and wake are bound by turn order in the transcript (lib/continue-work-chain.mjs):
+  // allText also holds tool arguments and the wake input, which quotes the reason (#1727).
   if (row === 'R-CW-1') {
+    const chain = continueWorkChain(messages, { nonce, scheduledMarkers: ['CW-SCHEDULED'], doneMarker: 'CW-WOKE' });
     return [
       receipt('tool-invoke-accepted', true, cwToolCalls.some((c) => JSON.stringify(c).includes(nonce)) ? 'present' : 'missing'),
       receipt('continue-work-tool-result-scheduled', true,
-        scheduledToolResults.length > 0 && allText.includes(`CW-SCHEDULED ${nonce}`) ? 'present' : 'missing',
+        chain.scheduled >= 1 ? 'present' : 'missing',
         scheduledToolResults[0] ? { delaySeconds: scheduledToolResults[0].delaySeconds } : {}),
-      receipt('work-woke-event', true,
-        hasContinuationWake(messages, nonce, 1) && allText.includes(`CW-WOKE ${nonce}`) ? 'present' : 'missing'),
+      receipt('work-woke-event', true, chain.complete ? 'present' : 'missing', chain.reason ? { reason: chain.reason } : {}),
     ];
   }
 
   if (row === 'R-CW-4') {
+    const chain = continueWorkChain(messages, { nonce, scheduledMarkers: ['CW4-HOP1-SCHEDULED', 'CW4-HOP2-SCHEDULED', 'CW4-HOP3-SCHEDULED'], doneMarker: 'CW4-DONE' });
     return [
       receipt('dispatch-accepted', true, messages.some((m) => m.role === 'user' && messageText(m).includes('[k6-proof-harness]') && messageText(m).includes(nonce)) ? 'present' : 'missing'),
-      receipt('hop1-scheduled', true, allText.includes(`CW4-HOP1-SCHEDULED ${nonce}`) ? 'present' : 'missing'),
-      receipt('hop2-scheduled', true, allText.includes(`CW4-HOP2-SCHEDULED ${nonce}`) ? 'present' : 'missing'),
-      receipt('hop3-scheduled', true, allText.includes(`CW4-HOP3-SCHEDULED ${nonce}`) ? 'present' : 'missing'),
-      receipt('wake-hop-1', true, hasContinuationWake(messages, nonce, 1) ? 'present' : 'missing'),
-      receipt('wake-hop-2', true, hasContinuationWake(messages, nonce, 2) ? 'present' : 'missing'),
-      receipt('wake-hop-3', true, hasContinuationWake(messages, nonce, 3) ? 'present' : 'missing'),
-      receipt('final-done', true, allText.includes(`CW4-DONE ${nonce}`) ? 'present' : 'missing'),
+      receipt('hop1-scheduled', true, chain.scheduled >= 1 ? 'present' : 'missing'),
+      receipt('hop2-scheduled', true, chain.scheduled >= 2 ? 'present' : 'missing'),
+      receipt('hop3-scheduled', true, chain.scheduled >= 3 ? 'present' : 'missing'),
+      receipt('wake-hop-1', true, chain.woke >= 1 ? 'present' : 'missing'),
+      receipt('wake-hop-2', true, chain.woke >= 2 ? 'present' : 'missing'),
+      receipt('wake-hop-3', true, chain.woke >= 3 ? 'present' : 'missing'),
+      receipt('final-done', true, chain.complete ? 'present' : 'missing', chain.reason ? { reason: chain.reason } : {}),
     ];
   }
 
+  // One transcript holds either the parent (spawn receipt) or the child (hops); the
+  // spawn task carries every child sentinel, so no substring of it counts (#1727).
+  // The return needs the child's hop-2 token and the parent transcript together,
+  // which one recovery read cannot give, so recovery never reaches PASS for this
+  // row. On a parent transcript the parent restating the child's hop-2 output can
+  // mark hop-2-executed present (review N8): recovered receipts are diagnostic.
   if (row === 'R-CW-TOKEN') {
+    const spawn = toolReceiptsFromHistory(messages, { toolName: 'sessions_spawn', argField: 'task', needle: nonce });
+    const spawned = spawn.length === 1 && spawn[0].status === 'accepted' && typeof spawn[0].payload?.childSessionKey === 'string';
+    const hops = tokenWorkHops(messages, { nonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE' });
     return [
       receipt('parent-dispatch-accepted', true, messages.some((m) => m.role === 'user' && messageText(m).includes('[k6-proof-harness]') && messageText(m).includes(nonce)) ? 'present' : 'missing'),
-      receipt('subagent-spawn-accepted', true, allText.includes(`PARENT-SPAWNED ${nonce}`) || allText.includes('sessions_spawn') ? 'present' : 'missing'),
-      receipt('token-emitted-or-stripped', true, allText.includes(`TOKEN-HOP1 ${nonce}`) || allText.includes('CONTINUE_WORK') ? 'present' : 'missing'),
-      receipt('hop-2-executed', true, allText.includes(`TOKEN-HOP2-DONE ${nonce}`) ? 'present' : 'missing'),
-      receipt('parent-return', true, allText.includes(`TOKEN-HOP2-DONE ${nonce}`) ? 'present' : 'missing'),
+      receipt('subagent-spawn-accepted', true, spawned ? 'present' : 'missing'),
+      receipt('token-emitted-or-stripped', true, hops.hop1Index >= 0 && !hops.typedToolUsed ? 'present' : 'missing'),
+      receipt('hop-2-executed', true, hops.complete ? 'present' : 'missing', hops.reason ? { reason: hops.reason } : {}),
+      receipt('parent-return', true, 'missing', { reason: 'needs the child hop-2 token and the parent transcript; one recovery read cannot bind it' }),
     ];
   }
 

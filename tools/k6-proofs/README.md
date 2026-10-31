@@ -817,7 +817,7 @@ true at `2273ef64d5`.
 | preflight | `preflight` | websocket/read-only | PASS-candidate; readiness helper requiring row review |
 | R-CD-1 | `r-cd-1-typed-delegate` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-2 | `r-cd-2-silent-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PARTIAL-candidate until a real lifeboat return proves PASS |
+| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PASS-candidate only on the bound chain (measured fill, accepted request_compaction, released lifeboat, its minted token, the requester reproducing it); unknown or unmeasured rejection is PARTIAL |
 | R-CD-4 | `r-cd-4-target-session-key` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-COLLECTION-ON-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |

@@ -94,3 +94,11 @@ test('depth-2 chain withholds return authority without two distinct hop identiti
     grandchildSessionKey: 'agent:main:subagent:same',
   }), null);
 });
+
+test('depth-2 chain: with the dispatch run excluded, only a stamped later run\'s ack binds (#1727)', () => {
+  const ack = (runId) => ({ sessionKey: root, message: { role: 'assistant', content: [{ type: 'text', text: `ROOT-CHAIN-ACK ${nonce}` }], ...(runId ? { __openclaw: { runId } } : {}) } });
+  const opts = { eventName: 'session.message', rootSessionKey: root, nonce, excludeRunIds: ['run-dispatch'] };
+  assert.equal(rCdChainRootReturnCandidate({ ...opts, eventData: ack('run-dispatch') }), null, 'the dispatch run restating its prompt');
+  assert.equal(rCdChainRootReturnCandidate({ ...opts, eventData: ack(null) }), null, 'an unstamped row');
+  assert.equal(rCdChainRootReturnCandidate({ ...opts, eventData: ack('run-wake') })?.marker, `ROOT-CHAIN-ACK ${nonce}`);
+});

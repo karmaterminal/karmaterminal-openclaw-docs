@@ -4,6 +4,11 @@
  * nonce-bearing continue_work reason and verifies schedule+wake. Public evidence
  * redacts the raw reason; the PASS/PARTIAL boundary is decided by reviewing
  * fetched Tempo JSON for safe reason attrs present and raw reason absent.
+ *
+ * Schedule and wake come from the session's own transcript, bound by turn
+ * order (lib/continue-work-chain.mjs). The reason no longer carries the wake
+ * sentinel: the wake input quotes the reason, and at F′ CW3-WOKE matched that
+ * echo 5.3 s after scheduling with a 5 s delay (openclaw-bootstrap#1727).
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -11,6 +16,7 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { continueWorkChain } from '../lib/continue-work-chain.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 /**
@@ -48,7 +54,7 @@ const HARNESS_MARKER = '[k6-proof-harness]';
 const DEFAULTS = { sessionKey: 'main', seat: 'cael-dgx', delaySeconds: 5, idempotencyKeyPrefix: 'R-CW-3' };
 let finalEvidence = null;
 function boolEnv(name) { return (__ENV[name] || '').toLowerCase() === 'true'; }
-function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}' }; }
+function invocationCfg() { const inv = manifest?.invocation || {}; return { delaySeconds: Number(inv.delaySeconds ?? __ENV.OPENCLAW_DELAY_SECONDS ?? DEFAULTS.delaySeconds), idempotencyKeyPrefix: inv.idempotencyKeyPrefix || DEFAULTS.idempotencyKeyPrefix, reason: inv.reason || 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}' }; }
 function redactedNoReason(classified) {
   const redacted = redactEvent(classified.payload || classified.data || {});
   if (redacted && typeof redacted === 'object') delete redacted.reason;
@@ -68,10 +74,31 @@ export default function () {
   if (manifest) { const errors = validateManifest(manifest); if (errors.length) console.warn('Manifest validation warnings: ' + errors.join('; ')); }
   const inv = invocationCfg();
   const rawReason = inv.reason.replace(/\{\{nonce\}\}/g, rowNonce);
-  const evidence = { row: 'R-CW-3', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, wake_observed: false, public_artifact_raw_reason_absent: true, tempo_assertion: 'pending-review', reason_hash: crypto.sha256(rawReason, 'hex').slice(0, 16), reason_length: rawReason.length, trace_id: null, trace_id_source: null, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, redacted_events: [] };
+  const evidence = { row: 'R-CW-3', manifest_loaded: !!manifest, nonce: rowNonce, seat, requestedSessionKey, sessionKey, session_created: false, created_session_key: null, candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', started: new Date().toISOString(), dispatch_accepted: false, scheduled_sentinel: false, wake_observed: false, chain_reason: null, history_reads: 0, scheduled_text_seen: false, woke_text_seen: false, public_artifact_raw_reason_absent: true, tempo_assertion: 'pending-review', reason_hash: crypto.sha256(rawReason, 'hex').slice(0, 16), reason_length: rawReason.length, trace_id: null, trace_id_source: null, dispatch_accepted_at_ms: null, scheduled_result_at_ms: null, wake_delay_ms: null, redacted_events: [] };
   const started = Date.now();
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let historyScheduled = false;
+    // The session's own transcript decides schedule and wake; events only prompt a read.
+    function requestHistory(delayMs) {
+      if (historyScheduled || evidence.wake_observed || !evidence.dispatch_accepted) return;
+      historyScheduled = true;
+      socket.setTimeout(() => { historyScheduled = false; evidence.history_reads += 1; tracker.send(socket, 'chat.history', { sessionKey, limit: 200 }); }, k6TimeoutMs(delayMs));
+    }
+    function onHistory(messages) {
+      const chain = continueWorkChain(messages, { nonce: rowNonce, scheduledMarkers: ['CW3-SCHEDULED'], doneMarker: 'CW3-WOKE' });
+      evidence.chain_reason = chain.reason;
+      if (chain.scheduled >= 1 && !evidence.scheduled_sentinel) { evidence.scheduled_sentinel = true; evidence.scheduled_result_at_ms = Date.now(); console.log('✓ continue_work toolResult scheduled, CW3-SCHEDULED in that turn (transcript)'); }
+      if (chain.complete) {
+        const resultAt = messages[chain.hops[0].resultIndex]?.timestamp;
+        const wokeAt = messages[chain.doneIndex]?.timestamp;
+        evidence.wake_observed = true;
+        evidence.wake_delay_ms = Number.isFinite(resultAt) && Number.isFinite(wokeAt) ? wokeAt - resultAt : null;
+        console.log('✓ [continuation:wake] turn answered CW3-WOKE (transcript)');
+        return;
+      }
+      requestHistory(5000);
+    }
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       socket.setTimeout(() => {
@@ -104,19 +131,26 @@ export default function () {
               if (sendId) { evidence.trace_id = sendId; evidence.trace_id_source = 'sessions.send-response'; }
             }
             console.log('✓ sessions.send accepted — reason telemetry turn triggered');
+            requestHistory(5000);
           } else { console.error('✗ sessions.send rejected: ' + JSON.stringify(classified.error)); failures.add(1); }
         }
-        if (classified.kind === 'event') { const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData); if (eventStr.includes(HARNESS_MARKER)) return;
-          if (!evidence.scheduled_sentinel && eventStr.includes(`CW3-SCHEDULED ${rowNonce}`)) {
-            evidence.scheduled_sentinel = true; evidence.scheduled_result_at_ms = Date.now();
+        if (classified.kind === 'response' && classified.method === 'chat.history') {
+          if (classified.ok) onHistory(Array.isArray(classified.payload?.messages) ? classified.payload.messages : []);
+          else requestHistory(5000);
+        }
+        // Session events prompt a transcript read; their text is diagnostic only.
+        if (classified.kind === 'event') { const eventData = classified.data || {}; const eventStr = JSON.stringify(eventData);
+          if (classified.event === 'session.message') requestHistory(1500);
+          if (eventStr.includes(HARNESS_MARKER)) return;
+          if (!evidence.scheduled_text_seen && eventStr.includes(`CW3-SCHEDULED ${rowNonce}`)) {
+            evidence.scheduled_text_seen = true;
             // Try eventData (msg.payload) plus the full raw message for this frame.
             if (!evidence.trace_id) {
               const schedId = extractNestedTraceId(eventData) || extractNestedTraceId(msg);
               if (schedId) { evidence.trace_id = schedId; evidence.trace_id_source = 'cw3-scheduled-event'; }
             }
-            console.log('✓ CW3-SCHEDULED sentinel observed');
           }
-          if (evidence.scheduled_sentinel && !evidence.wake_observed && eventStr.includes(`CW3-WOKE ${rowNonce}`)) { evidence.wake_observed = true; evidence.wake_delay_ms = evidence.scheduled_result_at_ms ? Date.now() - evidence.scheduled_result_at_ms : null; console.log('✓ CW3-WOKE sentinel observed'); } }
+          if (eventStr.includes(`CW3-WOKE ${rowNonce}`)) evidence.woke_text_seen = true; }
         if (evidence.dispatch_accepted && evidence.scheduled_sentinel && evidence.wake_observed) { console.log('Required R-CW-3 schedule/wake evidence gathered, closing early'); socket.close(); }
       } catch (e) { console.warn('parse error: ' + e); }
     });

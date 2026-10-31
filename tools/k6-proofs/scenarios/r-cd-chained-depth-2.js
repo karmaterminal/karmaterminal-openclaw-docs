@@ -13,6 +13,13 @@
  * disposable parent session, so the proof does not touch the live #sprites/main
  * Discord lane.
  *
+ * Each hop sentinel is read only from that hop's own transcript: the
+ * lineage-bound child's assistant text says CHILD-DONE ... CHILD-DELEGATE-SCHEDULED
+ * and the lineage-bound grandchild's says GRANDCHILD-DONE. Both sentinels are
+ * written into the root's own continue_delegate task, so the root's call and
+ * its tool-start meta used to satisfy them (openclaw-bootstrap#1727). The
+ * root ack must come from a run other than the dispatch run.
+ *
  * References:
  *   - Issue: karmaterminal/karmaterminal-openclaw-docs#119
  *   - Manifest: tools/k6-proofs/manifests/r-cd-chained-depth-2.json
@@ -30,6 +37,7 @@ import {
 } from '../lib/r-cd-chained-depth-2-authority.mjs';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { createHeartbeatAckTracker } from '../lib/wake-turn-receipt.mjs';
+import { assistantSentinelFromHistory } from '../lib/sentinel-binding.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
@@ -115,10 +123,16 @@ export default function () {
     grandchild_spawned: false,
     child_done_sentinel: false,
     grandchild_done_sentinel: false,
+    child_history_reads: 0,
+    grandchild_history_reads: 0,
+    // Diagnostics only: sentinel text seen anywhere on the root's event stream.
+    child_done_text_seen: false,
+    grandchild_done_text_seen: false,
     chain_return_received: false,
     root_return_candidate: null,
     root_return_source: null,
     dispatch_run_id: null,
+    root_return_unbound_reason: null,
     root_return_receipt: null,
     dispatch_accepted_at_ms: null,
     // Depth tracking
@@ -146,6 +160,35 @@ export default function () {
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    const hopReadScheduled = { child: false, grandchild: false };
+
+    // A hop's sentinel binds only in that hop's own transcript (assistant text).
+    function requestHopHistory(hop, delayMs) {
+      const key = hop === 'child' ? evidence.child_session : evidence.grandchild_session;
+      const done = hop === 'child' ? evidence.child_done_sentinel : evidence.grandchild_done_sentinel;
+      if (!key || done || hopReadScheduled[hop] || evidence[`${hop}_history_reads`] >= 40) return;
+      hopReadScheduled[hop] = true;
+      socket.setTimeout(() => {
+        hopReadScheduled[hop] = false;
+        evidence[`${hop}_history_reads`] += 1;
+        if (!observer.refreshHistory(key, 200, `hop-${hop}`)) requestHopHistory(hop, 3000);
+      }, k6TimeoutMs(delayMs));
+    }
+
+    function onHopHistory(hop, messages) {
+      const bound = hop === 'child'
+        ? assistantSentinelFromHistory(messages, { marker: 'CHILD-DONE', nonce: `${chainNonce} CHILD-DELEGATE-SCHEDULED`, requireRunId: false })
+        : assistantSentinelFromHistory(messages, { marker: 'GRANDCHILD-DONE', nonce: chainNonce, requireRunId: false });
+      if (!bound) { requestHopHistory(hop, 3000); return; }
+      if (hop === 'child' && !evidence.child_done_sentinel) {
+        evidence.child_done_sentinel = true;
+        console.log('✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED in the child\'s own transcript');
+      }
+      if (hop === 'grandchild' && !evidence.grandchild_done_sentinel) {
+        evidence.grandchild_done_sentinel = true;
+        console.log('✓ GRANDCHILD-DONE in the grandchild\'s own transcript');
+      }
+    }
 
     function finalizeRootReturnReceipt() {
       evidence.root_return_receipt = rCdChainRootReturnReceipt(
@@ -274,8 +317,12 @@ export default function () {
         const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
         if (observed) {
-          observer.handle(observed, classified);
+          const hopMessages = observer.handle(observed, classified);
+          if (Array.isArray(hopMessages) && observed.purpose === 'hop-child') onHopHistory('child', hopMessages);
+          if (Array.isArray(hopMessages) && observed.purpose === 'hop-grandchild') onHopHistory('grandchild', hopMessages);
           observeChainLineage();
+          requestHopHistory('child', 1000);
+          requestHopHistory('grandchild', 1000);
         }
 
         evidence.redacted_events.push({
@@ -338,23 +385,24 @@ export default function () {
             } else if (evidence.parent_dispatch_accepted && evidence.dispatch_accepted_at_ms) {
               const elapsed = Date.now() - evidence.dispatch_accepted_at_ms;
               if (elapsed >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-                if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED`)) {
-                  evidence.child_done_sentinel = true;
-                  console.log('✓ CHILD-DONE/CHILD-DELEGATE-SCHEDULED sentinel observed post-dispatch');
+                // Diagnostics only: both hop sentinels ride the root's own task.
+                if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED`)) evidence.child_done_text_seen = true;
+                if (eventStr.includes(`GRANDCHILD-DONE ${chainNonce}`)) evidence.grandchild_done_text_seen = true;
+                // Review F5: ROOT-CHAIN-ACK is prompt-only, so excluding the dispatch run
+                // is its only guard; without the run id no root ack can bind.
+                if (!evidence.dispatch_run_id) {
+                  evidence.root_return_unbound_reason = 'sessions.send answered no dispatch run id; the dispatch run cannot be excluded, so no root ack can bind';
                 }
-                if (eventStr.includes(`GRANDCHILD-DONE ${chainNonce}`)) {
-                  evidence.grandchild_done_sentinel = true;
-                  console.log('✓ GRANDCHILD-DONE sentinel observed post-dispatch');
-                }
-                const rootReturnCandidate = rCdChainRootReturnCandidate({
+                const rootReturnCandidate = evidence.dispatch_run_id && (rCdChainRootReturnCandidate({
                   eventName,
                   eventData,
                   rootSessionKey: sessionKey,
                   nonce: chainNonce,
+                  excludeRunIds: [evidence.dispatch_run_id],
                 }) || (eventName === 'session.message' && rootHeartbeat ? rootHeartbeat.observe(eventData, {
                   windowOpen: true,
                   excludeRunIds: [evidence.dispatch_run_id],
-                }) : null);
+                }) : null));
                 if (rootReturnCandidate) {
                   evidence.root_return_candidate = rootReturnCandidate;
                   evidence.root_return_source = rootReturnCandidate.source || 'assistant-text';

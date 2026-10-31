@@ -30,7 +30,7 @@
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 1,
-    "promptTemplate": "Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only after you arrive. Do not mutate files.",
+    "promptTemplate": "Proof nonce {{nonce}}: after you arrive, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly CD1-DONE {{nonce}} TOKEN <your token>. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-1"
   },
   "expectedReceipts": [
@@ -52,12 +52,12 @@
     {
       "name": "delegate-scheduled-sentinel",
       "required": true,
-      "description": "Post-dispatch CD1-DELEGATE-SCHEDULED sentinel emitted after continue_delegate tool result reports scheduled"
+      "description": "The continue_delegate toolResult bound by toolCallId to the nonce-bound call reports scheduled, and CD1-DELEGATE-SCHEDULED is in the parent's own assistant text"
     },
     {
       "name": "parent-return-event",
       "required": true,
-      "description": "Post-dispatch CD1-DONE or delegate.return evidence observed on parent session",
+      "description": "The bound child's own transcript says CD1-DONE <nonce> TOKEN <12 chars> (a token minted there), and a parent run other than the dispatch run reproduces CD1-RETURN <nonce> TOKEN <that token>, not earlier than the token. Return text on the parent stream never counts: the old sentinel rode the parent's own call (openclaw-bootstrap#1727)",
       "pathHint": "gateway-events.ndjson"
     },
     {

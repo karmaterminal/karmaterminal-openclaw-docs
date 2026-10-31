@@ -19,7 +19,8 @@
     "methods": [
       "sessions.create",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cw-2-immediate-wake.js"
@@ -27,7 +28,7 @@
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 0,
-    "reason": "k6-proof-R-CW-2-immediate-{{nonce}} -- on continuation wake reply exactly CW2-WOKE {{nonce}}",
+    "reason": "k6-proof-R-CW-2-immediate-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-2"
   },
   "expectedReceipts": [
@@ -77,7 +78,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "PASS-candidate requires dispatch accepted, explicit scheduled sentinel, explicit immediate wake sentinel, and prompt-echo filtering. Prefer disposable sessions."
+    "notes": "PASS-candidate requires dispatch accepted, explicit scheduled sentinel, explicit immediate wake sentinel, and prompt-echo filtering. Prefer disposable sessions. Expected PARTIAL cause (harness review N7, openclaw-bootstrap#1727): when the wake matures while another run is active in the session, the product folds it into that run as a [system:continuation-note] (src/auto-reply/continuation/work-dispatch.ts:614-640, work-dispatch-execution.ts:234-235) and writes no [continuation:wake] row; the transcript chain then fails closed with chain_reason naming the missing wake. Run in an idle or disposable session."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",

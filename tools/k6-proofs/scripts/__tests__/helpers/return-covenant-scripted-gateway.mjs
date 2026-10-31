@@ -43,7 +43,9 @@
  * RCC_SCRIPT_FALLBACK_BLOCK=<require-fresh-process|foreground-closed|installation-replaced|
  * lock-reacquire-failed|resources-retained> makes the spawned fallback take that refusal with the
  * product's diagnostic and exit code; RCC_SCRIPT_IGNORE_UPDATE_REASON=1 restarts in-process even
- * for update.run. The consume command prints a log line before its JSON, as a product CLI may.
+ * for update.run; RCC_SCRIPT_HELPER=1 starts a long-lived helper child (same environment, same
+ * process group, as the product's codex app server or plugin workers are) just before the
+ * spawned branch starts its gateway child. The consume command prints a log line before its JSON, as a product CLI may.
  */
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
@@ -518,6 +520,9 @@ async function reacquireAndResumeInProcessRestart() {
 // stdio and env (process-respawn.ts:282-307); an unhealthy child is killed and the old process
 // falls back.
 async function spawnedRestart() {
+  if (process.env.RCC_SCRIPT_HELPER === '1') {
+    spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' }).unref();
+  }
   const child = spawn(process.execPath, [...process.execArgv, process.argv[1], ...process.argv.slice(2)], {
     env: { ...process.env, RCC_SCRIPT_SPAWNED_CHILD: '1' },
     detached: true,

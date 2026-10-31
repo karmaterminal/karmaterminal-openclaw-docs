@@ -420,6 +420,25 @@ test('negative-spawned-fallback: cleanup stops the restored original process and
   }
 });
 
+test('negative-spawned-fallback: a helper child of the old generation is not mistaken for the respawned gateway', async () => {
+  // The product's gateway starts helpers (the codex app server, plugin workers) that inherit its
+  // environment, run marker included. Only the respawned gateway invocation is the replacement.
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_HELPER: '1' } }),
+    testPlatform,
+  );
+  const { record, grade } = result;
+  const child = record.fallback.child;
+  assert.equal(child.invocation, 'gateway', JSON.stringify(child));
+  assert.equal(child.reportedPid, String(child.pid), 'the tracked child is the one the product names');
+  assert.equal(record.fallback.blocker.releasedOn, 'replacement-exited', JSON.stringify(record.fallback.blocker));
+  assert.equal(grade.fallback.branch, 'restored', JSON.stringify(grade.fallback));
+  assert.equal(grade.negativeControl.holds, true, JSON.stringify(grade.negativeControl, null, 2));
+  assert.deepEqual(record.cleanup.orphansTerminated, []);
+  assert.equal(await portFree(layout.port), true);
+});
+
 test('negative-spawned-fallback: without the product fallback diagnostic the negative does not hold', async () => {
   const { result } = await spawnedFallback();
   const record = structuredClone(result.record);

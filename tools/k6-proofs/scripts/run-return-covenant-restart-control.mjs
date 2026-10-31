@@ -184,15 +184,41 @@ function supervisorHintsOf(pid, procRoot = '/proc') {
   }
 }
 
-/** Live children of `parent` that carry this run's marker: what the product spawned. */
-function markedChildrenOf(parent, marker, procRoot = '/proc') {
-  const found = [];
-  for (const entry of readdirSync(procRoot)) {
-    if (!/^\d+$/u.test(entry)) continue;
-    const stat = procStat(Number(entry), procRoot);
-    if (stat && stat.ppid === parent && stat.state !== 'Z' && procEnvironHas(Number(entry), marker, procRoot)) {
-      found.push({ pid: Number(entry), startTicks: stat.startTicks, ppid: stat.ppid });
+function childPidsOf(parent, procRoot = '/proc') {
+  // /proc/<pid>/task/<tid>/children lists a process's children directly; scan every stat
+  // only where the kernel does not expose it.
+  try {
+    const pids = new Set();
+    for (const tid of readdirSync(path.join(procRoot, String(parent), 'task'))) {
+      const text = readFileSync(path.join(procRoot, String(parent), 'task', tid, 'children'), 'utf8');
+      for (const pid of text.trim().split(/\s+/u)) if (/^\d+$/u.test(pid)) pids.add(Number(pid));
     }
+    return [...pids];
+  } catch {
+    return readdirSync(procRoot).filter((entry) => /^\d+$/u.test(entry) && procStat(Number(entry), procRoot)?.ppid === parent).map(Number);
+  }
+}
+
+function procArgs(pid, procRoot = '/proc') {
+  try {
+    return readFileSync(path.join(procRoot, String(pid), 'cmdline')).toString('utf8').split('\0').filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Live children of `parent` that carry this run's marker. The product's gateway also starts
+ * helpers that inherit its environment (the codex app server, plugin workers), so each child
+ * says whether its command line is the gateway invocation itself.
+ */
+function markedChildrenOf(parent, marker, entry, procRoot = '/proc') {
+  const found = [];
+  for (const pid of childPidsOf(parent, procRoot)) {
+    const stat = procStat(pid, procRoot);
+    if (!stat || stat.ppid !== parent || stat.state === 'Z' || !procEnvironHas(pid, marker, procRoot)) continue;
+    const args = procArgs(pid, procRoot);
+    found.push({ pid, startTicks: stat.startTicks, ppid: stat.ppid, gateway: args.includes(entry) && args.includes('gateway') });
   }
   return found;
 }
@@ -688,7 +714,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     ? {
         outputChannel: 'inherited-by-old-generation',
         oldListenerClosedAtMs: null,
-        child: { pid: null, pidSource: null, reportedPid: null, ppid: null, startTicks: null, firstSeenAtMs: null, goneAtMs: null },
+        child: { pid: null, pidSource: null, invocation: null, reportedPid: null, ppid: null, startTicks: null, firstSeenAtMs: null, goneAtMs: null },
         blocker: null,
         runtime: null,
         diagnostics: [],
@@ -697,7 +723,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   record.fallback = fallback;
 
   const generations = {};
-  const state = { triggerAtMs: null, replacementReadyAt: null, stopSampling: false, lastPreTrigger: null, rawEpoch: null };
+  const state = { triggerAtMs: null, replacementReadyAt: null, stopSampling: false, lastPreTrigger: null, rawEpoch: null, preTriggerChildren: new Set() };
   // The control-held port (the negatives' "replacement never usable"), opened and closed only here.
   const held = { server: null, open: false, used: false };
   const holdPort = async () => {
@@ -938,14 +964,27 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   const followChild = (old) => {
     const child = fallback.child;
     if (child.pid === null) {
-      const [found] = markedChildrenOf(old.pid, `OPENCLAW_PROOF_RCC_RUN=${runId}`);
-      if (found) Object.assign(child, { pid: found.pid, pidSource: 'proc', ppid: found.ppid, startTicks: found.startTicks, firstSeenAtMs: now() });
+      // A new child since the trigger, whose command line is the gateway invocation.
+      const found = markedChildrenOf(old.pid, `OPENCLAW_PROOF_RCC_RUN=${runId}`, entry)
+        .find((candidate) => candidate.gateway && !state.preTriggerChildren.has(candidate.pid));
+      if (found) Object.assign(child, { pid: found.pid, pidSource: 'proc', invocation: 'gateway', ppid: found.ppid, startTicks: found.startTicks, firstSeenAtMs: now() });
     }
     if (child.reportedPid === null) {
-      const named = old.diagnostics.find((entry) => RCC_SPAWN_DIAGNOSTICS.unhealthy.test(entry.line));
+      const named = old.diagnostics.find((line) => RCC_SPAWN_DIAGNOSTICS.unhealthy.test(line.line));
       if (named) {
         child.reportedPid = RCC_SPAWN_DIAGNOSTICS.unhealthy.exec(named.line)[1];
-        if (child.pid === null && /^\d+$/u.test(child.reportedPid)) Object.assign(child, { pid: Number(child.reportedPid), pidSource: 'diagnostic', ppid: old.pid });
+        // The product's own word on which child it judged overrides anything inferred.
+        if (/^\d+$/u.test(child.reportedPid) && child.pid !== Number(child.reportedPid)) {
+          const stat = procStat(Number(child.reportedPid));
+          Object.assign(child, {
+            pid: Number(child.reportedPid),
+            pidSource: 'diagnostic',
+            invocation: 'named-by-product',
+            ppid: old.pid,
+            startTicks: stat?.startTicks ?? null,
+            goneAtMs: stat && stat.state !== 'Z' ? null : now(),
+          });
+        }
       }
     }
     if (child.pid !== null && child.goneAtMs === null) {
@@ -1097,6 +1136,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       removeRuntimeCopy();
       fallback.runtime.unlinkedAtMs = now();
     }
+    if (fallback) state.preTriggerChildren = new Set(childPidsOf(old.pid));
     state.triggerAtMs = now();
     record.observation.triggerAtMs = state.triggerAtMs;
     record.observation.plannedEndAtMs = state.triggerAtMs + plan.observationWindowMs;
@@ -1244,6 +1284,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
         startTicks: child.startTicks,
         ppid: child.ppid,
         pidSource: child.pidSource,
+        invocation: child.invocation,
         reportedPid: child.reportedPid,
         firstSeenAtMs: child.firstSeenAtMs,
         goneAtMs: child.goneAtMs,

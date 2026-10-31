@@ -1,5 +1,5 @@
 import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
-import { heartbeatAckFromHistory, messageRunId } from './wake-turn-receipt.mjs';
+import { heartbeatAckFromHistory, messageRunId, runExclusion } from './wake-turn-receipt.mjs';
 
 export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
 export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
@@ -68,10 +68,12 @@ export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, 
   if (directMessageRole(eventData) !== 'assistant') return null;
   if (!hasExactSentinel(eventData, 'TARGET-ACK', nonce)) return null;
   // openclaw-bootstrap#1727: the priming run can restate its own prompt, which
-  // names the ack. When runs are excluded, only a stamped later run counts.
+  // names the ack. When runs are excluded, only a stamped later run counts, and
+  // an unstamped priming run (a missing run id in the list) binds nothing (review F5).
   if (Array.isArray(excludeRunIds)) {
+    const excluded = runExclusion(excludeRunIds);
     const runId = messageRunId(eventData.message, eventData);
-    if (!runId || excludeRunIds.filter(Boolean).includes(runId)) return null;
+    if (!excluded || !runId || excluded.has(runId)) return null;
   }
   return {
     eventName,

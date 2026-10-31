@@ -74,7 +74,7 @@ export default function () {
     dispatch_accepted: false, scheduled_sentinel: false, child_completion_observed: false, followup_accepted: false,
     parent_internal_context_observed: false, no_channel_delivery: true, child_channel_delivery_observed: false,
     dispatch_accepted_at_ms: null, followup_sent_at_ms: null, trace_id: null,
-    scheduled_receipt_observed: false, scheduled_text_bound: false, child_token_fingerprint: null, child_report_reason: null,
+    scheduled_receipt_observed: false, scheduled_text_bound: false, child_token_fingerprint: null, child_report_reason: null, parent_readback_reason: null,
     // Diagnostics only: sentinel text seen anywhere on the event stream.
     scheduled_text_seen: false, parent_observed_text_seen: false,
     // The task is scenario-owned (the manifest declares no template), so only this
@@ -202,6 +202,8 @@ export default function () {
           if (assistantSentinelFromEvent(eventName, eventData, { sessionKey, marker: 'RCDS-SCHEDULED', nonce: rowNonce, requireRunId: false })) evidence.scheduled_text_bound = true;
           evidence.scheduled_sentinel = evidence.scheduled_receipt_observed && evidence.scheduled_text_bound;
           if (eventName === 'chat') onChildChat(eventData);
+          // Review F5: without the dispatch run id the readback cannot be proven outside it.
+          if (childToken && evidence.followup_sent_at_ms && !dispatchRunId) evidence.parent_readback_reason = 'no dispatch run id (neither the sessions.send answer nor the scheduled receipt carried one); the readback cannot be proven outside the dispatch run';
           if (childToken && evidence.followup_sent_at_ms && assistantSentinelFromEvent(eventName, eventData, {
             sessionKey, marker: 'RCDS-PARENT-OBSERVED', nonce: `${rowNonce} TOKEN ${childToken}`, excludeRunIds: [dispatchRunId],
           })) {

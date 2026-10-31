@@ -1,4 +1,4 @@
-import { messageRunId } from './wake-turn-receipt.mjs';
+import { messageRunId, runExclusion } from './wake-turn-receipt.mjs';
 
 const HARNESS_MARKER = '[k6-proof-harness]';
 
@@ -53,7 +53,8 @@ function hasExactRootAck(eventData, nonce) {
  *
  * excludeRunIds (openclaw-bootstrap#1727): when given, the ack must come from
  * a stamped run outside them. The dispatch run can restate its own prompt,
- * which names the ack; only a later (woken) run's ack is a consumption.
+ * which names the ack; only a later (woken) run's ack is a consumption. A list
+ * with a missing run id binds nothing (review F5).
  */
 export function rCdChainRootReturnCandidate({ eventName, eventData, rootSessionKey, nonce, excludeRunIds = null }) {
   if (eventName !== 'session.message') return null;
@@ -62,8 +63,9 @@ export function rCdChainRootReturnCandidate({ eventName, eventData, rootSessionK
   if (directMessageRole(eventData) !== 'assistant') return null;
   if (!hasExactRootAck(eventData, nonce)) return null;
   if (Array.isArray(excludeRunIds)) {
+    const excluded = runExclusion(excludeRunIds);
     const runId = messageRunId(eventData.message, eventData);
-    if (!runId || excludeRunIds.filter(Boolean).includes(runId)) return null;
+    if (!excluded || !runId || excluded.has(runId)) return null;
   }
   return {
     eventName,

@@ -23,7 +23,7 @@
 // k6 and Node compatible: no k6 or Node imports.
 
 import { toolCallTarget } from './tool-call-identity.mjs';
-import { hasExactSentinelText, messageRunId } from './wake-turn-receipt.mjs';
+import { hasExactSentinelText, messageRunId, runExclusion } from './wake-turn-receipt.mjs';
 
 export const HARNESS_MARKER = '[k6-proof-harness]';
 /** A token a child invents: no harness-sent text can carry it. */
@@ -90,7 +90,8 @@ function exactIn(text, marker, nonce) {
 /**
  * A session.message assistant row, in `sessionKey`, whose text parts carry the
  * exact `<marker> <nonce>` sentinel, stamped with a run outside
- * `excludeRunIds`. Returns { runId } or null.
+ * `excludeRunIds`. Returns { runId } or null. An exclusion list with a
+ * missing run id binds nothing (runExclusion).
  */
 export function assistantSentinelFromEvent(eventName, eventData, {
   sessionKey,
@@ -104,9 +105,11 @@ export function assistantSentinelFromEvent(eventName, eventData, {
   const message = eventData.message;
   const text = assistantText(message);
   if (!text || !exactIn(text, marker, nonce)) return null;
+  const excluded = runExclusion(excludeRunIds);
+  if (!excluded) return null;
   const runId = rowRunId(message, eventData);
   if (requireRunId && !runId) return null;
-  if (runId && excludeRunIds.filter(Boolean).includes(runId)) return null;
+  if (runId && excluded.has(runId)) return null;
   return { runId: runId || null };
 }
 
@@ -123,7 +126,8 @@ export function assistantSentinelFromHistory(messages, {
   requireRunId = true,
 } = {}) {
   const list = Array.isArray(messages) ? messages : [];
-  const excluded = new Set(excludeRunIds.filter(Boolean));
+  const excluded = runExclusion(excludeRunIds);
+  if (!excluded) return null;
   for (let i = afterIndex + 1; i < list.length; i += 1) {
     const text = assistantText(list[i]);
     if (!text || !exactIn(text, marker, nonce)) continue;
@@ -332,7 +336,8 @@ export function tokenReplyFromHistory(messages, {
   const none = (reason) => ({ bound: false, index: -1, runId: null, reason });
   if (!marker || !nonce || !token) return none('no minted token to look for');
   if (!isTimestamp(notBeforeTimestamp)) return none('the minted token has no timestamp; ordering after it cannot be proven');
-  const excluded = new Set(excludeRunIds.filter(Boolean));
+  const excluded = runExclusion(excludeRunIds);
+  if (!excluded) return none('a run to exclude (the dispatch, priming or fill run) has no run id; no reply can be proven outside it');
   let untimed = false;
   for (let i = 0; i < list.length; i += 1) {
     const text = assistantText(list[i]);

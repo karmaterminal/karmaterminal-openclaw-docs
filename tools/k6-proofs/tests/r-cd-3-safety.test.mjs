@@ -140,3 +140,19 @@ test('F4: the same call made through Tool Search\'s dispatch_action is refused',
   });
   assert.notEqual(verdict, 'PASS-candidate');
 });
+
+// F5 sibling: the return is excluded from the proof run and every fill run; an
+// unknown run id among them leaves the return unproven, never bound.
+test('F5: with no proof run id the requester\'s return cannot bind', async () => {
+  const { evidence, verdict } = await fire({ sendRunId: (kind, n) => (kind === 'fill' ? `run-fill-${n}` : undefined) });
+  assert.equal(evidence.lifeboat_report_bound, true);
+  assert.notEqual(evidence.parent_return_bound, true);
+  assert.notEqual(verdict, 'PASS-candidate');
+});
+
+test('F5: a fill run whose id is unknown leaves the return unbound', async () => {
+  const { evidence, verdict } = await fire({ sendRunId: (kind, n) => (kind === 'fill' ? (n === 2 ? undefined : `run-fill-${n}`) : 'run-proof') });
+  assert.equal(evidence.fill_reached, true);
+  assert.notEqual(evidence.parent_return_bound, true);
+  assert.notEqual(verdict, 'PASS-candidate');
+});

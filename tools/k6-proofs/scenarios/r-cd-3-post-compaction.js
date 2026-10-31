@@ -577,7 +577,9 @@ export default function () {
           } else if (purpose && purpose.startsWith('fill-') && purpose !== 'fill-measure') {
             if (classified.ok) {
               fillRun = gatewayLifecycleRunId(classified.payload);
-              if (fillRun) excludedRunIds.push(fillRun);
+              // A fill run without an id stays in the list as null: the return then
+              // cannot be proven outside it and binds nothing (review F5).
+              excludedRunIds.push(fillRun || null);
             } else {
               stopFill(`fill turn ${fillTurn} was rejected: ${JSON.stringify(classified.error)}`);
             }

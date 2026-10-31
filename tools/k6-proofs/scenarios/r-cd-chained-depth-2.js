@@ -132,6 +132,7 @@ export default function () {
     root_return_candidate: null,
     root_return_source: null,
     dispatch_run_id: null,
+    root_return_unbound_reason: null,
     root_return_receipt: null,
     dispatch_accepted_at_ms: null,
     // Depth tracking
@@ -387,7 +388,12 @@ export default function () {
                 // Diagnostics only: both hop sentinels ride the root's own task.
                 if (eventStr.includes(`CHILD-DONE ${chainNonce} CHILD-DELEGATE-SCHEDULED`)) evidence.child_done_text_seen = true;
                 if (eventStr.includes(`GRANDCHILD-DONE ${chainNonce}`)) evidence.grandchild_done_text_seen = true;
-                const rootReturnCandidate = rCdChainRootReturnCandidate({
+                // Review F5: ROOT-CHAIN-ACK is prompt-only, so excluding the dispatch run
+                // is its only guard; without the run id no root ack can bind.
+                if (!evidence.dispatch_run_id) {
+                  evidence.root_return_unbound_reason = 'sessions.send answered no dispatch run id; the dispatch run cannot be excluded, so no root ack can bind';
+                }
+                const rootReturnCandidate = evidence.dispatch_run_id && (rCdChainRootReturnCandidate({
                   eventName,
                   eventData,
                   rootSessionKey: sessionKey,
@@ -396,7 +402,7 @@ export default function () {
                 }) || (eventName === 'session.message' && rootHeartbeat ? rootHeartbeat.observe(eventData, {
                   windowOpen: true,
                   excludeRunIds: [evidence.dispatch_run_id],
-                }) : null);
+                }) : null));
                 if (rootReturnCandidate) {
                   evidence.root_return_candidate = rootReturnCandidate;
                   evidence.root_return_source = rootReturnCandidate.source || 'assistant-text';

@@ -79,6 +79,19 @@ function sentinelField(record, marker, nonce) {
   return null;
 }
 
+/**
+ * The runs a receipt must lie outside, or null when the list names a run the
+ * caller could not resolve (openclaw-bootstrap#1727 review F5). A missing
+ * dispatch or priming run id used to drop out of the list (`[null]` excluded
+ * nothing), so the very run the exclusion guards against could bind. An
+ * exclusion with a missing member cannot prove "outside": callers bind
+ * nothing on null. An empty list excludes nothing, by the caller's choice.
+ */
+export function runExclusion(excludeRunIds) {
+  if (!Array.isArray(excludeRunIds)) return null;
+  return excludeRunIds.every((id) => typeof id === 'string' && id.length > 0) ? new Set(excludeRunIds) : null;
+}
+
 export function messageRunId(message, eventData = null) {
   const meta = isRecord(message?.__openclaw) ? message.__openclaw : null;
   const fromMessage = typeof meta?.runId === 'string' && meta.runId ? meta.runId : null;
@@ -164,7 +177,8 @@ export function heartbeatAckFromHistory(messages, {
   requireRunId = false,
 } = {}) {
   const list = Array.isArray(messages) ? messages : [];
-  const excluded = new Set(excludeRunIds.filter(Boolean));
+  const excluded = runExclusion(excludeRunIds);
+  if (!excluded) return null;
   for (let i = afterIndex + 1; i < list.length; i += 1) {
     for (const call of heartbeatRespondCalls(list[i])) {
       if (!call.id || !sentinelField(call.args, marker, nonce)) continue;
@@ -200,7 +214,8 @@ export function createHeartbeatAckTracker({ sessionKey, marker, nonce }) {
       if ([...new Set(keys)].length !== 1 || keys[0] !== sessionKey) return null;
       const message = eventData.message;
       const runId = messageRunId(message, eventData);
-      const excluded = new Set(excludeRunIds.filter(Boolean));
+      const excluded = runExclusion(excludeRunIds);
+      if (!excluded) return null;
       for (const call of heartbeatRespondCalls(message)) {
         if (!windowOpen || !call.id || !sentinelField(call.args, marker, nonce)) continue;
         if (runId && excluded.has(runId)) continue;

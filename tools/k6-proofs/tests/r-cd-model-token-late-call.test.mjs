@@ -5,8 +5,11 @@
 // bound. A typed continue_delegate call persisted later in the same turn was
 // then never seen, and the delegate it created passed as the bracket form.
 // The world here: hop 1 says its sentinel first, then calls the typed tool;
-// the delegate appears (and the call row is in the transcript) only after the
-// scenario's first hop-1 read. The test imports nothing added with the fix.
+// the call row is persisted (and broadcast to hop-1 subscribers) just before
+// the delegate appears, after the scenario's first hop-1 read. The liveness
+// case: hop 1 (cleanup="delete") is gone once its delegate exists, so a read
+// after hop 1 settles finds nothing; the read before plus hop 1's live rows
+// must cover it. The test imports nothing added with the fix.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -24,19 +27,30 @@ const [PROVIDER, MODEL_ID] = MODEL.split('/');
 const user = (text) => ({ role: 'user', content: [{ type: 'text', text }] });
 const say = (text, runId, extra = {}) => ({ role: 'assistant', content: [{ type: 'text', text }], __openclaw: { runId }, ...extra });
 
-/** world.lateTypedCall: hop 1 calls the typed tool after its sentinel. */
+/**
+ * world.lateTypedCall: hop 1 calls the typed tool after its sentinel.
+ * world.deleteHop1: hop 1's transcript is gone once its delegate exists.
+ */
 function gatewayFor(world) {
   let childTask = null;
   let nonce = null;
   let delegateTask = null;
   let hop1Reads = 0;
+  let hop1Subscribed = false;
+  let delegateListed = false;
+  const lateRows = () => [
+    { role: 'assistant', content: [{ type: 'toolCall', id: 'cd-1', name: 'continue_delegate', arguments: { task: delegateTask, delaySeconds: 1, model: MODEL } }], __openclaw: { runId: 'run-h' } },
+    { role: 'toolResult', toolCallId: 'cd-1', toolName: 'continue_delegate', content: [{ type: 'text', text: JSON.stringify({ status: 'scheduled', mode: 'normal', model: MODEL }) }], __openclaw: { runId: 'run-h' } },
+  ];
   return (frame) => {
     if (frame?.type !== 'req') return [];
     const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: [...ROW_METHODS['R-CD-MODEL-TOKEN']] } });
       case 'sessions.create': return ok({ key: PARENT });
-      case 'sessions.messages.subscribe': return ok({ subscribed: true });
+      case 'sessions.messages.subscribe':
+        if (frame.params?.key === HOP1) hop1Subscribed = true;
+        return ok({ subscribed: true });
       case 'sessions.send': {
         const message = String(frame.params?.message || '');
         childTask = JSON.parse(/task=("(?:[^"\\]|\\.)*")/.exec(message)[1]);
@@ -55,7 +69,15 @@ function gatewayFor(world) {
         if (!childTask) return ok({ sessions: [], hasMore: false });
         if (frame.params?.spawnedBy === PARENT) return ok({ sessions: [{ key: HOP1, spawnedBy: PARENT, status: 'running' }], hasMore: false });
         // The delegate exists only after the scenario has read hop 1 once (the observer reads it first).
-        if (frame.params?.spawnedBy === HOP1) return ok({ sessions: hop1Reads >= 2 ? [{ key: DELEGATE, spawnedBy: HOP1, status: 'done' }] : [], hasMore: false });
+        // A late typed call is persisted, and broadcast to hop-1 subscribers, just before it appears.
+        if (frame.params?.spawnedBy === HOP1) {
+          if (hop1Reads < 2) return ok({ sessions: [], hasMore: false });
+          const live = !delegateListed && world.lateTypedCall && hop1Subscribed
+            ? lateRows().map((message) => ({ type: 'event', event: 'session.message', payload: { sessionKey: HOP1, message, runId: 'run-h' } }))
+            : [];
+          delegateListed = true;
+          return [...live, ...ok({ sessions: [{ key: DELEGATE, spawnedBy: HOP1, status: 'done' }], hasMore: false })];
+        }
         return ok({ sessions: [], hasMore: false });
       }
       case 'sessions.describe':
@@ -63,13 +85,9 @@ function gatewayFor(world) {
       case 'chat.history': {
         if (frame.params?.sessionKey === HOP1) {
           hop1Reads += 1;
+          if (world.deleteHop1 && delegateListed) return [{ type: 'res', id: frame.id, ok: false, error: { code: 'NOT_FOUND', message: 'session not found' } }];
           const rows = [user(`[Subagent Task]\n\n${childTask}`), say(`MODEL-TOKEN-HOP1 ${nonce}`, 'run-h')];
-          if (world.lateTypedCall && hop1Reads >= 3) {
-            rows.push(
-              { role: 'assistant', content: [{ type: 'toolCall', id: 'cd-1', name: 'continue_delegate', arguments: { task: delegateTask, delaySeconds: 1, model: MODEL } }], __openclaw: { runId: 'run-h' } },
-              { role: 'toolResult', toolCallId: 'cd-1', toolName: 'continue_delegate', content: [{ type: 'text', text: JSON.stringify({ status: 'scheduled', mode: 'normal', model: MODEL }) }], __openclaw: { runId: 'run-h' } },
-            );
-          }
+          if (world.lateTypedCall && delegateListed) rows.push(...lateRows());
           return ok({ messages: rows, hasMore: false });
         }
         if (frame.params?.sessionKey === DELEGATE) {
@@ -117,4 +135,16 @@ test('N10 control: the same timing with no typed call still binds the bracket fo
   const { evidence, verdict } = await fire({ lateTypedCall: false });
   assert.equal(evidence.bracket_token_observed, true);
   assert.equal(verdict, 'PASS-candidate');
+});
+
+test('N10 liveness: hop 1 deleted once its delegate exists still binds the bracket form from the covered read', async () => {
+  const { evidence, verdict } = await fire({ lateTypedCall: false, deleteHop1: true });
+  assert.equal(evidence.bracket_token_observed, true);
+  assert.equal(verdict, 'PASS-candidate');
+});
+
+test('N10: a late typed call delivered live is seen even when hop 1 is deleted before any later read', async () => {
+  const { evidence, verdict } = await fire({ lateTypedCall: true, deleteHop1: true });
+  assert.equal(evidence.hop1_typed_continue_delegate, true);
+  assert.notEqual(verdict, 'PASS-candidate');
 });

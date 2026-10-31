@@ -172,6 +172,32 @@ test('R-RC-1 contract: a cause of inventory_only is non-PASS whatever the guard'
   })), false);
 });
 
+// 🌊's call on docs 21f5a3fd (Discord msg 1565883594193240196): the live causes
+// belong to context_unmeasured, so a measured context_threshold that names one
+// contradicts itself; measured numbers must not silently override the cause.
+test('R-RC-1 contract: context_threshold naming a live unmeasured cause is an inconsistent receipt, even below the floor', () => {
+  const below10 = 'Context usage (10%) is below the minimum threshold (70%). Compaction is not needed yet.';
+  for (const cause of ['no_fresh_usage', 'unknown_context_window']) {
+    assert.equal(isLiveContextGuardRejection(rc1Receipt({
+      status: 'rejected', guard: 'context_threshold', contextUsage: 10, threshold: 70, cause, reason: below10,
+    })), false, cause);
+    const verdict = rrc1RejectionVerdict({
+      status: 'rejected', guard: 'context_threshold', cause, contextUsage: 10, threshold: 70, usageFieldsPresent: true, inventoryOnlyWording: false,
+    });
+    assert.equal(verdict.pass, false, cause);
+    assert.match(verdict.reason, /inconsistent receipt/u, cause);
+    assert.match(verdict.reason, new RegExp(cause, 'u'), cause);
+    // On recorded evidence the rule's failure is PARTIAL-candidate, never PASS.
+    const evidence = classifyRrc1Evidence(rrc1PassEvidence({ cause, context_usage: 10 }));
+    assert.equal(evidence.verdict, 'PARTIAL-candidate', cause);
+    assert.match(evidence.reason, /inconsistent receipt/u, cause);
+  }
+  // Control: the same measured rejection with no cause still passes.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_threshold', contextUsage: 10, threshold: 70, reason: below10,
+  })), true);
+});
+
 test('R-RC-1 contract: context_unmeasured naming cause inventory_only is non-PASS without the inventory-only wording', () => {
   // A guard on behaviour 3e2c83c7 already had.
   assert.equal(isLiveContextGuardRejection(rc1Receipt({

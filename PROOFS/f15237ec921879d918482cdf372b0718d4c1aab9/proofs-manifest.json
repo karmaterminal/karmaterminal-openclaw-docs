@@ -615,20 +615,26 @@
       "row": "R-CW-5",
       "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond-scribe-fixture",
-      "state": "pass",
+      "state": "partial",
       "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5/",
       "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-5/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
-      "candidate_verdict": "PASS-candidate",
-      "review_status": "reviewed: frond-scribe, 2026-10-30",
+      "candidate_verdict": "PARTIAL-candidate: the fixture reported PASS-candidate, but the row manifest caps a process-local fixture at PARTIAL-candidate (corrected 2026-10-31)",
+      "review_status": "re-reviewed: frond-scribe, 2026-10-31 (correction; see EVIDENCE.md § Correction)",
       "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "fixture PASS-candidate at exact f15237ec92, all checks true; docs 215235ed (run fixtures-f15237ec-20261030T013026Z)",
-      "notes": "historical at 08c37a1562 (F): pass (diagnostic only; not carried)",
+      "summary": "Correction 2026-10-31: the fixture PASS-candidate at exact f15237ec92 is real and kept (docs 215235ed, run fixtures-f15237ec-20261030T013026Z), but it is a process-local fixture, not an external gateway invocation, and the row's own manifest caps that artifact class at PARTIAL-candidate. The F′ fold recorded row PASS without a superseding authority receipt, so the row is partial.",
+      "notes": "historical at 08c37a1562 (F): pass (diagnostic only; not carried); corrected pass → partial 2026-10-31 (scope/authority, not a behavioural failure)",
       "test_cases_executed": [
         "fixtures-f15237ec-20261030T013026Z"
-      ]
+      ],
+      "correction": {
+        "recorded": "2026-10-31",
+        "from": "pass",
+        "to": "partial",
+        "authority": "🌊 Discord msg 1565925290008387728 + docs#616 review/comment (2026-10-31 03:08Z): F′ over-credited R-CW-5/6 as row PASS; the row manifests cap the process-local fixture at PARTIAL-candidate (verdictAuthority.pass and .partial), and no superseding authority receipt exists. Keep the fixture PASS receipts; correct the row-level verdict explicitly."
+      }
     },
     {
       "row": "R-CW-5A",
@@ -653,20 +659,26 @@
       "row": "R-CW-6",
       "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
       "owner": "frond-scribe-fixture",
-      "state": "pass",
+      "state": "partial",
       "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6/",
       "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-6/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
-      "candidate_verdict": "PASS-candidate",
-      "review_status": "reviewed: frond-scribe, 2026-10-30",
+      "candidate_verdict": "PARTIAL-candidate: the fixture reported PASS-candidate, but the row manifest caps a process-local fixture at PARTIAL-candidate (corrected 2026-10-31)",
+      "review_status": "re-reviewed: frond-scribe, 2026-10-31 (correction; see EVIDENCE.md § Correction)",
       "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "fixture PASS-candidate at exact f15237ec92, all checks true; docs 215235ed (run fixtures-f15237ec-20261030T013026Z)",
-      "notes": "historical at 08c37a1562 (F): pass (diagnostic only; not carried)",
+      "summary": "Correction 2026-10-31: the fixture PASS-candidate at exact f15237ec92 is real and kept (docs 215235ed, run fixtures-f15237ec-20261030T013026Z), but it is a process-local fixture, not an external gateway invocation, and the row's own manifest caps that artifact class at PARTIAL-candidate. The F′ fold recorded row PASS without a superseding authority receipt, so the row is partial.",
+      "notes": "historical at 08c37a1562 (F): pass (diagnostic only; not carried); corrected pass → partial 2026-10-31 (scope/authority, not a behavioural failure)",
       "test_cases_executed": [
         "fixtures-f15237ec-20261030T013026Z"
-      ]
+      ],
+      "correction": {
+        "recorded": "2026-10-31",
+        "from": "pass",
+        "to": "partial",
+        "authority": "🌊 Discord msg 1565925290008387728 + docs#616 review/comment (2026-10-31 03:08Z): F′ over-credited R-CW-5/6 as row PASS; the row manifests cap the process-local fixture at PARTIAL-candidate (verdictAuthority.pass and .partial), and no superseding authority receipt exists. Keep the fixture PASS receipts; correct the row-level verdict explicitly."
+      }
     },
     {
       "row": "R-CW-6A",
@@ -1006,8 +1018,8 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 29,
-    "partial": 3,
+    "pass": 27,
+    "partial": 5,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,

@@ -1,12 +1,16 @@
 /**
  * Scenario: R-CD-3 — post-compaction lifeboat after an accepted request_compaction.
  *
- * In a disposable session:
+ * In a disposable session (sessions.create must answer a key other than the
+ * configured session, else nothing is sent; review F6):
  *   1. Fill: real prior turns of inert filler until the session's measured
  *      usage (fresh totalTokens / contextTokens from sessions.describe, the
  *      inputs request_compaction itself reads) passes the 70% threshold. No
  *      threshold is lowered and no config is touched; a fill that cannot get
- *      there within its turn and token budgets stops with the reason named.
+ *      there within its turn and token budgets, or below the automatic
+ *      compaction line, stops with the reason named. A falling total or a
+ *      changed sessionId on the describe row stops it as a mid-fill
+ *      compaction (review F7).
  *   2. Proof turn: stage continue_delegate(mode="post-compaction") with the
  *      lifeboat task, then call request_compaction.
  *   3. Receipts, all product records the agent cannot author
@@ -42,6 +46,7 @@ import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { gatewayLifecyclePhase, gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
 import { createToolReceiptTracker, eventSessionKey, requesterCallTexts } from '../lib/sentinel-binding.mjs';
 import {
+  COMPACTION_RESERVE_FLOOR_TOKENS,
   COMPACTION_THRESHOLD,
   DEFAULT_FILL_BUDGET_TOKENS,
   DEFAULT_FILL_CEILING,
@@ -106,6 +111,12 @@ function fingerprint(value) {
   return crypto.sha256(String(value), 'hex').slice(0, 16);
 }
 
+/** The configured session, by its own key or as the canonical `agent:<id>:<key>` of a bare one. */
+function isConfiguredSession(key, configured) {
+  if (!configured) return false;
+  return key === configured || (!configured.includes(':') && key.endsWith(`:${configured}`));
+}
+
 export default function () {
   const url = __ENV.OPENCLAW_GATEWAY_WS || 'ws://127.0.0.1:18789';
   const token = __ENV.OPENCLAW_GATEWAY_TOKEN;
@@ -119,6 +130,8 @@ export default function () {
   const fillBudgetTokens = numberEnv('OPENCLAW_RCD3_FILL_BUDGET_TOKENS', DEFAULT_FILL_BUDGET_TOKENS);
   const fillMaxTurns = numberEnv('OPENCLAW_RCD3_FILL_MAX_TURNS', DEFAULT_FILL_MAX_TURNS);
   const fillTurnTimeoutMs = numberEnv('OPENCLAW_RCD3_FILL_TURN_TIMEOUT_MS', 300000);
+  // A seat that configures a compaction reserve above the 20,000 floor declares it here; it only lowers the fill's cap.
+  const compactionReserveTokens = numberEnv('OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS', COMPACTION_RESERVE_FLOOR_TOKENS);
   const socketTimeoutMs = numberEnv('OPENCLAW_RCD3_SOCKET_TIMEOUT_MS', 1080000);
 
   if (!token) {
@@ -153,6 +166,7 @@ export default function () {
     fill_reached: false,
     fill_measured_usage: null,
     fill_context_tokens: null,
+    fill_compaction_reserve_tokens: compactionReserveTokens,
     fill_stop_reason: null,
     // Proof turn and its authoritative receipts.
     proof_dispatched: false,
@@ -209,6 +223,7 @@ export default function () {
     let fillMeasureInFlight = false;
     let fillStartedAt = 0;
     let previousTotal = null;
+    let fillSessionId = null;
     let filledTokens = 0;
     let tokensPerChar = FILL_INITIAL_TOKENS_PER_CHAR;
     const excludedRunIds = [];
@@ -283,6 +298,12 @@ export default function () {
       fillMeasureInFlight = false;
       if (fillEnded) return;
       const m = measuredSessionUsage(row);
+      // Compaction can rotate the session id; the row projects no compaction counter.
+      if (m.sessionId && fillSessionId && m.sessionId !== fillSessionId) {
+        stopFill('the session was compacted during the fill (its sessionId changed on the describe row)');
+        return;
+      }
+      if (m.sessionId) fillSessionId = m.sessionId;
       if (m.measured && previousTotal !== null && m.totalTokens < previousTotal) {
         stopFill(`the session was compacted during the fill (total fell from ${previousTotal} to ${m.totalTokens})`);
         return;
@@ -324,6 +345,7 @@ export default function () {
         target: fillTarget,
         budgetTokens: fillBudgetTokens,
         maxTurns: fillMaxTurns,
+        reserveTokens: compactionReserveTokens,
       });
       console.log(`ℹ R-CD-3 fill ${fillTurn}: measured usage ${(m.usage * 100).toFixed(1)}% of ${m.contextTokens} → ${step.action}`);
       if (step.action === 'done') {
@@ -503,7 +525,9 @@ export default function () {
     function startFlow() {
       if (!createDisposableSession) {
         // The fill and the compaction it unlocks change the session they run in.
-        stopFill('the measured fill runs only in a disposable session (OPENCLAW_CREATE_DISPOSABLE_SESSION=false)');
+        // OPENCLAW_CREATE_DISPOSABLE_SESSIONS (plural, default true) is the switch;
+        // OPENCLAW_CREATE_DISPOSABLE_SESSION=true also enables, but =false alone does not disable (review N11).
+        stopFill('the measured fill runs only in a disposable session (OPENCLAW_CREATE_DISPOSABLE_SESSIONS=false)');
         return;
       }
       send('subscribe', 'sessions.messages.subscribe', { key: sessionKey });
@@ -562,15 +586,24 @@ export default function () {
 
         if (classified.kind === 'response') {
           if (purpose === 'create') {
-            if (classified.ok && classified.payload) {
-              sessionKey = classified.payload.key || sessionKey;
+            // Review F6 (mirrors R-CD-TOKEN): the fill and the proof go only to a created
+            // key distinct from the configured session; anything else sends nothing.
+            const createdKey = classified.ok && typeof classified.payload?.key === 'string' ? classified.payload.key.trim() : '';
+            if (createdKey && !isConfiguredSession(createdKey, requestedSessionKey)) {
+              sessionKey = createdKey;
               evidence.sessionKey = sessionKey;
               evidence.session_created = true;
               evidence.created_session_key = sessionKey;
               console.log(`✓ disposable session created: ${sessionKey}`);
               startFlow();
             } else {
-              console.error(`✗ sessions.create rejected: ${JSON.stringify(classified.error)}`);
+              const reason = !classified.ok
+                ? `sessions.create rejected: ${JSON.stringify(classified.error)}`
+                : !createdKey
+                  ? 'sessions.create answered no session key; the fill would fall back to the configured session'
+                  : `sessions.create answered the configured session ${requestedSessionKey}, not a disposable one`;
+              evidence.fill_stop_reason = reason;
+              console.error(`✗ ${reason}`);
               failures.add(1);
               socket.close();
             }

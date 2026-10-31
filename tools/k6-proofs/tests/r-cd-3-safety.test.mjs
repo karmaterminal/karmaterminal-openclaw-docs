@@ -32,10 +32,15 @@ function quotedAfter(text, key) {
  *   extraProofCalls(task): more requester calls in the proof turn ([{ name, arguments }])
  *   sendRunId(kind, n): the runId a sessions.send answer carries ('fill' | 'proof'); undefined = none
  *   parentReturnRun: the run that reproduces the token (default 'run-wake')
+ *   window, perTurnTokens: the measured context window and the growth per fill turn
+ *   createPayload: the sessions.create answer (default { key: SESSION })
+ *   sessionIdAfterFill(n): the describe row's sessionId after fill n (default none)
+ *   compaction: the request_compaction payload (default accepted)
+ *   sends: an array that receives every sessions.send key
  */
 function gatewayFor(world = {}) {
   const state = { fills: 0, total: 0, proof: null, task: null, nonce: null };
-  const window = 200_000;
+  const window = world.window ?? 200_000;
   const say = (text, extra = {}) => ({ role: 'assistant', content: [{ type: 'text', text }], ...extra });
   const event = (name, payload) => ({ type: 'event', event: name, payload });
   const sessionMessage = (message, runId) => event('session.message', { sessionKey: SESSION, message: { ...message, __openclaw: { runId } }, runId });
@@ -51,7 +56,7 @@ function gatewayFor(world = {}) {
     for (const call of calls) {
       rows.push({ role: 'assistant', content: [{ type: 'toolCall', ...call }], __openclaw: { runId: 'run-proof' } });
       const payload = call.name === 'continue_delegate' ? { status: 'queued-for-compaction', mode: 'post-compaction' }
-        : call.name === 'request_compaction' ? ACCEPTED : { status: 'accepted' };
+        : call.name === 'request_compaction' ? (world.compaction ?? ACCEPTED) : { status: 'accepted' };
       rows.push({ role: 'toolResult', toolCallId: call.id, toolName: call.name, content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }], isError: false, __openclaw: { runId: 'run-proof' } });
     }
     return rows;
@@ -62,13 +67,14 @@ function gatewayFor(world = {}) {
     const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: [...ROW_METHODS['R-CD-3']] } });
-      case 'sessions.create': return ok({ key: SESSION });
+      case 'sessions.create': return ok(world.createPayload ?? { key: SESSION });
       case 'sessions.messages.subscribe': return ok({ subscribed: true });
       case 'sessions.send': {
         const message = String(frame.params?.message || '');
+        if (world.sends) world.sends.push(frame.params?.key);
         if (/context fill \d+/.test(message)) {
           state.fills += 1;
-          state.total += 40_000;
+          state.total += world.perTurnTokens ?? 40_000;
           const runId = runIdFor('fill', state.fills);
           return [...ok(runId === undefined ? { status: 'started' } : { runId }), ...(runId ? [event('agent', { runId, sessionKey: SESSION, stream: 'lifecycle', data: { phase: 'end' } })] : [])];
         }
@@ -79,7 +85,13 @@ function gatewayFor(world = {}) {
         return [...ok(runId === undefined ? { status: 'started' } : { runId }), ...proofRows().map((row) => sessionMessage(row, 'run-proof'))];
       }
       case 'sessions.describe':
-        return ok({ session: { key: SESSION, totalTokens: state.total, totalTokensFresh: state.fills > 0, contextTokens: state.fills > 0 ? window : undefined } });
+        return ok({ session: {
+          key: SESSION,
+          totalTokens: state.total,
+          totalTokensFresh: state.fills > 0,
+          contextTokens: state.fills > 0 ? window : undefined,
+          ...(world.sessionIdAfterFill ? { sessionId: world.sessionIdAfterFill(state.fills) } : {}),
+        } });
       case 'sessions.list':
         return ok({ sessions: state.proof && frame.params?.spawnedBy === SESSION ? [{ key: LIFEBOAT, spawnedBy: SESSION, status: 'done' }] : [], hasMore: false });
       case 'chat.history': {
@@ -155,4 +167,78 @@ test('F5: a fill run whose id is unknown leaves the return unbound', async () =>
   assert.equal(evidence.fill_reached, true);
   assert.notEqual(evidence.parent_return_bound, true);
   assert.notEqual(verdict, 'PASS-candidate');
+});
+
+// F6 sibling: a created key that names the configured session (exactly, or as
+// the canonical form of a bare key) is the live session; nothing is sent.
+test('F6: a sessions.create answer naming the configured session sends nothing', async () => {
+  const sends = [];
+  const { evidence, verdict } = await fire({ createPayload: { key: 'agent:main:main' }, sends });
+  assert.deepEqual(sends, [], 'no fill or proof turn reaches the live session');
+  assert.equal(evidence.proof_dispatched, false);
+  assert.notEqual(verdict, 'PASS-candidate');
+});
+
+test('F6: the canonical key of a bare configured session is the configured session', async () => {
+  const sends = [];
+  await fire({ createPayload: { key: 'agent:main:main' }, sends }, { OPENCLAW_SESSION_KEY: 'main' });
+  assert.deepEqual(sends, []);
+});
+
+// F7 siblings.
+test('F7: a target not reachable below automatic compaction stops before any turn past it', async () => {
+  // 64k window: the line is 48,000 (75%); the 75% target sits on it.
+  const { evidence, verdict } = await fire({ window: 64_000, perTurnTokens: 20_000 });
+  assert.equal(evidence.proof_dispatched, false);
+  assert.match(evidence.fill_stop_reason || '', /context target unreachable below automatic compaction/);
+  assert.notEqual(verdict, 'PASS-candidate');
+});
+
+test('F7: a declared larger compaction reserve lowers the line the fill must stay under', async () => {
+  // 200k window, reserve 50,000: the line is 150,000 (75%).
+  const { evidence } = await fire({}, { OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS: '50000' });
+  assert.equal(evidence.proof_dispatched, false);
+  assert.match(evidence.fill_stop_reason || '', /context target unreachable below automatic compaction/);
+});
+
+test('F7: a sessionId that changes on the describe row mid-fill stops the fill', async () => {
+  // The total keeps growing (a preflight compaction can leave a larger total); only the id moves.
+  const { evidence, verdict } = await fire({ sessionIdAfterFill: (n) => (n >= 2 ? 'session-after-compaction' : 'session-before') });
+  assert.equal(evidence.proof_dispatched, false);
+  assert.match(evidence.fill_stop_reason || '', /compacted during the fill/);
+  assert.notEqual(verdict, 'PASS-candidate');
+});
+
+test('F7 control: a steady sessionId does not stop the fill', async () => {
+  const { verdict } = await fire({ sessionIdAfterFill: () => 'session-steady' });
+  assert.equal(verdict, 'PASS-candidate');
+});
+
+// N2: request_compaction rounds a raw 69.5-69.99% to 70 against threshold 70.
+test('N2: a rejection reported at contextUsage 70, threshold 70 is a measured below-threshold rejection', async () => {
+  const { evidence, verdict } = await fire({ compaction: { status: 'rejected', guard: 'context_threshold', contextUsage: 70, threshold: 70, reason: 'Context usage (70%) is below the minimum threshold (70%). Compaction is not needed yet.' } });
+  assert.equal(evidence.compaction_outcome_kind, 'threshold_rejected_measured');
+  assert.equal(verdict, 'PARTIAL-candidate');
+  assert.match(evidence.verdict_reason, /measured below-threshold rejection/);
+});
+
+test('N2 control: a usage reported above the threshold on a threshold rejection stays inconsistent', async () => {
+  const { evidence, verdict } = await fire({ compaction: { status: 'rejected', guard: 'context_threshold', contextUsage: 71, threshold: 70, reason: 'x' } });
+  assert.equal(evidence.compaction_outcome_kind, 'invalid');
+  assert.equal(verdict, 'PARTIAL-candidate');
+});
+
+// N11: the plural variable is the switch; the singular one set to false alone does not disable.
+test('N11: the refusal names OPENCLAW_CREATE_DISPOSABLE_SESSIONS, the variable that disables the disposable session', async () => {
+  const sends = [];
+  const { evidence } = await fire({ sends }, { OPENCLAW_CREATE_DISPOSABLE_SESSIONS: 'false' });
+  assert.deepEqual(sends, []);
+  assert.match(evidence.fill_stop_reason, /OPENCLAW_CREATE_DISPOSABLE_SESSIONS=false/);
+});
+
+test('N11 control: OPENCLAW_CREATE_DISPOSABLE_SESSION=false alone still runs in a created disposable session', async () => {
+  const sends = [];
+  const { evidence } = await fire({ sends }, { OPENCLAW_CREATE_DISPOSABLE_SESSION: 'false' });
+  assert.equal(evidence.session_created, true);
+  assert.ok(sends.length > 0 && sends.every((key) => key === SESSION));
 });

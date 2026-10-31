@@ -48,7 +48,7 @@ const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 // The exact production template. The nonce shape is the one lib/gateway-ws.js
 // generates: `<rowId>-<epoch ms>-<base36 tail>`.
-const REASON_TEMPLATE = 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}';
+const REASON_TEMPLATE = 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}';
 const ROW_NONCE = 'R-CW-3-1793061873594-ab12cd34';
 const RAW_REASON = REASON_TEMPLATE.replaceAll('{{nonce}}', ROW_NONCE);
 const REASON_HASH = sha256(RAW_REASON).slice(0, 16);

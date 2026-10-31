@@ -19,7 +19,8 @@
     "methods": [
       "sessions.create",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cw-1-tool-schedule-wake.js"
@@ -27,7 +28,7 @@
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 5,
-    "reason": "k6-proof-R-CW-1-{{nonce}} -- on continuation wake reply exactly CW-WOKE {{nonce}}",
+    "reason": "k6-proof-R-CW-1-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-1"
   },
   "expectedReceipts": [
@@ -72,7 +73,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit."
+    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit. Expected PARTIAL cause (harness review N7, openclaw-bootstrap#1727): when the wake matures while another run is active in the session, the product folds it into that run as a [system:continuation-note] (src/auto-reply/continuation/work-dispatch.ts:614-640, work-dispatch-execution.ts:234-235) and writes no [continuation:wake] row; the transcript chain then fails closed with chain_reason naming the missing wake. Run in an idle or disposable session."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",

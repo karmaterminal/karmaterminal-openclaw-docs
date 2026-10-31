@@ -715,7 +715,10 @@ test('R-CW-6 manifest and method fail closed instead of patching a shared gatewa
   ]);
   assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
   assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, false);
-  assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
+  // The fixture's PASS-candidate is behavioral; the row is capped at
+  // PARTIAL-candidate (verdictCap; 🌊's ruling on docs#616).
+  assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PARTIAL-candidate');
+  assert.equal(manifest.verdictCap.rowCap, 'PARTIAL-candidate');
   assert.ok(manifest.liveRunSafety.requiredReceipts.includes('public-artifact-safety'));
   assert.match(methodDoc, /does not patch or restart a gateway/);
   assert.match(methodDoc, /manual-only\s+component fixture/);

@@ -120,9 +120,31 @@ Every scenario keeps these properties; the gateway and nonce rules are for live 
   `{ type: "res", id, payload?, error? }`, not `{ result }`.
 - **Redacted.** Store event payloads only through `redactEvent()`; the post-processor refuses
   evidence that carries raw `events` without `redacted_events`.
-- **Nonce per fire (live rows).** A fresh `nonce()` and idempotency key for every fire. Where the
-  row prompts an agent, ignore harness prompt echoes, so a sentinel only counts when the agent
-  produced it.
+- **Nonce per fire (live rows).** A fresh `nonce()` and idempotency key for every fire.
+- **Receipts the agent cannot author (live rows).** Never credit a sentinel found anywhere in a
+  subscribed event. The subscriber sees the agent's own tool-call arguments, thinking, a session
+  snapshot on every message and, unscoped, every session's `chat`/`agent` events. A delegate task
+  comes back in the return's `task:` line and a `continue_work` reason in the wake input. Skipping
+  `[k6-proof-harness]` events is not enough.
+
+  Bind instead to one of these:
+  - a toolResult paired to its call by `toolCallId`;
+  - an assistant row's text parts in the expected session, from a run other than the dispatch run;
+  - the hop's own transcript, bound by spawnedBy and its own spawn task;
+  - a product prefix such as `[continuation:wake]`;
+  - a token the child mints and the parent reproduces.
+
+  Keep sentinels out of the tasks and reasons the agent sends. Use
+  `tools/k6-proofs/lib/sentinel-binding.mjs` and `tools/k6-proofs/lib/continue-work-chain.mjs`.
+  `tools/k6-proofs/AUDIT-sentinel-echo-20261030.md` records why: R-CD-3 credited a "return" from
+  its own `continue_delegate` call. Its review section adds three rules:
+  - Match a toolCall by the tool it invoked, never by its raw name alone. With Tool Search on, a
+    typed call is recorded as `dispatch_action` with the tool in `arguments.id`;
+    `tools/k6-proofs/lib/tool-call-identity.mjs` unwraps it.
+  - A minted token must also be absent from the requester's own call arguments and from the
+    child's spawn task, so read the child's transcript from its start.
+  - An exclusion list with a missing run id binds nothing. Do not drop an unknown dispatch,
+    priming or fill run from the list.
 - **Single VU, serialized.** `shared-iterations` with one VU and one iteration, a `maxDuration`,
   and, over WebSocket, a socket timeout that closes the connection.
 - **Metrics.** A `proof_failures` Counter with threshold `count==0`, plus a duration Trend named
@@ -231,7 +253,24 @@ fixtures, not live fleet mutation:
    selected delegate-boundary, and public-artifact-safety receipts. Publish
    only the artifact dir: R-CW-6 keeps a failed surface's raw output in
    `<artifact-dir>.private`, which never goes into the corpus.
-3. Keep the result review-required; never infer a gateway claim or automatic
+3. Run the row's required preflight (`requiredPreflights`: R-CW-5A for R-CW-5,
+   R-CW-6A for R-CW-6) at the same exact candidate through
+   `tools/k6-proofs/scenarios/static-corpus-row-validator.js`. It reads
+   `PROOFS/<candidate>/`, never the INDEX `static_evidence_sha`, and writes
+   `required-preflight-receipt.json`. Then grade the fixture result with
+   `tools/k6-proofs/scripts/grade-preflight-gated-row.mjs`: the row verdict is the
+   minimum of the fixture's verdict, the manifest's `verdictCap` and the
+   preflight cap. R-CW-5/6 declare `verdictCap.rowCap` `PARTIAL-candidate` while
+   their only producer is process-local, so the preflight is necessary, not
+   sufficient: a missing, failed or other-SHA preflight caps the row at
+   `PARTIAL-candidate`, and a passing one leaves it there. Lifting the cap needs
+   a superseding authority receipt from a different artifact class, adopted by an
+   explicit method change (rules in `tools/k6-proofs/lib/row-verdict-cap.mjs`).
+   In an F″ corpus,
+   R-CW-5A/6A go in the manifest's `preflight_attachments`, never in `rows[]` or
+   `required_rows` (🌊's F″ method ruling; rules in
+   `tools/k6-proofs/lib/required-preflight.mjs`).
+4. Keep the result review-required; never infer a gateway claim or automatic
    corpus fold from the component fixture.
 
 Only a future row whose manifest and runbook explicitly authorize live config

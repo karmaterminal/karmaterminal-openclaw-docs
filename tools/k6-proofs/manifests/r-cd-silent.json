@@ -39,12 +39,12 @@
     {
       "name": "delegate-scheduled-sentinel",
       "required": true,
-      "description": "Parent emitted RCDS-SCHEDULED only after continue_delegate returned a scheduled result."
+      "description": "The continue_delegate toolResult bound by toolCallId to the nonce-bound call reports scheduled, and RCDS-SCHEDULED is in the parent's own assistant text."
     },
     {
       "name": "child-completion-observed",
       "required": true,
-      "description": "The silent delegate child completed on the internal subagent stream before the follow-up turn was sent."
+      "description": "The silent delegate child's own chat final (its session, spawnedBy the parent) carries SILENTCHILD <nonce> TOKEN <12 chars>, a token it minted and no harness text carries, before the follow-up turn was sent."
     },
     {
       "name": "followup-accepted",
@@ -54,12 +54,12 @@
     {
       "name": "parent-internal-context-observed",
       "required": true,
-      "description": "Parent follow-up reported the child-only SILENTCHILD token that was not included in the follow-up prompt."
+      "description": "A parent run other than the dispatch run reproduced RCDS-PARENT-OBSERVED <nonce> TOKEN <the child-minted token>. The parent can know the token only from the delivered silent return (openclaw-bootstrap#1727: the old harness-written token rode the parent's own call)."
     },
     {
       "name": "no-channel-delivery",
       "required": true,
-      "description": "No channel-delivery event contained the child-only silent delegate token."
+      "description": "No channel-delivery event contained the child's minted SILENTCHILD report."
     },
     {
       "name": "trace-id",

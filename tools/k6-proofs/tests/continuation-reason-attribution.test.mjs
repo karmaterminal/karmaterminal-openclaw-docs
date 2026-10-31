@@ -70,7 +70,13 @@ async function readManifest(file) {
   return JSON.parse(await readFile(manifestPath(file), 'utf8'));
 }
 
+// R-CD-3 fills its disposable session with measured prior turns before the
+// proof turn (#1727): each fill turn ends (lifecycle end) and raises the fresh
+// total that sessions.describe reports, until usage passes the threshold.
+const FILL_TURN = / context fill \d+ for nonce /u;
+
 function gatewayFor(row) {
+  const fill = { turns: 0, total: 0 };
   return (frame) => {
     if (frame?.type !== 'req') return [];
     const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
@@ -82,13 +88,22 @@ function gatewayFor(row) {
       case 'sessions.messages.subscribe':
         return ok({ subscribed: true, key: frame.params?.key });
       case 'sessions.send':
+        if (FILL_TURN.test(String(frame.params?.message || ''))) {
+          fill.turns += 1;
+          fill.total += 80000;
+          const runId = `run-${row.toLowerCase()}-fill-${fill.turns}`;
+          return [
+            ...ok({ runId, traceId: null }),
+            { type: 'event', event: 'agent', payload: { runId, stream: 'lifecycle', data: { phase: 'end', aborted: false } } },
+          ];
+        }
         return ok({ runId: `run-${row.toLowerCase()}`, traceId: null });
       case 'sessions.list':
         return ok({ sessions: [] });
       case 'chat.history':
         return ok({ messages: [] });
       case 'sessions.describe':
-        return ok({ session: null });
+        return ok({ session: fill.turns > 0 ? { totalTokens: fill.total, totalTokensFresh: true, contextTokens: 200000 } : null });
       default:
         return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `unknown method: ${frame.method}` } }];
     }
@@ -115,7 +130,7 @@ async function fireScenario({ row, scenario, manifest, env = {} }) {
   assert.equal(records.length, 1, `expected one evidence record in the ${row} scenario log:\n${log}`);
   const [privateEvidence] = records;
   const { sanitized: [publicEvidence] } = sanitizeEvidenceRecords(records);
-  const dispatches = frames.filter((frame) => frame.method === 'sessions.send');
+  const dispatches = frames.filter((frame) => frame.method === 'sessions.send' && !FILL_TURN.test(String(frame.params?.message || '')));
   assert.ok(dispatches.length >= 1, `${row} dispatched its proof instruction`);
   return { privateEvidence, publicEvidence, dispatch: dispatches[0].params.message };
 }
@@ -297,10 +312,11 @@ test('R-CD-SILENT: a typed silent delegate is attributed by the task it dispatch
   const row = 'R-CD-SILENT';
   const manifest = 'r-cd-silent.json';
   const { privateEvidence, publicEvidence, dispatch } = await fireScenario({ row, scenario: 'r-cd-silent.js', manifest });
-  // The task embeds a child token with a random suffix: no manifest field can
-  // rebuild it, so only the scenario knows the dispatched fingerprint.
+  // The task is scenario-owned: no manifest field renders it, so only the
+  // scenario knows the dispatched fingerprint.
   const reason = typedReason(dispatch);
-  assert.match(reason, /return exactly SILENTCHILD-/u);
+  // The child mints its own token; no harness-written token rides the task (#1727).
+  assert.match(reason, /return exactly SILENTCHILD R-CD-SILENT-\d+-[a-z0-9]+ TOKEN <your token>\./u);
   const trace = traceOf(delegateHop({ reason, mode: 'silent', delayMs: 1000, originNs: ORIGIN_NS, typedOrigin: true, ids: ROOT_HOP_IDS }));
   const collected = await collect({ manifest, evidence: privateEvidence, trace });
   assertAttributed(collected, { reason, mode: 'silent', originSurface: 'typed-tool', privateEvidence });
@@ -427,7 +443,9 @@ test('R-CW-2: an immediate continue_work wake is attributed by the reason it dis
   const manifest = 'r-cw-2.json';
   const { privateEvidence, dispatch } = await fireScenario({ row, scenario: 'r-cw-2-immediate-wake.js', manifest });
   const reason = typedReason(dispatch, 'reason', 1024);
-  assert.match(reason, /-- on continuation wake reply exactly CW2-WOKE /u);
+  // The reason carries the nonce, not the wake sentinel: the wake input quotes it (#1727).
+  assert.match(reason, /^k6-proof-R-CW-2-immediate-R-CW-2-\d+-[a-z0-9]+$/u);
+  assert.doesNotMatch(reason, /CW2-WOKE/u);
   // delaySeconds=0: the work span is emitted at election, the fire span when
   // the parked work runs after the electing turn ends.
   const continuation = [...reasonAttrs(reason), attr('chain.id', chainId), attr('delay.ms', 0)];

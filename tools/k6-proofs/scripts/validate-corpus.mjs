@@ -33,11 +33,71 @@
  * directory checks still cover every row. Manifests without `required_rows`
  * keep exactly the old checks, plus one that fails only if they carry a
  * supplemental marker (supplemental-requires-required-rows).
+ *
+ * Required preflight attachments (🌊's F″ method ruling, Discord
+ * 1565895695586558120): R-CW-5A/6A are not proof rows of a corpus folded after
+ * the ruling but required preflights of R-CW-5/6, as the row manifests'
+ * `requiredPreflights` declare. Such a corpus records them in
+ * `preflight_attachments` ([{ attachment, attached_to, state, candidate_sha, dir,
+ * receipt, … }]), never in a row set, so the required tally and rollup leave them
+ * out. The corpora folded before the ruling are frozen by name in
+ * pre-f2-ruling-corpora.json (every manifest-bearing PROOFS dir at docs f17d784d,
+ * F′ included) and keep exactly the checks above. Every other corpus that
+ * declares `preflight_attachments`, carries a gated live row, or carries a
+ * preflight row gets two checks: `preflight-attachments-valid` (no preflight is a
+ * row; each record names a catalog preflight of a row of this corpus, its receipt
+ * lies under PROOFS/<sha>/<attachment>/, and its declared state agrees with the
+ * receipt judged at this corpus's SHA) and `live-rows-gated-by-preflights` (a gated
+ * live row, its id compared canonically and required to be spelled canonically,
+ * is not `pass` unless every required preflight's receipt passed at this SHA).
+ * A passing preflight is necessary, not sufficient.
+ *
+ * Declared row caps (🌊's ruling on docs#616, Discord 1565925290008387728): a row
+ * manifest may declare `verdictCap` (lib/row-verdict-cap.mjs), and a process-local
+ * row must; R-CW-5/6 declare PARTIAL-candidate. Every corpus not frozen in
+ * pre-f2-ruling-corpora.json that carries such a row, its id compared
+ * canonically, gets `rows-within-declared-cap`: the row is not recorded above its
+ * cap (state `pass`), whatever its preflights say. Lifting a cap needs a
+ * superseding authority receipt from a different artifact class, adopted by an
+ * explicit method change; none is adopted, so a `superseding_authority` on the
+ * row does not lift it either. A row is bound to a capped row by its id, any
+ * segment of its normalized `dir`, or its `manifest`, so an alias (`R-CW-05` in
+ * R-CW-5's directory, or a row filed under it) is refused and capped. A row that
+ * names none of them (`R-CW-05` in its own directory, no `manifest`) is outside
+ * this check: a corpus naming only catalog rows is the seed method's to require. A state that is not a known state at or below the cap (a
+ * typo, `passed`) fails too. If the catalog's cap declarations cannot be trusted,
+ * every corpus that is not exempt gets the check, failed.
+ *
+ * The pre-ruling corpora are exempt by the same list (52 of the 71 record
+ * R-CW-5/6 `pass`; F′ was corrected to partial on docs main 7e544c04), but only
+ * for capped rows that still record what they recorded at the cap ruling:
+ * pre-cap-ruling-capped-row-states.json pins each frozen corpus's R-CW-5/6 states
+ * at 7e544c04. A capped row in a frozen-named corpus that is new, changed (F′'s
+ * correction reverted) or an alias is held to its cap; the corpus keeps its
+ * pre-ruling method for every other check. A new fold in a frozen directory is
+ * held to the cap unless its capped rows record exactly the pinned states: in the
+ * 52 frozen corpora pinned at pass, the validator cannot tell such a re-fold from
+ * the historical record.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, posix, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { consumeRcd2Authority } from '../lib/r-cd-2-authority-context.mjs';
+import {
+  canonicalRowId,
+  catalogPreflightFailures,
+  evaluateRequiredPreflight,
+  preflightCatalog,
+} from '../lib/required-preflight.mjs';
+import {
+  canonicalCorpusState,
+  catalogVerdictCapFailures,
+  corpusStateAboveCap,
+  corpusStateWithinCap,
+  ROW_CAP_NOTE,
+  verdictCapCatalog,
+} from '../lib/row-verdict-cap.mjs';
 
 const STALE_TOKENS = [
   'pending_push',
@@ -49,6 +109,22 @@ const STALE_TOKENS = [
 
 const ROLLUP_KEYS = ['total_rows', 'pass', 'partial', 'thin', 'fail', 'honest_limit', 'missing'];
 const STATE_KEYS = ['pass', 'partial', 'thin', 'fail', 'honest_limit', 'missing'];
+
+// The row-manifest catalog that declares which live rows require which
+// preflights, and which rows are capped. It is the harness's own catalog, next to
+// this script, so a corpus under --root is judged by the method this checkout
+// carries.
+const PREFLIGHT_CATALOG_DIR = fileURLToPath(new URL('../manifests/', import.meta.url));
+const ATTACHMENT_STATES = ['pass', 'fail', 'missing'];
+const PREFLIGHT_CAP_NOTE = 'a live row without a passing same-candidate preflight is capped at partial';
+// The corpora folded before the ruling, frozen by name; see the header.
+const PRE_RULING_CORPORA_FILE = fileURLToPath(new URL('./pre-f2-ruling-corpora.json', import.meta.url));
+// Their capped rows' states at the cap ruling; see the header.
+const PRE_CAP_RULING_PINS_FILE = fileURLToPath(new URL('./pre-cap-ruling-capped-row-states.json', import.meta.url));
+// A corpus folded after the ruling spells every row id in plain ASCII. Canonical
+// comparison catches the common variants, but no denylist can catch every
+// invisible character or look-alike letter, so anything else is refused.
+const PLAIN_ROW_ID = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/;
 
 function parseArgs(argv) {
   const out = { _: [] };
@@ -253,7 +329,15 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
 
   const onDiskRowDirs = listSubdirs(shaDir) || [];
   const supportDirs = new Set(['artifacts', 'gates']);
+  // A declared preflight attachment's directory is referenced too; its own
+  // check (preflight-attachments-valid) judges what is in it.
+  const attachmentDirs = new Set(
+    (Array.isArray(manifest.preflight_attachments) ? manifest.preflight_attachments : [])
+      .filter((entry) => typeof entry?.dir === 'string')
+      .map((entry) => entry.dir.replace(/\/+$/, '')),
+  );
   const ignoredSupportDirs = [];
+  const referencedAttachmentDirs = [];
   const orphanDirs = [];
   for (const sub of onDiskRowDirs) {
     if (supportDirs.has(sub) || sub.startsWith('_')) {
@@ -261,16 +345,19 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
       continue;
     }
     const candidate = join('PROOFS', sha, sub);
-    if (!declaredDirs.has(candidate)) {
-      orphanDirs.push(`PROOFS/${sha}/${sub}/`);
-    }
+    if (declaredDirs.has(candidate)) continue;
+    if (attachmentDirs.has(candidate)) referencedAttachmentDirs.push(`PROOFS/${sha}/${sub}/`);
+    else orphanDirs.push(`PROOFS/${sha}/${sub}/`);
   }
+  const rowDirCount = onDiskRowDirs.length - ignoredSupportDirs.length - referencedAttachmentDirs.length;
   pushCheck(
     report,
     'no-orphan-row-dirs',
     orphanDirs.length === 0,
     orphanDirs.length === 0
-      ? `${onDiskRowDirs.length - ignoredSupportDirs.length} on-disk row dirs all referenced; ignored support dirs: ${ignoredSupportDirs.length ? ignoredSupportDirs.join(', ') : 'none'}`
+      ? `${rowDirCount} on-disk row dirs all referenced; ` +
+          `${referencedAttachmentDirs.length ? `preflight attachment dirs: ${referencedAttachmentDirs.join(', ')}; ` : ''}` +
+          `ignored support dirs: ${ignoredSupportDirs.length ? ignoredSupportDirs.join(', ') : 'none'}`
       : `orphans: ${orphanDirs.join(', ')}`,
   );
 
@@ -358,7 +445,390 @@ function validateSha(root, sha, { manifestRequired = true } = {}) {
     }
   }
 
+  validatePreflightAttachments(report, root, sha, manifest);
+  validateDeclaredCaps(report, sha, manifest);
+
   return report;
+}
+
+let preflightCatalogCache;
+
+/**
+ * The catalog's preflight and cap indexes, plus every reason each cannot be
+ * trusted: `errors` for the preflight index, `capErrors` for the cap index.
+ */
+function loadPreflightCatalog() {
+  if (preflightCatalogCache) return preflightCatalogCache;
+  const entries = [];
+  const readErrors = [];
+  let files = [];
+  try {
+    files = readdirSync(PREFLIGHT_CATALOG_DIR).filter((name) => name.endsWith('.json')).sort();
+  } catch (err) {
+    readErrors.push(`manifest catalog unreadable: ${err.message}`);
+  }
+  for (const file of files) {
+    try {
+      entries.push({ file, manifest: JSON.parse(readFileSync(join(PREFLIGHT_CATALOG_DIR, file), 'utf8')) });
+    } catch (err) {
+      readErrors.push(`${file}: ${err.message}`);
+    }
+  }
+  if (!readErrors.length && entries.length === 0) readErrors.push('manifest catalog is empty');
+  // Canonical ids, so a corpus row spelled another way still finds its cap.
+  const capsByRow = new Map([...verdictCapCatalog(entries)].map(([rowId, cap]) => [canonicalRowId(rowId), cap]));
+  // By manifest basename, so a corpus row's `manifest` binds it to its cap too.
+  const cappedRowByFile = new Map([...capsByRow].map(([rowId, cap]) => [cap.file, rowId]));
+  preflightCatalogCache = {
+    ...preflightCatalog(entries),
+    errors: [...readErrors, ...catalogPreflightFailures(entries)],
+    capsByRow,
+    cappedRowByFile,
+    capErrors: [...readErrors, ...catalogVerdictCapFailures(entries)],
+  };
+  return preflightCatalogCache;
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function listIds(ids) {
+  return ids.length <= 2 ? ids.join(' and ') : `${ids.slice(0, -1).join(', ')} and ${ids.at(-1)}`;
+}
+
+/** A receipt path is a plain relative file path under the attachment's own directory. */
+function receiptPathIsUnder(path, dir) {
+  if (typeof path !== 'string' || !path.startsWith(dir) || path.length <= dir.length) return false;
+  return path.split('/').every((segment) => segment && segment !== '.' && segment !== '..');
+}
+
+/**
+ * Judge one attachment's receipt at this corpus's SHA. The receipt is read from
+ * disk and re-judged; a record's declared state is never taken on its word.
+ */
+function judgeAttachmentReceipt(root, sha, entry, requirement, liveRowId) {
+  const dir = `PROOFS/${sha}/${entry.attachment}/`;
+  if (!hasOwn(entry, 'receipt')) return { status: 'missing', reasons: ['no receipt declared'] };
+  if (!receiptPathIsUnder(entry.receipt, dir)) {
+    return { status: 'invalid', reasons: [`receipt ${entry.receipt} is not a file under ${dir}`], location: true };
+  }
+  const file = join(root, entry.receipt);
+  if (!existsSync(file) || !statSync(file).isFile()) return { status: 'missing', reasons: [`${entry.receipt} not found`] };
+  let receipt;
+  try {
+    receipt = JSON.parse(readFileSync(file, 'utf8'));
+  } catch (err) {
+    return { status: 'invalid', reasons: [`receipt is not JSON (${err.message})`] };
+  }
+  return evaluateRequiredPreflight({ requirement, liveRowId, candidateSha: sha, receipt });
+}
+
+let preRulingCache;
+
+/** The frozen pre-ruling corpus names. Unreadable, it is empty: every corpus is held to the ruling. */
+function loadPreRulingCorpora() {
+  if (preRulingCache) return preRulingCache;
+  try {
+    const parsed = JSON.parse(readFileSync(PRE_RULING_CORPORA_FILE, 'utf8'));
+    if (!Array.isArray(parsed?.corpora) || parsed.corpora.some((name) => typeof name !== 'string')) {
+      throw new Error('corpora is not a list of PROOFS directory names');
+    }
+    preRulingCache = { corpora: new Set(parsed.corpora), error: null };
+  } catch (err) {
+    preRulingCache = { corpora: new Set(), error: `the pre-ruling corpus list is unreadable (${err.message})` };
+  }
+  return preRulingCache;
+}
+
+let capPinsCache;
+
+/** A recorded state as the pins compare it: exactly as written, null for none. */
+function pinnedState(state) {
+  return JSON.stringify(state === undefined ? null : state);
+}
+
+/**
+ * The frozen corpora's capped-row states at the cap ruling, as
+ * `Map<sha, Map<rowId, string[]>>` of pinnedState values. Unreadable, it pins
+ * nothing, so no frozen capped row is exempt.
+ */
+function loadCapPins() {
+  if (capPinsCache) return capPinsCache;
+  try {
+    const parsed = JSON.parse(readFileSync(PRE_CAP_RULING_PINS_FILE, 'utf8'));
+    const corpora = isPlainObject(parsed?.corpora) ? Object.entries(parsed.corpora) : [];
+    const wellFormed = corpora.every(([, rows]) => isPlainObject(rows) && Object.values(rows).every((states) => Array.isArray(states) && states.length > 0));
+    if (parsed?.schema !== 'openclaw.k6.pre-cap-ruling-capped-row-states.v1' || !corpora.length || !wellFormed) {
+      throw new Error('corpora is not a map of PROOFS directory names to capped-row state lists');
+    }
+    const pins = new Map(corpora.map(([sha, rows]) => [sha, new Map(Object.entries(rows).map(([rowId, states]) => [rowId, states.map(pinnedState)]))]));
+    capPinsCache = { pins, error: null };
+  } catch (err) {
+    capPinsCache = { pins: new Map(), error: `the pre-cap-ruling capped-row states are unreadable (${err.message})` };
+  }
+  return capPinsCache;
+}
+
+/**
+ * The F″ required-preflight checks (see the header). A pre-ruling corpus, or one
+ * with no gated live row, no preflight row and no preflight_attachments, gets no
+ * check, so F′ and every older corpus keep exactly their previous report.
+ */
+function validatePreflightAttachments(report, root, sha, manifest) {
+  const preRuling = loadPreRulingCorpora();
+  if (preRuling.corpora.has(sha)) return;
+  const catalog = loadPreflightCatalog();
+  const declared = hasOwn(manifest, 'preflight_attachments');
+  const short = sha.slice(0, 10);
+
+  // Every row set the manifest declares, compared canonically, so a preflight
+  // or a gated row spelled another way is still found.
+  const rowSets = [
+    ['rows[]', manifest.rows.map((row) => row?.row)],
+    ['required_rows', stringIds(manifest.required_rows)],
+    ['dispatch_allocation.supplemental', isPlainObject(manifest.dispatch_allocation) ? stringIds(manifest.dispatch_allocation.supplemental) : []],
+    ['supplemental_rows', stringIds(manifest.supplemental_rows)],
+  ];
+  const preflightRows = new Map();
+  for (const [label, ids] of rowSets) {
+    for (const raw of ids) {
+      const id = canonicalRowId(raw);
+      if (!catalog.liveRowByPreflight.has(id)) continue;
+      const found = preflightRows.get(id) || { sets: [], spellings: [] };
+      if (!found.sets.includes(label)) found.sets.push(label);
+      if (raw !== id && !found.spellings.includes(raw)) found.spellings.push(raw);
+      preflightRows.set(id, found);
+    }
+  }
+  const gatedRows = manifest.rows
+    .map((row) => ({ row, id: canonicalRowId(row?.row) }))
+    .filter(({ id }) => catalog.requirementsByLiveRow.has(id));
+  const liveRowIds = new Set(gatedRows.map(({ id }) => id));
+  // Ids that are not plain ASCII and that canonical comparison did not already
+  // tie to a gated or preflight row, which are reported on their own.
+  const oddIds = [];
+  for (const [, ids] of rowSets) {
+    for (const raw of ids) {
+      if (typeof raw === 'string' && PLAIN_ROW_ID.test(raw)) continue;
+      const id = canonicalRowId(raw);
+      if (catalog.requirementsByLiveRow.has(id) || catalog.liveRowByPreflight.has(id)) continue;
+      if (!oddIds.includes(raw)) oddIds.push(raw);
+    }
+  }
+  if (!declared && gatedRows.length === 0 && preflightRows.size === 0 && oddIds.length === 0) return;
+
+  const problems = [];
+  if (preRuling.error) problems.push(preRuling.error);
+  if (catalog.errors.length) problems.push(`the preflight catalog is inconsistent: ${catalog.errors.join('; ')}`);
+  for (const [id, { sets, spellings }] of preflightRows) {
+    problems.push(
+      `${id} is a retired preflight attachment and cannot be a row of a corpus folded after the F″ ruling ` +
+        `(in ${sets.join(', ')}${spellings.length ? `; spelled ${spellings.map(showId).join(', ')}` : ''})`,
+    );
+  }
+
+  const records = new Map();
+  if (declared) {
+    if (!hasOwn(manifest, 'required_rows')) {
+      problems.push('preflight_attachments requires required_rows (the tally its attachments are retired from)');
+    }
+    const list = manifest.preflight_attachments;
+    if (!Array.isArray(list)) problems.push('preflight_attachments is not an array');
+    for (const [index, entry] of (Array.isArray(list) ? list : []).entries()) {
+      if (!isPlainObject(entry) || typeof entry.attachment !== 'string' || !entry.attachment) {
+        problems.push(`preflight_attachments[${index}] has no attachment id`);
+        continue;
+      }
+      const id = entry.attachment;
+      const canonical = canonicalRowId(id);
+      if (id !== canonical && catalog.liveRowByPreflight.has(canonical)) {
+        problems.push(`attachment id ${showId(id)} must be spelled ${canonical}`);
+        continue;
+      }
+      if (records.has(id)) {
+        problems.push(`${id} is listed twice`);
+        continue;
+      }
+      const live = catalog.liveRowByPreflight.get(id);
+      if (!live) {
+        problems.push(`${id} is not a required preflight of any catalog row`);
+        continue;
+      }
+      if (entry.attached_to !== live) problems.push(`${id} is attached to ${entry.attached_to}, but the catalog attaches it to ${live}`);
+      if (!liveRowIds.has(live)) problems.push(`${id} is attached to ${live}, which is not a row of this corpus`);
+      const requirement = catalog.requirementsByLiveRow.get(live).find((candidate) => candidate.rowId === id);
+      if (hasOwn(entry, 'manifest') && entry.manifest !== requirement.manifestPath) {
+        problems.push(`${id} manifest ${entry.manifest} is not ${requirement.manifestPath}`);
+      }
+      if (!ATTACHMENT_STATES.includes(entry.state)) {
+        problems.push(`${id} state ${showId(entry.state)} is not one of ${ATTACHMENT_STATES.join(', ')}`);
+      }
+      if (entry.candidate_sha !== sha) problems.push(`${id} candidate_sha ${entry.candidate_sha} is not this corpus (${sha})`);
+      const dir = `PROOFS/${sha}/${id}/`;
+      if (hasOwn(entry, 'dir')) {
+        const fullDir = typeof entry.dir === 'string' ? join(root, entry.dir) : null;
+        if (entry.dir !== dir || !fullDir || !existsSync(fullDir) || !statSync(fullDir).isDirectory()) {
+          problems.push(`${id} dir ${entry.dir} is not ${dir} on disk`);
+        }
+      }
+      if (hasOwn(entry, 'evidence_doc') && (typeof entry.evidence_doc !== 'string' || !existsSync(join(root, entry.evidence_doc)))) {
+        problems.push(`${id} evidence_doc ${entry.evidence_doc} does not exist`);
+      }
+      const judged = judgeAttachmentReceipt(root, sha, entry, requirement, live);
+      if (judged.location) problems.push(`${id} ${judged.reasons[0]}`);
+      else if (entry.state === 'pass' && judged.status !== 'passed') {
+        problems.push(`${id} declares pass but its receipt is ${judged.status}: ${judged.reasons.join(', ')}`);
+      } else if (entry.state === 'fail' && judged.status !== 'failed') {
+        problems.push(`${id} declares fail but its receipt is ${judged.status}: ${judged.reasons.join(', ') || 'it passed'}`);
+      } else if (entry.state === 'missing' && hasOwn(entry, 'receipt')) {
+        problems.push(`${id} declares missing but its receipt is ${judged.status}`);
+      }
+      records.set(id, { entry, status: judged.status });
+    }
+    report.preflightAttachments = [...records.values()].map(({ entry, status }) => ({
+      attachment: entry.attachment,
+      attachedTo: entry.attached_to,
+      state: entry.state,
+      receiptStatus: status,
+    }));
+  }
+  pushCheck(
+    report,
+    'preflight-attachments-valid',
+    problems.length === 0,
+    problems.length
+      ? problems.join('; ')
+      : declared
+        ? `${records.size} preflight attachment${records.size === 1 ? '' : 's'}: ` +
+            (records.size ? [...records.values()].map(({ entry }) => `${entry.attachment}→${entry.attached_to} ${entry.state}`).join(', ') : 'none')
+        : 'no preflight attachments declared',
+  );
+
+  // The gate: the receipt decides, and a passing receipt also needs a record
+  // that says pass. Anything else leaves the live row capped below pass.
+  const gateProblems = [];
+  if (catalog.errors.length) gateProblems.push('the preflight catalog is inconsistent, so no live row can be shown gated');
+  for (const raw of oddIds) {
+    gateProblems.push(
+      `row id ${showId(raw)} is not a plain row id (${PLAIN_ROW_ID.source}); a corpus folded after the F″ ruling ` +
+        'spells every row id in plain ASCII, so no gated row can hide behind another spelling',
+    );
+  }
+  const gateLines = [];
+  for (const { row, id } of gatedRows) {
+    if (row.row !== id) gateProblems.push(`row id ${showId(row.row)} is a non-canonical spelling of ${id}`);
+    const statuses = catalog.requirementsByLiveRow.get(id).map((requirement) => {
+      const record = records.get(requirement.rowId);
+      let status = record ? record.status : 'missing';
+      if (status === 'passed' && record.entry.state !== 'pass') status = `declared ${record.entry.state}`;
+      return { preflight: requirement.rowId, status };
+    });
+    const blocked = statuses.filter(({ status }) => status !== 'passed');
+    const passedText = `${statuses.map(({ preflight }) => `${preflight} passed`).join(', ')} at ${short}`;
+    if (row.state === 'pass') {
+      for (const { preflight, status } of blocked) {
+        gateProblems.push(`${id} is pass but its required preflight ${preflight} is ${status} at ${short}`);
+      }
+      // The gate is satisfied; whether pass is allowed at all is rows-within-declared-cap's call.
+      if (!blocked.length) gateLines.push(`${id} pass; ${passedText}`);
+    } else if (blocked.length) {
+      gateLines.push(`${id} ${row.state} (capped): ${blocked.map(({ preflight, status }) => `${preflight} ${status}`).join(', ')}`);
+    } else {
+      gateLines.push(`${id} ${row.state}; ${passedText}`);
+    }
+  }
+  pushCheck(
+    report,
+    'live-rows-gated-by-preflights',
+    gateProblems.length === 0,
+    gateProblems.length
+      ? [...(declared ? [] : ['no preflight_attachments are declared']), ...gateProblems, PREFLIGHT_CAP_NOTE].join('; ')
+      : gateLines.length
+        ? gateLines.join('; ')
+        : 'no row of this corpus requires a preflight',
+  );
+}
+
+/**
+ * The declared-cap check (see the header): a row bound to a capped catalog row,
+ * by its id, `dir` or `manifest`, is recorded under that row's own id and in a
+ * known state at or below its cap. In a pre-ruling corpus, a capped row that
+ * still records its pinned states is exempt. A corpus with no capped row left to
+ * judge under a trustworthy catalog gets no check.
+ */
+function validateDeclaredCaps(report, sha, manifest) {
+  const problems = [];
+  const frozen = loadPreRulingCorpora().corpora.has(sha);
+  const pins = frozen ? loadCapPins() : null;
+  if (pins?.error) problems.push(pins.error);
+  const catalog = loadPreflightCatalog();
+  const bound = [];
+  for (const row of manifest.rows) {
+    const own = canonicalRowId(row?.row);
+    const bindings = new Map();
+    const bind = (id, how) => bindings.set(id, [...(bindings.get(id) || []), how]);
+    if (typeof row?.dir === 'string') {
+      // Every segment of the normalized path, so a row filed under a capped row's
+      // directory (R-CW-5/fixture-ronan/, R-CW-5/.) is bound to it as well.
+      for (const segment of new Set(posix.normalize(row.dir).split('/').map(canonicalRowId))) {
+        if (catalog.capsByRow.has(segment)) bind(segment, `its dir ${row.dir}`);
+      }
+    }
+    if (typeof row?.manifest === 'string' && catalog.cappedRowByFile.has(basename(row.manifest))) {
+      bind(catalog.cappedRowByFile.get(basename(row.manifest)), `its manifest ${row.manifest}`);
+    }
+    const capId = catalog.capsByRow.has(own) ? own : bindings.keys().next().value;
+    if (capId === undefined) continue;
+    const aliases = [...bindings].filter(([id]) => id !== own);
+    bound.push({ row, capId, label: own || showId(row?.row), cap: catalog.capsByRow.get(capId), aliases });
+  }
+  // A frozen corpus's capped row is exempt while the rows recorded under its own
+  // id still carry exactly the pinned states, in order. An alias never is.
+  let capped = bound;
+  if (frozen && !pins.error) {
+    const corpusPins = pins.pins.get(sha) || new Map();
+    const recorded = new Map();
+    for (const entry of bound) {
+      if (entry.aliases.length || entry.label !== entry.capId) continue;
+      recorded.set(entry.capId, [...(recorded.get(entry.capId) || []), pinnedState(entry.row.state)]);
+    }
+    const unchanged = new Set(
+      [...recorded].filter(([id, states]) => JSON.stringify(states) === JSON.stringify(corpusPins.get(id) || [])).map(([id]) => id),
+    );
+    capped = bound.filter((entry) => entry.aliases.length || entry.label !== entry.capId || !unchanged.has(entry.capId));
+  }
+  if (capped.length === 0 && catalog.capErrors.length === 0 && problems.length === 0) return;
+
+  if (catalog.capErrors.length) problems.push(`the verdict-cap catalog is inconsistent: ${catalog.capErrors.join('; ')}`);
+  const lines = [];
+  for (const { row, label, cap, aliases } of capped) {
+    for (const [id, hows] of aliases) {
+      problems.push(
+        `row ${typeof row?.row === 'string' ? row.row : showId(row?.row)} is bound to the capped row ${id} by ${hows.join(' and ')}; ` +
+          'a capped row is recorded under its own id',
+      );
+    }
+    const state = canonicalCorpusState(row.state);
+    const written = state === '' ? showId(row.state) : row.state === state ? state : `${state} (recorded as ${showId(row.state)})`;
+    if (corpusStateWithinCap(row.state, cap.rowCap)) {
+      if (!aliases.length) lines.push(`${label} ${written}, within the ${cap.rowCap} cap ${cap.file} declares (${cap.artifactClass})`);
+      continue;
+    }
+    const relation = corpusStateAboveCap(row.state, cap.rowCap) ? 'above' : 'not a state known to lie within';
+    // No superseding authority is adopted (the catalog rule keeps
+    // supersedingAuthorities empty), so a declared one cannot lift the cap.
+    const authority = hasOwn(row, 'superseding_authority')
+      ? `its superseding_authority ${showId(row.superseding_authority)} is not adopted: ${cap.file} adopts no superseding authority`
+      : 'it declares no superseding authority';
+    problems.push(`${label} is ${written}, ${relation} the ${cap.rowCap} cap ${cap.file} declares (verdictCap.rowCap; ${cap.artifactClass}), and ${authority}`);
+  }
+  pushCheck(
+    report,
+    'rows-within-declared-cap',
+    problems.length === 0,
+    problems.length ? [...problems, ROW_CAP_NOTE].join('; ') : lines.join('; '),
+  );
 }
 
 function hasOwn(value, key) {

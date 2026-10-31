@@ -198,9 +198,9 @@ async function fixtureDir({
       : 'R-CD-1-example';
   const nonce = nonceOverride || generatedNonce;
   const template = isReasonPrefix
-    ? 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}'
+    ? 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}'
     : isWork
-      ? 'k6-proof-R-CW-1-{{nonce}} -- on continuation wake reply exactly CW-WOKE {{nonce}}'
+      ? 'k6-proof-R-CW-1-{{nonce}}'
     : 'Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only.';
   const templatedReason = template.replaceAll('{{nonce}}', nonce);
   const reason = templatedReason;
@@ -1658,7 +1658,7 @@ test('correlates continue_work tool/accept/fire topology by safe reason fingerpr
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
     assert.match(observedQuery, /name="continuation\.work"/);
-    assert.doesNotMatch(JSON.stringify(receipt), /CW-WOKE R-CW-1-example/);
+    assert.doesNotMatch(JSON.stringify(receipt), /k6-proof-R-CW-1-R-CW-1-example/);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });

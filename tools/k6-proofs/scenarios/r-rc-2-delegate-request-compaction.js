@@ -22,6 +22,13 @@
  *     reviewed tiny-context fixture exists.
  *
  * This scenario does not mutate config, lower thresholds, or restart services.
+ *
+ * Every child report is read from the CHILD's own transcript, after the bound
+ * toolResult (openclaw-bootstrap#1727). The parent stream carries the parent's
+ * own continue_delegate call, whose child task holds all three
+ * REQUEST_COMPACTION_* sentinels; at F′ the HONEST-LIMIT's child-report half
+ * came from that stream with context=unknown threshold=unknown, the parse of
+ * the template's placeholders. Parent-stream sightings are diagnostics only.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -31,6 +38,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import {
   RC2_ACCEPTED_STATUSES,
+  childPostCompactionReport,
   childReportAfterReceipt,
   classifyRrc2Evidence,
   findRequestCompactionReceipt,
@@ -143,6 +151,10 @@ export default function () {
     request_compaction_accepted: false,
     request_compaction_accepted_reported: false,
     post_compaction_path_observed: false,
+    // Diagnostics only: sentinel text seen on the parent stream.
+    parent_stream_threshold_text_seen: false,
+    parent_stream_accepted_text_seen: false,
+    parent_stream_post_compaction_text_seen: false,
     guard: null,
     context_usage: null,
     threshold: null,
@@ -386,6 +398,11 @@ export default function () {
               evidence.request_compaction_accepted_reported = true;
               evidence.child_report_source = 'child chat.history, same wake turn after the bound toolResult';
             }
+            if (childPostCompactionReport(messages, { rowNonce }).index >= 0) {
+              evidence.delegate_child_report_observed = true;
+              evidence.post_compaction_path_observed = true;
+              evidence.child_post_compaction_source = 'child chat.history, a later turn or run after the bound accepted toolResult';
+            }
             if (receipt.kind !== 'missing') {
               evidence.request_compaction_tool_result_observed = true;
               evidence.request_compaction_receipt_role = 'toolResult';
@@ -402,9 +419,11 @@ export default function () {
             }
             if (receipt.kind === 'threshold_rejected' && receipt.nonceBound === true &&
                 measured.kind === 'threshold_rejected_measured' && measured.yieldBound) {
+              if (!evidence.request_compaction_rejected_context_threshold) console.log('✓ nonce-bound request_compaction toolResult rejected by context_threshold (measured, after the yield)');
               evidence.request_compaction_rejected_context_threshold = true;
-              console.log('✓ nonce-bound request_compaction toolResult rejected by context_threshold (measured, after the yield)');
               maybeCloseCompletedProof();
+              // The child's own report may land after this read.
+              if (!evidence.child_reported_context_threshold) requestChildHistory(2000);
             } else if (receipt.kind === 'threshold_rejected' && receipt.nonceBound === true &&
                 measured.kind === 'context_unknown') {
               // The unknown branch is a final answer for that call, never HONEST-LIMIT.
@@ -415,9 +434,10 @@ export default function () {
               RC2_ACCEPTED_STATUSES.includes(receipt.receipt?.status) &&
               measured.yieldBound
             ) {
+              if (!evidence.request_compaction_accepted) console.log('✓ nonce-bound request_compaction accepted toolResult observed');
               evidence.request_compaction_accepted = true;
-              console.log('✓ nonce-bound request_compaction accepted toolResult observed');
               maybeCloseCompletedProof();
+              if (!evidence.post_compaction_path_observed) requestChildHistory(2000);
             } else {
               requestChildHistory(2000);
             }
@@ -435,32 +455,24 @@ export default function () {
             evidence.event_child_candidates.push(eventChildSessionKey);
             resolveChildIdentity();
           }
+          // Parent-stream text is diagnostic only: it prompts a read of the
+          // child's own transcript, which alone sets the report fields.
           const text = eventText(classified);
           if (!text.includes(rowNonce)) return;
           if (text.includes(HARNESS_MARKER)) {
             console.log('ℹ Ignoring harness prompt echo event');
-          } else if (text.includes(`REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce}`)) {
-            evidence.delegate_child_report_observed = true;
-            evidence.child_reported_context_threshold = true;
-            const usage = text.match(/CONTEXT[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
-            const threshold = text.match(/THRESHOLD[^0-9A-Za-z]+(\d+|unknown)/)?.[1] || 'unknown';
-            evidence.reported_context_usage = usage !== 'unknown' ? Number(usage) : null;
-            evidence.reported_threshold = threshold !== 'unknown' ? Number(threshold) : null;
-            console.log(`✓ auxiliary delegated threshold report observed: context=${usage} threshold=${threshold}`);
-            maybeCloseCompletedProof();
-            if (!hasAuthoritativeThresholdReceipt()) requestChildHistory(250);
-          } else if (text.includes(`REQUEST_COMPACTION_ACCEPTED ${rowNonce}`)) {
-            evidence.delegate_child_report_observed = true;
-            evidence.request_compaction_accepted_reported = true;
-            console.log('✓ auxiliary delegated request_compaction accepted report observed');
-            requestChildHistory(250);
-          } else if (text.includes(`REQUEST_COMPACTION_POST_COMPACTION ${rowNonce}`)) {
-            evidence.delegate_child_report_observed = true;
-            evidence.post_compaction_path_observed = true;
-            console.log('✓ delegated request_compaction post-compaction sentinel observed');
-            maybeCloseCompletedProof();
-            if (!hasAuthoritativeAcceptedReceipt()) requestChildHistory(250);
+            return;
           }
+          const seen = {
+            parent_stream_threshold_text_seen: `REQUEST_COMPACTION_REJECTED_CONTEXT_THRESHOLD ${rowNonce}`,
+            parent_stream_accepted_text_seen: `REQUEST_COMPACTION_ACCEPTED ${rowNonce}`,
+            parent_stream_post_compaction_text_seen: `REQUEST_COMPACTION_POST_COMPACTION ${rowNonce}`,
+          };
+          let any = false;
+          for (const [field, sentinel] of Object.entries(seen)) {
+            if (text.includes(sentinel)) { evidence[field] = true; any = true; }
+          }
+          if (any) requestChildHistory(250);
         }
       } catch (e) {
         console.warn(`parse error: ${e}`);

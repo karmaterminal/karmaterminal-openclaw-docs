@@ -18,7 +18,8 @@
     "description": "Chain depth hop counter: fires continue_work 3× in sequence, verifies hop increments from 1/200 → 3/200 in traced responses.",
     "methods": [
       "tools.invoke",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "chat.history"
     ],
     "status": "runnable",
     "expectedFile": "r-cw-4-chain-depth.js",
@@ -79,7 +80,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Chain depth counter. PASS when 3 sequential hops show incrementing chain.step. Use OPENCLAW_CREATE_DISPOSABLE_SESSION=true for an automatic proof subagent session, or supply an explicit reviewed session key."
+    "notes": "Chain depth counter. PASS when 3 sequential hops show incrementing chain.step. Use OPENCLAW_CREATE_DISPOSABLE_SESSION=true for an automatic proof subagent session, or supply an explicit reviewed session key. Expected PARTIAL cause (harness review N7, openclaw-bootstrap#1727): when the wake matures while another run is active in the session, the product folds it into that run as a [system:continuation-note] (src/auto-reply/continuation/work-dispatch.ts:614-640, work-dispatch-execution.ts:234-235) and writes no [continuation:wake] row; the transcript chain then fails closed with chain_reason naming the missing wake. Run in an idle or disposable session."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",

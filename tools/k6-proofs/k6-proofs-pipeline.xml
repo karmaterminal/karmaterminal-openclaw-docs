@@ -139,7 +139,7 @@
     <Row id="R-CD-3" owner="ronan" forms="tool" issue="119">
       <Behavior>continue_delegate(mode="post-compaction") event-triggered lifeboat</Behavior>
       <Evidence>Compaction event → delegate fires → return re-hydrates post-compaction session</Evidence>
-      <Constraint>Needs context >70% to trigger compaction (or lower threshold via caps-test)</Constraint>
+      <Constraint>Needs measured context at or above the fixed 70% threshold: the scenario fills its disposable session with real prior turns (no threshold or config change); an unknown or unmeasured rejection is PARTIAL, never PASS</Constraint>
     </Row>
     <Row id="R-CD-4" owner="ronan" forms="tool" issue="119">
       <Behavior>Cross-session targeted return via targetSessionKey</Behavior>

@@ -25,7 +25,8 @@ candidate `node_modules` tree. Source-tree `node_modules` is ignored. The
 worktree has a temporary session store and isolated state directory. This is a
 manual-only component fixture, intentionally outside the generic k6 runner and
 `--live-suite`. Its `PASS-candidate` means the component contract passed at the
-exact SHA; review is still required before any corpus fold.
+exact SHA; review is still required before any corpus fold, and the row itself
+stays capped at `PARTIAL-candidate` (see "Required preflight: R-CW-6A" below).
 
 This is **lockfile/tree/version alignment, not a hermetic or cryptographic
 host-toolchain proof**. The fixture resolves the host `pnpm` from PATH, records
@@ -189,3 +190,24 @@ current=3, attempted hop=4 -> chain-capped (first over limit)
 A fixture `PASS-candidate` remains review-required. It does not rewrite the
 original skipped corpus row, automatically fold R-CW-6 as canonical PASS, or
 claim an external gateway invocation.
+
+## Required preflight: R-CW-6A
+
+`r-cw-6.json` declares `R-CW-6A` in `requiredPreflights` (🌊's F″ method
+ruling). The fixture's `PASS-candidate` is the behavioral verdict only. The row
+verdict is the minimum of that verdict, the row's declared cap and the preflight
+cap: `r-cw-6.json` declares `verdictCap.rowCap` `PARTIAL-candidate`, because this
+process-local fixture is the row's only producer (🌊's ruling on docs#616). A
+passing R-CW-6A is necessary, not sufficient: the row stays at
+`PARTIAL-candidate` even when the R-CW-6A static check, run at the same exact
+candidate, wrote a passing `required-preflight-receipt.json`. Lifting the cap
+needs a superseding authority receipt from a different artifact class, adopted by
+an explicit method change; none is adopted. That check reads
+`PROOFS/<candidate>/R-CW-6/cael-dgx/`, never INDEX `static_evidence_sha`, and that
+material must be bound to the candidate: a `source-sha.txt` that is exactly the
+candidate SHA, and no provenance file naming another commit.
+`grade-preflight-gated-row.mjs` joins `fixture-result.json` with the row cap and
+that receipt; a missing, failed, malformed or other-SHA receipt is a second
+reason for `PARTIAL-candidate`. In an F″ corpus `validate-corpus.mjs` refuses any
+R-CW-6 `pass`, with or without the receipt. See "Required preflights" and "The
+process-local cap" in `tools/k6-proofs/README.md`.

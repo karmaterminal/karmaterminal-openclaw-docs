@@ -36,11 +36,14 @@ the ruling's receipt list. The product covers the durable-row half in
    - `openclaw.json` is mode 0600, binds loopback with its own token and carries no channels;
    - the port is neither 18789 nor the port in `~/.openclaw/openclaw.json`, and nothing listens on
      it;
-   - the unit is not active;
+   - the unit is `inactive` or `failed` (a user systemd bus must be reachable to confirm it);
    - the state does not overlap `~/.openclaw`;
    - the stage's `dist/build-info.json` commit is the candidate;
    - `--docs-sha` is the executing harness checkout;
-   - the observer key file is 0600 and outside the target.
+   - the observer key file is 0600 and outside the target;
+   - the artifact directory is outside the target, the live state and the docs repository;
+   - `--gateway-env` sets only `NODE_OPTIONS` (`--max-old-space-size`, loopback `--inspect`)
+     or `OPENCLAW_CODEX_APP_SERVER_BIN`.
 
    A refusal writes `refusal.json` and starts nothing.
 2. **Old generation.** It starts `node <stage>/dist/index.js gateway --port <port>` with a cleared
@@ -60,8 +63,8 @@ the ruling's receipt list. The product covers the durable-row half in
    and verifies it the same way, with a new bootId. The negative case first binds the port itself,
    so the replacement cannot serve.
 6. **Cleanup.** It signals only its own generations, after re-checking PID, start ticks and run
-   marker. It stops any run-marked descendant left in their process groups (that is graded as a
-   leak), closes the negative's socket, and confirms nothing listens. The isolated state is kept
+   marker. It stops any process still carrying the run marker, even one that called setsid
+   (that is graded as a leak), closes the negative's socket, and confirms nothing listens. The isolated state is kept
    for `composite-launcher.sh shred`.
 7. **Receipt.** It grades the record, signs `observer-receipt.json` with the observer key
    (`hmac-sha256-proof-observer-key-v1`), and writes raw logs and frames to

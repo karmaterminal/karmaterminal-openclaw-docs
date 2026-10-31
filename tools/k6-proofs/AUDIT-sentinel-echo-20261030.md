@@ -335,11 +335,11 @@ patch-only revert of the fix commits turns the review tests red again (see the P
 | --- | --- | --- | --- | --- |
 | F1 false PASS | R-CD-MODEL-TOKEN, R-CW-TOKEN | `c503b7e6` | a typed call recorded as `dispatch_action`/`tool_call` with `arguments.id` naming the tool (bare or `<source>:<name>:<tool>`) is that call in every toolCall matcher (`lib/tool-call-identity.mjs`); a `dispatch_action` toolResult counts only paired by `toolCallId`. The chain-hop prefix is no longer cited as token-form evidence | `review-typed-call-via-dispatch-action`; `tool-search-receipts` |
 | N1 fail-closed | R-CD-1/2/3/SILENT, R-CW-1..4, R-CW-DELEGATE-SELF, R-RC-1/2, heartbeat acks | `c503b7e6` | the same unwrap: positive receipts bind on a Tool Search seat | `tool-search-receipts` |
-| F2 false PASS | R-CD-SILENT, R-CW-TOKEN (R-CD-1, R-CD-3 hardened) | `ed3df7ce` | a minted token must be absent from the requester's own bound call arguments; R-CD-SILENT waits for the call before accepting a report; R-CW-TOKEN binds hops only from a read that starts at the child's spawn task and refuses `context:"fork"` (and a thread spawn left to the channel default). The whole-read path had the same gap before: it searched only after hop 1 | `review-requester-authored-token`; `requester-call-binding` |
-| F3 false PASS | R-CW-TOKEN | `ed3df7ce` | live child rows only prompt a `chat.history` read; hop 1 and hop 2 come from the whole transcript | `review-r-cw-token-live-suffix`; `requester-call-binding` |
+| F2 false PASS | R-CD-SILENT, R-CW-TOKEN (R-CD-1, R-CD-3 hardened) | `ed3df7ce`, `4e319590` | a minted token must be absent from the requester's own bound call arguments; R-CD-SILENT waits for the call before accepting a report, and refuses a token found in any requester row before it (a child the requester spawned with its own tool also names it in spawnedBy); R-CW-TOKEN binds hops only from a read that starts at the child's spawn task and refuses `context:"fork"` (and a thread spawn left to the channel default). The whole-read path had the same gap before: it searched only after hop 1 | `review-requester-authored-token`; `requester-call-binding` |
+| F3 false PASS | R-CW-TOKEN | `ed3df7ce`, `56363a1f` | hop 1 and hop 2 come from the whole transcript: a `chat.history` read sent after the child subscription was acknowledged, extended by that subscription's live rows (a later read can find a `cleanup="delete"` child gone) | `review-r-cw-token-live-suffix`; `requester-call-binding` |
 | F4 false PASS | R-CD-3 | `0d3ae7b3` | the de-enveloped lifeboat task must start with `[continuation:post-compaction] [continuation:chain-hop:<n>] `; a requester call (any tool, either form) whose arguments carry the prefix refuses the binding (PARTIAL) | `review-lifeboat-prefix-position`; `r-cd-3-safety` (F4) |
 | F5 fail-closed | R-CD-CHAINED-DEPTH-2, R-CD-1, R-CD-3, R-CD-SILENT, R-CW-TOKEN, R-CD-4 (and R-CW-DELEGATE-SELF's heartbeat path) | `48333b39` | `runExclusion`: an exclusion list with a missing run id binds nothing, in every binder; scenarios record why; R-CD-3 keeps an id-less fill run in its list instead of dropping it | `review-missing-dispatch-run`; `run-exclusion`, `r-cd-3-safety` (F5) |
-| F6 safety | R-CD-3 | `06ffcab1` | the run refuses unless `sessions.create` answers a key that is not the configured session (exactly or as `agent:<id>:<key>`); nothing is sent otherwise | `review-r-cd-3-fill` (first); `r-cd-3-safety` (F6) |
+| F6 safety | R-CD-3 | `06ffcab1`, `105aeb79` | the run refuses unless `sessions.create` answers a key that is not the configured session (exactly, or a bare key and its `agent:<id>:<key>` either way round); nothing is sent otherwise | `review-r-cd-3-fill` (first); `r-cd-3-safety` (F6) |
 | F7 safety | R-CD-3 | `06ffcab1` | every planned total stays below `window − min(max(reserve, 20000), window/4)` minus `max(2000, 2% of window)`; an unreachable target stops PARTIAL "context target unreachable below automatic compaction" (`OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS` declares a larger reserve); a changed `sessionId` on the describe row stops the fill; the "about 90%" comment states the formula | `review-r-cd-3-fill` (second); `r-cd-3-safety` (F7) |
 | J1 false PASS | R-CD-RETURN-OVERLAP, R-CD-COLLECTION-ON-COLLAPSE (offline) | `546cbdfa` | the writer binds only in the committed line forms (`<marker> session=<child> run=<run>`, or `<marker>` then `session: <child>` on the next line), as the whole message; one writer only; never a dispatcher or a return target. Both graders' evidence on the committed journals is identical before and after | `review-sentinel-echo-mai`; `journal-writer-binding`, `offline-return-binding` |
 | N2 | R-CD-3 | `06ffcab1` | `contextUsage: 70, threshold: 70` (a rounded 69.5–69.99%) is a measured below-threshold rejection, not `invalid` (still PARTIAL) | `r-cd-3-safety` (N2) |
@@ -347,10 +347,31 @@ patch-only revert of the fix commits turns the review tests red again (see the P
 | N5 | R-CW-1..4 | `7ed67bb5` | `continueWorkChain` anchors hop 1 at the user row carrying the harness marker and the nonce. Four negative fixtures in `continue-work-chain.test.mjs` moved to a marked dispatch row so they still fail for their own reasons | `cw-dispatch-anchor` |
 | N7 | R-CW-1..4 | `8ccae595` | documented as an expected PARTIAL cause (manifest notes, `continue-work-chain.mjs`) | — |
 | N8 | R-CW-TOKEN recovery | `8ccae595` | documented: recovery cannot reach PASS (manifest notes, `recover-session-receipts.mjs`) | — |
-| N10 | R-CD-MODEL-TOKEN | `a4590f89` | the token form needs a hop-1 read sent after hop 1 settled (row terminal, or its delegate bound: the call that schedules a delegate is persisted before the spawn) | `r-cd-model-token-late-call` |
+| N10 | R-CD-MODEL-TOKEN | `a4590f89`, `d4e24736` | the token form needs hop 1 covered until it settled (row terminal, or its delegate bound: the call that schedules a delegate is persisted before the spawn): a hop-1 read sent after hop 1's own subscription was acknowledged plus its live rows, or a read sent after it settled | `r-cd-model-token-late-call` |
 | N11 | R-CD-3 | `06ffcab1` | the refusal and the manifest notes name `OPENCLAW_CREATE_DISPOSABLE_SESSIONS` (plural, default true) | `r-cd-3-safety` (N11) |
 | N9 | R-CW-1..4 | open | not established: whether an agent's `sessions_send` to its own session (`sessions-send-tool.a2a.ts:115-125`) can persist a visible user row starting `[continuation:wake]`. Nothing was probed; the wake binding assumes it cannot | — |
 | N4, N6 | telemetry; R-CW-TOKEN | not in this workorder | N4 (no `traceId` on `sessions.send` at F′) affects telemetry only. N6 (the other-run hop-2 fallback when no wake row exists) is unchanged | — |
+
+**Independent review of these fixes** (a subagent reviewer given the diff, not the conclusions,
+after `ddff659c`):
+- R-CD-SILENT still passed a token written into a requester `sessions_spawn` child's task.
+  Fixed in `4e319590`.
+- The F3 fix (R-CW-TOKEN) and the N10 fix (R-CD-MODEL-TOKEN) could miss a true record when a
+  `cleanup="delete"` session is removed before a post-settle read. These were liveness
+  regressions, not false PASSes. Fixed in `56363a1f` and `d4e24736` with subscription-covered
+  reads.
+- F6's alias check was one-directional. Fixed in `105aeb79`.
+
+Each follow-up has a test that fails on `ddff659c`. The liveness tests also pass on
+`d33be944`, which shows that the earlier fix introduced them.
+
+Recorded as intended: N5 turns a true chain in a reused session from PARTIAL into PASS, as N1
+does for receipts on a Tool Search seat. The anchor needs a user row carrying the harness marker
+and this run's fresh nonce, so the agent cannot forge it.
+
+J1 residual: the committed line forms identify the session a line names, not who printed it. A
+whole-line copy `<marker> session=<child> run=<x>` would still bind. This applies only to the
+committed bca2b0b-era journals; no F′ writer of these shapes exists.
 
 Found while fixing, not changed: R-RC-2's `measuredRequestCompactionOutcome` has N2's rounding
 shape (`contextUsage < threshold`). There the measured kind can lead to HONEST-LIMIT instead of

@@ -14,11 +14,12 @@
  * authority is adopted, so `supersedingAuthorities` must be empty.
  *
  * Whether a row is process-local is read from its transport and from the
- * artifact class its runner declares in `invocation.artifactClass`, never from
- * the key that names the runner (docs#615). R-CD-RETURN-COVENANT-AUTHORITY's
- * restart control restarts a real disposable gateway process, so it declares
- * `disposable-real-process` and is not capped; a runner with no declared class
- * is read as a process-local fixture.
+ * artifact class its runner declares in `invocation.artifactClass` (docs#615).
+ * A runner under `invocation.fixture` or `invocation.control` with no declared
+ * class is read as a process-local fixture, so a key can make a row
+ * process-local, but only a declared class can make it not process-local.
+ * R-CD-RETURN-COVENANT-AUTHORITY's restart control restarts a real disposable
+ * gateway process, so it declares `disposable-real-process` and needs no cap.
  *
  * The grader (grade-preflight-gated-row.mjs), the catalog check
  * (check-proof-row-manifests.mjs) and the corpus validator (validate-corpus.mjs)
@@ -107,23 +108,25 @@ export function corpusStateWithinCap(state, cap) {
  * The artifact class of the runner a manifest's invocation names, read from
  * `invocation.artifactClass`: `{ processLocal, declared, capRequired, failures }`.
  * A runner is named under `invocation.fixture` (a process-local fixture) or
- * `invocation.control`. A runner named with no class is read as a process-local
- * fixture, so a missing class fails closed exactly as #616 reads
- * `invocation.fixture`; `capRequired` says why such a row must declare a cap. A
- * class this rule does not know is refused. `disposable-real-process` is the
- * only class that is not process-local, and only when nothing else about the
- * row is: its runner is `invocation.control`, it names no `invocation.fixture`,
- * its transport is declared and not process-local, and the ruling does not cap
- * it by id. Any contradiction is refused and read as process-local.
+ * `invocation.control`, and either key counts whatever its value: an empty,
+ * blank or non-string value is never read as "no runner". A runner named with
+ * no class is read as a process-local fixture, so a missing class fails closed
+ * as #616 reads `invocation.fixture`; `capRequired` says why such a row must
+ * declare a cap. A class this rule does not know is refused.
+ * `disposable-real-process` is the only class that is not process-local, and
+ * only when nothing else about the row is: its runner is a non-blank string
+ * `invocation.control`, it has no `invocation.fixture`, its transport is
+ * declared and not process-local, and the ruling does not cap it by id. Any
+ * contradiction is refused and read as process-local.
  */
 function runnerArtifactClass(manifest, processLocalTransport) {
   const rowId = manifest?.rowId;
   const invocation = isObject(manifest?.invocation) ? manifest.invocation : {};
-  const names = (key) => typeof invocation[key] === 'string' && invocation[key] !== '';
-  const fixture = names('fixture');
-  const control = names('control');
+  const has = (key) => Object.prototype.hasOwnProperty.call(invocation, key) && invocation[key] !== undefined;
+  const fixture = has('fixture');
+  const control = has('control');
   const mustDeclare = `must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`;
-  if (!Object.prototype.hasOwnProperty.call(invocation, 'artifactClass')) {
+  if (!has('artifactClass')) {
     const capRequired = [];
     if (fixture) capRequired.push(`${rowId} names a process-local fixture (invocation.fixture), so it ${mustDeclare}`);
     if (control) {
@@ -151,7 +154,9 @@ function runnerArtifactClass(manifest, processLocalTransport) {
   if (processLocalTransport) failures.push(`${claim}, but its transport ${JSON.stringify(manifest.transport)} is process-local`);
   if (manifest?.transport === undefined) failures.push(`${claim} but declares no transport, so whether it is process-local cannot be decided`);
   if (fixture) failures.push(`${claim} but names a process-local fixture (invocation.fixture); a disposable real process's runner is invocation.control`);
-  if (!control) failures.push(`${claim} without naming its runner in invocation.control`);
+  if (typeof invocation.control !== 'string' || invocation.control.trim() === '') {
+    failures.push(`${claim} without naming its runner in invocation.control`);
+  }
   if (RULED_CAPPED_ROWS.includes(canonicalRowId(rowId))) {
     failures.push(`${rowId} is capped by 🌊's ruling on docs#616 as a process-local fixture, so it cannot declare invocation.artifactClass "${declared}"`);
   }

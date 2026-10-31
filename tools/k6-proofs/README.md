@@ -1010,13 +1010,17 @@ inferred from the key that names the runner:
 - A runner named with no class is a process-local fixture, so the row must
   declare the cap. That covers `invocation.fixture`, as before, and
   `invocation.control` without a class. So does
-  `invocation.artifactClass: "process-local-fixture"`.
+  `invocation.artifactClass: "process-local-fixture"`. Either key counts
+  whatever its value: an empty, blank or non-string value is never read as "no
+  runner". A runner under any other key is not recognized, so these two keys are
+  the ones to use.
 - `"disposable-real-process"` is a runner that starts, restarts and stops a real
   gateway process it set up for the run, never the live one. It names that runner
-  in `invocation.control`, and it is not capped.
+  in `invocation.control` and needs no cap; a cap a reviewer adds names this class.
   R-CD-RETURN-COVENANT-AUTHORITY's restart control is the one such row. The class
-  is refused on a process-local or missing transport, beside `invocation.fixture`,
-  without `invocation.control`, and on R-CW-5/6.
+  is refused on a process-local or missing transport, beside an
+  `invocation.fixture` key, without a non-blank `invocation.control`, and on
+  R-CW-5/6.
 - Any other class, a different spelling of a known one included, is refused.
 
 So dropping a process-local marker never un-caps R-CW-5/6, and reclassifying

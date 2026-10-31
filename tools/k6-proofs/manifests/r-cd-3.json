@@ -102,7 +102,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "R-CD-3 is PASS-candidate only on the bound chain: accepted request_compaction, released lifeboat child, its minted token, and the requester reproducing it. An unknown or unmeasured request_compaction rejection is PARTIAL with its own reason, distinct from R-RC-2's measured threshold rejection; never overclaim compaction firing."
+    "notes": "R-CD-3 is PASS-candidate only on the bound chain: accepted request_compaction, released lifeboat child, its minted token, and the requester reproducing it. An unknown or unmeasured request_compaction rejection is PARTIAL with its own reason, distinct from R-RC-2's measured threshold rejection; never overclaim compaction firing. Expected PARTIAL cause (harness review N3, openclaw-bootstrap#1727): the fill reads sessions.describe, whose contextTokens denominator passes a provenance check and can take a minimum (src/config/sessions/context-token-provenance.ts:50-108), while request_compaction divides the same fresh total by the raw entry.contextTokens (src/auto-reply/reply/agent-runner-post-compaction-release.ts:149-170). A fill that reads as reached can therefore meet a measured below-threshold rejection; that is PARTIAL with that reason, never PASS."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",

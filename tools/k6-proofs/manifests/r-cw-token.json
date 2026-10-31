@@ -88,7 +88,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof — the lightContext bracket path that was broken pre-fix."
+    "notes": "Token/bracket CONTINUE_WORK path. PASS when hop-2 drives on the subagent. This is the #952 lineage proof — the lightContext bracket path that was broken pre-fix. Receipt recovery (scripts/recover-session-receipts.mjs) cannot reach PASS for this row (harness review N8, openclaw-bootstrap#1727): parent-return always reads missing because one transcript read cannot hold both the child's hop-2 token and the parent's reproduction, and on a parent transcript the parent restating the child's hop-2 output can mark hop-2-executed present. A recovered artifact is diagnostic only, never a fold."
   },
   "invocation": {
     "tool": "sessions_spawn",

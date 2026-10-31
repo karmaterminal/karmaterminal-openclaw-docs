@@ -164,7 +164,9 @@ function evaluate(row, nonce, messages) {
   // One transcript holds either the parent (spawn receipt) or the child (hops); the
   // spawn task carries every child sentinel, so no substring of it counts (#1727).
   // The return needs the child's hop-2 token and the parent transcript together,
-  // which one recovery read cannot give.
+  // which one recovery read cannot give, so recovery never reaches PASS for this
+  // row. On a parent transcript the parent restating the child's hop-2 output can
+  // mark hop-2-executed present (review N8): recovered receipts are diagnostic.
   if (row === 'R-CW-TOKEN') {
     const spawn = toolReceiptsFromHistory(messages, { toolName: 'sessions_spawn', argField: 'task', needle: nonce });
     const spawned = spawn.length === 1 && spawn[0].status === 'accepted' && typeof spawn[0].payload?.childSessionKey === 'string';

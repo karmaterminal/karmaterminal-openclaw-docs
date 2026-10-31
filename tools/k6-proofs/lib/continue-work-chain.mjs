@@ -25,6 +25,12 @@
 // A turn ends at the next user row. Tool arguments, thinking and the wake
 // input itself never satisfy a sentinel (text parts of assistant rows only).
 //
+// Expected PARTIAL cause (review N7): a wake that matures while another run is
+// active is folded into that run as a "[system:continuation-note]"
+// (src/auto-reply/continuation/work-dispatch.ts:614-640,
+// work-dispatch-execution.ts:234-235) and writes no "[continuation:wake]" row,
+// so the chain fails closed on the missing wake.
+//
 // k6 and Node compatible: no k6 or Node imports.
 
 import { HARNESS_MARKER, assistantText, boundToolCalls, callsTool, isContinuationWakeInput, mintedTokenFromHistory, textParts, toolResultPayload } from './sentinel-binding.mjs';

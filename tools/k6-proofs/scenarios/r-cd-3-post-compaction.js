@@ -33,7 +33,12 @@
  * Verdicts (lib/r-cd-3-lifeboat.mjs classifyRcd3Evidence): PASS needs every
  * receipt above. An unknown or unmeasured request_compaction rejection is
  * PARTIAL with its own reason and never PASS; a measured below-threshold
- * rejection is a different PARTIAL reason.
+ * rejection is a different PARTIAL reason. Expected PARTIAL cause (review N3):
+ * the fill's sessions.describe denominator can be a provenance-checked
+ * minimum (context-token-provenance.ts:50-108) while request_compaction
+ * divides by the raw entry.contextTokens (agent-runner-post-compaction-release.ts
+ * :149-170), so a fill that reads as reached can still meet a measured
+ * below-threshold rejection.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';

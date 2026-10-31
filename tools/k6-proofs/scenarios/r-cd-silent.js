@@ -10,11 +10,13 @@
  *     reports "scheduled", and RCDS-SCHEDULED is in the parent's own text;
  *   - child completion: the child's own chat final (its session, spawnedBy
  *     this session) carries SILENTCHILD <nonce> TOKEN <12 chars> minted there:
- *     absent from every harness-sent text and from the arguments of the
- *     requester's own nonce-bound continue_delegate call (harness review F2:
- *     a requester can write a token into the task it hands the child and
- *     reproduce it later from memory). Until that call has been seen the
- *     report stays pending;
+ *     absent from every harness-sent text, from the arguments of the
+ *     requester's own nonce-bound continue_delegate call, and from every
+ *     requester assistant row seen before the report is accepted (its text,
+ *     thinking and any tool's call arguments: a sessions_spawn child also
+ *     names this session in spawnedBy). Harness review F2: a requester can
+ *     write a token into a task it hands a child and reproduce it later from
+ *     memory. Until the bound call has been seen the report stays pending;
  *   - readback: a parent run other than the dispatch run says
  *     RCDS-PARENT-OBSERVED <nonce> TOKEN <that token>.
  */
@@ -91,6 +93,8 @@ export default function () {
     let childToken = null;
     let pendingChildToken = null;
     const childText = {};
+    // Every requester assistant row seen before the child's report is accepted.
+    const requesterRowTexts = [];
 
     function sendFollowup(socket) {
       if (evidence.followup_sent_at_ms) return;
@@ -114,6 +118,10 @@ export default function () {
       if (sentTexts.some((t) => t.toLowerCase().includes(token))) { evidence.child_report_reason = 'the child token appears in harness-sent text'; return; }
       if (requesterCallTexts(requesterCalls).some((t) => t.toLowerCase().includes(token))) {
         evidence.child_report_reason = 'the child token appears in the requester\'s own continue_delegate arguments';
+        return;
+      }
+      if (requesterRowTexts.some((t) => t.toLowerCase().includes(token))) {
+        evidence.child_report_reason = 'the child token appears in a requester row (its text, thinking or a tool call) before the report';
         return;
       }
       childToken = token;
@@ -189,6 +197,10 @@ export default function () {
           const reportMatch = eventStr.match(childReport);
           if (reportMatch && MINTED_TOKEN_PATTERN.test(reportMatch[1]) && isChannelDeliveryEvent(eventName, eventData)) {
             evidence.child_channel_delivery_observed = true; evidence.no_channel_delivery = false; console.warn('✗ child token appeared in a channel-delivery-shaped event'); failures.add(1);
+          }
+          if (!childToken && eventName === 'session.message' && eventSessionKey(eventData) === sessionKey &&
+              String(eventData.message?.role || '').toLowerCase() === 'assistant') {
+            requesterRowTexts.push(JSON.stringify(eventData.message.content ?? null));
           }
           if (scheduledTracker) {
             const receipt = scheduledTracker.observe(eventName, eventData);

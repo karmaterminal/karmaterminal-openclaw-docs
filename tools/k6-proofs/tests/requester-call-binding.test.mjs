@@ -207,3 +207,81 @@ test('R-CD-SILENT control: the same early report of a token the child minted bin
   assert.equal(evidence.parent_internal_context_observed, true);
   assert.equal(verdict, 'PASS-candidate');
 });
+
+// R-CD-SILENT: the reporting child is any session naming the requester in
+// spawnedBy, so a child the requester spawned with its own tool and a written
+// token can report. The token must be absent from every requester row seen
+// before the report, not only from the bound continue_delegate call
+// (independent review of this lane, F2 not closed).
+const SPAWNED_CHILD = 'agent:main:subagent:echo-fix-requester-spawned';
+
+/** world.via: how the requester's extra sessions_spawn is recorded ('name' | 'dispatch_action'); world.token: 'requester' | 'child'. */
+function spawnBypassGateway(world) {
+  let nonce = null;
+  const token = world.token === 'requester' ? REQUESTER_TOKEN : CHILD_MINTED;
+  return (frame) => {
+    if (frame?.type !== 'req') return [];
+    const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
+    const ev = (message, runId) => ({ type: 'event', event: 'session.message', payload: { sessionKey: SILENT_PARENT, message, runId } });
+    switch (frame.method) {
+      case 'connect': return ok({ type: 'hello-ok', features: { methods: [] } });
+      case 'sessions.create': return ok({ key: SILENT_PARENT });
+      case 'sessions.messages.subscribe': return ok({ subscribed: true });
+      case 'sessions.send': {
+        const message = String(frame.params?.message || '');
+        if (/follow-up nonce/.test(message)) return [...ok({ runId: 'run-f' }), ev(say(`RCDS-PARENT-OBSERVED ${nonce} TOKEN ${token}`, 'run-f'), 'run-f')];
+        const harnessTask = JSON.parse(/task=("(?:[^"\\]|\\.)*")/.exec(message)[1]);
+        nonce = /R-CD-SILENT proof nonce (\S+)\./.exec(message)[1];
+        const spawnArgs = { task: world.token === 'requester' ? `reply exactly SILENTCHILD ${nonce} TOKEN ${token}` : 'an unrelated helper task', runtime: 'subagent' };
+        const spawnPart = world.via === 'dispatch_action'
+          ? { type: 'toolCall', id: 'sp-1', name: 'dispatch_action', arguments: { id: 'sessions_spawn', args: spawnArgs } }
+          : { type: 'toolCall', id: 'sp-1', name: 'sessions_spawn', arguments: spawnArgs };
+        return [
+          ...ok({ runId: 'run-d' }),
+          ev({ role: 'assistant', content: [{ type: 'toolCall', id: 'cd-1', name: 'continue_delegate', arguments: { task: harnessTask, mode: 'silent', delaySeconds: 1 } }], __openclaw: { runId: 'run-d' } }, 'run-d'),
+          ev({ role: 'toolResult', toolCallId: 'cd-1', toolName: 'continue_delegate', content: [{ type: 'text', text: JSON.stringify({ status: 'scheduled', mode: 'silent' }) }], __openclaw: { runId: 'run-d' } }, 'run-d'),
+          ev({ role: 'assistant', content: [spawnPart], __openclaw: { runId: 'run-d' } }, 'run-d'),
+          ev(say(`RCDS-SCHEDULED ${nonce}`, 'run-d'), 'run-d'),
+          { type: 'event', event: 'chat', payload: { runId: 'run-x', sessionKey: SPAWNED_CHILD, spawnedBy: SILENT_PARENT, state: 'final', message: { role: 'assistant', content: [{ type: 'text', text: `SILENTCHILD ${nonce} TOKEN ${token}` }] } } },
+        ];
+      }
+      default: return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `unknown method: ${frame.method}` } }];
+    }
+  };
+}
+
+async function fireSpawnBypass(world) {
+  const { log } = await runK6Scenario({
+    scenarioPath: path.join(root, 'scenarios', 'r-cd-silent.js'),
+    gateway: spawnBypassGateway(world),
+    env: {
+      OPENCLAW_ROW_MANIFEST: path.join(root, 'manifests', 'r-cd-silent.json'),
+      OPENCLAW_GATEWAY_TOKEN: 'echo-fix-r-cd-silent-spawn',
+      OPENCLAW_GATEWAY_WS: 'ws://127.0.0.1:1',
+      OPENCLAW_CANDIDATE_SHA: 'f15237ec921879d918482cdf372b0718d4c1aab9',
+      OPENCLAW_SEAT_NAME: 'echo-fix-seat',
+      OPENCLAW_SESSION_KEY: 'agent:main:main',
+      OPENCLAW_CREATE_DISPOSABLE_SESSION: 'true',
+    },
+  });
+  const records = extractEvidence(log);
+  assert.ok(records.length >= 1, `an R-CD-SILENT evidence record:\n${log}`);
+  return { evidence: records[records.length - 1], verdict: /\[R-CD-SILENT\] VERDICT: ([A-Z-]+-candidate)/.exec(log)?.[1] };
+}
+
+test('R-CD-SILENT: a child the requester spawned with its own sessions_spawn and a written token is not a readback', async () => {
+  const { evidence, verdict } = await fireSpawnBypass({ via: 'name', token: 'requester' });
+  assert.notEqual(evidence.child_completion_observed, true);
+  assert.notEqual(verdict, 'PASS-candidate');
+});
+
+test('R-CD-SILENT: the same sessions_spawn made through dispatch_action is refused too', async () => {
+  const { verdict } = await fireSpawnBypass({ via: 'dispatch_action', token: 'requester' });
+  assert.notEqual(verdict, 'PASS-candidate');
+});
+
+test('R-CD-SILENT control: an unrelated requester call does not refuse a token the child minted', async () => {
+  const { evidence, verdict } = await fireSpawnBypass({ via: 'name', token: 'child' });
+  assert.equal(evidence.child_completion_observed, true);
+  assert.equal(verdict, 'PASS-candidate');
+});

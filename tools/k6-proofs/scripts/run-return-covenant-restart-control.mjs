@@ -3,27 +3,38 @@
  * run-return-covenant-restart-control.mjs — the disposable real-restart control for
  * R-CD-RETURN-COVENANT-AUTHORITY (🌊's F″ ruling, karmaterminal/openclaw-bootstrap#1727).
  *
- * The control is the declared external supervisor of one disposable gateway that
- * frond-scribe scripts/proof-gw/composite-launcher.sh set up (and then stopped):
+ * The control owns the lifecycle of one disposable gateway that frond-scribe
+ * scripts/proof-gw/composite-launcher.sh set up (and then stopped):
  *
  *   1. refuse anything that is not a proof-gw directory with a stopped unit, a free
  *      non-live loopback port and a stage built from the candidate;
- *   2. start the old generation (OPENCLAW_SUPERVISOR_MODE=external) and wait for readiness;
+ *   2. start the old generation with a cleared environment carrying exactly the case's
+ *      supervisor hints (OPENCLAW_SUPERVISOR_MODE=external, or none), and wait for readiness;
  *   3. establish one return authority: sessions.create, then a narrowing
  *      session.visibility.set, which advances (creates) the session_recipient_authority epoch;
  *   4. sample the observation matrix (listener owner and its PID/start ticks, /readyz,
  *      /startupz, hello-ok, the generation observed serving, authority epoch) through a window
  *      planned before the transition;
- *   5. request a real restart (gateway.restart.request), wait for the old generation to
- *      close and exit, consume the product's restart handoff, start the replacement, and
- *      verify it (owned listener, /readyz, /startupz, hello-ok with a new bootId);
- *   6. clean up only processes it started (PID + start ticks + run marker), then grade,
- *      sign with a launcher-held observer key and write the public receipt.
+ *   5. request a real restart (gateway.restart.request) and follow the branch the case drives:
+ *      - supervised (positive, negative-replacement-never-usable): wait for the old generation
+ *        to close and exit, consume the product's restart handoff, start the replacement, and
+ *        verify it (owned listener, /readyz, /startupz, hello-ok with a new bootId);
+ *      - spawned (negative-spawned-fallback, negative-spawned-runtime-unavailable; reason
+ *        update.run, no supervisor): the product spawns and judges the child; the control
+ *        follows that child through /proc, keeps the product's diagnostic lines, and waits
+ *        for the original process to serve again or exit;
+ *   6. clean up only processes it started or that carry its run marker (PID + start ticks +
+ *      run marker), then grade, sign with a launcher-held observer key and write the public
+ *      receipt.
  *
- * The negative case (`negative-replacement-never-usable`) holds the port with a
- * control-owned socket before the replacement starts, so the replacement can never serve.
- * The grader must then refuse PASS while still showing the old authority and the failure
- * body. The product path and its F′ anchors are in scenarios/r-cd-return-covenant-authority.js.
+ * The negatives refuse PASS by construction. negative-replacement-never-usable holds the port
+ * with a control-owned socket before the control starts the replacement (the supervised branch
+ * has no fallback). negative-spawned-fallback holds the port from the old listener's close until
+ * the product-spawned child is gone, so the child can never serve; the original process must
+ * then reacquire and serve again (old-process restoration, never fresh-successor proof).
+ * negative-spawned-runtime-unavailable runs the old generation on a control-owned runtime copy
+ * and removes it before the transition, so the product refuses the fallback for real. The
+ * product path and its F′ anchors are in scenarios/r-cd-return-covenant-authority.js.
  *
  * It never reads OPENCLAW_GATEWAY_TOKEN/WS from the environment, never runs systemctl except
  * the read-only `is-active` check, and never signals a process it did not start.
@@ -32,6 +43,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import {
   chmodSync,
+  copyFileSync,
   createWriteStream,
   existsSync,
   lstatSync,
@@ -40,6 +52,8 @@ import {
   readFileSync,
   readlinkSync,
   realpathSync,
+  rmSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import http from 'node:http';
@@ -51,12 +65,17 @@ import { fileURLToPath } from 'node:url';
 import { canonicalJson } from '../lib/canonical-json.mjs';
 import {
   RCC_CASES,
+  RCC_CASE_BRANCH,
   RCC_REFUSAL_SCHEMA,
   RCC_ROW,
   RCC_SCHEMA,
+  RCC_SPAWN_DIAGNOSTICS,
+  RCC_SUPERVISOR_HINT_KEYS,
+  boundDiagnosticLine,
   boundedBody,
   evaluateDisposableTarget,
   gradeRestartControl,
+  isRestartDiagnostic,
   isSha40,
   observerKeyFingerprint,
   planObservationWindow,
@@ -135,8 +154,8 @@ function procStat(pid, procRoot = '/proc') {
   try {
     const text = readFileSync(path.join(procRoot, String(pid), 'stat'), 'utf8');
     const fields = text.slice(text.lastIndexOf(')') + 2).split(' ');
-    // Fields after the command: [0]=state (3) ... [2]=pgrp (5) ... [19]=starttime (22).
-    return { state: fields[0], pgrp: Number(fields[2]), startTicks: Number(fields[19]) };
+    // Fields after the command: [0]=state (3), [1]=ppid (4), [2]=pgrp (5) ... [19]=starttime (22).
+    return { state: fields[0], ppid: Number(fields[1]), pgrp: Number(fields[2]), startTicks: Number(fields[19]) };
   } catch {
     return null;
   }
@@ -148,6 +167,34 @@ function procEnvironHas(pid, entry, procRoot = '/proc') {
   } catch {
     return false;
   }
+}
+
+/**
+ * Which supervisor hints a running process carries, by key only (values never leave /proc).
+ * null when the environ cannot be read.
+ */
+function supervisorHintsOf(pid, procRoot = '/proc') {
+  try {
+    const keys = new Set(readFileSync(path.join(procRoot, String(pid), 'environ')).toString('utf8').split('\0')
+      .filter((entry) => entry.includes('=') && entry.slice(entry.indexOf('=') + 1).trim() !== '')
+      .map((entry) => entry.slice(0, entry.indexOf('='))));
+    return RCC_SUPERVISOR_HINT_KEYS.filter((key) => keys.has(key));
+  } catch {
+    return null;
+  }
+}
+
+/** Live children of `parent` that carry this run's marker: what the product spawned. */
+function markedChildrenOf(parent, marker, procRoot = '/proc') {
+  const found = [];
+  for (const entry of readdirSync(procRoot)) {
+    if (!/^\d+$/u.test(entry)) continue;
+    const stat = procStat(Number(entry), procRoot);
+    if (stat && stat.ppid === parent && stat.state !== 'Z' && procEnvironHas(Number(entry), marker, procRoot)) {
+      found.push({ pid: Number(entry), startTicks: stat.startTicks, ppid: stat.ppid });
+    }
+  }
+  return found;
 }
 
 /**
@@ -420,7 +467,7 @@ const USAGE = `Usage:
   node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \\
     --proof-gw-dir ~/proof-gw/comp-<sha8> --stage-dir <stage-only build dir> \\
     --candidate-sha <40-hex> --docs-sha <40-hex> \\
-    --case positive|negative-replacement-never-usable \\
+    --case positive|negative-replacement-never-usable|negative-spawned-fallback|negative-spawned-runtime-unavailable \\
     --artifact-dir <new public dir> --observer-key-file <0600 key file> \\
     [--sample-interval-ms 500] [--observation-window-ms 90000] [--readiness-deadline-ms 60000] \\
     [--transition-deadline-ms 45000] [--boot-timeout-ms 120000] [--pre-trigger-samples 4] \\
@@ -507,7 +554,7 @@ export async function runRestartControl(options, overrides = {}) {
   }
   let plan;
   try {
-    plan = planObservationWindow(options.plan ?? {});
+    plan = planObservationWindow(options.plan ?? {}, caseKind);
   } catch (error) {
     refuse('plan-invalid', error.message);
   }
@@ -559,6 +606,13 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   mkdirSync(artifactDir, { recursive: true });
   mkdirSync(privateDir, { recursive: true, mode: 0o700 });
   chmodSync(privateDir, 0o700);
+  // negative-spawned-runtime-unavailable runs the old generation on a runtime copy the control
+  // owns, inside its private directory, and removes that copy before the transition, so the
+  // product's child-runtime viability check fails for real (src/infra/child-runtime-viability.ts:48-62).
+  const runtimeCopy = caseKind === 'negative-spawned-runtime-unavailable' ? path.join(privateDir, 'runtime', 'node') : null;
+  const removeRuntimeCopy = () => {
+    if (runtimeCopy && existsSync(runtimeCopy)) unlinkSync(runtimeCopy);
+  };
 
   const runId = `rcc-${randomBytes(16).toString('hex')}`;
   const sessionSlug = `rcc-${runId.slice(4, 16)}`;
@@ -577,6 +631,11 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   secrets.sort((a, b) => String(b.value ?? '').length - String(a.value ?? '').length);
   const redact = (text) => redactText(text, secrets);
 
+  // A cleared environment: the supervisor hints are exactly what the case's branch needs. The
+  // supervised cases declare the external supervisor; the spawned cases carry no hint at all
+  // (no OPENCLAW_SUPERVISOR_MODE, no OPENCLAW_SYSTEMD_UNIT, no systemd invocation variables), so
+  // F′ resolves the unmanaged decision (src/infra/process-respawn.ts:56-71).
+  const branch = RCC_CASE_BRANCH[caseKind];
   const childEnv = {
     HOME: home,
     PATH: process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin',
@@ -587,7 +646,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     OPENCLAW_STATE_DIR: target.stateDir,
     OPENCLAW_CONFIG_PATH: target.configPath,
     OPENCLAW_GATEWAY_PORT: String(target.port),
-    OPENCLAW_SUPERVISOR_MODE: 'external',
+    ...(branch.supervisorMode === 'external' ? { OPENCLAW_SUPERVISOR_MODE: 'external' } : {}),
     OPENCLAW_PROOF_RCC_RUN: runId,
   };
 
@@ -608,7 +667,10 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       identity: target.identity,
       stageBuild: target.stageBuild,
       livePortsRefused: target.livePorts,
-      supervisorMode: 'external',
+      supervisorMode: branch.supervisorMode ?? 'unmanaged',
+      restartBranch: branch.branch,
+      restartReason: branch.restartReason,
+      supervisorHintKeys: [...RCC_SUPERVISOR_HINT_KEYS],
       guard: 'passed',
     },
     plan,
@@ -620,21 +682,58 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     observerKey: { available: Boolean(observerKey), algorithmFingerprint: observerKey ? observerKeyFingerprint(observerKey) : null },
     errors: [],
   };
+  // The spawned branch's own record: the product-spawned child, the port the control holds,
+  // the control-owned runtime copy, and the product's diagnostic lines.
+  const fallback = branch.branch === 'spawned'
+    ? {
+        outputChannel: 'inherited-by-old-generation',
+        oldListenerClosedAtMs: null,
+        child: { pid: null, pidSource: null, reportedPid: null, ppid: null, startTicks: null, firstSeenAtMs: null, goneAtMs: null },
+        blocker: null,
+        runtime: null,
+        diagnostics: [],
+      }
+    : null;
+  record.fallback = fallback;
 
   const generations = {};
   const state = { triggerAtMs: null, replacementReadyAt: null, stopSampling: false, lastPreTrigger: null, rawEpoch: null };
-  let blocker = null;
+  // The control-held port (the negatives' "replacement never usable"), opened and closed only here.
+  const held = { server: null, open: false, used: false };
+  const holdPort = async () => {
+    const server = net.createServer((socket) => socket.destroy());
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(target.port, '127.0.0.1', resolve);
+    });
+    Object.assign(held, { server, open: true, used: true });
+  };
+  const releasePort = async () => {
+    if (!held.open) return false;
+    held.open = false;
+    await new Promise((resolve) => held.server.close(() => resolve()));
+    return true;
+  };
   let sampler = null;
 
-  const startGeneration = (name) => {
+  const startGeneration = (name, runtime = node) => {
     const logs = {
       stdout: createWriteStream(path.join(privateDir, `${name}.stdout.log`), { mode: 0o600 }),
       stderr: createWriteStream(path.join(privateDir, `${name}.stderr.log`), { mode: 0o600 }),
     };
-    const generation = { name, stdout: [], stderr: [], exited: false, exit: null, exitedAtMs: null, logs };
+    const generation = { name, stdout: [], stderr: [], exited: false, exit: null, exitedAtMs: null, logs, diagnostics: [], partial: { stdout: '', stderr: '' } };
+    // Keep every restart diagnostic line as it arrives: a later log flood cannot push it out
+    // of the public tail, and the spawned flow reads the child's PID from it.
+    generation.scan = (stream, chunk, flush = false) => {
+      const lines = `${generation.partial[stream]}${chunk}`.split('\n');
+      generation.partial[stream] = flush ? '' : lines.pop().slice(-8192);
+      for (const line of lines) {
+        if (isRestartDiagnostic(line)) generation.diagnostics.push({ stream, atMs: now(), line: boundDiagnosticLine(line) });
+      }
+    };
     let child;
     try {
-      child = platform.spawnGateway({ node, args: [entry, 'gateway', '--port', String(target.port)], env: childEnv, cwd: target.proofGwDir });
+      child = platform.spawnGateway({ node: runtime, args: [entry, 'gateway', '--port', String(target.port)], env: childEnv, cwd: target.proofGwDir });
     } catch (error) {
       logs.stdout.end();
       logs.stderr.end();
@@ -647,10 +746,12 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     child.stdout?.on('data', (chunk) => {
       generation.stdout.push(chunk);
       logs.stdout.write(chunk);
+      generation.scan('stdout', chunk.toString('utf8'));
     });
     child.stderr?.on('data', (chunk) => {
       generation.stderr.push(chunk);
       logs.stderr.write(chunk);
+      generation.scan('stderr', chunk.toString('utf8'));
     });
     generation.closed = new Promise((resolve) => {
       child.on('error', (error) => {
@@ -682,6 +783,12 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     for (const name of ['old', 'replacement']) {
       const generation = generations[name];
       if (generation && !generation.exited) for (const inode of socketInodesOf(generation.pid)) map.set(inode, { name, pid: generation.pid });
+    }
+    // The product-spawned child (spawned branch) is the replacement, though the control did
+    // not start it.
+    const productChild = fallback?.child;
+    if (productChild?.pid && productChild.goneAtMs === null) {
+      for (const inode of socketInodesOf(productChild.pid)) if (!map.has(inode)) map.set(inode, { name: 'replacement', pid: productChild.pid });
     }
     for (const inode of socketInodesOf(process.pid)) if (!map.has(inode)) map.set(inode, { name: 'control-blocker', pid: process.pid });
     return map;
@@ -750,7 +857,9 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       atMs,
       phase: null,
       oldAlive: Boolean(generations.old && !generations.old.exited),
-      replacementAlive: Boolean(generations.replacement && !generations.replacement.exited),
+      replacementAlive: fallback
+        ? fallback.child.pid !== null && fallback.child.goneAtMs === null
+        : Boolean(generations.replacement && !generations.replacement.exited),
       listener,
       readyz,
       startupz: projectProbe(bodies.startupz, 'startupz'),
@@ -821,9 +930,95 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     return null;
   };
 
+  /**
+   * Track the child the product spawned (spawned branch): first from /proc, as a marked child of
+   * the old generation, else from the product's own "did not become healthy (<pid>)" line, which
+   * also names a child that never had a PID ("unknown").
+   */
+  const followChild = (old) => {
+    const child = fallback.child;
+    if (child.pid === null) {
+      const [found] = markedChildrenOf(old.pid, `OPENCLAW_PROOF_RCC_RUN=${runId}`);
+      if (found) Object.assign(child, { pid: found.pid, pidSource: 'proc', ppid: found.ppid, startTicks: found.startTicks, firstSeenAtMs: now() });
+    }
+    if (child.reportedPid === null) {
+      const named = old.diagnostics.find((entry) => RCC_SPAWN_DIAGNOSTICS.unhealthy.test(entry.line));
+      if (named) {
+        child.reportedPid = RCC_SPAWN_DIAGNOSTICS.unhealthy.exec(named.line)[1];
+        if (child.pid === null && /^\d+$/u.test(child.reportedPid)) Object.assign(child, { pid: Number(child.reportedPid), pidSource: 'diagnostic', ppid: old.pid });
+      }
+    }
+    if (child.pid !== null && child.goneAtMs === null) {
+      const stat = procStat(child.pid);
+      if (!stat || stat.state === 'Z' || (child.startTicks !== null && stat.startTicks !== child.startTicks)) child.goneAtMs = now();
+    }
+  };
+
+  /**
+   * The spawned branch after an accepted restart. The old server closes first (no listener on
+   * the port); negative-spawned-fallback then holds the port so the product's child can never
+   * serve, and releases it only once that child is gone: a dead child cannot become healthy,
+   * and the product's own listen retry (src/gateway/server/http-listen.ts:6-7) would otherwise
+   * let a live one bind. Then it waits for the original process to serve again or to exit.
+   */
+  const spawnedTransition = async (old) => {
+    const child = fallback.child;
+    const transitionDeadline = state.triggerAtMs + plan.transitionDeadlineMs;
+    const deadline = state.triggerAtMs + plan.readinessDeadlineMs;
+    const step = Math.min(20, plan.sampleIntervalMs);
+    const closed = await waitUntil(() => old.exited || listenInodes(target.port).length === 0, transitionDeadline, 10);
+    if (!closed) return;
+    fallback.oldListenerClosedAtMs = now();
+    if (caseKind === 'negative-spawned-fallback' && !old.exited) {
+      try {
+        await holdPort();
+        fallback.blocker = { bound: true, boundAtMs: now(), releasedAtMs: null, releasedOn: null };
+      } catch (error) {
+        fallback.blocker = { bound: false, error: String(error?.code ?? error?.message ?? 'listen-failed') };
+      }
+    }
+    const release = async (reason) => {
+      if (await releasePort()) Object.assign(fallback.blocker, { releasedAtMs: now(), releasedOn: reason });
+    };
+    while (now() < deadline) {
+      followChild(old);
+      if (old.exited) {
+        await release('old-exited');
+        break;
+      }
+      if (held.open) {
+        const childKnown = child.pid !== null || child.reportedPid !== null;
+        const childGone = child.goneAtMs !== null || (child.pid === null && child.reportedPid === 'unknown');
+        if (childKnown ? childGone : now() >= transitionDeadline) await release(childKnown ? 'replacement-exited' : 'no-replacement-observed');
+      } else {
+        const ready = await verifyReady(old);
+        if (ready) {
+          record.generations.old.restored = {
+            atMs: ready.atMs,
+            listen: { port: target.port, inode: ready.inode },
+            bootIdSha256: ready.bootIdSha256,
+            buildId: ready.buildId,
+            sameProcess: !old.exited && procStat(old.pid)?.startTicks === old.startTicks,
+          };
+          break;
+        }
+      }
+      await sleep(step);
+    }
+    await release('deadline');
+    followChild(old);
+  };
+
   const observe = async () => {
-    /* 1. the old generation */
-    const old = startGeneration('old');
+    /* 1. the old generation (on the control-owned runtime copy for the runtime case) */
+    if (runtimeCopy) {
+      mkdirSync(path.dirname(runtimeCopy), { recursive: true, mode: 0o700 });
+      copyFileSync(node, runtimeCopy);
+      chmodSync(runtimeCopy, 0o700);
+      const bytes = readFileSync(runtimeCopy);
+      fallback.runtime = { copied: true, sourceName: path.basename(node), bytes: bytes.length, sha256: sha256(bytes), unlinkedAtMs: null };
+    }
+    const old = startGeneration('old', runtimeCopy ?? node);
     const oldReady = await waitUntil(async () => (old.exited ? 'exited' : await verifyReady(old)), now() + plan.bootTimeoutMs, Math.min(250, plan.sampleIntervalMs));
     if (!oldReady || oldReady === 'exited') {
       record.generations.old.failure = {
@@ -838,6 +1033,9 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       listen: { port: target.port, inode: oldReady.inode },
       bootIdSha256: oldReady.bootIdSha256,
       buildId: oldReady.buildId,
+      // The branch precondition at the byte of the running process: which supervisor hints its
+      // own /proc environ carries (keys only).
+      supervisorHints: supervisorHintsOf(old.pid),
     });
 
     /* 2. one return authority. session.visibility.set needs the session owner or
@@ -894,13 +1092,17 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       Math.min(50, plan.sampleIntervalMs),
     );
 
-    /* 4. the real restart */
+    /* 4. the real restart (the runtime case first removes its runtime copy) */
+    if (runtimeCopy) {
+      removeRuntimeCopy();
+      fallback.runtime.unlinkedAtMs = now();
+    }
     state.triggerAtMs = now();
     record.observation.triggerAtMs = state.triggerAtMs;
     record.observation.plannedEndAtMs = state.triggerAtMs + plan.observationWindowMs;
     record.transition.httpBodies.lastPreTrigger = state.lastPreTrigger;
     record.transition.requestedAtMs = state.triggerAtMs;
-    const request = { method: 'gateway.restart.request', params: { reason: 'gateway.restart', skipDeferral: true } };
+    const request = { method: 'gateway.restart.request', params: { reason: branch.restartReason, skipDeferral: true } };
     record.transition.request = request;
     const restart = await gatewayRpc({ port: target.port, token: target.token, scopes: ['operator.admin'], calls: [request], timeoutMs: 15_000 });
     const frame = restart.results[0]?.frame ?? (restart.connectFrame && typeof restart.connectFrame === 'object' ? restart.connectFrame : null);
@@ -918,7 +1120,15 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const windowEnd = state.triggerAtMs + plan.observationWindowMs;
     // A lost response is not a rejected one: if the old generation still restarts, follow
     // it, and let the grader score the missing body (the rejected base's second half).
-    if (frame?.ok === true || !frame) {
+    if ((frame?.ok === true || !frame) && branch.branch === 'spawned') {
+      /* 5-6. the spawned branch: the product starts and judges the replacement */
+      await spawnedTransition(old);
+      await waitUntil(() => {
+        followChild(old);
+        return false;
+      }, windowEnd, Math.min(100, plan.sampleIntervalMs));
+      record.generations.old.exitedAtMs = old.exited ? old.exitedAtMs : null;
+    } else if (frame?.ok === true || !frame) {
       /* 5. the old generation closes and exits through the handoff */
       await waitUntil(() => old.exited, state.triggerAtMs + plan.transitionDeadlineMs, 20);
       if (old.exited) {
@@ -953,13 +1163,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
         };
 
         /* the negative: a control-owned socket holds the port so no replacement can serve */
-        if (caseKind === 'negative-replacement-never-usable') {
-          blocker = net.createServer((socket) => socket.destroy());
-          await new Promise((resolve, reject) => {
-            blocker.once('error', reject);
-            blocker.listen(target.port, '127.0.0.1', resolve);
-          });
-        }
+        if (caseKind === 'negative-replacement-never-usable') await holdPort();
 
         /* 6. the replacement */
         const replacement = startGeneration('replacement');
@@ -1004,7 +1208,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     state.stopSampling = true;
     if (sampler) await sampler;
     record.observation.endAtMs = now();
-    await cleanup({ record, generations, blocker, target, runId });
+    await cleanup({ record, generations, held, target, runId });
     for (const [name, generation] of Object.entries(generations)) {
       await new Promise((resolve) => generation.logs.stdout.end(resolve));
       await new Promise((resolve) => generation.logs.stderr.end(resolve));
@@ -1018,9 +1222,42 @@ async function executeControl({ options, platform, plan, target, docs, home, art
         stderr: textCapture(Buffer.concat(generation.stderr), secrets),
       });
     }
-    if (record.generations.replacement.started && record.generations.replacement.failure) {
-      record.generations.replacement.failure.exit = generations.replacement?.exit ?? null;
+    if (generations.replacement && record.generations.replacement.started && record.generations.replacement.failure) {
+      record.generations.replacement.failure.exit = generations.replacement.exit ?? null;
       record.generations.replacement.failure.stderrTail = record.generations.replacement.stderr.tail;
+    }
+    if (fallback) {
+      // The product's diagnostic lines, redacted, and the product-spawned replacement as seen
+      // from outside: it shares the old generation's streams and is never the control's child.
+      const old = generations.old;
+      if (old) {
+        for (const stream of ['stdout', 'stderr']) old.scan(stream, '', true);
+        fallback.diagnostics = old.diagnostics.map((entry) => ({ stream: entry.stream, atMs: entry.atMs, line: redact(entry.line) }));
+      }
+      const child = fallback.child;
+      const started = child.pid !== null || child.reportedPid !== null;
+      const served = record.observation.samples.some((sample) => sample.servingGeneration === 'replacement');
+      record.generations.replacement = {
+        started,
+        spawnedBy: 'product',
+        pid: child.pid,
+        startTicks: child.startTicks,
+        ppid: child.ppid,
+        pidSource: child.pidSource,
+        reportedPid: child.reportedPid,
+        firstSeenAtMs: child.firstSeenAtMs,
+        goneAtMs: child.goneAtMs,
+        readyAtMs: null,
+        failure: started && !served ? { kind: 'never-healthy' } : null,
+      };
+    }
+    if (runtimeCopy) {
+      try {
+        removeRuntimeCopy();
+        rmSync(path.dirname(runtimeCopy), { recursive: true, force: true });
+      } catch (error) {
+        record.errors.push({ at: 'runtime-copy-cleanup', message: redact(error.message) });
+      }
     }
   }
 
@@ -1054,12 +1291,15 @@ async function stopOwnGeneration(generation, runId, outcome) {
   }
 }
 
-async function cleanup({ record, generations, blocker, target, runId }) {
+async function cleanup({ record, generations, held, target, runId }) {
   const outcome = { escalated: [], unverified: [] };
   for (const name of ['replacement', 'old']) await stopOwnGeneration(generations[name], runId, outcome);
   let blockerClosed = null;
-  if (blocker) {
-    await new Promise((resolve) => blocker.close(() => resolve()));
+  if (held.used) {
+    if (held.open) {
+      held.open = false;
+      await new Promise((resolve) => held.server.close(() => resolve()));
+    }
     blockerClosed = true;
   }
   const marker = `OPENCLAW_PROOF_RCC_RUN=${runId}`;

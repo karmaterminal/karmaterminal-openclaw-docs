@@ -7,7 +7,8 @@
  * restart on a disposable proof-gw gateway as the product's declared external supervisor
  * and grades the receipts. Ruling: 🌊, Discord msg 1565895695586558120 (the row stays
  * required/MISSING until this control runs on the final successor, including 🌻's
- * replacement-never-usable negative). Bound issue: karmaterminal/openclaw-bootstrap#1727.
+ * replacement-never-usable negative), narrowed by 🌊's ruling on the fork, Discord msg
+ * 1565903655885082677 (section 4). Bound issue: karmaterminal/openclaw-bootstrap#1727.
  *
  * Product path at F′ karmaterminal/openclaw f15237ec921879d918482cdf372b0718d4c1aab9
  * (byte-read with git show; GitNexus index openclaw-gn-j7-bc90c0ea is STALE for these paths,
@@ -61,9 +62,12 @@
  *    `gateway restart-handoff consume --expected-pid <pid> --json`
  *    (src/cli/gateway-cli/register-restart-handoff.ts:41-74; row TTL 60 s,
  *    src/infra/restart-handoff.ts:36-41) and starts the replacement.
- *    A proof-gw systemd unit cannot host this: composite-launcher.sh sets OPENCLAW_SYSTEMD_UNIT
- *    with Restart=no, so a supervised restart exits 0 and never returns. The control stops
- *    nothing it did not start: the operator stops the proof-gw unit first.
+ *    Systemd-supervised fleet seats take this same supervised branch with supervisor systemd
+ *    (OPENCLAW_SYSTEMD_UNIT / INVOCATION_ID, src/infra/supervisor-markers.ts:5-22), so the
+ *    positive case is the fleet-relevant one. It has no in-process fallback once the handoff
+ *    is written. A proof-gw systemd unit cannot host the control: composite-launcher.sh sets
+ *    OPENCLAW_SYSTEMD_UNIT with Restart=no, so a supervised restart exits 0 and never returns.
+ *    The control stops nothing it did not start: the operator stops the proof-gw unit first.
  *
  * 3. Which readiness signal. GET /readyz is 200 {ready:true,...} or 503 with failing[]
  *    (src/gateway/server-http-probes.ts:84-94, src/gateway/gateway-http-route-contracts.ts:1-8);
@@ -75,12 +79,45 @@
  *    listening socket, /readyz passes and hello-ok answers; the control observes all three at
  *    every sample. An unchanged epoch alone is not usability.
  *
+ * 4. Which branch spawns a child, and what gates its fallback. restartGatewayProcessWithFreshPid
+ *    never spawns: it returns supervised | disabled | failed (src/infra/process-respawn.ts:231-273).
+ *    With no supervisor hint the decision is disabled/unmanaged (src/infra/process-respawn.ts:56-71,
+ *    hints src/infra/supervisor-markers.ts:5-22), so a plain restart of an unmanaged gateway is
+ *    in-process under the same PID (src/cli/gateway-cli/run-loop.ts:572-580). The spawned branch
+ *    (src/cli/gateway-cli/run-loop.ts:459-495) runs only for a standalone update: a foreground
+ *    update handoff, or an update-process reason (update.run | update.auto,
+ *    src/cli/gateway-cli/run-loop-request.ts:33-35) with no supervisor, through
+ *    respawnGatewayProcessForUpdate (src/infra/process-respawn.ts:282-307: a detached child with
+ *    inherited stdio and env; OPENCLAW_NO_RESPAWN disables it). The untargeted
+ *    gateway.restart.request passes its reason through (restart.ts:124-194 ->
+ *    src/infra/restart.ts:164-203 -> src/cli/gateway-cli/run-loop-signals.ts:263-329), so the
+ *    spawned cases send {reason:"update.run"}; no update runs, so installationReplacement is
+ *    absent by construction. handleRestartAfterServerClose has already closed the old server;
+ *    the old process waits for the child's readiness (update-successor.ts:65-122 over
+ *    restart-health.ts: up to 60 s, an early "stopped-free" once the child is dead and the port
+ *    free). An unhealthy child is killed, the restart marked restart-unhealthy, and
+ *    reacquireAndResumeInProcessRestart (src/cli/gateway-cli/run-loop.ts:266-360) either
+ *    restores the original process in-process (the product's own test:
+ *    src/cli/gateway-cli/run-loop.test.ts:1076-1110) or exits on a named branch:
+ *    resources-retained (:270-273, exits 0), require-fresh-process (:274-279),
+ *    child-runtime-unavailable (:280-285, src/infra/child-runtime-viability.ts:48-62),
+ *    foreground-closed (:286-288), installation-replaced (:308-310 and 336-338),
+ *    lock-reacquire-failed (:313-331). The child retries a held port 20 x 500 ms
+ *    (src/gateway/server/http-listen.ts:6-7) and a failed first boot exits nonzero
+ *    (run-loop.ts:1238-1262). The gateway lock is state-database ownership and never probes the
+ *    port (src/infra/gateway-lock.ts:417-572), so a held port cannot induce lock-reacquire-failed;
+ *    requireFreshProcess comes only from native-worker recovery under systemd or launchd
+ *    (process-respawn.ts:198-203), never from a targeted intent (restart-request.ts:57-82).
+ *    The child runtime is the one refusal a disposable gateway can induce: run on a runtime copy
+ *    the control owns and remove it before the transition.
+ *
  * At F′ the old server closes before any successor is ready, so continuous service across a
  * restart is not an invariant (🌊, Discord msg 1565903655885082677). The control asserts what
  * holds: the durable epoch is present and unchanged at every sample, including the outage where
  * no process serves, and the failure text survives. It reports the outage as outageInterval
- * (last serving old sample -> first serving sample after it). The rejected base lost the
- * failure body.
+ * (last serving old sample -> first serving sample after it). On the spawned branch the first
+ * serving sample after it can be the original process itself: old-process restoration, which is
+ * never fresh-successor proof and never PASS. The rejected base lost the failure body.
  */
 export const options = {
   scenarios: {

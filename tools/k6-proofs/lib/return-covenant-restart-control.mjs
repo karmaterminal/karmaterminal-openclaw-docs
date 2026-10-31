@@ -22,7 +22,113 @@ export const RCC_REFUSAL_SCHEMA = 'openclaw.k6.return-covenant-restart-control-r
 // candidate under test cannot sign its own observation. Distinct from the gateway-token
 // HMAC that R-CD-2/R-CD-TOKEN use.
 export const RCC_OBSERVER_ALGORITHM = 'hmac-sha256-proof-observer-key-v1';
-export const RCC_CASES = Object.freeze(['positive', 'negative-replacement-never-usable']);
+export const RCC_CASES = Object.freeze([
+  'positive',
+  'negative-replacement-never-usable',
+  'negative-spawned-fallback',
+  'negative-spawned-runtime-unavailable',
+]);
+// A negative case exists to refuse PASS; none can ever grade PASS.
+export const RCC_NEGATIVE_CASES = Object.freeze(RCC_CASES.filter((caseKind) => caseKind !== 'positive'));
+/**
+ * Which F′ restart branch each case drives, and how (anchors at f15237ec92):
+ * - supervised: OPENCLAW_SUPERVISOR_MODE=external, so the run loop writes the restart handoff,
+ *   closes and exits (src/cli/gateway-cli/run-loop.ts:497-561). Systemd-supervised fleet seats
+ *   take this same branch with supervisor systemd. It has no in-process fallback once the
+ *   handoff is written.
+ * - spawned: no supervisor at all, and the update-process reason update.run
+ *   (run-loop-request.ts:33-35), so the run loop calls respawnGatewayProcessForUpdate
+ *   (src/infra/process-respawn.ts:282-307) and observes the child's readiness
+ *   (run-loop.ts:459-495). restartGatewayProcessWithFreshPid never spawns
+ *   (process-respawn.ts:231-273): a plain restart of an unmanaged gateway is in-process
+ *   (run-loop.ts:572-580).
+ */
+export const RCC_CASE_BRANCH = Object.freeze({
+  positive: Object.freeze({ branch: 'supervised', supervisorMode: 'external', restartReason: 'gateway.restart' }),
+  'negative-replacement-never-usable': Object.freeze({ branch: 'supervised', supervisorMode: 'external', restartReason: 'gateway.restart' }),
+  'negative-spawned-fallback': Object.freeze({ branch: 'spawned', supervisorMode: null, restartReason: 'update.run' }),
+  'negative-spawned-runtime-unavailable': Object.freeze({ branch: 'spawned', supervisorMode: null, restartReason: 'update.run' }),
+});
+// Every environment key F′ reads as a supervisor or respawn hint on Linux
+// (src/infra/supervisor-markers.ts:5-22, src/infra/process-respawn.ts:56-71). The control
+// records which of them the running old generation carries (keys only).
+export const RCC_SUPERVISOR_HINT_KEYS = Object.freeze([
+  'OPENCLAW_SUPERVISOR_MODE',
+  'OPENCLAW_SYSTEMD_UNIT',
+  'INVOCATION_ID',
+  'SYSTEMD_EXEC_PID',
+  'JOURNAL_STREAM',
+  'OPENCLAW_SERVICE_MARKER',
+  'OPENCLAW_SERVICE_KIND',
+  'OPENCLAW_NO_RESPAWN',
+]);
+// The product's own console lines on the spawned branch (run-loop.ts:480-488, 562-576).
+export const RCC_SPAWN_DIAGNOSTICS = Object.freeze({
+  unhealthy: /update respawn child did not become healthy \(([^)]*)\)/u,
+  fallingBack: /update respawn child did not become healthy \([^)]*\); falling back to in-process restart/u,
+  accepted: /restart mode: update process respawn \(spawned pid ([^)]*)\)/u,
+  respawnFailed: /update respawn failed \(/u,
+  inProcess: /restart mode: in-process restart/u,
+  childBindFailed: /another gateway instance is already listening on/u,
+});
+/**
+ * The exits that stop the spawned branch's in-process fallback, in the order
+ * reacquireAndResumeInProcessRestart checks them (src/cli/gateway-cli/run-loop.ts:266-360), each
+ * with the product's diagnostic. 🌊's negative holds only "if the old runtime is viable and not
+ * replaced": a limit is the product declining an in-process recovery whose precondition is false;
+ * the one failure is the fallback itself failing. Neither is ever PASS.
+ */
+export const RCC_FALLBACK_BRANCHES = Object.freeze([
+  Object.freeze({
+    branch: 'require-fresh-process',
+    class: 'limit',
+    anchor: 'src/cli/gateway-cli/run-loop.ts:274-279',
+    pattern: /Fresh-process restart failed; the unsettled native worker cannot recover in-process/u,
+  }),
+  Object.freeze({
+    branch: 'child-runtime-unavailable',
+    class: 'limit',
+    anchor: 'src/cli/gateway-cli/run-loop.ts:280-285 (src/infra/child-runtime-viability.ts:48-62)',
+    pattern: /Fresh-process restart failed; the unavailable child runtime cannot recover in-process/u,
+  }),
+  Object.freeze({
+    branch: 'foreground-closed',
+    class: 'limit',
+    anchor: 'src/cli/gateway-cli/run-loop.ts:286-288 (warned at :486-488)',
+    pattern: /did not become healthy \([^)]*\); shutdown pending; retaining the replacement until it closes/u,
+  }),
+  Object.freeze({
+    branch: 'installation-replaced',
+    class: 'limit',
+    anchor: 'src/cli/gateway-cli/run-loop.ts:308-310 and 336-338 (exit at :203-214, warned at :486-488)',
+    pattern: /the replaced runtime cannot resume|Cannot continue in this process/u,
+  }),
+  Object.freeze({
+    branch: 'lock-reacquire-failed',
+    class: 'failure',
+    anchor: 'src/cli/gateway-cli/run-loop.ts:313-331',
+    pattern: /failed to reacquire gateway lock for in-process restart/u,
+  }),
+  Object.freeze({
+    branch: 'resources-retained',
+    class: 'limit',
+    anchor: 'src/cli/gateway-cli/run-loop.ts:270-273 (exits 0)',
+    pattern: /shutdown resources remain; refusing in-process restart and exiting/u,
+  }),
+]);
+const DIAGNOSTIC_PATTERNS = [...Object.values(RCC_SPAWN_DIAGNOSTICS), ...RCC_FALLBACK_BRANCHES.map((entry) => entry.pattern)];
+const DIAGNOSTIC_LINE_CHARS = 600;
+
+/** Whether one output line is a restart diagnostic the receipt must keep. */
+export function isRestartDiagnostic(line) {
+  return DIAGNOSTIC_PATTERNS.some((pattern) => pattern.test(line));
+}
+
+/** Bound a retained diagnostic line; redaction happens in the caller, which holds the secrets. */
+export function boundDiagnosticLine(line) {
+  const text = String(line ?? '').replace(/\s+$/u, '');
+  return text.length > DIAGNOSTIC_LINE_CHARS ? `${text.slice(0, DIAGNOSTIC_LINE_CHARS)}…` : text;
+}
 export const RCC_RECEIPTS = Object.freeze([
   'transition-http-body',
   'replacement-process-output',
@@ -50,6 +156,14 @@ export const DEFAULT_PLAN = Object.freeze({
   transitionDeadlineMs: 45_000,
   readinessDeadlineMs: 60_000,
   observationWindowMs: 90_000,
+});
+// The spawned branch serves again only after the child's bind retries (20 x 500 ms,
+// src/gateway/server/http-listen.ts:6-7), the readiness wait (up to 60 s,
+// src/cli/daemon-cli/restart-health.constants.ts) and an in-process boot, so its default
+// deadline and window are longer. readinessDeadlineMs bounds the original process serving again.
+export const SPAWNED_PLAN_DEFAULTS = Object.freeze({
+  readinessDeadlineMs: 150_000,
+  observationWindowMs: 180_000,
 });
 
 const SHA40 = /^[0-9a-f]{40}$/u;
@@ -81,8 +195,8 @@ function finiteTime(value) {
  * Freeze the observation window before the transition. Every bound is explicit, so a
  * reviewer can tell a bounded claim from an open-ended one.
  */
-export function planObservationWindow(overrides = {}) {
-  const plan = { ...DEFAULT_PLAN };
+export function planObservationWindow(overrides = {}, caseKind = 'positive') {
+  const plan = { ...DEFAULT_PLAN, ...(RCC_CASE_BRANCH[caseKind]?.branch === 'spawned' ? SPAWNED_PLAN_DEFAULTS : {}) };
   for (const [key, value] of Object.entries(overrides)) {
     if (value === undefined) continue;
     if (!(key in DEFAULT_PLAN)) throw new Error(`unknown observation plan field: ${key}`);
@@ -429,14 +543,29 @@ export function computeOutageInterval(record) {
   };
 }
 
+function branchOf(record) {
+  return RCC_CASE_BRANCH[record?.case]?.branch ?? 'supervised';
+}
+
+function diagnosticLinesOf(record) {
+  const entries = record?.fallback?.diagnostics;
+  return Array.isArray(entries) ? entries.map((entry) => String(entry?.line ?? '')) : [];
+}
+
 function receiptPresence(record) {
   const old = record?.generations?.old;
   const replacement = record?.generations?.replacement;
+  const child = record?.fallback?.child;
   const transition = record?.transition;
   const bodies = transition?.httpBodies;
   const observation = record?.observation;
   const plan = record?.plan;
+  const spawned = branchOf(record) === 'spawned';
   const capture = (value) => Boolean(value) && Number.isSafeInteger(value.bytes) && isHex64(value.sha256);
+  const oldFingerprint = positiveInteger(old?.pid) &&
+    positiveInteger(old?.startTicks) &&
+    positiveInteger(old?.listen?.inode) &&
+    isHex64(old?.bootIdSha256);
   return {
     'transition-http-body': Boolean(
       transition?.response &&
@@ -446,19 +575,26 @@ function receiptPresence(record) {
         bodies?.lastPreTrigger?.readyz &&
         (bodies.firstPostTriggerNotReady || bodies.firstReplacementReady),
     ),
+    // On the spawned branch the product starts the child with inherited stdio
+    // (src/infra/process-respawn.ts:295-299), so its output is in the old generation's streams.
     'replacement-process-output': Boolean(
-      replacement?.started && capture(replacement.stdout) && capture(replacement.stderr),
+      spawned
+        ? record?.fallback?.outputChannel === 'inherited-by-old-generation' && capture(old?.stdout) && capture(old?.stderr)
+        : replacement?.started && capture(replacement.stdout) && capture(replacement.stderr),
     ),
     'generation-fingerprints': Boolean(
-      positiveInteger(old?.pid) &&
-        positiveInteger(old?.startTicks) &&
-        positiveInteger(old?.listen?.inode) &&
-        isHex64(old?.bootIdSha256) &&
-        positiveInteger(replacement?.pid) &&
-        positiveInteger(replacement?.startTicks) &&
-        // A replacement that never listened has no socket to fingerprint; its process
-        // identity still must be retained.
-        (replacement?.readyAtMs ? positiveInteger(replacement?.listen?.inode) && isHex64(replacement?.bootIdSha256) : true),
+      oldFingerprint &&
+        (spawned
+          ? // The product's child, by PID from /proc or from the product's own diagnostic; a
+            // child whose spawn failed has no PID, and the product reports it as unknown. A
+            // restored original process carries its new socket and boot identity.
+            (positiveInteger(child?.pid) || child?.reportedPid === 'unknown') &&
+            (old?.restored ? positiveInteger(old.restored.listen?.inode) && isHex64(old.restored.bootIdSha256) : true)
+          : positiveInteger(replacement?.pid) &&
+            positiveInteger(replacement?.startTicks) &&
+            // A replacement that never listened has no socket to fingerprint; its process
+            // identity still must be retained.
+            (replacement?.readyAtMs ? positiveInteger(replacement?.listen?.inode) && isHex64(replacement?.bootIdSha256) : true)),
     ),
     'observation-record': Boolean(
       plan &&
@@ -473,22 +609,83 @@ function receiptPresence(record) {
 }
 
 /**
+ * Classify what the spawned branch did after the transition, from the product's own console
+ * lines (retained by the control), the matrix and the old generation's exit:
+ * - `restored` (old-process restoration): the original process, same PID and start ticks, owns
+ *   the listener again and serves to the end of the window. This is 🌊's fallback, never
+ *   fresh-successor proof.
+ * - a named branch from RCC_FALLBACK_BRANCHES: the product refused the fallback (limit) or the
+ *   fallback failed (failure).
+ * - `not-exercised`: the spawned branch never ran (`in-process-restart`,
+ *   `spawned-branch-not-taken`) or a fresh child served (`replacement-accepted`).
+ * - `restoration-unstable`, `unclassified-exit`, `not-restored`: failures without a named reason.
+ */
+export function classifyFallback(record, samples = sortedSamples(record), outage = computeOutageInterval(record)) {
+  const lines = diagnosticLinesOf(record);
+  const has = (pattern) => lines.some((line) => pattern.test(line));
+  const old = record?.generations?.old ?? {};
+  const child = record?.fallback?.child ?? {};
+  const triggerAtMs = record?.observation?.triggerAtMs;
+  const updateRespawnTaken = Boolean(
+    positiveInteger(child.pid) ||
+      has(RCC_SPAWN_DIAGNOSTICS.unhealthy) ||
+      has(RCC_SPAWN_DIAGNOSTICS.accepted) ||
+      has(RCC_SPAWN_DIAGNOSTICS.respawnFailed),
+  );
+  const replacementServed = finiteTime(triggerAtMs) &&
+    samples.some((sample) => sample.atMs >= triggerAtMs && servingGenerationOf(sample) === 'replacement');
+  const first = outage.firstServingAfter;
+  const servingAgain = first?.generation === 'old' ? samples.filter((sample) => sample.atMs >= first.atMs) : [];
+  const restored = servingAgain.length > 0 && servingAgain.every((sample) =>
+    servingGenerationOf(sample) === 'old' &&
+      sample.listener?.ownerPid === old.pid &&
+      sample.listener?.ownerStartTicks === old.startTicks);
+  const named = RCC_FALLBACK_BRANCHES.find((entry) => has(entry.pattern));
+  const result = (branch, cls, detail, anchor = null) => ({
+    branch,
+    class: cls,
+    detail,
+    anchor,
+    updateRespawnTaken,
+    childPid: positiveInteger(child.pid) ? child.pid : (child.reportedPid ?? null),
+  });
+  if (replacementServed || has(RCC_SPAWN_DIAGNOSTICS.accepted)) {
+    return result('replacement-accepted', 'not-exercised', 'a product-spawned replacement served, so the never-usable negative was not exercised', 'src/cli/gateway-cli/run-loop.ts:480-485');
+  }
+  if (named) return result(named.branch, named.class, `the product refused or failed the in-process fallback (${named.branch})`, named.anchor);
+  if (!updateRespawnTaken) {
+    return has(RCC_SPAWN_DIAGNOSTICS.inProcess)
+      ? result('in-process-restart', 'not-exercised', 'the restart stayed in-process and spawned no child', 'src/cli/gateway-cli/run-loop.ts:572-580')
+      : result('spawned-branch-not-taken', 'not-exercised', 'no child, no update-respawn diagnostic: the spawned branch did not run', 'src/cli/gateway-cli/run-loop.ts:459-495');
+  }
+  if (restored) {
+    return result('restored', 'old-process-restoration', 'the original process (same PID and start ticks) owns the listener again and serves; old-process restoration, not a fresh successor', 'src/cli/gateway-cli/run-loop.ts:266-360');
+  }
+  if (first?.generation === 'old') return result('restoration-unstable', 'failure', 'the original process served again but did not stay serving, or the listener was not its exact process');
+  if (finiteTime(old.exitedAtMs)) return result('unclassified-exit', 'failure', 'the original process exited without a named product reason');
+  return result('not-restored', 'failure', 'the original process neither served again nor exited with a named reason before the deadline');
+}
+
+/**
  * Grade one control record. Precedence: a contradicted behaviour is FAIL; with no observed
- * transition there is nothing to judge (MISSING); a positive chain with a missing receipt is
- * PARTIAL; only the full receipt chain plus the positive behaviour is PASS.
+ * transition, or only a declared limit, there is nothing to judge (MISSING); a positive chain
+ * with a missing receipt is PARTIAL; only the full receipt chain plus the positive behaviour is
+ * PASS, and only for the positive case.
  */
 export function gradeRestartControl(record) {
   const failures = [];
   const partials = [];
   const missingBehaviour = [];
+  const limits = [];
   const fail = (code, detail) => failures.push({ code, detail });
   const partial = (code, detail) => partials.push({ code, detail });
   const missing = (code, detail) => missingBehaviour.push({ code, detail });
+  const limit = (code, detail) => limits.push({ code, detail });
 
   const receipts = receiptPresence(record);
   const missingReceipts = RCC_RECEIPTS.filter((name) => !receipts[name]);
   const observed = receipts['observation-record'];
-  const samples = observed ? [...samplesOf(record)].sort((a, b) => a.atMs - b.atMs) : [];
+  const samples = observed ? sortedSamples(record) : [];
   const plan = record?.plan ?? {};
   const authority = record?.authority ?? {};
   const old = record?.generations?.old ?? {};
@@ -497,6 +694,8 @@ export function gradeRestartControl(record) {
   const triggerAtMs = record?.observation?.triggerAtMs;
   const endAtMs = record?.observation?.endAtMs;
   const caseKind = record?.case;
+  const spawned = branchOf(record) === 'spawned';
+  const lines = diagnosticLinesOf(record);
 
   if (record?.schema !== RCC_SCHEMA || record?.row !== RCC_ROW) fail('record-identity', 'record schema or row is not this control');
   if (!RCC_CASES.includes(caseKind)) fail('case-unknown', 'record case is not a declared control case');
@@ -516,6 +715,18 @@ export function gradeRestartControl(record) {
     missing('transition-not-requested', 'no transition request reached the gateway');
   } else if (transition.response && transition.response.ok !== true) {
     missing('transition-rejected', 'the gateway rejected the restart request; no restart was observed (body retained)');
+  }
+
+  // The branch the case meant to drive must be the one the running process could take: the
+  // old generation's own environ carries exactly the supervisor hints the case sets.
+  const hints = old.supervisorHints;
+  if (Array.isArray(hints)) {
+    const expected = RCC_CASE_BRANCH[caseKind]?.supervisorMode === 'external' ? ['OPENCLAW_SUPERVISOR_MODE'] : [];
+    if (hints.length !== expected.length || hints.some((key, index) => key !== expected[index])) {
+      missing('branch-precondition-unmet', `the old generation carried supervisor hints ${JSON.stringify(hints)}, not ${JSON.stringify(expected)}`);
+    }
+  } else if (old.started === true && finiteTime(old.readyAtMs)) {
+    partial('branch-precondition-unrecorded', 'the old generation\'s supervisor hints were not read from /proc');
   }
 
   const established = authority.epochSha256;
@@ -546,58 +757,78 @@ export function gradeRestartControl(record) {
   }
   const outage = observed ? computeOutageInterval(record) : computeOutageInterval(null);
 
-  // B5: the old generation left through the product's external-supervisor handoff.
-  if (transitionHappened) {
-    const handoff = transition.handoff;
-    if (!finiteTime(old.exitedAtMs)) {
-      fail('old-did-not-exit', 'the old generation never exited within the transition deadline');
-    } else {
-      if (old.exit?.code !== 0) fail('old-exit-nonzero', `the old generation exited with ${JSON.stringify(old.exit)}`);
-      if (
-        handoff?.status !== 'accepted' ||
-        handoff.pid !== old.pid ||
-        handoff.restartKind !== 'full-process' ||
-        handoff.supervisorMode !== 'external'
-      ) {
-        fail('restart-handoff-missing', 'the old generation exited without an accepted full-process external restart handoff bound to its PID');
-      }
-    }
-  }
-
   // No predicate credits a generation as usable through the outage: at F′ the old server
   // closes before any successor is ready (🌊's ruling), so continuous service is not an
   // invariant. The outage is measured and reported instead (grade.outageInterval).
 
-  // B7/B8/B10: the replacement became ready, distinct, and stayed serving.
-  if (transitionHappened && finiteTime(old.exitedAtMs)) {
-    if (!replacement.started) {
-      fail('replacement-not-started', 'the control never started a replacement generation');
-    } else if (!finiteTime(readyAt)) {
-      fail('replacement-never-usable', replacement.failure?.kind
-        ? `the replacement never became usable (${replacement.failure.kind})`
-        : 'the replacement never became usable');
-    } else {
-      if (readyAt - triggerAtMs > plan.readinessDeadlineMs) fail('replacement-ready-late', 'replacement readiness came after the planned deadline');
-      if (positiveInteger(old.pid) && replacement.pid === old.pid && replacement.startTicks === old.startTicks) fail('generations-not-distinct', 'old and replacement share one process identity');
-      if (positiveInteger(replacement.listen?.inode) && replacement.listen.inode === old.listen?.inode) fail('generations-not-distinct', 'old and replacement share one listening socket inode');
-      if (isHex64(replacement.bootIdSha256) && replacement.bootIdSha256 === old.bootIdSha256) fail('generations-not-distinct', 'old and replacement report one boot identity');
-      if (observed) {
-        const settle = samples.filter((sample) => sample.atMs > readyAt);
-        const unstable = settle.filter((sample) =>
-          servingGenerationOf(sample) !== 'replacement' ||
-          sample.listener?.inode !== replacement.listen?.inode);
-        if (unstable.length) fail('replacement-unstable', `${unstable.length} settle sample(s) did not show the same replacement serving`);
-        if (settle.length === 0) partial('settle-unobserved', 'no samples followed replacement readiness');
-        const firstServing = outage.firstServingAfter;
-        if (firstServing?.generation === 'replacement' && firstServing.atMs - triggerAtMs > plan.readinessDeadlineMs) {
-          fail('replacement-ready-late', 'the first serving replacement sample came after the planned deadline');
+  let fallback = {
+    branch: 'none-on-supervised-branch',
+    class: 'not-applicable',
+    detail: 'the supervised branch (src/cli/gateway-cli/run-loop.ts:497-561) writes the handoff and exits; it has no in-process fallback once the handoff is written',
+  };
+  if (spawned) {
+    // The spawned branch: the product, not the control, starts the replacement and decides the
+    // fallback. A fresh successor is not this case's claim; the child never serving is.
+    fallback = classifyFallback(record, samples, outage);
+    if (transitionHappened) {
+      if (fallback.class === 'not-exercised') {
+        missing('negative-not-exercised', `${fallback.branch}: ${fallback.detail}`);
+      } else {
+        fail('replacement-never-usable', 'the product-spawned replacement never became healthy');
+      }
+      if (fallback.class === 'limit') limit(`fallback-${fallback.branch}`, `${fallback.detail}; ${fallback.anchor}`);
+      if (fallback.class === 'failure') fail(`fallback-${fallback.branch}`, fallback.anchor ? `${fallback.detail}; ${fallback.anchor}` : fallback.detail);
+    }
+  } else {
+    // B5: the old generation left through the product's external-supervisor handoff.
+    if (transitionHappened) {
+      const handoff = transition.handoff;
+      if (!finiteTime(old.exitedAtMs)) {
+        fail('old-did-not-exit', 'the old generation never exited within the transition deadline');
+      } else {
+        if (old.exit?.code !== 0) fail('old-exit-nonzero', `the old generation exited with ${JSON.stringify(old.exit)}`);
+        if (
+          handoff?.status !== 'accepted' ||
+          handoff.pid !== old.pid ||
+          handoff.restartKind !== 'full-process' ||
+          handoff.supervisorMode !== 'external'
+        ) {
+          fail('restart-handoff-missing', 'the old generation exited without an accepted full-process external restart handoff bound to its PID');
         }
-        if (!outage.observed) partial('outage-unobserved', 'no sample fell between the old generation and the replacement');
+      }
+    }
+
+    // B7/B8/B10: the replacement became ready, distinct, and stayed serving.
+    if (transitionHappened && finiteTime(old.exitedAtMs)) {
+      if (!replacement.started) {
+        fail('replacement-not-started', 'the control never started a replacement generation');
+      } else if (!finiteTime(readyAt)) {
+        fail('replacement-never-usable', replacement.failure?.kind
+          ? `the replacement never became usable (${replacement.failure.kind})`
+          : 'the replacement never became usable');
+      } else {
+        if (readyAt - triggerAtMs > plan.readinessDeadlineMs) fail('replacement-ready-late', 'replacement readiness came after the planned deadline');
+        if (positiveInteger(old.pid) && replacement.pid === old.pid && replacement.startTicks === old.startTicks) fail('generations-not-distinct', 'old and replacement share one process identity');
+        if (positiveInteger(replacement.listen?.inode) && replacement.listen.inode === old.listen?.inode) fail('generations-not-distinct', 'old and replacement share one listening socket inode');
+        if (isHex64(replacement.bootIdSha256) && replacement.bootIdSha256 === old.bootIdSha256) fail('generations-not-distinct', 'old and replacement report one boot identity');
+        if (observed) {
+          const settle = samples.filter((sample) => sample.atMs > readyAt);
+          const unstable = settle.filter((sample) =>
+            servingGenerationOf(sample) !== 'replacement' ||
+            sample.listener?.inode !== replacement.listen?.inode);
+          if (unstable.length) fail('replacement-unstable', `${unstable.length} settle sample(s) did not show the same replacement serving`);
+          if (settle.length === 0) partial('settle-unobserved', 'no samples followed replacement readiness');
+          const firstServing = outage.firstServingAfter;
+          if (firstServing?.generation === 'replacement' && firstServing.atMs - triggerAtMs > plan.readinessDeadlineMs) {
+            fail('replacement-ready-late', 'the first serving replacement sample came after the planned deadline');
+          }
+          if (!outage.observed) partial('outage-unobserved', 'no sample fell between the old generation and the replacement');
+        }
       }
     }
   }
 
-  // B9: both generations ran the staged candidate build.
+  // B9: every generation that served ran the staged candidate build.
   const stageBuildId = record?.target?.stageBuild?.buildId;
   if (transitionHappened) {
     if (typeof stageBuildId !== 'string' || !stageBuildId) {
@@ -605,6 +836,7 @@ export function gradeRestartControl(record) {
     } else {
       if (old.buildId !== stageBuildId) fail('build-identity-mismatch', 'the old generation did not report the staged buildId');
       if (finiteTime(readyAt) && replacement.buildId !== stageBuildId) fail('build-identity-mismatch', 'the replacement did not report the staged buildId');
+      if (old.restored && old.restored.buildId !== stageBuildId) fail('build-identity-mismatch', 'the restored original process did not report the staged buildId');
     }
   }
 
@@ -631,9 +863,14 @@ export function gradeRestartControl(record) {
     }
   }
 
+  // A negative case that nothing contradicted did not exercise its negative.
+  if (RCC_NEGATIVE_CASES.includes(caseKind) && failures.length === 0 && limits.length === 0 && missingBehaviour.length === 0) {
+    missing('negative-not-exercised', 'a negative case must be contradicted; nothing contradicted the positive claim');
+  }
+
   let verdict;
   if (failures.length) verdict = 'FAIL-candidate';
-  else if (missingBehaviour.length) verdict = 'MISSING-candidate';
+  else if (missingBehaviour.length || limits.length) verdict = 'MISSING-candidate';
   else if (missingReceipts.length || partials.length) verdict = 'PARTIAL-candidate';
   else verdict = 'PASS-candidate';
 
@@ -646,6 +883,7 @@ export function gradeRestartControl(record) {
       samples.length > 0 &&
       samples.every((sample) => sample.authority?.state === 'present' && sample.authority.epochSha256 === established),
   );
+  const nonPass = verdict !== 'PASS-candidate';
   if (caseKind === 'negative-replacement-never-usable') {
     const oldAuthorityRetained = Boolean(
       epochUnchanged &&
@@ -682,8 +920,51 @@ export function gradeRestartControl(record) {
       oldAuthorityRetained,
       failureBodyRetained,
       noFallback,
-      holds: verdict !== 'PASS-candidate' && replacementNeverUsable && oldAuthorityRetained && failureBodyRetained && noFallback,
+      holds: nonPass && replacementNeverUsable && oldAuthorityRetained && failureBodyRetained && noFallback,
     };
+  } else if (spawned) {
+    const replacementNeverUsable = !lines.some((line) => RCC_SPAWN_DIAGNOSTICS.accepted.test(line)) &&
+      samples.every((sample) => servingGenerationOf(sample) !== 'replacement');
+    const frameRetained = Boolean(transition.response?.frame && typeof transition.response.frame === 'object');
+    if (caseKind === 'negative-spawned-fallback') {
+      const failureDiagnosticRetained = frameRetained && lines.some((line) => RCC_SPAWN_DIAGNOSTICS.fallingBack.test(line));
+      const originalProcessServesAgain = fallback.branch === 'restored';
+      const outageMeasured = outage.firstServingAfter?.generation === 'old' && Number.isFinite(outage.ms);
+      negativeControl = {
+        expected: 'non-PASS: the product-spawned child never serves; the fallback diagnostic and restart frame are retained; the original PID and start ticks own the listener again with /readyz and hello-ok passing under the unchanged epoch; the outage is measured (old-process restoration, not fresh-successor proof)',
+        spawnedBranchTaken: fallback.updateRespawnTaken,
+        replacementNeverUsable,
+        failureDiagnosticRetained,
+        originalProcessServesAgain,
+        epochUnchanged,
+        outageMeasured,
+        fallbackBranch: fallback.branch,
+        holds: nonPass && fallback.updateRespawnTaken && replacementNeverUsable && failureDiagnosticRetained &&
+          originalProcessServesAgain && epochUnchanged && outageMeasured,
+      };
+    } else {
+      const runtime = record?.fallback?.runtime;
+      const unavailable = RCC_FALLBACK_BRANCHES.find((entry) => entry.branch === 'child-runtime-unavailable');
+      const runtimeRemovedBeforeTransition = Boolean(runtime?.copied === true && finiteTime(runtime.unlinkedAtMs) && finiteTime(triggerAtMs) && runtime.unlinkedAtMs <= triggerAtMs);
+      const branchRecognized = fallback.branch === 'child-runtime-unavailable';
+      const diagnosticRetained = frameRetained && lines.some((line) => unavailable.pattern.test(line));
+      const oldExitedNonZero = finiteTime(old.exitedAtMs) && Number.isInteger(old.exit?.code) && old.exit.code !== 0;
+      const noRestoration = outage.open === true;
+      negativeControl = {
+        expected: 'non-PASS: with the control-owned runtime removed, the product names the unavailable child runtime, exits nonzero instead of restoring, and the epoch is unchanged (a limit, never PASS)',
+        spawnedBranchTaken: fallback.updateRespawnTaken,
+        replacementNeverUsable,
+        runtimeRemovedBeforeTransition,
+        branchRecognized,
+        diagnosticRetained,
+        oldExitedNonZero,
+        noRestoration,
+        epochUnchanged,
+        fallbackBranch: fallback.branch,
+        holds: nonPass && fallback.updateRespawnTaken && replacementNeverUsable && runtimeRemovedBeforeTransition &&
+          branchRecognized && diagnosticRetained && oldExitedNonZero && noRestoration && epochUnchanged,
+      };
+    }
   }
 
   return {
@@ -699,13 +980,10 @@ export function gradeRestartControl(record) {
     failures,
     partials,
     missingBehaviour,
+    limits,
     negativeControl,
     outageInterval: outage,
-    fallback: {
-      branch: 'none-on-supervised-branch',
-      class: 'not-applicable',
-      detail: 'the supervised branch (src/cli/gateway-cli/run-loop.ts:497-561) writes the handoff and exits; it has no in-process fallback once the handoff is written',
-    },
+    fallback,
   };
 }
 

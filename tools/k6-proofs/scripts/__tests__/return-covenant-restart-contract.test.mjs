@@ -24,6 +24,8 @@ const RECEIPTS = [
   'observation-record',
   'signed-cleanup-receipt',
 ];
+const CASES = ['positive', 'negative-replacement-never-usable', 'negative-spawned-fallback', 'negative-spawned-runtime-unavailable'];
+const NAMED_BRANCHES = ['require-fresh-process', 'child-runtime-unavailable', 'foreground-closed', 'installation-replaced', 'lock-reacquire-failed', 'resources-retained'];
 
 async function manifest() {
   return JSON.parse(await readFile(MANIFEST, 'utf8'));
@@ -68,7 +70,7 @@ test('the row manifest names the restart control and its receipts, and stays non
   assert.equal(row.scenario.expectedFile, 'r-cd-return-covenant-authority.js');
   assert.equal(row.invocation?.fixture, FIXTURE);
   assert.ok(existsSync(path.join(repoRoot, FIXTURE)));
-  assert.deepEqual(row.invocation.cases, ['positive', 'negative-replacement-never-usable']);
+  assert.deepEqual(row.invocation.cases, CASES);
   assert.equal(row.liveRunSafety.classification, 'orchestration-required');
   assert.deepEqual(row.liveRunSafety.requiredReceipts, RECEIPTS);
   assert.deepEqual(row.expectedReceipts.map((receipt) => receipt.name), RECEIPTS);
@@ -124,4 +126,28 @@ test('the F′ corpus still records the row as required and missing', async () =
   const corpus = JSON.parse(await readFile(path.join(repoRoot, 'PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/proofs-manifest.json'), 'utf8'));
   assert.ok(corpus.required_rows.includes('R-CD-RETURN-COVENANT-AUTHORITY'));
   assert.equal(corpus.rows.find((entry) => entry.row === 'R-CD-RETURN-COVENANT-AUTHORITY').state, 'missing');
+});
+
+test('the scenario header maps, at the byte, which F′ restart branch spawns a child and what gates its fallback', async () => {
+  const source = await readFile(SCENARIO, 'utf8');
+  for (const anchor of [
+    // restartGatewayProcessWithFreshPid returns supervised | disabled | failed, never spawned;
+    'src/infra/process-respawn.ts:231-273',
+    // an unmanaged gateway's decision is disabled/unmanaged, so a plain restart is in-process;
+    'src/infra/process-respawn.ts:56-71',
+    'src/infra/supervisor-markers.ts:5-22',
+    'src/cli/gateway-cli/run-loop.ts:572-580',
+    // only respawnGatewayProcessForUpdate spawns, for an update-process reason without a supervisor;
+    'src/infra/process-respawn.ts:282-307',
+    'src/cli/gateway-cli/run-loop-request.ts:33-35',
+    'src/cli/gateway-cli/run-loop.ts:459-495',
+    // the fallback and the refusals that block it;
+    'src/cli/gateway-cli/run-loop.ts:266-360',
+    'src/infra/child-runtime-viability.ts:48-62',
+    // the product's own test of the dead-child fallback, and the child's bind retry.
+    'src/cli/gateway-cli/run-loop.test.ts:1076-1110',
+    'src/gateway/server/http-listen.ts:6-7',
+  ]) {
+    assert.ok(source.includes(anchor), `scenario header lacks ${anchor}`);
+  }
 });

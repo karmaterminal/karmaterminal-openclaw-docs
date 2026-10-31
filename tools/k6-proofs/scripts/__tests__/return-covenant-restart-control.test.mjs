@@ -16,6 +16,8 @@ import {
   gradeRestartControl,
   verifyObserverReceipt,
 } from '../../lib/return-covenant-restart-control.mjs';
+// A namespace import, so a symbol a tree does not export yet fails only the test that reads it.
+import * as rcc from '../../lib/return-covenant-restart-control.mjs';
 import { runRestartControl } from '../run-return-covenant-restart-control.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +33,16 @@ const FAST_PLAN = Object.freeze({
   transitionDeadlineMs: 4_000,
   readinessDeadlineMs: 3_000,
   observationWindowMs: 4_500,
+});
+// The spawned branch waits on the child's bind retries and the readiness wait's stopped-free
+// exit before the original process restarts in-process, so its window is longer.
+const SPAWNED_PLAN = Object.freeze({
+  sampleIntervalMs: 40,
+  preTriggerSamples: 3,
+  bootTimeoutMs: 10_000,
+  transitionDeadlineMs: 3_000,
+  readinessDeadlineMs: 6_000,
+  observationWindowMs: 7_000,
 });
 
 async function freePort() {
@@ -255,7 +267,7 @@ test('negative: a replacement that never becomes usable keeps the old authority 
   assert.equal(replacement.readyAtMs, null);
   assert.equal(replacement.failure.kind, 'exited-before-ready');
   assert.equal(replacement.exit.code, 1);
-  assert.match(replacement.stderr.tail, /EADDRINUSE/u);
+  assert.match(replacement.stderr.tail, /another gateway instance is already listening on ws:\/\/127\.0\.0\.1:\d+/u);
   assert.ok(positiveIntegers(replacement.pid, replacement.startTicks));
   // The old generation's fingerprint and the authority epoch survive to the end of the window,
   // but nothing is usable after the old generation exits: this supervised branch has no
@@ -284,6 +296,265 @@ test('negative: a replacement that never becomes usable keeps the old authority 
 function positiveIntegers(...values) {
   return values.every((value) => Number.isSafeInteger(value) && value > 0);
 }
+
+/* ---------------------------------------------------------------------------------- */
+/* The spawned branch: 🌊's never-usable negative with the old-process fallback         */
+/* ---------------------------------------------------------------------------------- */
+
+const SUPERVISOR_HINTS = ['OPENCLAW_SUPERVISOR_MODE', 'OPENCLAW_SYSTEMD_UNIT', 'INVOCATION_ID', 'SYSTEMD_EXEC_PID', 'JOURNAL_STREAM', 'OPENCLAW_SERVICE_MARKER', 'OPENCLAW_SERVICE_KIND', 'OPENCLAW_NO_RESPAWN'];
+
+let spawnedRun;
+async function spawnedFallback() {
+  if (!spawnedRun) {
+    const layout = await disposableLayout();
+    spawnedRun = {
+      layout,
+      result: await runRestartControl(controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN }), testPlatform),
+    };
+  }
+  return spawnedRun;
+}
+
+test('negative-spawned-fallback: an unmanaged gateway restarted with update.run takes the spawned branch', async () => {
+  const { result } = await spawnedFallback();
+  assert.equal(result.status, 'completed', JSON.stringify(result.refusals ?? null));
+  const { record } = result;
+  // Neither OPENCLAW_SUPERVISOR_MODE nor any systemd hint, read back from the running old
+  // generation's /proc environ (keys only), and the update-process reason on the request.
+  assert.equal(record.target.supervisorMode, 'unmanaged');
+  assert.equal(record.target.restartBranch, 'spawned');
+  assert.deepEqual(record.generations.old.supervisorHints, []);
+  assert.deepEqual(record.target.supervisorHintKeys, SUPERVISOR_HINTS);
+  assert.equal(record.transition.request.params.reason, 'update.run');
+  assert.equal(record.transition.response.ok, true);
+  // The product spawned a child of the old generation, not the control.
+  const child = record.fallback.child;
+  assert.ok(positiveIntegers(child.pid, child.startTicks), JSON.stringify(child));
+  assert.equal(child.pidSource, 'proc');
+  assert.equal(child.ppid, record.generations.old.pid);
+  assert.notEqual(child.pid, record.generations.old.pid);
+  assert.equal(record.generations.replacement.spawnedBy, 'product');
+  assert.equal(record.generations.replacement.pid, child.pid);
+  assert.equal(record.fallback.outputChannel, 'inherited-by-old-generation');
+});
+
+test('negative-spawned-fallback: the child never serves, the diagnostic and frame survive, the original process serves again, non-PASS', async () => {
+  const { layout, result } = await spawnedFallback();
+  const { record, grade } = result;
+  const { old } = record.generations;
+  const child = record.fallback.child;
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.failures.some((entry) => entry.code === 'replacement-never-usable'));
+  assert.equal(grade.negativeControl.holds, true, JSON.stringify(grade.negativeControl, null, 2));
+  assert.equal(grade.fallback.branch, 'restored');
+  assert.equal(grade.fallback.class, 'old-process-restoration');
+  assert.equal(grade.receipts['generation-fingerprints'], 'present');
+  assert.equal(grade.receipts['replacement-process-output'], 'present');
+
+  // The control held the port from the old listener's close until the child was gone.
+  const blocker = record.fallback.blocker;
+  assert.equal(blocker.bound, true);
+  assert.ok(blocker.boundAtMs >= record.fallback.oldListenerClosedAtMs);
+  assert.equal(blocker.releasedOn, 'replacement-exited');
+  assert.ok(blocker.releasedAtMs >= child.goneAtMs);
+  assert.ok(record.observation.samples.every((sample) => sample.servingGeneration !== 'replacement'));
+
+  // Failure diagnostic: the product's own line, naming the child, plus the child's bind
+  // failure and the restart frame body.
+  const lines = record.fallback.diagnostics.map((entry) => entry.line);
+  assert.ok(lines.some((line) => line.includes(`update respawn child did not become healthy (${child.pid}); falling back to in-process restart`)), JSON.stringify(lines));
+  assert.ok(lines.some((line) => /another gateway instance is already listening on ws:\/\/127\.0\.0\.1:\d+/u.test(line)));
+  assert.equal(record.transition.response.frame.payload.status, 'scheduled');
+
+  // The original PID and start ticks own the listener again, /readyz and hello-ok pass, on a
+  // new socket, and keep doing so to the end of the window.
+  assert.equal(old.restored.sameProcess, true);
+  assert.equal(old.restored.listen.port, layout.port);
+  assert.notEqual(old.restored.listen.inode, old.listen.inode);
+  assert.match(old.restored.bootIdSha256, /^[0-9a-f]{64}$/u);
+  const outage = grade.outageInterval;
+  assert.equal(outage.lastServingBefore.generation, 'old');
+  assert.equal(outage.firstServingAfter.generation, 'old');
+  assert.equal(outage.firstServingAfter.ownerPid, old.pid);
+  assert.equal(outage.open, false);
+  assert.ok(outage.ms > 0);
+  assert.equal(outage.ms, outage.firstServingAfter.atMs - outage.lastServingBefore.atMs);
+  const servingAgain = record.observation.samples.filter((sample) => sample.atMs >= outage.firstServingAfter.atMs);
+  assert.ok(servingAgain.length > 0);
+  for (const sample of servingAgain) {
+    assert.equal(sample.servingGeneration, 'old');
+    assert.equal(sample.listener.ownerPid, old.pid);
+    assert.equal(sample.listener.ownerStartTicks, old.startTicks);
+    assert.equal(sample.listener.inode, old.restored.listen.inode);
+    assert.equal(sample.readyz.status, 200);
+    assert.equal(sample.hello.ok, true);
+  }
+  // The epoch is the same at every sample, through the outage too.
+  for (const sample of record.observation.samples) {
+    assert.equal(sample.authority.state, 'present');
+    assert.equal(sample.authority.epochSha256, record.authority.epochSha256);
+  }
+  // Restoration is not a fresh successor: the old generation never exited during the window.
+  assert.equal(old.exitedAtMs, null);
+  assert.equal(old.stoppedByCleanup, true);
+});
+
+test('negative-spawned-fallback: cleanup stops the restored original process and leaves no child, port or orphan behind', async () => {
+  const { layout, result } = await spawnedFallback();
+  const { record } = result;
+  assert.equal(record.cleanup.completed, true);
+  assert.equal(record.cleanup.blockerClosed, true);
+  assert.deepEqual(record.cleanup.orphansTerminated, []);
+  assert.deepEqual(record.cleanup.residualPids, []);
+  assert.ok(processGone(record.generations.old.pid));
+  assert.ok(processGone(record.fallback.child.pid));
+  assert.equal(await portFree(layout.port), true);
+  const receipt = JSON.parse(await readFile(path.join(layout.artifactDir, 'observer-receipt.json'), 'utf8'));
+  assert.equal(verifyObserverReceipt(receipt, OBSERVER_KEY), true);
+  assert.equal(receipt.grade.fallback.branch, 'restored');
+  assert.equal(receipt.grade.negativeControl.holds, true);
+  assert.deepEqual(receipt.grade.outageInterval, result.grade.outageInterval);
+  const text = JSON.stringify(receipt);
+  for (const forbidden of [TOKEN, OBSERVER_KEY, layout.home, layout.dir]) {
+    assert.equal(text.includes(forbidden), false, `public receipt leaks ${forbidden}`);
+  }
+});
+
+test('negative-spawned-fallback: without the product fallback diagnostic the negative does not hold', async () => {
+  const { result } = await spawnedFallback();
+  const record = structuredClone(result.record);
+  record.fallback.diagnostics = record.fallback.diagnostics.filter((entry) => !/did not become healthy/u.test(entry.line));
+  const grade = gradeRestartControl(record);
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.equal(grade.negativeControl.failureDiagnosticRetained, false);
+  assert.equal(grade.negativeControl.holds, false);
+});
+
+/* ---------------------------------------------------------------------------------- */
+/* Named non-PASS branches: each blocks the fallback and grades failure or limit        */
+/* ---------------------------------------------------------------------------------- */
+
+// The branches the control cannot induce on a disposable gateway, driven through the scripted
+// gateway with the product's diagnostic and exit code (run-loop.ts:266-360).
+const SCRIPTED_BRANCHES = [
+  { branch: 'require-fresh-process', class: 'limit', exitCode: 1 },
+  { branch: 'foreground-closed', class: 'limit', exitCode: 1 },
+  { branch: 'installation-replaced', class: 'limit', exitCode: 1 },
+  { branch: 'lock-reacquire-failed', class: 'failure', exitCode: 1 },
+  { branch: 'resources-retained', class: 'limit', exitCode: 0 },
+];
+
+for (const expected of SCRIPTED_BRANCHES) {
+  test(`fallback blocked by ${expected.branch}: graded ${expected.class}, never PASS, and the original process does not serve again`, async () => {
+    const layout = await disposableLayout();
+    const result = await runRestartControl(
+      controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_FALLBACK_BLOCK: expected.branch } }),
+      testPlatform,
+    );
+    assert.equal(result.status, 'completed', JSON.stringify(result.refusals ?? null));
+    const { record, grade } = result;
+    assert.notEqual(grade.verdict, 'PASS-candidate');
+    assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+    assert.equal(grade.fallback.branch, expected.branch, JSON.stringify(grade.fallback));
+    assert.equal(grade.fallback.class, expected.class);
+    const bucket = expected.class === 'limit' ? grade.limits : grade.failures;
+    assert.ok(bucket.some((entry) => entry.code === `fallback-${expected.branch}`), JSON.stringify({ limits: grade.limits, failures: grade.failures }));
+    assert.equal(grade.negativeControl.originalProcessServesAgain, false);
+    assert.equal(grade.negativeControl.holds, false);
+    assert.equal(grade.outageInterval.open, true);
+    assert.equal(record.generations.old.exit.code, expected.exitCode);
+    assert.ok(Number.isFinite(record.generations.old.exitedAtMs));
+    assert.equal(record.cleanup.completed, true);
+    assert.deepEqual(record.cleanup.orphansTerminated, []);
+    assert.equal(await portFree(layout.port), true);
+  });
+}
+
+test('negative-spawned-runtime-unavailable: the control removes its own runtime copy, the product names the branch, and it grades a limit', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { caseKind: 'negative-spawned-runtime-unavailable', plan: SPAWNED_PLAN }),
+    testPlatform,
+  );
+  assert.equal(result.status, 'completed', JSON.stringify(result.refusals ?? null));
+  const { record, grade } = result;
+  const runtime = record.fallback.runtime;
+  assert.equal(runtime.copied, true);
+  assert.match(runtime.sha256, /^[0-9a-f]{64}$/u);
+  // The copy is gone before the trigger time is read (possibly in the same millisecond).
+  assert.ok(runtime.unlinkedAtMs <= record.observation.triggerAtMs);
+  assert.equal(existsSync(path.join(`${layout.artifactDir}.private`, 'runtime', 'node')), false);
+  assert.deepEqual(record.generations.old.supervisorHints, []);
+  assert.equal(record.fallback.child.reportedPid, 'unknown');
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.equal(grade.fallback.branch, 'child-runtime-unavailable');
+  assert.equal(grade.fallback.class, 'limit');
+  assert.ok(grade.limits.some((entry) => entry.code === 'fallback-child-runtime-unavailable'));
+  assert.equal(grade.negativeControl.holds, true, JSON.stringify(grade.negativeControl, null, 2));
+  assert.equal(record.generations.old.exit.code, 1);
+  assert.equal(grade.outageInterval.open, true);
+  assert.equal(grade.outageInterval.lastServingBefore.generation, 'old');
+  const lines = record.fallback.diagnostics.map((entry) => entry.line);
+  assert.ok(lines.some((line) => line.includes('update respawn child did not become healthy (unknown); falling back to in-process restart')), JSON.stringify(lines));
+  assert.ok(lines.some((line) => line.includes('Fresh-process restart failed; the unavailable child runtime cannot recover in-process')));
+  for (const sample of record.observation.samples) assert.equal(sample.authority.epochSha256, record.authority.epochSha256);
+  assert.equal(await portFree(layout.port), true);
+});
+
+test('a restart that never reaches the spawned branch is not the fallback proof: in-process restart grades not-exercised, never PASS', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_IGNORE_UPDATE_REASON: '1' } }),
+    testPlatform,
+  );
+  const { grade } = result;
+  assert.equal(grade.fallback.branch, 'in-process-restart', JSON.stringify(grade.fallback));
+  assert.equal(grade.fallback.class, 'not-exercised');
+  assert.equal(grade.verdict, 'MISSING-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.missingBehaviour.some((entry) => entry.code === 'negative-not-exercised'));
+  assert.equal(grade.negativeControl.holds, false);
+  assert.equal(grade.negativeControl.spawnedBranchTaken, false);
+});
+
+test('every named branch grades failure or limit from its product diagnostic alone, never PASS', async () => {
+  const { result } = await spawnedFallback();
+  const lines = {
+    'require-fresh-process': 'Fresh-process restart failed; the unsettled native worker cannot recover in-process. Exiting through the verified service owner.',
+    'child-runtime-unavailable': 'Fresh-process restart failed; the unavailable child runtime cannot recover in-process. Restart through the service owner after repairing its runtime.',
+    'foreground-closed': 'update respawn child did not become healthy (4242); shutdown pending; retaining the replacement until it closes; inspect its startup logs',
+    'installation-replaced': 'update respawn child did not become healthy (4242); the replaced runtime cannot resume',
+    'lock-reacquire-failed': 'failed to reacquire gateway lock for in-process restart: failed to acquire gateway state ownership',
+    'resources-retained': 'shutdown resources remain; refusing in-process restart and exiting',
+  };
+  assert.deepEqual(rcc.RCC_FALLBACK_BRANCHES.map((entry) => entry.branch).sort(), Object.keys(lines).sort());
+  for (const named of rcc.RCC_FALLBACK_BRANCHES) {
+    const record = structuredClone(result.record);
+    record.fallback.diagnostics.push({ stream: 'stderr', line: `[gateway] ${lines[named.branch]}` });
+    const grade = gradeRestartControl(record);
+    assert.notEqual(grade.verdict, 'PASS-candidate', named.branch);
+    assert.equal(grade.fallback.branch, named.branch);
+    assert.equal(grade.fallback.class, named.class);
+    assert.ok(['limit', 'failure'].includes(named.class));
+    assert.match(named.anchor, /^src\/cli\/gateway-cli\/run-loop\.ts:\d+/u);
+    const bucket = named.class === 'limit' ? grade.limits : grade.failures;
+    assert.ok(bucket.some((entry) => entry.code === `fallback-${named.branch}`), named.branch);
+    assert.equal(grade.negativeControl.holds, false, named.branch);
+  }
+  // Only lock-reacquire is the fallback itself failing; the rest are the product declining an
+  // in-process recovery its preconditions do not allow (the runtime is not viable, or replaced).
+  assert.deepEqual(rcc.RCC_FALLBACK_BRANCHES.filter((entry) => entry.class === 'failure').map((entry) => entry.branch), ['lock-reacquire-failed']);
+});
+
+test('a negative case never grades PASS: a clean positive record relabelled as a negative is MISSING', async () => {
+  const { result } = await positive();
+  const record = structuredClone(result.record);
+  record.case = 'negative-replacement-never-usable';
+  const grade = gradeRestartControl(record);
+  assert.equal(grade.verdict, 'MISSING-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.missingBehaviour.some((entry) => entry.code === 'negative-not-exercised'));
+  assert.equal(grade.negativeControl.holds, false);
+});
 
 function withoutReceipt(record, name) {
   const copy = structuredClone(record);

@@ -15,7 +15,19 @@
  * - session_recipient_authority in a WAL per-agent database (openclaw-agent-schema.sql:140-147);
  * - external-supervisor restart: close, write the gateway_restart_handoff row, exit 0
  *   (run-loop.ts:497-560), and `gateway restart-handoff consume --expected-pid <pid> --json`
- *   (register-restart-handoff.ts:41-74).
+ *   (register-restart-handoff.ts:41-74);
+ * - an unmanaged gateway (no OPENCLAW_SUPERVISOR_MODE, no systemd hints;
+ *   process-respawn.ts:56-71): an update-process reason (update.run / update.auto,
+ *   run-loop-request.ts:33-35) takes the spawned branch (run-loop.ts:459-495 via
+ *   respawnGatewayProcessForUpdate, process-respawn.ts:282-307): close, spawn a detached child
+ *   with inherited stdio and env, wait for it to become healthy (restart-health.ts: early
+ *   "stopped-free" exit once the child is dead and the port free), and on an unhealthy child log
+ *   the product's line, kill it, and reacquireAndResumeInProcessRestart (run-loop.ts:266-360):
+ *   the named refusals, a child-runtime viability check (child-runtime-viability.ts:48-62), then
+ *   an in-process restart under the same PID. Any other reason restarts in-process
+ *   (run-loop.ts:572-580). Every listen retries EADDRINUSE (server/http-listen.ts:6-7, 62-72);
+ *   a first boot that cannot bind exits 1, a restart iteration stays alive without serving
+ *   (run-loop.ts:1238-1277).
  *
  * Behaviour switches (environment): RCC_SCRIPT_ADVANCE_ON_BOOT=<n> advances every authority
  * row when boot n starts (a product that clears the covenant on restart);
@@ -24,13 +36,19 @@
  * RCC_SCRIPT_ORPHAN=1 leaves a descendant in its process group when it exits, =detached leaves
  * one in a new session (setsid);
  * RCC_SCRIPT_DROP_RESTART_RESPONSE=1 restarts without answering the request;
- * RCC_SCRIPT_BOOT_DELAY_MS delays each listen. The consume command prints a log line before
- * its JSON, as a product CLI may.
+ * RCC_SCRIPT_BOOT_DELAY_MS delays each listen (RCC_SCRIPT_CHILD_BOOT_DELAY_MS a spawned child's);
+ * RCC_SCRIPT_BIND_RETRIES / RCC_SCRIPT_BIND_RETRY_MS (default 10 x 50 ms; the product's is
+ * 20 x 500 ms) set the EADDRINUSE retry, RCC_SCRIPT_READINESS_TIMEOUT_MS (default 4 s; the
+ * product's is 60 s) the replacement readiness wait;
+ * RCC_SCRIPT_FALLBACK_BLOCK=<require-fresh-process|foreground-closed|installation-replaced|
+ * lock-reacquire-failed|resources-retained> makes the spawned fallback take that refusal with the
+ * product's diagnostic and exit code; RCC_SCRIPT_IGNORE_UPDATE_REASON=1 restarts in-process even
+ * for update.run. The consume command prints a log line before its JSON, as a product CLI may.
  */
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { createServer } from 'node:http';
+import { accessSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import http, { createServer } from 'node:http';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
@@ -119,19 +137,30 @@ const port = Number(args[args.indexOf('--port') + 1]);
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
 const token = config.gateway.auth.token;
 const bootsFile = path.join(stateDir, '.rcc-scripted-boots');
-const boot = (existsSync(bootsFile) ? Number(readFileSync(bootsFile, 'utf8')) : 0) + 1;
-writeFileSync(bootsFile, String(boot));
-const bootId = randomUUID();
-const startedAt = Date.now();
+const externallySupervised = process.env.OPENCLAW_SUPERVISOR_MODE?.trim().toLowerCase() === 'external';
+const fallbackBlock = process.env.RCC_SCRIPT_FALLBACK_BLOCK ?? '';
 const sessions = new Map();
-let draining = Number(process.env.RCC_SCRIPT_NEVER_READY_ON_BOOT) === boot;
-
 const agentDb = agentDatabase();
-if (Number(process.env.RCC_SCRIPT_ADVANCE_ON_BOOT) === boot) {
-  for (const { session_key: key } of agentDb.prepare('SELECT session_key FROM session_recipient_authority').all()) {
-    advance(agentDb, key);
+// Per boot (an in-process restart starts a new boot under the same PID, as the product's
+// beginGatewayBootLifecycle does, run.ts:821-875).
+let boot = 0;
+let bootId = null;
+let startedAt = 0;
+let draining = false;
+let server = null;
+
+function nextBoot() {
+  boot = (existsSync(bootsFile) ? Number(readFileSync(bootsFile, 'utf8')) : 0) + 1;
+  writeFileSync(bootsFile, String(boot));
+  bootId = randomUUID();
+  startedAt = Date.now();
+  draining = Number(process.env.RCC_SCRIPT_NEVER_READY_ON_BOOT) === boot;
+  if (Number(process.env.RCC_SCRIPT_ADVANCE_ON_BOOT) === boot) {
+    for (const { session_key: key } of agentDb.prepare('SELECT session_key FROM session_recipient_authority').all()) {
+      advance(agentDb, key);
+    }
+    process.stdout.write(`[gateway] boot ${boot} advanced recipient authority\n`);
   }
-  process.stdout.write(`[gateway] boot ${boot} advanced recipient authority\n`);
 }
 
 function json(res, status, body) {
@@ -140,7 +169,7 @@ function json(res, status, body) {
   res.end(text);
 }
 
-const server = createServer((req, res) => {
+function probeHandler(req, res) {
   const uptimeMs = Date.now() - startedAt;
   if (req.url === '/readyz') {
     return draining
@@ -153,7 +182,7 @@ const server = createServer((req, res) => {
       : json(res, 200, { ok: true, status: 'started', version: 'scripted', buildId: buildInfo.buildId, uptimeMs });
   }
   json(res, 404, { ok: false });
-});
+}
 
 const sockets = new Set();
 function send(socket, value) {
@@ -247,7 +276,7 @@ function handle(socket, connection, frame) {
   respond(socket, frame.id, false, null, { code: 'INVALID_REQUEST', message: `unknown method ${frame.method}` });
 }
 
-server.on('upgrade', (request, socket) => {
+function upgradeHandler(request, socket) {
   const accept = createHash('sha1')
     .update(`${request.headers['sec-websocket-key']}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
     .digest('base64');
@@ -299,51 +328,239 @@ server.on('upgrade', (request, socket) => {
       handle(socket, connection, JSON.parse(payload.toString('utf8')));
     }
   });
-});
+}
+
+function log(stream, line) {
+  (stream === 'stderr' ? process.stderr : process.stdout).write(`[gateway] ${line}\n`);
+}
+
+function listenInodes() {
+  const hexPort = port.toString(16).toUpperCase().padStart(4, '0');
+  let found = false;
+  for (const table of ['/proc/net/tcp', '/proc/net/tcp6']) {
+    let text = '';
+    try {
+      text = readFileSync(table, 'utf8');
+    } catch {
+      continue;
+    }
+    for (const line of text.split('\n').slice(1)) {
+      const fields = line.trim().split(/\s+/u);
+      if (fields.length >= 10 && fields[3] === '0A' && fields[1].slice(fields[1].lastIndexOf(':') + 1).toUpperCase() === hexPort) found = true;
+    }
+  }
+  return found;
+}
+
+function closeServer() {
+  server?.close();
+  for (const socket of sockets) socket.destroy();
+  server?.closeAllConnections?.();
+  server = null;
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// http-listen.ts:6-7 and 62-72: retry EADDRINUSE, then fail with the product's message.
+async function listenWithRetry() {
+  const retries = Number(process.env.RCC_SCRIPT_BIND_RETRIES ?? 10);
+  const intervalMs = Number(process.env.RCC_SCRIPT_BIND_RETRY_MS ?? 50);
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const candidate = createServer(probeHandler);
+    candidate.on('upgrade', upgradeHandler);
+    try {
+      await new Promise((resolve, reject) => {
+        candidate.once('error', reject);
+        candidate.listen(port, '127.0.0.1', resolve);
+      });
+      server = candidate;
+      return;
+    } catch (error) {
+      candidate.close();
+      if (error.code === 'EADDRINUSE' && attempt < retries) {
+        await sleep(intervalMs);
+        continue;
+      }
+      throw new Error(error.code === 'EADDRINUSE'
+        ? `another gateway instance is already listening on ws://127.0.0.1:${port}`
+        : `failed to bind gateway socket on ws://127.0.0.1:${port}: ${error.message}`);
+    }
+  }
+}
+
+async function startBoot({ restartIteration }) {
+  nextBoot();
+  const delay = Number(process.env.RCC_SCRIPT_SPAWNED_CHILD === '1' && !restartIteration
+    ? (process.env.RCC_SCRIPT_CHILD_BOOT_DELAY_MS ?? 300)
+    : (process.env.RCC_SCRIPT_BOOT_DELAY_MS ?? 150));
+  await sleep(delay);
+  try {
+    await listenWithRetry();
+  } catch (error) {
+    if (!restartIteration) {
+      // A first boot that cannot bind is a startup failure; the CLI exits nonzero.
+      log('stderr', `failed to start: ${error.message}`);
+      process.exit(1);
+    }
+    // A restart iteration keeps the process and waits for a restart request (run-loop.ts:1263-1288).
+    log('stderr', `restart startup failed: ${error.message}`);
+    return;
+  }
+  log('stdout', `ready (boot ${boot}, port ${port})`);
+}
+
+function externalSupervisorRestart(reason) {
+  if (process.env.RCC_SCRIPT_NO_HANDOFF !== '1') {
+    const db = stateDatabase();
+    const now = Date.now();
+    db.prepare(`INSERT OR REPLACE INTO gateway_restart_handoff
+      (handoff_key, kind, version, intent_id, pid, process_instance_id, created_at, expires_at, reason, source, restart_kind, supervisor_mode)
+      VALUES ('current', 'gateway-supervisor-restart-handoff', 1, ?, ?, ?, ?, ?, ?, 'operator-restart', 'full-process', 'external')`)
+      .run(randomUUID(), process.pid, randomUUID(), now, now + 60_000, reason);
+    db.close();
+  }
+  agentDb.close();
+  if (process.env.RCC_SCRIPT_ORPHAN === '1' || process.env.RCC_SCRIPT_ORPHAN === 'detached') {
+    // Same environment: a descendant the old generation leaves behind, in its process group
+    // or (detached) in a session of its own.
+    spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
+      stdio: 'ignore',
+      detached: process.env.RCC_SCRIPT_ORPHAN === 'detached',
+    }).unref();
+  }
+  log('stdout', 'restart mode: full process restart (supervisor restart)');
+  process.exit(0);
+}
+
+function pidAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function readyzOk() {
+  return new Promise((resolve) => {
+    const request = http.get({ host: '127.0.0.1', port, path: '/readyz', agent: false, timeout: 200 }, (response) => {
+      let body = '';
+      response.on('data', (chunk) => {
+        body += chunk;
+      });
+      response.on('end', () => {
+        try {
+          resolve(response.statusCode === 200 && JSON.parse(body).ready === true);
+        } catch {
+          resolve(false);
+        }
+      });
+    });
+    request.on('timeout', () => request.destroy());
+    request.on('error', () => resolve(false));
+  });
+}
+
+// update-successor.ts:65-122 over restart-health.ts:114-548, reduced: healthy when the child is
+// alive and /readyz answers ready; "stopped-free" once the child is dead and the port free for
+// consecutive polls; otherwise a timeout.
+async function observeReadiness(child) {
+  const pollMs = Number(process.env.RCC_SCRIPT_READINESS_POLL_MS ?? 50);
+  const threshold = Number(process.env.RCC_SCRIPT_STOPPED_FREE_POLLS ?? 6);
+  const deadline = Date.now() + Number(process.env.RCC_SCRIPT_READINESS_TIMEOUT_MS ?? 4000);
+  let stoppedFree = 0;
+  while (Date.now() < deadline) {
+    const alive = child.pid !== undefined && child.exitCode === null && child.signalCode === null && pidAlive(child.pid);
+    if (alive && await readyzOk()) return true;
+    stoppedFree = !alive && !listenInodes() ? stoppedFree + 1 : 0;
+    if (stoppedFree >= threshold) return false;
+    await sleep(pollMs);
+  }
+  return false;
+}
+
+function childRuntimeAvailable() {
+  try {
+    accessSync(process.execPath, constants.X_OK);
+    return true;
+  } catch (error) {
+    return !['ENOENT', 'ENOTDIR'].includes(error.code);
+  }
+}
+
+// run-loop.ts:266-360, in the order the product checks.
+async function reacquireAndResumeInProcessRestart() {
+  if (fallbackBlock === 'resources-retained') {
+    log('stderr', 'shutdown resources remain; refusing in-process restart and exiting');
+    process.exit(0);
+  }
+  if (fallbackBlock === 'require-fresh-process') {
+    log('stderr', 'Fresh-process restart failed; the unsettled native worker cannot recover in-process. Exiting through the verified service owner.');
+    process.exit(1);
+  }
+  if (!childRuntimeAvailable()) {
+    log('stderr', 'Fresh-process restart failed; the unavailable child runtime cannot recover in-process. Restart through the service owner after repairing its runtime.');
+    process.exit(1);
+  }
+  if (fallbackBlock === 'foreground-closed') process.exit(1);
+  if (fallbackBlock === 'installation-replaced') {
+    log('stderr', 'Gateway installation was replaced on disk. Cannot continue in this process. Run: openclaw gateway run');
+    process.exit(1);
+  }
+  if (fallbackBlock === 'lock-reacquire-failed') {
+    log('stderr', 'failed to reacquire gateway lock for in-process restart: failed to acquire gateway state ownership');
+    process.exit(1);
+  }
+  await startBoot({ restartIteration: true });
+}
+
+// run-loop.ts:459-495: respawnGatewayProcessForUpdate spawns a detached child with inherited
+// stdio and env (process-respawn.ts:282-307); an unhealthy child is killed and the old process
+// falls back.
+async function spawnedRestart() {
+  const child = spawn(process.execPath, [...process.execArgv, process.argv[1], ...process.argv.slice(2)], {
+    env: { ...process.env, RCC_SCRIPT_SPAWNED_CHILD: '1' },
+    detached: true,
+    stdio: 'inherit',
+  });
+  child.on('error', () => {});
+  child.unref();
+  if (await observeReadiness(child)) {
+    log('stdout', `restart mode: update process respawn (spawned pid ${child.pid ?? 'unknown'})`);
+    process.exit(0);
+  }
+  const tail = fallbackBlock === 'foreground-closed'
+    ? 'shutdown pending; retaining the replacement until it closes; inspect its startup logs'
+    : fallbackBlock === 'installation-replaced'
+      ? 'the replaced runtime cannot resume'
+      : 'falling back to in-process restart';
+  log('stderr', `update respawn child did not become healthy (${child.pid ?? 'unknown'}); ${tail}`);
+  try {
+    child.kill();
+  } catch {
+    // Already gone.
+  }
+  await reacquireAndResumeInProcessRestart();
+}
 
 function restart(reason) {
   draining = true;
-  process.stdout.write(`[gateway] restart requested (${reason}); draining\n`);
+  log('stdout', `restart requested (${reason}); draining`);
   setTimeout(() => {
-    server.close();
-    for (const socket of sockets) socket.destroy();
-    server.closeAllConnections?.();
-    if (process.env.RCC_SCRIPT_NO_HANDOFF !== '1') {
-      const db = stateDatabase();
-      const now = Date.now();
-      db.prepare(`INSERT OR REPLACE INTO gateway_restart_handoff
-        (handoff_key, kind, version, intent_id, pid, process_instance_id, created_at, expires_at, reason, source, restart_kind, supervisor_mode)
-        VALUES ('current', 'gateway-supervisor-restart-handoff', 1, ?, ?, ?, ?, ?, ?, 'operator-restart', 'full-process', 'external')`)
-        .run(randomUUID(), process.pid, randomUUID(), now, now + 60_000, reason);
-      db.close();
-    }
-    agentDb.close();
-    if (process.env.RCC_SCRIPT_ORPHAN === '1' || process.env.RCC_SCRIPT_ORPHAN === 'detached') {
-      // Same environment: a descendant the old generation leaves behind, in its process group
-      // or (detached) in a session of its own.
-      spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-        stdio: 'ignore',
-        detached: process.env.RCC_SCRIPT_ORPHAN === 'detached',
-      }).unref();
-    }
-    process.stdout.write('[gateway] restart mode: full process restart (supervisor restart)\n');
-    process.exit(0);
+    closeServer();
+    if (externallySupervised) return externalSupervisorRestart(reason);
+    const updateRestart = (reason === 'update.run' || reason === 'update.auto') && process.env.RCC_SCRIPT_IGNORE_UPDATE_REASON !== '1';
+    if (updateRestart) return void spawnedRestart();
+    log('stdout', 'restart mode: in-process restart (unmanaged: use in-process restart to keep custom supervisor PID tracking stable)');
+    return void startBoot({ restartIteration: true });
   }, 150);
 }
 
-server.on('error', (error) => {
-  process.stderr.write(`[gateway] failed to bind 127.0.0.1:${port}: ${error.code ?? error.message}\n`);
-  process.exit(1);
-});
-
-setTimeout(() => {
-  server.listen(port, '127.0.0.1', () => {
-    process.stdout.write(`[gateway] ready (boot ${boot}, port ${port})\n`);
-  });
-}, Number(process.env.RCC_SCRIPT_BOOT_DELAY_MS ?? 150));
+// A restart iteration that could not bind keeps the process alive, as the product does.
+setInterval(() => {}, 60_000);
+void startBoot({ restartIteration: false });
 
 process.on('SIGTERM', () => {
-  server.close();
-  for (const socket of sockets) socket.destroy();
+  closeServer();
   process.exit(0);
 });

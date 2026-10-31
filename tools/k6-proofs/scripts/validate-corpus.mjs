@@ -479,8 +479,15 @@ function validatePreflightAttachments(report, root, sha, manifest) {
   const catalog = loadPreflightCatalog();
   const short = sha.slice(0, 10);
   const rowIds = new Set(manifest.rows.map((row) => row?.row));
-  const requiredIds = new Set(stringIds(manifest.required_rows));
-  const isRow = (id) => rowIds.has(id) || requiredIds.has(id);
+  // A preflight the corpus declares in any row set (rows[], required_rows, or
+  // the supplemental set) is still a row there, folded under the old method.
+  const declaredRowIds = new Set([
+    ...rowIds,
+    ...stringIds(manifest.required_rows),
+    ...(isPlainObject(manifest.dispatch_allocation) ? stringIds(manifest.dispatch_allocation.supplemental) : []),
+    ...stringIds(manifest.supplemental_rows),
+  ]);
+  const isRow = (id) => declaredRowIds.has(id);
   const gatedRows = manifest.rows.filter((row) => catalog.requirementsByLiveRow.has(row?.row));
 
   if (!declared) {
@@ -529,7 +536,9 @@ function validatePreflightAttachments(report, root, sha, manifest) {
     }
     if (entry.attached_to !== live) problems.push(`${id} is attached to ${entry.attached_to}, but the catalog attaches it to ${live}`);
     if (!rowIds.has(live)) problems.push(`${id} is attached to ${live}, which is not a row of this corpus`);
-    if (isRow(id)) problems.push(`${id} is a retired preflight attachment and cannot also be in rows[] or required_rows`);
+    if (isRow(id)) {
+      problems.push(`${id} is a retired preflight attachment and cannot also be in rows[] or required_rows or the supplemental set`);
+    }
     const requirement = catalog.requirementsByLiveRow.get(live).find((candidate) => candidate.rowId === id);
     if (hasOwn(entry, 'manifest') && entry.manifest !== requirement.manifestPath) {
       problems.push(`${id} manifest ${entry.manifest} is not ${requirement.manifestPath}`);

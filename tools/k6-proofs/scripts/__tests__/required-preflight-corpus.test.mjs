@@ -393,8 +393,28 @@ test('a retired preflight cannot also be a proof row of an F″ corpus', async (
   manifest.dispatch_allocation['frond-scribe-static'].push('R-CW-5A');
   manifest.rollup = { ...FDOUBLE_ROLLUP, total_rows: 37, missing: 5 };
   await assertRejected(manifest, passingReceipts(), {
-    'preflight-attachments-valid': /R-CW-5A is a retired preflight attachment and cannot also be in rows\[\] or required_rows/,
+    'preflight-attachments-valid': /R-CW-5A is a retired preflight attachment and cannot also be in rows\[\] or required_rows or the supplemental set/,
   });
+
+  // Nor a supplemental row.
+  const supplemental = fDouble();
+  supplemental.dispatch_allocation.supplemental = ['R-CW-6A'];
+  const { status, report } = await validate(supplemental);
+  assert.equal(status, 1);
+  assert.match(check(report, 'preflight-attachments-valid').detail, /R-CW-6A is a retired preflight attachment and cannot also be in rows\[\] or required_rows or the supplemental set/);
+});
+
+test('a preflight declared only in the supplemental set is a legacy row, not the retired shape', async () => {
+  // The docs#613 shape with R-CW-6A dropped from rows[]: rows-match-row-sets owns
+  // that defect, and the preflight gate does not re-judge a declared row.
+  const manifest = fDouble({ attachments: null });
+  manifest.dispatch_allocation.supplemental = ['R-CW-5A', 'R-CW-6A'];
+  manifest.rows.push({ row: 'R-CW-5A', state: 'missing', owner: 'frond-scribe-static', supplemental: true, dir: `PROOFS/${SHA}/R-CW-5A/`, evidence_doc: `PROOFS/${SHA}/R-CW-5A/EVIDENCE.md` });
+  const { status, report } = await validate(manifest, {});
+  assert.equal(status, 1);
+  assert.deepEqual(failedChecks(report), ['rows-match-row-sets']);
+  assert.match(check(report, 'rows-match-row-sets').detail, /^declared but absent from rows\[\]: R-CW-6A$/);
+  assert.equal(report.checks.some((c) => c.name === 'live-rows-gated-by-preflights'), false);
 });
 
 test('malformed preflight_attachments records fail preflight-attachments-valid', async () => {

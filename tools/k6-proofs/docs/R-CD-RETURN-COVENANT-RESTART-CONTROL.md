@@ -21,9 +21,11 @@ survive. The rejected base lost the failure body.
 `/readyz` passes and hello-ok answers; the control observes all three at every sample. An
 unchanged epoch alone is not usability. At F′ every full-process restart closes the old server
 before any successor is ready, so continuous service across a restart is not an invariant and the
-control does not assert it. It measures the outage instead: `outageInterval` runs from the last
-sample that saw the old generation serving to the first sample that saw a generation serving
-again, with a precision of one sample interval.
+control does not assert it. It measures the outage instead. `outageInterval` runs from the last
+sample at which the generation serving at the transition (old PID, original socket) still
+served, to the first sample served by any other identity: the replacement, or the original
+process on a new socket. Its precision is one sample interval. A draining old generation that
+misses one hello-ok before it closes does not start the outage early.
 
 The control establishes that generation without a model turn: `sessions.create`, then
 `session.visibility.set` to `suggest`. The narrowing advances, and so creates, the epoch row. The
@@ -96,12 +98,18 @@ reacquires the lock and serves again under the preserved authority.
 
 `negative-spawned-fallback` drives that path:
 
-1. Once the old listener has closed, the control binds the port itself. The product's child cannot
+1. Once the old listener has closed, the control binds the port itself on `127.0.0.1`. F′
+   binds that host first in loopback mode, and a failure there is fatal
+   (`src/gateway/server-runtime-state.ts:551-577`, `src/gateway/net.ts:312-327`). The product's child cannot
    serve: it retries the held port 20 × 500 ms (`src/gateway/server/http-listen.ts:6-7`), then
    fails its first boot and exits nonzero.
-2. The control finds the child in `/proc` as a child of the old PID that carries the run marker,
-   and records its PID, parent PID and start ticks. It releases the port only once that child is
-   gone, because a dead child can never become healthy.
+2. The control finds the child in `/proc`: a child of the old PID that carries the run marker,
+   appeared after the trigger, and runs a script from the stage with the `gateway` command. That
+   is required on two polls, because between fork and exec a helper still shows its parent's
+   command line. The gateway's own helpers (the codex app server, plugin workers) also carry the
+   marker. The control records the child's PID, parent PID and start ticks. When the product
+   names its child in its own diagnostic, that PID overrides anything inferred. The port is
+   released only once that child is gone, because a dead child can never become healthy.
 3. The product's readiness wait then ends with `stopped-free` (or times out after up to 60 s).
 4. The product logs `update respawn child did not become healthy (<pid>); falling back to
    in-process restart` and restarts in-process.
@@ -127,7 +135,10 @@ restoration, never fresh-successor proof, and no negative case can grade PASS.
 product's own diagnostic, and the control keeps every such line in `fallback.diagnostics`
 (redacted). A **limit** means the product declined an in-process recovery whose precondition is
 false: the old runtime is not viable, or it was replaced. A **failure** means the fallback itself
-failed. A limit alone grades MISSING-candidate and a failure FAIL-candidate; neither is ever PASS.
+failed. Neither is ever PASS. On the spawned negatives the child never served, so the row grades
+FAIL-candidate (`replacement-never-usable`) whichever branch blocked the fallback. The branch and
+its class are recorded in `grade.fallback`, a limit also in `grade.limits` and a failure in
+`grade.failures`.
 
 | Branch | Product diagnostic | F′ anchor (`run-loop.ts`) | Class | How it is tested |
 | --- | --- | --- | --- | --- |
@@ -150,8 +161,9 @@ Only the unavailable child runtime can be induced on a disposable gateway:
 
 The other branches cannot be induced:
 
-- `requireFreshProcess` comes only from native-worker recovery under systemd or launchd
-  (`process-respawn.ts:198-203`), never from a targeted restart intent (`restart-request.ts:57-82`).
+- `requireFreshProcess` comes only from native-worker recovery under a native service supervisor
+  (systemd, launchd or schtasks; `process-respawn.ts:107-113`, `198-203`), never from a targeted
+  restart intent (`restart-request.ts:57-82`).
 - The gateway lock is state-database ownership and never probes the port
   (`src/infra/gateway-lock.ts:417-572`), so a held port cannot make a reacquire fail.
 - A foreground-closed or replaced installation needs a real update.
@@ -266,7 +278,8 @@ The verdicts, from the signed record only:
   - a rejected restart (its body is still kept);
   - unmet branch preconditions;
   - a negative that was not exercised;
-  - a fallback limit.
+  - a declared limit with nothing else contradicted. This cannot happen on the spawned negatives,
+    where the child's failure already grades FAIL.
 - **PARTIAL-candidate** means an observed, uncontradicted restart with a missing receipt or bound:
   a lost body or output, a missing fingerprint, an unsigned receipt, an unreadable authority
   sample, a short window, or a dirty harness.
@@ -337,6 +350,10 @@ Expected:
 
 Publish only `$OUT/<case>/` after review. Never publish `*.private`. Folding into `PROOFS/` is a
 separate, reviewed corpus step. RETURN-COVENANT stays MISSING until this control fires on F″.
+
+A helper the gateway started detached, which outlives the gateway's own shutdown, carries the run
+marker and is stopped and graded as a leak (`resource-retention`). That is a false FAIL at worst,
+never a false PASS; report it.
 
 If the positive grades MISSING with `authority-not-established`, or PARTIAL with
 `authority-sample-unreadable`, the record's `authority.error` and the sample reasons say which

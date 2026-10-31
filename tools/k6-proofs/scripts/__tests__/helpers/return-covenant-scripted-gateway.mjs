@@ -45,7 +45,8 @@
  * product's diagnostic and exit code; RCC_SCRIPT_IGNORE_UPDATE_REASON=1 restarts in-process even
  * for update.run; RCC_SCRIPT_HELPER=1 starts a long-lived helper child (same environment, same
  * process group, as the product's codex app server or plugin workers are) just before the
- * spawned branch starts its gateway child. The consume command prints a log line before its JSON, as a product CLI may.
+ * spawned branch starts its gateway child, and =boot starts one at first boot whose command line
+ * looks like the gateway's (`<entry> gateway --rcc-helper`). The consume command prints a log line before its JSON, as a product CLI may.
  */
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
@@ -133,6 +134,11 @@ if (args[0] === 'gateway' && args[1] === 'restart-handoff' && args[2] === 'consu
 if (args[0] !== 'gateway') {
   process.stderr.write(`scripted gateway: unknown command ${args.join(' ')}\n`);
   process.exit(2);
+}
+if (args.includes('--rcc-helper')) {
+  // A helper whose command line looks like the gateway's; it only waits.
+  setInterval(() => {}, 1_000);
+  await new Promise(() => {});
 }
 
 const port = Number(args[args.indexOf('--port') + 1]);
@@ -392,6 +398,9 @@ async function listenWithRetry() {
 
 async function startBoot({ restartIteration }) {
   nextBoot();
+  if (boot === 1 && process.env.RCC_SCRIPT_HELPER === 'boot') {
+    spawn(process.execPath, [process.argv[1], 'gateway', '--rcc-helper'], { stdio: 'ignore' }).unref();
+  }
   const delay = Number(process.env.RCC_SCRIPT_SPAWNED_CHILD === '1' && !restartIteration
     ? (process.env.RCC_SCRIPT_CHILD_BOOT_DELAY_MS ?? 300)
     : (process.env.RCC_SCRIPT_BOOT_DELAY_MS ?? 150));

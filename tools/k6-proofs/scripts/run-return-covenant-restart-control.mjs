@@ -726,7 +726,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   record.fallback = fallback;
 
   const generations = {};
-  const state = { triggerAtMs: null, replacementReadyAt: null, stopSampling: false, lastPreTrigger: null, rawEpoch: null, preTriggerChildren: new Set() };
+  const state = { triggerAtMs: null, replacementReadyAt: null, stopSampling: false, lastPreTrigger: null, rawEpoch: null, preTriggerChildren: new Set(), pendingChild: null };
   // The control-held port (the negatives' "replacement never usable"), opened and closed only here.
   const held = { server: null, open: false, used: false };
   const holdPort = async () => {
@@ -964,13 +964,23 @@ async function executeControl({ options, platform, plan, target, docs, home, art
    * the old generation, else from the product's own "did not become healthy (<pid>)" line, which
    * also names a child that never had a PID ("unknown").
    */
+  const marker = `OPENCLAW_PROOF_RCC_RUN=${runId}`;
   const followChild = (old) => {
     const child = fallback.child;
-    if (child.pid === null) {
-      // A new child since the trigger, whose command line is the gateway invocation.
-      const found = markedChildrenOf(old.pid, `OPENCLAW_PROOF_RCC_RUN=${runId}`, target.stageDir)
+    if (child.pid === null && child.reportedPid === null && !old.exited) {
+      // A new child since the trigger, whose command line is the gateway invocation, seen on two
+      // polls: between fork and exec a helper still shows its parent's command line.
+      const found = markedChildrenOf(old.pid, marker, target.stageDir)
         .find((candidate) => candidate.gateway && !state.preTriggerChildren.has(candidate.pid));
-      if (found) Object.assign(child, { pid: found.pid, pidSource: 'proc', invocation: 'gateway', ppid: found.ppid, startTicks: found.startTicks, firstSeenAtMs: now() });
+      const pending = state.pendingChild;
+      if (!found) {
+        state.pendingChild = null;
+      } else if (pending && pending.pid === found.pid && pending.startTicks === found.startTicks && now() > pending.seenAtMs) {
+        Object.assign(child, { pid: found.pid, pidSource: 'proc', invocation: 'gateway', ppid: found.ppid, startTicks: found.startTicks, firstSeenAtMs: pending.seenAtMs });
+        state.pendingChild = null;
+      } else if (!pending || pending.pid !== found.pid || pending.startTicks !== found.startTicks) {
+        state.pendingChild = { pid: found.pid, startTicks: found.startTicks, seenAtMs: now() };
+      }
     }
     if (child.reportedPid === null) {
       const named = old.diagnostics.find((line) => RCC_SPAWN_DIAGNOSTICS.unhealthy.test(line.line));
@@ -978,14 +988,17 @@ async function executeControl({ options, platform, plan, target, docs, home, art
         child.reportedPid = RCC_SPAWN_DIAGNOSTICS.unhealthy.exec(named.line)[1];
         // The product's own word on which child it judged overrides anything inferred.
         if (/^\d+$/u.test(child.reportedPid) && child.pid !== Number(child.reportedPid)) {
-          const stat = procStat(Number(child.reportedPid));
+          // Alive only while that PID is still a marked child of the old generation.
+          const pid = Number(child.reportedPid);
+          const stat = procStat(pid);
+          const ours = Boolean(stat && stat.state !== 'Z' && stat.ppid === old.pid && procEnvironHas(pid, marker));
           Object.assign(child, {
-            pid: Number(child.reportedPid),
+            pid,
             pidSource: 'diagnostic',
             invocation: 'named-by-product',
             ppid: old.pid,
-            startTicks: stat?.startTicks ?? null,
-            goneAtMs: stat && stat.state !== 'Z' ? null : now(),
+            startTicks: ours ? stat.startTicks : null,
+            goneAtMs: ours ? null : now(),
           });
         }
       }
@@ -1362,6 +1375,9 @@ async function cleanup({ record, generations, held, target, runId }) {
     const live = runMembers();
     if (live.length === 0) break;
     for (const pid of live) {
+      // Re-read the marker immediately before the signal: a PID that no longer carries it is
+      // not ours any more.
+      if (!procEnvironHas(pid, marker) && !Object.values(generations).some((generation) => generation.pid === pid && !generation.exited)) continue;
       try {
         process.kill(pid, signalName);
       } catch {

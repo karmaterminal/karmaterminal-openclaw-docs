@@ -565,6 +565,112 @@ test('every named branch grades failure or limit from its product diagnostic alo
   assert.deepEqual(rcc.RCC_FALLBACK_BRANCHES.filter((entry) => entry.class === 'failure').map((entry) => entry.branch), ['lock-reacquire-failed']);
 });
 
+/* ---------------------------------------------------------------------------------- */
+/* Independent-review findings                                                          */
+/* ---------------------------------------------------------------------------------- */
+
+// Splice a transient blip in right after the trigger: the old generation, still on its original
+// socket, serves, misses one hello-ok, and serves again before it closes.
+function withBlipAfterTrigger(record) {
+  const copy = structuredClone(record);
+  const triggerAtMs = copy.observation.triggerAtMs;
+  const template = [...copy.observation.samples].reverse().find((sample) => sample.atMs < triggerAtMs && sample.servingGeneration === 'old');
+  const at = (offset, serving) => {
+    const sample = structuredClone(template);
+    sample.atMs = triggerAtMs + offset;
+    sample.phase = serving ? 'old-serving' : 'outage';
+    if (!serving) sample.hello = { ok: false, bootIdSha256: null, error: 'call-timeout' };
+    sample.servingGeneration = serving ? 'old' : null;
+    return sample;
+  };
+  copy.observation.samples.push(at(0.25, true), at(0.5, false), at(0.75, true));
+  return copy;
+}
+
+test('a transient blip while the old generation still serves is not the outage (positive)', async () => {
+  const { result } = await positive();
+  const record = withBlipAfterTrigger(result.record);
+  const grade = gradeRestartControl(record);
+  assert.equal(grade.verdict, 'PASS-candidate', JSON.stringify(grade, null, 2));
+  assert.equal(grade.outageInterval.firstServingAfter.generation, 'replacement', JSON.stringify(grade.outageInterval));
+  assert.equal(grade.outageInterval.lastServingBefore.generation, 'old');
+  // The outage starts after the old generation's last serving sample on its original socket.
+  assert.ok(grade.outageInterval.lastServingBefore.atMs >= record.observation.triggerAtMs + 0.75);
+  assert.equal(grade.outageInterval.firstServingAfter.atMs, gradeRestartControl(result.record).outageInterval.firstServingAfter.atMs);
+});
+
+test('a transient blip before the old server closes does not turn the spawned fallback into restoration-unstable', async () => {
+  const { result } = await spawnedFallback();
+  const grade = gradeRestartControl(withBlipAfterTrigger(result.record));
+  assert.equal(grade.fallback.branch, 'restored', JSON.stringify(grade.fallback));
+  assert.equal(grade.outageInterval.firstServingAfter.generation, 'old');
+  assert.notEqual(grade.outageInterval.firstServingAfter.listenerInode, result.record.generations.old.listen.inode);
+  assert.equal(grade.negativeControl.holds, true, JSON.stringify(grade.negativeControl, null, 2));
+});
+
+test('a positive whose first serving generation after the outage is not the replacement is not PASS', async () => {
+  const { result } = await positive();
+  const record = structuredClone(result.record);
+  // The old process serving again on a new socket in the middle of the outage is not a
+  // replacement, whatever the replacement does later.
+  const { old } = record.generations;
+  const outage = gradeRestartControl(record).outageInterval;
+  const middle = record.observation.samples.find((sample) => sample.atMs > outage.lastServingBefore.atMs && sample.atMs < outage.firstServingAfter.atMs);
+  Object.assign(middle, {
+    listener: { ...middle.listener, owner: 'old', inode: old.listen.inode + 1, ownerPid: old.pid, ownerStartTicks: old.startTicks },
+    readyz: { ...middle.readyz, status: 200, ready: true },
+    hello: { ok: true, bootIdSha256: 'a'.repeat(64), error: null },
+    servingGeneration: 'old',
+  });
+  const grade = gradeRestartControl(record);
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.equal(grade.outageInterval.firstServingAfter.generation, 'old');
+  assert.ok(grade.partials.some((entry) => entry.code === 'outage-misattributed') || grade.failures.length > 0, JSON.stringify(grade, null, 2));
+});
+
+test('restoration on the original socket, or without the control\'s same-process check, is not "restored"', async () => {
+  const { result } = await spawnedFallback();
+  const sameSocket = structuredClone(result.record);
+  const outage = gradeRestartControl(sameSocket).outageInterval;
+  for (const sample of sameSocket.observation.samples) {
+    if (sample.atMs >= outage.firstServingAfter.atMs) sample.listener.inode = sameSocket.generations.old.listen.inode;
+  }
+  const sameSocketGrade = gradeRestartControl(sameSocket);
+  assert.notEqual(sameSocketGrade.fallback.branch, 'restored', JSON.stringify(sameSocketGrade.fallback));
+  assert.equal(sameSocketGrade.negativeControl.holds, false);
+
+  const unverified = structuredClone(result.record);
+  delete unverified.generations.old.restored;
+  const unverifiedGrade = gradeRestartControl(unverified);
+  assert.notEqual(unverifiedGrade.fallback.branch, 'restored', JSON.stringify(unverifiedGrade.fallback));
+  assert.equal(unverifiedGrade.negativeControl.holds, false);
+});
+
+test('a tracked child that is not the child the product named is a mismatch, and the negative does not hold', async () => {
+  const { result } = await spawnedFallback();
+  const record = structuredClone(result.record);
+  record.fallback.child.pid += 1;
+  record.generations.replacement.pid = record.fallback.child.pid;
+  const grade = gradeRestartControl(record);
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.ok(grade.partials.some((entry) => entry.code === 'child-identity-mismatch'), JSON.stringify(grade.partials));
+  assert.equal(grade.negativeControl.holds, false);
+});
+
+test('negative-spawned-fallback: a gateway-looking helper alive before the trigger is not the respawned child', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_HELPER: 'boot' } }),
+    testPlatform,
+  );
+  const { record, grade } = result;
+  assert.equal(record.fallback.child.reportedPid, String(record.fallback.child.pid), JSON.stringify(record.fallback.child));
+  assert.equal(record.fallback.child.pidSource, 'proc');
+  assert.equal(record.fallback.blocker.releasedOn, 'replacement-exited', JSON.stringify(record.fallback.blocker));
+  assert.equal(grade.negativeControl.holds, true, JSON.stringify(grade.negativeControl, null, 2));
+  assert.deepEqual(record.cleanup.orphansTerminated, []);
+});
+
 test('a negative case never grades PASS: a clean positive record relabelled as a negative is MISSING', async () => {
   const { result } = await positive();
   const record = structuredClone(result.record);

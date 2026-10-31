@@ -106,8 +106,9 @@
  *    (src/gateway/server/http-listen.ts:6-7) and a failed first boot exits nonzero
  *    (run-loop.ts:1238-1262). The gateway lock is state-database ownership and never probes the
  *    port (src/infra/gateway-lock.ts:417-572), so a held port cannot induce lock-reacquire-failed;
- *    requireFreshProcess comes only from native-worker recovery under systemd or launchd
- *    (process-respawn.ts:198-203), never from a targeted intent (restart-request.ts:57-82).
+ *    requireFreshProcess comes only from native-worker recovery under a native service supervisor
+ *    (systemd, launchd or schtasks; process-respawn.ts:107-113 and 198-203), never from a
+ *    targeted intent (restart-request.ts:57-82).
  *    The child runtime is the one refusal a disposable gateway can induce: run on a runtime copy
  *    the control owns and remove it before the transition.
  *

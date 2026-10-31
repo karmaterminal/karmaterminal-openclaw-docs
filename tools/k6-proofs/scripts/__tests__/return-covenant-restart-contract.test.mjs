@@ -168,4 +168,10 @@ test('the doc, manifest and grader agree on the cases, the fleet branch and ever
   assert.match(texts.doc, /src\/cli\/gateway-cli\/run-loop\.ts:497-561/u);
   assert.match(texts.doc, /old-process\s+restoration/u);
   assert.match(texts.manifest, /old-process\s+restoration/u);
+  // On the spawned negatives the child never served, so every named branch grades FAIL-candidate
+  // (replacement-never-usable); the text must not promise MISSING for a fallback limit there.
+  for (const name of ['doc', 'manifest']) {
+    assert.doesNotMatch(texts[name], /limit alone grades MISSING/iu, `${name} contradicts the grader on fallback limits`);
+    assert.match(texts[name], /FAIL-candidate[^.]*whichever\s+branch\s+blocked/iu, `${name} does not say a blocked fallback grades FAIL`);
+  }
 });

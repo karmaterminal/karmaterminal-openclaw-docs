@@ -511,13 +511,14 @@ function servingPoint(sample) {
 }
 
 /**
- * The outage a restart opens, measured from the matrix: the last sample that saw a generation
- * serving before the first unserved post-transition sample, to the first sample after it that
- * saw a generation serving again. Every full-process path at F′ closes the old server first,
- * so the interval exists on every branch; its precision is one sample interval.
- * `firstServingAfter.generation` is `replacement` for a fresh successor and `old` when the
- * original process serves again (the spawned branch's in-process fallback). `open` means
- * nothing served again before the observation ended.
+ * The outage a restart opens, measured from the matrix. A serving sample has an identity: the
+ * generation, the listener owner's PID and the listening socket inode. The outage starts after
+ * the last sample at which the identity serving when the transition was requested still served
+ * (a draining old generation can keep serving, and miss a hello-ok, after the request), and ends
+ * at the first sample served by any other identity: the replacement, or the original process on
+ * a new socket (the spawned branch's in-process fallback). Every full-process path at F′ closes
+ * the old server first, so the interval exists on every branch; its precision is one sample
+ * interval. `open` means nothing else served before the observation ended.
  */
 export function computeOutageInterval(record) {
   const samples = sortedSamples(record);
@@ -525,21 +526,31 @@ export function computeOutageInterval(record) {
   const resolutionMs = record?.plan?.sampleIntervalMs ?? null;
   const base = { observed: false, lastServingBefore: null, firstServingAfter: null, ms: null, open: false, unservedSamples: 0, resolutionMs };
   if (!finiteTime(triggerAtMs) || samples.length === 0) return { ...base, reason: 'no-transition-observed' };
-  const gapStart = samples.findIndex((sample) => sample.atMs >= triggerAtMs && servingGenerationOf(sample) === null);
-  if (gapStart < 0) return { ...base, reason: 'no-unserved-sample-after-transition' };
-  let beforeIndex = gapStart - 1;
-  while (beforeIndex >= 0 && servingGenerationOf(samples[beforeIndex]) === null) beforeIndex -= 1;
-  const afterIndex = samples.findIndex((sample, index) => index > gapStart && servingGenerationOf(sample) !== null);
-  const before = beforeIndex < 0 ? null : samples[beforeIndex];
+  const identity = (sample) => {
+    const generation = servingGenerationOf(sample);
+    return generation ? `${generation}:${sample.listener?.ownerPid ?? ''}:${sample.listener?.inode ?? ''}` : null;
+  };
+  let originIndex = -1;
+  for (let index = 0; index < samples.length && samples[index].atMs < triggerAtMs; index += 1) {
+    if (identity(samples[index])) originIndex = index;
+  }
+  if (originIndex < 0) return { ...base, reason: 'no-serving-generation-before-transition' };
+  const origin = identity(samples[originIndex]);
+  const afterIndex = samples.findIndex((sample, index) => index > originIndex && identity(sample) !== null && identity(sample) !== origin);
+  const bound = afterIndex < 0 ? samples.length : afterIndex;
+  let beforeIndex = originIndex;
+  for (let index = originIndex + 1; index < bound; index += 1) if (identity(samples[index]) === origin) beforeIndex = index;
+  if (afterIndex < 0 && beforeIndex === samples.length - 1) return { ...base, reason: 'transition-origin-still-serving' };
+  const before = samples[beforeIndex];
   const after = afterIndex < 0 ? null : samples[afterIndex];
   return {
     ...base,
     observed: true,
     lastServingBefore: servingPoint(before),
     firstServingAfter: servingPoint(after),
-    ms: before && after ? after.atMs - before.atMs : null,
+    ms: after ? after.atMs - before.atMs : null,
     open: after === null,
-    unservedSamples: (afterIndex < 0 ? samples.length : afterIndex) - beforeIndex - 1,
+    unservedSamples: bound - beforeIndex - 1,
   };
 }
 
@@ -636,10 +647,16 @@ export function classifyFallback(record, samples = sortedSamples(record), outage
     samples.some((sample) => sample.atMs >= triggerAtMs && servingGenerationOf(sample) === 'replacement');
   const first = outage.firstServingAfter;
   const servingAgain = first?.generation === 'old' ? samples.filter((sample) => sample.atMs >= first.atMs) : [];
-  const restored = servingAgain.length > 0 && servingAgain.every((sample) =>
-    servingGenerationOf(sample) === 'old' &&
-      sample.listener?.ownerPid === old.pid &&
-      sample.listener?.ownerStartTicks === old.startTicks);
+  // Restored: the original process (same PID and start ticks), on a new socket, serving to the
+  // end of the window, and confirmed by the control's own readiness check of that process.
+  const restored = servingAgain.length > 0 &&
+    first.listenerInode !== old.listen?.inode &&
+    old.restored?.sameProcess === true &&
+    servingAgain.every((sample) =>
+      servingGenerationOf(sample) === 'old' &&
+        sample.listener?.ownerPid === old.pid &&
+        sample.listener?.ownerStartTicks === old.startTicks &&
+        sample.listener?.inode === first.listenerInode);
   const named = RCC_FALLBACK_BRANCHES.find((entry) => has(entry.pattern));
   const result = (branch, cls, detail, anchor = null) => ({
     branch,
@@ -725,7 +742,7 @@ export function gradeRestartControl(record) {
     if (hints.length !== expected.length || hints.some((key, index) => key !== expected[index])) {
       missing('branch-precondition-unmet', `the old generation carried supervisor hints ${JSON.stringify(hints)}, not ${JSON.stringify(expected)}`);
     }
-  } else if (old.started === true && finiteTime(old.readyAtMs)) {
+  } else if (finiteTime(old.readyAtMs)) {
     partial('branch-precondition-unrecorded', 'the old generation\'s supervisor hints were not read from /proc');
   }
 
@@ -770,6 +787,10 @@ export function gradeRestartControl(record) {
     // The spawned branch: the product, not the control, starts the replacement and decides the
     // fallback. A fresh successor is not this case's claim; the child never serving is.
     fallback = classifyFallback(record, samples, outage);
+    const child = record?.fallback?.child ?? {};
+    if (positiveInteger(child.pid) && /^\d+$/u.test(String(child.reportedPid ?? '')) && Number(child.reportedPid) !== child.pid) {
+      partial('child-identity-mismatch', `the control tracked pid ${child.pid}, the product judged pid ${child.reportedPid}`);
+    }
     if (transitionHappened) {
       if (fallback.class === 'not-exercised') {
         missing('negative-not-exercised', `${fallback.branch}: ${fallback.detail}`);
@@ -823,6 +844,9 @@ export function gradeRestartControl(record) {
             fail('replacement-ready-late', 'the first serving replacement sample came after the planned deadline');
           }
           if (!outage.observed) partial('outage-unobserved', 'no sample fell between the old generation and the replacement');
+        if (outage.firstServingAfter && outage.firstServingAfter.generation !== 'replacement') {
+          partial('outage-misattributed', `the first generation serving after the outage was ${outage.firstServingAfter.generation}, not the replacement`);
+        }
         }
       }
     }
@@ -930,16 +954,18 @@ export function gradeRestartControl(record) {
       const failureDiagnosticRetained = frameRetained && lines.some((line) => RCC_SPAWN_DIAGNOSTICS.fallingBack.test(line));
       const originalProcessServesAgain = fallback.branch === 'restored';
       const outageMeasured = outage.firstServingAfter?.generation === 'old' && Number.isFinite(outage.ms);
+      const childIdentityConsistent = !partials.some((entry) => entry.code === 'child-identity-mismatch');
       negativeControl = {
         expected: 'non-PASS: the product-spawned child never serves; the fallback diagnostic and restart frame are retained; the original PID and start ticks own the listener again with /readyz and hello-ok passing under the unchanged epoch; the outage is measured (old-process restoration, not fresh-successor proof)',
         spawnedBranchTaken: fallback.updateRespawnTaken,
+        childIdentityConsistent,
         replacementNeverUsable,
         failureDiagnosticRetained,
         originalProcessServesAgain,
         epochUnchanged,
         outageMeasured,
         fallbackBranch: fallback.branch,
-        holds: nonPass && fallback.updateRespawnTaken && replacementNeverUsable && failureDiagnosticRetained &&
+        holds: nonPass && fallback.updateRespawnTaken && childIdentityConsistent && replacementNeverUsable && failureDiagnosticRetained &&
           originalProcessServesAgain && epochUnchanged && outageMeasured,
       };
     } else {

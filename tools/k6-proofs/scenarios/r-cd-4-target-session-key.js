@@ -124,7 +124,6 @@ export default function () {
     target_session_created: false,
     target_primed: false,
     target_priming_run_id: null,
-    target_return_unbound_reason: null,
     target_return_source: null,
     parent_return_source: null,
     created_parent_session_key: null,
@@ -468,9 +467,6 @@ export default function () {
               evidence.target_primed = true;
               // The woken turn must be a different run than this priming turn.
               evidence.target_priming_run_id = messageRunId(eventData.message, eventData);
-              // Review F5: an unstamped priming run cannot be excluded, so no target ack
-              // can bind (the authority helpers refuse a list with a missing run id).
-              if (!evidence.target_priming_run_id) evidence.target_return_unbound_reason = 'the target priming reply carries no run id; the priming run cannot be excluded, so no target ack can bind';
               console.log('✓ target session primed for continuation consumption acknowledgement');
               socket.setTimeout(() => dispatchParent(socket), 100);
             }

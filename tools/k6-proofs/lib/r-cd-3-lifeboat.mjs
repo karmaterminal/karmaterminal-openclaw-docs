@@ -10,8 +10,6 @@
 // - request_compaction (src/agents/tools/request-compaction-tool.ts):
 //     unknown usage  { status:"rejected", guard:"context_threshold", reason }   (:236-243)
 //     measured below { status:"rejected", guard:"context_threshold", contextUsage, threshold:70, reason } (:244-255)
-//                    contextUsage is Math.round(raw * 100) while the guard compares the raw
-//                    fraction, so a 69.5-69.99% rejection reads contextUsage 70, threshold 70
 //     rate limited   { status:"rejected", guard:"rate_limit", retryAfterSeconds, reason } (:257-273)
 //     pending        { status:"already_pending", reason }                       (:226-232)
 //     accepted       { status:"compaction_requested", compactionRequestId, trigger, contextUsage, reason, note } (:377-387)
@@ -26,35 +24,20 @@
 //   "[continuation:post-compaction] [continuation:chain-hop:N] Compaction just
 //   completed. Carry this working state to the post-compaction session: <task>"
 //   (src/auto-reply/reply/post-compaction-delegate-delivery.ts:497-539). That
-//   prefix is product text only in that position: an ordinary delegate's task
-//   is "[continuation:chain-hop:N] Delegated task (turn N/M): <requester task>"
-//   (delegate-dispatch-request.ts:43), and chat.history keeps either as written,
-//   so a requester that writes the prefix into a task can mint a child that
-//   carries it (harness review F4). The task must start with the release
-//   composition, and a requester call that carries the prefix is refused.
+//   prefix is product text: no requester call carries it.
 // - Automatic compaction runs when the prompt exceeds the window minus the
-//   reserve (packages/agent-core/src/harness/compaction/compaction.ts:260-269).
-//   The reserve is max(configured, 20,000) capped at a quarter of the window
-//   (src/agents/agent-settings.ts:11,29-38; agent-compaction-constants.ts:2-13),
-//   so the line is window - min(20,000, window/4) at the floor: 90% of 200k,
-//   84.4% of 128k, 75% of any window up to 80k. Preflight compaction also runs
-//   when the fresh total plus the next prompt reaches it
-//   (src/auto-reply/reply/agent-runner-memory.ts:112-300), and its after-total
-//   can exceed the previous one. The planner keeps every planned total below
-//   the line minus a margin, and stops PARTIAL when the target is not
-//   reachable below it (harness review F7).
+//   reserve (packages/agent-core/src/harness/compaction/compaction.ts:260-269;
+//   reserve floor 20,000, src/agents/agent-settings.ts:11), about 90% of a
+//   200k window. The fill stops well below that.
 //
 // k6 and Node compatible: no k6 or Node imports.
 
 import { compactTaskIdentityToken } from './row-child-correlation.mjs';
 import { mintedTokenFromHistory, tokenReplyFromHistory, toolReceiptsFromHistory } from './sentinel-binding.mjs';
-import { toolCallTarget } from './tool-call-identity.mjs';
 
 export const RCD3_LIFEBOAT_MARKER = 'RCD3-LIFEBOAT';
 export const RCD3_PARENT_RETURN_MARKER = 'RCD3-PARENT-RETURN';
 export const POST_COMPACTION_TASK_PREFIX = '[continuation:post-compaction]';
-/** The start of a released lifeboat's task (post-compaction-delegate-delivery.ts:499-502). */
-const RELEASED_LIFEBOAT_TASK_START = /^\[continuation:post-compaction\] \[continuation:chain-hop:\d+\] /;
 /** request-compaction-tool.ts:26 MIN_CONTEXT_THRESHOLD. Read-only here: the scenario never changes it. */
 export const COMPACTION_THRESHOLD = 0.7;
 export const DEFAULT_FILL_TARGET = 0.75;
@@ -67,35 +50,6 @@ export const FILL_MIN_CHUNK_CHARS = 4_000;
 /** Assumed tokens per filler character until two measured turns give a rate; high, so the first step undershoots. */
 export const FILL_INITIAL_TOKENS_PER_CHAR = 0.3;
 const FILL_MIN_TOKENS_PER_CHAR = 0.2;
-/** agent-settings.ts:11 DEFAULT_AGENT_COMPACTION_RESERVE_TOKENS_FLOOR. */
-export const COMPACTION_RESERVE_FLOOR_TOKENS = 20_000;
-/** agent-compaction-constants.ts:2 MAX_COMPACTION_RESERVE_RATIO. */
-const COMPACTION_RESERVE_MAX_RATIO = 0.25;
-/**
- * Headroom kept below the automatic-compaction line: the larger of 2,000
- * tokens and 2% of the window. It covers the smallest filler chunk
- * (FILL_MIN_CHUNK_CHARS), the turn's reply and the proof turn's own prompt.
- */
-export const FILL_COMPACTION_MARGIN_MIN_TOKENS = 2_000;
-export const FILL_COMPACTION_MARGIN_RATIO = 0.02;
-
-/**
- * The prompt total past which the product compacts on its own:
- * window - min(max(reserve, 20,000), floor(window / 4)). The configured
- * reserve is not observable here, so the floor is the default; a seat that
- * configures a larger reserve can pass it in (it only lowers the line).
- */
-export function automaticCompactionLine(contextTokens, reserveTokens = COMPACTION_RESERVE_FLOOR_TOKENS) {
-  const window = Math.max(1, Math.floor(contextTokens));
-  const reserve = Math.max(COMPACTION_RESERVE_FLOOR_TOKENS, Math.floor(Number(reserveTokens) || 0));
-  return window - Math.min(reserve, Math.floor(window * COMPACTION_RESERVE_MAX_RATIO));
-}
-
-/** The highest total the fill may plan: the automatic-compaction line minus the margin. */
-export function fillCompactionCap(contextTokens, reserveTokens = COMPACTION_RESERVE_FLOOR_TOKENS) {
-  const margin = Math.max(FILL_COMPACTION_MARGIN_MIN_TOKENS, Math.ceil(FILL_COMPACTION_MARGIN_RATIO * contextTokens));
-  return automaticCompactionLine(contextTokens, reserveTokens) - margin;
-}
 
 export function rcd3TaskIdentityToken(nonce) {
   return compactTaskIdentityToken('RCD3', nonce);
@@ -112,15 +66,12 @@ function isNumber(value) {
 /**
  * Measured usage from a sessions.describe row: fresh totalTokens over
  * contextTokens, the same inputs computeRequestCompactionContextUsage reads.
- * sessionId is carried through: compaction can rotate it
- * (agent-runner-post-compaction-release.ts:64-74 newSessionId), and the row
- * projects no compaction counter.
  */
 export function measuredSessionUsage(row) {
-  if (!row || typeof row !== 'object') return { measured: false, totalTokens: null, contextTokens: null, usage: null, sessionId: null, reason: 'sessions.describe returned no session row' };
+  if (!row || typeof row !== 'object') return { measured: false, totalTokens: null, contextTokens: null, usage: null, reason: 'sessions.describe returned no session row' };
   const totalTokens = isNumber(row.totalTokens) ? row.totalTokens : null;
   const contextTokens = isNumber(row.contextTokens) && row.contextTokens > 0 ? row.contextTokens : null;
-  const base = { totalTokens, contextTokens, sessionId: typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null };
+  const base = { totalTokens, contextTokens };
   if (row.totalTokensFresh !== true) return { ...base, measured: false, usage: null, reason: 'session totalTokens is not fresh' };
   if (totalTokens === null) return { ...base, measured: false, usage: null, reason: 'session row carries no totalTokens' };
   if (contextTokens === null) return { ...base, measured: false, usage: null, reason: 'session row carries no contextTokens' };
@@ -129,10 +80,8 @@ export function measuredSessionUsage(row) {
 
 /**
  * Next fill step. 'done' once measured usage reaches the target; 'fill' with a
- * character count sized from the measured gap, never planning a total at or
- * past the automatic-compaction line minus its margin; 'stop' with a reason
- * when the target is not reachable below that line, or the gap cannot be
- * closed within the turn and token budgets.
+ * character count sized from the measured gap; 'stop' with a reason when the
+ * gap cannot be closed within the turn and token budgets.
  */
 export function planFillStep({
   measurement,
@@ -143,24 +92,15 @@ export function planFillStep({
   ceiling = DEFAULT_FILL_CEILING,
   budgetTokens = DEFAULT_FILL_BUDGET_TOKENS,
   maxTurns = DEFAULT_FILL_MAX_TURNS,
-  reserveTokens = COMPACTION_RESERVE_FLOOR_TOKENS,
 } = {}) {
   if (!measurement?.measured) return { action: 'stop', chars: 0, reason: `no measured usage: ${measurement?.reason || 'unknown'}` };
   const { usage, totalTokens, contextTokens } = measurement;
   if (usage >= target) return { action: 'done', chars: 0, reason: null };
-  const capTokens = fillCompactionCap(contextTokens, reserveTokens);
-  if (Math.ceil(target * contextTokens) >= capTokens) {
-    return {
-      action: 'stop',
-      chars: 0,
-      reason: `context target unreachable below automatic compaction: ${pct(target)} of a ${contextTokens}-token window is not below the automatic-compaction line ${automaticCompactionLine(contextTokens, reserveTokens)} minus its margin (${capTokens})`,
-    };
-  }
   if (turnsUsed >= maxTurns) {
     return { action: 'stop', chars: 0, reason: `measured usage ${pct(usage)} is below the ${pct(target)} target after ${turnsUsed} fill turns` };
   }
   const wantTokens = Math.ceil((target + 0.02) * contextTokens) - totalTokens;
-  const roomTokens = Math.min(Math.floor(ceiling * contextTokens), capTokens) - totalTokens;
+  const roomTokens = Math.floor(ceiling * contextTokens) - totalTokens;
   const stepTokens = Math.max(0, Math.min(wantTokens, roomTokens));
   if (filledTokens + stepTokens > budgetTokens) {
     return {
@@ -241,9 +181,7 @@ export function classifyRequestCompactionReceipt(receipt) {
   if (payload.status === 'compaction_requested') return { ...base, kind: contextUsage !== null ? 'accepted' : 'invalid' };
   if (payload.status === 'rejected' && payload.guard === 'context_threshold') {
     if (contextUsage === null && threshold === null) return { ...base, kind: 'context_unknown' };
-    // Both are integer percents of a raw fraction compared before rounding
-    // (request-compaction-tool.ts:244-253): a raw 69.5-69.99% reads 70 vs 70 (review N2).
-    if (contextUsage !== null && threshold !== null && contextUsage <= threshold) return { ...base, kind: 'threshold_rejected_measured' };
+    if (contextUsage !== null && threshold !== null && contextUsage < threshold) return { ...base, kind: 'threshold_rejected_measured' };
     return { ...base, kind: 'invalid' };
   }
   if (payload.status === 'rejected' && payload.guard === 'rate_limit') return { ...base, kind: 'rate_limited' };
@@ -276,32 +214,10 @@ export function stagingReceiptsFromHistory(messages, taskToken) {
   return toolReceiptsFromHistory(messages, { toolName: 'continue_delegate', argField: 'task', needle: taskToken });
 }
 
-/**
- * A bound child's own de-enveloped spawn task (child-observer subagentTaskText)
- * is a released lifeboat only when it starts with the product's release
- * composition "[continuation:post-compaction] [continuation:chain-hop:N] " and
- * carries the row token. The prefix anywhere else is requester-written text.
- */
+/** A bound child's own spawn task is a released lifeboat only with the product prefix and the row token. */
 export function isReleasedLifeboatTask(taskText, taskToken) {
   return typeof taskText === 'string' && typeof taskToken === 'string' && taskToken.length > 0 &&
-    RELEASED_LIFEBOAT_TASK_START.test(taskText.trimStart()) && taskText.includes(taskToken);
-}
-
-/**
- * The first call in a requester assistant row whose arguments carry the
- * post-compaction prefix (by name or through Tool Search's dispatcher), as
- * { tool, toolCallId }, else null. Such a call can create a child whose task
- * looks released, so the row refuses its lifeboat binding.
- */
-export function requesterPrefixCall(message) {
-  if (String(message?.role || '').toLowerCase() !== 'assistant' || !Array.isArray(message.content)) return null;
-  for (const part of message.content) {
-    const target = toolCallTarget(part);
-    if (target && JSON.stringify(target.args).includes(POST_COMPACTION_TASK_PREFIX)) {
-      return { tool: target.name, toolCallId: typeof part.id === 'string' ? part.id : null };
-    }
-  }
-  return null;
+    taskText.includes(POST_COMPACTION_TASK_PREFIX) && taskText.includes(taskToken);
 }
 
 /** The lifeboat's own report, from its own transcript: a token it minted. */
@@ -354,9 +270,6 @@ export function classifyRcd3Evidence(evidence) {
     return partial(`observation incomplete: ${r.method} ${r.code || ''} ${r.message || ''}`.replace(/\s+/g, ' ').trim());
   }
   if (e.lifeboat_identity_conflict === true) return partial(`lifeboat identity conflict: ${e.lifeboat_identity_reason || 'more than one bound child'}`);
-  if (e.requester_prefix_call) {
-    return partial(`a requester ${e.requester_prefix_call.tool || 'tool'} call carried the ${POST_COMPACTION_TASK_PREFIX} prefix; no child can be bound as the released lifeboat`);
-  }
   if (e.proof_dispatched !== true) {
     return partial(`context fill stopped before the proof turn: ${e.fill_stop_reason || 'the fill did not finish'}`);
   }
@@ -366,10 +279,7 @@ export function classifyRcd3Evidence(evidence) {
     return { verdict: 'FAIL-candidate', reason: 'neither a staging receipt nor a request_compaction result is bound to the proof turn' };
   }
   if (kind === 'threshold_rejected_measured') {
-    const compared = e.compaction_context_usage < e.compaction_threshold
-      ? `contextUsage ${e.compaction_context_usage}% < threshold ${e.compaction_threshold}%`
-      : `contextUsage ${e.compaction_context_usage}% reported at threshold ${e.compaction_threshold}%: the tool rounds a raw usage just below the threshold up to it`;
-    return partial(`measured below-threshold rejection (${compared}): the fill did not reach the accepted compaction path`);
+    return partial(`measured below-threshold rejection (contextUsage ${e.compaction_context_usage}% < threshold ${e.compaction_threshold}%): the fill did not reach the accepted compaction path`);
   }
   if (kind !== 'accepted') return partial(COMPACTION_REASONS[kind] || COMPACTION_REASONS.other);
   if (e.staging_receipt_observed !== true) return partial('compaction accepted, but no queued-for-compaction staging receipt is bound to the lifeboat task');

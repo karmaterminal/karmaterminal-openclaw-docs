@@ -79,7 +79,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "This row remains PARTIAL-candidate until Tempo trace JSON is fetched and reviewed for safe reason attrs present / raw reason absent. Expected PARTIAL cause (harness review N7, openclaw-bootstrap#1727): when the wake matures while another run is active in the session, the product folds it into that run as a [system:continuation-note] (src/auto-reply/continuation/work-dispatch.ts:614-640, work-dispatch-execution.ts:234-235) and writes no [continuation:wake] row; the transcript chain then fails closed with chain_reason naming the missing wake. Run in an idle or disposable session."
+    "notes": "This row remains PARTIAL-candidate until Tempo trace JSON is fetched and reviewed for safe reason attrs present / raw reason absent."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",

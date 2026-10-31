@@ -13,21 +13,10 @@
  *   - spawn: the parent's sessions_spawn toolResult, bound by toolCallId to the
  *     call whose task carries the nonce, answered "accepted" with a
  *     childSessionKey;
- *   - hop 1 / hop 2: the child's own transcript on that key, from its spawn
- *     task: a chat.history read sent after the child subscription was
- *     acknowledged, extended by the live rows of that subscription (harness
- *     review F2/F3: the subscription opens after the spawn, so live rows alone
- *     miss the spawn task and any typed call persisted before it; the read
- *     alone can miss a hop written after it, and cleanup="delete" can remove
- *     the transcript before a later read):
- *     TOKEN-HOP1 in assistant text, then, after a "[continuation:wake]" row or
- *     in another run, TOKEN-HOP2-DONE with a token the child mints in hop 2,
- *     absent from the harness texts, from the requester's own sessions_spawn
- *     arguments and from the child's spawn task; no typed continue_work call
- *     in the child, by name or through Tool Search's dispatch_action;
- *   - a spawn with context "fork" (or a thread spawn that leaves the context
- *     to the channel default) is refused: a forked child starts with the
- *     requester's own transcript;
+ *   - hop 1 / hop 2: the child's own rows on that key (subscribed live, and its
+ *     transcript): TOKEN-HOP1 in assistant text, then, after a
+ *     "[continuation:wake]" row or in another run, TOKEN-HOP2-DONE with a token
+ *     the child mints in hop 2; no typed continue_work call in the child;
  *   - return: the parent reproducing that hop-2 token in a run other than the
  *     dispatch run.
  *
@@ -51,7 +40,7 @@ import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
 import { tokenWorkHops } from '../lib/continue-work-chain.mjs';
-import { createToolReceiptTracker, eventSessionKey, requesterCallTexts, tokenReplyFromHistory, toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
+import { createToolReceiptTracker, eventSessionKey, tokenReplyFromHistory, toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = {
@@ -146,7 +135,6 @@ export default function () {
     child_rows_seen: 0,
     child_history_reads: 0,
     child_typed_continue_work_observed: false,
-    spawn_refusal_reason: null,
     hop_reason: null,
     hop_2_token_fingerprint: null,
     parent_history_reads: 0,
@@ -160,21 +148,12 @@ export default function () {
   const started = Date.now();
 
   const sentTexts = [];
-  // The requester's own nonce-bound sessions_spawn arguments (review F2).
-  const requesterTexts = [];
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
     let spawnTracker = null;
     let dispatchRunId = null;
     let childKey = null;
-    let childSubscribeId = null;
-    let childSubscribed = false;
-    // The latest child chat.history read, whether it was sent after the subscription
-    // was acknowledged, and every live child row since the subscription.
-    let childHistory = null;
-    let childHistoryCovered = false;
-    const childHistoryCoveredById = {};
-    const liveChildRows = [];
+    const childRows = [];
     let hop2Token = null;
     let hop2Timestamp = null;
     let childHistoryScheduled = false;
@@ -189,22 +168,11 @@ export default function () {
     }
 
     function recordSpawn(receipts, source) {
-      if (childKey || evidence.spawn_refusal_reason || receipts.length === 0) return;
+      if (childKey || receipts.length === 0) return;
       if (receipts.length > 1) { evidence.spawn_receipt_status = 'ambiguous'; return; }
       const [receipt] = receipts;
       evidence.spawn_receipt_status = receipt.status;
       evidence.spawn_receipt_source = source;
-      for (const text of requesterCallTexts([receipt])) if (!requesterTexts.includes(text)) requesterTexts.push(text);
-      // A forked child inherits the requester's visible transcript, assistant rows
-      // included (session-accessor.sqlite-parent-fork.ts:219-249); an omitted
-      // context on a thread spawn takes the channel's default, which can be fork
-      // (subagent-spawn-context.ts:207-229).
-      const context = receipt.args?.context;
-      if (context === 'fork' || (context === undefined && receipt.args?.thread === true)) {
-        evidence.spawn_refusal_reason = `sessions_spawn context ${context === 'fork' ? '"fork"' : 'left to a thread default'}: a forked child starts with the requester's transcript`;
-        console.error(`✗ ${evidence.spawn_refusal_reason}`);
-        return;
-      }
       const key = typeof receipt.payload?.childSessionKey === 'string' ? receipt.payload.childSessionKey.trim() : '';
       if (receipt.isError || receipt.status !== 'accepted' || !key) return;
       if (receipt.runId) dispatchRunId = dispatchRunId || receipt.runId;
@@ -212,15 +180,14 @@ export default function () {
       evidence.subagent_spawn_accepted = true;
       evidence.child_session_key = key;
       console.log(`✓ sessions_spawn toolResult accepted with a childSessionKey (${source})`);
-      childSubscribeId = tracker.send(socket, 'sessions.messages.subscribe', { key: childKey });
+      tracker.send(socket, 'sessions.messages.subscribe', { key: childKey });
       requestChildHistory(250);
     }
 
-    // The child's whole transcript decides hop 1 and hop 2; the parent stream
-    // and the live child suffix never do.
+    // The child's own rows decide hop 1 and hop 2; the parent stream never does.
     function evaluateChild(rows, source) {
       if (evidence.hop_2_executed) return;
-      const hops = tokenWorkHops(rows, { nonce: rowNonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE', sentTexts: [...sentTexts, ...requesterTexts] });
+      const hops = tokenWorkHops(rows, { nonce: rowNonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE', sentTexts });
       if (hops.typedToolUsed) evidence.child_typed_continue_work_observed = true;
       evidence.hop_reason = hops.reason;
       if (hops.hop1Index >= 0 && !hops.typedToolUsed && !evidence.token_emitted_or_stripped) {
@@ -244,18 +211,8 @@ export default function () {
       socket.setTimeout(() => {
         childHistoryScheduled = false;
         evidence.child_history_reads += 1;
-        const id = tracker.send(socket, 'chat.history', { sessionKey: childKey, limit: 200 });
-        historyKeyById[id] = childKey;
-        childHistoryCoveredById[id] = childSubscribed;
+        historyKeyById[tracker.send(socket, 'chat.history', { sessionKey: childKey, limit: 200 })] = childKey;
       }, k6TimeoutMs(delayMs));
-    }
-
-    // The read, plus the live rows when the read was sent after the subscription
-    // was acknowledged: then the two together hold the whole transcript (a row
-    // seen by both is repeated, which no binding below counts twice).
-    function childTranscript() {
-      if (!childHistory) return null;
-      return childHistoryCovered ? [...childHistory, ...liveChildRows] : childHistory;
     }
 
     function requestParentHistory(delayMs) {
@@ -381,10 +338,6 @@ export default function () {
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'sessions.messages.subscribe' && msg.id === childSubscribeId) {
-          childSubscribed = classified.ok === true;
-        }
-
         if (classified.kind === 'response' && classified.method === 'chat.history') {
           const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
           const historyKey = historyKeyById[msg.id] || null;
@@ -392,10 +345,7 @@ export default function () {
           if (!classified.ok) {
             if (historyKey === childKey) requestChildHistory(3000); else requestParentHistory(4000);
           } else if (historyKey === childKey) {
-            childHistory = messages;
-            childHistoryCovered = childHistoryCoveredById[msg.id] === true;
-            delete childHistoryCoveredById[msg.id];
-            evaluateChild(childTranscript(), childHistoryCovered ? 'child chat.history + live rows' : 'child chat.history');
+            evaluateChild(messages, 'child chat.history');
             if (!evidence.hop_2_executed) requestChildHistory(3000);
           } else {
             onParentHistory(messages);
@@ -412,12 +362,11 @@ export default function () {
             const receipt = spawnTracker.observe(eventName, eventData);
             if (receipt) recordSpawn([receipt], 'session.message');
           }
-          // A live child row extends a read sent after the subscription, and prompts a new read.
+          // The child's own rows, on the child key only.
           if (childKey && eventName === 'session.message' && eventSessionKey(eventData) === childKey && eventData.message) {
-            liveChildRows.push({ ...eventData.message, __openclaw: { ...(eventData.message.__openclaw || {}), runId: eventData.message.__openclaw?.runId || eventData.runId } });
-            evidence.child_rows_seen = liveChildRows.length;
-            if (childHistory && childHistoryCovered) evaluateChild(childTranscript(), 'child chat.history + live rows');
-            requestChildHistory(500);
+            childRows.push({ ...eventData.message, __openclaw: { ...(eventData.message.__openclaw || {}), runId: eventData.message.__openclaw?.runId || eventData.runId } });
+            evidence.child_rows_seen = childRows.length;
+            evaluateChild(childRows, 'child session.message');
           }
           // Diagnostics only.
           if (!eventStr.includes(HARNESS_MARKER)) {

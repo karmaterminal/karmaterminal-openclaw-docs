@@ -11,7 +11,6 @@
 // both stamped __openclaw.runId. Success = a nonce-bound call and its
 // non-error result with status "scheduled", both on the accepted send run.
 
-import { toolCallTarget } from './tool-call-identity.mjs';
 import { messageRunId } from './wake-turn-receipt.mjs';
 
 const TOOL = 'continue_delegate';
@@ -22,6 +21,14 @@ function isRecord(value) {
 
 function toolNameMatches(name) {
   return typeof name === 'string' && (name === TOOL || name.endsWith(`__${TOOL}`));
+}
+
+function argsRecord(args) {
+  if (isRecord(args)) return args;
+  if (typeof args === 'string') {
+    try { const parsed = JSON.parse(args); return isRecord(parsed) ? parsed : {}; } catch { return {}; }
+  }
+  return {};
 }
 
 function resultStatus(message) {
@@ -57,11 +64,9 @@ export function createSameRunDelegateTracker({ acceptedRunId, nonce }) {
       const role = String(message.role || '').toLowerCase();
       if (role === 'assistant' && Array.isArray(message.content)) {
         for (const part of message.content) {
-          if (!isRecord(part) || typeof part.id !== 'string') continue;
-          // By name or through Tool Search's dispatch_action (#1727 review F1/N1).
-          const target = toolCallTarget(part);
-          if (!target || !toolNameMatches(target.name)) continue;
-          const task = target.args.task;
+          if (!isRecord(part) || part.type !== 'toolCall' || typeof part.id !== 'string') continue;
+          if (!toolNameMatches(part.name || part.toolName)) continue;
+          const task = argsRecord(part.arguments).task;
           if (typeof task === 'string' && task.includes(nonce)) calls.add(part.id);
         }
         return null;

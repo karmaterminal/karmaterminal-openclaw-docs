@@ -292,16 +292,22 @@ re-fired.
 Notes:
 
 1. **R-CD-3 (a).** Staging and request_compaction come from their toolResults, bound by
-   `toolCallId`. The lifeboat is a child whose own spawn task carries the product prefix
-   `[continuation:post-compaction]` and the row token. Its report is a token it mints. The return
-   is the requester reproducing that token outside the proof and fill runs.
+   `toolCallId`. The lifeboat is a child whose own spawn task starts with the product's release
+   composition `[continuation:post-compaction] [continuation:chain-hop:N] ` and carries the row
+   token, and no requester call carries the prefix (review F4, `0d3ae7b3`; it was an inclusion
+   check). Its report is a token it mints, absent from the requester's own call arguments too
+   (F2). The return is the requester reproducing that token outside the proof and fill runs, all
+   of whose run ids must be known (F5).
 2. **R-CW-1/2/3/4.** The nonce-bound `continue_work` call's `scheduled` toolResult, with the
    hop's scheduled sentinel in that turn. Then a `[continuation:wake]` user row, and the next hop
    or the done sentinel inside the wake turn.
 3. **R-CD-MODEL-TOKEN.**
    - Spawn: the `sessions_spawn` toolResult, or hop-1 bound by the observer.
-   - Token form: hop-1's own transcript has its turn and no typed `continue_delegate` call, and
-     the delegate's own task carries the product prefix `[continuation:chain-hop:`.
+   - Token form: hop-1's own transcript has its turn and no typed `continue_delegate` call, by
+     name or through Tool Search's `dispatch_action` (review F1, `c503b7e6`), read after hop 1
+     settled (N10, `a4590f89`). The delegate's `[continuation:chain-hop:` prefix is still
+     required, but only as proof of a continuation dispatch: the typed tool writes the same
+     prefix (`delegate-dispatch-request.ts:43`), so it was never token-form evidence.
    - Model modifier: the delegate's served or selected model equals the requested one.
 
 `recover-session-receipts.mjs` uses the same bindings for R-CW-1, R-CW-4 and R-CW-TOKEN. The
@@ -313,3 +319,41 @@ R-CD-MODEL-CHAINED-ALT) were left unchanged: their verdicts already rest on stru
 
 The F′ readings above (R-CW-TOKEN, R-RC-2, R-CD-SILENT, and the timing reads of the others) are
 for 🌊's ruling. No corpus file is edited here.
+
+## Review findings fix status (after `3283454d`)
+
+Two independent reviews of the fixes above, posted on bootstrap#1727:
+`REVIEW-harness-sentinel-echo.md` (Claude, `codeagent/harness-review` at `126b2624`: F1–F7,
+N1–N11) and `REVIEW-harness-sentinel-echo-mai.md` (mai-code-2-flash, `codeagent/harness-review-mai`
+at `3246d4cc`: J1). Both were merged into `codeagent/harness-echo-fix` with their failing tests
+(`3f035592`, `d33be944`), unedited. Every review defect test fails at `d33be944` and passes
+after the fixes. Each fix also has sibling tests that import only pre-fix modules: their defect
+cases fail on a `git archive d33be944` tree and pass here, and their controls pass on both. The
+patch-only revert of the fix commits turns the review tests red again (see the PR).
+
+| Finding | Rows | Fix commit | Now | Tests (review; siblings) |
+| --- | --- | --- | --- | --- |
+| F1 false PASS | R-CD-MODEL-TOKEN, R-CW-TOKEN | `c503b7e6` | a typed call recorded as `dispatch_action`/`tool_call` with `arguments.id` naming the tool (bare or `<source>:<name>:<tool>`) is that call in every toolCall matcher (`lib/tool-call-identity.mjs`); a `dispatch_action` toolResult counts only paired by `toolCallId`. The chain-hop prefix is no longer cited as token-form evidence | `review-typed-call-via-dispatch-action`; `tool-search-receipts` |
+| N1 fail-closed | R-CD-1/2/3/SILENT, R-CW-1..4, R-CW-DELEGATE-SELF, R-RC-1/2, heartbeat acks | `c503b7e6` | the same unwrap: positive receipts bind on a Tool Search seat | `tool-search-receipts` |
+| F2 false PASS | R-CD-SILENT, R-CW-TOKEN (R-CD-1, R-CD-3 hardened) | `ed3df7ce` | a minted token must be absent from the requester's own bound call arguments; R-CD-SILENT waits for the call before accepting a report; R-CW-TOKEN binds hops only from a read that starts at the child's spawn task and refuses `context:"fork"` (and a thread spawn left to the channel default). The whole-read path had the same gap before: it searched only after hop 1 | `review-requester-authored-token`; `requester-call-binding` |
+| F3 false PASS | R-CW-TOKEN | `ed3df7ce` | live child rows only prompt a `chat.history` read; hop 1 and hop 2 come from the whole transcript | `review-r-cw-token-live-suffix`; `requester-call-binding` |
+| F4 false PASS | R-CD-3 | `0d3ae7b3` | the de-enveloped lifeboat task must start with `[continuation:post-compaction] [continuation:chain-hop:<n>] `; a requester call (any tool, either form) whose arguments carry the prefix refuses the binding (PARTIAL) | `review-lifeboat-prefix-position`; `r-cd-3-safety` (F4) |
+| F5 fail-closed | R-CD-CHAINED-DEPTH-2, R-CD-1, R-CD-3, R-CD-SILENT, R-CW-TOKEN, R-CD-4 (and R-CW-DELEGATE-SELF's heartbeat path) | `48333b39` | `runExclusion`: an exclusion list with a missing run id binds nothing, in every binder; scenarios record why; R-CD-3 keeps an id-less fill run in its list instead of dropping it | `review-missing-dispatch-run`; `run-exclusion`, `r-cd-3-safety` (F5) |
+| F6 safety | R-CD-3 | `06ffcab1` | the run refuses unless `sessions.create` answers a key that is not the configured session (exactly or as `agent:<id>:<key>`); nothing is sent otherwise | `review-r-cd-3-fill` (first); `r-cd-3-safety` (F6) |
+| F7 safety | R-CD-3 | `06ffcab1` | every planned total stays below `window − min(max(reserve, 20000), window/4)` minus `max(2000, 2% of window)`; an unreachable target stops PARTIAL "context target unreachable below automatic compaction" (`OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS` declares a larger reserve); a changed `sessionId` on the describe row stops the fill; the "about 90%" comment states the formula | `review-r-cd-3-fill` (second); `r-cd-3-safety` (F7) |
+| J1 false PASS | R-CD-RETURN-OVERLAP, R-CD-COLLECTION-ON-COLLAPSE (offline) | `546cbdfa` | the writer binds only in the committed line forms (`<marker> session=<child> run=<run>`, or `<marker>` then `session: <child>` on the next line), as the whole message; one writer only; never a dispatcher or a return target. Both graders' evidence on the committed journals is identical before and after | `review-sentinel-echo-mai`; `journal-writer-binding`, `offline-return-binding` |
+| N2 | R-CD-3 | `06ffcab1` | `contextUsage: 70, threshold: 70` (a rounded 69.5–69.99%) is a measured below-threshold rejection, not `invalid` (still PARTIAL) | `r-cd-3-safety` (N2) |
+| N3 | R-CD-3 | `8ccae595` | documented as an expected PARTIAL cause (manifest notes, scenario header) | — |
+| N5 | R-CW-1..4 | `7ed67bb5` | `continueWorkChain` anchors hop 1 at the user row carrying the harness marker and the nonce. Four negative fixtures in `continue-work-chain.test.mjs` moved to a marked dispatch row so they still fail for their own reasons | `cw-dispatch-anchor` |
+| N7 | R-CW-1..4 | `8ccae595` | documented as an expected PARTIAL cause (manifest notes, `continue-work-chain.mjs`) | — |
+| N8 | R-CW-TOKEN recovery | `8ccae595` | documented: recovery cannot reach PASS (manifest notes, `recover-session-receipts.mjs`) | — |
+| N10 | R-CD-MODEL-TOKEN | `a4590f89` | the token form needs a hop-1 read sent after hop 1 settled (row terminal, or its delegate bound: the call that schedules a delegate is persisted before the spawn) | `r-cd-model-token-late-call` |
+| N11 | R-CD-3 | `06ffcab1` | the refusal and the manifest notes name `OPENCLAW_CREATE_DISPOSABLE_SESSIONS` (plural, default true) | `r-cd-3-safety` (N11) |
+| N9 | R-CW-1..4 | open | not established: whether an agent's `sessions_send` to its own session (`sessions-send-tool.a2a.ts:115-125`) can persist a visible user row starting `[continuation:wake]`. Nothing was probed; the wake binding assumes it cannot | — |
+| N4, N6 | telemetry; R-CW-TOKEN | not in this workorder | N4 (no `traceId` on `sessions.send` at F′) affects telemetry only. N6 (the other-run hop-2 fallback when no wake row exists) is unchanged | — |
+
+Found while fixing, not changed: R-RC-2's `measuredRequestCompactionOutcome` has N2's rounding
+shape (`contextUsage < threshold`). There the measured kind can lead to HONEST-LIMIT instead of
+PARTIAL, so changing it would upgrade a verdict; it is left for the owner. R-RC-1's live
+`classifyRequestCompactionReceipt` path has no call to pair a `dispatch_action` result with, so on
+a Tool Search seat it still fails closed; its `chat.history` path binds.

@@ -137,7 +137,14 @@ Every scenario keeps these properties; the gateway and nonce rules are for live 
   Keep sentinels out of the tasks and reasons the agent sends. Use
   `tools/k6-proofs/lib/sentinel-binding.mjs` and `tools/k6-proofs/lib/continue-work-chain.mjs`.
   `tools/k6-proofs/AUDIT-sentinel-echo-20261030.md` records why: R-CD-3 credited a "return" from
-  its own `continue_delegate` call.
+  its own `continue_delegate` call. Its review section adds three rules:
+  - Match a toolCall by the tool it invoked, never by its raw name alone. With Tool Search on, a
+    typed call is recorded as `dispatch_action` with the tool in `arguments.id`;
+    `tools/k6-proofs/lib/tool-call-identity.mjs` unwraps it.
+  - A minted token must also be absent from the requester's own call arguments and from the
+    child's spawn task, so read the child's transcript from its start.
+  - An exclusion list with a missing run id binds nothing. Do not drop an unknown dispatch,
+    priming or fill run from the list.
 - **Single VU, serialized.** `shared-iterations` with one VU and one iteration, a `maxDuration`,
   and, over WebSocket, a socket timeout that closes the connection.
 - **Metrics.** A `proof_failures` Counter with threshold `count==0`, plus a duration Trend named

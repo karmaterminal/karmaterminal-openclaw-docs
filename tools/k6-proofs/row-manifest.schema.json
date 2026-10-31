@@ -25,7 +25,10 @@
     "candidateSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "seat": { "type": "string", "minLength": 1 },
     "sessionKey": { "type": "string", "minLength": 1 },
-    "transport": { "enum": ["websocket", "http-tools-invoke", "offline"] },
+    "transport": {
+      "enum": ["websocket", "http-tools-invoke", "offline", "process-local", "github-source-contract"],
+      "description": "A process-local row must declare verdictCap; check-proof-row-manifests.mjs refuses a declared transport outside this list rather than read it as not process-local, and grade-preflight-gated-row.mjs refuses a manifest without one (lib/row-verdict-cap.mjs)."
+    },
     "toolSurface": { "enum": ["typed-tool", "token", "bracket-token", "read-only", "mixed"] },
     "mutates": { "type": "boolean" },
     "timeoutSeconds": { "type": "integer", "minimum": 1 },

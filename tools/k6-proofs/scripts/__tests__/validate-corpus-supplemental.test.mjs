@@ -37,15 +37,26 @@ const ROW_SET_CHECKS = [
   'manifest-rollup-matches-required',
   'rollup-supplemental-matches',
 ];
-const REQUIRED_ROLLUP = { total_rows: 35, pass: 31, partial: 3, thin: 0, fail: 0, honest_limit: 1, missing: 0 };
-const ALL_ROWS_ROLLUP = { total_rows: 38, pass: 31, partial: 3, thin: 0, fail: 0, honest_limit: 1, missing: 3 };
+// docs main 7e544c04 corrected F′'s R-CW-5/6 from pass to partial (🌊's ruling on
+// docs#616). The #613 projections predate it, and validate-corpus.mjs pins F′'s
+// capped rows at the corrected states (pre-cap-ruling-capped-row-states.json), so
+// head() and base() carry the correction: 31/3 becomes 29/5.
+const REQUIRED_ROLLUP = { total_rows: 35, pass: 29, partial: 5, thin: 0, fail: 0, honest_limit: 1, missing: 0 };
+const ALL_ROWS_ROLLUP = { total_rows: 38, pass: 29, partial: 5, thin: 0, fail: 0, honest_limit: 1, missing: 3 };
+
+/** F′'s correction applied to a #613 projection. */
+function corrected(manifest) {
+  for (const id of ['R-CW-5', 'R-CW-6']) rowOf(manifest, id).state = 'partial';
+  manifest.rollup = { ...manifest.rollup, pass: manifest.rollup.pass - 2, partial: manifest.rollup.partial + 2 };
+  return manifest;
+}
 
 function head() {
-  return structuredClone(fossil.manifests.head);
+  return corrected(structuredClone(fossil.manifests.head));
 }
 
 function base() {
-  return structuredClone(fossil.manifests.base);
+  return corrected(structuredClone(fossil.manifests.base));
 }
 
 function rowOf(manifest, id) {
@@ -394,7 +405,7 @@ test('rollup total_rows must equal the declared required count, not only the row
   // tally agrees, but total_rows no longer equals required_rows.
   const manifest = head();
   manifest.rows = manifest.rows.filter((row) => row.row !== 'R-CW-1');
-  manifest.rollup = { ...REQUIRED_ROLLUP, total_rows: 34, pass: 30 };
+  manifest.rollup = { ...REQUIRED_ROLLUP, total_rows: 34, pass: 28 };
   assert.equal(rowOf(head(), 'R-CW-1').state, 'pass');
   await assertRejected(manifest, {
     'rows-match-row-sets': /^declared but absent from rows\[\]: R-CW-1$/,
@@ -475,11 +486,11 @@ test('a per-row dispatch_allocation list is checked for required coverage', asyn
 test('an unauthorized R-CD-2 pass fails every rollup comparison in a supplemental corpus', async () => {
   const manifest = head();
   rowOf(manifest, 'R-CD-2').state = 'pass';
-  manifest.rollup = { ...REQUIRED_ROLLUP, pass: 32, partial: 2 };
+  manifest.rollup = { ...REQUIRED_ROLLUP, pass: 30, partial: 4 };
   await assertRejected(manifest, {
     'r-cd-2-reviewed-authority': /explicitly selected reviewed_run/,
     // The unauthorized pass is not tallied, exactly as for the all-rows tally.
-    'manifest-rollup-matches-required': /^R-CD-2 reviewed authority failed; total_rows: manifest=35 required-tally=34; pass: manifest=32 required-tally=31$/,
+    'manifest-rollup-matches-required': /^R-CD-2 reviewed authority failed; total_rows: manifest=35 required-tally=34; pass: manifest=30 required-tally=29$/,
     'rollup-supplemental-matches': /^R-CD-2 reviewed authority failed$/,
   });
 });
@@ -495,7 +506,7 @@ test('--index passes on the 35-row required rollup and fails on the 38-row all-r
       assert.equal(report.shaReport.failed, 0);
       assert.match(
         check(report, 'rollup-matches-manifest').detail,
-        /^INDEX rollup matches manifest required-row tally \(total_rows=35, pass=31, partial=3, thin=0, fail=0, honest_limit=1, missing=0\); 3 supplemental rows excluded$/,
+        /^INDEX rollup matches manifest required-row tally \(total_rows=35, pass=29, partial=5, thin=0, fail=0, honest_limit=1, missing=0\); 3 supplemental rows excluded$/,
       );
     }
 
@@ -516,15 +527,15 @@ test('--index fails an unauthorized R-CD-2 pass in a supplemental corpus even on
   await withRoot(async (root) => {
     const manifest = head();
     rowOf(manifest, 'R-CD-2').state = 'pass';
-    manifest.rollup = { ...REQUIRED_ROLLUP, pass: 32, partial: 2 };
+    manifest.rollup = { ...REQUIRED_ROLLUP, pass: 30, partial: 4 };
     await writeCorpus(root, SHA, manifest);
     // Even an INDEX that matches the tally without the unauthorized pass fails.
-    await writeIndex(root, SHA, { ...REQUIRED_ROLLUP, total_rows: 34, partial: 2 });
+    await writeIndex(root, SHA, { ...REQUIRED_ROLLUP, total_rows: 34, partial: 4 });
     const { status, payload } = run(root, ['--index']);
     const [report] = payload.reports;
     assert.equal(status, 1);
     assert.equal(check(report, 'rollup-matches-manifest').detail, 'R-CD-2 reviewed authority failed');
-    assert.deepEqual(report.shaReport.requiredRollup, { ...REQUIRED_ROLLUP, total_rows: 34, partial: 2 });
+    assert.deepEqual(report.shaReport.requiredRollup, { ...REQUIRED_ROLLUP, total_rows: 34, partial: 4 });
   });
 });
 
@@ -550,6 +561,9 @@ test('--all reports a supplemental corpus failure as archival unless --strict', 
       row.evidence_doc = row.evidence_doc.replace(SHA, otherSha);
     }
     broken.dispatch_allocation.emeric.push('R-CW-6A');
+    // As #613 proposed it, before F′'s correction: R-CW-5/6 pass.
+    for (const id of ['R-CW-5', 'R-CW-6']) rowOf(broken, id).state = 'pass';
+    broken.rollup = { ...broken.rollup, pass: broken.rollup.pass + 2, partial: broken.rollup.partial - 2 };
     await writeCorpus(root, SHA, head());
     await writeCorpus(root, otherSha, broken);
 
@@ -597,7 +611,7 @@ test('legacy manifests without required_rows validate exactly as before', async 
     assert.equal(indexStatus, 0);
     assert.equal(
       check(payload.reports[0], 'rollup-matches-manifest').detail,
-      'INDEX rollup matches manifest tally (total_rows=38, pass=31, partial=3, thin=0, fail=0, honest_limit=1, missing=3)',
+      'INDEX rollup matches manifest tally (total_rows=38, pass=29, partial=5, thin=0, fail=0, honest_limit=1, missing=3)',
     );
   });
 });

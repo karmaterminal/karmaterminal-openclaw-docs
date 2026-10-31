@@ -18,10 +18,12 @@
  * every attachment is required by the row it names. The rule is owned by
  * lib/required-preflight.mjs.
  *
- * And it keeps declared verdict caps (🌊's ruling on docs#616) in place: a
- * process-local row must declare `verdictCap` (rowCap PARTIAL-candidate, no
- * adopted superseding authority), and no row's expected artifact class may lie
- * above its cap. The rule is owned by lib/row-verdict-cap.mjs.
+ * And it keeps declared verdict caps (🌊's ruling on docs#616) in place: a row
+ * whose transport is process-local (however spelled) or that names a
+ * process-local fixture must declare `verdictCap` (rowCap PARTIAL-candidate, no
+ * adopted superseding authority), a declared transport outside the known list is refused,
+ * and no row's expected artifact class may lie above its cap. The rule is owned
+ * by lib/row-verdict-cap.mjs.
  *
  * The repository root comes from the shared repo-root contract, so running this
  * from the repository root and from tools/k6-proofs inspects the same files.

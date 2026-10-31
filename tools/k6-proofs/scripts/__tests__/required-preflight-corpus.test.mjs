@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -18,10 +17,10 @@ import { tmpdir } from 'node:os';
 const repoRoot = new URL('../../../..', import.meta.url).pathname;
 const validator = join(repoRoot, 'tools/k6-proofs/scripts/validate-corpus.mjs');
 const legacyList = join(repoRoot, 'tools/k6-proofs/scripts/pre-f2-ruling-corpora.json');
-// The frozen corpora's proofs-manifest.json content at the cap ruling (docs main
-// 7e544c04, F′ as corrected): a frozen-named corpus whose content differs is held
-// to rows-within-declared-cap.
-const capPins = join(repoRoot, 'tools/k6-proofs/scripts/pre-cap-ruling-manifest-digests.json');
+// The frozen corpora's capped-row states at the cap ruling (docs main 7e544c04,
+// F′ as corrected): a frozen corpus's capped row that is new, changed or an alias
+// is held to rows-within-declared-cap.
+const capPins = join(repoRoot, 'tools/k6-proofs/scripts/pre-cap-ruling-capped-row-states.json');
 const CAP_RULING_REF = '7e544c044cdef868aa7f19c7578e2e65610fc5a0';
 const fossil = JSON.parse(
   await readFile(new URL('./fixtures/docs-f17d784d-fprime-manifest.json', import.meta.url), 'utf8'),
@@ -435,7 +434,13 @@ test('a gated row id spelled another way is refused, not ungated', async () => {
     alone.rollup = { ...FDOUBLE_ROLLUP, total_rows: 35, partial: 4 };
     const bare = await validate(alone, {});
     assert.equal(bare.status, 1, JSON.stringify(spelling));
-    assert.deepEqual(failedChecks(bare.report), ['live-rows-gated-by-preflights'], JSON.stringify(spelling));
+    // A spelling canonical comparison cannot fold is still bound to R-CW-5 by its
+    // directory, so the cap check refuses the alias as well.
+    const bareFailed = failedChecks(bare.report);
+    assert.deepEqual(bareFailed.filter((name) => name !== 'rows-within-declared-cap'), ['live-rows-gated-by-preflights'], JSON.stringify(spelling));
+    if (bareFailed.includes('rows-within-declared-cap')) {
+      assert.match(check(bare.report, 'rows-within-declared-cap').detail, /is bound to the capped row R-CW-5 by its dir /, JSON.stringify(spelling));
+    }
     assert.match(check(bare.report, 'live-rows-gated-by-preflights').detail, ODD_ID_DETAIL(spelling), JSON.stringify(spelling));
   }
 
@@ -662,10 +667,11 @@ test('(d) F′ validates 18/18 unchanged: R-CW-5A/6A stay required MISSING rows 
 });
 
 test('cap (d): the F′ fossil as folded (R-CW-5/6 pass) is not the frozen F′, so it is held to the cap', async () => {
-  // F′ is frozen by name and, for the cap, by its content at docs main 7e544c04
-  // (corrected). The fossil is F′ before the correction: it keeps F′'s method (no
-  // preflight checks), but it cannot record R-CW-5/6 above their cap. Reverting
-  // F′'s correction in place fails the same way.
+  // F′ is frozen by name, and its capped rows by their states at docs main
+  // 7e544c04 (corrected to partial). The fossil is F′ before the correction: it
+  // keeps F′'s method (no preflight checks), but its R-CW-5/6 pass is no longer
+  // the pinned state, so it is held to the cap. Reverting F′'s correction in
+  // place fails the same way.
   const { status, report } = await validate(structuredClone(fossil.manifest), {});
   assert.equal(status, 1);
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...ROW_CAP_CHECKS]);
@@ -673,14 +679,25 @@ test('cap (d): the F′ fossil as folded (R-CW-5/6 pass) is not the frozen F′,
   assert.match(check(report, 'rows-within-declared-cap').detail, new RegExp(`^${OVER_CAP('R-CW-5').source}.*; ${OVER_CAP('R-CW-6').source}`));
   assert.deepEqual(report.requiredRollup, fossil.manifest.rollup);
 
-  // The fossil with the correction applied is within the cap.
+  // The fossil with the correction applied records the pinned states again: F′'s
+  // method, 18/18, no cap check.
   const corrected = structuredClone(fossil.manifest);
   for (const id of ['R-CW-5', 'R-CW-6']) rowOf(corrected, id).state = 'partial';
   corrected.rollup = { ...corrected.rollup, pass: 27, partial: 5 };
   const ok = await validate(corrected, {});
   assert.equal(ok.status, 0, JSON.stringify(ok.report.checks.filter((c) => !c.ok)));
-  assert.equal(ok.report.passed, 19);
-  assert.deepEqual(ok.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...ROW_CAP_CHECKS]);
+  assert.equal(ok.report.passed, 18);
+  assert.deepEqual(ok.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
+
+  // Only the changed row is judged: R-CW-6 back at pass alone fails for R-CW-6.
+  const oneReverted = structuredClone(corrected);
+  rowOf(oneReverted, 'R-CW-6').state = 'pass';
+  oneReverted.rollup = { ...oneReverted.rollup, pass: 28, partial: 4 };
+  const one = await validate(oneReverted, {});
+  assert.equal(one.status, 1);
+  assert.deepEqual(failedChecks(one.report), ['rows-within-declared-cap']);
+  assert.match(check(one.report, 'rows-within-declared-cap').detail, new RegExp(`^${OVER_CAP('R-CW-6').source}`));
+  assert.doesNotMatch(check(one.report, 'rows-within-declared-cap').detail, /R-CW-5/);
 });
 
 test('cap (d): a new fold under a frozen corpus name is held to the cap', async () => {
@@ -696,34 +713,51 @@ test('cap (d): a new fold under a frozen corpus name is held to the cap', async 
   assert.match(check(report, 'rows-within-declared-cap').detail, OVER_CAP('R-CW-5'));
 });
 
-test('cap: a frozen corpus edited after the ruling keeps its method and gets the cap check', async () => {
+test('cap: a frozen corpus edited after the ruling keeps its exemption only for capped rows it leaves alone', async () => {
   const real = JSON.parse(await readFile(join(repoRoot, 'PROOFS', FPRIME_SHA, 'proofs-manifest.json'), 'utf8'));
-  rowOf(real, 'R-CW-5').notes += ' (re-read)';
-  const { status, report } = await validate(real, {});
+  // An edit that leaves R-CW-5/6's states alone: F′'s method, no cap check.
+  const noted = structuredClone(real);
+  rowOf(noted, 'R-CW-5').notes += ' (re-read)';
+  const untouched = await validate(noted, {});
+  assert.equal(untouched.status, 0, JSON.stringify(untouched.report.checks.filter((c) => !c.ok)));
+  assert.deepEqual(untouched.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
+
+  // A further historical correction downward is judged, and within the cap.
+  const lowered = structuredClone(real);
+  rowOf(lowered, 'R-CW-5').state = 'fail';
+  lowered.rollup = { ...lowered.rollup, partial: 4, fail: 1 };
+  const { status, report } = await validate(lowered, {});
   assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...ROW_CAP_CHECKS]);
-  assert.equal(
-    check(report, 'rows-within-declared-cap').detail,
-    'R-CW-5 partial, within the PARTIAL-candidate cap r-cw-5.json declares (process-local-fixture); ' +
-      'R-CW-6 partial, within the PARTIAL-candidate cap r-cw-6.json declares (process-local-fixture)',
-  );
+  assert.equal(check(report, 'rows-within-declared-cap').detail, 'R-CW-5 fail, within the PARTIAL-candidate cap r-cw-5.json declares (process-local-fixture)');
 });
 
-test('cap: the frozen corpora are content-pinned at docs main 7e544c04', async () => {
+test('cap: the frozen corpora\'s capped-row states are pinned as they stood at docs main 7e544c04', async () => {
   const list = JSON.parse(await readFile(legacyList, 'utf8'));
   const pins = JSON.parse(await readFile(capPins, 'utf8'));
-  assert.equal(pins.schema, 'openclaw.k6.pre-cap-ruling-manifest-digests.v1');
+  assert.equal(pins.schema, 'openclaw.k6.pre-cap-ruling-capped-row-states.v1');
   assert.equal(pins.frozenAt, CAP_RULING_REF);
   assert.match(pins.ruling, /1565925290008387728/);
-  assert.deepEqual(Object.keys(pins.manifests).sort(), [...list.corpora].sort());
-  const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+  assert.deepEqual(Object.keys(pins.corpora).sort(), [...list.corpora].sort());
+  const statesOf = (manifest) => {
+    const states = {};
+    for (const row of Array.isArray(manifest.rows) ? manifest.rows : []) {
+      if (row?.row !== 'R-CW-5' && row?.row !== 'R-CW-6') continue;
+      (states[row.row] ||= []).push(row.state === undefined ? null : row.state);
+    }
+    return states;
+  };
+  let withPass = 0;
   for (const name of list.corpora) {
-    const atRuling = spawnSync('git', ['-C', repoRoot, 'show', `${CAP_RULING_REF}:PROOFS/${name}/proofs-manifest.json`], { maxBuffer: 64 * 1024 * 1024 });
+    const atRuling = spawnSync('git', ['-C', repoRoot, 'show', `${CAP_RULING_REF}:PROOFS/${name}/proofs-manifest.json`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     assert.equal(atRuling.status, 0, `${name}: ${atRuling.stderr}`);
-    assert.equal(pins.manifests[name], sha256(atRuling.stdout), name);
-    // No PROOFS edit since: the working tree still carries the pinned content.
-    assert.equal(pins.manifests[name], sha256(await readFile(join(repoRoot, 'PROOFS', name, 'proofs-manifest.json'))), name);
+    assert.deepEqual(pins.corpora[name], statesOf(JSON.parse(atRuling.stdout)), name);
+    // No PROOFS edit since: the working tree still records the pinned states.
+    assert.deepEqual(pins.corpora[name], statesOf(JSON.parse(await readFile(join(repoRoot, 'PROOFS', name, 'proofs-manifest.json'), 'utf8'))), name);
+    if (Object.values(pins.corpora[name]).some((states) => states.includes('pass'))) withPass += 1;
   }
+  assert.equal(withPass, 52);
+  assert.deepEqual(pins.corpora[FPRIME_SHA], { 'R-CW-5': ['partial'], 'R-CW-6': ['partial'] });
 });
 
 // 🌊's ruling on docs#616 (Discord 1565925290008387728; review 5720773113): the
@@ -918,7 +952,7 @@ test('a pre-ruling corpus keeps its method; the same shape at any other SHA is h
   assert.ok(failedChecks(report).includes('rows-within-declared-cap'), JSON.stringify(failedChecks(report)));
 });
 
-test('the docs#613 supplemental shape at F′ keeps F′\'s method, and is held to the cap until rebased on the corrected F′', async () => {
+test('the docs#613 supplemental shape at F′ keeps F′\'s method, and its R-CW-5/6 pass is held to the cap until rebased on the corrected F′', async () => {
   const proposal = JSON.parse(
     await readFile(new URL('./fixtures/docs-613-fprime-supplemental-manifests.json', import.meta.url), 'utf8'),
   ).manifests.head;
@@ -929,12 +963,13 @@ test('the docs#613 supplemental shape at F′ keeps F′\'s method, and is held 
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...ROW_CAP_CHECKS]);
   assert.deepEqual(failedChecks(report), ['rows-within-declared-cap']);
 
+  // Rebased on the corrected F′, its capped rows record the pinned states again.
   const rebased = structuredClone(proposal);
   for (const id of ['R-CW-5', 'R-CW-6']) rowOf(rebased, id).state = 'partial';
   rebased.rollup = { ...rebased.rollup, pass: rebased.rollup.pass - 2, partial: rebased.rollup.partial + 2 };
   const ok = await validate(rebased, {});
   assert.equal(ok.status, 0, JSON.stringify(ok.report.checks.filter((c) => !c.ok)));
-  assert.deepEqual(ok.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS, ...ROW_CAP_CHECKS]);
+  assert.deepEqual(ok.report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
 });
 
 test('cap (d): a capped row recorded under another id is still bound to its cap by its dir or manifest', async () => {
@@ -948,7 +983,7 @@ test('cap (d): a capped row recorded under another id is still bound to its cap 
       row.evidence_doc = row.evidence_doc.replace('/R-CW-5/', '/R-CW-05/');
       row.manifest = rCw5Manifest;
     }, /by its manifest tools\/k6-proofs\/manifests\/r-cw-5\.json/],
-    ['alias at partial, its own dir kept', 'partial', (m) => renameRow(m, 'R-CW-5', 'R-CW-05'), /by its dir/],
+    ['alias at partial, its own dir kept', 'partial', (m) => renameRow(m, 'R-CW-5', 'R-CW-05'), /by its dir PROOFS\/[0-9a-f]{40}\/R-CW-5\//],
   ]) {
     // As in the review's reproduction, R-CW-5A's attachment is dropped too.
     const manifest = fDouble({ attachments: ['R-CW-6A'] });

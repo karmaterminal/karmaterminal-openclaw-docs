@@ -22,6 +22,8 @@
 export const ROW_VERDICT_CAP = 'PARTIAL-candidate';
 /** The artifact class every process-local row's cap names. */
 export const PROCESS_LOCAL_ARTIFACT_CLASS = 'process-local-fixture';
+/** The transports a row manifest may name; anything else cannot be judged. */
+export const KNOWN_TRANSPORTS = ['websocket', 'http-tools-invoke', 'offline', 'process-local', 'github-source-contract'];
 export const ROW_CAP_NOTE =
   'a passing preflight is necessary, not sufficient; lifting a declared cap needs a superseding authority ' +
   'receipt from a different artifact class, adopted by an explicit method change';
@@ -38,6 +40,11 @@ const STATES_ABOVE_CAP = { 'PARTIAL-candidate': ['pass'] };
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** A transport as the cap compares it: trimmed, lower-cased, `_` and spaces as `-`. */
+export function canonicalTransport(transport) {
+  return typeof transport === 'string' ? transport.trim().toLowerCase().replace(/[\s_]+/g, '-') : null;
 }
 
 function supportedCap(cap) {
@@ -72,24 +79,37 @@ export function corpusStateWithinCap(state, cap) {
 }
 
 /**
- * Problems with one manifest's cap declaration, without a file prefix. A
- * process-local row must declare one; a row that declares one must declare it
- * whole, and its expected artifact class may not lie above it.
+ * Problems with one manifest's cap declaration, without a file prefix. A row
+ * whose transport is process-local (however spelled) or that names a
+ * process-local fixture (`invocation.fixture`) must declare one, and a declared
+ * transport this rule does not know is refused rather than read as "not
+ * process-local" (a missing one is the schema's to require; the grader refuses
+ * it). A row that declares a cap must declare it whole, and its expected
+ * artifact class may not lie above it.
  */
 export function manifestVerdictCapFailures(manifest) {
   const failures = [];
   const rowId = manifest?.rowId;
-  const processLocal = manifest?.transport === 'process-local';
+  const transport = canonicalTransport(manifest?.transport);
+  if (manifest?.transport !== undefined && !KNOWN_TRANSPORTS.includes(transport)) {
+    failures.push(
+      `transport ${JSON.stringify(manifest?.transport)} is not a known transport (${KNOWN_TRANSPORTS.join(', ')}), ` +
+        `so whether ${rowId} is process-local cannot be decided`,
+    );
+  }
+  const processLocal = transport === 'process-local';
+  const fixture = typeof manifest?.invocation?.fixture === 'string' && manifest.invocation.fixture !== '';
   if (!Object.prototype.hasOwnProperty.call(manifest || {}, 'verdictCap') || manifest.verdictCap === undefined) {
     if (processLocal) failures.push(`${rowId} is process-local, so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
+    if (fixture) failures.push(`${rowId} names a process-local fixture (invocation.fixture), so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
     return failures;
   }
   const cap = manifest.verdictCap;
-  if (!isObject(cap)) return [`verdictCap must be an object`];
+  if (!isObject(cap)) return [...failures, 'verdictCap must be an object'];
   if (cap.rowCap !== ROW_VERDICT_CAP) failures.push(`verdictCap.rowCap must be "${ROW_VERDICT_CAP}", not ${JSON.stringify(cap.rowCap)}`);
   if (typeof cap.artifactClass !== 'string' || !cap.artifactClass) {
     failures.push('verdictCap.artifactClass must name the artifact class the cap belongs to');
-  } else if (processLocal && cap.artifactClass !== PROCESS_LOCAL_ARTIFACT_CLASS) {
+  } else if ((processLocal || fixture) && cap.artifactClass !== PROCESS_LOCAL_ARTIFACT_CLASS) {
     failures.push(`verdictCap.artifactClass must be "${PROCESS_LOCAL_ARTIFACT_CLASS}" for a process-local row, not ${JSON.stringify(cap.artifactClass)}`);
   }
   if (!Array.isArray(cap.supersedingAuthorities) || cap.supersedingAuthorities.length !== 0) {

@@ -75,6 +75,8 @@ test('the repository catalog passes the required-preflight rule', () => {
 function liveManifest(overrides = {}) {
   return {
     rowId: 'R-LIVE',
+    // A known transport, as every catalog manifest declares (lib/row-verdict-cap.mjs).
+    transport: 'websocket',
     liveRunSafety: { classification: 'orchestration-required', expectedArtifactClass: 'PASS-candidate' },
     requiredPreflights: [{
       rowId: 'R-PRE',
@@ -92,6 +94,7 @@ function liveManifest(overrides = {}) {
 function preflightManifest(overrides = {}) {
   return {
     rowId: 'R-PRE',
+    transport: 'offline',
     scenario: { status: 'runnable', file: 'static-corpus-row-validator.js' },
     liveRunSafety: { classification: 'static-preflight-only', expectedArtifactClass: 'construct-only' },
     preflightAttachment: { attachedTo: 'R-LIVE', proofRow: 'retired', binding: 'exact-candidate-sha', ruling: 'test' },

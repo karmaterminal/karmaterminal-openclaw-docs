@@ -60,15 +60,23 @@
  * cap (state `pass`), whatever its preflights say. Lifting a cap needs a
  * superseding authority receipt from a different artifact class, adopted by an
  * explicit method change; none is adopted, so a `superseding_authority` on the
- * row does not lift it either. The pre-ruling corpora are exempt by the same list
- * (52 of the 71 record R-CW-5/6 `pass`; F′ was corrected to partial on docs main
- * 7e544c04). A state that is not a known state at or below the cap (a typo,
- * `passed`) fails it too. If the catalog's cap declarations cannot be trusted,
- * every corpus not in that list gets the check, failed.
+ * row does not lift it either. A row is bound to a capped row by its id, its
+ * `dir` or its `manifest`, so an alias (`R-CW-05` in R-CW-5's directory) is
+ * refused and capped. A state that is not a known state at or below the cap (a
+ * typo, `passed`) fails too. If the catalog's cap declarations cannot be trusted,
+ * every corpus that is not exempt gets the check, failed.
+ *
+ * The pre-ruling corpora are exempt by the same list (52 of the 71 record
+ * R-CW-5/6 `pass`; F′ was corrected to partial on docs main 7e544c04), but only
+ * for capped rows that still record what they recorded at the cap ruling:
+ * pre-cap-ruling-capped-row-states.json pins each frozen corpus's R-CW-5/6 states
+ * at 7e544c04. A capped row in a frozen-named corpus that is new, changed (F′'s
+ * correction reverted, a new fold in a frozen directory) or an alias is held to
+ * its cap; the corpus keeps its pre-ruling method for every other check.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { consumeRcd2Authority } from '../lib/r-cd-2-authority-context.mjs';
 import {
@@ -106,6 +114,8 @@ const ATTACHMENT_STATES = ['pass', 'fail', 'missing'];
 const PREFLIGHT_CAP_NOTE = 'a live row without a passing same-candidate preflight is capped at partial';
 // The corpora folded before the ruling, frozen by name; see the header.
 const PRE_RULING_CORPORA_FILE = fileURLToPath(new URL('./pre-f2-ruling-corpora.json', import.meta.url));
+// Their capped rows' states at the cap ruling; see the header.
+const PRE_CAP_RULING_PINS_FILE = fileURLToPath(new URL('./pre-cap-ruling-capped-row-states.json', import.meta.url));
 // A corpus folded after the ruling spells every row id in plain ASCII. Canonical
 // comparison catches the common variants, but no denylist can catch every
 // invisible character or look-alike letter, so anything else is refused.
@@ -462,10 +472,13 @@ function loadPreflightCatalog() {
   if (!readErrors.length && entries.length === 0) readErrors.push('manifest catalog is empty');
   // Canonical ids, so a corpus row spelled another way still finds its cap.
   const capsByRow = new Map([...verdictCapCatalog(entries)].map(([rowId, cap]) => [canonicalRowId(rowId), cap]));
+  // By manifest basename, so a corpus row's `manifest` binds it to its cap too.
+  const cappedRowByFile = new Map([...capsByRow].map(([rowId, cap]) => [cap.file, rowId]));
   preflightCatalogCache = {
     ...preflightCatalog(entries),
     errors: [...readErrors, ...catalogPreflightFailures(entries)],
     capsByRow,
+    cappedRowByFile,
     capErrors: [...readErrors, ...catalogVerdictCapFailures(entries)],
   };
   return preflightCatalogCache;
@@ -521,6 +534,35 @@ function loadPreRulingCorpora() {
     preRulingCache = { corpora: new Set(), error: `the pre-ruling corpus list is unreadable (${err.message})` };
   }
   return preRulingCache;
+}
+
+let capPinsCache;
+
+/** A recorded state as the pins compare it: exactly as written, null for none. */
+function pinnedState(state) {
+  return JSON.stringify(state === undefined ? null : state);
+}
+
+/**
+ * The frozen corpora's capped-row states at the cap ruling, as
+ * `Map<sha, Map<rowId, string[]>>` of pinnedState values. Unreadable, it pins
+ * nothing, so no frozen capped row is exempt.
+ */
+function loadCapPins() {
+  if (capPinsCache) return capPinsCache;
+  try {
+    const parsed = JSON.parse(readFileSync(PRE_CAP_RULING_PINS_FILE, 'utf8'));
+    const corpora = isPlainObject(parsed?.corpora) ? Object.entries(parsed.corpora) : [];
+    const wellFormed = corpora.every(([, rows]) => isPlainObject(rows) && Object.values(rows).every((states) => Array.isArray(states) && states.length > 0));
+    if (parsed?.schema !== 'openclaw.k6.pre-cap-ruling-capped-row-states.v1' || !corpora.length || !wellFormed) {
+      throw new Error('corpora is not a map of PROOFS directory names to capped-row state lists');
+    }
+    const pins = new Map(corpora.map(([sha, rows]) => [sha, new Map(Object.entries(rows).map(([rowId, states]) => [rowId, states.map(pinnedState)]))]));
+    capPinsCache = { pins, error: null };
+  } catch (err) {
+    capPinsCache = { pins: new Map(), error: `the pre-cap-ruling capped-row states are unreadable (${err.message})` };
+  }
+  return capPinsCache;
 }
 
 /**
@@ -704,27 +746,65 @@ function validatePreflightAttachments(report, root, sha, manifest) {
 }
 
 /**
- * The declared-cap check (see the header): a row whose catalog manifest declares
- * `verdictCap` is recorded in a known state at or below it. A pre-ruling corpus,
- * or one with no capped row under a trustworthy catalog, gets no check.
+ * The declared-cap check (see the header): a row bound to a capped catalog row,
+ * by its id, `dir` or `manifest`, is recorded under that row's own id and in a
+ * known state at or below its cap. In a pre-ruling corpus, a capped row that
+ * still records its pinned states is exempt. A corpus with no capped row left to
+ * judge under a trustworthy catalog gets no check.
  */
 function validateDeclaredCaps(report, sha, manifest) {
-  if (loadPreRulingCorpora().corpora.has(sha)) return;
-  const catalog = loadPreflightCatalog();
-  const capped = manifest.rows
-    .map((row) => ({ row, id: canonicalRowId(row?.row) }))
-    .filter(({ id }) => catalog.capsByRow.has(id));
-  if (capped.length === 0 && catalog.capErrors.length === 0) return;
-
   const problems = [];
+  const frozen = loadPreRulingCorpora().corpora.has(sha);
+  const pins = frozen ? loadCapPins() : null;
+  if (pins?.error) problems.push(pins.error);
+  const catalog = loadPreflightCatalog();
+  const bound = [];
+  for (const row of manifest.rows) {
+    const own = canonicalRowId(row?.row);
+    const bindings = new Map();
+    const bind = (id, how) => bindings.set(id, [...(bindings.get(id) || []), how]);
+    if (typeof row?.dir === 'string') {
+      const fromDir = canonicalRowId(basename(row.dir.replace(/\/+$/, '')));
+      if (catalog.capsByRow.has(fromDir)) bind(fromDir, `its dir ${row.dir}`);
+    }
+    if (typeof row?.manifest === 'string' && catalog.cappedRowByFile.has(basename(row.manifest))) {
+      bind(catalog.cappedRowByFile.get(basename(row.manifest)), `its manifest ${row.manifest}`);
+    }
+    const capId = catalog.capsByRow.has(own) ? own : bindings.keys().next().value;
+    if (capId === undefined) continue;
+    const aliases = [...bindings].filter(([id]) => id !== own);
+    bound.push({ row, capId, label: own || showId(row?.row), cap: catalog.capsByRow.get(capId), aliases });
+  }
+  // A frozen corpus's capped row is exempt while the rows recorded under its own
+  // id still carry exactly the pinned states, in order. An alias never is.
+  let capped = bound;
+  if (frozen && !pins.error) {
+    const corpusPins = pins.pins.get(sha) || new Map();
+    const recorded = new Map();
+    for (const entry of bound) {
+      if (entry.aliases.length || entry.label !== entry.capId) continue;
+      recorded.set(entry.capId, [...(recorded.get(entry.capId) || []), pinnedState(entry.row.state)]);
+    }
+    const unchanged = new Set(
+      [...recorded].filter(([id, states]) => JSON.stringify(states) === JSON.stringify(corpusPins.get(id) || [])).map(([id]) => id),
+    );
+    capped = bound.filter((entry) => entry.aliases.length || entry.label !== entry.capId || !unchanged.has(entry.capId));
+  }
+  if (capped.length === 0 && catalog.capErrors.length === 0 && problems.length === 0) return;
+
   if (catalog.capErrors.length) problems.push(`the verdict-cap catalog is inconsistent: ${catalog.capErrors.join('; ')}`);
   const lines = [];
-  for (const { row, id } of capped) {
-    const cap = catalog.capsByRow.get(id);
+  for (const { row, label, cap, aliases } of capped) {
+    for (const [id, hows] of aliases) {
+      problems.push(
+        `row ${typeof row?.row === 'string' ? row.row : showId(row?.row)} is bound to the capped row ${id} by ${hows.join(' and ')}; ` +
+          'a capped row is recorded under its own id',
+      );
+    }
     const state = canonicalCorpusState(row.state);
-    const written = row.state === state ? state : `${state} (recorded as ${showId(row.state)})`;
+    const written = state === '' ? showId(row.state) : row.state === state ? state : `${state} (recorded as ${showId(row.state)})`;
     if (corpusStateWithinCap(row.state, cap.rowCap)) {
-      lines.push(`${id} ${written}, within the ${cap.rowCap} cap ${cap.file} declares (${cap.artifactClass})`);
+      if (!aliases.length) lines.push(`${label} ${written}, within the ${cap.rowCap} cap ${cap.file} declares (${cap.artifactClass})`);
       continue;
     }
     const relation = corpusStateAboveCap(row.state, cap.rowCap) ? 'above' : 'not a state known to lie within';
@@ -733,7 +813,7 @@ function validateDeclaredCaps(report, sha, manifest) {
     const authority = hasOwn(row, 'superseding_authority')
       ? `its superseding_authority ${showId(row.superseding_authority)} is not adopted: ${cap.file} adopts no superseding authority`
       : 'it declares no superseding authority';
-    problems.push(`${id} is ${written}, ${relation} the ${cap.rowCap} cap ${cap.file} declares (verdictCap.rowCap; ${cap.artifactClass}), and ${authority}`);
+    problems.push(`${label} is ${written}, ${relation} the ${cap.rowCap} cap ${cap.file} declares (verdictCap.rowCap; ${cap.artifactClass}), and ${authority}`);
   }
   pushCheck(
     report,

@@ -27,7 +27,8 @@
  * which case each preflight is missing. Exit 0 when the gated verdict is
  * PASS-candidate, 1 for any other gated verdict, 2 when the inputs cannot be
  * bound (unknown row, a receipt for a preflight the row does not require, a
- * live result without an exact candidate, a malformed or missing verdictCap). A
+ * live result without an exact candidate or with a verdict outside the known set,
+ * a malformed or missing verdictCap). A
  * row whose declared cap is PARTIAL-candidate, as R-CW-5/6 are, therefore never
  * exits 0: read `verdict` and `cappedBy` from the output.
  */
@@ -42,9 +43,20 @@ import {
   PREFLIGHT_CAP,
   PREFLIGHT_GATED_VERDICT_SCHEMA,
 } from '../lib/required-preflight.mjs';
-import { capVerdict, declaredRowCap, manifestVerdictCapFailures } from '../lib/row-verdict-cap.mjs';
+import {
+  canonicalTransport,
+  capVerdict,
+  declaredRowCap,
+  KNOWN_TRANSPORTS,
+  manifestVerdictCapFailures,
+} from '../lib/row-verdict-cap.mjs';
 
 class BindError extends Error {}
+
+// The verdicts a fixture result may carry. Any other string ("PASS",
+// "pass-candidate", a trailing space) is refused rather than passed through
+// uncapped, since the caps compare exact verdicts.
+const KNOWN_LIVE_VERDICTS = ['PASS-candidate', 'PARTIAL-candidate', 'FAIL-candidate', 'FAIL-fixture', 'HONEST-LIMIT-candidate', 'construct-only'];
 
 function usage() {
   return 'Usage: node tools/k6-proofs/scripts/grade-preflight-gated-row.mjs --manifest <row-manifest.json> ' +
@@ -88,6 +100,10 @@ function liveResultRow(result) {
 export function gradeRow({ manifest, liveResult, receipts }) {
   const requirements = Array.isArray(manifest?.requiredPreflights) ? manifest.requiredPreflights : [];
   if (requirements.length === 0) throw new BindError(`${manifest?.rowId} declares no requiredPreflights`);
+  // Whether the row is process-local, and so must declare its cap, needs a transport.
+  if (!KNOWN_TRANSPORTS.includes(canonicalTransport(manifest.transport))) {
+    throw new BindError(`${manifest.rowId} transport ${JSON.stringify(manifest.transport)} is not a known transport (${KNOWN_TRANSPORTS.join(', ')})`);
+  }
   const capFailures = manifestVerdictCapFailures(manifest);
   if (capFailures.length) throw new BindError(`${manifest.rowId} verdict cap: ${capFailures.join('; ')}`);
   const rowCap = declaredRowCap(manifest);
@@ -96,6 +112,9 @@ export function gradeRow({ manifest, liveResult, receipts }) {
   const candidateSha = liveResult.candidateSha;
   if (!isFullSha(candidateSha)) throw new BindError('live result candidateSha must be a 40-character SHA');
   if (typeof liveResult.verdict !== 'string' || !liveResult.verdict) throw new BindError('live result has no verdict');
+  if (!KNOWN_LIVE_VERDICTS.includes(liveResult.verdict)) {
+    throw new BindError(`live result verdict ${JSON.stringify(liveResult.verdict)} is not a known verdict (${KNOWN_LIVE_VERDICTS.join(', ')})`);
+  }
 
   const required = new Set(requirements.map((requirement) => requirement.rowId));
   for (const receipt of receipts) {

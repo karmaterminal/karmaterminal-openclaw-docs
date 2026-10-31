@@ -911,7 +911,8 @@ declare (see "The process-local cap" below).
 
    It exits 0 only for a gated `PASS-candidate`, 1 for any other verdict, and 2
    when it cannot bind the inputs, including a process-local manifest without a
-   well-formed `verdictCap`. R-CW-5/6 therefore never exit 0: at best they grade
+   well-formed `verdictCap` and a fixture verdict outside the known set (`PASS`,
+   `pass-candidate` and the like are refused, never passed through uncapped). R-CW-5/6 therefore never exit 0: at best they grade
    `PARTIAL-candidate` with `cappedBy: ["row-cap"]`. Its `preflight-gate.json`
    (`openclaw.k6.preflight-gated-row-verdict.v1`) records the behavioral and row
    verdicts, the declared `rowCap`, `cappedBy` (`row-cap`, `required-preflight`,
@@ -936,9 +937,11 @@ capped at `PARTIAL-candidate` while their only producer is a process-local
 fixture, which is not an external gateway invocation. Each manifest declares the
 cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
 `artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
-requires that declaration of every process-local row. The cap is read from the
-declaration, never inferred from prose, and the rules live in
-`lib/row-verdict-cap.mjs`.
+requires that declaration of every row whose `transport` is process-local
+(however spelled) or that names a process-local fixture (`invocation.fixture`).
+A declared transport outside the schema's list is refused rather than read as
+"not process-local", and the grader also refuses a manifest with no transport. The cap is read from the declaration, never inferred from prose,
+and the rules live in `lib/row-verdict-cap.mjs`.
 
 - The row verdict is the minimum of the fixture's verdict, the declared cap and
   the preflight cap. A fixture `PASS-candidate` is behavioral only.
@@ -950,13 +953,20 @@ declaration, never inferred from prose, and the rules live in
   schema and teaches the grader and `validate-corpus.mjs` to judge its receipt.
 - In a corpus folded after the ruling, `validate-corpus.mjs` refuses R-CW-5/6
   `pass` (`rows-within-declared-cap`), a `superseding_authority` on the row
-  included.
+  included, and so does any row bound to them by its `dir` or `manifest` under
+  another id.
 
 F′ recorded both rows as PASS without a superseding authority receipt. docs main
 `7e544c04` corrects them to partial (the fixture receipts are kept; rollup
 27/5/0/6), and F′ still validates 18/18. The 71 pre-ruling corpora are exempt from
 the new check by the same frozen list: 52 of them record R-CW-5/6 `pass`, and they
-validate exactly as before.
+validate exactly as before. The exemption also pins what each one's capped rows
+recorded at the cap ruling (`scripts/pre-cap-ruling-capped-row-states.json`, the
+R-CW-5/6 states at docs main `7e544c04`). A capped row in a frozen-named corpus
+that is new, changed or an alias is held to the cap; examples are a new fold in a
+frozen directory, or F′ with its correction reverted. The corpus keeps its
+pre-ruling method for every other check. Changing a pin is a deliberate,
+reviewed act.
 
 ### R-CW-5 isolated cost-cap fixture
 
@@ -1177,16 +1187,20 @@ and no `preflight_attachments` gets neither check. The receipt rules and the can
 row id live in `lib/required-preflight.mjs`, shared with the scenario and the
 grader.
 
-**Declared row caps (🌊's ruling on docs#616).** Every corpus not in
-`scripts/pre-f2-ruling-corpora.json` that carries a row whose catalog manifest
-declares `verdictCap` (today R-CW-5 and R-CW-6), its id compared canonically,
-gets one more check:
+**Declared row caps (🌊's ruling on docs#616).** Every corpus that is not exempt
+and carries a row bound to a catalog manifest that declares `verdictCap` (today
+R-CW-5 and R-CW-6) gets one more check. A row is bound by its id (compared
+canonically), the basename of its `dir`, or its `manifest`. In a corpus listed in
+`scripts/pre-f2-ruling-corpora.json`, a capped row is exempt while the rows under
+its own id still record exactly the states pinned in
+`scripts/pre-cap-ruling-capped-row-states.json`.
 
 | check | requires |
 |---|---|
-| `rows-within-declared-cap` | the row is recorded in a known state at or below its declared cap: with `rowCap` `PARTIAL-candidate`, its `state` (trimmed, any case) is `partial`, `thin`, `fail`, `honest_limit` or `missing`, whatever its preflights say. `pass` is above the cap, and any other state is refused as not shown to lie within it. A `superseding_authority` on the row does not lift the cap, because the method adopts none (`verdictCap.supersedingAuthorities` is empty). If the catalog's cap declarations cannot be read or break the catalog rule, the check runs on every corpus not in that list, and fails. |
+| `rows-within-declared-cap` | a row bound to a capped row by its `dir` or `manifest` carries that row's own id (an alias such as `R-CW-05` in `R-CW-5/` is refused), and the row is recorded in a known state at or below its declared cap: with `rowCap` `PARTIAL-candidate`, its `state` (trimmed, any case) is `partial`, `thin`, `fail`, `honest_limit` or `missing`, whatever its preflights say. `pass` is above the cap, and any other state is refused as not shown to lie within it. A `superseding_authority` on the row does not lift the cap, because the method adopts none (`verdictCap.supersedingAuthorities` is empty). If the catalog's cap declarations cannot be read or break the catalog rule, the check runs on every corpus that is not exempt, and fails; if the pins cannot be read, no frozen capped row is exempt. |
 
-The 71 pre-ruling corpora get no such check (52 of them record R-CW-5/6 `pass`).
+The 71 pre-ruling corpora, as pinned, get no such check (52 of them record
+R-CW-5/6 `pass`).
 The rules live in `lib/row-verdict-cap.mjs`, shared with the grader and the
 catalog check.
 

@@ -13,10 +13,13 @@
  *   - spawn: the parent's sessions_spawn toolResult, bound by toolCallId to the
  *     call whose task carries the nonce, answered "accepted" with a
  *     childSessionKey;
- *   - hop 1 / hop 2: the child's own transcript on that key, read whole with
- *     chat.history from its spawn task (harness review F2/F3: a live row only
- *     prompts that read, because the subscription opens after the spawn and
- *     misses the spawn task and any typed call persisted before it):
+ *   - hop 1 / hop 2: the child's own transcript on that key, from its spawn
+ *     task: a chat.history read sent after the child subscription was
+ *     acknowledged, extended by the live rows of that subscription (harness
+ *     review F2/F3: the subscription opens after the spawn, so live rows alone
+ *     miss the spawn task and any typed call persisted before it; the read
+ *     alone can miss a hop written after it, and cleanup="delete" can remove
+ *     the transcript before a later read):
  *     TOKEN-HOP1 in assistant text, then, after a "[continuation:wake]" row or
  *     in another run, TOKEN-HOP2-DONE with a token the child mints in hop 2,
  *     absent from the harness texts, from the requester's own sessions_spawn
@@ -164,6 +167,14 @@ export default function () {
     let spawnTracker = null;
     let dispatchRunId = null;
     let childKey = null;
+    let childSubscribeId = null;
+    let childSubscribed = false;
+    // The latest child chat.history read, whether it was sent after the subscription
+    // was acknowledged, and every live child row since the subscription.
+    let childHistory = null;
+    let childHistoryCovered = false;
+    const childHistoryCoveredById = {};
+    const liveChildRows = [];
     let hop2Token = null;
     let hop2Timestamp = null;
     let childHistoryScheduled = false;
@@ -201,7 +212,7 @@ export default function () {
       evidence.subagent_spawn_accepted = true;
       evidence.child_session_key = key;
       console.log(`✓ sessions_spawn toolResult accepted with a childSessionKey (${source})`);
-      tracker.send(socket, 'sessions.messages.subscribe', { key: childKey });
+      childSubscribeId = tracker.send(socket, 'sessions.messages.subscribe', { key: childKey });
       requestChildHistory(250);
     }
 
@@ -233,8 +244,18 @@ export default function () {
       socket.setTimeout(() => {
         childHistoryScheduled = false;
         evidence.child_history_reads += 1;
-        historyKeyById[tracker.send(socket, 'chat.history', { sessionKey: childKey, limit: 200 })] = childKey;
+        const id = tracker.send(socket, 'chat.history', { sessionKey: childKey, limit: 200 });
+        historyKeyById[id] = childKey;
+        childHistoryCoveredById[id] = childSubscribed;
       }, k6TimeoutMs(delayMs));
+    }
+
+    // The read, plus the live rows when the read was sent after the subscription
+    // was acknowledged: then the two together hold the whole transcript (a row
+    // seen by both is repeated, which no binding below counts twice).
+    function childTranscript() {
+      if (!childHistory) return null;
+      return childHistoryCovered ? [...childHistory, ...liveChildRows] : childHistory;
     }
 
     function requestParentHistory(delayMs) {
@@ -360,6 +381,10 @@ export default function () {
           }
         }
 
+        if (classified.kind === 'response' && classified.method === 'sessions.messages.subscribe' && msg.id === childSubscribeId) {
+          childSubscribed = classified.ok === true;
+        }
+
         if (classified.kind === 'response' && classified.method === 'chat.history') {
           const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
           const historyKey = historyKeyById[msg.id] || null;
@@ -367,7 +392,10 @@ export default function () {
           if (!classified.ok) {
             if (historyKey === childKey) requestChildHistory(3000); else requestParentHistory(4000);
           } else if (historyKey === childKey) {
-            evaluateChild(messages, 'child chat.history');
+            childHistory = messages;
+            childHistoryCovered = childHistoryCoveredById[msg.id] === true;
+            delete childHistoryCoveredById[msg.id];
+            evaluateChild(childTranscript(), childHistoryCovered ? 'child chat.history + live rows' : 'child chat.history');
             if (!evidence.hop_2_executed) requestChildHistory(3000);
           } else {
             onParentHistory(messages);
@@ -384,9 +412,11 @@ export default function () {
             const receipt = spawnTracker.observe(eventName, eventData);
             if (receipt) recordSpawn([receipt], 'session.message');
           }
-          // A live child row prompts a whole-transcript read; it decides nothing.
+          // A live child row extends a read sent after the subscription, and prompts a new read.
           if (childKey && eventName === 'session.message' && eventSessionKey(eventData) === childKey && eventData.message) {
-            evidence.child_rows_seen += 1;
+            liveChildRows.push({ ...eventData.message, __openclaw: { ...(eventData.message.__openclaw || {}), runId: eventData.message.__openclaw?.runId || eventData.runId } });
+            evidence.child_rows_seen = liveChildRows.length;
+            if (childHistory && childHistoryCovered) evaluateChild(childTranscript(), 'child chat.history + live rows');
             requestChildHistory(500);
           }
           // Diagnostics only.

@@ -20,8 +20,13 @@
  * Behaviour switches (environment): RCC_SCRIPT_ADVANCE_ON_BOOT=<n> advances every authority
  * row when boot n starts (a product that clears the covenant on restart);
  * RCC_SCRIPT_NO_HANDOFF=1 exits without a handoff row; RCC_SCRIPT_REJECT_RESTART=1 rejects
- * the restart request; RCC_SCRIPT_BOOT_DELAY_MS delays each listen.
+ * the restart request; RCC_SCRIPT_NEVER_READY_ON_BOOT=<n> keeps boot n listening but 503;
+ * RCC_SCRIPT_ORPHAN=1 leaves a descendant in its process group when it exits;
+ * RCC_SCRIPT_DROP_RESTART_RESPONSE=1 restarts without answering the request;
+ * RCC_SCRIPT_BOOT_DELAY_MS delays each listen. The consume command prints a log line before
+ * its JSON, as a product CLI may.
  */
+import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -99,6 +104,7 @@ if (args[0] === 'gateway' && args[1] === 'restart-handoff' && args[2] === 'consu
     };
   }
   db.close();
+  process.stdout.write('[restart-handoff] consume {expected-pid} requested\n');
   process.stdout.write(`${JSON.stringify({ ok: true, protocol: PROTOCOL, protocolVersion: 1, ...result }, null, 2)}\n`);
   process.exit(0);
 }
@@ -117,7 +123,7 @@ writeFileSync(bootsFile, String(boot));
 const bootId = randomUUID();
 const startedAt = Date.now();
 const sessions = new Map();
-let draining = false;
+let draining = Number(process.env.RCC_SCRIPT_NEVER_READY_ON_BOOT) === boot;
 
 const agentDb = agentDatabase();
 if (Number(process.env.RCC_SCRIPT_ADVANCE_ON_BOOT) === boot) {
@@ -197,6 +203,11 @@ function handle(socket, connection, frame) {
     return;
   }
   if (frame.method === 'session.visibility.set') {
+    // The product requires the session owner or operator.admin (sessions-sharing-authority.ts).
+    if (!connection.scopes.includes('operator.admin')) {
+      respond(socket, frame.id, false, null, { code: 'INVALID_REQUEST', message: 'session owner or operator.admin required' });
+      return;
+    }
     const rank = { draft: 0, 'read-only': 1, suggest: 2, shared: 3 };
     const session = sessions.get(frame.params.sessionKey);
     if (!session) {
@@ -211,6 +222,12 @@ function handle(socket, connection, frame) {
   if (frame.method === 'gateway.restart.request') {
     if (!connection.scopes.includes('operator.admin')) {
       respond(socket, frame.id, false, null, { code: 'FORBIDDEN', message: 'missing scope: operator.admin' });
+      return;
+    }
+    if (process.env.RCC_SCRIPT_DROP_RESTART_RESPONSE === '1') {
+      // The restart proceeds but its response never reaches the client.
+      socket.destroy();
+      setTimeout(restart, 80, frame.params.reason);
       return;
     }
     if (process.env.RCC_SCRIPT_REJECT_RESTART === '1') {
@@ -300,6 +317,10 @@ function restart(reason) {
       db.close();
     }
     agentDb.close();
+    if (process.env.RCC_SCRIPT_ORPHAN === '1') {
+      // Same process group and environment: a descendant the old generation leaves behind.
+      spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' }).unref();
+    }
     process.stdout.write('[gateway] restart mode: full process restart (supervisor restart)\n');
     process.exit(0);
   }, 150);

@@ -304,6 +304,53 @@ test('an old generation that exits without a restart handoff grades FAIL-candida
   assert.equal(result.record.transition.handoff.status, 'none');
 });
 
+test('a replacement that listens but never reports ready grades FAIL and is stopped at cleanup', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { gatewayEnv: { RCC_SCRIPT_NEVER_READY_ON_BOOT: '2' } }),
+    testPlatform,
+  );
+  const { record, grade } = result;
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.failures.some((entry) => entry.code === 'replacement-never-usable'));
+  assert.equal(record.generations.replacement.failure.kind, 'not-ready-by-deadline');
+  assert.equal(record.generations.replacement.failure.lastProbe.readyz.status, 503);
+  assert.equal(record.generations.replacement.stoppedByCleanup, true);
+  assert.ok(postTrigger(record).every((sample) => sample.lastUsableGeneration === 'old'));
+  assert.ok(processGone(record.generations.replacement.pid));
+  assert.equal(await portFree(layout.port), true);
+});
+
+test('an old generation that leaves a descendant behind is cleaned up and grades FAIL', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { gatewayEnv: { RCC_SCRIPT_ORPHAN: '1' } }),
+    testPlatform,
+  );
+  const { record, grade } = result;
+  assert.equal(record.cleanup.orphansTerminated.length, 1, JSON.stringify(record.cleanup));
+  assert.deepEqual(record.cleanup.residualPids, []);
+  assert.ok(processGone(record.cleanup.orphansTerminated[0]));
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.ok(grade.failures.some((entry) => entry.code === 'resource-retention'));
+});
+
+test('a restart whose response body is lost is still followed and grades PARTIAL-candidate', async () => {
+  const layout = await disposableLayout();
+  const result = await runRestartControl(
+    controlOptions(layout, { gatewayEnv: { RCC_SCRIPT_DROP_RESTART_RESPONSE: '1' } }),
+    testPlatform,
+  );
+  const { record, grade } = result;
+  assert.equal(record.transition.response, undefined);
+  assert.match(record.transition.error, /closed-before-response|transport-error/u);
+  assert.equal(record.transition.handoff.status, 'accepted');
+  assert.ok(record.generations.replacement.readyAtMs);
+  assert.equal(grade.verdict, 'PARTIAL-candidate', JSON.stringify(grade, null, 2));
+  assert.deepEqual(grade.missingReceipts, ['transition-http-body']);
+  assert.deepEqual(grade.failures, []);
+});
+
 test('a rejected restart request keeps its failure body and grades MISSING-candidate', async () => {
   const layout = await disposableLayout();
   const result = await runRestartControl(

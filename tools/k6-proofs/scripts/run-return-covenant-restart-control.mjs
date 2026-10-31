@@ -60,6 +60,7 @@ import {
   observerKeyFingerprint,
   planObservationWindow,
   publicSafetyLeaks,
+  redactDeep,
   redactText,
   sealObserverReceipt,
   sha256,
@@ -74,6 +75,8 @@ const STOP_GRACE_MS = 10_000;
 const KILL_GRACE_MS = 5_000;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// Live generations of the current run, so an interrupted CLI can still stop what it started.
+const liveGenerations = new Set();
 
 /* ------------------------------------------------------------------------------------ */
 /* /proc observation (read-only)                                                        */
@@ -177,6 +180,22 @@ function parseJson(text) {
   } catch {
     return null;
   }
+}
+
+/**
+ * The product CLI writes machine JSON with JSON.stringify(value, null, 2), possibly after
+ * log lines. Take the last block that starts with a bare `{` line and parses.
+ */
+function parseTrailingJson(text) {
+  const whole = parseJson(text.trim());
+  if (whole && typeof whole === 'object') return whole;
+  const lines = text.split('\n');
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    if (lines[index].trim() !== '{') continue;
+    const parsed = parseJson(lines.slice(index).join('\n').trim());
+    if (parsed && typeof parsed === 'object') return parsed;
+  }
+  return null;
 }
 
 /**
@@ -616,6 +635,9 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     });
     const stat = procStat(child.pid);
     generation.startTicks = stat?.startTicks ?? null;
+    generation.runId = runId;
+    liveGenerations.add(generation);
+    generation.closed.then(() => liveGenerations.delete(generation));
     generations[name] = generation;
     record.generations[name] = { started: true, pid: child.pid ?? null, startTicks: generation.startTicks, spawnedAtMs: generation.spawnedAtMs };
     return generation;
@@ -725,6 +747,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const inode = listenInodes(target.port).find((candidate) => owned.has(candidate));
     if (!inode) return null;
     const bodies = await probeBodies();
+    generation.lastProbe = edge(now(), bodies);
     const ready = parseJson(bodies.readyz.body ?? '');
     const startup = parseJson(bodies.startupz.body ?? '');
     if (bodies.readyz.status !== 200 || ready?.ready !== true || bodies.startupz.status !== 200 || startup?.status !== 'started') return null;
@@ -755,7 +778,11 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const old = startGeneration('old');
     const oldReady = await waitUntil(async () => (old.exited ? 'exited' : await verifyReady(old)), now() + plan.bootTimeoutMs, Math.min(250, plan.sampleIntervalMs));
     if (!oldReady || oldReady === 'exited') {
-      record.generations.old.failure = { kind: oldReady === 'exited' ? 'exited-before-ready' : 'not-ready-by-deadline', exit: old.exit };
+      record.generations.old.failure = {
+        kind: oldReady === 'exited' ? 'exited-before-ready' : 'not-ready-by-deadline',
+        exit: old.exit,
+        lastProbe: old.lastProbe ?? null,
+      };
       return;
     }
     Object.assign(record.generations.old, {
@@ -765,11 +792,14 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       buildId: oldReady.buildId,
     });
 
-    /* 2. one return authority */
+    /* 2. one return authority. session.visibility.set needs the session owner or
+       operator.admin (sessions-sharing-authority.ts); a device-less CLI client is not the
+       owner, so this connection asks for operator.admin as the CLI does. */
+    const establishScopes = ['operator.read', 'operator.write', 'operator.admin'];
     const establish = await gatewayRpc({
       port: target.port,
       token: target.token,
-      scopes: ['operator.read', 'operator.write'],
+      scopes: establishScopes,
       calls: [{ method: 'sessions.create', params: { key: sessionSlug, agentId, label: 'return-covenant restart control' } }],
       timeoutMs: 15_000,
     });
@@ -777,14 +807,14 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const sessionKey = typeof created?.payload?.key === 'string' ? created.payload.key : null;
     record.authority.createOk = created?.ok === true;
     if (!sessionKey) {
-      record.authority.error = redact(JSON.stringify(created?.error ?? establish.error ?? 'sessions.create returned no key'));
+      record.authority.error = redact(JSON.stringify(created?.error ?? establish.connectFrame?.error ?? establish.error ?? 'sessions.create returned no key'));
       return;
     }
     addSecret(sessionKey, '<session-key>');
     const narrowed = await gatewayRpc({
       port: target.port,
       token: target.token,
-      scopes: ['operator.read', 'operator.write'],
+      scopes: establishScopes,
       calls: [{ method: 'session.visibility.set', params: { sessionKey, agentId, visibility: 'suggest' } }],
       timeoutMs: 15_000,
     });
@@ -832,13 +862,15 @@ async function executeControl({ options, platform, plan, target, docs, home, art
         ok: frame.ok === true,
         receivedAtMs: now(),
         sha256: sha256(canonicalJson(frame)),
-        frame: parseJson(redact(JSON.stringify(frame))),
+        frame: redactDeep(frame, secrets),
       };
     }
     if (restart.error) record.transition.error = redact(restart.error);
 
     const windowEnd = state.triggerAtMs + plan.observationWindowMs;
-    if (frame?.ok === true) {
+    // A lost response is not a rejected one: if the old generation still restarts, follow
+    // it, and let the grader score the missing body (the rejected base's second half).
+    if (frame?.ok === true || !frame) {
       /* 5. the old generation closes and exits through the handoff */
       await waitUntil(() => old.exited, state.triggerAtMs + plan.transitionDeadlineMs, 20);
       if (old.exited) {
@@ -858,7 +890,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
           stderr: consume.stderr.toString('utf8'),
         }, 0o600);
         const stdout = consume.stdout.toString('utf8');
-        const body = parseJson(stdout.slice(Math.max(0, stdout.indexOf('{'))));
+        const body = parseTrailingJson(stdout);
         record.transition.handoff = {
           exit: { code: consume.code, signal: consume.signal },
           sha256: sha256(stdout),
@@ -902,6 +934,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
           record.generations.replacement.failure = {
             kind: replacement.exited ? 'exited-before-ready' : 'not-ready-by-deadline',
             atMs: replacement.exited ? replacement.exitedAtMs : now(),
+            lastProbe: replacement.lastProbe ?? null,
           };
         }
       } else {
@@ -981,20 +1014,43 @@ async function cleanup({ record, generations, blocker, target, runId }) {
     await new Promise((resolve) => blocker.close(() => resolve()));
     blockerClosed = true;
   }
-  const residual = new Set();
-  for (const generation of Object.values(generations)) {
-    if (!generation.pid) continue;
-    if (!generation.exited) residual.add(generation.pid);
-    for (const member of processGroupMembers(generation.pid)) {
-      if (procEnvironHas(member, `OPENCLAW_PROOF_RCC_RUN=${runId}`)) residual.add(member);
+  const marker = `OPENCLAW_PROOF_RCC_RUN=${runId}`;
+  const runMembers = () => {
+    const found = new Set();
+    for (const generation of Object.values(generations)) {
+      if (!generation.pid) continue;
+      if (!generation.exited) found.add(generation.pid);
+      for (const member of processGroupMembers(generation.pid)) {
+        if (procEnvironHas(member, marker)) found.add(member);
+      }
     }
+    return [...found].sort((a, b) => a - b);
+  };
+  // A process left in one of our groups with this run's marker is ours by construction
+  // (a generation's descendant). Stop it, but record it: a generation that leaves a
+  // descendant behind did not retire cleanly.
+  const orphans = runMembers();
+  for (const [signalName, graceMs] of [['SIGTERM', STOP_GRACE_MS], ['SIGKILL', KILL_GRACE_MS]]) {
+    const live = runMembers();
+    if (live.length === 0) break;
+    for (const pid of live) {
+      try {
+        process.kill(pid, signalName);
+      } catch {
+        // Already gone.
+      }
+    }
+    const deadline = Date.now() + graceMs;
+    while (Date.now() < deadline && runMembers().length > 0) await sleep(100);
   }
+  const residual = runMembers();
   const listeners = listenInodes(target.port);
   record.cleanup = {
     completed: true,
     completedAtMs: Date.now(),
-    childrenStopped: residual.size === 0 && outcome.unverified.length === 0,
-    residualPids: [...residual].sort((a, b) => a - b),
+    childrenStopped: residual.length === 0 && outcome.unverified.length === 0,
+    orphansTerminated: orphans,
+    residualPids: residual,
     unverifiedPids: outcome.unverified,
     escalatedToSigkill: outcome.escalated,
     portReleased: listeners.length === 0,
@@ -1039,6 +1095,26 @@ function finishReceipt({ record, observerKey, artifactDir, secrets, state }) {
 /* CLI                                                                                   */
 /* ------------------------------------------------------------------------------------ */
 
+/** On SIGINT/SIGTERM, stop every generation this process started, then exit. */
+function installInterruptCleanup() {
+  const interrupt = (signal) => {
+    for (const generation of liveGenerations) {
+      const stat = procStat(generation.pid);
+      if (stat && stat.startTicks === generation.startTicks && procEnvironHas(generation.pid, `OPENCLAW_PROOF_RCC_RUN=${generation.runId}`)) {
+        try {
+          process.kill(stat.pgrp === generation.pid ? -generation.pid : generation.pid, 'SIGKILL');
+        } catch {
+          // Already gone.
+        }
+      }
+    }
+    console.error(`interrupted by ${signal}; stopped ${liveGenerations.size} control generation(s); no receipt was written`);
+    process.exit(130);
+  };
+  process.once('SIGINT', interrupt);
+  process.once('SIGTERM', interrupt);
+}
+
 async function main(argv) {
   let options;
   try {
@@ -1058,6 +1134,7 @@ async function main(argv) {
     console.log(JSON.stringify({ valid, verdict: receipt.verdict ?? null }));
     return valid ? 0 : 1;
   }
+  installInterruptCleanup();
   const result = await runRestartControl(options);
   if (result.status === 'refused') {
     console.error(`REFUSED: ${result.refusals.map((entry) => `${entry.code} (${entry.detail})`).join('; ')}`);

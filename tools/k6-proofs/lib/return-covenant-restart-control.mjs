@@ -321,6 +321,16 @@ export function redactText(text, secrets = []) {
     .replace(/\b(?:token|bearer|password|secret)\b\s*[:=]\s*\S+/giu, '$1=<redacted>');
 }
 
+/** Redact every string inside a JSON value, keeping its structure. */
+export function redactDeep(value, secrets = []) {
+  if (typeof value === 'string') return redactText(value, secrets);
+  if (Array.isArray(value)) return value.map((entry) => redactDeep(entry, secrets));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, redactDeep(entry, secrets)]));
+  }
+  return value;
+}
+
 export function textCapture(buffer, secrets = []) {
   const bytes = Buffer.isBuffer(buffer) ? buffer : Buffer.from(String(buffer ?? ''));
   const tail = bytes.subarray(Math.max(0, bytes.length - TAIL_BYTES)).toString('utf8');
@@ -548,6 +558,9 @@ export function gradeRestartControl(record) {
   if (record?.cleanup?.completed === true) {
     if (record.cleanup.childrenStopped !== true || record.cleanup.portReleased !== true || (record.cleanup.residualPids ?? []).length) {
       fail('resource-retention', 'cleanup finished with a retained process or listener');
+    }
+    if ((record.cleanup.orphansTerminated ?? []).length) {
+      fail('resource-retention', `cleanup had to stop ${record.cleanup.orphansTerminated.length} leftover run process(es)`);
     }
   }
 

@@ -518,7 +518,8 @@ const USAGE = `Usage:
     --grade-row <observer-receipt.json> [--grade-row <observer-receipt.json>]... --observer-key-file <key file>
 
 The row verdict is graded from the positive and negative-replacement-never-usable receipts only;
-update-respawn control receipts are reported beside it and never feed it.`;
+update-respawn control receipts are reported beside it and never feed it. --grade-row counts only
+receipts whose observer signature verifies and exits 1 when any receipt did not verify.`;
 
 /* ------------------------------------------------------------------------------------ */
 /* Control                                                                               */
@@ -1515,7 +1516,13 @@ async function main(argv) {
       console.error(`--grade-row needs --observer-key-file: only receipts whose observer signature verifies are counted\n${USAGE}`);
       return 2;
     }
-    const key = readFileSync(options.observerKeyFile, 'utf8').trim();
+    let key;
+    try {
+      key = readFileSync(options.observerKeyFile, 'utf8').trim();
+    } catch (error) {
+      console.error(`cannot read the observer key file: ${error?.code ?? error?.message ?? 'unreadable'}`);
+      return 2;
+    }
     const verified = [];
     const unverifiedReceipts = [];
     for (const file of options.gradeRow) {
@@ -1527,12 +1534,18 @@ async function main(argv) {
         continue;
       }
       if (verifyObserverReceipt(receipt, key)) verified.push(receipt);
-      else unverifiedReceipts.push({ file, case: receipt?.case ?? null, error: 'signature-not-verified' });
+      else unverifiedReceipts.push({ file, case: typeof receipt?.case === 'string' ? receipt.case : null, error: 'signature-not-verified' });
     }
-    const rowGrade = gradeReturnCovenantRow(verified);
+    // An unverified receipt is never counted; one that names a supervised or unknown case caps the
+    // row (row-receipt-unverified), and any of them makes the exit status 1.
+    const rowGrade = gradeReturnCovenantRow(verified, { unverified: unverifiedReceipts });
     console.log(JSON.stringify({ ...rowGrade, unverifiedReceipts }, null, 2));
     console.log(`ROW VERDICT: ${rowGrade.verdict}`);
-    return 0;
+    if (rowGrade.controls.length) {
+      const listed = rowGrade.controls.map((control) => `${control.case} ${control.holds ? 'holds' : 'does not hold'}`);
+      console.log(`CONTROLS beside the row verdict, never feeding it: ${listed.join(', ')}`);
+    }
+    return unverifiedReceipts.length ? 1 : 0;
   }
   installInterruptCleanup();
   const result = await runRestartControl(options);

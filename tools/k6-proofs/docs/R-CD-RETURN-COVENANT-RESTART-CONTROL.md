@@ -111,7 +111,8 @@ The row verdict is graded from `positive` and `negative-replacement-never-usable
 `gradeReturnCovenantRow` in `tools/k6-proofs/lib/return-covenant-restart-control.mjs`. The
 operator runs it over the signed receipts with `--grade-row` (see
 [Operator steps](#operator-steps-for-the-f-fire)). It counts only receipts whose observer signature
-verifies. Any other receipt is listed in `unverifiedReceipts` and counted as absent.
+verifies. Any other receipt is listed in `unverifiedReceipts`, is never counted, and makes the exit
+status 1.
 
 The verdict starts from the positive's and only moves down:
 
@@ -121,20 +122,27 @@ The verdict starts from the positive's and only moves down:
 | no verified `negative-replacement-never-usable` receipt | `PARTIAL-candidate` | `supervised-negative-missing` |
 | the supervised negative graded PASS | `MISSING-candidate` | `supervised-negative-not-refused` |
 | the supervised negative is non-PASS but does not hold | `PARTIAL-candidate` | `supervised-negative-not-holding` |
-| the two cases ran different candidates | `MISSING-candidate` | `row-cases-candidate-mismatch` |
-| the two cases ran different docs harnesses | `PARTIAL-candidate` | `row-cases-docs-mismatch` |
+| the two cases ran different candidates, or one names no 40-hex candidate SHA | `MISSING-candidate` | `row-cases-candidate-mismatch`, `row-case-candidate-unbound` |
+| the two cases ran different docs harnesses, or one names no 40-hex docs SHA | `PARTIAL-candidate` | `row-cases-docs-mismatch`, `row-case-docs-unbound` |
+| a receipt for a supervised or unknown case did not verify, or cannot be counted | `PARTIAL-candidate` | `row-receipt-unverified`, `case-conflict`, `case-unknown`, `case-kind-mismatch`, `case-grade-missing` |
 | a case has more than one receipt | the worst of its receipts | `row-case-repeated` |
 
 So `PASS-candidate` needs a `PASS-candidate` positive and a supervised negative that holds, both
 from one candidate. A control that cannot refuse PASS makes its positive no evidence, which is why
-a passing supervised negative caps the row at MISSING. A receipt that states a kind other than its
-case's is not counted (`case-kind-mismatch`): an update-respawn control relabelled as the
-supervised negative, for example.
+a passing supervised negative caps the row at MISSING. The row re-checks the supervised negative
+from its grade (the failure, the outage, the retained authority and body, `noFallback`) rather
+than trusting its `holds` alone. A receipt for a supervised case is counted only when it names
+exactly that case (its own and its record's) and every kind it states is that case's. Anything
+else caps the row instead of being ignored: an update-respawn control relabelled as the supervised
+negative, for example (`case-kind-mismatch`). So the worst of a case's receipts cannot be dodged by
+one that fails to count.
 
-The update-respawn control receipts are reported in `controls`, each with
-`kind: update-respawn-control` and `feedsRowVerdict: false`. They neither raise the row verdict
-nor are required for it. Everything in the row verdict except `controls` is identical with or
-without them. The row verdict also lists `namedLimits`: `in-process-restart`.
+A receipt is an update-respawn control when every case it names is a control case. Those receipts
+are reported in `controls`, each with `kind: update-respawn-control` and `feedsRowVerdict: false`,
+and an unverified one stays beside the verdict too. They neither raise the row verdict nor are
+required for it. Everything in the row verdict except `controls` is identical with or without
+them. The CLI lists them after the verdict line, with whether each held. The row verdict also lists
+`namedLimits`: `in-process-restart`.
 
 ## 🌻's negative: `negative-replacement-never-usable`
 
@@ -169,7 +177,7 @@ control—not the negative proving fleet restart." So `control-update-respawn-fa
 `control-update-respawn-runtime-unavailable` are labelled controls:
 
 - Their case names start with `control-update-respawn-`. Each record, grade and signed receipt
-  also carries `kind: update-respawn-control` and `feedsRowVerdict: false`.
+  also carries `kind: update-respawn-control`, and the grade says `feedsRowVerdict: false`.
 - They are not evidence for the fleet restart claim. Fleet seats are systemd-supervised and take
   the supervised branch, never this one.
 - Their receipts sit beside the row verdict: they neither raise it nor are required for it.

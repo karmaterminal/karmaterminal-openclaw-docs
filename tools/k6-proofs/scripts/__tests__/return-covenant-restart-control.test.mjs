@@ -984,11 +984,15 @@ test('row verdict: graded from the supervised positive and negative only; the up
   const failingControl = { record: failingRecord, grade: gradeRestartControl(failingRecord) };
   assert.equal(failingControl.grade.negativeControl.holds, false);
   const passing = [passingControl(pos, 'control-update-respawn-fallback'), passingControl(pos, 'control-update-respawn-runtime-unavailable')];
+  // Controls from another candidate and docs harness stay beside the verdict as well.
+  const stale = { ...passingControl(pos, 'control-update-respawn-fallback'), candidateSha: 'c'.repeat(40), docsSha: 'd'.repeat(40) };
+  const staleRun = { ...structuredClone(unavailableControl), record: { ...structuredClone(unavailableControl.record), candidateSha: 'c'.repeat(40), docsSha: 'd'.repeat(40) } };
   const controlSets = [
     [fallbackControl, unavailableControl],
     [failingControl],
     passing,
-    [unavailableControl, ...passing, failingControl, fallbackControl],
+    [stale, staleRun],
+    [unavailableControl, ...passing, failingControl, fallbackControl, stale],
   ];
   for (const rowCases of [[pos, neg], [neg, pos], [pos], [neg], []]) {
     const alone = rcc.gradeReturnCovenantRow(rowCases);
@@ -1159,13 +1163,13 @@ test('row verdict from signed receipts: the CLI counts only verified receipts, a
     ...files.flatMap((file) => ['--grade-row', file]),
     ...(key ? ['--observer-key-file', key] : []),
   ], { encoding: 'utf8', timeout: 60_000 });
-  const parse = (result) => JSON.parse(result.stdout.slice(0, result.stdout.lastIndexOf('\nROW VERDICT: ')));
+  const parse = (result) => JSON.parse(result.stdout.slice(0, result.stdout.indexOf('\nROW VERDICT: ')));
 
   const all = gradeRow(receipts);
   assert.equal(all.status, 0, all.stderr);
   const graded = parse(all);
   assert.equal(graded.verdict, 'PASS-candidate', all.stdout);
-  assert.match(all.stdout, /\nROW VERDICT: PASS-candidate\n$/u);
+  assert.match(all.stdout, /\nROW VERDICT: PASS-candidate\nCONTROLS beside the row verdict, never feeding it: control-update-respawn-fallback holds, control-update-respawn-runtime-unavailable holds\n$/u);
   assert.deepEqual(graded.unverifiedReceipts, []);
   assert.deepEqual(graded.controls.map((entry) => [entry.case, entry.feedsRowVerdict]), [
     ['control-update-respawn-fallback', false],
@@ -1181,16 +1185,153 @@ test('row verdict from signed receipts: the CLI counts only verified receipts, a
   negative.grade.negativeControl.holds = !negative.grade.negativeControl.holds;
   await writeFile(tampered, JSON.stringify(negative));
   const withTampered = gradeRow([receipts[0], tampered, receipts[2], receipts[3]]);
-  assert.equal(withTampered.status, 0, withTampered.stderr);
+  assert.equal(withTampered.status, 1, withTampered.stderr);
   const tamperedRow = parse(withTampered);
   assert.equal(tamperedRow.verdict, 'PARTIAL-candidate', withTampered.stdout);
   assert.deepEqual(tamperedRow.unverifiedReceipts.map((entry) => entry.case), ['negative-replacement-never-usable']);
   assert.ok(tamperedRow.reasons.some((entry) => entry.code === 'supervised-negative-missing'));
+  assert.ok(tamperedRow.reasons.some((entry) => entry.code === 'row-receipt-unverified'));
+
+  // An unverifiable extra receipt for a supervised case, or an unreadable file, caps a passing
+  // row: the worst of a case's receipts cannot be dodged by a receipt that fails to verify.
+  const failedPositive = path.join(scratch, 'positive-failed.json');
+  const positiveReceipt = JSON.parse(await readFile(receipts[0], 'utf8'));
+  await writeFile(failedPositive, JSON.stringify({ ...positiveReceipt, verdict: 'FAIL-candidate', grade: { ...positiveReceipt.grade, verdict: 'FAIL-candidate' } }));
+  const garbage = path.join(scratch, 'garbage.json');
+  await writeFile(garbage, 'not json');
+  for (const extra of [failedPositive, garbage]) {
+    const capped = gradeRow([...receipts, extra]);
+    assert.equal(capped.status, 1, capped.stderr);
+    const cappedRow = parse(capped);
+    assert.equal(cappedRow.verdict, 'PARTIAL-candidate', capped.stdout);
+    assert.ok(cappedRow.reasons.some((entry) => entry.code === 'row-receipt-unverified'), capped.stdout);
+    assert.equal(cappedRow.unverifiedReceipts.length, 1);
+  }
+  // An unverifiable control receipt is reported, but stays beside the verdict.
+  const tamperedControl = path.join(scratch, 'control-tampered.json');
+  const controlReceipt = JSON.parse(await readFile(receipts[2], 'utf8'));
+  await writeFile(tamperedControl, JSON.stringify({ ...controlReceipt, verdict: 'PASS-candidate' }));
+  const besideControl = gradeRow([receipts[0], receipts[1], tamperedControl]);
+  assert.equal(besideControl.status, 1, besideControl.stderr);
+  assert.equal(parse(besideControl).verdict, 'PASS-candidate', besideControl.stdout);
+  assert.deepEqual(parse(besideControl).unverifiedReceipts.map((entry) => entry.case), ['control-update-respawn-fallback']);
 
   // Without the observer key nothing can be verified, so the CLI refuses to grade the row.
   const keyless = gradeRow(receipts, null);
   assert.equal(keyless.status, 2, keyless.stdout);
   assert.match(keyless.stderr, /--observer-key-file/u);
+  const missingKey = gradeRow(receipts, path.join(scratch, 'no-such.key'));
+  assert.equal(missingKey.status, 2, missingKey.stdout);
+  assert.match(missingKey.stderr, /observer key file/u);
+  assert.doesNotMatch(missingKey.stderr, /\n\s+at /u, 'a missing key file is reported, not a stack trace');
+});
+
+test('row verdict: a receipt that cannot be counted for a supervised case lowers the row, never raises it', async () => {
+  const { pos, neg, fallbackControl } = await rowInputs();
+  assert.equal(rcc.gradeReturnCovenantRow([pos, neg]).verdict, 'PASS-candidate');
+  const uncountable = [
+    ['case-grade-missing', { case: 'positive', candidateSha: CANDIDATE, docsSha: DOCS, grade: { ...structuredClone(pos.grade), verdict: 'NOT-A-VERDICT' } }],
+    ['case-kind-mismatch', { case: 'positive', kind: 'row-negative', candidateSha: CANDIDATE, docsSha: DOCS, grade: structuredClone(pos.grade) }],
+    ['case-unknown', { case: 'no-such-case', candidateSha: CANDIDATE, docsSha: DOCS, grade: structuredClone(pos.grade) }],
+    ['case-unknown', null],
+    ['case-unknown', { grade: structuredClone(pos.grade) }],
+    ['case-conflict', { case: 'positive', record: { ...structuredClone(pos.record), case: 'negative-replacement-never-usable' }, grade: structuredClone(pos.grade) }],
+    // A "control" named only by its kind, over a positive record, is not a control.
+    ['case-kind-mismatch', { kind: 'update-respawn-control', record: { case: 'positive' }, grade: structuredClone(fallbackControl.grade) }],
+  ];
+  for (const [code, entry] of uncountable) {
+    const graded = rcc.gradeReturnCovenantRow([pos, neg, entry]);
+    assert.equal(graded.verdict, 'PARTIAL-candidate', `${code}: ${JSON.stringify(graded.reasons)}`);
+    assert.ok(graded.reasons.some((reason) => reason.code === code), `${code}: ${JSON.stringify(graded.reasons)}`);
+  }
+
+  // A negative whose entry and record disagree on the case is not counted, even with a grade
+  // that would hold and no kind to contradict it.
+  const holding = structuredClone(neg.grade);
+  delete holding.kind;
+  const conflicted = { case: 'negative-replacement-never-usable', record: { case: 'control-update-respawn-fallback' }, candidateSha: CANDIDATE, docsSha: DOCS, grade: holding };
+  const conflictedRow = rcc.gradeReturnCovenantRow([pos, conflicted]);
+  assert.equal(conflictedRow.verdict, 'PARTIAL-candidate', JSON.stringify(conflictedRow, null, 2));
+  assert.ok(conflictedRow.reasons.some((reason) => reason.code === 'case-conflict'));
+  assert.equal(conflictedRow.supervisedNegative.present, false);
+
+  // Receipts the caller could not verify: a supervised or unknown case caps the row; a control
+  // case stays beside it.
+  for (const unverified of [{ case: 'positive' }, { case: 'negative-replacement-never-usable' }, { case: null }]) {
+    const graded = rcc.gradeReturnCovenantRow([pos, neg], { unverified: [unverified] });
+    assert.equal(graded.verdict, 'PARTIAL-candidate', JSON.stringify(unverified));
+    assert.ok(graded.reasons.some((reason) => reason.code === 'row-receipt-unverified'));
+  }
+  const besideOnly = rcc.gradeReturnCovenantRow([pos, neg], { unverified: [{ case: 'control-update-respawn-fallback' }] });
+  assert.deepEqual(rowPart(besideOnly), rowPart(rcc.gradeReturnCovenantRow([pos, neg])));
+
+  // The supervised cases must name one real candidate and one real docs harness.
+  const bare = (result, candidateSha, docsSha = DOCS) => ({ case: result.record.case, kind: result.record.kind, candidateSha, docsSha, grade: structuredClone(result.grade) });
+  for (const sha of [undefined, null, 'not-a-sha']) {
+    const unbound = rcc.gradeReturnCovenantRow([bare(pos, sha), bare(neg, sha)]);
+    assert.equal(unbound.verdict, 'MISSING-candidate', JSON.stringify(unbound, null, 2));
+    assert.ok(unbound.reasons.some((reason) => reason.code === 'row-case-candidate-unbound'));
+  }
+  const docsUnbound = rcc.gradeReturnCovenantRow([bare(pos, CANDIDATE, null), bare(neg, CANDIDATE, null)]);
+  assert.equal(docsUnbound.verdict, 'PARTIAL-candidate', JSON.stringify(docsUnbound, null, 2));
+  assert.ok(docsUnbound.reasons.some((reason) => reason.code === 'row-case-docs-unbound'));
+
+  // Malformed input never throws and never passes.
+  const malformed = structuredClone(neg.grade);
+  malformed.failures = 'replacement-never-usable';
+  assert.equal(rcc.gradeReturnCovenantRow([pos, { record: neg.record, grade: malformed }]).verdict, 'PARTIAL-candidate');
+  const oddPositive = { record: pos.record, grade: { ...structuredClone(pos.grade), failures: {}, partials: 'x', missingReceipts: 7, missingBehaviour: null } };
+  assert.doesNotThrow(() => rcc.gradeReturnCovenantRow([oddPositive, neg]));
+  for (const entries of [null, 'x', 7, {}]) {
+    assert.equal(rcc.gradeReturnCovenantRow(entries).verdict, 'MISSING-candidate', JSON.stringify(entries));
+  }
+});
+
+test('row verdict: the row re-checks the supervised negative itself; a receipt that claims holds without each part cannot pass', async () => {
+  const { pos, neg } = await rowInputs();
+  const mutations = {
+    failure: (grade) => {
+      grade.failures = grade.failures.filter((entry) => entry.code !== 'replacement-never-usable');
+    },
+    outageObserved: (grade) => {
+      const before = grade.outageInterval.lastServingBefore;
+      grade.outageInterval = { ...grade.outageInterval, open: false, firstServingAfter: { ...before, atMs: before.atMs + 1 }, ms: 1 };
+    },
+    failureBodyRetained: (grade) => {
+      grade.negativeControl.failureBodyRetained = false;
+    },
+    authorityRetained: (grade) => {
+      grade.negativeControl.oldAuthorityRetained = false;
+    },
+    noFallback: (grade) => {
+      grade.fallback = { ...grade.fallback, branch: 'restored', class: 'old-process-restoration' };
+    },
+  };
+  for (const [field, mutate] of Object.entries(mutations)) {
+    const grade = structuredClone(neg.grade);
+    mutate(grade);
+    assert.equal(grade.negativeControl.holds, true, `${field}: the receipt still claims the negative holds`);
+    assert.equal(grade.verdict, 'FAIL-candidate');
+    const row = rcc.gradeReturnCovenantRow([pos, { record: neg.record, grade }]);
+    assert.equal(row.verdict, 'PARTIAL-candidate', `${field}: ${JSON.stringify(row.supervisedNegative)}`);
+    assert.ok(!row.supervisedNegative[field], field);
+    assert.equal(row.supervisedNegative.holds, false, field);
+    const notHolding = row.reasons.find((reason) => reason.code === 'supervised-negative-not-holding');
+    assert.ok(notHolding?.detail.includes(field), `${field}: ${JSON.stringify(row.reasons)}`);
+  }
+
+  // Per case: an old generation that does not exit 0 through the handoff breaks noFallback
+  // alone, and the negative does not hold.
+  const record = structuredClone(neg.record);
+  record.generations.old.exit = { ...record.generations.old.exit, code: 1 };
+  const grade = gradeRestartControl(record);
+  assert.notEqual(grade.verdict, 'PASS-candidate');
+  assert.equal(grade.negativeControl.noFallback, false);
+  assert.equal(grade.negativeControl.failureObserved, true);
+  assert.equal(grade.negativeControl.outageObserved, true);
+  assert.equal(grade.negativeControl.failureBodyRetained, true);
+  assert.equal(grade.negativeControl.oldAuthorityRetained, true);
+  assert.equal(grade.negativeControl.holds, false);
 });
 
 /* ---------------------------------------------------------------------------------- */

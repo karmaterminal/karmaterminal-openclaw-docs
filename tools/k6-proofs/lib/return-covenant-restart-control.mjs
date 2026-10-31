@@ -918,7 +918,7 @@ export function gradeRestartControl(record) {
 
   // A negative or control case that nothing contradicted did not exercise what it tests.
   if (RCC_NEGATIVE_CASES.includes(caseKind) && failures.length === 0 && limits.length === 0 && missingBehaviour.length === 0) {
-    missing('negative-not-exercised', 'a negative case must be contradicted; nothing contradicted the positive claim');
+    missing('negative-not-exercised', 'a negative or update-respawn control must be contradicted; nothing contradicted the positive claim');
   }
 
   let verdict;
@@ -1062,20 +1062,39 @@ function lowerVerdict(a, b) {
   return VERDICT_RANK[a] <= VERDICT_RANK[b] ? a : b;
 }
 
-// One graded case: a control result ({ record, grade }) or an observer receipt body
-// ({ case, kind, candidateSha, docsSha, grade }). Every kind it states must be the case's own.
+function listOf(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function codesOf(value) {
+  return listOf(value).map((entry) => entry?.code ?? null);
+}
+
+/**
+ * One graded case: a control result ({ record, grade }) or an observer receipt body
+ * ({ case, kind, candidateSha, docsSha, grade, record }). The cases it names (its own and its
+ * record's) route it: a receipt is an update-respawn control, reported beside the row verdict,
+ * when every case it names is a control case, or, naming none, when every kind it states is
+ * update-respawn-control. Anything else is a candidate for the row's evidence, counted only when
+ * it names exactly one supervised case and every kind it states is that case's.
+ */
 function caseEvidence(entry) {
-  const caseKind = entry?.case ?? entry?.record?.case ?? null;
-  const declared = RCC_CASE_BRANCH[caseKind]?.kind ?? null;
+  const named = [...new Set([entry?.case, entry?.record?.case].filter((value) => value !== undefined && value !== null))];
   const stated = [entry?.kind, entry?.record?.kind, entry?.grade?.kind].filter((kind) => kind !== undefined && kind !== null);
+  const control = named.length > 0
+    ? named.every((caseKind) => RCC_CASE_BRANCH[caseKind]?.kind === 'update-respawn-control')
+    : stated.length > 0 && stated.every((kind) => kind === 'update-respawn-control');
+  const declared = named.length === 1 ? (RCC_CASE_BRANCH[named[0]]?.kind ?? null) : null;
   return {
-    case: caseKind,
+    case: named[0] ?? null,
+    named,
+    control,
     declared,
-    kindConsistent: declared !== null && stated.every((kind) => kind === declared),
     stated,
+    kindConsistent: stated.every((kind) => kind === (control ? 'update-respawn-control' : declared)),
     candidateSha: entry?.candidateSha ?? entry?.record?.candidateSha ?? null,
     docsSha: entry?.docsSha ?? entry?.record?.docsSha ?? null,
-    grade: entry?.grade ?? null,
+    grade: entry?.grade && typeof entry.grade === 'object' ? entry.grade : null,
   };
 }
 
@@ -1085,10 +1104,10 @@ function positiveSummary(evidence) {
     present: true,
     case: evidence.case,
     verdict: grade.verdict,
-    missingReceipts: grade.missingReceipts ?? [],
-    failures: (grade.failures ?? []).map((entry) => entry.code),
-    partials: (grade.partials ?? []).map((entry) => entry.code),
-    missingBehaviour: (grade.missingBehaviour ?? []).map((entry) => entry.code),
+    missingReceipts: listOf(grade.missingReceipts),
+    failures: codesOf(grade.failures),
+    partials: codesOf(grade.partials),
+    missingBehaviour: codesOf(grade.missingBehaviour),
     outageInterval: grade.outageInterval ?? null,
   };
 }
@@ -1098,14 +1117,14 @@ function positiveSummary(evidence) {
 // non-PASS, and claim no old-process fallback.
 function supervisedNegativeSummary(evidence) {
   const grade = evidence.grade;
-  const control = grade.negativeControl ?? {};
+  const control = grade.negativeControl && typeof grade.negativeControl === 'object' ? grade.negativeControl : {};
   const outage = grade.outageInterval ?? null;
   const summary = {
     present: true,
     case: evidence.case,
     verdict: grade.verdict,
     nonPass: grade.verdict !== 'PASS-candidate',
-    failure: (grade.failures ?? []).some((entry) => entry.code === 'replacement-never-usable') ? 'replacement-never-usable' : null,
+    failure: codesOf(grade.failures).includes('replacement-never-usable') ? 'replacement-never-usable' : null,
     failureBodyRetained: control.failureBodyRetained === true,
     outageInterval: outage,
     outageObserved: outage?.observed === true &&
@@ -1154,24 +1173,31 @@ function controlSummary(evidence) {
  * - a supervised negative that grades PASS: at most MISSING (supervised-negative-not-refused), since
  *   a control that cannot refuse PASS makes its positive no evidence;
  * - a supervised negative that does not hold: at most PARTIAL (supervised-negative-not-holding);
- * - supervised cases from different candidates: at most MISSING; from different docs harnesses: at
- *   most PARTIAL;
+ * - supervised cases from different candidates, or one without a 40-hex candidate SHA: at most
+ *   MISSING; from different docs harnesses, or one without a 40-hex docs SHA: at most PARTIAL;
+ * - a receipt that names a supervised or unknown case but cannot be counted (case-conflict,
+ *   case-unknown, case-kind-mismatch, case-grade-missing), or that the caller could not verify
+ *   (options.unverified, row-receipt-unverified): at most PARTIAL, so the worst of a case's
+ *   receipts cannot be dodged by one that fails to count;
  * - a repeated supervised case grades from the worst of its receipts (row-case-repeated).
- * Pass only receipts whose observer signature verified (the CLI's --grade-row does).
+ * Pass only receipts whose observer signature verified, and the rest as options.unverified
+ * ({ case } each); the CLI's --grade-row does both.
  */
-export function gradeReturnCovenantRow(entries = []) {
+export function gradeReturnCovenantRow(entries = [], { unverified = [] } = {}) {
   const reasons = [];
   const reason = (code, detail) => reasons.push({ code, detail });
   const rowEvidence = new Map(RCC_ROW_CASES.map((caseKind) => [caseKind, []]));
   const controls = [];
-  for (const entry of entries) {
+  for (const entry of listOf(entries)) {
     const evidence = caseEvidence(entry);
-    if (evidence.declared === 'update-respawn-control') {
+    if (evidence.control) {
       controls.push(controlSummary(evidence));
       continue;
     }
-    if (!evidence.declared) {
-      reason('case-unknown', `a receipt for case ${JSON.stringify(evidence.case)} is not a declared case`);
+    if (evidence.named.length > 1) {
+      reason('case-conflict', `a receipt names cases ${JSON.stringify(evidence.named)}; not counted`);
+    } else if (!evidence.declared) {
+      reason('case-unknown', `a receipt for case ${JSON.stringify(evidence.case)} is not a declared case; not counted`);
     } else if (!evidence.kindConsistent) {
       reason('case-kind-mismatch', `a ${evidence.case} receipt states kind ${JSON.stringify(evidence.stated)}, not ${evidence.declared}; not counted`);
     } else if (!RCC_VERDICTS.includes(evidence.grade?.verdict)) {
@@ -1180,14 +1206,26 @@ export function gradeReturnCovenantRow(entries = []) {
       rowEvidence.get(evidence.case).push(evidence);
     }
   }
+  // A receipt the caller could not verify stays out of the evidence. One that names a control
+  // case stays beside the verdict too; any other caps it.
+  for (const entry of listOf(unverified)) {
+    if (RCC_CASE_BRANCH[entry?.case]?.kind === 'update-respawn-control') continue;
+    reason('row-receipt-unverified', `a receipt for case ${JSON.stringify(entry?.case ?? null)} did not verify; not counted`);
+  }
 
   const counted = [...rowEvidence.values()].flat();
-  for (const [field, code, ceiling] of [
-    ['candidateSha', 'row-cases-candidate-mismatch', 'MISSING-candidate'],
-    ['docsSha', 'row-cases-docs-mismatch', 'PARTIAL-candidate'],
+  for (const [field, code] of [
+    ['candidateSha', 'row-cases-candidate-mismatch'],
+    ['docsSha', 'row-cases-docs-mismatch'],
   ]) {
     const values = [...new Set(counted.map((evidence) => evidence[field]))];
     if (values.length > 1) reason(code, `the supervised cases disagree on ${field}: ${values.join(', ')}`);
+  }
+  if (counted.some((evidence) => !isSha40(evidence.candidateSha))) {
+    reason('row-case-candidate-unbound', 'a supervised case names no 40-hex candidate SHA, so the cases cannot be bound to one candidate');
+  }
+  if (counted.some((evidence) => !isSha40(evidence.docsSha))) {
+    reason('row-case-docs-unbound', 'a supervised case names no 40-hex docs SHA');
   }
   for (const [caseKind, list] of rowEvidence) {
     if (list.length > 1) reason('row-case-repeated', `${list.length} receipts for ${caseKind}; the worst of them is graded`);
@@ -1220,6 +1258,13 @@ export function gradeReturnCovenantRow(entries = []) {
     'supervised-negative-not-holding': 'PARTIAL-candidate',
     'row-cases-candidate-mismatch': 'MISSING-candidate',
     'row-cases-docs-mismatch': 'PARTIAL-candidate',
+    'row-case-candidate-unbound': 'MISSING-candidate',
+    'row-case-docs-unbound': 'PARTIAL-candidate',
+    'case-conflict': 'PARTIAL-candidate',
+    'case-unknown': 'PARTIAL-candidate',
+    'case-kind-mismatch': 'PARTIAL-candidate',
+    'case-grade-missing': 'PARTIAL-candidate',
+    'row-receipt-unverified': 'PARTIAL-candidate',
   };
   let verdict = positive.present ? positive.verdict : 'MISSING-candidate';
   for (const entry of reasons) if (ceilings[entry.code]) verdict = lowerVerdict(verdict, ceilings[entry.code]);

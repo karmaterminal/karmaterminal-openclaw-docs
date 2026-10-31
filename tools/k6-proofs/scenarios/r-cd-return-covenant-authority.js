@@ -6,9 +6,14 @@
  * `tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs`: it drives a real
  * restart on a disposable proof-gw gateway as the product's declared external supervisor
  * and grades the receipts. Ruling: 🌊, Discord msg 1565895695586558120 (the row stays
- * required/MISSING until this control runs on the final successor, including 🌻's
- * replacement-never-usable negative), narrowed by 🌊's ruling on the fork, Discord msg
- * 1565903655885082677 (section 4). Bound issue: karmaterminal/openclaw-bootstrap#1727.
+ * required/MISSING until this control runs on the final successor, including 🌻's negative,
+ * negative-replacement-never-usable: a supervised replacement that never serves), narrowed by
+ * 🌊's ruling on the fork, Discord msg 1565903655885082677 (section 4), and scoped by 🌊's
+ * final ruling, Discord msg 1565927316687691777: the row's claim is the supervised branch the
+ * fleet runs, and its verdict is graded from positive and negative-replacement-never-usable
+ * only. The update.run cases are update-respawn controls (section 4), not evidence for the
+ * fleet restart claim, and the plain in-process restart is the named limit in-process-restart.
+ * Bound issue: karmaterminal/openclaw-bootstrap#1727.
  *
  * Product path at F′ karmaterminal/openclaw f15237ec921879d918482cdf372b0718d4c1aab9
  * (byte-read with git show; GitNexus index openclaw-gn-j7-bc90c0ea is STALE for these paths,
@@ -79,7 +84,9 @@
  *    listening socket, /readyz passes and hello-ok answers; the control observes all three at
  *    every sample. An unchanged epoch alone is not usability.
  *
- * 4. Which branch spawns a child, and what gates its fallback. restartGatewayProcessWithFreshPid
+ * 4. Which branch spawns a child, and what gates its fallback. This is the branch of the
+ *    update-respawn controls (control-update-respawn-fallback,
+ *    control-update-respawn-runtime-unavailable), never the row's claim. restartGatewayProcessWithFreshPid
  *    never spawns: it returns supervised | disabled | failed (src/infra/process-respawn.ts:231-273).
  *    With no supervisor hint the decision is disabled/unmanaged (src/infra/process-respawn.ts:56-71,
  *    hints src/infra/supervisor-markers.ts:5-22), so a plain restart of an unmanaged gateway is
@@ -91,7 +98,7 @@
  *    inherited stdio and env; OPENCLAW_NO_RESPAWN disables it). The untargeted
  *    gateway.restart.request passes its reason through (restart.ts:124-194 ->
  *    src/infra/restart.ts:164-203 -> src/cli/gateway-cli/run-loop-signals.ts:263-329), so the
- *    spawned cases send {reason:"update.run"}; no update runs, so installationReplacement is
+ *    update-respawn controls send {reason:"update.run"}; no update runs, so installationReplacement is
  *    absent by construction. handleRestartAfterServerClose has already closed the old server;
  *    the old process waits for the child's readiness (update-successor.ts:65-122 over
  *    restart-health.ts: up to 60 s, an early "stopped-free" once the child is dead and the port
@@ -118,7 +125,8 @@
  * no process serves, and the failure text survives. It reports the outage as outageInterval
  * (last serving old sample -> first serving sample after it). On the spawned branch the first
  * serving sample after it can be the original process itself: old-process restoration, which is
- * never fresh-successor proof and never PASS. The rejected base lost the failure body.
+ * never fresh-successor proof and never PASS, and the update-respawn controls that observe it
+ * never feed the row verdict. The rejected base lost the failure body.
  */
 export const options = {
   scenarios: {

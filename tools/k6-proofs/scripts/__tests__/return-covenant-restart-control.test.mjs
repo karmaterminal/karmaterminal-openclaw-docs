@@ -4,6 +4,7 @@
 // read-only SQLite observer are the real code; only the gateway is scripted.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import net from 'node:net';
@@ -252,9 +253,21 @@ test('positive: a real restart keeps the return authority through the gap and gr
   assert.ok(existsSync(path.join(privateDir, 'transition-response.json')));
 });
 
+// 🌻's negative: a supervised replacement that never serves (the row's own negative).
+let supervisedNegativeRun;
+async function supervisedNegative() {
+  if (!supervisedNegativeRun) {
+    const layout = await disposableLayout();
+    supervisedNegativeRun = {
+      layout,
+      result: await runRestartControl(controlOptions(layout, { caseKind: 'negative-replacement-never-usable' }), testPlatform),
+    };
+  }
+  return supervisedNegativeRun;
+}
+
 test('negative: a replacement that never becomes usable keeps the old authority and the failure body and is not PASS', async () => {
-  const layout = await disposableLayout();
-  const result = await runRestartControl(controlOptions(layout, { caseKind: 'negative-replacement-never-usable' }), testPlatform);
+  const { layout, result } = await supervisedNegative();
   assert.equal(result.status, 'completed');
   const { record, grade } = result;
   assert.notEqual(grade.verdict, 'PASS-candidate');
@@ -298,7 +311,8 @@ function positiveIntegers(...values) {
 }
 
 /* ---------------------------------------------------------------------------------- */
-/* The spawned branch: 🌊's never-usable negative with the old-process fallback         */
+/* Update-respawn controls: update.run on an unmanaged gateway (the spawned branch).    */
+/* 🌊's final ruling: a distinct control, never evidence for the fleet restart claim.    */
 /* ---------------------------------------------------------------------------------- */
 
 const SUPERVISOR_HINTS = ['OPENCLAW_SUPERVISOR_MODE', 'OPENCLAW_SYSTEMD_UNIT', 'INVOCATION_ID', 'SYSTEMD_EXEC_PID', 'JOURNAL_STREAM', 'OPENCLAW_SERVICE_MARKER', 'OPENCLAW_SERVICE_KIND', 'OPENCLAW_NO_RESPAWN'];
@@ -309,13 +323,13 @@ async function spawnedFallback() {
     const layout = await disposableLayout();
     spawnedRun = {
       layout,
-      result: await runRestartControl(controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN }), testPlatform),
+      result: await runRestartControl(controlOptions(layout, { caseKind: 'control-update-respawn-fallback', plan: SPAWNED_PLAN }), testPlatform),
     };
   }
   return spawnedRun;
 }
 
-test('negative-spawned-fallback: an unmanaged gateway restarted with update.run takes the spawned branch', async () => {
+test('control-update-respawn-fallback: an unmanaged gateway restarted with update.run takes the spawned branch', async () => {
   const { result } = await spawnedFallback();
   assert.equal(result.status, 'completed', JSON.stringify(result.refusals ?? null));
   const { record } = result;
@@ -338,7 +352,7 @@ test('negative-spawned-fallback: an unmanaged gateway restarted with update.run 
   assert.equal(record.fallback.outputChannel, 'inherited-by-old-generation');
 });
 
-test('negative-spawned-fallback: the child never serves, the diagnostic and frame survive, the original process serves again, non-PASS', async () => {
+test('control-update-respawn-fallback: the child never serves, the diagnostic and frame survive, the original process serves again, non-PASS', async () => {
   const { layout, result } = await spawnedFallback();
   const { record, grade } = result;
   const { old } = record.generations;
@@ -399,7 +413,7 @@ test('negative-spawned-fallback: the child never serves, the diagnostic and fram
   assert.equal(old.stoppedByCleanup, true);
 });
 
-test('negative-spawned-fallback: cleanup stops the restored original process and leaves no child, port or orphan behind', async () => {
+test('control-update-respawn-fallback: cleanup stops the restored original process and leaves no child, port or orphan behind', async () => {
   const { layout, result } = await spawnedFallback();
   const { record } = result;
   assert.equal(record.cleanup.completed, true);
@@ -420,12 +434,12 @@ test('negative-spawned-fallback: cleanup stops the restored original process and
   }
 });
 
-test('negative-spawned-fallback: a helper child of the old generation is not mistaken for the respawned gateway', async () => {
+test('control-update-respawn-fallback: a helper child of the old generation is not mistaken for the respawned gateway', async () => {
   // The product's gateway starts helpers (the codex app server, plugin workers) that inherit its
   // environment, run marker included. Only the respawned gateway invocation is the replacement.
   const layout = await disposableLayout();
   const result = await runRestartControl(
-    controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_HELPER: '1' } }),
+    controlOptions(layout, { caseKind: 'control-update-respawn-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_HELPER: '1' } }),
     testPlatform,
   );
   const { record, grade } = result;
@@ -439,7 +453,7 @@ test('negative-spawned-fallback: a helper child of the old generation is not mis
   assert.equal(await portFree(layout.port), true);
 });
 
-test('negative-spawned-fallback: without the product fallback diagnostic the negative does not hold', async () => {
+test('control-update-respawn-fallback: without the product fallback diagnostic the negative does not hold', async () => {
   const { result } = await spawnedFallback();
   const record = structuredClone(result.record);
   record.fallback.diagnostics = record.fallback.diagnostics.filter((entry) => !/did not become healthy/u.test(entry.line));
@@ -467,7 +481,7 @@ for (const expected of SCRIPTED_BRANCHES) {
   test(`fallback blocked by ${expected.branch}: graded ${expected.class}, never PASS, and the original process does not serve again`, async () => {
     const layout = await disposableLayout();
     const result = await runRestartControl(
-      controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_FALLBACK_BLOCK: expected.branch } }),
+      controlOptions(layout, { caseKind: 'control-update-respawn-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_FALLBACK_BLOCK: expected.branch } }),
       testPlatform,
     );
     assert.equal(result.status, 'completed', JSON.stringify(result.refusals ?? null));
@@ -489,12 +503,23 @@ for (const expected of SCRIPTED_BRANCHES) {
   });
 }
 
-test('negative-spawned-runtime-unavailable: the control removes its own runtime copy, the product names the branch, and it grades a limit', async () => {
-  const layout = await disposableLayout();
-  const result = await runRestartControl(
-    controlOptions(layout, { caseKind: 'negative-spawned-runtime-unavailable', plan: SPAWNED_PLAN }),
-    testPlatform,
-  );
+let runtimeUnavailableRun;
+async function runtimeUnavailable() {
+  if (!runtimeUnavailableRun) {
+    const layout = await disposableLayout();
+    runtimeUnavailableRun = {
+      layout,
+      result: await runRestartControl(
+        controlOptions(layout, { caseKind: 'control-update-respawn-runtime-unavailable', plan: SPAWNED_PLAN }),
+        testPlatform,
+      ),
+    };
+  }
+  return runtimeUnavailableRun;
+}
+
+test('control-update-respawn-runtime-unavailable: the control removes its own runtime copy, the product names the branch, and it grades a limit', async () => {
+  const { layout, result } = await runtimeUnavailable();
   assert.equal(result.status, 'completed', JSON.stringify(result.refusals ?? null));
   const { record, grade } = result;
   const runtime = record.fallback.runtime;
@@ -524,7 +549,7 @@ test('negative-spawned-runtime-unavailable: the control removes its own runtime 
 test('a restart that never reaches the spawned branch is not the fallback proof: in-process restart grades not-exercised, never PASS', async () => {
   const layout = await disposableLayout();
   const result = await runRestartControl(
-    controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_IGNORE_UPDATE_REASON: '1' } }),
+    controlOptions(layout, { caseKind: 'control-update-respawn-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_IGNORE_UPDATE_REASON: '1' } }),
     testPlatform,
   );
   const { grade } = result;
@@ -657,10 +682,10 @@ test('a tracked child that is not the child the product named is a mismatch, and
   assert.equal(grade.negativeControl.holds, false);
 });
 
-test('negative-spawned-fallback: a gateway-looking helper alive before the trigger is not the respawned child', async () => {
+test('control-update-respawn-fallback: a gateway-looking helper alive before the trigger is not the respawned child', async () => {
   const layout = await disposableLayout();
   const result = await runRestartControl(
-    controlOptions(layout, { caseKind: 'negative-spawned-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_HELPER: 'boot' } }),
+    controlOptions(layout, { caseKind: 'control-update-respawn-fallback', plan: SPAWNED_PLAN, gatewayEnv: { RCC_SCRIPT_HELPER: 'boot' } }),
     testPlatform,
   );
   const { record, grade } = result;
@@ -923,6 +948,249 @@ test('a detached descendant left by the old generation is found by its marker, s
   assert.ok(processGone(record.cleanup.orphansTerminated[0]));
   assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
   assert.ok(grade.failures.some((entry) => entry.code === 'resource-retention'));
+});
+
+/* ---------------------------------------------------------------------------------- */
+/* The row verdict. 🌊's final scope ruling (Discord msg 1565927316687691777): the row  */
+/* claims the supervised branch, graded from positive and negative-replacement-never-   */
+/* usable only; the update-respawn controls sit beside it and never feed it.            */
+/* ---------------------------------------------------------------------------------- */
+
+// The row verdict without the control receipts reported beside it.
+function rowPart(rowGrade) {
+  const { controls: _controls, ...row } = rowGrade;
+  return row;
+}
+
+// The worst case a control can present: the positive's own PASS grade, relabelled as an
+// update-respawn control. No real control grades PASS; the row verdict must ignore it anyway.
+function passingControl(positiveResult, caseKind, kind = 'update-respawn-control') {
+  return { case: caseKind, kind, candidateSha: CANDIDATE, docsSha: DOCS, grade: structuredClone(positiveResult.grade) };
+}
+
+async function rowInputs() {
+  const pos = (await positive()).result;
+  const neg = (await supervisedNegative()).result;
+  const fallbackControl = (await spawnedFallback()).result;
+  const unavailableControl = (await runtimeUnavailable()).result;
+  return { pos, neg, fallbackControl, unavailableControl };
+}
+
+test('row verdict: graded from the supervised positive and negative only; the update-respawn controls never change it', async () => {
+  const { pos, neg, fallbackControl, unavailableControl } = await rowInputs();
+  // A control whose own expectation failed, and one that "passes"; neither may move the row.
+  const failingRecord = structuredClone(fallbackControl.record);
+  failingRecord.fallback.diagnostics = failingRecord.fallback.diagnostics.filter((entry) => !/did not become healthy/u.test(entry.line));
+  const failingControl = { record: failingRecord, grade: gradeRestartControl(failingRecord) };
+  assert.equal(failingControl.grade.negativeControl.holds, false);
+  const passing = [passingControl(pos, 'control-update-respawn-fallback'), passingControl(pos, 'control-update-respawn-runtime-unavailable')];
+  const controlSets = [
+    [fallbackControl, unavailableControl],
+    [failingControl],
+    passing,
+    [unavailableControl, ...passing, failingControl, fallbackControl],
+  ];
+  for (const rowCases of [[pos, neg], [neg, pos], [pos], [neg], []]) {
+    const alone = rcc.gradeReturnCovenantRow(rowCases);
+    assert.deepEqual(alone.controls, []);
+    for (const controls of controlSets) {
+      const beside = rcc.gradeReturnCovenantRow([...controls, ...rowCases]);
+      assert.deepEqual(rowPart(beside), rowPart(alone), `controls moved the row graded from [${rowCases.map((entry) => entry.record.case)}]`);
+      assert.equal(beside.controls.length, controls.length);
+    }
+  }
+
+  const row = rcc.gradeReturnCovenantRow([pos, neg, fallbackControl, unavailableControl]);
+  assert.equal(row.row, 'R-CD-RETURN-COVENANT-AUTHORITY');
+  assert.equal(row.verdict, 'PASS-candidate', JSON.stringify(row, null, 2));
+  assert.deepEqual(row.gradedFrom, ['positive', 'negative-replacement-never-usable']);
+  assert.deepEqual(row.reasons, []);
+  assert.deepEqual(row.controls.map((entry) => entry.case), ['control-update-respawn-fallback', 'control-update-respawn-runtime-unavailable']);
+  for (const control of row.controls) {
+    assert.equal(control.kind, 'update-respawn-control');
+    assert.equal(control.feedsRowVerdict, false);
+    assert.equal(control.holds, true, JSON.stringify(control));
+  }
+  // Each case's own record, grade and signed receipt say which kind it is; only the two
+  // supervised cases are row evidence.
+  for (const [result, kind] of [[pos, 'row-positive'], [neg, 'row-negative'], [fallbackControl, 'update-respawn-control'], [unavailableControl, 'update-respawn-control']]) {
+    assert.equal(result.record.kind, kind, result.record.case);
+    assert.equal(result.grade.kind, kind, result.record.case);
+    assert.equal(result.grade.feedsRowVerdict, kind !== 'update-respawn-control', result.record.case);
+    assert.equal(result.receipt.kind, kind, result.record.case);
+  }
+  // The plain in-process restart is named on its own, outside the row claim and the controls.
+  assert.deepEqual(row.namedLimits.map((entry) => entry.name), ['in-process-restart']);
+  assert.match(row.namedLimits[0].anchor, /src\/cli\/gateway-cli\/run-loop\.ts:572-580/u);
+  assert.equal(rcc.RCC_CASES.includes('in-process-restart'), false);
+});
+
+test('row verdict: a passing update-respawn control cannot lift a row whose supervised negative is missing', async () => {
+  const { pos, neg, fallbackControl, unavailableControl } = await rowInputs();
+  assert.equal(fallbackControl.grade.negativeControl.holds, true, 'the control itself holds');
+  const passing = [
+    fallbackControl,
+    unavailableControl,
+    passingControl(pos, 'control-update-respawn-fallback'),
+    passingControl(pos, 'control-update-respawn-runtime-unavailable'),
+  ];
+
+  const noNegative = rcc.gradeReturnCovenantRow([pos, ...passing]);
+  assert.equal(noNegative.verdict, 'PARTIAL-candidate', JSON.stringify(noNegative, null, 2));
+  assert.ok(noNegative.reasons.some((entry) => entry.code === 'supervised-negative-missing'));
+  assert.equal(noNegative.positive.verdict, 'PASS-candidate');
+  assert.equal(noNegative.supervisedNegative.present, false);
+
+  const controlsOnly = rcc.gradeReturnCovenantRow(passing);
+  assert.equal(controlsOnly.verdict, 'MISSING-candidate', JSON.stringify(controlsOnly, null, 2));
+  assert.ok(controlsOnly.reasons.some((entry) => entry.code === 'positive-missing'));
+  assert.ok(controlsOnly.reasons.some((entry) => entry.code === 'supervised-negative-missing'));
+
+  // A control receipt relabelled as either supervised case keeps its control kind and is refused.
+  for (const caseKind of ['negative-replacement-never-usable', 'positive']) {
+    const posing = passingControl(pos, caseKind);
+    const graded = rcc.gradeReturnCovenantRow(caseKind === 'positive' ? [posing, neg] : [pos, posing]);
+    assert.notEqual(graded.verdict, 'PASS-candidate', caseKind);
+    assert.ok(['MISSING-candidate', 'PARTIAL-candidate'].includes(graded.verdict), JSON.stringify(graded, null, 2));
+    assert.ok(graded.reasons.some((entry) => entry.code === 'case-kind-mismatch'), JSON.stringify(graded.reasons));
+  }
+  // The positive's grade presented as the supervised negative carries kind row-positive: refused.
+  const asNegative = { case: 'negative-replacement-never-usable', candidateSha: CANDIDATE, docsSha: DOCS, grade: structuredClone(pos.grade) };
+  assert.equal(rcc.gradeReturnCovenantRow([pos, asNegative, ...passing]).verdict, 'PARTIAL-candidate');
+
+  // A supervised negative that does not hold caps the row as well, whatever the controls show.
+  const emptyRecord = structuredClone(neg.record);
+  const empty = { bytes: 0, sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', tail: '' };
+  emptyRecord.generations.replacement.stdout = empty;
+  emptyRecord.generations.replacement.stderr = empty;
+  const weak = { record: emptyRecord, grade: gradeRestartControl(emptyRecord) };
+  assert.equal(weak.grade.negativeControl.holds, false);
+  const weakRow = rcc.gradeReturnCovenantRow([pos, weak, ...passing]);
+  assert.equal(weakRow.verdict, 'PARTIAL-candidate', JSON.stringify(weakRow, null, 2));
+  assert.ok(weakRow.reasons.some((entry) => entry.code === 'supervised-negative-not-holding'));
+  assert.equal(weakRow.supervisedNegative.failureBodyRetained, false);
+
+  // A supervised negative that grades PASS (impossible from the grader; a forged receipt) means
+  // the control could not refuse PASS, so its positive is not evidence.
+  const forged = { case: 'negative-replacement-never-usable', kind: 'row-negative', candidateSha: CANDIDATE, docsSha: DOCS, grade: { ...structuredClone(neg.grade), verdict: 'PASS-candidate', kind: 'row-negative' } };
+  const forgedRow = rcc.gradeReturnCovenantRow([pos, forged, ...passing]);
+  assert.equal(forgedRow.verdict, 'MISSING-candidate', JSON.stringify(forgedRow, null, 2));
+  assert.ok(forgedRow.reasons.some((entry) => entry.code === 'supervised-negative-not-refused'));
+
+  // The two supervised cases must come from one candidate and one docs harness.
+  const otherCandidate = { ...structuredClone(neg), record: { ...structuredClone(neg.record), candidateSha: 'a'.repeat(40) } };
+  const mismatched = rcc.gradeReturnCovenantRow([pos, otherCandidate]);
+  assert.equal(mismatched.verdict, 'MISSING-candidate', JSON.stringify(mismatched, null, 2));
+  assert.ok(mismatched.reasons.some((entry) => entry.code === 'row-cases-candidate-mismatch'));
+  const otherDocs = { ...structuredClone(neg), record: { ...structuredClone(neg.record), docsSha: 'b'.repeat(40) } };
+  const docsMismatch = rcc.gradeReturnCovenantRow([pos, otherDocs]);
+  assert.equal(docsMismatch.verdict, 'PARTIAL-candidate', JSON.stringify(docsMismatch, null, 2));
+  assert.ok(docsMismatch.reasons.some((entry) => entry.code === 'row-cases-docs-mismatch'));
+
+  // A repeated supervised case grades from the worst of its receipts.
+  const failedPositive = { record: structuredClone(pos.record), grade: { ...structuredClone(pos.grade), verdict: 'FAIL-candidate' } };
+  const repeated = rcc.gradeReturnCovenantRow([pos, failedPositive, neg]);
+  assert.equal(repeated.verdict, 'FAIL-candidate', JSON.stringify(repeated, null, 2));
+  assert.ok(repeated.reasons.some((entry) => entry.code === 'row-case-repeated'));
+});
+
+test('row verdict: the supervised negative grades non-PASS with the observed failure, the outage and noFallback, and claims no fallback', async () => {
+  const { pos, neg } = await rowInputs();
+  const { record, grade } = neg;
+  assert.equal(grade.verdict, 'FAIL-candidate', JSON.stringify(grade, null, 2));
+  assert.equal(grade.kind, 'row-negative');
+  assert.equal(grade.negativeControl.nonPass, true);
+  assert.equal(grade.negativeControl.failureObserved, true);
+  assert.equal(grade.negativeControl.outageObserved, true);
+  assert.equal(grade.negativeControl.noFallback, true);
+  assert.equal(grade.negativeControl.holds, true, JSON.stringify(grade.negativeControl, null, 2));
+
+  const row = rcc.gradeReturnCovenantRow([pos, neg]);
+  const negative = row.supervisedNegative;
+  assert.equal(negative.present, true);
+  assert.equal(negative.case, 'negative-replacement-never-usable');
+  assert.equal(negative.verdict, 'FAIL-candidate');
+  assert.equal(negative.failure, 'replacement-never-usable');
+  assert.equal(negative.failureBodyRetained, true);
+  assert.equal(negative.authorityRetained, true);
+  assert.equal(negative.noFallback, true);
+  assert.equal(negative.fallbackBranch, 'none-on-supervised-branch');
+  assert.equal(negative.outageInterval.observed, true);
+  assert.equal(negative.outageInterval.lastServingBefore.generation, 'old');
+  assert.equal(negative.outageInterval.firstServingAfter, null);
+  assert.equal(negative.outageInterval.open, true);
+  assert.deepEqual(negative.outageInterval, grade.outageInterval);
+  assert.equal(negative.holds, true);
+  assert.equal(row.positive.verdict, 'PASS-candidate');
+  assert.equal(row.positive.outageInterval.firstServingAfter.generation, 'replacement');
+
+  // No old-process fallback may be claimed on this branch: if the original process served
+  // again after it exited, the negative does not hold and the row is not PASS.
+  const restored = structuredClone(record);
+  const { old } = restored.generations;
+  for (const sample of restored.observation.samples) {
+    if (sample.atMs <= old.exitedAtMs) continue;
+    Object.assign(sample, {
+      listener: { ...sample.listener, owner: 'old', inode: old.listen.inode + 1, ownerPid: old.pid, ownerStartTicks: old.startTicks },
+      readyz: { ...sample.readyz, status: 200, ready: true },
+      hello: { ok: true, bootIdSha256: 'b'.repeat(64), error: null },
+      servingGeneration: 'old',
+    });
+  }
+  const restoredGrade = gradeRestartControl(restored);
+  assert.notEqual(restoredGrade.verdict, 'PASS-candidate');
+  assert.equal(restoredGrade.negativeControl.noFallback, false);
+  assert.equal(restoredGrade.negativeControl.outageObserved, false);
+  assert.equal(restoredGrade.negativeControl.holds, false);
+  const restoredRow = rcc.gradeReturnCovenantRow([pos, { record: restored, grade: restoredGrade }]);
+  assert.equal(restoredRow.verdict, 'PARTIAL-candidate', JSON.stringify(restoredRow, null, 2));
+  assert.equal(restoredRow.supervisedNegative.noFallback, false);
+  assert.ok(restoredRow.reasons.some((entry) => entry.code === 'supervised-negative-not-holding'));
+});
+
+test('row verdict from signed receipts: the CLI counts only verified receipts, and controls stay beside the verdict', async () => {
+  const { pos, neg, fallbackControl, unavailableControl } = await rowInputs();
+  const runs = [await positive(), await supervisedNegative(), await spawnedFallback(), await runtimeUnavailable()];
+  const receipts = runs.map((run) => path.join(run.layout.artifactDir, 'observer-receipt.json'));
+  const keyFile = runs[0].layout.keyFile;
+  const script = path.join(here, '..', 'run-return-covenant-restart-control.mjs');
+  const gradeRow = (files, key = keyFile) => spawnSync(process.execPath, [
+    script,
+    ...files.flatMap((file) => ['--grade-row', file]),
+    ...(key ? ['--observer-key-file', key] : []),
+  ], { encoding: 'utf8', timeout: 60_000 });
+  const parse = (result) => JSON.parse(result.stdout.slice(0, result.stdout.lastIndexOf('\nROW VERDICT: ')));
+
+  const all = gradeRow(receipts);
+  assert.equal(all.status, 0, all.stderr);
+  const graded = parse(all);
+  assert.equal(graded.verdict, 'PASS-candidate', all.stdout);
+  assert.match(all.stdout, /\nROW VERDICT: PASS-candidate\n$/u);
+  assert.deepEqual(graded.unverifiedReceipts, []);
+  assert.deepEqual(graded.controls.map((entry) => [entry.case, entry.feedsRowVerdict]), [
+    ['control-update-respawn-fallback', false],
+    ['control-update-respawn-runtime-unavailable', false],
+  ]);
+  assert.deepEqual(rowPart(graded), rowPart(parse(gradeRow(receipts.slice(0, 2)))));
+  assert.equal(graded.verdict, rcc.gradeReturnCovenantRow([pos, neg, fallbackControl, unavailableControl]).verdict);
+
+  // A tampered supervised negative does not verify, so it is not counted: the row cannot pass.
+  const scratch = await mkdtemp(path.join(os.tmpdir(), 'rcc-row-'));
+  const tampered = path.join(scratch, 'negative-tampered.json');
+  const negative = JSON.parse(await readFile(receipts[1], 'utf8'));
+  negative.grade.negativeControl.holds = !negative.grade.negativeControl.holds;
+  await writeFile(tampered, JSON.stringify(negative));
+  const withTampered = gradeRow([receipts[0], tampered, receipts[2], receipts[3]]);
+  assert.equal(withTampered.status, 0, withTampered.stderr);
+  const tamperedRow = parse(withTampered);
+  assert.equal(tamperedRow.verdict, 'PARTIAL-candidate', withTampered.stdout);
+  assert.deepEqual(tamperedRow.unverifiedReceipts.map((entry) => entry.case), ['negative-replacement-never-usable']);
+  assert.ok(tamperedRow.reasons.some((entry) => entry.code === 'supervised-negative-missing'));
+
+  // Without the observer key nothing can be verified, so the CLI refuses to grade the row.
+  const keyless = gradeRow(receipts, null);
+  assert.equal(keyless.status, 2, keyless.stdout);
+  assert.match(keyless.stderr, /--observer-key-file/u);
 });
 
 /* ---------------------------------------------------------------------------------- */

@@ -870,15 +870,22 @@ stopped `$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe
 `scripts/proof-gw/composite-launcher.sh` on a free loopback port that is not the live
 gateway's.
 
-It has four cases on F′'s two full-process restart branches:
+It has two row cases and two optional controls. 🌊's final scope ruling (Discord msg
+1565927316687691777) scopes the row's claim to the supervised branch the fleet runs:
 
 - `positive` and `negative-replacement-never-usable` run the control as the declared external
   supervisor (`OPENCLAW_SUPERVISOR_MODE=external`). That is the supervised branch, the one
   systemd-supervised fleet seats take. On it the control consumes the restart handoff and
-  starts the replacement.
-- `negative-spawned-fallback` and `negative-spawned-runtime-unavailable` set no supervisor hint
-  and restart with reason `update.run`, which takes the spawned branch. There the product spawns
-  the child and, when it is unhealthy, falls back in-process or refuses on a named branch.
+  starts the replacement. The row verdict is graded from `positive` and
+  `negative-replacement-never-usable` only.
+- `control-update-respawn-fallback` and `control-update-respawn-runtime-unavailable` (kind
+  `update-respawn-control`) set no supervisor hint and restart with reason `update.run`, which
+  takes the spawned branch. There the product spawns the child and, when it is unhealthy, falls
+  back in-process or refuses on a named branch. They are not evidence for the fleet restart
+  claim: their receipts sit beside the row verdict and never feed it, and they run only when
+  reviewers want the update-path evidence.
+- The plain in-process restart of an unmanaged gateway is a named limit, `in-process-restart`,
+  outside both.
 
 ```bash
 node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
@@ -887,9 +894,18 @@ node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
   --case positive --artifact-dir <new directory> --observer-key-file <0600 key file>
 ```
 
-Run `--case negative-replacement-never-usable`, `--case negative-spawned-fallback` and
-`--case negative-spawned-runtime-unavailable` next, each into a new directory. Each must grade
-non-PASS with `negativeControl.holds: true`. The spawned fallback's restored original process
+Run `--case negative-replacement-never-usable` next, into a new directory. It must grade non-PASS
+with `negativeControl.holds: true`: the observed failure, the outage, the authority retained and
+`noFallback`. Then grade the row from the two signed receipts:
+
+```bash
+node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs --observer-key-file <0600 key file> \
+  --grade-row <positive dir>/observer-receipt.json \
+  --grade-row <negative dir>/observer-receipt.json
+```
+
+The update-respawn controls, when wanted, run the same way with their own `--case`. Each must also
+grade non-PASS with `negativeControl.holds: true`. The fallback control's restored original process
 is old-process restoration, never fresh-successor proof. Raw process output stays in
 `<artifact-dir>.private`, which is never published. See
 [`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).

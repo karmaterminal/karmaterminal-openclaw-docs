@@ -18,6 +18,7 @@ import {
 export const RCC_ROW = 'R-CD-RETURN-COVENANT-AUTHORITY';
 export const RCC_SCHEMA = 'openclaw.k6.return-covenant-restart-control.v1';
 export const RCC_REFUSAL_SCHEMA = 'openclaw.k6.return-covenant-restart-control-refusal.v1';
+export const RCC_ROW_VERDICT_SCHEMA = 'openclaw.k6.return-covenant-row-verdict.v1';
 // A launcher-held key the gateway processes never receive (they get a cleared env), so the
 // candidate under test cannot sign its own observation. Distinct from the gateway-token
 // HMAC that R-CD-2/R-CD-TOKEN use.
@@ -25,29 +26,51 @@ export const RCC_OBSERVER_ALGORITHM = 'hmac-sha256-proof-observer-key-v1';
 export const RCC_CASES = Object.freeze([
   'positive',
   'negative-replacement-never-usable',
-  'negative-spawned-fallback',
-  'negative-spawned-runtime-unavailable',
+  'control-update-respawn-fallback',
+  'control-update-respawn-runtime-unavailable',
 ]);
-// A negative case exists to refuse PASS; none can ever grade PASS.
+// Every case but the positive exists to refuse PASS: the row's supervised negative and the
+// update-respawn controls. None can ever grade PASS.
 export const RCC_NEGATIVE_CASES = Object.freeze(RCC_CASES.filter((caseKind) => caseKind !== 'positive'));
 /**
- * Which F′ restart branch each case drives, and how (anchors at f15237ec92):
+ * Which F′ restart branch each case drives, how, and what kind of evidence it is (anchors at
+ * f15237ec92). 🌊's final scope ruling (Discord msg 1565927316687691777) scopes the row's claim to
+ * the supervised branch the fleet runs:
  * - supervised: OPENCLAW_SUPERVISOR_MODE=external, so the run loop writes the restart handoff,
  *   closes and exits (src/cli/gateway-cli/run-loop.ts:497-561). Systemd-supervised fleet seats
  *   take this same branch with supervisor systemd. It has no in-process fallback once the
- *   handoff is written.
+ *   handoff is written. Kinds row-positive and row-negative: the row verdict is graded from
+ *   these two cases only (gradeReturnCovenantRow).
  * - spawned: no supervisor at all, and the update-process reason update.run
  *   (run-loop-request.ts:33-35), so the run loop calls respawnGatewayProcessForUpdate
  *   (src/infra/process-respawn.ts:282-307) and observes the child's readiness
- *   (run-loop.ts:459-495). restartGatewayProcessWithFreshPid never spawns
- *   (process-respawn.ts:231-273): a plain restart of an unmanaged gateway is in-process
- *   (run-loop.ts:572-580).
+ *   (run-loop.ts:459-495). Kind update-respawn-control: it tests the update-respawn fallback, a
+ *   distinct control that is not evidence for the fleet restart claim and never feeds the row
+ *   verdict. restartGatewayProcessWithFreshPid never spawns (process-respawn.ts:231-273): a
+ *   plain restart of an unmanaged gateway is in-process (run-loop.ts:572-580), which is
+ *   RCC_IN_PROCESS_RESTART, a named limit and no case at all.
  */
 export const RCC_CASE_BRANCH = Object.freeze({
-  positive: Object.freeze({ branch: 'supervised', supervisorMode: 'external', restartReason: 'gateway.restart' }),
-  'negative-replacement-never-usable': Object.freeze({ branch: 'supervised', supervisorMode: 'external', restartReason: 'gateway.restart' }),
-  'negative-spawned-fallback': Object.freeze({ branch: 'spawned', supervisorMode: null, restartReason: 'update.run' }),
-  'negative-spawned-runtime-unavailable': Object.freeze({ branch: 'spawned', supervisorMode: null, restartReason: 'update.run' }),
+  positive: Object.freeze({ kind: 'row-positive', branch: 'supervised', supervisorMode: 'external', restartReason: 'gateway.restart' }),
+  'negative-replacement-never-usable': Object.freeze({ kind: 'row-negative', branch: 'supervised', supervisorMode: 'external', restartReason: 'gateway.restart' }),
+  'control-update-respawn-fallback': Object.freeze({ kind: 'update-respawn-control', branch: 'spawned', supervisorMode: null, restartReason: 'update.run' }),
+  'control-update-respawn-runtime-unavailable': Object.freeze({ kind: 'update-respawn-control', branch: 'spawned', supervisorMode: null, restartReason: 'update.run' }),
+});
+// The cases the row verdict is graded from, and the controls reported beside it.
+export const RCC_ROW_CASES = Object.freeze(RCC_CASES.filter((caseKind) => RCC_CASE_BRANCH[caseKind].kind !== 'update-respawn-control'));
+export const RCC_UPDATE_RESPAWN_CONTROLS = Object.freeze(RCC_CASES.filter((caseKind) => RCC_CASE_BRANCH[caseKind].kind === 'update-respawn-control'));
+/**
+ * The plain in-process restart, named on its own (🌊: "Name the plain in-process case
+ * separately"). An unmanaged gateway restarted without an update-process reason restarts in
+ * place under the same PID, with no child and no handoff. It is neither the row's supervised
+ * claim nor an update-respawn control, and no case drives it; a control run that lands there
+ * grades not-exercised (MISSING).
+ */
+export const RCC_IN_PROCESS_RESTART = Object.freeze({
+  name: 'in-process-restart',
+  class: 'limit',
+  anchor: 'src/cli/gateway-cli/run-loop.ts:572-580',
+  detail: 'an unmanaged gateway restarted without an update-process reason restarts in-process under the same PID; neither the row claim nor an update-respawn control covers it',
 });
 // Every environment key F′ reads as a supervisor or respawn hint on Linux
 // (src/infra/supervisor-markers.ts:5-22, src/infra/process-respawn.ts:56-71). The control
@@ -74,9 +97,9 @@ export const RCC_SPAWN_DIAGNOSTICS = Object.freeze({
 /**
  * The exits that stop the spawned branch's in-process fallback, in the order
  * reacquireAndResumeInProcessRestart checks them (src/cli/gateway-cli/run-loop.ts:266-360), each
- * with the product's diagnostic. 🌊's negative holds only "if the old runtime is viable and not
- * replaced": a limit is the product declining an in-process recovery whose precondition is false;
- * the one failure is the fallback itself failing. Neither is ever PASS.
+ * with the product's diagnostic. 🌊's fork ruling: the fallback holds only "if the old runtime is
+ * viable and not replaced": a limit is the product declining an in-process recovery whose
+ * precondition is false; the one failure is the fallback itself failing. Neither is ever PASS.
  */
 export const RCC_FALLBACK_BRANCHES = Object.freeze([
   Object.freeze({
@@ -142,6 +165,12 @@ export const RCC_VERDICTS = Object.freeze([
   'FAIL-candidate',
   'MISSING-candidate',
 ]);
+const CORPUS_STATE_CEILING = Object.freeze({
+  'PASS-candidate': 'pass',
+  'PARTIAL-candidate': 'partial',
+  'FAIL-candidate': 'fail',
+  'MISSING-candidate': 'missing',
+});
 // The live fleet gateway's default port. Every seat's live gateway uses it unless its own
 // ~/.openclaw/openclaw.json says otherwise, and the guard refuses both.
 export const LIVE_GATEWAY_DEFAULT_PORT = 18789;
@@ -667,12 +696,12 @@ export function classifyFallback(record, samples = sortedSamples(record), outage
     childPid: positiveInteger(child.pid) ? child.pid : (child.reportedPid ?? null),
   });
   if (replacementServed || has(RCC_SPAWN_DIAGNOSTICS.accepted)) {
-    return result('replacement-accepted', 'not-exercised', 'a product-spawned replacement served, so the never-usable negative was not exercised', 'src/cli/gateway-cli/run-loop.ts:480-485');
+    return result('replacement-accepted', 'not-exercised', 'a product-spawned replacement served, so the update-respawn control was not exercised', 'src/cli/gateway-cli/run-loop.ts:480-485');
   }
   if (named) return result(named.branch, named.class, `the product refused or failed the in-process fallback (${named.branch})`, named.anchor);
   if (!updateRespawnTaken) {
     return has(RCC_SPAWN_DIAGNOSTICS.inProcess)
-      ? result('in-process-restart', 'not-exercised', 'the restart stayed in-process and spawned no child', 'src/cli/gateway-cli/run-loop.ts:572-580')
+      ? result(RCC_IN_PROCESS_RESTART.name, 'not-exercised', 'the restart stayed in-process and spawned no child', RCC_IN_PROCESS_RESTART.anchor)
       : result('spawned-branch-not-taken', 'not-exercised', 'no child, no update-respawn diagnostic: the spawned branch did not run', 'src/cli/gateway-cli/run-loop.ts:459-495');
   }
   if (restored) {
@@ -887,7 +916,7 @@ export function gradeRestartControl(record) {
     }
   }
 
-  // A negative case that nothing contradicted did not exercise its negative.
+  // A negative or control case that nothing contradicted did not exercise what it tests.
   if (RCC_NEGATIVE_CASES.includes(caseKind) && failures.length === 0 && limits.length === 0 && missingBehaviour.length === 0) {
     missing('negative-not-exercised', 'a negative case must be contradicted; nothing contradicted the positive claim');
   }
@@ -938,19 +967,29 @@ export function gradeRestartControl(record) {
         (keptProbe(transition.httpBodies?.lastObservedNotReady) || keptProbe(transition.httpBodies?.firstPostTriggerNotReady)),
     );
     const replacementNeverUsable = !finiteTime(readyAt) && samples.every((sample) => servingGenerationOf(sample) !== 'replacement');
+    // 🌊's final ruling: the never-serving replacement must produce the observed failure and the
+    // outage, with no old-process fallback claimed.
+    const failureObserved = failures.some((entry) => entry.code === 'replacement-never-usable');
+    const outageObserved = outage.observed === true &&
+      outage.lastServingBefore?.generation === 'old' &&
+      outage.open === true &&
+      outage.firstServingAfter === null;
     negativeControl = {
-      expected: 'non-PASS with the old authority (epoch and fingerprint) and the failure body retained, and no fallback on the supervised branch',
+      expected: 'non-PASS with the observed failure, the outage, the old authority (epoch and fingerprint) and the failure body retained, and no fallback on the supervised branch',
+      nonPass,
+      failureObserved,
       replacementNeverUsable,
+      outageObserved,
       oldAuthorityRetained,
       failureBodyRetained,
       noFallback,
-      holds: nonPass && replacementNeverUsable && oldAuthorityRetained && failureBodyRetained && noFallback,
+      holds: nonPass && failureObserved && replacementNeverUsable && outageObserved && oldAuthorityRetained && failureBodyRetained && noFallback,
     };
   } else if (spawned) {
     const replacementNeverUsable = !lines.some((line) => RCC_SPAWN_DIAGNOSTICS.accepted.test(line)) &&
       samples.every((sample) => servingGenerationOf(sample) !== 'replacement');
     const frameRetained = Boolean(transition.response?.frame && typeof transition.response.frame === 'object');
-    if (caseKind === 'negative-spawned-fallback') {
+    if (caseKind === 'control-update-respawn-fallback') {
       const failureDiagnosticRetained = frameRetained && lines.some((line) => RCC_SPAWN_DIAGNOSTICS.fallingBack.test(line));
       const originalProcessServesAgain = fallback.branch === 'restored';
       const outageMeasured = outage.firstServingAfter?.generation === 'old' && Number.isFinite(outage.ms);
@@ -993,14 +1032,13 @@ export function gradeRestartControl(record) {
     }
   }
 
+  const kind = RCC_CASE_BRANCH[caseKind]?.kind ?? null;
   return {
     verdict,
-    corpusStateCeiling: {
-      'PASS-candidate': 'pass',
-      'PARTIAL-candidate': 'partial',
-      'FAIL-candidate': 'fail',
-      'MISSING-candidate': 'missing',
-    }[verdict],
+    corpusStateCeiling: CORPUS_STATE_CEILING[verdict],
+    // Which evidence this case is: only row-positive and row-negative feed the row verdict.
+    kind,
+    feedsRowVerdict: kind === 'row-positive' || kind === 'row-negative',
     receipts: Object.fromEntries(RCC_RECEIPTS.map((name) => [name, receipts[name] ? 'present' : 'missing'])),
     missingReceipts,
     failures,
@@ -1010,6 +1048,199 @@ export function gradeRestartControl(record) {
     negativeControl,
     outageInterval: outage,
     fallback,
+  };
+}
+
+/* ------------------------------------------------------------------------------------ */
+/* Row verdict                                                                           */
+/* ------------------------------------------------------------------------------------ */
+
+// Lowest first. The row verdict starts from the positive's and only ever moves down.
+const VERDICT_RANK = Object.freeze({ 'FAIL-candidate': 0, 'MISSING-candidate': 1, 'PARTIAL-candidate': 2, 'PASS-candidate': 3 });
+
+function lowerVerdict(a, b) {
+  return VERDICT_RANK[a] <= VERDICT_RANK[b] ? a : b;
+}
+
+// One graded case: a control result ({ record, grade }) or an observer receipt body
+// ({ case, kind, candidateSha, docsSha, grade }). Every kind it states must be the case's own.
+function caseEvidence(entry) {
+  const caseKind = entry?.case ?? entry?.record?.case ?? null;
+  const declared = RCC_CASE_BRANCH[caseKind]?.kind ?? null;
+  const stated = [entry?.kind, entry?.record?.kind, entry?.grade?.kind].filter((kind) => kind !== undefined && kind !== null);
+  return {
+    case: caseKind,
+    declared,
+    kindConsistent: declared !== null && stated.every((kind) => kind === declared),
+    stated,
+    candidateSha: entry?.candidateSha ?? entry?.record?.candidateSha ?? null,
+    docsSha: entry?.docsSha ?? entry?.record?.docsSha ?? null,
+    grade: entry?.grade ?? null,
+  };
+}
+
+function positiveSummary(evidence) {
+  const grade = evidence.grade;
+  return {
+    present: true,
+    case: evidence.case,
+    verdict: grade.verdict,
+    missingReceipts: grade.missingReceipts ?? [],
+    failures: (grade.failures ?? []).map((entry) => entry.code),
+    partials: (grade.partials ?? []).map((entry) => entry.code),
+    missingBehaviour: (grade.missingBehaviour ?? []).map((entry) => entry.code),
+    outageInterval: grade.outageInterval ?? null,
+  };
+}
+
+// 🌻's negative, read against 🌊's final ruling: a supervised replacement that never serves must
+// produce the observed failure and outage, keep the authority and the failure body, grade
+// non-PASS, and claim no old-process fallback.
+function supervisedNegativeSummary(evidence) {
+  const grade = evidence.grade;
+  const control = grade.negativeControl ?? {};
+  const outage = grade.outageInterval ?? null;
+  const summary = {
+    present: true,
+    case: evidence.case,
+    verdict: grade.verdict,
+    nonPass: grade.verdict !== 'PASS-candidate',
+    failure: (grade.failures ?? []).some((entry) => entry.code === 'replacement-never-usable') ? 'replacement-never-usable' : null,
+    failureBodyRetained: control.failureBodyRetained === true,
+    outageInterval: outage,
+    outageObserved: outage?.observed === true &&
+      outage.lastServingBefore?.generation === 'old' &&
+      outage.open === true &&
+      outage.firstServingAfter === null,
+    authorityRetained: control.oldAuthorityRetained === true,
+    noFallback: control.noFallback === true && grade.fallback?.branch === 'none-on-supervised-branch',
+    fallbackBranch: grade.fallback?.branch ?? null,
+  };
+  summary.holds = control.holds === true &&
+    summary.nonPass &&
+    summary.failure !== null &&
+    summary.failureBodyRetained &&
+    summary.outageObserved &&
+    summary.authorityRetained &&
+    summary.noFallback;
+  return summary;
+}
+
+function controlSummary(evidence) {
+  const grade = evidence.grade ?? {};
+  return {
+    case: evidence.case,
+    kind: 'update-respawn-control',
+    feedsRowVerdict: false,
+    kindConsistent: evidence.kindConsistent,
+    verdict: grade.verdict ?? null,
+    holds: grade.negativeControl?.holds === true,
+    fallbackBranch: grade.fallback?.branch ?? null,
+    candidateSha: evidence.candidateSha,
+  };
+}
+
+/**
+ * Grade the row from its two supervised cases only (🌊's final scope ruling, Discord msg
+ * 1565927316687691777): `positive` and `negative-replacement-never-usable` (🌻's negative), both on
+ * the branch systemd-supervised fleet seats take. The update-respawn controls are reported in
+ * `controls`, beside the verdict: they neither raise it nor are required for it, and everything
+ * but `controls` is identical with or without them. The plain in-process restart is a named
+ * limit (`namedLimits`), outside both.
+ *
+ * The verdict starts from the positive's and only moves down:
+ * - no positive: MISSING (positive-missing);
+ * - no supervised negative: at most PARTIAL (supervised-negative-missing);
+ * - a supervised negative that grades PASS: at most MISSING (supervised-negative-not-refused), since
+ *   a control that cannot refuse PASS makes its positive no evidence;
+ * - a supervised negative that does not hold: at most PARTIAL (supervised-negative-not-holding);
+ * - supervised cases from different candidates: at most MISSING; from different docs harnesses: at
+ *   most PARTIAL;
+ * - a repeated supervised case grades from the worst of its receipts (row-case-repeated).
+ * Pass only receipts whose observer signature verified (the CLI's --grade-row does).
+ */
+export function gradeReturnCovenantRow(entries = []) {
+  const reasons = [];
+  const reason = (code, detail) => reasons.push({ code, detail });
+  const rowEvidence = new Map(RCC_ROW_CASES.map((caseKind) => [caseKind, []]));
+  const controls = [];
+  for (const entry of entries) {
+    const evidence = caseEvidence(entry);
+    if (evidence.declared === 'update-respawn-control') {
+      controls.push(controlSummary(evidence));
+      continue;
+    }
+    if (!evidence.declared) {
+      reason('case-unknown', `a receipt for case ${JSON.stringify(evidence.case)} is not a declared case`);
+    } else if (!evidence.kindConsistent) {
+      reason('case-kind-mismatch', `a ${evidence.case} receipt states kind ${JSON.stringify(evidence.stated)}, not ${evidence.declared}; not counted`);
+    } else if (!RCC_VERDICTS.includes(evidence.grade?.verdict)) {
+      reason('case-grade-missing', `a ${evidence.case} receipt carries no graded verdict; not counted`);
+    } else {
+      rowEvidence.get(evidence.case).push(evidence);
+    }
+  }
+
+  const counted = [...rowEvidence.values()].flat();
+  for (const [field, code, ceiling] of [
+    ['candidateSha', 'row-cases-candidate-mismatch', 'MISSING-candidate'],
+    ['docsSha', 'row-cases-docs-mismatch', 'PARTIAL-candidate'],
+  ]) {
+    const values = [...new Set(counted.map((evidence) => evidence[field]))];
+    if (values.length > 1) reason(code, `the supervised cases disagree on ${field}: ${values.join(', ')}`);
+  }
+  for (const [caseKind, list] of rowEvidence) {
+    if (list.length > 1) reason('row-case-repeated', `${list.length} receipts for ${caseKind}; the worst of them is graded`);
+  }
+
+  const positives = rowEvidence.get('positive').map(positiveSummary);
+  const positive = positives.reduce((worst, entry) => (worst && VERDICT_RANK[worst.verdict] <= VERDICT_RANK[entry.verdict] ? worst : entry), null) ??
+    { present: false, case: 'positive' };
+  if (!positive.present) reason('positive-missing', 'no verified positive receipt: the row has no supervised claim to grade');
+
+  const negatives = rowEvidence.get('negative-replacement-never-usable').map(supervisedNegativeSummary);
+  const supervisedNegative = negatives.find((entry) => !entry.nonPass) ??
+    negatives.find((entry) => !entry.holds) ??
+    negatives[0] ??
+    { present: false, case: 'negative-replacement-never-usable' };
+  if (!supervisedNegative.present) {
+    reason('supervised-negative-missing', 'no verified negative-replacement-never-usable receipt: the supervised claim has no negative');
+  } else if (!supervisedNegative.nonPass) {
+    reason('supervised-negative-not-refused', 'the supervised negative graded PASS: a control that cannot refuse PASS makes its positive no evidence');
+  } else if (!supervisedNegative.holds) {
+    const unmet = ['failure', 'failureBodyRetained', 'outageObserved', 'authorityRetained', 'noFallback']
+      .filter((field) => !supervisedNegative[field]);
+    reason('supervised-negative-not-holding', `the supervised negative is non-PASS but does not hold${unmet.length ? ` (${unmet.join(', ')})` : ''}`);
+  }
+
+  const ceilings = {
+    'positive-missing': 'MISSING-candidate',
+    'supervised-negative-missing': 'PARTIAL-candidate',
+    'supervised-negative-not-refused': 'MISSING-candidate',
+    'supervised-negative-not-holding': 'PARTIAL-candidate',
+    'row-cases-candidate-mismatch': 'MISSING-candidate',
+    'row-cases-docs-mismatch': 'PARTIAL-candidate',
+  };
+  let verdict = positive.present ? positive.verdict : 'MISSING-candidate';
+  for (const entry of reasons) if (ceilings[entry.code]) verdict = lowerVerdict(verdict, ceilings[entry.code]);
+  const single = (field) => {
+    const values = [...new Set(counted.map((evidence) => evidence[field]))];
+    return values.length === 1 ? values[0] : null;
+  };
+
+  return {
+    schema: RCC_ROW_VERDICT_SCHEMA,
+    row: RCC_ROW,
+    verdict,
+    corpusStateCeiling: CORPUS_STATE_CEILING[verdict],
+    gradedFrom: [...RCC_ROW_CASES],
+    candidateSha: single('candidateSha'),
+    docsSha: single('docsSha'),
+    positive,
+    supervisedNegative,
+    reasons,
+    namedLimits: [{ ...RCC_IN_PROCESS_RESTART }],
+    controls,
   };
 }
 

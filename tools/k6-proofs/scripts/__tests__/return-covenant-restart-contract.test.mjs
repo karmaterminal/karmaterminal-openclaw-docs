@@ -24,7 +24,12 @@ const RECEIPTS = [
   'observation-record',
   'signed-cleanup-receipt',
 ];
-const CASES = ['positive', 'negative-replacement-never-usable', 'negative-spawned-fallback', 'negative-spawned-runtime-unavailable'];
+// 🌊's final scope ruling (Discord msg 1565927316687691777): the row's verdict is graded from the
+// two supervised cases; the update.run cases are update-respawn controls beside it.
+const ROW_CASES = ['positive', 'negative-replacement-never-usable'];
+const UPDATE_RESPAWN_CONTROLS = ['control-update-respawn-fallback', 'control-update-respawn-runtime-unavailable'];
+const CASES = [...ROW_CASES, ...UPDATE_RESPAWN_CONTROLS];
+const FINAL_RULING = 'Scope the RETURN-COVENANT restart claim to the supervised branch the fleet actually runs. An `update.run` reason on an unmanaged disposable gateway can test the update-respawn fallback, but it is a distinct control—not the negative proving fleet restart. For supervised restart, a replacement that never serves should produce the observed failure/outage, retained authority as applicable, and a non-PASS verdict; do not claim old-process fallback. Name the plain in-process case separately.';
 const NAMED_BRANCHES = ['require-fresh-process', 'child-runtime-unavailable', 'foreground-closed', 'installation-replaced', 'lock-reacquire-failed', 'resources-retained'];
 
 async function manifest() {
@@ -70,7 +75,8 @@ test('the row manifest names the restart control and its receipts, and stays non
   assert.equal(row.scenario.expectedFile, 'r-cd-return-covenant-authority.js');
   assert.equal(row.invocation?.fixture, FIXTURE);
   assert.ok(existsSync(path.join(repoRoot, FIXTURE)));
-  assert.deepEqual(row.invocation.cases, CASES);
+  assert.deepEqual(row.invocation.cases, ROW_CASES);
+  assert.deepEqual(row.invocation.updateRespawnControls, UPDATE_RESPAWN_CONTROLS);
   assert.equal(row.liveRunSafety.classification, 'orchestration-required');
   assert.deepEqual(row.liveRunSafety.requiredReceipts, RECEIPTS);
   assert.deepEqual(row.expectedReceipts.map((receipt) => receipt.name), RECEIPTS);
@@ -85,7 +91,15 @@ test('the grader and the manifest name the same receipts and verdicts', async ()
   const row = await manifest();
   const control = await import(pathToFileURL(path.join(repoRoot, 'tools/k6-proofs/lib/return-covenant-restart-control.mjs')).href);
   assert.deepEqual([...control.RCC_RECEIPTS], row.liveRunSafety.requiredReceipts);
-  assert.deepEqual([...control.RCC_CASES], row.invocation.cases);
+  assert.deepEqual([...control.RCC_CASES], CASES);
+  assert.deepEqual([...control.RCC_ROW_CASES], row.invocation.cases);
+  assert.deepEqual([...control.RCC_UPDATE_RESPAWN_CONTROLS], row.invocation.updateRespawnControls);
+  assert.deepEqual(Object.fromEntries(CASES.map((caseKind) => [caseKind, control.RCC_CASE_BRANCH[caseKind].kind])), {
+    positive: 'row-positive',
+    'negative-replacement-never-usable': 'row-negative',
+    'control-update-respawn-fallback': 'update-respawn-control',
+    'control-update-respawn-runtime-unavailable': 'update-respawn-control',
+  });
   for (const verdict of control.RCC_VERDICTS) {
     assert.ok(row.scenario.notes.includes(verdict), `manifest contract text does not explain ${verdict}`);
   }
@@ -163,15 +177,55 @@ test('the doc, manifest and grader agree on the cases, the fleet branch and ever
     for (const branch of NAMED_BRANCHES) assert.ok(texts[name].includes(branch), `${name} does not name branch ${branch}`);
   }
   // Systemd-supervised fleet seats take the supervised branch, so the positive is the
-  // fleet-relevant case and the spawned negative is the fallback proof.
+  // fleet-relevant case; the update-respawn fallback control proves old-process restoration only.
   assert.match(texts.doc, /systemd-supervised\s+fleet\s+seats/iu);
   assert.match(texts.doc, /src\/cli\/gateway-cli\/run-loop\.ts:497-561/u);
   assert.match(texts.doc, /old-process\s+restoration/u);
   assert.match(texts.manifest, /old-process\s+restoration/u);
-  // On the spawned negatives the child never served, so every named branch grades FAIL-candidate
+  // On the update-respawn controls the child never served, so every named branch grades FAIL-candidate
   // (replacement-never-usable); the text must not promise MISSING for a fallback limit there.
   for (const name of ['doc', 'manifest']) {
     assert.doesNotMatch(texts[name], /limit alone grades MISSING/iu, `${name} contradicts the grader on fallback limits`);
     assert.match(texts[name], /FAIL-candidate[^.]*whichever\s+branch\s+blocked/iu, `${name} does not say a blocked fallback grades FAIL`);
   }
+});
+
+test("🌊's final scope ruling: the row claims the supervised branch, and the update-respawn controls are labelled and kept beside it", async () => {
+  const texts = await contractTexts();
+  // The ruling is quoted verbatim, with 🌻's agreement.
+  assert.ok(texts.doc.includes(FINAL_RULING), 'the doc does not quote 🌊\'s 03:16Z ruling verbatim');
+  assert.match(texts.doc, /1565927316687691777/u);
+  assert.match(texts.doc, /1565922704752779386/u);
+  for (const name of ['manifest', 'scenario', 'pipeline']) assert.match(texts[name], /1565927316687691777/u, `${name} does not cite the final ruling`);
+  // The old case names are gone everywhere the row's contract is written down.
+  for (const [name, text] of Object.entries(texts)) {
+    assert.doesNotMatch(text, /negative-spawned/u, `${name} still names a spawned case as a negative`);
+    assert.doesNotMatch(text, /spawned-branch negative/iu, `${name} still calls the spawned branch a negative of this row`);
+  }
+  // "🌻's negative" is the supervised never-serves case, wherever it is named.
+  for (const name of ['doc', 'manifest', 'scenario']) {
+    const paragraphs = texts[name].split(/\n\s*\n/u).filter((paragraph) => paragraph.includes("🌻's negative"));
+    assert.ok(paragraphs.length > 0, `${name} does not say what 🌻's negative is`);
+    for (const paragraph of paragraphs) {
+      assert.match(paragraph, /negative-replacement-never-usable/u, `${name}: 🌻's negative is not tied to the supervised case`);
+      assert.doesNotMatch(paragraph, /🌻's negative[^.]*(?:update\.run|update-respawn|spawned)/u, `${name}: 🌻's negative is tied to the update-respawn path`);
+    }
+  }
+  // The row verdict, the controls beside it, and the named in-process limit.
+  for (const name of ['doc', 'manifest', 'readme', 'pipeline']) {
+    assert.match(texts[name], /row\s+verdict\s+is\s+graded\s+from\s+`?positive`?\s+and\s+`?negative-replacement-never-usable`?\s+only/iu, `${name} does not scope the row verdict to the supervised cases`);
+    assert.match(texts[name], /not\s+evidence\s+for\s+the\s+fleet\s+restart\s+claim/iu, `${name} does not say the controls are not fleet-restart evidence`);
+    assert.match(texts[name], /update-respawn-control/u, `${name} does not label the controls`);
+    assert.match(texts[name], /in-process-restart/u, `${name} does not name the plain in-process restart`);
+  }
+  assert.match(texts.doc, /^## The update-respawn controls$/mu);
+  assert.match(texts.doc, /^## The plain in-process restart$/mu);
+  assert.match(texts.doc, /^## The row verdict$/mu);
+  assert.doesNotMatch(texts.doc, /^## The spawned-branch negative$/mu);
+  // The controls are optional in the operator loop: no loop runs them with the row's cases.
+  for (const name of ['doc', 'readme']) {
+    assert.doesNotMatch(texts[name], /for CASE in [^\n]*positive[^\n]*control-update-respawn/u, `${name} runs the controls inside the row loop`);
+  }
+  assert.match(texts.doc, /for CASE in positive negative-replacement-never-usable; do/u);
+  assert.match(texts.doc, /--grade-row/u);
 });

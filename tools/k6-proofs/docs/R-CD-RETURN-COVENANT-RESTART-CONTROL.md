@@ -2,19 +2,41 @@
 
 🌊's ruling (Discord msg 1565895695586558120, karmaterminal/openclaw-bootstrap#1727) keeps this
 row required and MISSING until a disposable real-restart control runs on the final successor. The
-run must include 🌻's negative, a replacement that never becomes usable. 🌊's ruling on the fork
-(Discord msg 1565903655885082677) narrows what that negative proves; see
-[The spawned-branch negative](#the-spawned-branch-negative). This document is the operator's guide
-to the control: `tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs`. The product
-path it exercises, with `path:line` anchors at F′ `f15237ec92`, is in the header of
+run must include 🌻's negative, `negative-replacement-never-usable`: a supervised replacement that
+never serves. 🌊's final scope ruling (Discord msg 1565927316687691777, 2026-10-31 03:16Z) says
+what the row claims:
+
+> Scope the RETURN-COVENANT restart claim to the supervised branch the fleet actually runs. An `update.run` reason on an unmanaged disposable gateway can test the update-respawn fallback, but it is a distinct control—not the negative proving fleet restart. For supervised restart, a replacement that never serves should produce the observed failure/outage, retained authority as applicable, and a non-PASS verdict; do not claim old-process fallback. Name the plain in-process case separately.
+
+🌻 agreed (Discord msg 1565922704752779386): the `update.run` drive may test the update-respawn
+negative only when it is labelled as such, never as evidence for the fleet's supervised restart
+path.
+
+So the control has three parts, kept apart:
+
+- **The row's claim: the supervised branch.** The row verdict is graded from `positive` and
+  `negative-replacement-never-usable` only. Both take the branch systemd-supervised fleet seats
+  take. See [The row verdict](#the-row-verdict) and
+  [🌻's negative](#s-negative-negative-replacement-never-usable).
+- **The update-respawn controls.** `control-update-respawn-fallback` and
+  `control-update-respawn-runtime-unavailable` (kind `update-respawn-control`) drive `update.run`
+  on an unmanaged gateway. They are not evidence for the fleet restart claim. Their receipts sit
+  beside the row verdict and never feed it, and the operator runs them only when reviewers want
+  the update-path evidence. See [The update-respawn controls](#the-update-respawn-controls).
+- **The plain in-process restart** is a named limit, `in-process-restart`, outside both. See
+  [The plain in-process restart](#the-plain-in-process-restart).
+
+This document is the operator's guide to the control:
+`tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs`. The product path it exercises,
+with `path:line` anchors at F′ `f15237ec92`, is in the header of
 `tools/k6-proofs/scenarios/r-cd-return-covenant-authority.js`. That k6 entry itself fails closed.
 
 ## What it proves
 
 A delegate's return is bound to the recipient session's authority generation: one UUID epoch per
 logical session key, stored in `session_recipient_authority` in the per-agent database. A gateway
-restart is not a generation edge. So across a real restart, the epoch must stay present and
-unchanged, including the outage where no gateway process serves, and the failure text must
+restart is not a generation edge. So across a real supervised restart, the epoch must stay present
+and unchanged, including the outage where no gateway process serves, and the failure text must
 survive. The rejected base lost the failure body.
 
 **Usable means serving.** A generation is usable only while it owns the listening socket,
@@ -37,15 +59,15 @@ the ruling's receipt list. The product covers the durable-row half in
 
 ## Which restart branch each case drives
 
-F′ has two full-process restart branches with different failure behaviour, and the control drives
-each one on purpose.
+F′ has two full-process restart branches with different failure behaviour. The row's two cases
+drive the supervised one; the update-respawn controls drive the spawned one.
 
-| Case | Supervisor hints in the old generation's environment | Restart reason | F′ branch | What it shows |
-| --- | --- | --- | --- | --- |
-| `positive` | `OPENCLAW_SUPERVISOR_MODE=external` only | `gateway.restart` | supervised (`src/cli/gateway-cli/run-loop.ts:497-561`) | A fresh successor serves under the unchanged epoch. |
-| `negative-replacement-never-usable` | `OPENCLAW_SUPERVISOR_MODE=external` only | `gateway.restart` | supervised | The successor never serves, and this branch has no fallback: nothing serves again. |
-| `negative-spawned-fallback` | none | `update.run` | spawned (`run-loop.ts:459-495`) | The product-spawned child never serves; the original process serves again. |
-| `negative-spawned-runtime-unavailable` | none | `update.run` | spawned | The product refuses the fallback because its child runtime is gone. |
+| Case | Kind | Supervisor hints in the old generation's environment | Restart reason | F′ branch | What it shows |
+| --- | --- | --- | --- | --- | --- |
+| `positive` | `row-positive` | `OPENCLAW_SUPERVISOR_MODE=external` only | `gateway.restart` | supervised (`src/cli/gateway-cli/run-loop.ts:497-561`) | A fresh successor serves under the unchanged epoch. |
+| `negative-replacement-never-usable` | `row-negative` | `OPENCLAW_SUPERVISOR_MODE=external` only | `gateway.restart` | supervised | The successor never serves: the failure and the outage are observed, and this branch has no fallback. |
+| `control-update-respawn-fallback` | `update-respawn-control` | none | `update.run` | spawned (`run-loop.ts:459-495`) | Update path only: the product-spawned child never serves; the original process serves again. |
+| `control-update-respawn-runtime-unavailable` | `update-respawn-control` | none | `update.run` | spawned | Update path only: the product refuses the fallback because its child runtime is gone. |
 
 **Systemd-supervised fleet seats take the supervised branch.** Their gateways carry
 `OPENCLAW_SYSTEMD_UNIT` and systemd's `INVOCATION_ID`, so F′ resolves supervisor `systemd`
@@ -53,7 +75,7 @@ each one on purpose.
 exits, and systemd starts the replacement. The positive case takes the same branch, with the
 control standing in for systemd as the declared external supervisor, so the positive is the
 fleet-relevant case. Once the handoff is written, that branch has no in-process fallback. The
-external-supervisor negative records this as `noFallback`. A proof-gw systemd unit cannot host the
+supervised negative records this as `noFallback`. A proof-gw systemd unit cannot host the
 control itself: `composite-launcher.sh` sets `OPENCLAW_SYSTEMD_UNIT` with `Restart=no`, so a
 supervised restart there exits for good.
 
@@ -63,15 +85,16 @@ supervised restart there exits for good.
   `spawned` (`src/infra/process-respawn.ts:231-273`).
 - Without any supervisor hint, the restart decision is `disabled`/`unmanaged`
   (`process-respawn.ts:56-71`). A plain restart of an unmanaged gateway is therefore in-process
-  under the same PID, with no child (`run-loop.ts:572-580`).
+  under the same PID, with no child (`run-loop.ts:572-580`). That is the named limit in
+  [The plain in-process restart](#the-plain-in-process-restart).
 - The spawned branch runs only for a standalone update: a foreground update handoff, or an
   update-process reason (`update.run` or `update.auto`, `src/cli/gateway-cli/run-loop-request.ts:33-35`)
   with no supervisor. That path calls `respawnGatewayProcessForUpdate`
   (`process-respawn.ts:282-307`), which starts a detached child with inherited stdio and
   environment. `OPENCLAW_NO_RESPAWN` disables it.
 - The untargeted `gateway.restart.request` passes its reason through to the run loop. So the
-  spawned cases send `{reason:"update.run", skipDeferral:true}` without performing an update, and
-  `installationReplacement` is absent by construction.
+  update-respawn controls send `{reason:"update.run", skipDeferral:true}` without performing an
+  update, and `installationReplacement` is absent by construction.
 - The product's own test of this fallback drives it the same way:
   `src/cli/gateway-cli/run-loop.test.ts:1076-1110`.
 
@@ -82,21 +105,91 @@ carries (`OPENCLAW_SUPERVISOR_MODE`, `OPENCLAW_SYSTEMD_UNIT`, `INVOCATION_ID`, `
 keys are not exactly the ones the case needs, the record grades MISSING
 (`branch-precondition-unmet`).
 
-## The spawned-branch negative
+## The row verdict
 
-🌊's ruling: on this branch `handleRestartAfterServerClose` has already closed the old server
-before the child's readiness is observed. On an unready child, the run loop:
+The row verdict is graded from `positive` and `negative-replacement-never-usable` only, by
+`gradeReturnCovenantRow` in `tools/k6-proofs/lib/return-covenant-restart-control.mjs`. The
+operator runs it over the signed receipts with `--grade-row` (see
+[Operator steps](#operator-steps-for-the-f-fire)). It counts only receipts whose observer signature
+verifies. Any other receipt is listed in `unverifiedReceipts` and counted as absent.
+
+The verdict starts from the positive's and only moves down:
+
+| Condition | Row verdict at most | Reason code |
+| --- | --- | --- |
+| no verified `positive` receipt | `MISSING-candidate` | `positive-missing` |
+| no verified `negative-replacement-never-usable` receipt | `PARTIAL-candidate` | `supervised-negative-missing` |
+| the supervised negative graded PASS | `MISSING-candidate` | `supervised-negative-not-refused` |
+| the supervised negative is non-PASS but does not hold | `PARTIAL-candidate` | `supervised-negative-not-holding` |
+| the two cases ran different candidates | `MISSING-candidate` | `row-cases-candidate-mismatch` |
+| the two cases ran different docs harnesses | `PARTIAL-candidate` | `row-cases-docs-mismatch` |
+| a case has more than one receipt | the worst of its receipts | `row-case-repeated` |
+
+So `PASS-candidate` needs a `PASS-candidate` positive and a supervised negative that holds, both
+from one candidate. A control that cannot refuse PASS makes its positive no evidence, which is why
+a passing supervised negative caps the row at MISSING. A receipt that states a kind other than its
+case's is not counted (`case-kind-mismatch`): an update-respawn control relabelled as the
+supervised negative, for example.
+
+The update-respawn control receipts are reported in `controls`, each with
+`kind: update-respawn-control` and `feedsRowVerdict: false`. They neither raise the row verdict
+nor are required for it. Everything in the row verdict except `controls` is identical with or
+without them. The row verdict also lists `namedLimits`: `in-process-restart`.
+
+## 🌻's negative: `negative-replacement-never-usable`
+
+🌻's negative is `negative-replacement-never-usable`. It takes the same supervised branch as the
+positive. After the old generation exits through the accepted handoff, the control binds the port
+itself and then starts the replacement. The replacement retries the held port, logs `another
+gateway instance is already listening on …` and exits nonzero, so it never serves.
+
+Following 🌊's final ruling, it must show all of these, and `negativeControl.holds` requires them:
+
+- **the observed failure:** `replacement-never-usable` in `grade.failures`
+  (`negativeControl.failureObserved`). The failure body is kept (`failureBodyRetained`): the
+  replacement's stderr and stdout, the last not-ready probe body, and the restart frame.
+- **the outage:** `outageInterval` starts at the last serving old sample and stays open to the
+  end of the window (`outageObserved`).
+- **the authority retained:** the epoch is unchanged at every sample and the old generation's
+  fingerprint is kept (`oldAuthorityRetained`). That is retained authority, never a claim that
+  the old generation served.
+- **a non-PASS verdict** (`nonPass`): it grades `FAIL-candidate`.
+- **`noFallback`:** the old generation exited 0 through the accepted handoff and nothing served
+  again. The supervised branch has no in-process fallback once the handoff is written, so no
+  old-process fallback is claimed: `grade.fallback.branch` is `none-on-supervised-branch`.
+
+A record in which the original process serves again after it exited does not hold, and the row
+cannot pass.
+
+## The update-respawn controls
+
+🌊's final ruling keeps the `update.run` path out of the row's claim: an `update.run` reason on an
+unmanaged disposable gateway "can test the update-respawn fallback, but it is a distinct
+control—not the negative proving fleet restart." So `control-update-respawn-fallback` and
+`control-update-respawn-runtime-unavailable` are labelled controls:
+
+- Their case names start with `control-update-respawn-`. Each record, grade and signed receipt
+  also carries `kind: update-respawn-control` and `feedsRowVerdict: false`.
+- They are not evidence for the fleet restart claim. Fleet seats are systemd-supervised and take
+  the supervised branch, never this one.
+- Their receipts sit beside the row verdict: they neither raise it nor are required for it.
+- They are optional in the F″ operator loop. Run them only when reviewers want the update-path
+  evidence.
+
+🌊's earlier ruling on the fork (Discord msg 1565903655885082677) still says what they prove. On
+this branch `handleRestartAfterServerClose` has already closed the old server before the child's
+readiness is observed. On an unready child, the run loop:
 
 1. kills the child;
 2. marks the restart `restart-unhealthy`;
 3. calls `reacquireAndResumeInProcessRestart()` (`run-loop.ts:266-360`).
 
 So continuous old-process service until the replacement is ready is not an invariant here either.
-The negative proves the narrower behaviour: the child is never healthy; the failure body and
-diagnostic are retained; and, if the old runtime is viable and not replaced, the original process
-reacquires the lock and serves again under the preserved authority.
+The fallback control proves the narrower behaviour: the child is never healthy; the failure body
+and diagnostic are retained; and, if the old runtime is viable and not replaced, the original
+process reacquires the lock and serves again under the preserved authority.
 
-`negative-spawned-fallback` drives that path:
+`control-update-respawn-fallback` drives that path:
 
 1. Once the old listener has closed, the control binds the port itself on `127.0.0.1`. F′
    binds that host first in loopback mode, and a failure there is fatal
@@ -114,8 +207,8 @@ reacquires the lock and serves again under the preserved authority.
 4. The product logs `update respawn child did not become healthy (<pid>); falling back to
    in-process restart` and restarts in-process.
 
-The grade must be FAIL-candidate (`replacement-never-usable`), with `negativeControl.holds: true`,
-which requires all of these:
+Its own grade is `FAIL-candidate` (`replacement-never-usable`). Its expectation,
+`negativeControl.holds: true`, requires all of these:
 
 - the update respawn ran (the child was seen, or the product named it);
 - no sample saw the child serving;
@@ -127,31 +220,32 @@ which requires all of these:
   original process serves again.
 
 `grade.fallback.branch` is `restored`, with class `old-process-restoration`. That is old-process
-restoration, never fresh-successor proof, and no negative case can grade PASS.
+restoration, never fresh-successor proof. No control case can grade PASS, and none of it reaches
+the row verdict.
 
 ## Named non-PASS fallback branches
 
-`reacquireAndResumeInProcessRestart` can refuse or fail the fallback. Each refusal has the
-product's own diagnostic, and the control keeps every such line in `fallback.diagnostics`
-(redacted). A **limit** means the product declined an in-process recovery whose precondition is
-false: the old runtime is not viable, or it was replaced. A **failure** means the fallback itself
-failed. Neither is ever PASS. On the spawned negatives the child never served, so the row grades
-FAIL-candidate (`replacement-never-usable`) whichever branch blocked the fallback. The branch and
-its class are recorded in `grade.fallback`, a limit also in `grade.limits` and a failure in
-`grade.failures`.
+These belong to the update-respawn controls. `reacquireAndResumeInProcessRestart` can refuse or
+fail the fallback. Each refusal has the product's own diagnostic, and the control keeps every such
+line in `fallback.diagnostics` (redacted). A **limit** means the product declined an in-process
+recovery whose precondition is false: the old runtime is not viable, or it was replaced. A
+**failure** means the fallback itself failed. Neither is ever PASS. On the update-respawn controls
+the child never served, so the control grades FAIL-candidate (`replacement-never-usable`)
+whichever branch blocked the fallback. The branch and its class are recorded in `grade.fallback`,
+a limit also in `grade.limits` and a failure in `grade.failures`.
 
 | Branch | Product diagnostic | F′ anchor (`run-loop.ts`) | Class | How it is tested |
 | --- | --- | --- | --- | --- |
 | `resources-retained` | `shutdown resources remain; refusing in-process restart and exiting` (exits 0) | `:270-273` | limit | scripted gateway |
 | `require-fresh-process` | `Fresh-process restart failed; the unsettled native worker cannot recover in-process` | `:274-279` | limit | scripted gateway |
-| `child-runtime-unavailable` | `Fresh-process restart failed; the unavailable child runtime cannot recover in-process` | `:280-285` | limit | **induced**: `negative-spawned-runtime-unavailable` |
+| `child-runtime-unavailable` | `Fresh-process restart failed; the unavailable child runtime cannot recover in-process` | `:280-285` | limit | **induced**: `control-update-respawn-runtime-unavailable` |
 | `foreground-closed` | `… did not become healthy (…); shutdown pending; retaining the replacement until it closes` | `:286-288` (warned at `:486-488`) | limit | scripted gateway |
 | `installation-replaced` | `… the replaced runtime cannot resume` / `Cannot continue in this process` | `:308-310`, `:336-338` (exit at `:203-214`) | limit | scripted gateway |
 | `lock-reacquire-failed` | `failed to reacquire gateway lock for in-process restart` | `:313-331` | failure | scripted gateway |
 
 Only the unavailable child runtime can be induced on a disposable gateway:
 
-- `negative-spawned-runtime-unavailable` runs the old generation on a copy of the runtime in
+- `control-update-respawn-runtime-unavailable` runs the old generation on a copy of the runtime in
   `<artifact-dir>.private/runtime/node`, owned by the control, and removes the copy before the
   transition.
 - The product's child spawn then fails, and its viability check finds the runtime missing
@@ -173,7 +267,8 @@ Their grading is tested through the scripted gateway, with each product line and
 The grader classifies anything else as follows:
 
 - **Not exercised** (MISSING, `negative-not-exercised`):
-  - a restart that stayed in-process (`in-process-restart`);
+  - a restart that stayed in-process (`in-process-restart`; see
+    [The plain in-process restart](#the-plain-in-process-restart));
   - one that showed no update respawn at all (`spawned-branch-not-taken`);
   - a fresh child that served (`replacement-accepted`), because the port was not held.
 - **Failure:**
@@ -186,6 +281,20 @@ Other exits the control does not induce land in these failures too:
 - a managed-update cancellation that stays unconfirmed (it remains draining);
 - a stop request during the restart;
 - the shutdown deadline's forced exit.
+
+## The plain in-process restart
+
+🌊's final ruling: "Name the plain in-process case separately." An unmanaged gateway restarted
+without an update-process reason restarts in-process under the same PID, with no child and no
+handoff (`src/cli/gateway-cli/run-loop.ts:572-580`). That is `in-process-restart`, a named limit
+(`RCC_IN_PROCESS_RESTART`), kept apart from both the row's claim and the update-respawn controls:
+
+- No case drives it, so nothing this control records is evidence about it.
+- Every row verdict lists it in `namedLimits`.
+- An update-respawn control run that lands there, because the product ignored `update.run`,
+  grades `MISSING-candidate` (`negative-not-exercised`, branch `in-process-restart`).
+
+Fleet seats do not take it: they are systemd-supervised.
 
 ## How it runs
 
@@ -223,12 +332,14 @@ Other exits the control does not induce land in these failures too:
    - the authority epoch hash.
 5. **Transition.** It sends `gateway.restart.request` with the case's reason and
    `skipDeferral:true`, using `operator.admin`.
-   - On the supervised branch, it waits for the old generation to close and exit 0. Then it runs
-     `gateway restart-handoff consume --expected-pid <old pid> --json`, starts the replacement and
-     verifies it the same way, with a new bootId. `negative-replacement-never-usable` first binds
-     the port itself, so the replacement cannot serve.
-   - On the spawned branch, the product starts and judges the child. The control follows it as
-     described above, then waits for the original process to serve again or to exit.
+   - On the supervised branch (the row's cases), it waits for the old generation to close and
+     exit 0. Then it runs `gateway restart-handoff consume --expected-pid <old pid> --json`,
+     starts the replacement and verifies it the same way, with a new bootId.
+     `negative-replacement-never-usable` first binds the port itself, so the replacement cannot
+     serve.
+   - On the spawned branch (the update-respawn controls), the product starts and judges the
+     child. The control follows it as described above, then waits for the original process to
+     serve again or to exit.
 6. **Cleanup.** It signals only its own generations, after re-checking PID, start ticks and run
    marker.
    - It stops any process still carrying the run marker, which includes a product-spawned child
@@ -237,7 +348,8 @@ Other exits the control does not induce land in these failures too:
    - It keeps the isolated state for `composite-launcher.sh shred`.
 7. **Receipt.** It grades the record, signs `observer-receipt.json` with the observer key
    (`hmac-sha256-proof-observer-key-v1`), and writes raw logs and frames to
-   `<artifact-dir>.private` (mode 0700, never published).
+   `<artifact-dir>.private` (mode 0700, never published). The receipt names the case and its
+   `kind`.
 
 ## Receipts and grading
 
@@ -249,7 +361,7 @@ Other exits the control does not induce land in these failures too:
 | `observation-record` | The plan and the matrix. |
 | `signed-cleanup-receipt` | The cleanup record inside the receipt signed with the observer key. |
 
-The verdicts, from the signed record only:
+Each case's own verdict, from its signed record only:
 
 - **PASS-candidate**, for the positive case only, needs all five receipts and the positive
   behaviour:
@@ -277,15 +389,16 @@ The verdicts, from the signed record only:
   - no established authority;
   - a rejected restart (its body is still kept);
   - unmet branch preconditions;
-  - a negative that was not exercised;
-  - a declared limit with nothing else contradicted. This cannot happen on the spawned negatives,
-    where the child's failure already grades FAIL.
+  - a negative or control that was not exercised;
+  - a declared limit with nothing else contradicted. This cannot happen on the update-respawn
+    controls, where the child's failure already grades FAIL.
 - **PARTIAL-candidate** means an observed, uncontradicted restart with a missing receipt or bound:
   a lost body or output, a missing fingerprint, an unsigned receipt, an unreadable authority
   sample, a short window, or a dirty harness.
 
-No negative case can grade PASS: a negative that nothing contradicted grades MISSING
-(`negative-not-exercised`).
+No case but the positive can grade PASS: a negative or control that nothing contradicted grades
+MISSING (`negative-not-exercised`). These are per-case verdicts. The row's verdict comes only from
+[The row verdict](#the-row-verdict).
 
 Every receipt reports `outageInterval`, which holds:
 
@@ -300,20 +413,20 @@ It is reported, not graded against a bound: no restart path at F′ avoids it. E
 reports `grade.fallback`: the branch and its class, `none-on-supervised-branch` for the supervised
 cases.
 
-Each negative must be non-PASS with `negativeControl.holds: true`:
+Each case other than the positive must be non-PASS with `negativeControl.holds: true`:
 
-- `negative-replacement-never-usable`: the epoch and old fingerprint are retained, the failure body
-  is kept, and `noFallback` holds.
-- `negative-spawned-fallback`: the conditions in
-  [The spawned-branch negative](#the-spawned-branch-negative).
-- `negative-spawned-runtime-unavailable`: the conditions in
+- `negative-replacement-never-usable`: the conditions in
+  [🌻's negative](#s-negative-negative-replacement-never-usable).
+- `control-update-respawn-fallback`: the conditions in
+  [The update-respawn controls](#the-update-respawn-controls).
+- `control-update-respawn-runtime-unavailable`: the conditions in
   [Named non-PASS fallback branches](#named-non-pass-fallback-branches).
 
 ## Operator steps for the F″ fire
 
 Run these on a seat that builds locally, with a stage-only build of the exact successor SHA. Never
-point the control at the live install. The spawned cases default to a 150 s restoration deadline
-inside a 180 s window: the product's readiness wait alone can take 60 s before an in-process boot.
+point the control at the live install. The row needs only its two supervised cases, then the row
+verdict:
 
 ```bash
 SHA=<F″ 40-hex>; DOCS=<merged docs 40-hex>
@@ -325,28 +438,55 @@ W=~/flesh_beast_best_beast/source/WORKTREES/docs-rcc-${DOCS:0:8}
 git -C ~/flesh_beast_best_beast/source/karmaterminal-openclaw-docs worktree add --detach "$W" "$DOCS"
 mkdir -p ~/.config/frond && (umask 077; head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n' > ~/.config/frond/rcc-observer.key)
 OUT=~/proof-runs/RCC-${SHA:0:8}-$(date -u +%Y%m%dT%H%M%SZ)
+RCC=tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs
+KEY=~/.config/frond/rcc-observer.key
 cd "$W"
-for CASE in positive negative-replacement-never-usable negative-spawned-fallback negative-spawned-runtime-unavailable; do
-  node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
+for CASE in positive negative-replacement-never-usable; do
+  node $RCC \
     --proof-gw-dir ~/proof-gw/comp-${SHA:0:8} --stage-dir "$V" \
     --candidate-sha "$SHA" --docs-sha "$DOCS" --case "$CASE" \
-    --artifact-dir "$OUT/$CASE" --observer-key-file ~/.config/frond/rcc-observer.key \
+    --artifact-dir "$OUT/$CASE" --observer-key-file "$KEY" \
     --gateway-env OPENCLAW_CODEX_APP_SERVER_BIN=$HOME/.local/bin/codex \
     --gateway-env NODE_OPTIONS=--max-old-space-size=16384
-  node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
-    --verify "$OUT/$CASE/observer-receipt.json" --observer-key-file ~/.config/frond/rcc-observer.key
+  node $RCC --verify "$OUT/$CASE/observer-receipt.json" --observer-key-file "$KEY"
 done
-bash $L shred $SHA $SHA        # after the receipts are copied
+node $RCC --observer-key-file "$KEY" \
+  --grade-row "$OUT/positive/observer-receipt.json" \
+  --grade-row "$OUT/negative-replacement-never-usable/observer-receipt.json"
+```
+
+Optional: the update-respawn controls, only when reviewers want the update-path evidence. They are
+not evidence for the fleet restart claim, and adding their receipts to `--grade-row` changes
+nothing but its `controls` list. They default to a 150 s restoration deadline inside a 180 s
+window, because the product's readiness wait alone can take 60 s before an in-process boot:
+
+```bash
+for CASE in control-update-respawn-fallback control-update-respawn-runtime-unavailable; do
+  node $RCC \
+    --proof-gw-dir ~/proof-gw/comp-${SHA:0:8} --stage-dir "$V" \
+    --candidate-sha "$SHA" --docs-sha "$DOCS" --case "$CASE" \
+    --artifact-dir "$OUT/$CASE" --observer-key-file "$KEY" \
+    --gateway-env OPENCLAW_CODEX_APP_SERVER_BIN=$HOME/.local/bin/codex \
+    --gateway-env NODE_OPTIONS=--max-old-space-size=16384
+  node $RCC --verify "$OUT/$CASE/observer-receipt.json" --observer-key-file "$KEY"
+done
+```
+
+Then, after the receipts are copied:
+
+```bash
+bash $L shred $SHA $SHA
 ```
 
 Expected:
 
-| Case | Verdict | Also |
+| Evidence | Verdict | Also |
 | --- | --- | --- |
+| row verdict (`--grade-row`) | `PASS-candidate` | `gradedFrom: [positive, negative-replacement-never-usable]`, `reasons: []`, `namedLimits: [in-process-restart]` |
 | `positive` | `PASS-candidate` | `outageInterval` closed, `firstServingAfter.generation: replacement` |
-| `negative-replacement-never-usable` | `FAIL-candidate` | `negativeControl.holds: true`, `noFallback: true`, `outageInterval.open: true` |
-| `negative-spawned-fallback` | `FAIL-candidate` | `negativeControl.holds: true`, `fallback.branch: restored`, `firstServingAfter.generation: old` |
-| `negative-spawned-runtime-unavailable` | `FAIL-candidate` | `negativeControl.holds: true`, `fallback.branch: child-runtime-unavailable` (limit) |
+| `negative-replacement-never-usable` | `FAIL-candidate` | `negativeControl.holds: true`, `failureObserved`, `outageObserved`, `noFallback: true`, `outageInterval.open: true` |
+| `control-update-respawn-fallback` (optional) | `FAIL-candidate` | `kind: update-respawn-control`, `negativeControl.holds: true`, `fallback.branch: restored`, `firstServingAfter.generation: old` |
+| `control-update-respawn-runtime-unavailable` (optional) | `FAIL-candidate` | `kind: update-respawn-control`, `negativeControl.holds: true`, `fallback.branch: child-runtime-unavailable` (limit) |
 
 Publish only `$OUT/<case>/` after review. Never publish `*.private`. Folding into `PROOFS/` is a
 separate, reviewed corpus step. RETURN-COVENANT stays MISSING until this control fires on F″.
@@ -358,5 +498,5 @@ never a false PASS; report it.
 If the positive grades MISSING with `authority-not-established`, or PARTIAL with
 `authority-sample-unreadable`, the record's `authority.error` and the sample reasons say which
 product surface refused. Report it; do not retry with a weaker configuration. The same applies to
-a spawned case that grades `not-exercised` or names an unexpected branch: the retained diagnostic
-lines say which path the product took.
+an update-respawn control that grades `not-exercised` or names an unexpected branch: the retained
+diagnostic lines say which path the product took.

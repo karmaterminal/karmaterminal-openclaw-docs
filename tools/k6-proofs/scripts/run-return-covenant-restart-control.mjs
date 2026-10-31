@@ -16,24 +16,29 @@
  *      /startupz, hello-ok, the generation observed serving, authority epoch) through a window
  *      planned before the transition;
  *   5. request a real restart (gateway.restart.request) and follow the branch the case drives:
- *      - supervised (positive, negative-replacement-never-usable): wait for the old generation
- *        to close and exit, consume the product's restart handoff, start the replacement, and
- *        verify it (owned listener, /readyz, /startupz, hello-ok with a new bootId);
- *      - spawned (negative-spawned-fallback, negative-spawned-runtime-unavailable; reason
- *        update.run, no supervisor): the product spawns and judges the child; the control
- *        follows that child through /proc, keeps the product's diagnostic lines, and waits
- *        for the original process to serve again or exit;
+ *      - supervised (positive, negative-replacement-never-usable; the row's claim): wait for the
+ *        old generation to close and exit, consume the product's restart handoff, start the
+ *        replacement, and verify it (owned listener, /readyz, /startupz, hello-ok with a new
+ *        bootId);
+ *      - spawned (control-update-respawn-fallback, control-update-respawn-runtime-unavailable;
+ *        reason update.run, no supervisor; update-respawn controls, never row evidence): the
+ *        product spawns and judges the child; the control follows that child through /proc,
+ *        keeps the product's diagnostic lines, and waits for the original process to serve
+ *        again or exit;
  *   6. clean up only processes it started or that carry its run marker (PID + start ticks +
  *      run marker), then grade, sign with a launcher-held observer key and write the public
  *      receipt.
  *
- * The negatives refuse PASS by construction. negative-replacement-never-usable holds the port
- * with a control-owned socket before the control starts the replacement (the supervised branch
- * has no fallback). negative-spawned-fallback holds the port from the old listener's close until
- * the product-spawned child is gone, so the child can never serve; the original process must
- * then reacquire and serve again (old-process restoration, never fresh-successor proof).
- * negative-spawned-runtime-unavailable runs the old generation on a control-owned runtime copy
- * and removes it before the transition, so the product refuses the fallback for real. The
+ * Every case but the positive refuses PASS by construction. negative-replacement-never-usable
+ * (🌻's negative) holds the port with a control-owned socket before the control starts the
+ * replacement (the supervised branch has no fallback). The update-respawn controls test the
+ * update.run path, which 🌊's final scope ruling (Discord msg 1565927316687691777) keeps out of
+ * the row's claim: control-update-respawn-fallback holds the port from the old listener's close
+ * until the product-spawned child is gone, so the child can never serve, and the original process
+ * must then reacquire and serve again (old-process restoration, never fresh-successor proof);
+ * control-update-respawn-runtime-unavailable runs the old generation on a control-owned runtime
+ * copy and removes it before the transition, so the product refuses the fallback for real.
+ * `--grade-row` grades the row from the signed receipts of the two supervised cases only. The
  * product path and its F′ anchors are in scenarios/r-cd-return-covenant-authority.js.
  *
  * It never reads OPENCLAW_GATEWAY_TOKEN/WS from the environment, never runs systemctl except
@@ -75,6 +80,7 @@ import {
   boundedBody,
   evaluateDisposableTarget,
   gradeRestartControl,
+  gradeReturnCovenantRow,
   isRestartDiagnostic,
   isSha40,
   observerKeyFingerprint,
@@ -474,6 +480,11 @@ export function parseArgs(argv) {
       '--agent-id': 'agentId',
       '--verify': 'verify',
     }[flag];
+    if (flag === '--grade-row') {
+      (options.gradeRow ??= []).push(value(index));
+      index += 1;
+      continue;
+    }
     if (simple) {
       options[simple] = value(index);
       index += 1;
@@ -496,13 +507,18 @@ const USAGE = `Usage:
   node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \\
     --proof-gw-dir ~/proof-gw/comp-<sha8> --stage-dir <stage-only build dir> \\
     --candidate-sha <40-hex> --docs-sha <40-hex> \\
-    --case positive|negative-replacement-never-usable|negative-spawned-fallback|negative-spawned-runtime-unavailable \\
+    --case positive|negative-replacement-never-usable|control-update-respawn-fallback|control-update-respawn-runtime-unavailable \\
     --artifact-dir <new public dir> --observer-key-file <0600 key file> \\
     [--sample-interval-ms 500] [--observation-window-ms 90000] [--readiness-deadline-ms 60000] \\
     [--transition-deadline-ms 45000] [--boot-timeout-ms 120000] [--pre-trigger-samples 4] \\
     [--agent-id main] [--node <node>] [--gateway-env KEY=VALUE]...
   node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \\
-    --verify <observer-receipt.json> --observer-key-file <key file>`;
+    --verify <observer-receipt.json> --observer-key-file <key file>
+  node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \\
+    --grade-row <observer-receipt.json> [--grade-row <observer-receipt.json>]... --observer-key-file <key file>
+
+The row verdict is graded from the positive and negative-replacement-never-usable receipts only;
+update-respawn control receipts are reported beside it and never feed it.`;
 
 /* ------------------------------------------------------------------------------------ */
 /* Control                                                                               */
@@ -635,10 +651,10 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   mkdirSync(artifactDir, { recursive: true });
   mkdirSync(privateDir, { recursive: true, mode: 0o700 });
   chmodSync(privateDir, 0o700);
-  // negative-spawned-runtime-unavailable runs the old generation on a runtime copy the control
+  // control-update-respawn-runtime-unavailable runs the old generation on a runtime copy the control
   // owns, inside its private directory, and removes that copy before the transition, so the
   // product's child-runtime viability check fails for real (src/infra/child-runtime-viability.ts:48-62).
-  const runtimeCopy = caseKind === 'negative-spawned-runtime-unavailable' ? path.join(privateDir, 'runtime', 'node') : null;
+  const runtimeCopy = caseKind === 'control-update-respawn-runtime-unavailable' ? path.join(privateDir, 'runtime', 'node') : null;
   const removeRuntimeCopy = () => {
     if (runtimeCopy && existsSync(runtimeCopy)) unlinkSync(runtimeCopy);
   };
@@ -661,7 +677,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   const redact = (text) => redactText(text, secrets);
 
   // A cleared environment: the supervisor hints are exactly what the case's branch needs. The
-  // supervised cases declare the external supervisor; the spawned cases carry no hint at all
+  // supervised cases declare the external supervisor; the update-respawn controls carry no hint at all
   // (no OPENCLAW_SUPERVISOR_MODE, no OPENCLAW_SYSTEMD_UNIT, no systemd invocation variables), so
   // F′ resolves the unmanaged decision (src/infra/process-respawn.ts:56-71).
   const branch = RCC_CASE_BRANCH[caseKind];
@@ -684,6 +700,8 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     row: RCC_ROW,
     runId,
     case: caseKind,
+    // row-positive and row-negative feed the row verdict; an update-respawn-control never does.
+    kind: branch.kind,
     candidateSha: options.candidateSha,
     docsSha: options.docsSha,
     docs: { sha: docs.sha, clean: docs.clean === true },
@@ -727,7 +745,8 @@ async function executeControl({ options, platform, plan, target, docs, home, art
 
   const generations = {};
   const state = { triggerAtMs: null, replacementReadyAt: null, stopSampling: false, lastPreTrigger: null, rawEpoch: null, preTriggerChildren: new Set(), pendingChild: null };
-  // The control-held port (the negatives' "replacement never usable"), opened and closed only here.
+  // The control-held port (the supervised negative's and the fallback control's "replacement never
+  // usable"), opened and closed only here.
   const held = { server: null, open: false, used: false };
   const holdPort = async () => {
     const server = net.createServer((socket) => socket.destroy());
@@ -1011,7 +1030,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
 
   /**
    * The spawned branch after an accepted restart. The old server closes first (no listener on
-   * the port); negative-spawned-fallback then holds the port so the product's child can never
+   * the port); control-update-respawn-fallback then holds the port so the product's child can never
    * serve, and releases it only once that child is gone: a dead child cannot become healthy,
    * and the product's own listen retry (src/gateway/server/http-listen.ts:6-7) would otherwise
    * let a live one bind. Then it waits for the original process to serve again or to exit.
@@ -1024,7 +1043,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const closed = await waitUntil(() => old.exited || listenInodes(target.port).length === 0, transitionDeadline, 10);
     if (!closed) return;
     fallback.oldListenerClosedAtMs = now();
-    if (caseKind === 'negative-spawned-fallback' && !old.exited) {
+    if (caseKind === 'control-update-respawn-fallback' && !old.exited) {
       try {
         await holdPort();
         fallback.blocker = { bound: true, boundAtMs: now(), releasedAtMs: null, releasedOn: null };
@@ -1423,6 +1442,7 @@ function finishReceipt({ record, observerKey, artifactDir, secrets, state }) {
     row: RCC_ROW,
     runId: record.runId,
     case: record.case,
+    kind: record.kind,
     candidateSha: record.candidateSha,
     docsSha: record.docsSha,
     generatedAt: new Date().toISOString(),
@@ -1485,8 +1505,33 @@ async function main(argv) {
     const receipt = JSON.parse(readFileSync(options.verify, 'utf8'));
     const key = options.observerKeyFile ? readFileSync(options.observerKeyFile, 'utf8').trim() : '';
     const valid = verifyObserverReceipt(receipt, key);
-    console.log(JSON.stringify({ valid, verdict: receipt.verdict ?? null }));
+    console.log(JSON.stringify({ valid, verdict: receipt.verdict ?? null, kind: receipt.kind ?? null }));
     return valid ? 0 : 1;
+  }
+  if (options.gradeRow) {
+    // Only a receipt whose observer signature verifies is counted; without the key none can be.
+    if (!options.observerKeyFile) {
+      console.error(`--grade-row needs --observer-key-file: only receipts whose observer signature verifies are counted\n${USAGE}`);
+      return 2;
+    }
+    const key = readFileSync(options.observerKeyFile, 'utf8').trim();
+    const verified = [];
+    const unverifiedReceipts = [];
+    for (const file of options.gradeRow) {
+      let receipt = null;
+      try {
+        receipt = JSON.parse(readFileSync(file, 'utf8'));
+      } catch (error) {
+        unverifiedReceipts.push({ file, case: null, error: String(error?.code ?? 'unreadable') });
+        continue;
+      }
+      if (verifyObserverReceipt(receipt, key)) verified.push(receipt);
+      else unverifiedReceipts.push({ file, case: receipt?.case ?? null, error: 'signature-not-verified' });
+    }
+    const rowGrade = gradeReturnCovenantRow(verified);
+    console.log(JSON.stringify({ ...rowGrade, unverifiedReceipts }, null, 2));
+    console.log(`ROW VERDICT: ${rowGrade.verdict}`);
+    return 0;
   }
   installInterruptCleanup();
   const result = await runRestartControl(options);
@@ -1497,6 +1542,8 @@ async function main(argv) {
   console.log(JSON.stringify({
     row: RCC_ROW,
     case: result.record.case,
+    kind: result.grade.kind,
+    feedsRowVerdict: result.grade.feedsRowVerdict,
     verdict: result.grade.verdict,
     missingReceipts: result.grade.missingReceipts,
     failures: result.grade.failures.map((entry) => entry.code),
@@ -1504,6 +1551,9 @@ async function main(argv) {
     negativeControl: result.grade.negativeControl,
   }, null, 2));
   console.log(`VERDICT: ${result.grade.verdict}`);
+  if (!result.grade.feedsRowVerdict) {
+    console.log('This case is an update-respawn control: it is not evidence for the fleet restart claim and never feeds the row verdict (--grade-row).');
+  }
   return 0;
 }
 

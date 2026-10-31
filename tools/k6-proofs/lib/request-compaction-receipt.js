@@ -185,6 +185,11 @@ export function rrc1RejectionVerdict(facts) {
     return fail(`guard ${f.guard ?? 'missing'} named cause ${f.cause} on the live seat`);
   }
   if (f.guard === 'context_threshold') {
+    // The live causes belong to context_unmeasured: a measured threshold receipt that
+    // names one contradicts itself, and its numbers must not override the cause (🌊).
+    if (LIVE_UNMEASURED_CAUSES.includes(f.cause)) {
+      return fail(`context_threshold names the unmeasured cause ${f.cause} (inconsistent receipt)`);
+    }
     if (finiteNumber(f.contextUsage) === null || finiteNumber(f.threshold) === null) {
       return fail('context_threshold without a measured contextUsage and threshold');
     }

@@ -651,9 +651,10 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   mkdirSync(artifactDir, { recursive: true });
   mkdirSync(privateDir, { recursive: true, mode: 0o700 });
   chmodSync(privateDir, 0o700);
-  // control-update-respawn-runtime-unavailable runs the old generation on a runtime copy the control
-  // owns, inside its private directory, and removes that copy before the transition, so the
-  // product's child-runtime viability check fails for real (src/infra/child-runtime-viability.ts:48-62).
+  // control-update-respawn-runtime-unavailable runs the old generation on a runtime copy the
+  // control owns, inside its private directory, and removes that copy before the transition, so
+  // the product's child-runtime viability check fails for real
+  // (src/infra/child-runtime-viability.ts:48-62).
   const runtimeCopy = caseKind === 'control-update-respawn-runtime-unavailable' ? path.join(privateDir, 'runtime', 'node') : null;
   const removeRuntimeCopy = () => {
     if (runtimeCopy && existsSync(runtimeCopy)) unlinkSync(runtimeCopy);
@@ -677,9 +678,9 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   const redact = (text) => redactText(text, secrets);
 
   // A cleared environment: the supervisor hints are exactly what the case's branch needs. The
-  // supervised cases declare the external supervisor; the update-respawn controls carry no hint at all
-  // (no OPENCLAW_SUPERVISOR_MODE, no OPENCLAW_SYSTEMD_UNIT, no systemd invocation variables), so
-  // F′ resolves the unmanaged decision (src/infra/process-respawn.ts:56-71).
+  // supervised cases declare the external supervisor; the update-respawn controls carry no hint
+  // at all (no OPENCLAW_SUPERVISOR_MODE, no OPENCLAW_SYSTEMD_UNIT, no systemd invocation
+  // variables), so F′ resolves the unmanaged decision (src/infra/process-respawn.ts:56-71).
   const branch = RCC_CASE_BRANCH[caseKind];
   const childEnv = {
     HOME: home,
@@ -1030,8 +1031,8 @@ async function executeControl({ options, platform, plan, target, docs, home, art
 
   /**
    * The spawned branch after an accepted restart. The old server closes first (no listener on
-   * the port); control-update-respawn-fallback then holds the port so the product's child can never
-   * serve, and releases it only once that child is gone: a dead child cannot become healthy,
+   * the port); control-update-respawn-fallback then holds the port so the product's child can
+   * never serve, and releases it only once that child is gone: a dead child cannot become healthy,
    * and the product's own listen retry (src/gateway/server/http-listen.ts:6-7) would otherwise
    * let a live one bind. Then it waits for the original process to serve again or to exit.
    */

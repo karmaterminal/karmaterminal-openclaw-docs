@@ -73,7 +73,13 @@ test('the row manifest names the restart control and its receipts, and stays non
   assert.equal(row.rowId, 'R-CD-RETURN-COVENANT-AUTHORITY');
   assert.equal(row.scenario.status, 'scaffold');
   assert.equal(row.scenario.expectedFile, 'r-cd-return-covenant-authority.js');
-  assert.equal(row.invocation?.fixture, FIXTURE);
+  // The control restarts a real disposable gateway process, so it is declared as that class under
+  // invocation.control, never as a process-local fixture (invocation.fixture), which the ruling on
+  // docs#616 caps at PARTIAL-candidate.
+  assert.equal(row.invocation?.control, FIXTURE);
+  assert.equal(row.invocation.artifactClass, 'disposable-real-process');
+  assert.equal(Object.prototype.hasOwnProperty.call(row.invocation, 'fixture'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(row, 'verdictCap'), false);
   assert.ok(existsSync(path.join(repoRoot, FIXTURE)));
   assert.deepEqual(row.invocation.cases, ROW_CASES);
   assert.deepEqual(row.invocation.updateRespawnControls, UPDATE_RESPAWN_CONTROLS);

@@ -938,7 +938,8 @@ fixture, which is not an external gateway invocation. Each manifest declares the
 cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
 `artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
 requires that declaration of every row whose `transport` is process-local
-(however spelled) or that names a process-local fixture (`invocation.fixture`).
+(however spelled), that names a process-local fixture (`invocation.fixture`), or
+that the ruling names (R-CW-5, R-CW-6, by id).
 A declared transport outside the schema's list is refused rather than read as
 "not process-local", and the grader also refuses a manifest with no transport. The cap is read from the declaration, never inferred from prose,
 and the rules live in `lib/row-verdict-cap.mjs`.
@@ -963,10 +964,12 @@ the new check by the same frozen list: 52 of them record R-CW-5/6 `pass`, and th
 validate exactly as before. The exemption also pins what each one's capped rows
 recorded at the cap ruling (`scripts/pre-cap-ruling-capped-row-states.json`, the
 R-CW-5/6 states at docs main `7e544c04`). A capped row in a frozen-named corpus
-that is new, changed or an alias is held to the cap; examples are a new fold in a
-frozen directory, or F′ with its correction reverted. The corpus keeps its
-pre-ruling method for every other check. Changing a pin is a deliberate,
-reviewed act.
+that is new, changed or an alias is held to the cap; F′ with its correction
+reverted is an example. The corpus keeps its pre-ruling method for every other
+check. A new fold in a frozen directory is held to the cap unless its capped rows
+record exactly the pinned states. In the 52 corpora pinned at `pass`, a re-fold
+that keeps `pass` cannot be told from the historical record, and that residual is
+accepted. Changing a pin is a deliberate, reviewed act.
 
 ### R-CW-5 isolated cost-cap fixture
 
@@ -1190,7 +1193,10 @@ grader.
 **Declared row caps (🌊's ruling on docs#616).** Every corpus that is not exempt
 and carries a row bound to a catalog manifest that declares `verdictCap` (today
 R-CW-5 and R-CW-6) gets one more check. A row is bound by its id (compared
-canonically), the basename of its `dir`, or its `manifest`. In a corpus listed in
+canonically), any segment of its normalized `dir`, or its `manifest`. A row that
+names none of them (an alias in its own directory, with no `manifest`) is outside
+this check; requiring that a corpus name only catalog rows is the seed method's
+job, and `check-proof-row-manifests.mjs` already flags it for the INDEX corpus. In a corpus listed in
 `scripts/pre-f2-ruling-corpora.json`, a capped row is exempt while the rows under
 its own id still record exactly the states pinned in
 `scripts/pre-cap-ruling-capped-row-states.json`.

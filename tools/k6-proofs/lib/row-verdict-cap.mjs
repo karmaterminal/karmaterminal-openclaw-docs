@@ -17,11 +17,18 @@
  * (check-proof-row-manifests.mjs) and the corpus validator (validate-corpus.mjs)
  * share this one copy of the rules. Plain ESM with no Node or k6 imports.
  */
+import { canonicalRowId } from './required-preflight.mjs';
 
 /** The only cap a row manifest may declare. */
 export const ROW_VERDICT_CAP = 'PARTIAL-candidate';
 /** The artifact class every process-local row's cap names. */
 export const PROCESS_LOCAL_ARTIFACT_CLASS = 'process-local-fixture';
+/**
+ * The rows the ruling caps by name. Their manifests must declare the cap however
+ * they are otherwise edited, so dropping the process-local markers cannot un-cap
+ * them; lifting it is a method change to this list as well.
+ */
+export const RULED_CAPPED_ROWS = ['R-CW-5', 'R-CW-6'];
 /** The transports a row manifest may name; anything else cannot be judged. */
 export const KNOWN_TRANSPORTS = ['websocket', 'http-tools-invoke', 'offline', 'process-local', 'github-source-contract'];
 export const ROW_CAP_NOTE =
@@ -80,8 +87,9 @@ export function corpusStateWithinCap(state, cap) {
 
 /**
  * Problems with one manifest's cap declaration, without a file prefix. A row
- * whose transport is process-local (however spelled) or that names a
- * process-local fixture (`invocation.fixture`) must declare one, and a declared
+ * whose transport is process-local (however spelled), that names a
+ * process-local fixture (`invocation.fixture`) or that the ruling names
+ * (RULED_CAPPED_ROWS) must declare one, and a declared
  * transport this rule does not know is refused rather than read as "not
  * process-local" (a missing one is the schema's to require; the grader refuses
  * it). A row that declares a cap must declare it whole, and its expected
@@ -102,6 +110,9 @@ export function manifestVerdictCapFailures(manifest) {
   if (!Object.prototype.hasOwnProperty.call(manifest || {}, 'verdictCap') || manifest.verdictCap === undefined) {
     if (processLocal) failures.push(`${rowId} is process-local, so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
     if (fixture) failures.push(`${rowId} names a process-local fixture (invocation.fixture), so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
+    if (RULED_CAPPED_ROWS.includes(canonicalRowId(rowId))) {
+      failures.push(`${rowId} is capped by 🌊's ruling on docs#616, so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
+    }
     return failures;
   }
   const cap = manifest.verdictCap;

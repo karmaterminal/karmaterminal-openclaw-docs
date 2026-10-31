@@ -60,9 +60,11 @@
  * cap (state `pass`), whatever its preflights say. Lifting a cap needs a
  * superseding authority receipt from a different artifact class, adopted by an
  * explicit method change; none is adopted, so a `superseding_authority` on the
- * row does not lift it either. A row is bound to a capped row by its id, its
- * `dir` or its `manifest`, so an alias (`R-CW-05` in R-CW-5's directory) is
- * refused and capped. A state that is not a known state at or below the cap (a
+ * row does not lift it either. A row is bound to a capped row by its id, any
+ * segment of its normalized `dir`, or its `manifest`, so an alias (`R-CW-05` in
+ * R-CW-5's directory, or a row filed under it) is refused and capped. A row that
+ * names none of them (`R-CW-05` in its own directory, no `manifest`) is outside
+ * this check: a corpus naming only catalog rows is the seed method's to require. A state that is not a known state at or below the cap (a
  * typo, `passed`) fails too. If the catalog's cap declarations cannot be trusted,
  * every corpus that is not exempt gets the check, failed.
  *
@@ -71,12 +73,15 @@
  * for capped rows that still record what they recorded at the cap ruling:
  * pre-cap-ruling-capped-row-states.json pins each frozen corpus's R-CW-5/6 states
  * at 7e544c04. A capped row in a frozen-named corpus that is new, changed (F′'s
- * correction reverted, a new fold in a frozen directory) or an alias is held to
- * its cap; the corpus keeps its pre-ruling method for every other check.
+ * correction reverted) or an alias is held to its cap; the corpus keeps its
+ * pre-ruling method for every other check. A new fold in a frozen directory is
+ * held to the cap unless its capped rows record exactly the pinned states: in the
+ * 52 frozen corpora pinned at pass, the validator cannot tell such a re-fold from
+ * the historical record.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, join, posix, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { consumeRcd2Authority } from '../lib/r-cd-2-authority-context.mjs';
 import {
@@ -764,8 +769,11 @@ function validateDeclaredCaps(report, sha, manifest) {
     const bindings = new Map();
     const bind = (id, how) => bindings.set(id, [...(bindings.get(id) || []), how]);
     if (typeof row?.dir === 'string') {
-      const fromDir = canonicalRowId(basename(row.dir.replace(/\/+$/, '')));
-      if (catalog.capsByRow.has(fromDir)) bind(fromDir, `its dir ${row.dir}`);
+      // Every segment of the normalized path, so a row filed under a capped row's
+      // directory (R-CW-5/fixture-ronan/, R-CW-5/.) is bound to it as well.
+      for (const segment of new Set(posix.normalize(row.dir).split('/').map(canonicalRowId))) {
+        if (catalog.capsByRow.has(segment)) bind(segment, `its dir ${row.dir}`);
+      }
     }
     if (typeof row?.manifest === 'string' && catalog.cappedRowByFile.has(basename(row.manifest))) {
       bind(catalog.cappedRowByFile.get(basename(row.manifest)), `its manifest ${row.manifest}`);

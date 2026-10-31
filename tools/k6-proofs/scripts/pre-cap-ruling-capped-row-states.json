@@ -2,7 +2,7 @@
   "schema": "openclaw.k6.pre-cap-ruling-capped-row-states.v1",
   "ruling": "🌊's CHANGES_REQUESTED review on docs#616 (5720773113, 2026-10-31) and his #616 issue comment, Discord 1565925290008387728; openclaw-bootstrap#1727",
   "frozenAt": "7e544c044cdef868aa7f19c7578e2e65610fc5a0",
-  "description": "For every corpus in pre-f2-ruling-corpora.json: the states its capped rows (R-CW-5, R-CW-6; ids compared canonically, in row order, null for no state) recorded on docs main at the cap ruling, F′ as corrected to partial. validate-corpus.mjs exempts a frozen corpus's capped row from rows-within-declared-cap only while that row still records exactly these states; a capped row that is new, changed (F′'s correction reverted, a new fold in a frozen directory) or recorded under another id is held to its cap. Changing a pin is a deliberate, reviewed act.",
+  "description": "For every corpus in pre-f2-ruling-corpora.json: the states its capped rows (R-CW-5, R-CW-6; ids compared canonically, in row order, null for no state) recorded on docs main at the cap ruling, F′ as corrected to partial. validate-corpus.mjs exempts a frozen corpus's capped row from rows-within-declared-cap only while that row still records exactly these states; a capped row that is new, changed (F′'s correction reverted) or recorded under another id is held to its cap. A new fold in a frozen directory is held to the cap unless its capped rows record exactly the pinned states; in the 52 corpora pinned at pass, a re-fold that keeps pass cannot be told from the historical record. Changing a pin is a deliberate, reviewed act.",
   "corpora": {
     "00c7f721a55554d0b9228337cc8bc6bec88f9e9f": {
       "R-CW-5": [

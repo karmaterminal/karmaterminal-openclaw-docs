@@ -68,7 +68,23 @@
     "invocation": {
       "type": "object",
       "additionalProperties": true,
-      "description": "Row-specific fire parameters consumed by the scenario (tool, forms, delay, prompt template, idempotency prefix)."
+      "description": "Row-specific fire parameters consumed by the scenario (tool, forms, delay, prompt template, idempotency prefix). A row run by a script instead of its k6 scenario names that runner under fixture or control and may declare its artifact class in artifactClass. A runner with no class is read as a process-local fixture, so a key can make a row process-local, but only a declared class can make it not process-local (lib/row-verdict-cap.mjs).",
+      "properties": {
+        "fixture": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A process-local fixture. The row must declare verdictCap (artifactClass process-local-fixture), and it may not declare artifactClass disposable-real-process. The key counts whatever its value: an empty, blank or non-string value is never read as no runner."
+        },
+        "control": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A runner whose class artifactClass declares. Without artifactClass it is read as a process-local fixture, whatever its value, so the row must declare verdictCap. disposable-real-process needs it to be a non-blank string."
+        },
+        "artifactClass": {
+          "enum": ["process-local-fixture", "disposable-real-process"],
+          "description": "The artifact class of the runner. process-local-fixture must declare verdictCap. disposable-real-process (a runner that starts, restarts and stops a real gateway process it set up for the run, never the live one, as R-CD-RETURN-COVENANT-AUTHORITY's restart control does) needs no verdictCap; one a reviewer adds names this class. check-proof-row-manifests.mjs refuses it on a process-local or missing transport, beside a fixture key, without a non-blank control, or on a row the ruling caps by id (R-CW-5, R-CW-6). Any other value is refused."
+        }
+      }
     },
     "seatClassExpectation": {
       "type": "object",
@@ -133,7 +149,7 @@
         "artifactClass": {
           "type": "string",
           "minLength": 1,
-          "description": "The artifact class the cap belongs to; process-local-fixture for a process-local row."
+          "description": "The artifact class the cap belongs to: process-local-fixture for a process-local row, otherwise the class invocation.artifactClass declares."
         },
         "supersedingAuthorities": {
           "type": "array",

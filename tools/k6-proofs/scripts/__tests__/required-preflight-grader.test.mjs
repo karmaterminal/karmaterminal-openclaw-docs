@@ -222,6 +222,41 @@ test('cap: the grader reads the cap from the manifest declaration and refuses a 
   });
 });
 
+test('cap: the grader refuses R-CW-5 reclassified as a disposable real process, capped or not', async () => {
+  // The artifact class is declared in invocation.artifactClass (docs#615 merging
+  // #616); disposable-real-process is not process-local, so the grader shares
+  // the catalog's refusal wherever the row says otherwise.
+  await withDir(async (dir) => {
+    const base = JSON.parse(await readFile(ROWS['R-CW-5'].manifest, 'utf8'));
+    const reclassify = (m) => {
+      m.invocation.control = m.invocation.fixture;
+      delete m.invocation.fixture;
+      m.invocation.artifactClass = 'disposable-real-process';
+    };
+    for (const [label, mutate, detail] of [
+      ['on its process-local transport, cap kept', (m) => { reclassify(m); },
+        /R-CW-5 declares invocation\.artifactClass "disposable-real-process", but its transport "process-local" is process-local/],
+      ['beside its fixture, cap kept', (m) => { m.invocation.artifactClass = 'disposable-real-process'; m.invocation.control = 'x.mjs'; },
+        /R-CW-5 declares invocation\.artifactClass "disposable-real-process" but names a process-local fixture \(invocation\.fixture\)/],
+      ['every process-local marker dropped and the cap with them', (m) => { reclassify(m); m.transport = 'websocket'; delete m.verdictCap; },
+        /R-CW-5 is capped by 🌊's ruling on docs#616 as a process-local fixture, so it cannot declare invocation\.artifactClass "disposable-real-process"/],
+      ['an unknown class', (m) => { m.invocation.artifactClass = 'real-process'; },
+        /invocation\.artifactClass "real-process" is not a known artifact class/],
+    ]) {
+      const manifest = structuredClone(base);
+      mutate(manifest);
+      const result = grade([
+        '--manifest', await writeJson(dir, 'r-cw-5.json', manifest),
+        '--live-result', ROWS['R-CW-5'].liveResult,
+        '--preflight-receipt', await writeJson(dir, 'receipt.json', receipt('R-CW-5')),
+      ]);
+      assert.equal(result.status, 2, `${label}: ${result.stderr}`);
+      assert.equal(result.payload, null, label);
+      assert.match(result.stderr, detail, label);
+    }
+  });
+});
+
 test('cap: the grader refuses a fixture verdict it does not know instead of passing it through uncapped', async () => {
   await withDir(async (dir) => {
     for (const verdict of ['PASS-candidate ', 'pass-candidate', 'PASS-Candidate', 'PASS', 'PASSED']) {

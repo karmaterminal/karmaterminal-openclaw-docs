@@ -898,6 +898,75 @@ test('cap (d): a catalog that loses a process-local row\'s verdictCap cannot un-
   });
 });
 
+// R-CD-RETURN-COVENANT-AUTHORITY's restart control restarts a real disposable
+// gateway process. Its manifest declares that class (`invocation.artifactClass:
+// "disposable-real-process"`, the runner under `invocation.control`), so the
+// row is not capped (docs#615 merging #616), and R-CW-5/6 keep their cap.
+const CAPPED_ROWS_WITHIN =
+  'R-CW-5 partial, within the PARTIAL-candidate cap r-cw-5.json declares (process-local-fixture); ' +
+  'R-CW-6 partial, within the PARTIAL-candidate cap r-cw-6.json declares (process-local-fixture)';
+
+test('(a) the RETURN-COVENANT row is not capped: an F″ corpus may record it pass, and R-CW-5 pass beside it is still refused', async () => {
+  const manifest = fDouble();
+  const row = rowOf(manifest, 'R-CD-RETURN-COVENANT-AUTHORITY');
+  assert.equal(row.state, 'missing');
+  row.state = 'pass';
+  manifest.rollup = { ...manifest.rollup, pass: manifest.rollup.pass + 1, missing: manifest.rollup.missing - 1 };
+  const { status, report } = await validate(manifest);
+  assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
+  // Only R-CW-5/6 are bound to a cap; the covenant row's pass is not compared with one.
+  assert.equal(check(report, 'rows-within-declared-cap').detail, CAPPED_ROWS_WITHIN);
+
+  // (b) R-CW-5 recorded pass in the same corpus is still held to its cap.
+  await assertRejected(overCredit(manifest, ['R-CW-5']), passingReceipts(), {
+    'rows-within-declared-cap': new RegExp(`^${OVER_CAP('R-CW-5').source}, and it declares no superseding authority; ${ROW_CAP_NOTE}$`),
+  });
+});
+
+test('(c, d) a catalog whose covenant manifest names its control as a fixture, leaves it unclassified or claims a process-local transport fails the cap check', async () => {
+  // The validator judges every corpus by the catalog next to it, so run a copy
+  // of the harness whose covenant manifest is edited.
+  await withRoot(async (root) => {
+    const harness = join(root, 'harness');
+    await cp(join(repoRoot, 'tools/k6-proofs/scripts'), join(harness, 'scripts'), {
+      recursive: true,
+      filter: (source) => !source.includes('__tests__'),
+    });
+    await cp(join(repoRoot, 'tools/k6-proofs/lib'), join(harness, 'lib'), { recursive: true });
+    await cp(join(repoRoot, 'tools/k6-proofs/manifests'), join(harness, 'manifests'), { recursive: true });
+    const runCopy = (sha) => {
+      const result = spawnSync(process.execPath, [join(harness, 'scripts/validate-corpus.mjs'), '--root', root, '--sha', sha, '--json'], { encoding: 'utf8' });
+      assert.equal(result.stderr, '', result.stderr);
+      return { status: result.status, report: JSON.parse(result.stdout).reports[0] };
+    };
+    await writeCorpus(root, SHA, fDouble(), passingReceipts());
+    const shipped = runCopy(SHA);
+    assert.equal(shipped.status, 0, JSON.stringify(shipped.report.checks.filter((c) => !c.ok)));
+    assert.equal(check(shipped.report, 'rows-within-declared-cap').detail, CAPPED_ROWS_WITHIN);
+
+    const covenantFile = join(harness, 'manifests/r-cd-return-covenant-authority.json');
+    const declared = JSON.parse(await readFile(covenantFile, 'utf8'));
+    const { control, artifactClass, ...rest } = declared.invocation;
+    assert.equal(artifactClass, 'disposable-real-process');
+    const inconsistent = '^the verdict-cap catalog is inconsistent: r-cd-return-covenant-authority\\.json: R-CD-RETURN-COVENANT-AUTHORITY ';
+    for (const [label, edited, detail] of [
+      // #615 as it met #616: the control named as a fixture, no class.
+      ['named as a fixture', { ...declared, invocation: { ...rest, fixture: control } },
+        new RegExp(`${inconsistent}names a process-local fixture \\(invocation\\.fixture\\), so it must declare verdictCap`)],
+      ['no class', { ...declared, invocation: { ...rest, control } },
+        new RegExp(`${inconsistent}names a runner \\(invocation\\.control\\) without invocation\\.artifactClass`)],
+      ['a process-local transport', { ...declared, transport: 'process-local' },
+        new RegExp(`${inconsistent}declares invocation\\.artifactClass "disposable-real-process", but its transport "process-local" is process-local`)],
+    ]) {
+      await writeFile(covenantFile, `${JSON.stringify(edited, null, 2)}\n`);
+      const result = runCopy(SHA);
+      assert.equal(result.status, 1, label);
+      assert.deepEqual(failedChecks(result.report), ['rows-within-declared-cap'], label);
+      assert.match(check(result.report, 'rows-within-declared-cap').detail, detail, label);
+    }
+  });
+});
+
 test('cap: the 71 pre-ruling corpora keep their method; 52 of them record R-CW-5/6 pass and none gets the cap check', async () => {
   const list = JSON.parse(await readFile(legacyList, 'utf8'));
   const overCredited = [];

@@ -159,6 +159,162 @@ test('every malformed or missing verdict cap fails the catalog', async () => {
   }
 });
 
+// A runner's artifact class is declared in `invocation.artifactClass`, never
+// inferred from the key that names the runner (docs#615 merging #616). The
+// RETURN-COVENANT restart control restarts a real disposable gateway process, so
+// its manifest names it under `invocation.control` as `disposable-real-process`
+// and the row is not capped. A runner named with no class is read as a
+// process-local fixture, as #616 reads `invocation.fixture`.
+const COVENANT_MANIFEST = 'r-cd-return-covenant-authority.json';
+const COVENANT_CONTROL = 'tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs';
+
+function disposable({ invocation = {}, ...overrides } = {}) {
+  return {
+    rowId: 'R-LIVE',
+    transport: 'websocket',
+    liveRunSafety: { classification: 'orchestration-required', expectedArtifactClass: 'PASS-candidate' },
+    invocation: { control: 'tools/k6-proofs/scripts/x.mjs', artifactClass: 'disposable-real-process', ...invocation },
+    ...overrides,
+  };
+}
+
+test('(a) the RETURN-COVENANT restart control is declared a disposable real process, so its row declares no cap and none is required', async () => {
+  const { declaredRowCap, manifestVerdictCapFailures, verdictCapCatalog } = await lib();
+  const row = await manifest(COVENANT_MANIFEST);
+  assert.equal(row.rowId, 'R-CD-RETURN-COVENANT-AUTHORITY');
+  assert.equal(row.transport, 'websocket');
+  assert.equal(row.invocation.artifactClass, 'disposable-real-process');
+  assert.equal(row.invocation.control, COVENANT_CONTROL);
+  assert.equal(Object.prototype.hasOwnProperty.call(row.invocation, 'fixture'), false, 'the control is not named as a process-local fixture');
+  assert.equal(Object.prototype.hasOwnProperty.call(row, 'verdictCap'), false);
+  assert.deepEqual(manifestVerdictCapFailures(row), []);
+  assert.equal(declaredRowCap(row), null);
+  // What a run is expected to produce stays the PASS the supervised cases can earn.
+  assert.equal(row.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
+
+  // (b) Across the whole catalog, exactly R-CW-5 and R-CW-6 are capped, both as process-local fixtures.
+  const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json')).sort();
+  const entries = await Promise.all(files.map(async (file) => ({ file, manifest: await manifest(file) })));
+  const caps = verdictCapCatalog(entries);
+  assert.deepEqual([...caps.keys()].sort(), ['R-CW-5', 'R-CW-6']);
+  for (const cap of caps.values()) assert.equal(cap.artifactClass, 'process-local-fixture');
+});
+
+test('a disposable real-process row with its control passes the catalog uncapped; a declared process-local fixture passes with its cap', async () => {
+  const uncapped = await runCatalog({ 'r-live.json': disposable() });
+  assert.equal(uncapped.status, 0, uncapped.stderr || uncapped.stdout);
+  assert.match(uncapped.stdout, /Verdict cap rule failures: 0/);
+  // A disposable row a reviewer chooses to cap names its own class in the cap.
+  const capped = await runCatalog({
+    'r-live.json': disposable({
+      liveRunSafety: { classification: 'orchestration-required', expectedArtifactClass: 'PARTIAL-candidate' },
+      verdictCap: { ...processLocal().verdictCap, artifactClass: 'disposable-real-process' },
+    }),
+  });
+  assert.equal(capped.status, 0, capped.stderr || capped.stdout);
+  const declared = await runCatalog({ 'r-live.json': processLocal({ transport: 'websocket', invocation: { control: 'x.mjs', artifactClass: 'process-local-fixture' } }) });
+  assert.equal(declared.status, 0, declared.stderr || declared.stdout);
+});
+
+test('an artifact class that is missing, unknown or contradicted by the row fails the catalog', async () => {
+  for (const [label, row, detail] of [
+    // (c) A runner named with no class fails closed exactly as before: it is a process-local fixture.
+    ['invocation.fixture, no class, no cap', processLocal({ transport: 'websocket', invocation: { fixture: 'x.mjs' }, verdictCap: undefined }),
+      /r-live\.json: R-LIVE names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap \(rowCap PARTIAL-candidate\)/],
+    ['invocation.fixture, no class, a cap of another class', processLocal({ transport: 'websocket', invocation: { fixture: 'x.mjs' }, verdictCap: { ...processLocal().verdictCap, artifactClass: 'disposable-real-process' } }),
+      /r-live\.json: verdictCap\.artifactClass must be "process-local-fixture" for a process-local row/],
+    ['invocation.control, no class, no cap', disposable({ invocation: { artifactClass: undefined } }),
+      /r-live\.json: R-LIVE names a runner \(invocation\.control\) without invocation\.artifactClass, so it is read as a process-local fixture and must declare verdictCap \(rowCap PARTIAL-candidate\)/],
+    ['a declared process-local fixture, no cap', disposable({ invocation: { artifactClass: 'process-local-fixture' } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "process-local-fixture", so it must declare verdictCap \(rowCap PARTIAL-candidate\)/],
+    // A class the rule does not know is refused, never read as "not process-local".
+    ['an unknown class', disposable({ invocation: { artifactClass: 'real-process' } }),
+      /r-live\.json: invocation\.artifactClass "real-process" is not a known artifact class \(process-local-fixture, disposable-real-process\), so whether R-LIVE is process-local cannot be decided/],
+    ['the class spelled another way', disposable({ invocation: { artifactClass: 'Disposable-Real-Process' } }),
+      /r-live\.json: invocation\.artifactClass "Disposable-Real-Process" is not a known artifact class/],
+    ['a null class', disposable({ invocation: { artifactClass: null } }), /r-live\.json: invocation\.artifactClass null is not a known artifact class/],
+    ['an unknown class beside invocation.fixture, with a cap', processLocal({ transport: 'websocket', invocation: { fixture: 'x.mjs', artifactClass: 'live-gateway' } }),
+      /r-live\.json: invocation\.artifactClass "live-gateway" is not a known artifact class/],
+    // (d) A disposable real process is refused wherever the row says process-local.
+    ['disposable on a process-local transport', disposable({ transport: 'process-local' }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process", but its transport "process-local" is process-local/],
+    ['disposable on Process-Local', disposable({ transport: 'Process-Local' }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process", but its transport "Process-Local" is process-local/],
+    ['disposable on process_local, with a cap', disposable({ transport: 'process_local', verdictCap: processLocal().verdictCap }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process", but its transport "process_local" is process-local/],
+    ['disposable with no transport', disposable({ transport: undefined }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" but declares no transport, so whether it is process-local cannot be decided/],
+    ['disposable beside invocation.fixture', disposable({ invocation: { fixture: 'x.mjs' } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" but names a process-local fixture \(invocation\.fixture\)/],
+    ['disposable with its runner only under invocation.fixture', disposable({ invocation: { control: undefined, fixture: 'x.mjs' } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" but names a process-local fixture \(invocation\.fixture\)/],
+    ['disposable without a control', disposable({ invocation: { control: undefined } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" without naming its runner in invocation\.control/],
+    ['disposable with an empty control', disposable({ invocation: { control: '' } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" without naming its runner in invocation\.control/],
+    ['disposable with a cap of another class', disposable({ verdictCap: processLocal().verdictCap }),
+      /r-live\.json: verdictCap\.artifactClass must be "disposable-real-process", the class invocation\.artifactClass declares, not "process-local-fixture"/],
+    // (b) The ruling's rows stay process-local fixtures, however they are reclassified.
+    ['R-CW-5 reclassified as disposable, uncapped', disposable({ rowId: 'R-CW-5' }),
+      /r-live\.json: R-CW-5 is capped by 🌊's ruling on docs#616 as a process-local fixture, so it cannot declare invocation\.artifactClass "disposable-real-process"/],
+    ['r-cw-6 reclassified as disposable, still capped', disposable({ rowId: 'r-cw-6', verdictCap: { ...processLocal().verdictCap, artifactClass: 'disposable-real-process' } }),
+      /r-live\.json: r-cw-6 is capped by 🌊's ruling on docs#616 as a process-local fixture, so it cannot declare invocation\.artifactClass "disposable-real-process"/],
+  ]) {
+    const result = await runCatalog({ 'r-live.json': row });
+    assert.notEqual(result.status, 0, `${label}: ${result.stdout}`);
+    assert.match(result.stderr, detail, label);
+    assert.doesNotMatch(result.stdout, /Verdict cap rule failures: 0/, label);
+  }
+});
+
+test('a runner key fails closed whatever its value; a disposable runner must be named by a non-blank control', async () => {
+  // An empty, blank or non-string value under invocation.fixture or
+  // invocation.control is still a runner key the class must account for, never
+  // read as "no runner" and so never as "not process-local".
+  const cases = [];
+  for (const value of ['', ' ', ['x.mjs'], { path: 'x.mjs' }, null, true, 7]) {
+    const shown = JSON.stringify(value);
+    cases.push(
+      [`fixture ${shown}, no class, no cap`, processLocal({ transport: 'websocket', invocation: { fixture: value }, verdictCap: undefined }),
+        /r-live\.json: R-LIVE names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap \(rowCap PARTIAL-candidate\)/],
+      [`control ${shown}, no class, no cap`, processLocal({ transport: 'websocket', invocation: { control: value }, verdictCap: undefined }),
+        /r-live\.json: R-LIVE names a runner \(invocation\.control\) without invocation\.artifactClass, so it is read as a process-local fixture/],
+      [`disposable beside fixture ${shown}`, disposable({ invocation: { fixture: value } }),
+        /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" but names a process-local fixture \(invocation\.fixture\)/],
+    );
+  }
+  for (const value of [' ', '\t', ['x.mjs'], { path: 'x.mjs' }, null, 7]) {
+    cases.push([`disposable with control ${JSON.stringify(value)}`, disposable({ invocation: { control: value } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" without naming its runner in invocation\.control/]);
+  }
+  for (const [label, row, detail] of cases) {
+    const result = await runCatalog({ 'r-live.json': row });
+    assert.notEqual(result.status, 0, `${label}: ${result.stdout}`);
+    assert.match(result.stderr, detail, label);
+    assert.doesNotMatch(result.stdout, /Verdict cap rule failures: 0/, label);
+  }
+});
+
+test('(c, d) the covenant manifest in its pre-classification shape, or claiming a process-local transport, fails the catalog', async () => {
+  const { manifestVerdictCapFailures } = await lib();
+  const row = await manifest(COVENANT_MANIFEST);
+  // #615 as it met #616: the control named as a fixture, no class.
+  const { control, artifactClass, ...rest } = row.invocation;
+  assert.equal(artifactClass, 'disposable-real-process');
+  const asFixture = { ...row, invocation: { ...rest, fixture: control } };
+  assert.match(
+    manifestVerdictCapFailures(asFixture).join('\n'),
+    /R-CD-RETURN-COVENANT-AUTHORITY names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap/,
+  );
+  const classless = { ...row, invocation: { ...rest, control } };
+  assert.match(manifestVerdictCapFailures(classless).join('\n'), /names a runner \(invocation\.control\) without invocation\.artifactClass/);
+  const processLocalTransport = { ...row, transport: 'process-local' };
+  assert.match(
+    manifestVerdictCapFailures(processLocalTransport).join('\n'),
+    /declares invocation\.artifactClass "disposable-real-process", but its transport "process-local" is process-local/,
+  );
+});
+
 test('cap lib: only a verdict above the cap is lowered, and nothing is ever raised', async () => {
   const { capVerdict, ROW_VERDICT_CAP } = await lib();
   assert.equal(ROW_VERDICT_CAP, 'PARTIAL-candidate');

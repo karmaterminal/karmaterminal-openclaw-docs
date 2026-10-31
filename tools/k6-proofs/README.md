@@ -825,6 +825,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
+| R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -854,6 +855,65 @@ true at `2273ef64d5`.
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
+
+### R-CD-RETURN-COVENANT-AUTHORITY disposable restart control
+
+`tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs` restarts one disposable
+gateway for real and grades whether its return authority (the recipient session's
+`session_recipient_authority` epoch) survives. A generation counts as usable only while it
+serves (owns the listener, `/readyz` passes, hello-ok answers), and every receipt reports
+the restart's `outageInterval`. It runs outside the generic k6 runner and `--live-suite`,
+because the manifest is `orchestration-required`. The control owns the gateway's lifecycle:
+it starts the old generation, establishes the authority, plans the window and requests
+`gateway.restart.request`. It refuses, before starting anything, any target that is not a
+stopped `$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe
+`scripts/proof-gw/composite-launcher.sh` on a free loopback port that is not the live
+gateway's.
+
+Because the control restarts a real gateway process, the manifest names it under
+`invocation.control` with `invocation.artifactClass: "disposable-real-process"`. It is not a
+process-local fixture, so the row declares no `verdictCap` and is not capped (see "The
+process-local cap" below).
+
+It has two row cases and two optional controls. 🌊's final scope ruling (Discord msg
+1565927316687691777) scopes the row's claim to the supervised branch the fleet runs:
+
+- `positive` and `negative-replacement-never-usable` run the control as the declared external
+  supervisor (`OPENCLAW_SUPERVISOR_MODE=external`). That is the supervised branch, the one
+  systemd-supervised fleet seats take. On it the control consumes the restart handoff and
+  starts the replacement. The row verdict is graded from `positive` and
+  `negative-replacement-never-usable` only.
+- `control-update-respawn-fallback` and `control-update-respawn-runtime-unavailable` (kind
+  `update-respawn-control`) set no supervisor hint and restart with reason `update.run`, which
+  takes the spawned branch. There the product spawns the child and, when it is unhealthy, falls
+  back in-process or refuses on a named branch. They are not evidence for the fleet restart
+  claim: their receipts sit beside the row verdict and never feed it, and they run only when
+  reviewers want the update-path evidence.
+- The plain in-process restart of an unmanaged gateway is a named limit, `in-process-restart`,
+  outside both.
+
+```bash
+node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
+  --proof-gw-dir ~/proof-gw/comp-<sha8> --stage-dir <stage-only build of the candidate> \
+  --candidate-sha <40-char-sha> --docs-sha <40-char-docs-sha> \
+  --case positive --artifact-dir <new directory> --observer-key-file <0600 key file>
+```
+
+Run `--case negative-replacement-never-usable` next, into a new directory. It must grade non-PASS
+with `negativeControl.holds: true`: the observed failure, the outage, the authority retained and
+`noFallback`. Then grade the row from the two signed receipts:
+
+```bash
+node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs --observer-key-file <0600 key file> \
+  --grade-row <positive dir>/observer-receipt.json \
+  --grade-row <negative dir>/observer-receipt.json
+```
+
+The update-respawn controls, when wanted, run the same way with their own `--case`. Each must also
+grade non-PASS with `negativeControl.holds: true`. The fallback control's restored original process
+is old-process restoration, never fresh-successor proof. Raw process output stays in
+`<artifact-dir>.private`, which is never published. See
+[`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
 
 ### Required preflights: R-CW-5A/6A gate R-CW-5/6
 
@@ -938,11 +998,33 @@ fixture, which is not an external gateway invocation. Each manifest declares the
 cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
 `artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
 requires that declaration of every row whose `transport` is process-local
-(however spelled), that names a process-local fixture (`invocation.fixture`), or
+(however spelled), whose runner is a process-local fixture, or
 that the ruling names (R-CW-5, R-CW-6, by id).
 A declared transport outside the schema's list is refused rather than read as
 "not process-local", and the grader also refuses a manifest with no transport. The cap is read from the declaration, never inferred from prose,
 and the rules live in `lib/row-verdict-cap.mjs`.
+
+A runner's artifact class is declared in `invocation.artifactClass`, never
+inferred from the key that names the runner:
+
+- A runner named with no class is a process-local fixture, so the row must
+  declare the cap. That covers `invocation.fixture`, as before, and
+  `invocation.control` without a class. So does
+  `invocation.artifactClass: "process-local-fixture"`. Either key counts
+  whatever its value: an empty, blank or non-string value is never read as "no
+  runner". A runner under any other key is not recognized, so these two keys are
+  the ones to use.
+- `"disposable-real-process"` is a runner that starts, restarts and stops a real
+  gateway process it set up for the run, never the live one. It names that runner
+  in `invocation.control` and needs no cap; a cap a reviewer adds names this class.
+  R-CD-RETURN-COVENANT-AUTHORITY's restart control is the one such row. The class
+  is refused on a process-local or missing transport, beside an
+  `invocation.fixture` key, without a non-blank `invocation.control`, and on
+  R-CW-5/6.
+- Any other class, a different spelling of a known one included, is refused.
+
+So dropping a process-local marker never un-caps R-CW-5/6, and reclassifying
+them doesn't either.
 
 - The row verdict is the minimum of the fixture's verdict, the declared cap and
   the preflight cap. A fixture `PASS-candidate` is behavioral only.

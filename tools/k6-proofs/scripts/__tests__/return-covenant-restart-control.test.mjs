@@ -350,6 +350,29 @@ test('a restart whose response body is lost is still followed and grades PARTIAL
   assert.deepEqual(grade.failures, []);
 });
 
+test('a home reached through a symlink is still accepted', async () => {
+  const layout = await disposableLayout();
+  const linkedHome = `${layout.home}-link`;
+  await symlink(layout.home, linkedHome);
+  let spawned = 0;
+  const result = await runRestartControl(
+    controlOptions(layout, {
+      home: linkedHome,
+      proofGwDir: path.join(linkedHome, 'proof-gw', path.basename(layout.dir)),
+      artifactDir: path.join(layout.home, 'artifacts', 'linked'),
+    }),
+    {
+      ...testPlatform,
+      spawnGateway: () => {
+        spawned += 1;
+        throw new Error('stop after the guard');
+      },
+    },
+  );
+  assert.equal(spawned, 1, JSON.stringify(result.refusals ?? result.grade));
+  assert.equal(result.status, 'completed');
+});
+
 test('a rejected restart request keeps its failure body and grades MISSING-candidate', async () => {
   const layout = await disposableLayout();
   const result = await runRestartControl(
@@ -377,6 +400,17 @@ const guardCases = [
       await rm(elsewhere, { recursive: true, force: true });
       await copyTree(layout.dir, elsewhere);
       return { proofGwDir: elsewhere };
+    },
+  },
+  {
+    name: 'a comp-<sha8> symlink that points at another directory',
+    code: 'proof-gw-dir-symlinked',
+    mutate: async (layout) => {
+      const real = path.join(layout.home, 'elsewhere', 'real-target');
+      await mkdir(path.dirname(real), { recursive: true });
+      await copyTree(layout.dir, real);
+      await rm(layout.dir, { recursive: true });
+      await symlink(real, layout.dir);
     },
   },
   {

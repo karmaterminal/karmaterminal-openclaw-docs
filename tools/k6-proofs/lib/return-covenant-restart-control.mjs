@@ -168,8 +168,14 @@ export function evaluateDisposableTarget({
     refuse('proof-gw-dir-missing', 'the proof-gw directory does not exist; run composite-launcher.sh setup first');
     return { ok: false, refusals, target };
   }
-  if (dirReal !== pathApi.resolve(proofGwDir)) {
-    refuse('proof-gw-dir-symlinked', 'the proof-gw directory path must not traverse a symlink');
+  // The target itself may not be a symlink (a comp-* link could point anywhere). A
+  // symlinked home is fine: the root comparison below uses the resolved home.
+  try {
+    if (fsApi.lstatSync(proofGwDir).isSymbolicLink()) {
+      refuse('proof-gw-dir-symlinked', 'the proof-gw directory must not be a symlink');
+    }
+  } catch {
+    refuse('proof-gw-dir-missing', 'the proof-gw directory cannot be inspected');
   }
   if (pathApi.dirname(dirReal) !== proofGwRoot) {
     refuse('proof-gw-dir-outside-root', 'the target must be a direct child of $HOME/proof-gw');

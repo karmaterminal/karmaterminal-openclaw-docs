@@ -606,7 +606,15 @@ async function executeControl({ options, platform, plan, target, docs, home, art
       stderr: createWriteStream(path.join(privateDir, `${name}.stderr.log`), { mode: 0o600 }),
     };
     const generation = { name, stdout: [], stderr: [], exited: false, exit: null, exitedAtMs: null, logs };
-    const child = platform.spawnGateway({ node, args: [entry, 'gateway', '--port', String(target.port)], env: childEnv, cwd: target.proofGwDir });
+    let child;
+    try {
+      child = platform.spawnGateway({ node, args: [entry, 'gateway', '--port', String(target.port)], env: childEnv, cwd: target.proofGwDir });
+    } catch (error) {
+      logs.stdout.end();
+      logs.stderr.end();
+      record.generations[name] = { started: false, failure: { kind: 'spawn-failed', message: redact(error.message) } };
+      throw error;
+    }
     generation.child = child;
     generation.pid = child.pid;
     generation.spawnedAtMs = now();

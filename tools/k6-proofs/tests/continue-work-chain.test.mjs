@@ -39,11 +39,11 @@ test('the wake sentinel in the dispatch turn, in thinking or in a tool call is n
 });
 
 test('no scheduled result, a scheduled sentinel before the result, or a wake for another nonce does not bind', () => {
-  assert.match(continueWorkChain([user('x'), call('c', `k6 ${N}`), result('c', 'rejected'), say(`CW-SCHEDULED ${N}`)], one).reason, /not "scheduled"/);
-  assert.match(continueWorkChain([user('x'), say(`CW-SCHEDULED ${N}`), call('c', `k6 ${N}`), result('c')], one).reason, /CW-SCHEDULED is not in the turn/);
-  assert.match(continueWorkChain([user('x'), call('c', `k6 ${N}`), result('c'), say(`CW-SCHEDULED ${N}`), wake('k6 R-CW-1-other'), say(`CW-WOKE ${N}`)], one).reason, /no nonce-bound \[continuation:wake\]/);
+  assert.match(continueWorkChain([user(`[k6-proof-harness] ${N}`), call('c', `k6 ${N}`), result('c', 'rejected'), say(`CW-SCHEDULED ${N}`)], one).reason, /not "scheduled"/);
+  assert.match(continueWorkChain([user(`[k6-proof-harness] ${N}`), say(`CW-SCHEDULED ${N}`), call('c', `k6 ${N}`), result('c')], one).reason, /CW-SCHEDULED is not in the turn/);
+  assert.match(continueWorkChain([user(`[k6-proof-harness] ${N}`), call('c', `k6 ${N}`), result('c'), say(`CW-SCHEDULED ${N}`), wake('k6 R-CW-1-other'), say(`CW-WOKE ${N}`)], one).reason, /no nonce-bound \[continuation:wake\]/);
   // A user row the agent could not have written is required between the turns: a harness-shaped quote is not a wake.
-  assert.match(continueWorkChain([user('x'), call('c', `k6 ${N}`), result('c'), say(`CW-SCHEDULED ${N}`), say(`[continuation:wake] ${N}`), say(`CW-WOKE ${N}`)], one).reason, /no nonce-bound \[continuation:wake\]/);
+  assert.match(continueWorkChain([user(`[k6-proof-harness] ${N}`), call('c', `k6 ${N}`), result('c'), say(`CW-SCHEDULED ${N}`), say(`[continuation:wake] ${N}`), say(`CW-WOKE ${N}`)], one).reason, /no nonce-bound \[continuation:wake\]/);
 });
 
 test('R-CW-4: three hops in order, each next call inside the previous wake turn', () => {

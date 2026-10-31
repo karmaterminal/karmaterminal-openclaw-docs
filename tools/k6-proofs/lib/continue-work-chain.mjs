@@ -12,7 +12,10 @@
 // prompt-only but credited from any event.
 //
 // A hop here is bound by turn order in chat.history, the shape
-// cw-delegate-self-receipt.mjs already uses:
+// cw-delegate-self-receipt.mjs already uses. The chain starts at the harness's
+// own dispatch row (a user row carrying the harness marker and the nonce), not
+// at the page's first user row: a reused or runner-provisioned session has
+// earlier turns (review N5). Then, per hop:
 //   the nonce-bound continue_work call, then its toolResult reporting
 //   "scheduled" (both product rows, paired by toolCallId), then the hop's
 //   scheduled sentinel in assistant text inside that same turn; then a
@@ -24,11 +27,18 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
-import { assistantText, boundToolCalls, callsTool, isContinuationWakeInput, mintedTokenFromHistory, toolResultPayload } from './sentinel-binding.mjs';
+import { HARNESS_MARKER, assistantText, boundToolCalls, callsTool, isContinuationWakeInput, mintedTokenFromHistory, textParts, toolResultPayload } from './sentinel-binding.mjs';
 import { hasExactSentinelText } from './wake-turn-receipt.mjs';
 
 function role(message) {
   return String(message?.role || '').toLowerCase();
+}
+
+/** The harness's own dispatch row: a user row whose text carries the harness marker and the nonce. */
+function isHarnessDispatchRow(message, nonce) {
+  if (role(message) !== 'user') return false;
+  const text = textParts(message);
+  return typeof text === 'string' && text.includes(HARNESS_MARKER) && text.includes(nonce);
 }
 
 /** Index of the next user row after `from`, or the transcript length. */
@@ -75,9 +85,9 @@ export function continueWorkChain(messages, { nonce, scheduledMarkers = [], done
     reason,
   });
   if (!nonce || !doneMarker || scheduledMarkers.length === 0) return out('no nonce or markers to bind');
-  // Hop 1 is elected in the dispatch turn, the first turn that follows a user row.
-  let windowStart = list.findIndex((m) => role(m) === 'user');
-  if (windowStart < 0) return out('no dispatch turn in the transcript');
+  // Hop 1 is elected in the dispatch turn: the turn after the harness's dispatch row.
+  let windowStart = list.findIndex((m) => isHarnessDispatchRow(m, nonce));
+  if (windowStart < 0) return out('no dispatch turn in the transcript (no user row carries the harness marker and the nonce)');
   for (let h = 0; h < scheduledMarkers.length; h += 1) {
     const end = turnEnd(list, windowStart);
     let callIndex = -1;

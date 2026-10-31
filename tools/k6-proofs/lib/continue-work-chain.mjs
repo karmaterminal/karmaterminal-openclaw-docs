@@ -24,7 +24,7 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
-import { assistantText, boundToolCalls, isContinuationWakeInput, mintedTokenFromHistory, toolResultPayload } from './sentinel-binding.mjs';
+import { assistantText, boundToolCalls, callsTool, isContinuationWakeInput, mintedTokenFromHistory, toolResultPayload } from './sentinel-binding.mjs';
 import { hasExactSentinelText } from './wake-turn-receipt.mjs';
 
 function role(message) {
@@ -113,11 +113,9 @@ function boundRows(rows) {
   return Array.isArray(rows) ? rows : [];
 }
 
+// A typed continue_work call by name or through Tool Search's dispatch_action (review F1).
 function typedContinueWork(message) {
-  return role(message) === 'assistant' && Array.isArray(message.content) &&
-    message.content.some((part) => part && part.type === 'toolCall' &&
-      typeof (part.name || part.toolName) === 'string' &&
-      ((part.name || part.toolName) === 'continue_work' || (part.name || part.toolName).endsWith('__continue_work')));
+  return callsTool(message, 'continue_work');
 }
 
 /**

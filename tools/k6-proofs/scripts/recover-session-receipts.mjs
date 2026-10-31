@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { continueWorkChain, tokenWorkHops } from '../lib/continue-work-chain.mjs';
 import { toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
+import { toolCallTarget } from '../lib/tool-call-identity.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/recover-session-receipts.mjs \\
@@ -68,12 +69,14 @@ function messageText(message) {
   return getTextParts(message.content).join('\n');
 }
 
+// The tool each call invoked: by name or through Tool Search's dispatch_action (#1727 review F1).
 function toolCalls(message) {
   const calls = [];
   if (Array.isArray(message.content)) {
     for (const item of message.content) {
       if (item?.type === 'toolCall' || item?.name) {
-        calls.push({ name: item.name, arguments: item.arguments || {}, raw: item });
+        const target = toolCallTarget({ ...item, type: 'toolCall' });
+        calls.push({ name: target ? target.name : item.name, arguments: target ? target.args : item.arguments || {}, raw: item });
       }
     }
   }

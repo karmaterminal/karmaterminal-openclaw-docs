@@ -17,7 +17,7 @@ import {
 } from '../lib/model-identity.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
-import { assistantSentinelFromHistory, assistantText, createToolReceiptTracker } from '../lib/sentinel-binding.mjs';
+import { assistantSentinelFromHistory, assistantText, callsTool, createToolReceiptTracker } from '../lib/sentinel-binding.mjs';
 
 // Bracket-form evidence comes from product records, never from the parent's
 // stream (openclaw-bootstrap#1727): the hop-1 spawn task carries
@@ -26,18 +26,20 @@ import { assistantSentinelFromHistory, assistantText, createToolReceiptTracker }
 //   - spawn: the parent's sessions_spawn toolResult (toolCallId) answered
 //     accepted, or hop-1 is bound by the observer (own spawnedBy + own task);
 //   - token form: hop-1's own transcript holds its MODEL-TOKEN-HOP1 turn and no
-//     typed continue_delegate call, and the bound delegate's own spawn task
-//     carries the product's "[continuation:chain-hop:" prefix, which only the
-//     continuation dispatch writes;
+//     typed continue_delegate call, by name or through Tool Search's
+//     dispatch_action (review F1: with Tool Search on, a typed call is recorded
+//     as dispatch_action { id: "continue_delegate", args });
+//   - continuation dispatch: the bound delegate's own spawn task carries the
+//     product's "[continuation:chain-hop:" prefix. The typed tool and the
+//     bracket write the same prefix (delegate-dispatch-request.ts:43), so it
+//     proves a continuation dispatch, never which form made it;
 //   - model modifier: the delegate's served (else selected) model is the
 //     requested one.
 const CONTINUATION_DELEGATE_TASK_PREFIX = '[continuation:chain-hop:';
 
+// A typed continue_delegate call by name or through Tool Search's dispatch_action (review F1).
 function typedContinueDelegate(messages) {
-  return (Array.isArray(messages) ? messages : []).some((m) => String(m?.role || '').toLowerCase() === 'assistant' &&
-    Array.isArray(m.content) && m.content.some((part) => part && part.type === 'toolCall' &&
-      typeof (part.name || part.toolName) === 'string' &&
-      ((part.name || part.toolName) === 'continue_delegate' || (part.name || part.toolName).endsWith('__continue_delegate'))));
+  return (Array.isArray(messages) ? messages : []).some((m) => callsTool(m, 'continue_delegate'));
 }
 export const options = {
   scenarios: { r_cd_model_token: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '210s' } },
@@ -132,7 +134,7 @@ export default function () {
       evidence.delegate_task_continuation_prefix = typeof delegateTask === 'string' && delegateTask.includes(CONTINUATION_DELEGATE_TASK_PREFIX);
       const bound = evidence.hop1_turn_bound && !evidence.hop1_typed_continue_delegate &&
         evidence.child_session_observed && evidence.delegate_task_continuation_prefix;
-      if (bound && !evidence.bracket_token_observed) console.log('✓ token form bound: hop-1 turn without a typed call, continuation-dispatched delegate');
+      if (bound && !evidence.bracket_token_observed) console.log('✓ token form bound: hop-1 turn with no typed continue_delegate call (by name or dispatch_action), plus a continuation-dispatched delegate');
       evidence.bracket_token_observed = bound;
     }
     function requestHop1History(delayMs) {

@@ -22,6 +22,7 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
+import { toolCallTarget } from './tool-call-identity.mjs';
 import { hasExactSentinelText, messageRunId } from './wake-turn-receipt.mjs';
 
 export const HARNESS_MARKER = '[k6-proof-harness]';
@@ -142,21 +143,27 @@ function toolNameMatches(name, toolName) {
   return typeof name === 'string' && (name === toolName || name.endsWith(`__${toolName}`));
 }
 
-function toolCallArgs(part) {
-  if (isRecord(part?.arguments)) return part.arguments;
-  if (typeof part?.arguments === 'string') return parseJsonRecord(part.arguments) || {};
-  if (isRecord(part?.input)) return part.input;
-  if (typeof part?.input === 'string') return parseJsonRecord(part.input) || {};
-  return {};
+/**
+ * Whether a toolCall part invoked `toolName`, by name or through Tool Search's
+ * dispatcher (lib/tool-call-identity.mjs).
+ */
+export function isToolCallOf(part, toolName) {
+  const target = toolCallTarget(part);
+  return Boolean(target) && toolNameMatches(target.name, toolName);
+}
+
+/** Whether an assistant row calls `toolName` anywhere, by name or through the dispatcher. */
+export function callsTool(message, toolName) {
+  return role(message) === 'assistant' && Array.isArray(message.content) &&
+    message.content.some((part) => isToolCallOf(part, toolName));
 }
 
 /** The nonce-bound calls of `toolName` in one assistant row: [{ id, args }]. */
 export function boundToolCalls(message, { toolName, argField, needle }) {
   if (role(message) !== 'assistant' || !Array.isArray(message.content) || !needle) return [];
   return message.content
-    .filter((part) => isRecord(part) && part.type === 'toolCall' && typeof part.id === 'string' && part.id &&
-      toolNameMatches(part.name || part.toolName, toolName))
-    .map((part) => ({ id: part.id, args: toolCallArgs(part) }))
+    .filter((part) => isRecord(part) && typeof part.id === 'string' && part.id && isToolCallOf(part, toolName))
+    .map((part) => ({ id: part.id, args: toolCallTarget(part).args }))
     .filter((call) => typeof call.args[argField] === 'string' && call.args[argField].includes(needle));
 }
 

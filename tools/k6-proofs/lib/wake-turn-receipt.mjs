@@ -37,6 +37,8 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
+import { toolCallTarget, toolResultNameAdmits } from './tool-call-identity.mjs';
+
 export const HEARTBEAT_RESPOND_TOOL = 'heartbeat_respond';
 const HARNESS_MARKER = '[k6-proof-harness]';
 const SENTINEL_FIELDS = ['notificationText', 'notification_text', 'summary'];
@@ -84,23 +86,27 @@ export function messageRunId(message, eventData = null) {
   return fromMessage || fromEvent;
 }
 
-/** heartbeat_respond toolCall parts of one assistant message. */
+/**
+ * heartbeat_respond toolCall parts of one assistant message, by name or
+ * through Tool Search's dispatch_action (lib/tool-call-identity.mjs).
+ */
 export function heartbeatRespondCalls(message) {
   if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'assistant') return [];
   if (!Array.isArray(message.content)) return [];
   return message.content
-    .filter((part) => isRecord(part) && part.type === 'toolCall' &&
-      (part.name || part.toolName) === HEARTBEAT_RESPOND_TOOL)
-    .map((part) => {
-      const args = isRecord(part.arguments) ? part.arguments : (parseJsonRecord(part.arguments) || {});
-      return { id: typeof part.id === 'string' ? part.id : null, args };
-    });
+    .map((part) => ({ part, target: toolCallTarget(part) }))
+    .filter(({ target }) => target && target.name === HEARTBEAT_RESPOND_TOOL)
+    .map(({ part, target }) => ({ id: typeof part.id === 'string' ? part.id : null, args: target.args }));
 }
 
-/** The heartbeat_respond toolResult in one message, or null. */
+/**
+ * A toolResult row that can answer a heartbeat_respond call, or null. Under
+ * Tool Search the row is named dispatch_action, so every caller pairs it with
+ * a heartbeatRespondCalls call by toolCallId.
+ */
 export function heartbeatRespondResult(message) {
   if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'toolresult') return null;
-  if (message.toolName !== HEARTBEAT_RESPOND_TOOL) return null;
+  if (!toolResultNameAdmits(message, HEARTBEAT_RESPOND_TOOL)) return null;
   // chat.history drops details; prefer the content text, fall back to details.
   let payload = null;
   if (Array.isArray(message.content)) {

@@ -168,10 +168,34 @@ function chainTrace(reasons, { mutate } = {}) {
   return { trace: { batches: [{ scopeSpans: [{ spans: [...spans, ...extra] }] }] }, hops };
 }
 
+// The session's own transcript of the refire behaviour: each hop's
+// continue_work call, its "scheduled" result and CW4-HOPn-SCHEDULED, then the
+// "[continuation:wake]" turn that runs the next hop, and CW4-DONE in the third
+// wake turn. The scenario binds hops only from this transcript (#1727).
+const transcript = [];
+
+function chainTranscript(message, nonce, runId) {
+  const reasons = [...message.matchAll(/reason="([^"]+)"/gu)].map((match) => match[1]);
+  const rows = [{ role: 'user', content: [{ type: 'text', text: message }] }];
+  reasons.forEach((reason, index) => {
+    const run = index === 0 ? runId : `${runId}-wake-${index}`;
+    rows.push(
+      { role: 'assistant', content: [{ type: 'toolCall', id: `cw-${index + 1}`, name: 'continue_work', arguments: { reason, delaySeconds: 2 } }], __openclaw: { runId: run } },
+      { role: 'toolResult', toolCallId: `cw-${index + 1}`, toolName: 'continue_work', content: [{ type: 'text', text: JSON.stringify({ status: 'scheduled', delaySeconds: 2 }, null, 2) }], __openclaw: { runId: run } },
+      { role: 'assistant', content: [{ type: 'text', text: `CW4-HOP${index + 1}-SCHEDULED ${nonce}` }], __openclaw: { runId: run } },
+      { role: 'user', content: [{ type: 'text', text: `[continuation:wake] Turn ${index + 1}/200. The agent elected to continue working. Prior reason: ${JSON.stringify(reason)}` }] },
+    );
+  });
+  rows.push({ role: 'assistant', content: [{ type: 'text', text: `CW4-DONE ${nonce}` }], __openclaw: { runId: `${runId}-wake-3` } });
+  return rows;
+}
+
 function gateway(frame) {
   if (frame?.type !== 'req') return [];
   const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
   switch (frame.method) {
+    case 'chat.history':
+      return ok({ messages: transcript, hasMore: false });
     case 'connect':
       return ok({ type: 'hello-ok', features: { methods: [] } });
     case 'sessions.create':
@@ -180,6 +204,7 @@ function gateway(frame) {
       return ok({ subscribed: true, key: frame.params?.key });
     case 'sessions.send': {
       const nonce = /R-CW-4 proof nonce (\S+)\./u.exec(frame.params?.message || '')?.[1];
+      transcript.push(...chainTranscript(String(frame.params?.message || ''), nonce, frame.params?.idempotencyKey));
       // The behaviour the refire journal shows: three hops, then CW4-DONE.
       return [
         ...ok({ runId: frame.params?.idempotencyKey, traceId: null }),

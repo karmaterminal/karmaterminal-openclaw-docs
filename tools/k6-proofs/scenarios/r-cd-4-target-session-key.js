@@ -6,6 +6,11 @@
  * agent to call continue_delegate(..., targetSessionKey=<target>). The harness
  * subscribes to both sessions and verifies the delayed return/wake lands in the
  * target session and not the dispatching parent.
+ *
+ * The target's TARGET-ACK counts only from a stamped run other than the
+ * priming run, after the priming reply, on both the live and the transcript
+ * path (openclaw-bootstrap#1727): the priming prompt names the ack, so the
+ * priming run restating it used to satisfy the assistant-text path.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -119,6 +124,7 @@ export default function () {
     target_session_created: false,
     target_primed: false,
     target_priming_run_id: null,
+    target_return_unbound_reason: null,
     target_return_source: null,
     parent_return_source: null,
     created_parent_session_key: null,
@@ -462,6 +468,9 @@ export default function () {
               evidence.target_primed = true;
               // The woken turn must be a different run than this priming turn.
               evidence.target_priming_run_id = messageRunId(eventData.message, eventData);
+              // Review F5: an unstamped priming run cannot be excluded, so no target ack
+              // can bind (the authority helpers refuse a list with a missing run id).
+              if (!evidence.target_priming_run_id) evidence.target_return_unbound_reason = 'the target priming reply carries no run id; the priming run cannot be excluded, so no target ack can bind';
               console.log('✓ target session primed for continuation consumption acknowledgement');
               socket.setTimeout(() => dispatchParent(socket), 100);
             }
@@ -490,6 +499,8 @@ export default function () {
               nonce: rowNonce,
               elapsedMs: elapsed,
               wakeGateMs: evidence.wake_gate_ms,
+              // #1727: the priming run's own words never count as the woken ack.
+              excludeTargetRunIds: [evidence.target_priming_run_id],
             });
             // #567: a continuation return wakes the target as a heartbeat turn,
             // answered through heartbeat_respond. Bound to the target session,

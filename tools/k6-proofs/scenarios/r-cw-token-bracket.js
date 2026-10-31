@@ -5,6 +5,32 @@
  * token does more than parse/strip: it schedules and drives hop-2, which emits
  * an explicit TOKEN-HOP2-DONE sentinel on wake.
  *
+ * Every receipt is a product record the agent cannot author
+ * (openclaw-bootstrap#1727). At F′ every one of these flags flipped on
+ * substrings the parent's own sessions_spawn call carries (the spawn task
+ * holds TOKEN-HOP1, CONTINUE_WORK and TOKEN-HOP2-DONE), and the hop-2 byte
+ * matched 160 ms after the journal's work-wake, before any hop-2 reply.
+ *   - spawn: the parent's sessions_spawn toolResult, bound by toolCallId to the
+ *     call whose task carries the nonce, answered "accepted" with a
+ *     childSessionKey;
+ *   - hop 1 / hop 2: the child's own transcript on that key, from its spawn
+ *     task: a chat.history read sent after the child subscription was
+ *     acknowledged, extended by the live rows of that subscription (harness
+ *     review F2/F3: the subscription opens after the spawn, so live rows alone
+ *     miss the spawn task and any typed call persisted before it; the read
+ *     alone can miss a hop written after it, and cleanup="delete" can remove
+ *     the transcript before a later read):
+ *     TOKEN-HOP1 in assistant text, then, after a "[continuation:wake]" row or
+ *     in another run, TOKEN-HOP2-DONE with a token the child mints in hop 2,
+ *     absent from the harness texts, from the requester's own sessions_spawn
+ *     arguments and from the child's spawn task; no typed continue_work call
+ *     in the child, by name or through Tool Search's dispatch_action;
+ *   - a spawn with context "fork" (or a thread spawn that leaves the context
+ *     to the channel default) is refused: a forked child starts with the
+ *     requester's own transcript;
+ *   - return: the parent reproducing that hop-2 token in a run other than the
+ *     dispatch run.
+ *
  * Repeatable mode: set OPENCLAW_CREATE_DISPOSABLE_SESSION=true to create a
  * disposable parent session. The parent session is instructed to call
  * sessions_spawn(lightContext=true, mode=run) for a child that emits the token.
@@ -20,8 +46,13 @@
 import ws from 'k6/ws';
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
+import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
+import { tokenWorkHops } from '../lib/continue-work-chain.mjs';
+import { createToolReceiptTracker, eventSessionKey, requesterCallTexts, tokenReplyFromHistory, toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = {
   scenarios: {
@@ -50,7 +81,6 @@ const DEFAULTS = {
   taskNamePrefix: 'r-cw-token',
 };
 const HARNESS_MARKER = '[k6-proof-harness]';
-const POST_DISPATCH_EVIDENCE_GATE_MS = Number(__ENV.OPENCLAW_MIN_TOKEN_EVIDENCE_DELAY_MS || 1500);
 
 function boolEnv(name) {
   return (__ENV[name] || '').toLowerCase() === 'true';
@@ -110,13 +140,154 @@ export default function () {
     hop_2_at_ms: null,
     trace_id: null,
     child_session_key: null,
+    spawn_receipt_status: null,
+    spawn_receipt_source: null,
+    child_subscribed: false,
+    child_rows_seen: 0,
+    child_history_reads: 0,
+    child_typed_continue_work_observed: false,
+    spawn_refusal_reason: null,
+    hop_reason: null,
+    hop_2_token_fingerprint: null,
+    parent_history_reads: 0,
+    parent_return_reason: null,
+    // Diagnostics only: sentinel text seen anywhere on the event stream.
+    hop1_text_seen: false,
+    hop2_text_seen: false,
     redacted_events: [],
   };
 
   const started = Date.now();
 
+  const sentTexts = [];
+  // The requester's own nonce-bound sessions_spawn arguments (review F2).
+  const requesterTexts = [];
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
+    let spawnTracker = null;
+    let dispatchRunId = null;
+    let childKey = null;
+    let childSubscribeId = null;
+    let childSubscribed = false;
+    // The latest child chat.history read, whether it was sent after the subscription
+    // was acknowledged, and every live child row since the subscription.
+    let childHistory = null;
+    let childHistoryCovered = false;
+    const childHistoryCoveredById = {};
+    const liveChildRows = [];
+    let hop2Token = null;
+    let hop2Timestamp = null;
+    let childHistoryScheduled = false;
+    let parentHistoryScheduled = false;
+    let closing = false;
+    const historyKeyById = {};
+
+    function closeSoon() {
+      if (closing) return;
+      closing = true;
+      socket.setTimeout(() => socket.close(), 1000);
+    }
+
+    function recordSpawn(receipts, source) {
+      if (childKey || evidence.spawn_refusal_reason || receipts.length === 0) return;
+      if (receipts.length > 1) { evidence.spawn_receipt_status = 'ambiguous'; return; }
+      const [receipt] = receipts;
+      evidence.spawn_receipt_status = receipt.status;
+      evidence.spawn_receipt_source = source;
+      for (const text of requesterCallTexts([receipt])) if (!requesterTexts.includes(text)) requesterTexts.push(text);
+      // A forked child inherits the requester's visible transcript, assistant rows
+      // included (session-accessor.sqlite-parent-fork.ts:219-249); an omitted
+      // context on a thread spawn takes the channel's default, which can be fork
+      // (subagent-spawn-context.ts:207-229).
+      const context = receipt.args?.context;
+      if (context === 'fork' || (context === undefined && receipt.args?.thread === true)) {
+        evidence.spawn_refusal_reason = `sessions_spawn context ${context === 'fork' ? '"fork"' : 'left to a thread default'}: a forked child starts with the requester's transcript`;
+        console.error(`✗ ${evidence.spawn_refusal_reason}`);
+        return;
+      }
+      const key = typeof receipt.payload?.childSessionKey === 'string' ? receipt.payload.childSessionKey.trim() : '';
+      if (receipt.isError || receipt.status !== 'accepted' || !key) return;
+      if (receipt.runId) dispatchRunId = dispatchRunId || receipt.runId;
+      childKey = key;
+      evidence.subagent_spawn_accepted = true;
+      evidence.child_session_key = key;
+      console.log(`✓ sessions_spawn toolResult accepted with a childSessionKey (${source})`);
+      childSubscribeId = tracker.send(socket, 'sessions.messages.subscribe', { key: childKey });
+      requestChildHistory(250);
+    }
+
+    // The child's whole transcript decides hop 1 and hop 2; the parent stream
+    // and the live child suffix never do.
+    function evaluateChild(rows, source) {
+      if (evidence.hop_2_executed) return;
+      const hops = tokenWorkHops(rows, { nonce: rowNonce, hop1Marker: 'TOKEN-HOP1', hop2Marker: 'TOKEN-HOP2-DONE', sentTexts: [...sentTexts, ...requesterTexts] });
+      if (hops.typedToolUsed) evidence.child_typed_continue_work_observed = true;
+      evidence.hop_reason = hops.reason;
+      if (hops.hop1Index >= 0 && !hops.typedToolUsed && !evidence.token_emitted_or_stripped) {
+        evidence.token_emitted_or_stripped = true;
+        console.log(`✓ child hop 1 said TOKEN-HOP1 with no typed continue_work call (${source})`);
+      }
+      if (hops.complete) {
+        hop2Token = hops.token;
+        hop2Timestamp = hops.tokenTimestamp;
+        evidence.hop_2_executed = true;
+        evidence.hop_2_at_ms = Date.now();
+        evidence.hop_2_token_fingerprint = crypto.sha256(hops.token, 'hex').slice(0, 16);
+        console.log(`✓ child hop 2 minted its token after the wake (${source})`);
+        requestParentHistory(1000);
+      }
+    }
+
+    function requestChildHistory(delayMs) {
+      if (!childKey || childHistoryScheduled || evidence.hop_2_executed || evidence.child_history_reads >= 60) return;
+      childHistoryScheduled = true;
+      socket.setTimeout(() => {
+        childHistoryScheduled = false;
+        evidence.child_history_reads += 1;
+        const id = tracker.send(socket, 'chat.history', { sessionKey: childKey, limit: 200 });
+        historyKeyById[id] = childKey;
+        childHistoryCoveredById[id] = childSubscribed;
+      }, k6TimeoutMs(delayMs));
+    }
+
+    // The read, plus the live rows when the read was sent after the subscription
+    // was acknowledged: then the two together hold the whole transcript (a row
+    // seen by both is repeated, which no binding below counts twice).
+    function childTranscript() {
+      if (!childHistory) return null;
+      return childHistoryCovered ? [...childHistory, ...liveChildRows] : childHistory;
+    }
+
+    function requestParentHistory(delayMs) {
+      if (parentHistoryScheduled || evidence.parent_return || evidence.parent_history_reads >= 60) return;
+      parentHistoryScheduled = true;
+      socket.setTimeout(() => {
+        parentHistoryScheduled = false;
+        evidence.parent_history_reads += 1;
+        historyKeyById[tracker.send(socket, 'chat.history', { sessionKey, limit: 200 })] = sessionKey;
+      }, k6TimeoutMs(delayMs));
+    }
+
+    function onParentHistory(messages) {
+      recordSpawn(toolReceiptsFromHistory(messages, { toolName: 'sessions_spawn', argField: 'task', needle: rowNonce }), 'chat.history');
+      if (hop2Token) {
+        const bound = tokenReplyFromHistory(messages, {
+          marker: 'TOKEN-HOP2-RETURN',
+          nonce: rowNonce,
+          token: hop2Token,
+          excludeRunIds: [dispatchRunId],
+          notBeforeTimestamp: hop2Timestamp,
+        });
+        evidence.parent_return_reason = bound.reason;
+        if (bound.bound) {
+          evidence.parent_return = true;
+          console.log('✓ the parent reproduced the hop-2 token outside the dispatch run');
+          closeSoon();
+          return;
+        }
+      }
+      if (!childKey || hop2Token) requestParentHistory(4000);
+    }
 
     function startProofFlow(socket) {
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
@@ -128,14 +299,17 @@ export default function () {
           `k6 proof R-CW-TOKEN nonce ${rowNonce}. ` +
           `First turn: reply exactly TOKEN-HOP1 ${rowNonce}, then end your entire response with a bare CONTINUE_WORK:${inv.tokenDelaySeconds} token on its own final line. ` +
           `Do not call the continue_work tool. Do not wrap the token in brackets. ` +
-          `On the continuation wake/hop-2, reply exactly TOKEN-HOP2-DONE ${rowNonce}. ` +
+          `On the continuation wake/hop-2, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly TOKEN-HOP2-DONE ${rowNonce} TOKEN <your token>. ` +
           `Do not mutate files. Do not post externally.`;
         const agentInstruction =
           `${HARNESS_MARKER} Call sessions_spawn exactly once with runtime="subagent", mode="run", ` +
           `taskName="${taskName}", label="k6 R-CW-TOKEN ${rowNonce}", lightContext=${inv.lightContext ? 'true' : 'false'}, ` +
           `context="isolated", cleanup="delete", and task=${JSON.stringify(childTask)}. ` +
           `After the sessions_spawn tool result is accepted, reply exactly PARENT-SPAWNED ${rowNonce}. ` +
+          `Later, if the child's hop-2 result reaches you, reply exactly TOKEN-HOP2-RETURN ${rowNonce} TOKEN <the TOKEN value from that result>. ` +
           `This is a proof run.`;
+        sentTexts.push(childTask, agentInstruction);
+        spawnTracker = createToolReceiptTracker({ sessionKey, toolName: 'sessions_spawn', argField: 'task', needle: rowNonce });
         evidence.subagent_spawn_requested = true;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
@@ -197,11 +371,34 @@ export default function () {
           if (classified.ok) {
             evidence.parent_dispatch_accepted = true;
             evidence.dispatch_accepted_at_ms = Date.now();
+            dispatchRunId = gatewayLifecycleRunId(classified.payload) || dispatchRunId;
             if (classified.payload?.traceId) evidence.trace_id = classified.payload.traceId;
             console.log('✓ sessions.send accepted — parent agent turn triggered');
+            requestParentHistory(5000);
           } else {
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
+          }
+        }
+
+        if (classified.kind === 'response' && classified.method === 'sessions.messages.subscribe' && msg.id === childSubscribeId) {
+          childSubscribed = classified.ok === true;
+        }
+
+        if (classified.kind === 'response' && classified.method === 'chat.history') {
+          const messages = Array.isArray(classified.payload?.messages) ? classified.payload.messages : [];
+          const historyKey = historyKeyById[msg.id] || null;
+          delete historyKeyById[msg.id];
+          if (!classified.ok) {
+            if (historyKey === childKey) requestChildHistory(3000); else requestParentHistory(4000);
+          } else if (historyKey === childKey) {
+            childHistory = messages;
+            childHistoryCovered = childHistoryCoveredById[msg.id] === true;
+            delete childHistoryCoveredById[msg.id];
+            evaluateChild(childTranscript(), childHistoryCovered ? 'child chat.history + live rows' : 'child chat.history');
+            if (!evidence.hop_2_executed) requestChildHistory(3000);
+          } else {
+            onParentHistory(messages);
           }
         }
 
@@ -209,39 +406,23 @@ export default function () {
           const eventData = classified.data || {};
           const eventStr = JSON.stringify(eventData);
           const eventName = classified.event || '';
-
-          if (eventData.traceId) evidence.trace_id = eventData.traceId;
-          if (eventData.childSessionKey) evidence.child_session_key = eventData.childSessionKey;
-
-          if (eventStr.includes(rowNonce)) {
-            if (eventStr.includes(HARNESS_MARKER)) {
-              console.log('ℹ Ignoring harness prompt echo event');
-            } else if (evidence.parent_dispatch_accepted && evidence.dispatch_accepted_at_ms &&
-              (Date.now() - evidence.dispatch_accepted_at_ms) >= POST_DISPATCH_EVIDENCE_GATE_MS) {
-              if (eventStr.includes('PARENT-SPAWNED') || eventStr.includes('sessions_spawn') || eventStr.includes('childSessionKey')) {
-                evidence.subagent_spawn_accepted = true;
-                console.log('✓ parent sessions_spawn acceptance signal observed');
-              }
-
-              // The token is normally stripped before visible delivery; TOKEN-HOP1
-              // or a continuation journal/event containing CONTINUE_WORK is enough
-              // to establish the child reached the token-emitting turn.
-              if (eventStr.includes(`TOKEN-HOP1 ${rowNonce}`) || eventStr.includes('CONTINUE_WORK')) {
-                evidence.token_emitted_or_stripped = true;
-                console.log('✓ token-emitting child turn observed');
-              }
-
-              if (eventStr.includes(`TOKEN-HOP2-DONE ${rowNonce}`)) {
-                evidence.hop_2_executed = true;
-                evidence.hop_2_at_ms = Date.now();
-                evidence.parent_return = true;
-                console.log('✓ TOKEN-HOP2-DONE sentinel observed — hop-2 executed');
-              }
-
-              if (eventName === 'session.message' && eventStr.includes(rowNonce) && eventStr.includes('TOKEN-HOP2-DONE')) {
-                evidence.parent_return = true;
-              }
-            }
+          if (eventData.traceId && eventStr.includes(rowNonce) && !evidence.trace_id) evidence.trace_id = eventData.traceId;
+          // The parent's sessions_spawn toolResult, bound to its own call by toolCallId.
+          if (spawnTracker) {
+            const receipt = spawnTracker.observe(eventName, eventData);
+            if (receipt) recordSpawn([receipt], 'session.message');
+          }
+          // A live child row extends a read sent after the subscription, and prompts a new read.
+          if (childKey && eventName === 'session.message' && eventSessionKey(eventData) === childKey && eventData.message) {
+            liveChildRows.push({ ...eventData.message, __openclaw: { ...(eventData.message.__openclaw || {}), runId: eventData.message.__openclaw?.runId || eventData.runId } });
+            evidence.child_rows_seen = liveChildRows.length;
+            if (childHistory && childHistoryCovered) evaluateChild(childTranscript(), 'child chat.history + live rows');
+            requestChildHistory(500);
+          }
+          // Diagnostics only.
+          if (!eventStr.includes(HARNESS_MARKER)) {
+            if (eventStr.includes(`TOKEN-HOP1 ${rowNonce}`)) evidence.hop1_text_seen = true;
+            if (eventStr.includes(`TOKEN-HOP2-DONE ${rowNonce}`)) evidence.hop2_text_seen = true;
           }
         }
 
@@ -293,6 +474,7 @@ export default function () {
     evidence.subagent_spawn_accepted &&
     evidence.token_emitted_or_stripped &&
     evidence.hop_2_executed &&
+    !evidence.child_typed_continue_work_observed &&
     evidence.parent_return;
 
   console.log(`\n--- R-CW-TOKEN EVIDENCE SUMMARY ---`);

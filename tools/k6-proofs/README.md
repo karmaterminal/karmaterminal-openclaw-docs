@@ -825,6 +825,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
+| R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -854,6 +855,31 @@ true at `2273ef64d5`.
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
+
+### R-CD-RETURN-COVENANT-AUTHORITY disposable restart control
+
+`tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs` restarts one disposable
+gateway for real and grades whether its return authority (the recipient session's
+`session_recipient_authority` epoch) survives. It runs outside the generic k6 runner and
+`--live-suite`, because the manifest is `orchestration-required`. The control is the
+gateway's declared external supervisor (`OPENCLAW_SUPERVISOR_MODE=external`): it starts
+the old generation, establishes the authority, plans the window, requests
+`gateway.restart.request`, consumes the restart handoff and starts the replacement. It
+refuses, before starting anything, any target that is not a stopped
+`$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe `scripts/proof-gw/composite-launcher.sh`
+on a free loopback port that is not the live gateway's.
+
+```bash
+node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
+  --proof-gw-dir ~/proof-gw/comp-<sha8> --stage-dir <stage-only build of the candidate> \
+  --candidate-sha <40-char-sha> --docs-sha <40-char-docs-sha> \
+  --case positive --artifact-dir <new directory> --observer-key-file <0600 key file>
+```
+
+Run `--case negative-replacement-never-usable` next, into a new directory. It must grade
+non-PASS with `negativeControl.holds: true`. Raw process output stays in
+`<artifact-dir>.private`, which is never published. See
+[`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
 
 ### R-CW-5 isolated cost-cap fixture
 

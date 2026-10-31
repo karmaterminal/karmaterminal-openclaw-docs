@@ -23,6 +23,10 @@ export const PREFLIGHT_GATED_VERDICT_SCHEMA = 'openclaw.k6.preflight-gated-row-v
 export const PREFLIGHT_EVIDENCE_BINDING = 'exact-candidate-sha';
 export const PREFLIGHT_CAP = 'PARTIAL-candidate';
 export const PREFLIGHT_PROOF_ROW_STATUS = 'retired';
+// The checks every preflight receipt must carry, true, for its binding to hold:
+// the run had the exact candidate, the material it read names that candidate,
+// and it never claims live cap evidence.
+export const REQUIRED_RECEIPT_CHECKS = ['exactCandidateBinding', 'materialNamesCandidate', 'nonLiveBoundary'];
 
 const FULL_SHA = /^[0-9a-f]{40}$/;
 
@@ -38,6 +42,20 @@ function show(value) {
   return JSON.stringify(value) ?? String(value);
 }
 
+/**
+ * A row id as the gate compares it: Unicode-normalized, dash variants folded to
+ * '-', whitespace and invisible characters removed, upper-cased. A corpus row
+ * whose id canonicalizes to a gated row but is spelled otherwise is refused by
+ * the corpus validator, never left ungated.
+ */
+export function canonicalRowId(value) {
+  return String(value ?? '')
+    .normalize('NFKC')
+    .replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-')
+    .replace(/[\s\u00AD\u180E\u200B-\u200D\u2060\uFEFF]/g, '')
+    .toUpperCase();
+}
+
 /** Check names whose value is not exactly `true`. */
 export function falseChecks(checks) {
   return Object.entries(checks || {}).filter(([, value]) => value !== true).map(([name]) => name);
@@ -49,7 +67,8 @@ export function falseChecks(checks) {
  */
 export function buildRequiredPreflightReceipt({ preflightRow, attachedTo, candidateSha, sourceEvidenceSha, checks, passVerdict, failures = 0 }) {
   const bound = isFullSha(candidateSha) && sourceEvidenceSha === candidateSha;
-  const passed = bound && failures === 0 && Object.keys(checks || {}).length > 0 && falseChecks(checks).length === 0;
+  const pinned = REQUIRED_RECEIPT_CHECKS.every((name) => checks?.[name] === true);
+  const passed = bound && pinned && failures === 0 && falseChecks(checks).length === 0;
   return {
     schema: REQUIRED_PREFLIGHT_RECEIPT_SCHEMA,
     preflightRow,
@@ -87,6 +106,9 @@ export function evaluateRequiredPreflight({ requirement, liveRowId, candidateSha
   const checks = receipt.checks;
   if (!isObject(checks) || Object.keys(checks).length === 0 || Object.values(checks).some((value) => typeof value !== 'boolean')) {
     invalid.push('checks is not a non-empty object of booleans');
+  } else {
+    const absent = REQUIRED_RECEIPT_CHECKS.filter((name) => !Object.prototype.hasOwnProperty.call(checks, name));
+    if (absent.length) invalid.push(`checks lacks ${absent.join(', ')}`);
   }
   if (invalid.length) return { status: 'invalid', reasons: invalid };
 
@@ -154,7 +176,9 @@ export function catalogPreflightFailures(entries) {
         failures.push(`${file}: ${manifest.rowId} requires preflight ${id} from ${requirement.manifest}, which is not in the catalog`);
         continue;
       }
-      requiredBy.set(requirement.manifest, { file, rowId: manifest.rowId, preflightRow: id });
+      const requirers = requiredBy.get(requirement.manifest) || [];
+      requirers.push({ file, rowId: manifest.rowId, preflightRow: id });
+      requiredBy.set(requirement.manifest, requirers);
       const preflight = target.manifest || {};
       if (preflight.rowId !== id) {
         failures.push(`${file}: ${manifest.rowId} requires preflight ${id}, but ${requirement.manifest} declares ${preflight.rowId}`);
@@ -167,6 +191,16 @@ export function catalogPreflightFailures(entries) {
         failures.push(`${file}: ${id} passVerdict ${requirement.passVerdict} is not ${requirement.manifest}'s expectedArtifactClass ${expected}`);
       }
     }
+  }
+
+  // A preflight attaches to exactly one live row; a second requirer must fail
+  // whatever order the catalog files sort in.
+  for (const [target, requirers] of requiredBy) {
+    if (requirers.length < 2) continue;
+    const named = [...requirers].sort((a, b) => a.rowId.localeCompare(b.rowId) || a.file.localeCompare(b.file));
+    failures.push(
+      `${target}: ${requirers[0].preflightRow} is required by more than one live row: ${named.map((r) => `${r.rowId} (${r.file})`).join(', ')}`,
+    );
   }
 
   for (const { file, manifest } of entries) {
@@ -184,7 +218,9 @@ export function catalogPreflightFailures(entries) {
       failures.push(`${file}: a preflight attachment must be static-preflight-only, not ${classification}`);
     }
     if (manifest.scenario?.status !== 'runnable') failures.push(`${file}: a preflight attachment must have a runnable scenario`);
-    const requirer = requiredBy.get(file);
+    const requirers = requiredBy.get(file) || [];
+    if (requirers.length > 1) continue;
+    const [requirer] = requirers;
     if (requirer && requirer.rowId !== attachment.attachedTo) {
       failures.push(`${file}: ${manifest.rowId} is attached to ${attachment.attachedTo}, but ${requirer.rowId} (${requirer.file}) requires it`);
     } else if (!requirer) {

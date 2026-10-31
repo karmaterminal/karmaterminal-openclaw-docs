@@ -75,7 +75,8 @@ the real delegate-dispatch boundary suite.
 ruling). The fixture's verdict is behavioral only: R-CW-5 is PASS only when the
 R-CW-5A static check, run at the same exact candidate, wrote a passing
 `required-preflight-receipt.json`. That check reads
-`PROOFS/<candidate>/R-CW-5/cael-dgx/`, never INDEX `static_evidence_sha`.
+`PROOFS/<candidate>/R-CW-5/cael-dgx/`, never INDEX `static_evidence_sha`, and that
+material must name the candidate SHA (`source-sha.txt` or `EVIDENCE.md`).
 `grade-preflight-gated-row.mjs` joins `fixture-result.json` with that receipt and
 caps the row at `PARTIAL-candidate` when the receipt is missing, failed, malformed
 or bound to another SHA. In an F″ corpus `validate-corpus.mjs` refuses an R-CW-5

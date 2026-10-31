@@ -121,6 +121,20 @@ test('a consistent live row and preflight pair passes', async () => {
   assert.match(result.stdout, /Required preflight rule failures: 0/);
 });
 
+test('a preflight required by two live rows fails whatever the file order', async () => {
+  // The catalog indexes a preflight by the one live row it attaches to; a second
+  // requirer must not silently win or lose by sort order.
+  for (const [first, second] of [['r-a.json', 'r-z.json'], ['r-z.json', 'r-a.json']]) {
+    const result = await runCatalog({
+      [first]: liveManifest(),
+      [second]: liveManifest({ rowId: 'R-LIVE2' }),
+      'r-pre.json': preflightManifest(),
+    });
+    assert.notEqual(result.status, 0, `${first}/${second}: ${result.stdout}`);
+    assert.match(result.stderr, /r-pre\.json: R-PRE is required by more than one live row: R-LIVE \(r-[az]\.json\), R-LIVE2 \(r-[az]\.json\)/);
+  }
+});
+
 test('every disagreement between a live row and its preflight fails the catalog', async () => {
   const requirement = (patch) => liveManifest({ requiredPreflights: [{ ...liveManifest().requiredPreflights[0], ...patch }] });
   for (const [label, manifests, detail] of [

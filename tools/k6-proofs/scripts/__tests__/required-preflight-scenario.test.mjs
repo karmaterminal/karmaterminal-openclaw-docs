@@ -29,6 +29,7 @@ function material(row, sha, { passing = true } = {}) {
       'subagent-announce-tool-cost-cap-source.txt': ok('costCapTokens\n'),
       'vitest-delegate-dispatch-cost-cap-exhaustion.log': ok('✓ rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1\n✓ exact boundary\n5 passed\n'),
       'vitest-chain-guard-cost-cap.log': ok('2 passed\n'),
+      'source-sha.txt': `${sha}\n`,
     };
   }
   if (row === 'R-CW-6') {
@@ -38,6 +39,7 @@ function material(row, sha, { passing = true } = {}) {
       'source/work-dispatch-source-snippet.txt': ok('return { scheduled: false, capped: true };\n'),
       'source/scheduler-test-snippet.txt': ok('expect(result.reason).toBe("chain-capped")\n'),
       'harness/scheduler-boundary-harness.log': ok('{ "scheduled": false, "capped": true, "reason": "chain-capped" }\n'),
+      'source-sha.txt': `${sha}\n`,
     };
   }
   if (row === 'R-CW-7') {
@@ -64,8 +66,8 @@ async function withHarness({ manifest, material: corpora = [] }, fn) {
     await writeFile(join(root, 'PROOFS/INDEX.json'), `${JSON.stringify({
       schema: 'openclaw.proofs.index.v1', current_sha: CURRENT, static_evidence_sha: STATIC_BASELINE,
     })}\n`);
-    for (const { row, sha, passing } of corpora) {
-      for (const [file, content] of Object.entries(material(row, sha, { passing }))) {
+    for (const { row, sha, passing, names = sha } of corpora) {
+      for (const [file, content] of Object.entries(material(row, names, { passing }))) {
         const path = join(root, 'PROOFS', sha, row, 'cael-dgx', file);
         await mkdir(dirname(path), { recursive: true });
         await writeFile(path, content);
@@ -125,6 +127,7 @@ test('a preflight run at the candidate passes on the candidate\'s own material a
       assert.equal(output.failures, 0);
       assert.equal(evidence.verdict, 'construct-only');
       assert.equal(evidence.checks.exactCandidateBinding, true);
+      assert.equal(evidence.checks.materialNamesCandidate, true);
       assert.equal(evidence.checks.nonLiveBoundary, true);
       assert.equal(summary.verdict, 'construct-only');
       assert.equal(summary.sha, CANDIDATE);
@@ -142,6 +145,21 @@ test('a preflight run at the candidate passes on the candidate\'s own material a
       assert.equal(receipt.preflightStatus, 'passed');
       assert.deepEqual(receipt.checks, evidence.checks);
       assert.ok(Object.values(receipt.checks).every((value) => value === true));
+    });
+  }
+});
+
+test('the static baseline\'s material copied under the candidate does not pass: the material must name the candidate', async () => {
+  for (const { live, manifest } of PREFLIGHT_ROWS) {
+    // Every content check holds, but the material is the INDEX baseline's, naming its SHA.
+    await withHarness({ manifest, material: [{ row: live, sha: CANDIDATE, names: STATIC_BASELINE }] }, async (harness) => {
+      const { evidence, receipt } = runScenario(harness, { OPENCLAW_CANDIDATE_SHA: CANDIDATE });
+      assert.equal(evidence.sourceEvidenceSha, CANDIDATE);
+      assert.equal(evidence.checks.materialNamesCandidate, false, manifest);
+      assert.equal(evidence.checks.exactCandidateBinding, true);
+      assert.equal(evidence.verdict, 'FAIL-candidate');
+      assert.equal(receipt.preflightStatus, 'failed');
+      assert.deepEqual(Object.entries(receipt.checks).filter(([, value]) => value !== true).map(([name]) => name), ['materialNamesCandidate']);
     });
   }
 });

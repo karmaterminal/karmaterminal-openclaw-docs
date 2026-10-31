@@ -871,8 +871,12 @@ manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`
    `required-preflight-receipt.json` (`openclaw.k6.required-preflight-receipt.v1`),
    whose `candidateSha` and `sourceEvidenceSha` are that candidate. The candidate's
    static source/harness material therefore has to be committed under
-   `PROOFS/<candidate>/R-CW-5/cael-dgx/` first. Without it, the preflight fails,
-   and the live row is capped, which is the intended result.
+   `PROOFS/<candidate>/R-CW-5/cael-dgx/` first, and it must name that candidate
+   (its `source-sha.txt` or `EVIDENCE.md` contains the 40-character SHA), so the
+   static baseline's files copied into place do not pass. Without such material
+   the preflight fails, and the live row is capped, which is the intended result.
+   A receipt counts only if it carries `exactCandidateBinding`,
+   `materialNamesCandidate` and `nonLiveBoundary`, each `true`.
 
    ```bash
    cd "$PREFLIGHT_RUN_DIR"   # handleSummary writes its files here
@@ -907,7 +911,8 @@ manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`
    on them (see "Required preflight attachments" below).
 
 F′ (`f15237ec92`) and every older corpus keep R-CW-5A/6A as the rows they folded.
-Their historical MISSING verdicts and reports are unchanged.
+Their historical MISSING verdicts and reports are unchanged; the 71 corpora folded
+before the ruling are listed by name in `scripts/pre-f2-ruling-corpora.json`.
 
 ### R-CW-5 isolated cost-cap fixture
 
@@ -1109,22 +1114,24 @@ each required preflight (the catalog's `requiredPreflights`) in
 ```
 
 Because attachments are not in `rows[]` or `required_rows`, the required tally,
-`rollup` and `INDEX.rollup` leave them out. A manifest that declares
-`preflight_attachments` gets two more checks:
+`rollup` and `INDEX.rollup` leave them out.
+
+The corpora folded before the ruling are frozen by name in
+`scripts/pre-f2-ruling-corpora.json`: the 71 `PROOFS/<dir>` that carried a
+`proofs-manifest.json` at docs `f17d784d`, F′ included. They keep exactly the
+checks above. Every other corpus that declares `preflight_attachments`, carries a
+gated live row (R-CW-5, R-CW-6), or carries a preflight row gets two more checks,
+whatever its shape, `required_rows` or not:
 
 | check | requires |
 |---|---|
-| `preflight-attachments-valid` | `required_rows` is declared; each record names a catalog preflight and the live row the catalog attaches it to, which must be a row of this corpus; the attachment is in no row set (`rows[]`, `required_rows`, the supplemental set); `state` is `pass`, `fail` or `missing`; `candidate_sha` is this corpus; `dir`, if given, is `PROOFS/<sha>/<attachment>/` on disk; the receipt is a plain path under that directory; and `state` agrees with the receipt, which is read and judged again at this corpus's SHA. A `pass` needs a passing receipt, a `fail` a failed one, and a `missing` no receipt. Declared attachment directories are not orphans. |
-| `live-rows-gated-by-preflights` | a live row the catalog gates (R-CW-5, R-CW-6) is `pass` only when every required preflight's receipt passed at this SHA and its record says `pass`; any other state of the live row is reported as capped |
+| `preflight-attachments-valid` | no preflight is in any row set (`rows[]`, `required_rows`, the supplemental set), however its id is spelled. If `preflight_attachments` is declared: `required_rows` is declared too; each record names a catalog preflight, spelled canonically, and the live row the catalog attaches it to, which must be a row of this corpus; `state` is `pass`, `fail` or `missing`; `candidate_sha` is this corpus; `dir`, if given, is `PROOFS/<sha>/<attachment>/` on disk; the receipt is a plain path under that directory; and `state` agrees with the receipt, which is read and judged again at this corpus's SHA. A `pass` needs a passing receipt, a `fail` a failed one, and a `missing` no receipt. Declared attachment directories are not orphans. |
+| `live-rows-gated-by-preflights` | a live row the catalog gates is `pass` only when every required preflight's receipt passed at this SHA and its record says `pass`. Row ids are compared canonically (case, dash variants, whitespace and invisible characters), and a gated row spelled any other way than canonically fails. Any other state of the live row is reported as capped. |
 
-A manifest that declares `required_rows` and records a gated live row `pass`,
-but carries none of its preflights in any row set and declares no
-`preflight_attachments`, is the retired shape with nothing gating it. It gets
-`live-rows-gated-by-preflights` too, and fails it. Every other manifest gets
-neither check, so F′ and older corpora validate exactly as before. That includes
-`4c235d8c`, the one corpus folded before the ruling in the retired shape, which is
-exempt by name. The receipt rules live in `lib/required-preflight.mjs`, shared with
-the scenario and the grader.
+A corpus with neither gated live rows nor preflights, and no
+`preflight_attachments`, gets neither check. The receipt rules and the canonical
+row id live in `lib/required-preflight.mjs`, shared with the scenario and the
+grader.
 
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with

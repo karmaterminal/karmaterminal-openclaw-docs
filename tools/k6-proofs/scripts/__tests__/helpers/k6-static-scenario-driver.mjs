@@ -8,7 +8,8 @@
 // tests/helpers/k6-node-runtime.mjs. The scenario, its manifest loading, its
 // library imports and its summary are the real code. proof_failures is counted
 // from the scenario's own Counter.add calls and handed to handleSummary the way
-// k6 hands it the end-of-test metrics.
+// k6 hands it the end-of-test metrics. As in k6, handleSummary runs in a fresh
+// module instance that never ran default(), so it cannot lean on VU state.
 import { readFileSync } from 'node:fs';
 import { registerHooks } from 'node:module';
 import { pathToFileURL } from 'node:url';
@@ -42,9 +43,11 @@ for (const level of ['log', 'warn', 'error']) {
 }
 let files;
 try {
-  const scenario = await import(pathToFileURL(scenarioPath).href);
-  scenario.default();
-  files = scenario.handleSummary({
+  const url = pathToFileURL(scenarioPath).href;
+  const vu = await import(`${url}?k6-vu`);
+  vu.default();
+  const summaryContext = await import(`${url}?k6-summary`);
+  files = summaryContext.handleSummary({
     metrics: { proof_failures: { values: { count: failures } }, static_corpus_row_duration: { values: { avg: 0 } } },
   });
 } finally {

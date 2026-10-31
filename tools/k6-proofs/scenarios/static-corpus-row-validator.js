@@ -64,6 +64,20 @@ const roots = {
   rcw6: rowRoot('R-CW-6'),
 };
 
+// The folder alone does not bind the material: the static baseline's files copied
+// under PROOFS/<candidate>/ would pass every content check. The material must name
+// the candidate itself, in source-sha.txt or EVIDENCE.md, as R-CW-7's does.
+const preflightMaterial = preflightAttachment
+  ? {
+    evidence: readMaybe(`${rowRoot(sourceRow)}/EVIDENCE.md`),
+    sourceSha: readMaybe(`${rowRoot(sourceRow)}/source-sha.txt`),
+  }
+  : null;
+const materialNamesCandidate = Boolean(
+  preflightCandidateSha &&
+    (preflightMaterial.sourceSha.includes(preflightCandidateSha) || preflightMaterial.evidence.includes(preflightCandidateSha)),
+);
+
 const corpus = {};
 if (selectedRow === 'R-CW-7') {
   corpus.rcw7 = {
@@ -294,6 +308,7 @@ function runValidator() {
   }
   if (preflightAttachment) {
     result.checks.exactCandidateBinding = exactCandidateBinding;
+    result.checks.materialNamesCandidate = materialNamesCandidate;
   }
   return result;
 }

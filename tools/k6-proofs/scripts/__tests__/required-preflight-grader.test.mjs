@@ -39,7 +39,7 @@ function receipt(live, overrides = {}) {
     evidenceBinding: 'exact-candidate-sha',
     verdict: passed ? 'construct-only' : 'FAIL-candidate',
     preflightStatus: passed ? 'passed' : 'failed',
-    checks: { sourceGuard: passed, exactCandidateBinding: true, nonLiveBoundary: true },
+    checks: { sourceGuard: passed, exactCandidateBinding: true, materialNamesCandidate: true, nonLiveBoundary: true },
     ...overrides,
   };
 }
@@ -184,6 +184,8 @@ test('ambiguous or malformed receipts are invalid, never a pass', async () => {
     ['wrong schema', receipt('R-CW-5', { schema: 'x' }), /^schema is "x", expected openclaw\.k6\.required-preflight-receipt\.v1$/],
     ['wrong live row', receipt('R-CW-5', { attachedTo: 'R-CW-6' }), /^attachedTo is "R-CW-6", expected R-CW-5$/],
     ['no checks', receipt('R-CW-5', { checks: {} }), /^checks is not a non-empty object of booleans$/],
+    ['unpinned checks', receipt('R-CW-5', { checks: { x: true } }), /^checks lacks exactCandidateBinding, materialNamesCandidate, nonLiveBoundary$/],
+    ['a truthy non-boolean check', receipt('R-CW-5', { checks: { ...receipt('R-CW-5').checks, sourceGuard: 'yes' } }), /^checks is not a non-empty object of booleans$/],
   ]) {
     const { status, payload } = await gradeRow('R-CW-5', [value]);
     assert.equal(status, 1, label);

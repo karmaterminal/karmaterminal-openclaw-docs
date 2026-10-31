@@ -38,7 +38,7 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { gatewayLifecyclePhase, gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
-import { createToolReceiptTracker } from '../lib/sentinel-binding.mjs';
+import { createToolReceiptTracker, requesterCallTexts } from '../lib/sentinel-binding.mjs';
 import {
   COMPACTION_THRESHOLD,
   DEFAULT_FILL_BUDGET_TOKENS,
@@ -191,7 +191,7 @@ export default function () {
   const started = Date.now();
   const gate = createPreflightGate('R-CD-3');
   const observer = createChildObserver({ rootSessionKey: () => sessionKey });
-  // Every text the harness sends; a token found in any of them is not minted by the lifeboat.
+  // Every text the harness sends, and the requester's own staging arguments; a token found in any of them is not minted by the lifeboat.
   const sentTexts = [lifeboatTask, compactionReason];
 
   const res = ws.connect(url, {}, (socket) => {
@@ -216,6 +216,8 @@ export default function () {
     let lifeboatTokenTimestamp = null;
     let parentHistoryScheduled = false;
     let lifeboatHistoryScheduled = false;
+    // The requester's own bound continue_delegate arguments (review F2).
+    const requesterCalls = [];
 
     function send(purpose, method, params) {
       const id = tracker.send(socket, method, params);
@@ -348,6 +350,9 @@ export default function () {
     }
 
     function recordStaging(receipts, source) {
+      for (const receipt of receipts) {
+        if (!requesterCalls.some((call) => call.id === receipt.toolCallId)) requesterCalls.push({ id: receipt.toolCallId, args: receipt.args });
+      }
       if (evidence.staging_receipt_observed) return;
       const staging = stagingOutcome(receipts);
       if (!receipts.length) return;
@@ -452,6 +457,9 @@ export default function () {
     }
 
     function onLifeboatHistory(messages) {
+      // Absent from the requester's own staging call arguments too (review F2).
+      const calls = [...requesterCalls, ...(stagingTracker ? stagingTracker.calls() : [])];
+      for (const text of requesterCallTexts(calls)) if (!sentTexts.includes(text)) sentTexts.push(text);
       const report = lifeboatReport(messages, { rowNonce, sentTexts });
       evidence.lifeboat_report_reason = report.reason;
       if (!report.token) {

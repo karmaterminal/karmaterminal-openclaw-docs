@@ -120,35 +120,50 @@ function typedContinueWork(message) {
 
 /**
  * The child's own rows for a bare CONTINUE_WORK token chain, in order:
- *   hop 1: an assistant row whose text says `<hop1Marker> <nonce>`;
+ *   spawn task: the first user row, carrying the nonce. The rows must be a
+ *          read of the whole transcript from its start (harness review
+ *          F2/F3): a live suffix can miss the spawn task, whose text is the
+ *          task the requester actually sent, and a typed call persisted
+ *          before the subscription;
+ *   hop 1: after it, an assistant row whose text says `<hop1Marker> <nonce>`;
  *   hop 2: after a "[continuation:wake]" user row (product text) or in a run
  *          other than hop 1's, an assistant row whose text carries
  *          `<hop2Marker> <nonce> TOKEN <minted>`, a token absent from every
- *          harness-sent text (mintedTokenFromHistory).
- * A typed continue_work call anywhere in the child means the token form is
- * not what scheduled the wake. Rows come from one session only (the caller
- * binds the session). Returns { hop1Index, hop1RunId, wakeIndex, hop2Index,
+ *          harness-sent or requester-call text and from every user row of
+ *          the transcript, the spawn task included (mintedTokenFromHistory).
+ * A typed continue_work call anywhere in the child, by name or through Tool
+ * Search's dispatch_action, means the token form is not what scheduled the
+ * wake. Rows come from one session only (the caller binds the session).
+ * Returns { spawnTaskIndex, hop1Index, hop1RunId, wakeIndex, hop2Index,
  * hop2RunId, token, tokenTimestamp, typedToolUsed, complete, reason }.
  */
 export function tokenWorkHops(rows, { nonce, hop1Marker, hop2Marker, sentTexts = [] } = {}) {
   const list = boundRows(rows);
   const out = {
-    hop1Index: -1, hop1RunId: null, wakeIndex: -1, hop2Index: -1, hop2RunId: null,
+    spawnTaskIndex: -1, hop1Index: -1, hop1RunId: null, wakeIndex: -1, hop2Index: -1, hop2RunId: null,
     token: null, tokenTimestamp: null, typedToolUsed: list.some(typedContinueWork), complete: false, reason: null,
   };
   const runOf = (m) => (typeof m?.__openclaw?.runId === 'string' && m.__openclaw.runId) || null;
-  out.hop1Index = list.findIndex((m) => {
+  const firstUser = list.findIndex((m) => role(m) === 'user');
+  const spawnTask = firstUser >= 0 ? textOfUser(list[firstUser]) : null;
+  if (!nonce || typeof spawnTask !== 'string' || !spawnTask.includes(nonce)) {
+    return { ...out, reason: 'the read does not start at the child\'s spawn task (no first user row carrying the nonce)' };
+  }
+  out.spawnTaskIndex = firstUser;
+  const userTexts = list.filter((m) => role(m) === 'user').map(textOfUser).filter((t) => typeof t === 'string');
+  out.hop1Index = list.findIndex((m, i) => {
+    if (i <= firstUser) return false;
     const text = assistantText(m);
     return Boolean(text) && hasExactSentinelText(text, hop1Marker, nonce);
   });
-  if (out.hop1Index < 0) return { ...out, reason: `no child assistant row says ${hop1Marker}` };
+  if (out.hop1Index < 0) return { ...out, reason: `no child assistant row after the spawn task says ${hop1Marker}` };
   out.hop1RunId = runOf(list[out.hop1Index]);
   for (let i = out.hop1Index + 1; i < list.length; i += 1) {
     const text = role(list[i]) === 'user' ? textOfUser(list[i]) : null;
     if (text && text.startsWith('[continuation:wake]')) { out.wakeIndex = i; break; }
   }
   const after = list.slice(out.hop1Index + 1);
-  const minted = mintedTokenFromHistory(after, { marker: hop2Marker, nonce, sentTexts });
+  const minted = mintedTokenFromHistory(after, { marker: hop2Marker, nonce, sentTexts: [...sentTexts, ...userTexts] });
   if (!minted.token) return { ...out, reason: `hop 2: ${minted.reason}` };
   const index = out.hop1Index + 1 + minted.index;
   const runId = minted.runId || null;

@@ -9,7 +9,12 @@
  *   - scheduled: the nonce-bound continue_delegate toolResult (toolCallId)
  *     reports "scheduled", and RCDS-SCHEDULED is in the parent's own text;
  *   - child completion: the child's own chat final (its session, spawnedBy
- *     this session) carries SILENTCHILD <nonce> TOKEN <12 chars> minted there;
+ *     this session) carries SILENTCHILD <nonce> TOKEN <12 chars> minted there:
+ *     absent from every harness-sent text and from the arguments of the
+ *     requester's own nonce-bound continue_delegate call (harness review F2:
+ *     a requester can write a token into the task it hands the child and
+ *     reproduce it later from memory). Until that call has been seen the
+ *     report stays pending;
  *   - readback: a parent run other than the dispatch run says
  *     RCDS-PARENT-OBSERVED <nonce> TOKEN <that token>.
  */
@@ -20,7 +25,7 @@ import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
-import { MINTED_TOKEN_PATTERN, assistantSentinelFromEvent, createToolReceiptTracker, eventSessionKey, textParts } from '../lib/sentinel-binding.mjs';
+import { MINTED_TOKEN_PATTERN, assistantSentinelFromEvent, createToolReceiptTracker, eventSessionKey, requesterCallTexts, textParts } from '../lib/sentinel-binding.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
@@ -84,6 +89,7 @@ export default function () {
     let scheduledTracker = null;
     let dispatchRunId = null;
     let childToken = null;
+    let pendingChildToken = null;
     const childText = {};
 
     function sendFollowup(socket) {
@@ -92,6 +98,31 @@ export default function () {
       const followup = `${HARNESS_MARKER} R-CD-SILENT follow-up nonce ${rowNonce}. If the previous silent delegate return is present in your internal context, reply exactly RCDS-PARENT-OBSERVED ${rowNonce} TOKEN <the TOKEN value from that return>. If it is absent, reply exactly RCDS-PARENT-MISSING ${rowNonce}. Do not call tools.`;
       sentTexts.push(followup);
       tracker.send(socket, 'sessions.send', { key: sessionKey, message: followup, idempotencyKey: `${inv.idempotencyKeyPrefix}-FOLLOWUP-${rowNonce}` });
+    }
+
+    // A reported token counts only once the requester's own bound call is in hand
+    // and the token is absent from its arguments as well as the harness texts.
+    function acceptChildToken() {
+      const token = pendingChildToken;
+      if (!token || childToken) return;
+      const requesterCalls = scheduledTracker ? scheduledTracker.calls() : [];
+      if (requesterCalls.length === 0) {
+        evidence.child_report_reason = 'the child reported before the requester\'s nonce-bound continue_delegate call was seen; its arguments cannot be checked yet';
+        return;
+      }
+      pendingChildToken = null;
+      if (sentTexts.some((t) => t.toLowerCase().includes(token))) { evidence.child_report_reason = 'the child token appears in harness-sent text'; return; }
+      if (requesterCallTexts(requesterCalls).some((t) => t.toLowerCase().includes(token))) {
+        evidence.child_report_reason = 'the child token appears in the requester\'s own continue_delegate arguments';
+        return;
+      }
+      childToken = token;
+      evidence.child_token_fingerprint = crypto.sha256(token, 'hex').slice(0, 16);
+      if (!evidence.child_completion_observed) {
+        evidence.child_completion_observed = true;
+        console.log('✓ silent child completed with a token it minted (its own chat final)');
+        socket.setTimeout(() => sendFollowup(socket), k6TimeoutMs(Number(__ENV.OPENCLAW_SILENT_FOLLOWUP_AFTER_CHILD_MS || 5000)));
+      }
     }
 
     // The child's own assistant text on its own session, spawned by this one.
@@ -107,14 +138,8 @@ export default function () {
       if (!match) return;
       const token = match[1];
       if (!MINTED_TOKEN_PATTERN.test(token)) { evidence.child_report_reason = 'the child reply carries no 12-character lowercase TOKEN'; return; }
-      if (sentTexts.some((t) => t.toLowerCase().includes(token))) { evidence.child_report_reason = 'the child token appears in harness-sent text'; return; }
-      childToken = token;
-      evidence.child_token_fingerprint = crypto.sha256(token, 'hex').slice(0, 16);
-      if (!evidence.child_completion_observed) {
-        evidence.child_completion_observed = true;
-        console.log('✓ silent child completed with a token it minted (its own chat final)');
-        socket.setTimeout(() => sendFollowup(socket), k6TimeoutMs(Number(__ENV.OPENCLAW_SILENT_FOLLOWUP_AFTER_CHILD_MS || 5000)));
-      }
+      pendingChildToken = token;
+      acceptChildToken();
     }
 
     function startProofFlow(socket) {
@@ -172,6 +197,7 @@ export default function () {
               if (!dispatchRunId && receipt.runId) dispatchRunId = receipt.runId;
               console.log('✓ continue_delegate toolResult reports scheduled');
             }
+            acceptChildToken();
           }
           if (assistantSentinelFromEvent(eventName, eventData, { sessionKey, marker: 'RCDS-SCHEDULED', nonce: rowNonce, requireRunId: false })) evidence.scheduled_text_bound = true;
           evidence.scheduled_sentinel = evidence.scheduled_receipt_observed && evidence.scheduled_text_bound;

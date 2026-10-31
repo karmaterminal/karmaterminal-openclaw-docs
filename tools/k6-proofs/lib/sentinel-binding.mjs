@@ -228,6 +228,10 @@ export function createToolReceiptTracker({ sessionKey, toolName, argField, needl
   const calls = new Map();
   const receipts = [];
   return {
+    /** Every bound call seen so far, answered or not: [{ id, args }]. */
+    calls() {
+      return [...calls.values()].map(({ call }) => ({ id: call.id, args: call.args }));
+    },
     observe(eventName, eventData) {
       if (eventName !== 'session.message' || !sessionKey || eventSessionKey(eventData) !== sessionKey) return null;
       const message = eventData.message;
@@ -245,6 +249,19 @@ export function createToolReceiptTracker({ sessionKey, toolName, argField, needl
       return receipts.slice();
     },
   };
+}
+
+/**
+ * The texts a requester's own calls carried: one JSON rendering per call's
+ * arguments (receipts or calls with `args`). The requester can write a
+ * "token" into a task it hands a child and later reproduce it from memory
+ * (harness review F2), so a minted token must be absent from these as well
+ * as from every harness-sent text.
+ */
+export function requesterCallTexts(calls) {
+  return (Array.isArray(calls) ? calls : [])
+    .filter((call) => isRecord(call?.args))
+    .map((call) => JSON.stringify(call.args));
 }
 
 // ---------------------------------------------------------------------------

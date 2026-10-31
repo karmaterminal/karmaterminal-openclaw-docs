@@ -41,7 +41,7 @@ import { closeSocketAfterDelay } from '../lib/socket-close.js';
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 import { gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
-import { assistantSentinelFromEvent, createToolReceiptTracker, mintedTokenFromHistory, tokenReplyFromHistory } from '../lib/sentinel-binding.mjs';
+import { assistantSentinelFromEvent, createToolReceiptTracker, mintedTokenFromHistory, requesterCallTexts, tokenReplyFromHistory } from '../lib/sentinel-binding.mjs';
 
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
@@ -198,6 +198,8 @@ export default function () {
     }
 
     function onChildHistory(messages) {
+      // Absent from the harness texts, the child's own user rows and the requester's own call arguments (review F2).
+      for (const text of requesterCallTexts(scheduledTracker ? scheduledTracker.calls() : [])) if (!sentTexts.includes(text)) sentTexts.push(text);
       const minted = mintedTokenFromHistory(messages, { marker: 'CD1-DONE', nonce: rowNonce, sentTexts });
       evidence.child_return_reason = minted.reason;
       if (!minted.token) { requestChildHistory(3000); return; }

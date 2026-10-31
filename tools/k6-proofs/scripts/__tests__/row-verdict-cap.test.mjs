@@ -146,6 +146,11 @@ test('every malformed or missing verdict cap fails the catalog', async () => {
       /r-live\.json: transport null is not a known transport/],
     ['a process-local fixture under another transport, no cap', processLocal({ transport: 'websocket', invocation: { fixture: 'tools/k6-proofs/scripts/x.mjs' }, verdictCap: undefined }),
       /r-live\.json: R-LIVE names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap/],
+    // The ruling names R-CW-5/6: their manifests must declare the cap however they are otherwise edited.
+    ['R-CW-5 without a cap or a process-local marker', processLocal({ rowId: 'R-CW-5', transport: 'websocket', verdictCap: undefined }),
+      /r-live\.json: R-CW-5 is capped by 🌊's ruling on docs#616, so it must declare verdictCap/],
+    ['r-cw-6 spelled another way, without a cap', processLocal({ rowId: 'r-cw-6', transport: 'offline', verdictCap: undefined }),
+      /r-live\.json: r-cw-6 is capped by 🌊's ruling on docs#616, so it must declare verdictCap/],
   ]) {
     const result = await runCatalog({ 'r-live.json': row });
     assert.notEqual(result.status, 0, `${label}: ${result.stdout}`);

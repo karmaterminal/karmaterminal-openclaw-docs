@@ -205,6 +205,8 @@ test('cap: the grader reads the cap from the manifest declaration and refuses a 
       ['no cap, transport spelled another way', (m) => { delete m.verdictCap; m.transport = 'Process-Local'; }, /R-CW-5 is process-local, so it must declare verdictCap/],
       ['no cap, no transport', (m) => { delete m.verdictCap; delete m.transport; }, /transport undefined is not a known transport/],
       ['no cap, another transport', (m) => { delete m.verdictCap; m.transport = 'websocket'; }, /R-CW-5 names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap/],
+      ['no cap and no process-local marker at all', (m) => { delete m.verdictCap; m.transport = 'websocket'; delete m.invocation.fixture; },
+        /R-CW-5 is capped by 🌊's ruling on docs#616, so it must declare verdictCap/],
     ]) {
       const manifest = structuredClone(base);
       mutate(manifest);

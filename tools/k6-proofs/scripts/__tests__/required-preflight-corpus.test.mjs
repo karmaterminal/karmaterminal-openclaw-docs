@@ -861,6 +861,20 @@ test('cap (d): a catalog that loses a process-local row\'s verdictCap cannot un-
     assert.deepEqual(failedChecks(over.report), ['rows-within-declared-cap']);
     assert.match(check(over.report, 'rows-within-declared-cap').detail, inconsistent);
 
+    // Nor does stripping every process-local marker as well: R-CW-5 is capped by
+    // the ruling itself, by id.
+    const stripped = { ...uncapped, transport: 'websocket', invocation: { ...uncapped.invocation } };
+    delete stripped.invocation.fixture;
+    await writeFile(r5, `${JSON.stringify(stripped, null, 2)}\n`);
+    const strippedRun = runCopy(SHA);
+    assert.equal(strippedRun.status, 1);
+    assert.deepEqual(failedChecks(strippedRun.report), ['rows-within-declared-cap']);
+    assert.match(
+      check(strippedRun.report, 'rows-within-declared-cap').detail,
+      /^the verdict-cap catalog is inconsistent: r-cw-5\.json: R-CW-5 is capped by 🌊's ruling on docs#616, so it must declare verdictCap/,
+    );
+    await writeFile(r5, `${JSON.stringify(uncapped, null, 2)}\n`);
+
     // Even a corpus with no capped row is held to the broken catalog: the cap
     // check cannot know which rows the catalog would have capped.
     const noCappedRows = fDouble({ attachments: null });
@@ -996,6 +1010,51 @@ test('cap (d): a capped row recorded under another id is still bound to its cap 
     assert.match(detail, new RegExp(`row R-CW-05 is bound to the capped row R-CW-5 ${binding.source}; a capped row is recorded under its own id`), label);
     if (state === 'pass') assert.match(detail, /R-CW-05 is pass, above the PARTIAL-candidate cap r-cw-5\.json declares/, label);
   }
+});
+
+test('cap (d): a row filed anywhere under a capped row\'s directory is bound to it', async () => {
+  for (const sub of ['R-CW-5/fixture-ronan/', 'R-CW-5/.', 'R-CW-5/x/../']) {
+    // R-CW-5 stays partial; a second row files a pass under R-CW-5's directory.
+    const manifest = fDouble();
+    manifest.required_rows.push('R-CW-5-FIXTURE');
+    manifest.rows.push({ row: 'R-CW-5-FIXTURE', state: 'pass', owner: 'frond-scribe-fixture', dir: `PROOFS/${SHA}/${sub}`, evidence_doc: `PROOFS/${SHA}/R-CW-5/EVIDENCE.md` });
+    manifest.dispatch_allocation['frond-scribe-fixture'].push('R-CW-5-FIXTURE');
+    manifest.rollup = { ...manifest.rollup, total_rows: 37, pass: manifest.rollup.pass + 1 };
+    const { status, report } = await validate(manifest);
+    assert.equal(status, 1, sub);
+    assert.deepEqual(failedChecks(report), ['rows-within-declared-cap'], sub);
+    const detail = check(report, 'rows-within-declared-cap').detail;
+    assert.match(detail, /row R-CW-5-FIXTURE is bound to the capped row R-CW-5 by its dir /, sub);
+    assert.match(detail, /R-CW-5-FIXTURE is pass, above the PARTIAL-candidate cap r-cw-5\.json declares/, sub);
+  }
+});
+
+test('cap (d): unreadable or malformed pins exempt no frozen capped row', async () => {
+  await withRoot(async (root) => {
+    const harness = join(root, 'harness');
+    await cp(join(repoRoot, 'tools/k6-proofs/scripts'), join(harness, 'scripts'), {
+      recursive: true,
+      filter: (source) => !source.includes('__tests__'),
+    });
+    await cp(join(repoRoot, 'tools/k6-proofs/lib'), join(harness, 'lib'), { recursive: true });
+    await cp(join(repoRoot, 'tools/k6-proofs/manifests'), join(harness, 'manifests'), { recursive: true });
+    const pinsFile = join(harness, 'scripts/pre-cap-ruling-capped-row-states.json');
+    const good = JSON.parse(await readFile(pinsFile, 'utf8'));
+    for (const [label, content] of [
+      ['not JSON', '{ not json'],
+      ['wrong schema', JSON.stringify({ ...good, schema: 'x' })],
+      ['a state list that is not a list', JSON.stringify({ ...good, corpora: { ...good.corpora, [FPRIME_SHA]: { 'R-CW-5': 'partial' } } })],
+    ]) {
+      await writeFile(pinsFile, content);
+      // The real, corrected F′ would be exempt with good pins.
+      const result = spawnSync(process.execPath, [join(harness, 'scripts/validate-corpus.mjs'), '--root', repoRoot, '--sha', FPRIME_SHA, '--json'], { encoding: 'utf8' });
+      assert.equal(result.stderr, '', `${label}: ${result.stderr}`);
+      const [report] = JSON.parse(result.stdout).reports;
+      assert.equal(result.status, 1, label);
+      assert.deepEqual(failedChecks(report), ['rows-within-declared-cap'], label);
+      assert.match(check(report, 'rows-within-declared-cap').detail, /^the pre-cap-ruling capped-row states are unreadable/, label);
+    }
+  });
 });
 
 test('cap (d): a capped row with no usable state shows what was recorded and is refused', async () => {

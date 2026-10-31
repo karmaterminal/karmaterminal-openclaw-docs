@@ -210,15 +210,18 @@ function procArgs(pid, procRoot = '/proc') {
 /**
  * Live children of `parent` that carry this run's marker. The product's gateway also starts
  * helpers that inherit its environment (the codex app server, plugin workers), so each child
- * says whether its command line is the gateway invocation itself.
+ * says whether its command line is the gateway invocation itself: a script inside the stage and
+ * the `gateway` command. A stage file, not only dist/index.js, because the foreground gateway
+ * may re-exec itself through its entry module (src/entry.compile-cache.ts:40-56).
  */
-function markedChildrenOf(parent, marker, entry, procRoot = '/proc') {
+function markedChildrenOf(parent, marker, stageDir, procRoot = '/proc') {
   const found = [];
   for (const pid of childPidsOf(parent, procRoot)) {
     const stat = procStat(pid, procRoot);
     if (!stat || stat.ppid !== parent || stat.state === 'Z' || !procEnvironHas(pid, marker, procRoot)) continue;
     const args = procArgs(pid, procRoot);
-    found.push({ pid, startTicks: stat.startTicks, ppid: stat.ppid, gateway: args.includes(entry) && args.includes('gateway') });
+    const inStage = args.some((arg) => arg.startsWith(`${stageDir}${path.sep}`));
+    found.push({ pid, startTicks: stat.startTicks, ppid: stat.ppid, gateway: inStage && args.includes('gateway') });
   }
   return found;
 }
@@ -965,7 +968,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     const child = fallback.child;
     if (child.pid === null) {
       // A new child since the trigger, whose command line is the gateway invocation.
-      const found = markedChildrenOf(old.pid, `OPENCLAW_PROOF_RCC_RUN=${runId}`, entry)
+      const found = markedChildrenOf(old.pid, `OPENCLAW_PROOF_RCC_RUN=${runId}`, target.stageDir)
         .find((candidate) => candidate.gateway && !state.preTriggerChildren.has(candidate.pid));
       if (found) Object.assign(child, { pid: found.pid, pidSource: 'proc', invocation: 'gateway', ppid: found.ppid, startTicks: found.startTicks, firstSeenAtMs: now() });
     }

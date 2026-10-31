@@ -138,7 +138,14 @@ const COMPACTION_MARKER = Object.freeze({
  *   'both'            stream events and the transcript row
  *   'before-rejection' stream events and a transcript row inside the turn, after the
  *                     request_compaction call and before its toolResult
+ *   'start-then-late-row' a compaction start event right after the turn, and its
+ *                     transcript row only after the first post-turn read
+ *   'replayed-baseline-row' a session.message replaying the baseline's compaction row
+ *                     right after the turn (pass baseline: [COMPACTION_MARKER])
  * compactionEventSessionKey: the session the compaction events name (null: none).
+ * compactionPhases: the agent compaction events 'stream' and 'both' send (start, end).
+ * compactionCompleted: the end event's completed flag, as compaction-runtime.ts sets it
+ *   (ok && compacted); the start event carries none.
  * turnEnds: false leaves the run open (no reply row, no lifecycle end).
  * replyRow / lifecycleEnd / lifecycleEndSessionKey: the two turn-end marks, separately.
  * toolCallAfterResult: the agent calls another tool after the toolResult (not a reply).
@@ -158,6 +165,8 @@ function scriptedGateway({
   receipt = RECEIPTS.measured,
   compaction = null,
   compactionEventSessionKey,
+  compactionPhases = ['start', 'end'],
+  compactionCompleted = true,
   turnEnds = true,
   replyRow = turnEnds,
   lifecycleEnd = turnEnds,
@@ -176,7 +185,8 @@ function scriptedGateway({
   const lifecycle = (phase, sessionKey = state.sessionKey, runId = RUN_ID) => event('agent', { ...(runId ? { runId } : {}), stream: 'lifecycle', ts: 1, sessionKey, agentId: 'main', data: { phase } });
   const compactionEvent = (phase) => {
     const sessionKey = compactionEventSessionKey === undefined ? state.sessionKey : compactionEventSessionKey;
-    return event('agent', { runId: RUN_ID, stream: 'compaction', ts: 2, ...(sessionKey ? { sessionKey } : {}), agentId: 'main', data: { phase, itemId: 'diag-0001' } });
+    const outcome = phase === 'end' ? { completed: compactionCompleted } : {};
+    return event('agent', { runId: RUN_ID, stream: 'compaction', ts: 2, ...(sessionKey ? { sessionKey } : {}), agentId: 'main', data: { phase, itemId: 'diag-0001', ...outcome } });
   };
   const append = (message) => {
     state.transcript.push(message);
@@ -202,7 +212,7 @@ function scriptedGateway({
         if (state.turnDone) {
           state.readsAfterTurn += 1;
           if (failFinalRead && state.readsAfterTurn > 1) return [refuse(frame)];
-          if (compaction === 'late-transcript' && state.readsAfterTurn === 2) state.transcript.push(COMPACTION_MARKER);
+          if ((compaction === 'late-transcript' || compaction === 'start-then-late-row') && state.readsAfterTurn === 2) state.transcript.push(COMPACTION_MARKER);
           if (finalRead && state.readsAfterTurn > 1) {
             if (finalRead === 'ok-false-no-error') return [{ type: 'res', id: frame.id, ok: false }];
             if (finalRead === 'empty-payload') return [ok({})];
@@ -245,8 +255,10 @@ function scriptedGateway({
         if (lifecycleEnd) replies.push(lifecycle('end', lifecycleEndSessionKey ?? state.sessionKey, lifecycleEndRunId));
         if (replyRow || lifecycleEnd) {
           state.turnDone = true;
-          if (compaction === 'stream' || compaction === 'both') replies.push(compactionEvent('start'), compactionEvent('end'));
+          if (compaction === 'stream' || compaction === 'both') replies.push(...compactionPhases.map(compactionEvent));
           if (compaction === 'transcript' || compaction === 'both') state.transcript.push(COMPACTION_MARKER);
+          if (compaction === 'start-then-late-row') replies.push(compactionEvent('start'));
+          if (compaction === 'replayed-baseline-row') replies.push(event('session.message', { sessionKey: state.sessionKey, agentId: 'main', message: COMPACTION_MARKER }));
         }
         const turn = replies.filter(Boolean);
         return ackLast ? [...turn, ack] : [ack, ...turn];
@@ -279,7 +291,10 @@ async function fireRrc1({ env = {}, ...options } = {}) {
   const proofFailures = (fired.metrics || [])
     .filter((metric) => metric.name === 'proof_failures')
     .reduce((sum, metric) => sum + metric.value, 0);
-  const result = { verdict: verdicts[0], evidence: records[0], proofFailures, frames: fired.frames, log: fired.log, options: fired.options };
+  const result = {
+    verdict: verdicts[0], evidence: records[0], proofFailures, frames: fired.frames, log: fired.log,
+    options: fired.options, handleSummary: fired.handleSummary, metrics: fired.metrics,
+  };
   // The VERDICT line, the evidence and the shared classifier say the same thing.
   assert.equal(result.evidence.verdict, result.verdict);
   assert.equal(classifyRrc1Evidence(result.evidence).verdict, result.verdict);
@@ -428,9 +443,10 @@ test('side effect: compaction events on the subscribed stream alone are FAIL, ea
   const after = assertFail(fired);
   assert.equal(fired.evidence.side_effect.stream_compaction_signals, 2);
   assert.deepEqual(fired.evidence.side_effect.stream_compaction_sources, ['agent-compaction-event']);
-  assert.deepEqual(after.map(({ source, phase, session_named }) => ({ source, phase, session_named })), [
-    { source: 'agent-compaction-event', phase: 'start', session_named: true },
-    { source: 'agent-compaction-event', phase: 'end', session_named: true },
+  // The start carries no outcome; the end says the compaction committed.
+  assert.deepEqual(after.map(({ source, phase, completed, session_named }) => ({ source, phase, completed, session_named })), [
+    { source: 'agent-compaction-event', phase: 'start', completed: null, session_named: true },
+    { source: 'agent-compaction-event', phase: 'end', completed: true, session_named: true },
   ]);
 });
 
@@ -472,6 +488,70 @@ test('side effect: a compaction inside the turn, before the toolResult, blocks P
   assert.equal(observations.length, 3);
   assert.ok(observations.every((observation) => observation.after_rejection !== true));
   assert.equal(observations.find((observation) => observation.source === 'transcript-compaction-row').after_rejection, false);
+  // Transcript events take another path than agent events, so a stream signal that
+  // arrives before the toolResult's event is not shown to precede it either.
+  assert.deepEqual(observations.filter((observation) => observation.source === 'agent-compaction-event').map((observation) => observation.after_rejection), [null, null]);
+});
+
+// Independent review of 3dbd1fab: FAIL needs a committed compaction, not an attempt.
+
+test('side effect: a compaction start after the rejection, never committed, blocks PASS but is not FAIL; the run keeps watching', async () => {
+  const fired = await fireRrc1({ compaction: 'stream', compactionPhases: ['start'] });
+  assertNotPass(fired, /not shown to follow the rejection/u);
+  assert.equal(fired.evidence.no_compaction_side_effect, false);
+  // A start alone does not settle the verdict, so the window and the final read still run.
+  assert.equal(fired.evidence.side_effect.window_elapsed, true);
+  assert.equal(fired.evidence.side_effect.final_read, true);
+  assert.deepEqual(fired.evidence.side_effect.compaction_observations.map(({ source, phase, completed, after_rejection }) => ({ source, phase, completed, after_rejection })), [
+    { source: 'agent-compaction-event', phase: 'start', completed: null, after_rejection: true },
+  ]);
+});
+
+test('side effect: a compaction that ends with completed:false blocks PASS but is not FAIL', async () => {
+  const fired = await fireRrc1({ compaction: 'stream', compactionCompleted: false });
+  assertNotPass(fired, /not shown to follow the rejection/u);
+  assert.equal(fired.evidence.side_effect.final_read, true);
+  assert.equal(fired.evidence.side_effect.compaction_observations.find((observation) => observation.phase === 'end').completed, false);
+});
+
+test('side effect: a compaction start whose transcript row lands later is FAIL on the row', async () => {
+  const fired = await fireRrc1({ compaction: 'start-then-late-row' });
+  const after = assertFail(fired);
+  assert.equal(fired.evidence.side_effect.final_read, true);
+  const row = after.find((observation) => observation.source === 'transcript-compaction-row');
+  assert.ok(row, 'the committed row is carried');
+  assert.equal(row.read, 'final');
+  assert.equal(row.record_id, 'cmp-0001');
+});
+
+test('side effect: a replayed baseline compaction row on the stream blocks PASS but is not FAIL', async () => {
+  const fired = await fireRrc1({ compaction: 'replayed-baseline-row', baseline: [COMPACTION_MARKER] });
+  assertNotPass(fired, /not shown to follow the rejection/u);
+  assert.equal(fired.evidence.side_effect.new_compaction_markers, 0);
+  assert.deepEqual(fired.evidence.side_effect.compaction_observations.map(({ source, record_id, after_rejection }) => ({ source, record_id, after_rejection })), [
+    { source: 'session-message-compaction-row', record_id: 'cmp-0001', after_rejection: false },
+  ]);
+});
+
+test('a non-string cause naming inventory_only is not PASS', async () => {
+  const fired = await fireRrc1({ receipt: { ...RECEIPTS.measured, cause: { code: 'inventory_only' } } });
+  assertNotPass(fired, /inventory_only/u);
+  assert.equal(fired.evidence.rejection_meets_contract, false);
+});
+
+test('handleSummary writes the VU verdict class: PASS, PARTIAL, or FAIL on a compaction after the rejection', async () => {
+  const summaryVerdict = (fired) => {
+    const metrics = {};
+    for (const { name, value } of fired.metrics) {
+      metrics[name] ??= { values: { count: 0 } };
+      metrics[name].values.count += value;
+    }
+    metrics.proof_failures ??= { values: { count: 0 } };
+    return JSON.parse(fired.handleSummary({ metrics })['r-rc-1-summary.json']).verdict;
+  };
+  assert.equal(summaryVerdict(await fireRrc1()), 'PASS-candidate');
+  assert.equal(summaryVerdict(await fireRrc1({ turnEnds: false })), 'PARTIAL-candidate');
+  assert.equal(summaryVerdict(await fireRrc1({ compaction: 'transcript' })), 'FAIL-candidate');
 });
 
 test('side effect: a compaction after a rejection that breaks the PASS rule stays PARTIAL on the rule, naming the compaction', async () => {
@@ -605,6 +685,7 @@ test('the side-effect window defaults to 180s plus a margin, and can be lengthen
   assert.equal(longer.evidence.side_effect.window_ms, 600000);
   const capped = await fireRrc1({ env: { OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS: '900000' } });
   assert.equal(capped.evidence.side_effect.window_ms, 600000);
+  assert.match(capped.log, /longer than 600000ms; using 600000ms/u);
   // k6 keeps the iteration alive through the turn budget, the window and the final read.
   for (const fired of [byDefault, longer]) {
     const maxDuration = /^(\d+)s$/u.exec(fired.options.scenarios.r_rc_1_threshold_reject.maxDuration)?.[1];
@@ -677,8 +758,9 @@ test('drift: the R-RC-1 manifest prose says what the grader enforces', async () 
     assert.match(text, /no compaction side effect/iu, `${name} requires no compaction side effect`);
   }
   // The manifest's run budget covers the scenario's default maxDuration, which covers
-  // the turn budget, the window and the final read.
+  // the turn budget, the window and the final read, plus k6's default 30s gracefulStop.
   const maxDuration = Number(/^(\d+)s$/u.exec(fired.options.scenarios.r_rc_1_threshold_reject.maxDuration)?.[1]);
   assert.ok(maxDuration * 1000 >= 60000 + windowMs + 5000, `maxDuration ${maxDuration}s`);
-  assert.ok(manifest.timeoutSeconds >= maxDuration, `timeoutSeconds ${manifest.timeoutSeconds} covers maxDuration ${maxDuration}s`);
+  assert.equal(fired.options.scenarios.r_rc_1_threshold_reject.gracefulStop, undefined, 'the scenario keeps k6\'s default 30s gracefulStop');
+  assert.ok(manifest.timeoutSeconds >= maxDuration + 30, `timeoutSeconds ${manifest.timeoutSeconds} covers maxDuration ${maxDuration}s and gracefulStop`);
 });

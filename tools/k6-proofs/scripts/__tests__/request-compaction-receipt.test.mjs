@@ -165,6 +165,11 @@ test('R-RC-1 contract: a cause of inventory_only is non-PASS whatever the guard'
       status: 'rejected', guard: 'context_threshold', contextUsage: 10, threshold: 70, cause, reason: below10,
     })), false, cause);
   }
+  // Independent review of 3dbd1fab: a cause that is not a string is recorded as given, so
+  // inventory_only inside it is still refused.
+  assert.equal(isLiveContextGuardRejection(rc1Receipt({
+    status: 'rejected', guard: 'context_threshold', contextUsage: 10, threshold: 70, cause: { code: 'inventory_only' }, reason: below10,
+  })), false);
 });
 
 test('R-RC-1 contract: context_unmeasured naming cause inventory_only is non-PASS without the inventory-only wording', () => {
@@ -247,7 +252,10 @@ function rrc1CompactionEvidence(observations, overrides = {}) {
 }
 
 const TRANSCRIPT_ROW_AFTER = Object.freeze({ source: 'transcript-compaction-row', record_id: 'cmp-1', read: 'cue', after_rejection: true });
-const STREAM_EVENT_AFTER = Object.freeze({ source: 'agent-compaction-event', phase: 'start', session_named: true, after_rejection: true });
+// compaction-runtime.ts: the end event carries completed (ok && compacted); the start none.
+const STREAM_START_AFTER = Object.freeze({ source: 'agent-compaction-event', phase: 'start', completed: null, record_id: null, session_named: true, after_rejection: true });
+const STREAM_EVENT_AFTER = Object.freeze({ ...STREAM_START_AFTER, phase: 'end', completed: true });
+const STREAM_ROW_AFTER = Object.freeze({ source: 'session-message-compaction-row', phase: null, completed: null, record_id: 'cmp-2', session_named: true, after_rejection: true });
 
 test('classifyRrc1Evidence: PASS only on a contract rejection with a completed side-effect window', () => {
   assert.deepEqual(classifyRrc1Evidence(rrc1PassEvidence()), { verdict: 'PASS-candidate', reason: null, shape: 'measured_below_threshold' });
@@ -282,10 +290,12 @@ test('classifyRrc1Evidence: a compaction shown after a contract rejection is FAI
   assert.match(transcript.reason, /a compaction followed the rejection/u);
   assert.match(transcript.reason, /stream signals 0\b/u);
   assert.match(transcript.reason, /new transcript compaction rows 1\b/u);
-  assert.match(transcript.reason, /1 shown after the rejection/u);
-  const stream = classifyRrc1Evidence(rrc1CompactionEvidence([STREAM_EVENT_AFTER, { ...STREAM_EVENT_AFTER, phase: 'end' }]));
+  assert.match(transcript.reason, /1 committed compaction shown after the rejection in this session/u);
+  const stream = classifyRrc1Evidence(rrc1CompactionEvidence([STREAM_START_AFTER, STREAM_EVENT_AFTER]));
   assert.equal(stream.verdict, 'FAIL-candidate');
   assert.match(stream.reason, /stream signals 2 \(agent-compaction-event\)/u);
+  assert.match(stream.reason, /1 committed compaction shown after the rejection/u);
+  assert.equal(classifyRrc1Evidence(rrc1CompactionEvidence([STREAM_ROW_AFTER])).verdict, 'FAIL-candidate');
   // The unmeasured shape is contradicted the same way.
   const unmeasured = classifyRrc1Evidence(rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER], {
     guard: 'context_unmeasured', cause: 'no_fresh_usage', context_usage: null, threshold: null, usage_fields_present: false,
@@ -310,7 +320,30 @@ test('classifyRrc1Evidence: compaction evidence that does not show a compaction 
   // A stream event that names no session, or another one, is not this session's.
   for (const named of [false, undefined]) {
     assert.equal(graded([{ ...STREAM_EVENT_AFTER, session_named: named }]).verdict, 'PARTIAL-candidate', String(named));
+    assert.equal(graded([{ ...STREAM_ROW_AFTER, session_named: named }]).verdict, 'PARTIAL-candidate', String(named));
   }
+  // Independent review of 3dbd1fab: an attempt is not a committed compaction. A start
+  // carries no outcome, and an end commits only with completed:true.
+  for (const attempt of [STREAM_START_AFTER, { ...STREAM_EVENT_AFTER, completed: false }, { ...STREAM_EVENT_AFTER, completed: null }, { ...STREAM_EVENT_AFTER, completed: 'true' }]) {
+    const result = graded([attempt]);
+    assert.equal(result.verdict, 'PARTIAL-candidate', JSON.stringify(attempt));
+    assert.match(result.reason, /not shown to follow the rejection/u);
+  }
+  // Evidence that disagrees with itself cannot be FAIL: an unknown source, observations
+  // the counts do not hold, a stream source the sources list does not name.
+  assert.equal(graded([{ ...TRANSCRIPT_ROW_AFTER, source: 'bogus', session_named: true }]).verdict, 'PARTIAL-candidate');
+  const uncountedRow = rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER]);
+  uncountedRow.side_effect.new_compaction_markers = 0;
+  assert.match(classifyRrc1Evidence(uncountedRow).reason, /inconsistent/u);
+  const uncountedSignal = rrc1CompactionEvidence([STREAM_EVENT_AFTER]);
+  uncountedSignal.side_effect.stream_compaction_signals = 0;
+  assert.equal(classifyRrc1Evidence(uncountedSignal).verdict, 'PARTIAL-candidate');
+  const unnamedSource = rrc1CompactionEvidence([STREAM_EVENT_AFTER]);
+  unnamedSource.side_effect.stream_compaction_sources = [];
+  assert.equal(classifyRrc1Evidence(unnamedSource).verdict, 'PARTIAL-candidate');
+  const unmatchedCounts = rrc1CompactionEvidence([STREAM_EVENT_AFTER]);
+  unmatchedCounts.side_effect.new_compaction_markers = null;
+  assert.equal(classifyRrc1Evidence(unmatchedCounts).verdict, 'PARTIAL-candidate');
   // Evidence from before compaction_observations existed cannot be FAIL.
   const legacy = rrc1CompactionEvidence([TRANSCRIPT_ROW_AFTER]);
   delete legacy.side_effect.compaction_observations;

@@ -189,3 +189,15 @@ current=3, attempted hop=4 -> chain-capped (first over limit)
 A fixture `PASS-candidate` remains review-required. It does not rewrite the
 original skipped corpus row, automatically fold R-CW-6 as canonical PASS, or
 claim an external gateway invocation.
+
+## Required preflight: R-CW-6A
+
+`r-cw-6.json` declares `R-CW-6A` in `requiredPreflights` (🌊's F″ method
+ruling). The fixture's `PASS-candidate` is the behavioral verdict only: R-CW-6
+is PASS only when the R-CW-6A static check, run at the same exact candidate,
+wrote a passing `required-preflight-receipt.json`. That check reads
+`PROOFS/<candidate>/R-CW-6/cael-dgx/`, never INDEX `static_evidence_sha`.
+`grade-preflight-gated-row.mjs` joins `fixture-result.json` with that receipt and
+caps the row at `PARTIAL-candidate` when the receipt is missing, failed, malformed
+or bound to another SHA. In an F″ corpus `validate-corpus.mjs` refuses an R-CW-6
+`pass` without it. See "Required preflights" in `tools/k6-proofs/README.md`.

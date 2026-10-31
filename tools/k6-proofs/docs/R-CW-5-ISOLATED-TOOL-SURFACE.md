@@ -69,6 +69,18 @@ scheduling.  GitNexus on the exact `6ee7eca` index confirms that
 exercises the first of those through the typed callback and separately runs
 the real delegate-dispatch boundary suite.
 
+## Required preflight: R-CW-5A
+
+`r-cw-5.json` declares `R-CW-5A` in `requiredPreflights` (🌊's F″ method
+ruling). The fixture's verdict is behavioral only: R-CW-5 is PASS only when the
+R-CW-5A static check, run at the same exact candidate, wrote a passing
+`required-preflight-receipt.json`. That check reads
+`PROOFS/<candidate>/R-CW-5/cael-dgx/`, never INDEX `static_evidence_sha`.
+`grade-preflight-gated-row.mjs` joins `fixture-result.json` with that receipt and
+caps the row at `PARTIAL-candidate` when the receipt is missing, failed, malformed
+or bound to another SHA. In an F″ corpus `validate-corpus.mjs` refuses an R-CW-5
+`pass` without it. See "Required preflights" in `tools/k6-proofs/README.md`.
+
 ## Command and receipts
 
 ```bash

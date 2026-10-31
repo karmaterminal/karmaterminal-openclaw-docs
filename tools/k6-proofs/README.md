@@ -855,6 +855,60 @@ true at `2273ef64d5`.
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 
+### Required preflights: R-CW-5A/6A gate R-CW-5/6
+
+Under 🌊's F″ method ruling (Discord 1565895695586558120, 2026-10-31;
+openclaw-bootstrap#1727), `R-CW-5A` and `R-CW-6A` are not proof rows of a new
+corpus. They are the required preflights of `R-CW-5` and `R-CW-6`. The live row's
+manifest names its preflight in `requiredPreflights`, and the preflight's
+manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`);
+`check-proof-row-manifests.mjs` keeps the two in agreement.
+
+1. **Run the preflight at the exact candidate.** For a preflight manifest,
+   `static-corpus-row-validator.js` reads `PROOFS/<candidate>/R-CW-5/cael-dgx/`
+   (or `R-CW-6/…`), never `INDEX.static_evidence_sha`, and fails without a
+   40-character `OPENCLAW_CANDIDATE_SHA`. Next to its summary it writes
+   `required-preflight-receipt.json` (`openclaw.k6.required-preflight-receipt.v1`),
+   whose `candidateSha` and `sourceEvidenceSha` are that candidate. The candidate's
+   static source/harness material therefore has to be committed under
+   `PROOFS/<candidate>/R-CW-5/cael-dgx/` first. Without it, the preflight fails,
+   and the live row is capped, which is the intended result.
+
+   ```bash
+   cd "$PREFLIGHT_RUN_DIR"   # handleSummary writes its files here
+   OPENCLAW_ROW_MANIFEST="$REPO/tools/k6-proofs/manifests/r-cw-5a-static.json" \
+   OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+     k6 run "$REPO/tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+   ```
+
+2. **Grade the live row.** The fixture's `fixture-result.json` owns the
+   behavioral verdict, and the grader caps a `PASS-candidate` at
+   `PARTIAL-candidate` unless every required preflight passed at the same
+   candidate. A missing, failed, malformed or other-SHA receipt never counts, and
+   the grader never raises a verdict:
+
+   ```bash
+   node tools/k6-proofs/scripts/grade-preflight-gated-row.mjs \
+     --manifest tools/k6-proofs/manifests/r-cw-5.json \
+     --live-result <fixture-artifact-dir>/fixture-result.json \
+     --preflight-receipt "$PREFLIGHT_RUN_DIR/required-preflight-receipt.json" \
+     --out <fixture-artifact-dir>/preflight-gate.json --json
+   ```
+
+   It exits 0 only for a gated `PASS-candidate`, 1 for any other verdict, and 2
+   when it cannot bind the inputs. Its `preflight-gate.json`
+   (`openclaw.k6.preflight-gated-row-verdict.v1`) records each preflight's status
+   (`passed`, `missing`, `failed`, `wrong-candidate` or `invalid`), the receipt's
+   basename and its sha256.
+
+3. **Fold it as an attachment.** An F″ corpus keeps `R-CW-5A`/`R-CW-6A` out of
+   `rows[]`, `required_rows` and every firing bucket. It records them in the
+   manifest's `preflight_attachments`, and `validate-corpus.mjs` gates the live rows
+   on them (see "Required preflight attachments" below).
+
+F′ (`f15237ec92`) and every older corpus keep R-CW-5A/6A as the rows they folded.
+Their historical MISSING verdicts and reports are unchanged.
+
 ### R-CW-5 isolated cost-cap fixture
 
 `tools/k6-proofs/scripts/run-cost-cap-fixture.mjs` is the safe runnable
@@ -1034,6 +1088,43 @@ without `required_rows` gets exactly the checks above this paragraph. It fails
 `supplemental-requires-required-rows` only if it carries a supplemental marker:
 `dispatch_allocation.supplemental`, `supplemental_rows`, `rollup_supplemental`, or
 a row with `supplemental` other than `false` or `required` other than `true`.
+
+**Required preflight attachments (🌊's F″ method ruling).** An F″ corpus records
+each required preflight (the catalog's `requiredPreflights`) in
+`preflight_attachments`, not as a row:
+
+```json
+"preflight_attachments": [
+  {
+    "attachment": "R-CW-5A",
+    "attached_to": "R-CW-5",
+    "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+    "state": "pass",
+    "candidate_sha": "<capture_sha>",
+    "dir": "PROOFS/<capture_sha>/R-CW-5A/",
+    "evidence_doc": "PROOFS/<capture_sha>/R-CW-5A/EVIDENCE.md",
+    "receipt": "PROOFS/<capture_sha>/R-CW-5A/<run>/required-preflight-receipt.json"
+  }
+]
+```
+
+Because attachments are not in `rows[]` or `required_rows`, the required tally,
+`rollup` and `INDEX.rollup` leave them out. A manifest that declares
+`preflight_attachments` gets two more checks:
+
+| check | requires |
+|---|---|
+| `preflight-attachments-valid` | `required_rows` is declared; each record names a catalog preflight and the live row the catalog attaches it to, which must be a row of this corpus; the attachment is in no row set (`rows[]`, `required_rows`, the supplemental set); `state` is `pass`, `fail` or `missing`; `candidate_sha` is this corpus; `dir`, if given, is `PROOFS/<sha>/<attachment>/` on disk; the receipt is a plain path under that directory; and `state` agrees with the receipt, which is read and judged again at this corpus's SHA. A `pass` needs a passing receipt, a `fail` a failed one, and a `missing` no receipt. Declared attachment directories are not orphans. |
+| `live-rows-gated-by-preflights` | a live row the catalog gates (R-CW-5, R-CW-6) is `pass` only when every required preflight's receipt passed at this SHA and its record says `pass`; any other state of the live row is reported as capped |
+
+A manifest that declares `required_rows` and records a gated live row `pass`,
+but carries none of its preflights in any row set and declares no
+`preflight_attachments`, is the retired shape with nothing gating it. It gets
+`live-rows-gated-by-preflights` too, and fails it. Every other manifest gets
+neither check, so F′ and older corpora validate exactly as before. That includes
+`4c235d8c`, the one corpus folded before the ruling in the retired shape, which is
+exempt by name. The receipt rules live in `lib/required-preflight.mjs`, shared with
+the scenario and the grader.
 
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with

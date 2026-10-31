@@ -1,0 +1,2 @@
+{"t":"2026-10-24T16:33:26.783Z","phase":"listening","port":18865,"ROUNDS":6,"STEP":20}
+{"t":"2026-10-24T16:33:48.570Z","n":1,"phase":"hold-sleep 1/6","markers":["HOLD-1"],"toolOutputs":0,"model":"gpt-5.6-sol"}

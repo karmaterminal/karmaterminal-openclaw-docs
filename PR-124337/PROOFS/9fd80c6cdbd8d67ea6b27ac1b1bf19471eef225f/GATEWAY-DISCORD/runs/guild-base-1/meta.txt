@@ -1,0 +1,21 @@
+label=guild-base-1 tree=93a9fa4562b644e1e31dfed4b529bc2b1d378e2f dirty=0 start=16:50:47Z
+gateway#1 up health+4s discord={"connected":true,"sequence":2} 16:51:02Z
+guild 'HOLD-1 keep the turn busy' 16:51:07Z
+guild 'MSG-G01 busy room' 16:51:13Z
+guild 'MSG-G02 busy room' 16:51:18Z
+guild 'MSG-G03 busy room' 16:51:23Z
+guild 'MSG-G04 busy room' 16:51:28Z
+guild 'MSG-G05 busy room' 16:51:33Z
+guild 'MSG-G06 busy room' 16:51:38Z
+guild 'MSG-G07 busy room' 16:51:43Z
+guild 'MSG-G08 busy room' 16:51:48Z
+guild 'MSG-G09 busy room' 16:51:53Z
+guild 'MSG-G10 busy room' 16:51:58Z
+guild 'MSG-G11 busy room' 16:52:03Z
+guild 'MSG-G12 busy room' 16:52:08Z
+HOLD-1 done 16:59:14Z
+guild 'MSG-Z after the hold' 16:59:44Z
+Z replied 17:00:31Z
+gateway#1 SIGKILL
+gateway#1 stopped 17:01:41Z
+end=17:01:41Z

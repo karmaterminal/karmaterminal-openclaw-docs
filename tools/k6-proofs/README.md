@@ -871,9 +871,15 @@ manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`
    `required-preflight-receipt.json` (`openclaw.k6.required-preflight-receipt.v1`),
    whose `candidateSha` and `sourceEvidenceSha` are that candidate. The candidate's
    static source/harness material therefore has to be committed under
-   `PROOFS/<candidate>/R-CW-5/cael-dgx/` first, and it must name that candidate
-   (its `source-sha.txt` or `EVIDENCE.md` contains the 40-character SHA), so the
-   static baseline's files copied into place do not pass. Without such material
+   `PROOFS/<candidate>/R-CW-5/cael-dgx/` first, and it must be bound to that
+   candidate. It needs a `source-sha.txt` (at its root, or under `source/`), whose
+   whole content is the 40-character candidate SHA. No provenance file in it
+   (`runtime-version.txt`, the first line of `source-git-status.txt` or
+   `source/source-commit.txt`) may name another commit. The static baseline's files
+   copied into place do not pass, and neither does a note in `EVIDENCE.md` that
+   merely mentions the candidate. This binding is a declaration, the same strength
+   as R-CW-7's `sourceSha` check, not cryptographic provenance: review still has
+   to confirm the material was captured at the candidate. Without bound material
    the preflight fails, and the live row is capped, which is the intended result.
    A receipt counts only if it carries `exactCandidateBinding`,
    `materialNamesCandidate` and `nonLiveBoundary`, each `true`.
@@ -1126,10 +1132,10 @@ whatever its shape, `required_rows` or not:
 | check | requires |
 |---|---|
 | `preflight-attachments-valid` | no preflight is in any row set (`rows[]`, `required_rows`, the supplemental set), however its id is spelled. If `preflight_attachments` is declared: `required_rows` is declared too; each record names a catalog preflight, spelled canonically, and the live row the catalog attaches it to, which must be a row of this corpus; `state` is `pass`, `fail` or `missing`; `candidate_sha` is this corpus; `dir`, if given, is `PROOFS/<sha>/<attachment>/` on disk; the receipt is a plain path under that directory; and `state` agrees with the receipt, which is read and judged again at this corpus's SHA. A `pass` needs a passing receipt, a `fail` a failed one, and a `missing` no receipt. Declared attachment directories are not orphans. |
-| `live-rows-gated-by-preflights` | a live row the catalog gates is `pass` only when every required preflight's receipt passed at this SHA and its record says `pass`. Row ids are compared canonically (case, dash variants, whitespace and invisible characters), and a gated row spelled any other way than canonically fails. Any other state of the live row is reported as capped. |
+| `live-rows-gated-by-preflights` | a live row the catalog gates is `pass` only when every required preflight's receipt passed at this SHA and its record says `pass`. Row ids are compared canonically (case, dash variants, whitespace and invisible characters), and a gated row spelled any other way than canonically fails. Every row id in `rows[]`, `required_rows` and the supplemental sets must also be plain ASCII (`^[A-Z0-9]+(-[A-Z0-9]+)*$`), so no gated row can hide behind a look-alike letter or an invisible character. Any other state of the live row is reported as capped. |
 
-A corpus with neither gated live rows nor preflights, and no
-`preflight_attachments`, gets neither check. The receipt rules and the canonical
+A corpus with no gated live rows, no preflights, no row id outside plain ASCII
+and no `preflight_attachments` gets neither check. The receipt rules and the canonical
 row id live in `lib/required-preflight.mjs`, shared with the scenario and the
 grader.
 

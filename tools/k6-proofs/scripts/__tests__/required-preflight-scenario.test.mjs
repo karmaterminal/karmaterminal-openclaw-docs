@@ -20,6 +20,7 @@ const CURRENT = 'e'.repeat(40);
 /** Committed static material each validator accepts, keyed by the row whose files it reads. */
 function material(row, sha, { passing = true } = {}) {
   const ok = (text) => (passing ? text : 'nothing relevant');
+  const provenance = { 'runtime-version.txt': `OpenClaw 2026.10.30 (${sha.slice(0, 7)})\n`, 'source-sha.txt': `${sha}\n` };
   if (row === 'R-CW-5') {
     return {
       'EVIDENCE.md': ok('## Verdict\nPASS: static/source + unit-test evidence; does not mutate live config.\n'),
@@ -29,7 +30,7 @@ function material(row, sha, { passing = true } = {}) {
       'subagent-announce-tool-cost-cap-source.txt': ok('costCapTokens\n'),
       'vitest-delegate-dispatch-cost-cap-exhaustion.log': ok('✓ rejects dispatch when accumulatedChainTokens exceeds costCapTokens by 1\n✓ exact boundary\n5 passed\n'),
       'vitest-chain-guard-cost-cap.log': ok('2 passed\n'),
-      'source-sha.txt': `${sha}\n`,
+      ...provenance,
     };
   }
   if (row === 'R-CW-6') {
@@ -39,7 +40,7 @@ function material(row, sha, { passing = true } = {}) {
       'source/work-dispatch-source-snippet.txt': ok('return { scheduled: false, capped: true };\n'),
       'source/scheduler-test-snippet.txt': ok('expect(result.reason).toBe("chain-capped")\n'),
       'harness/scheduler-boundary-harness.log': ok('{ "scheduled": false, "capped": true, "reason": "chain-capped" }\n'),
-      'source-sha.txt': `${sha}\n`,
+      ...provenance,
     };
   }
   if (row === 'R-CW-7') {
@@ -66,8 +67,8 @@ async function withHarness({ manifest, material: corpora = [] }, fn) {
     await writeFile(join(root, 'PROOFS/INDEX.json'), `${JSON.stringify({
       schema: 'openclaw.proofs.index.v1', current_sha: CURRENT, static_evidence_sha: STATIC_BASELINE,
     })}\n`);
-    for (const { row, sha, passing, names = sha } of corpora) {
-      for (const [file, content] of Object.entries(material(row, names, { passing }))) {
+    for (const { row, sha, passing, names = sha, edit = (files) => files } of corpora) {
+      for (const [file, content] of Object.entries(edit(material(row, names, { passing })))) {
         const path = join(root, 'PROOFS', sha, row, 'cael-dgx', file);
         await mkdir(dirname(path), { recursive: true });
         await writeFile(path, content);
@@ -161,6 +162,55 @@ test('the static baseline\'s material copied under the candidate does not pass: 
       assert.equal(receipt.preflightStatus, 'failed');
       assert.deepEqual(Object.entries(receipt.checks).filter(([, value]) => value !== true).map(([name]) => name), ['materialNamesCandidate']);
     });
+  }
+});
+
+test('only an exact source-sha.txt for the candidate binds the material; a mention or a stale runtime does not', async () => {
+  const cases = [
+    ['an honest provenance note in EVIDENCE.md, no source-sha.txt', (files) => {
+      const { 'source-sha.txt': _dropped, ...rest } = files;
+      return { ...rest, 'EVIDENCE.md': `${files['EVIDENCE.md']}Provenance: copied unchanged from PROOFS/${STATIC_BASELINE}/; NOT regenerated at candidate ${CANDIDATE}.\n` };
+    }],
+    ['source-sha.txt names the candidate with more after it', (files) => ({ ...files, 'source-sha.txt': `${CANDIDATE} plus a note\n` })],
+    ['source-sha.txt names the candidate but runtime-version.txt names the baseline', (files) => ({
+      ...files, 'source-sha.txt': `${CANDIDATE}\n`, 'runtime-version.txt': `OpenClaw 2026.6.11 (${STATIC_BASELINE.slice(0, 7)})\n`,
+    })],
+    ['source-git-status.txt names another commit', (files) => ({ ...files, 'source-git-status.txt': `${STATIC_BASELINE}\n## HEAD (no branch)\n` })],
+  ];
+  for (const { live, manifest } of PREFLIGHT_ROWS) {
+    for (const [label, edit] of cases) {
+      await withHarness({ manifest, material: [{ row: live, sha: CANDIDATE, edit }] }, async (harness) => {
+        const { evidence, receipt } = runScenario(harness, { OPENCLAW_CANDIDATE_SHA: CANDIDATE });
+        assert.equal(evidence.checks.materialNamesCandidate, false, `${manifest}: ${label}`);
+        assert.equal(receipt.preflightStatus, 'failed', `${manifest}: ${label}`);
+      });
+    }
+    // R-CW-6's baseline layout keeps its SHA in source/: an exact one there binds too.
+    await withHarness({
+      manifest,
+      material: [{ row: live, sha: CANDIDATE, edit: ({ 'source-sha.txt': sha, ...rest }) => ({ ...rest, 'source/source-sha.txt': sha }) }],
+    }, async (harness) => {
+      const { evidence } = runScenario(harness, { OPENCLAW_CANDIDATE_SHA: CANDIDATE });
+      assert.equal(evidence.checks.materialNamesCandidate, true, `${manifest}: source/source-sha.txt`);
+    });
+  }
+});
+
+test('the driver runs handleSummary in a separate runtime, as k6 does', async () => {
+  // A scenario that leaks VU state through globalThis must not see it in its summary.
+  const dir = await mkdtemp(join(tmpdir(), 'k6-driver-isolation-'));
+  try {
+    const scenario = join(dir, 'probe.js');
+    await writeFile(scenario, [
+      "export default function () { globalThis.__vuState = 'set in default()'; console.log('STATIC_CORPUS_ROW_EVIDENCE {}'); }",
+      "export function handleSummary() { return { 'probe.json': JSON.stringify({ seen: globalThis.__vuState ?? null }) }; }",
+      '',
+    ].join('\n'));
+    const result = spawnSync(process.execPath, [driver, scenario], { cwd: dir, encoding: 'utf8', env: { ...process.env, K6_DRIVER_ENV: '{}' } });
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(JSON.parse(result.stdout).files['probe.json']), { seen: null });
+  } finally {
+    await rm(dir, { recursive: true, force: true });
   }
 });
 

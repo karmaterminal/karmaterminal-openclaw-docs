@@ -8,11 +8,13 @@
 // tests/helpers/k6-node-runtime.mjs. The scenario, its manifest loading, its
 // library imports and its summary are the real code. proof_failures is counted
 // from the scenario's own Counter.add calls and handed to handleSummary the way
-// k6 hands it the end-of-test metrics. As in k6, handleSummary runs in a fresh
-// module instance that never ran default(), so it cannot lean on VU state.
+// k6 hands it the end-of-test metrics. As in k6, handleSummary runs in its own
+// runtime (a second process) that never ran default(), so it cannot lean on VU
+// state, module-level or on globalThis.
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { registerHooks } from 'node:module';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SHIM_URL = new URL('../../../tests/helpers/k6-module-shim.mjs', import.meta.url).href;
 registerHooks({
@@ -22,7 +24,7 @@ registerHooks({
   },
 });
 
-const [scenarioPath] = process.argv.slice(2);
+const [scenarioPath, phase, summaryFailures] = process.argv.slice(2);
 const lines = [];
 const checks = [];
 let failures = 0;
@@ -41,16 +43,28 @@ const original = { log: console.log, warn: console.warn, error: console.error };
 for (const level of ['log', 'warn', 'error']) {
   console[level] = (...args) => lines.push({ level, message: args.map(String).join(' ') });
 }
-let files;
-try {
-  const url = pathToFileURL(scenarioPath).href;
-  const vu = await import(`${url}?k6-vu`);
-  vu.default();
-  const summaryContext = await import(`${url}?k6-summary`);
-  files = summaryContext.handleSummary({
-    metrics: { proof_failures: { values: { count: failures } }, static_corpus_row_duration: { values: { avg: 0 } } },
+const url = pathToFileURL(scenarioPath).href;
+if (phase === '--summary') {
+  // The summary runtime: import fresh, hand handleSummary the counted failures.
+  for (const level of ['log', 'warn', 'error']) console[level] = () => {};
+  const summaryContext = await import(url);
+  const files = summaryContext.handleSummary({
+    metrics: { proof_failures: { values: { count: Number(summaryFailures) } }, static_corpus_row_duration: { values: { avg: 0 } } },
   });
-} finally {
-  Object.assign(console, original);
+  process.stdout.write(`${JSON.stringify(files)}\n`);
+} else {
+  try {
+    const vu = await import(url);
+    vu.default();
+  } finally {
+    Object.assign(console, original);
+  }
+  const summary = spawnSync(process.execPath, [fileURLToPath(import.meta.url), scenarioPath, '--summary', String(failures)], {
+    cwd: process.cwd(),
+    env: process.env,
+    encoding: 'utf8',
+  });
+  if (summary.status !== 0) throw new Error(`handleSummary runtime failed: ${summary.stderr}`);
+  const files = JSON.parse(summary.stdout);
+  process.stdout.write(`${JSON.stringify({ lines, checks, failures, files })}\n`);
 }
-process.stdout.write(`${JSON.stringify({ lines, checks, failures, files })}\n`);

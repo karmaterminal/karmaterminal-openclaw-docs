@@ -82,6 +82,10 @@ const ATTACHMENT_STATES = ['pass', 'fail', 'missing'];
 const PREFLIGHT_CAP_NOTE = 'a live row without a passing same-candidate preflight is capped at partial';
 // The corpora folded before the ruling, frozen by name; see the header.
 const PRE_RULING_CORPORA_FILE = fileURLToPath(new URL('./pre-f2-ruling-corpora.json', import.meta.url));
+// A corpus folded after the ruling spells every row id in plain ASCII. Canonical
+// comparison catches the common variants, but no denylist can catch every
+// invisible character or look-alike letter, so anything else is refused.
+const PLAIN_ROW_ID = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/;
 
 function parseArgs(argv) {
   const out = { _: [] };
@@ -519,7 +523,18 @@ function validatePreflightAttachments(report, root, sha, manifest) {
     .map((row) => ({ row, id: canonicalRowId(row?.row) }))
     .filter(({ id }) => catalog.requirementsByLiveRow.has(id));
   const liveRowIds = new Set(gatedRows.map(({ id }) => id));
-  if (!declared && gatedRows.length === 0 && preflightRows.size === 0) return;
+  // Ids that are not plain ASCII and that canonical comparison did not already
+  // tie to a gated or preflight row, which are reported on their own.
+  const oddIds = [];
+  for (const [, ids] of rowSets) {
+    for (const raw of ids) {
+      if (typeof raw === 'string' && PLAIN_ROW_ID.test(raw)) continue;
+      const id = canonicalRowId(raw);
+      if (catalog.requirementsByLiveRow.has(id) || catalog.liveRowByPreflight.has(id)) continue;
+      if (!oddIds.includes(raw)) oddIds.push(raw);
+    }
+  }
+  if (!declared && gatedRows.length === 0 && preflightRows.size === 0 && oddIds.length === 0) return;
 
   const problems = [];
   if (preRuling.error) problems.push(preRuling.error);
@@ -612,6 +627,12 @@ function validatePreflightAttachments(report, root, sha, manifest) {
   // that says pass. Anything else leaves the live row capped below pass.
   const gateProblems = [];
   if (catalog.errors.length) gateProblems.push('the preflight catalog is inconsistent, so no live row can be shown gated');
+  for (const raw of oddIds) {
+    gateProblems.push(
+      `row id ${showId(raw)} is not a plain row id (${PLAIN_ROW_ID.source}); a corpus folded after the F″ ruling ` +
+        'spells every row id in plain ASCII, so no gated row can hide behind another spelling',
+    );
+  }
   const gateLines = [];
   for (const { row, id } of gatedRows) {
     if (row.row !== id) gateProblems.push(`row id ${showId(row.row)} is a non-canonical spelling of ${id}`);

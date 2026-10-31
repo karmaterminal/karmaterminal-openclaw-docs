@@ -197,7 +197,8 @@ ruling). The fixture's `PASS-candidate` is the behavioral verdict only: R-CW-6
 is PASS only when the R-CW-6A static check, run at the same exact candidate,
 wrote a passing `required-preflight-receipt.json`. That check reads
 `PROOFS/<candidate>/R-CW-6/cael-dgx/`, never INDEX `static_evidence_sha`, and that
-material must name the candidate SHA (`source-sha.txt` or `EVIDENCE.md`).
+material must be bound to the candidate: a `source-sha.txt` that is exactly the
+candidate SHA, and no provenance file naming another commit.
 `grade-preflight-gated-row.mjs` joins `fixture-result.json` with that receipt and
 caps the row at `PARTIAL-candidate` when the receipt is missing, failed, malformed
 or bound to another SHA. In an F″ corpus `validate-corpus.mjs` refuses an R-CW-6

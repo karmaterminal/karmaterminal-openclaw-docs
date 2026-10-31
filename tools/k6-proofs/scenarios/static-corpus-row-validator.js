@@ -65,17 +65,30 @@ const roots = {
 };
 
 // The folder alone does not bind the material: the static baseline's files copied
-// under PROOFS/<candidate>/ would pass every content check. The material must name
-// the candidate itself, in source-sha.txt or EVIDENCE.md, as R-CW-7's does.
+// under PROOFS/<candidate>/ would pass every content check. The material binds
+// only through a source-sha.txt (at its root, or under source/ as R-CW-6's
+// baseline keeps it) whose whole content is the candidate SHA, and no provenance
+// file in it may name another commit. A mention in EVIDENCE.md is not enough: an
+// honest note that the files were copied would name the candidate too.
+function shaTokens(text) { return text.match(/\b[0-9a-f]{7,40}\b/g) || []; }
+function firstLine(text) { return text.split('\n')[0]; }
 const preflightMaterial = preflightAttachment
   ? {
-    evidence: readMaybe(`${rowRoot(sourceRow)}/EVIDENCE.md`),
-    sourceSha: readMaybe(`${rowRoot(sourceRow)}/source-sha.txt`),
+    sourceShaFiles: ['source-sha.txt', 'source/source-sha.txt']
+      .map((file) => readMaybe(`${rowRoot(sourceRow)}/${file}`))
+      .filter(Boolean),
+    commitNames: [
+      ...shaTokens(readMaybe(`${rowRoot(sourceRow)}/runtime-version.txt`)),
+      ...shaTokens(firstLine(readMaybe(`${rowRoot(sourceRow)}/source-git-status.txt`))),
+      ...shaTokens(firstLine(readMaybe(`${rowRoot(sourceRow)}/source/source-commit.txt`))),
+    ],
   }
   : null;
 const materialNamesCandidate = Boolean(
   preflightCandidateSha &&
-    (preflightMaterial.sourceSha.includes(preflightCandidateSha) || preflightMaterial.evidence.includes(preflightCandidateSha)),
+    preflightMaterial.sourceShaFiles.length > 0 &&
+    preflightMaterial.sourceShaFiles.every((text) => text.trim() === preflightCandidateSha) &&
+    preflightMaterial.commitNames.every((name) => preflightCandidateSha.startsWith(name)),
 );
 
 const corpus = {};

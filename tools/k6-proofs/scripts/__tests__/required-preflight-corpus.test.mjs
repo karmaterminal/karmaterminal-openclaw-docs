@@ -342,8 +342,22 @@ test('(a) a corpus folded after the ruling may not keep R-CW-5A/6A as rows: the 
   );
 });
 
+// Spellings a reader cannot tell from R-CW-5: case, padding, dash look-alikes,
+// invisible format and bidi characters, a combining joiner, a variation selector,
+// and a Cyrillic С. A denylist cannot cover them; only plain ASCII ids pass.
+const GATED_SPELLINGS = [
+  'r-cw-5', 'R-CW-5 ', ' R-CW-5', 'R‐CW‐5', 'R-CW-5​', 'R-CW-5‎', 'R-CW-5‏', 'R-CW-5‬',
+  '⁦R-CW-5', 'R-CW⁢5', 'R-CW-5͏', 'R-CW-5️', 'R-СW-5', 'R⁃CW⁃5',
+];
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+const ODD_ID_DETAIL = (spelling) => new RegExp(
+  `row id ${escapeRegExp(JSON.stringify(spelling))} (is a non-canonical spelling of R-CW-5|is not a plain row id)`,
+);
+
 test('a gated row id spelled another way is refused, not ungated', async () => {
-  for (const spelling of ['r-cw-5', 'R-CW-5 ', ' R-CW-5', 'R‐CW‐5', 'R-CW-5​']) {
+  for (const spelling of GATED_SPELLINGS) {
     // Declared attachments: R-CW-5's own attachment is present and passing, but the
     // live row it gates is spelled differently.
     const declared = fDouble();
@@ -351,18 +365,38 @@ test('a gated row id spelled another way is refused, not ungated', async () => {
     const { status, report } = await validate(declared);
     assert.equal(status, 1, JSON.stringify(spelling));
     assert.ok(failedChecks(report).includes('live-rows-gated-by-preflights'), `${JSON.stringify(spelling)}: ${failedChecks(report)}`);
+    assert.match(check(report, 'live-rows-gated-by-preflights').detail, ODD_ID_DETAIL(spelling), JSON.stringify(spelling));
+
+    // No attachments declared, and R-CW-6 gone too, so the disguised row is the
+    // corpus's only candidate for a gated row: it still cannot pass unchecked.
+    const alone = fDouble({ attachments: null });
+    renameRow(alone, 'R-CW-5', spelling);
+    alone.required_rows = alone.required_rows.filter((id) => id !== 'R-CW-6');
+    alone.rows = alone.rows.filter((row) => row.row !== 'R-CW-6');
+    for (const [bucket, ids] of Object.entries(alone.dispatch_allocation)) {
+      alone.dispatch_allocation[bucket] = ids.filter((id) => id !== 'R-CW-6');
+    }
+    alone.rollup = { ...FDOUBLE_ROLLUP, total_rows: 35, pass: 28 };
+    const bare = await validate(alone, {});
+    assert.equal(bare.status, 1, JSON.stringify(spelling));
+    assert.deepEqual(failedChecks(bare.report), ['live-rows-gated-by-preflights'], JSON.stringify(spelling));
+    assert.match(check(bare.report, 'live-rows-gated-by-preflights').detail, ODD_ID_DETAIL(spelling), JSON.stringify(spelling));
+  }
+
+  // A disguised preflight row cannot slip back into the tally either.
+  for (const spelling of ['R-CW-5A‎', 'R-СW-5A']) {
+    const manifest = fDouble();
+    manifest.required_rows.push(spelling);
+    manifest.rows.push({ row: spelling, state: 'missing', owner: 'frond-scribe-static', dir: `PROOFS/${SHA}/odd-5a/`, evidence_doc: `PROOFS/${SHA}/odd-5a/EVIDENCE.md` });
+    manifest.dispatch_allocation['frond-scribe-static'].push(spelling);
+    manifest.rollup = { ...FDOUBLE_ROLLUP, total_rows: 37, missing: 5 };
+    const { status, report } = await validate(manifest);
+    assert.equal(status, 1, JSON.stringify(spelling));
     assert.match(
-      check(report, 'live-rows-gated-by-preflights').detail,
-      new RegExp(`row id ${JSON.stringify(spelling).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is a non-canonical spelling of R-CW-5`),
+      `${check(report, 'preflight-attachments-valid').detail}; ${check(report, 'live-rows-gated-by-preflights').detail}`,
+      new RegExp(`(R-CW-5A is a retired preflight attachment|row id ${escapeRegExp(JSON.stringify(spelling))} is not a plain row id)`),
       JSON.stringify(spelling),
     );
-
-    // No attachments declared: the misspelled pass is still gated.
-    const undeclared = fDouble({ attachments: null });
-    renameRow(undeclared, 'R-CW-5', spelling);
-    const bare = await validate(undeclared, {});
-    assert.equal(bare.status, 1, JSON.stringify(spelling));
-    assert.match(check(bare.report, 'live-rows-gated-by-preflights').detail, /R-CW-5 is pass but its required preflight R-CW-5A is missing/);
   }
 
   // A preflight row spelled another way is still a retired row.

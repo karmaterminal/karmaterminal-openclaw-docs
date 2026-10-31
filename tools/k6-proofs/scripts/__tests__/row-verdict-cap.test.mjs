@@ -267,6 +267,34 @@ test('an artifact class that is missing, unknown or contradicted by the row fail
   }
 });
 
+test('a runner key fails closed whatever its value; a disposable runner must be named by a non-blank control', async () => {
+  // An empty, blank or non-string value under invocation.fixture or
+  // invocation.control is still a runner key the class must account for, never
+  // read as "no runner" and so never as "not process-local".
+  const cases = [];
+  for (const value of ['', ' ', ['x.mjs'], { path: 'x.mjs' }, null, true, 7]) {
+    const shown = JSON.stringify(value);
+    cases.push(
+      [`fixture ${shown}, no class, no cap`, processLocal({ transport: 'websocket', invocation: { fixture: value }, verdictCap: undefined }),
+        /r-live\.json: R-LIVE names a process-local fixture \(invocation\.fixture\), so it must declare verdictCap \(rowCap PARTIAL-candidate\)/],
+      [`control ${shown}, no class, no cap`, processLocal({ transport: 'websocket', invocation: { control: value }, verdictCap: undefined }),
+        /r-live\.json: R-LIVE names a runner \(invocation\.control\) without invocation\.artifactClass, so it is read as a process-local fixture/],
+      [`disposable beside fixture ${shown}`, disposable({ invocation: { fixture: value } }),
+        /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" but names a process-local fixture \(invocation\.fixture\)/],
+    );
+  }
+  for (const value of [' ', '\t', ['x.mjs'], { path: 'x.mjs' }, null, 7]) {
+    cases.push([`disposable with control ${JSON.stringify(value)}`, disposable({ invocation: { control: value } }),
+      /r-live\.json: R-LIVE declares invocation\.artifactClass "disposable-real-process" without naming its runner in invocation\.control/]);
+  }
+  for (const [label, row, detail] of cases) {
+    const result = await runCatalog({ 'r-live.json': row });
+    assert.notEqual(result.status, 0, `${label}: ${result.stdout}`);
+    assert.match(result.stderr, detail, label);
+    assert.doesNotMatch(result.stdout, /Verdict cap rule failures: 0/, label);
+  }
+});
+
 test('(c, d) the covenant manifest in its pre-classification shape, or claiming a process-local transport, fails the catalog', async () => {
   const { manifestVerdictCapFailures } = await lib();
   const row = await manifest(COVENANT_MANIFEST);

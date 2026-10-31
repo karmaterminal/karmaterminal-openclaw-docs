@@ -860,14 +860,25 @@ true at `2273ef64d5`.
 
 `tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs` restarts one disposable
 gateway for real and grades whether its return authority (the recipient session's
-`session_recipient_authority` epoch) survives. It runs outside the generic k6 runner and
-`--live-suite`, because the manifest is `orchestration-required`. The control is the
-gateway's declared external supervisor (`OPENCLAW_SUPERVISOR_MODE=external`): it starts
-the old generation, establishes the authority, plans the window, requests
-`gateway.restart.request`, consumes the restart handoff and starts the replacement. It
-refuses, before starting anything, any target that is not a stopped
-`$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe `scripts/proof-gw/composite-launcher.sh`
-on a free loopback port that is not the live gateway's.
+`session_recipient_authority` epoch) survives. A generation counts as usable only while it
+serves (owns the listener, `/readyz` passes, hello-ok answers), and every receipt reports
+the restart's `outageInterval`. It runs outside the generic k6 runner and `--live-suite`,
+because the manifest is `orchestration-required`. The control owns the gateway's lifecycle:
+it starts the old generation, establishes the authority, plans the window and requests
+`gateway.restart.request`. It refuses, before starting anything, any target that is not a
+stopped `$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe
+`scripts/proof-gw/composite-launcher.sh` on a free loopback port that is not the live
+gateway's.
+
+It has four cases on F′'s two full-process restart branches:
+
+- `positive` and `negative-replacement-never-usable` run the control as the declared external
+  supervisor (`OPENCLAW_SUPERVISOR_MODE=external`). That is the supervised branch, the one
+  systemd-supervised fleet seats take. On it the control consumes the restart handoff and
+  starts the replacement.
+- `negative-spawned-fallback` and `negative-spawned-runtime-unavailable` set no supervisor hint
+  and restart with reason `update.run`, which takes the spawned branch. There the product spawns
+  the child and, when it is unhealthy, falls back in-process or refuses on a named branch.
 
 ```bash
 node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
@@ -876,8 +887,10 @@ node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
   --case positive --artifact-dir <new directory> --observer-key-file <0600 key file>
 ```
 
-Run `--case negative-replacement-never-usable` next, into a new directory. It must grade
-non-PASS with `negativeControl.holds: true`. Raw process output stays in
+Run `--case negative-replacement-never-usable`, `--case negative-spawned-fallback` and
+`--case negative-spawned-runtime-unavailable` next, each into a new directory. Each must grade
+non-PASS with `negativeControl.holds: true`. The spawned fallback's restored original process
+is old-process restoration, never fresh-successor proof. Raw process output stays in
 `<artifact-dir>.private`, which is never published. See
 [`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
 

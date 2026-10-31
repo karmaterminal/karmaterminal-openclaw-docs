@@ -151,3 +151,21 @@ test('the scenario header maps, at the byte, which F′ restart branch spawns a 
     assert.ok(source.includes(anchor), `scenario header lacks ${anchor}`);
   }
 });
+
+test('the doc, manifest and grader agree on the cases, the fleet branch and every named non-PASS fallback branch', async () => {
+  const texts = await contractTexts();
+  const control = await import(pathToFileURL(path.join(repoRoot, 'tools/k6-proofs/lib/return-covenant-restart-control.mjs')).href);
+  assert.deepEqual(control.RCC_FALLBACK_BRANCHES.map((entry) => entry.branch), NAMED_BRANCHES);
+  for (const name of ['doc', 'manifest', 'readme', 'pipeline']) {
+    for (const caseKind of CASES) assert.ok(texts[name].includes(caseKind), `${name} does not name case ${caseKind}`);
+  }
+  for (const name of ['doc', 'manifest', 'scenario']) {
+    for (const branch of NAMED_BRANCHES) assert.ok(texts[name].includes(branch), `${name} does not name branch ${branch}`);
+  }
+  // Systemd-supervised fleet seats take the supervised branch, so the positive is the
+  // fleet-relevant case and the spawned negative is the fallback proof.
+  assert.match(texts.doc, /systemd-supervised\s+fleet\s+seats/iu);
+  assert.match(texts.doc, /src\/cli\/gateway-cli\/run-loop\.ts:497-561/u);
+  assert.match(texts.doc, /old-process\s+restoration/u);
+  assert.match(texts.manifest, /old-process\s+restoration/u);
+});

@@ -156,10 +156,19 @@ test('cap lib: only a verdict above the cap is lowered, and nothing is ever rais
   }
 });
 
-test('cap lib: a corpus state above a PARTIAL-candidate cap is pass, however it is written', async () => {
-  const { corpusStateAboveCap } = await lib();
-  for (const state of ['pass', 'PASS', ' pass ']) assert.equal(corpusStateAboveCap(state, 'PARTIAL-candidate'), true, JSON.stringify(state));
-  for (const state of ['partial', 'thin', 'fail', 'honest_limit', 'missing', '', undefined, null]) {
+test('cap lib: only a known state at or below the cap is within it; pass is above it, however it is written', async () => {
+  const { corpusStateAboveCap, corpusStateWithinCap } = await lib();
+  for (const state of ['pass', 'PASS', ' pass ']) {
+    assert.equal(corpusStateAboveCap(state, 'PARTIAL-candidate'), true, JSON.stringify(state));
+    assert.equal(corpusStateWithinCap(state, 'PARTIAL-candidate'), false, JSON.stringify(state));
+  }
+  for (const state of ['partial', 'thin', 'fail', 'honest_limit', 'missing', ' Partial ']) {
+    assert.equal(corpusStateWithinCap(state, 'PARTIAL-candidate'), true, JSON.stringify(state));
+    assert.equal(corpusStateAboveCap(state, 'PARTIAL-candidate'), false, JSON.stringify(state));
+  }
+  // Neither: not shown to lie within the cap, so the validator refuses them too.
+  for (const state of ['passed', 'PASS-candidate', 'not-runnable', '', undefined, null]) {
+    assert.equal(corpusStateWithinCap(state, 'PARTIAL-candidate'), false, JSON.stringify(state));
     assert.equal(corpusStateAboveCap(state, 'PARTIAL-candidate'), false, JSON.stringify(state));
   }
 });

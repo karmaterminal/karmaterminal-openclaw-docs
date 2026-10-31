@@ -62,8 +62,9 @@
  * explicit method change; none is adopted, so a `superseding_authority` on the
  * row does not lift it either. The pre-ruling corpora are exempt by the same list
  * (52 of the 71 record R-CW-5/6 `pass`; F′ was corrected to partial on docs main
- * 7e544c04). If the catalog's cap declarations cannot be trusted, every such
- * corpus gets the check, failed.
+ * 7e544c04). A state that is not a known state at or below the cap (a typo,
+ * `passed`) fails it too. If the catalog's cap declarations cannot be trusted,
+ * every corpus not in that list gets the check, failed.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
@@ -80,6 +81,7 @@ import {
   canonicalCorpusState,
   catalogVerdictCapFailures,
   corpusStateAboveCap,
+  corpusStateWithinCap,
   ROW_CAP_NOTE,
   verdictCapCatalog,
 } from '../lib/row-verdict-cap.mjs';
@@ -703,8 +705,8 @@ function validatePreflightAttachments(report, root, sha, manifest) {
 
 /**
  * The declared-cap check (see the header): a row whose catalog manifest declares
- * `verdictCap` is never recorded above it. A pre-ruling corpus, or one with no
- * capped row under a trustworthy catalog, gets no check.
+ * `verdictCap` is recorded in a known state at or below it. A pre-ruling corpus,
+ * or one with no capped row under a trustworthy catalog, gets no check.
  */
 function validateDeclaredCaps(report, sha, manifest) {
   if (loadPreRulingCorpora().corpora.has(sha)) return;
@@ -721,16 +723,17 @@ function validateDeclaredCaps(report, sha, manifest) {
     const cap = catalog.capsByRow.get(id);
     const state = canonicalCorpusState(row.state);
     const written = row.state === state ? state : `${state} (recorded as ${showId(row.state)})`;
-    if (!corpusStateAboveCap(row.state, cap.rowCap)) {
+    if (corpusStateWithinCap(row.state, cap.rowCap)) {
       lines.push(`${id} ${written}, within the ${cap.rowCap} cap ${cap.file} declares (${cap.artifactClass})`);
       continue;
     }
+    const relation = corpusStateAboveCap(row.state, cap.rowCap) ? 'above' : 'not a state known to lie within';
     // No superseding authority is adopted (the catalog rule keeps
     // supersedingAuthorities empty), so a declared one cannot lift the cap.
     const authority = hasOwn(row, 'superseding_authority')
       ? `its superseding_authority ${showId(row.superseding_authority)} is not adopted: ${cap.file} adopts no superseding authority`
       : 'it declares no superseding authority';
-    problems.push(`${id} is ${written}, above the ${cap.rowCap} cap ${cap.file} declares (verdictCap.rowCap; ${cap.artifactClass}), and ${authority}`);
+    problems.push(`${id} is ${written}, ${relation} the ${cap.rowCap} cap ${cap.file} declares (verdictCap.rowCap; ${cap.artifactClass}), and ${authority}`);
   }
   pushCheck(
     report,

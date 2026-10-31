@@ -30,7 +30,10 @@ export const ROW_CAP_NOTE =
 // HONEST-LIMIT-candidate, construct-only, anything unknown) is not above a cap
 // and passes through unchanged, so a cap never raises a verdict.
 const CANDIDATE_RANK = { 'FAIL-candidate': 0, 'PARTIAL-candidate': 1, 'PASS-candidate': 2 };
-// The corpus row states above each declarable cap.
+// The corpus row states at or below each declarable cap, and those above it. A
+// state in neither list (a typo, `passed`, `PASS-candidate`) is not shown to lie
+// within the cap, so it is refused too.
+const STATES_WITHIN_CAP = { 'PARTIAL-candidate': ['partial', 'thin', 'fail', 'honest_limit', 'missing'] };
 const STATES_ABOVE_CAP = { 'PARTIAL-candidate': ['pass'] };
 
 function isObject(value) {
@@ -58,9 +61,14 @@ export function canonicalCorpusState(state) {
   return typeof state === 'string' ? state.trim().toLowerCase() : '';
 }
 
-/** Whether a corpus row state (`pass`, `partial`, …) lies above `cap`. */
+/** Whether a corpus row state (`pass`, `partial`, …) is a known state above `cap`. */
 export function corpusStateAboveCap(state, cap) {
   return STATES_ABOVE_CAP[supportedCap(cap)].includes(canonicalCorpusState(state));
+}
+
+/** Whether a corpus row state is a known state at or below `cap`; anything else is not. */
+export function corpusStateWithinCap(state, cap) {
+  return STATES_WITHIN_CAP[supportedCap(cap)].includes(canonicalCorpusState(state));
 }
 
 /**

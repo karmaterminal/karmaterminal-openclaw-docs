@@ -1184,7 +1184,7 @@ gets one more check:
 
 | check | requires |
 |---|---|
-| `rows-within-declared-cap` | the row is not recorded above its declared cap: with `rowCap` `PARTIAL-candidate`, its `state` (trimmed, any case) is not `pass`, whatever its preflights say. A `superseding_authority` on the row does not lift the cap, because the method adopts none (`verdictCap.supersedingAuthorities` is empty). If the catalog's cap declarations cannot be read or break the catalog rule, the check runs on every corpus not in that list, and fails. |
+| `rows-within-declared-cap` | the row is recorded in a known state at or below its declared cap: with `rowCap` `PARTIAL-candidate`, its `state` (trimmed, any case) is `partial`, `thin`, `fail`, `honest_limit` or `missing`, whatever its preflights say. `pass` is above the cap, and any other state is refused as not shown to lie within it. A `superseding_authority` on the row does not lift the cap, because the method adopts none (`verdictCap.supersedingAuthorities` is empty). If the catalog's cap declarations cannot be read or break the catalog rule, the check runs on every corpus not in that list, and fails. |
 
 The 71 pre-ruling corpora get no such check (52 of them record R-CW-5/6 `pass`).
 The rules live in `lib/row-verdict-cap.mjs`, shared with the grader and the

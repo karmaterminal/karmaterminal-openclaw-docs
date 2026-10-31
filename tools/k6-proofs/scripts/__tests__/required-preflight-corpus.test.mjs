@@ -710,6 +710,20 @@ test('cap (d): a capped row spelled or stated another way is still capped', asyn
   assert.ok(failedChecks(report).includes('state-values-known'), JSON.stringify(failedChecks(report)));
   assert.ok(failedChecks(report).includes('rows-within-declared-cap'), JSON.stringify(failedChecks(report)));
   assert.match(check(report, 'rows-within-declared-cap').detail, /^R-CW-5 is pass \(recorded as "PASS"\), above the PARTIAL-candidate cap/);
+
+  // A state that is not a known state at or below the cap is refused, not read as under it.
+  for (const state of ['passed', 'PASS-candidate']) {
+    const odd = fDouble();
+    rowOf(odd, 'R-CW-6').state = state;
+    const result = await validate(odd);
+    assert.equal(result.status, 1, state);
+    assert.ok(failedChecks(result.report).includes('rows-within-declared-cap'), `${state}: ${failedChecks(result.report)}`);
+    assert.match(
+      check(result.report, 'rows-within-declared-cap').detail,
+      new RegExp(`^R-CW-6 is ${state.toLowerCase()}(?: \\(recorded as "${state}"\\))?, not a state known to lie within the PARTIAL-candidate cap r-cw-6\\.json declares`),
+      state,
+    );
+  }
 });
 
 test('cap (d): a catalog that loses a process-local row\'s verdictCap cannot un-cap it', async () => {

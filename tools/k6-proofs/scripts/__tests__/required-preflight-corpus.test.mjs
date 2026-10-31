@@ -585,7 +585,7 @@ test('a corpus with neither gated live rows nor preflights gets no preflight che
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
 });
 
-test('(d) F′ validates 18/18 unchanged: R-CW-5A/6A stay required MISSING rows under the method F′ was folded under', () => {
+test('(d) F′ validates 18/18 unchanged: R-CW-5A/6A stay required MISSING rows under the method F′ was folded under', async () => {
   const { status, payload } = run(repoRoot, ['--sha', FPRIME_SHA]);
   const [report] = payload.reports;
   assert.equal(status, 0, JSON.stringify(report.checks.filter((c) => !c.ok)));
@@ -594,7 +594,15 @@ test('(d) F′ validates 18/18 unchanged: R-CW-5A/6A stay required MISSING rows 
   assert.deepEqual(report.checks.map((c) => c.name), [...LEGACY_CHECKS, ...ROW_SET_CHECKS]);
   assert.equal(report.preflightAttachments, undefined);
   assert.match(check(report, 'row-sets-defined').detail, /^38 required \(required_rows\), 0 supplemental/);
-  assert.match(check(report, 'manifest-rollup-matches-required').detail, /total_rows=38, pass=29, partial=3, thin=0, fail=0, honest_limit=0, missing=6/);
+  // F′ as corrected on docs main 7e544c04 (🌊's ruling on this PR): R-CW-5/6
+  // pass → partial, so the rollup is 27/5/0/6 rather than the fold's 29/3/0/6.
+  assert.match(check(report, 'manifest-rollup-matches-required').detail, /total_rows=38, pass=27, partial=5, thin=0, fail=0, honest_limit=0, missing=6/);
+  const corrected = JSON.parse(await readFile(join(repoRoot, 'PROOFS', FPRIME_SHA, 'proofs-manifest.json'), 'utf8'));
+  for (const id of ['R-CW-5', 'R-CW-6']) {
+    assert.equal(rowOf(corrected, id).state, 'partial', id);
+    assert.deepEqual({ from: rowOf(corrected, id).correction.from, to: rowOf(corrected, id).correction.to }, { from: 'pass', to: 'partial' }, id);
+  }
+  for (const id of ['R-CW-5A', 'R-CW-6A']) assert.equal(rowOf(corrected, id).state, 'missing', id);
 });
 
 test('(d) the F′ fossil validates 18/18 in isolation too', async () => {

@@ -14,8 +14,10 @@
  *      - the continue_delegate and request_compaction toolResults, each bound
  *        to its own call by toolCallId;
  *      - the released lifeboat: a child whose own row names this session in
- *        spawnedBy and whose own spawn task carries the product's
- *        "[continuation:post-compaction]" prefix and the row token;
+ *        spawnedBy and whose own spawn task starts with the product's
+ *        "[continuation:post-compaction] [continuation:chain-hop:N] " release
+ *        composition and carries the row token; a requester call whose
+ *        arguments carry that prefix refuses the binding (review F4);
  *      - the lifeboat's report: a token it mints in its own transcript, absent
  *        from every harness-sent text;
  *      - the return: this session reproducing that token in a run other than
@@ -38,7 +40,7 @@ import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js
 import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
 import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { gatewayLifecyclePhase, gatewayLifecycleRunId } from '../lib/gateway-lifecycle.js';
-import { createToolReceiptTracker, requesterCallTexts } from '../lib/sentinel-binding.mjs';
+import { createToolReceiptTracker, eventSessionKey, requesterCallTexts } from '../lib/sentinel-binding.mjs';
 import {
   COMPACTION_THRESHOLD,
   DEFAULT_FILL_BUDGET_TOKENS,
@@ -57,6 +59,7 @@ import {
   parentReturn,
   planFillStep,
   rcd3TaskIdentityToken,
+  requesterPrefixCall,
   stagingOutcome,
   stagingReceiptsFromHistory,
   summaryRcd3Verdict,
@@ -169,6 +172,7 @@ export default function () {
     lifeboat_child_status: null,
     lifeboat_identity_conflict: false,
     lifeboat_identity_reason: null,
+    requester_prefix_call: null,
     lifeboat_report_bound: false,
     lifeboat_report_reason: null,
     lifeboat_token_fingerprint: null,
@@ -393,7 +397,17 @@ export default function () {
       }, k6TimeoutMs(delayMs));
     }
 
+    // Any requester call carrying the post-compaction prefix refuses the lifeboat binding.
+    function noteRequesterRow(message, source) {
+      if (evidence.requester_prefix_call) return;
+      const call = requesterPrefixCall(message);
+      if (!call) return;
+      evidence.requester_prefix_call = { ...call, source };
+      console.error(`✗ a requester ${call.tool} call carried the post-compaction prefix (${source}); the lifeboat cannot be bound`);
+    }
+
     function onParentHistory(messages) {
+      for (const message of messages) noteRequesterRow(message, 'chat.history');
       recordStaging(stagingReceiptsFromHistory(messages, taskToken), 'chat.history');
       recordCompaction(compactionReceiptsFromHistory(messages, rowNonce), 'chat.history');
       if (lifeboatToken) {
@@ -427,7 +441,7 @@ export default function () {
     }
 
     function resolveLifeboat() {
-      if (evidence.lifeboat_child_observed || evidence.lifeboat_identity_conflict) return;
+      if (evidence.lifeboat_child_observed || evidence.lifeboat_identity_conflict || evidence.requester_prefix_call) return;
       const bound = observer.boundChild(rowNonce, taskToken ? [taskToken] : []);
       if (bound.ambiguous) {
         evidence.lifeboat_identity_conflict = true;
@@ -598,6 +612,7 @@ export default function () {
             fillLifecycleEnded = true;
             socket.setTimeout(measureFill, k6TimeoutMs(750));
           }
+          if (eventName === 'session.message' && eventSessionKey(eventData) === sessionKey) noteRequesterRow(eventData.message, 'session.message');
           // Authoritative toolResults on the live stream, bound by toolCallId.
           if (stagingTracker) {
             const receipt = stagingTracker.observe(eventName, eventData);

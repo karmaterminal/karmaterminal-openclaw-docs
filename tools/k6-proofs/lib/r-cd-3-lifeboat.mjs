@@ -24,7 +24,12 @@
 //   "[continuation:post-compaction] [continuation:chain-hop:N] Compaction just
 //   completed. Carry this working state to the post-compaction session: <task>"
 //   (src/auto-reply/reply/post-compaction-delegate-delivery.ts:497-539). That
-//   prefix is product text: no requester call carries it.
+//   prefix is product text only in that position: an ordinary delegate's task
+//   is "[continuation:chain-hop:N] Delegated task (turn N/M): <requester task>"
+//   (delegate-dispatch-request.ts:43), and chat.history keeps either as written,
+//   so a requester that writes the prefix into a task can mint a child that
+//   carries it (harness review F4). The task must start with the release
+//   composition, and a requester call that carries the prefix is refused.
 // - Automatic compaction runs when the prompt exceeds the window minus the
 //   reserve (packages/agent-core/src/harness/compaction/compaction.ts:260-269;
 //   reserve floor 20,000, src/agents/agent-settings.ts:11), about 90% of a
@@ -34,10 +39,13 @@
 
 import { compactTaskIdentityToken } from './row-child-correlation.mjs';
 import { mintedTokenFromHistory, tokenReplyFromHistory, toolReceiptsFromHistory } from './sentinel-binding.mjs';
+import { toolCallTarget } from './tool-call-identity.mjs';
 
 export const RCD3_LIFEBOAT_MARKER = 'RCD3-LIFEBOAT';
 export const RCD3_PARENT_RETURN_MARKER = 'RCD3-PARENT-RETURN';
 export const POST_COMPACTION_TASK_PREFIX = '[continuation:post-compaction]';
+/** The start of a released lifeboat's task (post-compaction-delegate-delivery.ts:499-502). */
+const RELEASED_LIFEBOAT_TASK_START = /^\[continuation:post-compaction\] \[continuation:chain-hop:\d+\] /;
 /** request-compaction-tool.ts:26 MIN_CONTEXT_THRESHOLD. Read-only here: the scenario never changes it. */
 export const COMPACTION_THRESHOLD = 0.7;
 export const DEFAULT_FILL_TARGET = 0.75;
@@ -214,10 +222,32 @@ export function stagingReceiptsFromHistory(messages, taskToken) {
   return toolReceiptsFromHistory(messages, { toolName: 'continue_delegate', argField: 'task', needle: taskToken });
 }
 
-/** A bound child's own spawn task is a released lifeboat only with the product prefix and the row token. */
+/**
+ * A bound child's own de-enveloped spawn task (child-observer subagentTaskText)
+ * is a released lifeboat only when it starts with the product's release
+ * composition "[continuation:post-compaction] [continuation:chain-hop:N] " and
+ * carries the row token. The prefix anywhere else is requester-written text.
+ */
 export function isReleasedLifeboatTask(taskText, taskToken) {
   return typeof taskText === 'string' && typeof taskToken === 'string' && taskToken.length > 0 &&
-    taskText.includes(POST_COMPACTION_TASK_PREFIX) && taskText.includes(taskToken);
+    RELEASED_LIFEBOAT_TASK_START.test(taskText.trimStart()) && taskText.includes(taskToken);
+}
+
+/**
+ * The first call in a requester assistant row whose arguments carry the
+ * post-compaction prefix (by name or through Tool Search's dispatcher), as
+ * { tool, toolCallId }, else null. Such a call can create a child whose task
+ * looks released, so the row refuses its lifeboat binding.
+ */
+export function requesterPrefixCall(message) {
+  if (String(message?.role || '').toLowerCase() !== 'assistant' || !Array.isArray(message.content)) return null;
+  for (const part of message.content) {
+    const target = toolCallTarget(part);
+    if (target && JSON.stringify(target.args).includes(POST_COMPACTION_TASK_PREFIX)) {
+      return { tool: target.name, toolCallId: typeof part.id === 'string' ? part.id : null };
+    }
+  }
+  return null;
 }
 
 /** The lifeboat's own report, from its own transcript: a token it minted. */
@@ -270,6 +300,9 @@ export function classifyRcd3Evidence(evidence) {
     return partial(`observation incomplete: ${r.method} ${r.code || ''} ${r.message || ''}`.replace(/\s+/g, ' ').trim());
   }
   if (e.lifeboat_identity_conflict === true) return partial(`lifeboat identity conflict: ${e.lifeboat_identity_reason || 'more than one bound child'}`);
+  if (e.requester_prefix_call) {
+    return partial(`a requester ${e.requester_prefix_call.tool || 'tool'} call carried the ${POST_COMPACTION_TASK_PREFIX} prefix; no child can be bound as the released lifeboat`);
+  }
   if (e.proof_dispatched !== true) {
     return partial(`context fill stopped before the proof turn: ${e.fill_stop_reason || 'the fill did not finish'}`);
   }

@@ -91,8 +91,15 @@ export const options = {
   },
 };
 
+const REFUSAL =
+  'R-CD-RETURN-COVENANT-AUTHORITY is fixture-gated; run tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs against a stopped proof-gw gateway at the exact candidate.';
+
+// k6 logs an exception thrown by an iteration and still exits 0; one thrown from setup()
+// aborts the run (exit 107), so the refusal lives there too.
+export function setup() {
+  throw new Error(REFUSAL);
+}
+
 export default function () {
-  throw new Error(
-    'R-CD-RETURN-COVENANT-AUTHORITY is fixture-gated; run tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs against a stopped proof-gw gateway at the exact candidate.',
-  );
+  throw new Error(REFUSAL);
 }

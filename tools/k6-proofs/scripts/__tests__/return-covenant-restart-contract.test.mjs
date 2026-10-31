@@ -3,8 +3,10 @@
 // without the control each test fails for its own reason.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -67,7 +69,20 @@ test('the scenario carries the F′ product-path map and fails closed under k6',
     assert.ok(source.includes(anchor), `scenario header lacks ${anchor}`);
   }
   const scenario = await import(pathToFileURL(SCENARIO).href);
+  assert.throws(() => scenario.setup(), /run-return-covenant-restart-control\.mjs/u);
   assert.throws(() => scenario.default(), /run-return-covenant-restart-control\.mjs/u);
+});
+
+const k6 = ['/usr/local/bin/k6', path.join(os.homedir(), 'bin', 'k6')].find((candidate) => existsSync(candidate));
+test('k6 itself refuses the scenario with a non-zero exit', { skip: k6 ? false : 'k6 is not installed here' }, () => {
+  const result = spawnSync(k6, ['run', '--no-usage-report', '--quiet', path.basename(SCENARIO)], {
+    cwd: path.dirname(SCENARIO),
+    encoding: 'utf8',
+    timeout: 60_000,
+    env: { PATH: process.env.PATH ?? '/usr/bin:/bin', HOME: os.tmpdir() },
+  });
+  assert.notEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  assert.match(`${result.stdout}${result.stderr}`, /fixture-gated/u);
 });
 
 test('the F′ corpus still records the row as required and missing', async () => {

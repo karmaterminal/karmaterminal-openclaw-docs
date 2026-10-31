@@ -9,7 +9,7 @@ import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } fro
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import {
   RCC_RECEIPTS,
@@ -19,7 +19,6 @@ import {
 import { runRestartControl } from '../run-return-covenant-restart-control.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(here, '../../../..');
 const scriptedGateway = path.join(here, 'helpers', 'return-covenant-scripted-gateway.mjs');
 const CANDIDATE = 'f15237ec921879d918482cdf372b0718d4c1aab9';
 const DOCS = 'f17d784debae6eb1866d5c60c9518d06f49a3632';

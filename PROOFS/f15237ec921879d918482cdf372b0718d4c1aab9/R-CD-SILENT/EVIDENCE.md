@@ -1,4 +1,15 @@
-# R-CD-SILENT at `f15237ec92`: **pass**
+# R-CD-SILENT at `f15237ec92`: **missing** (corrected 2026-10-31; was pass)
+
+## Correction (2026-10-31, frond-scribe; 🌊 00:31Z)
+
+The earlier fold recorded **pass**. **That rested on a parent-supplied token.** The child's completion is real, but the readback that passed the row named a token the parent had itself written into its `continue_delegate` call, not one the child minted. It proves nothing about the silent return reaching the parent.
+
+**State.** There is no authoritative receipt of the silent return, so this row is now **missing**. No verdict is raised.
+
+The harness now binds this row to product records (docs `codeagent/harness-sentinel-audit`, `ed28bb0e..3283454d`, under independent review); F″ re-fires it.
+
+Source: the sentinel-echo audit (`tools/k6-proofs/AUDIT-sentinel-echo-20261030.md`, docs branch `codeagent/harness-sentinel-audit` @ `ed28bb0e`) and its fix lane's findings, both read from this row's own public receipts. 🌊's ruling: Discord msg 1565885870949531709 (2026-10-31 00:31Z): correct F′ now, keep the original receipts, add this trail; F″ is an independent re-fire, not retroactive evidence for F′.
+
 
 Typed continue_delegate(mode='silent') proof.
 

@@ -1,4 +1,15 @@
-# R-RC-2 at `f15237ec92`: **honest_limit**
+# R-RC-2 at `f15237ec92`: **partial** (corrected 2026-10-31; was honest_limit)
+
+## Correction (2026-10-31, frond-scribe; 🌊 00:31Z)
+
+The earlier fold recorded **honest_limit**. **Half of it rested on an echo.** The measured `request_compaction` toolResult is genuine and is kept: `guard: context_threshold`, context 13, threshold 70, `threshold_rejected_measured`. The child-report half (`context=unknown`) was parsed from the parent-stream path, an echo of the child task, so it is **review-pending**.
+
+**State.** The HONEST-LIMIT verdict needed both halves, so it is **withdrawn**. This row is now **partial**: the measured toolResult stands; the child-report half does not.
+
+The harness now binds this row to product records (docs `codeagent/harness-sentinel-audit`, `ed28bb0e..3283454d`, under independent review); F″ re-fires it.
+
+Source: the sentinel-echo audit (`tools/k6-proofs/AUDIT-sentinel-echo-20261030.md`, docs branch `codeagent/harness-sentinel-audit` @ `ed28bb0e`) and its fix lane's findings, both read from this row's own public receipts. 🌊's ruling: Discord msg 1565885870949531709 (2026-10-31 00:31Z): correct F′ now, keep the original receipts, add this trail; F″ is an independent re-fire, not retroactive evidence for F′.
+
 
 Parent fires continue_delegate to a child that calls request_compaction.
 

@@ -406,17 +406,17 @@
       "row": "R-CD-SILENT",
       "title": "Typed continue_delegate(mode='silent') proof.",
       "owner": "emeric-exact-fire",
-      "state": "pass",
+      "state": "missing",
       "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-SILENT/",
       "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-SILENT/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
-      "candidate_verdict": "PASS-candidate",
-      "review_status": "reviewed: frond-scribe (single seat), 2026-10-30",
+      "candidate_verdict": "none: the run's PASS-candidate rested on a parent-supplied token (corrected 2026-10-31)",
+      "review_status": "re-reviewed: frond-scribe, 2026-10-31 (correction; see EVIDENCE.md § Correction)",
       "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "PASS-candidate with complete receipts in matrix-012943Z.",
-      "notes": "owner: -",
+      "summary": "Correction 2026-10-31: the child's completion is real, but the readback that passed the row named a token the parent had itself written into its continue_delegate call, not a token the child minted. That proves nothing about the silent return reaching the parent, so the row is missing. The original receipts are kept.",
+      "notes": "owner: harness (readback bound to a parent-supplied token; fixed on docs branch codeagent/harness-sentinel-audit (ed28bb0e..3283454d), under independent review).",
       "test_cases_executed": [
         "20261030T013909Z-r-cd-silent-44aa4c89"
       ],
@@ -424,11 +424,12 @@
         "tempo-trace-e7416e936f8e.json"
       ],
       "audit_status": {
-        "status": "unverified-echo-vulnerable",
+        "status": "confirmed-echo",
         "reading": "Audit: the child's completion is real, but the parent's readback names a token the parent wrote into its own continue_delegate call.",
         "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
         "recorded": "2026-10-30",
-        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+        "note": "🌊 Discord msg 1565885870949531709 (2026-10-31 00:31Z): correct F′ now, keep the original receipts, add a correction trail; F″ is an independent re-fire, not retroactive evidence.",
+        "confirmed": "2026-10-31"
       }
     },
     {
@@ -817,17 +818,17 @@
       "row": "R-CW-TOKEN",
       "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
       "owner": "emeric-exact-fire",
-      "state": "pass",
+      "state": "missing",
       "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-TOKEN/",
       "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-TOKEN/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
-      "candidate_verdict": "PASS-candidate",
-      "review_status": "reviewed: frond-scribe (single seat), 2026-10-30",
+      "candidate_verdict": "none: the run's PASS-candidate rested on a sentinel echo (corrected 2026-10-31)",
+      "review_status": "re-reviewed: frond-scribe, 2026-10-31 (correction; see EVIDENCE.md § Correction)",
       "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "PASS-candidate with complete receipts in matrix-012943Z.",
-      "notes": "owner: -",
+      "summary": "Correction 2026-10-31: TOKEN-HOP2-DONE was matched 160 ms after the hop-1 work-wake (journal), too soon for hop 2's model turn: the matched byte was the work-wake echo of the spawn task, not hop 2's reply. The wake itself fired. There is no authoritative receipt that hop 2 ran and returned, so the row is missing. The original receipts are kept.",
+      "notes": "owner: harness (hop-2 sentinel credited from the echo; fixed on docs branch codeagent/harness-sentinel-audit (ed28bb0e..3283454d), under independent review).",
       "test_cases_executed": [
         "20261030T014725Z-r-cw-token-44aa4c89"
       ],
@@ -835,11 +836,12 @@
         "tempo-trace-df53f133c050.json"
       ],
       "audit_status": {
-        "status": "unverified-echo-vulnerable",
+        "status": "confirmed-echo",
         "reading": "Audit: TOKEN-HOP2-DONE was matched 160 ms after the hop-1 work-wake, too soon for a model turn; likely an echo of the spawn task. The wake itself fired (journal).",
         "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
         "recorded": "2026-10-30",
-        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+        "note": "🌊 Discord msg 1565885870949531709 (2026-10-31 00:31Z): correct F′ now, keep the original receipts, add a correction trail; F″ is an independent re-fire, not retroactive evidence.",
+        "confirmed": "2026-10-31"
       }
     },
     {
@@ -935,17 +937,17 @@
       "row": "R-RC-2",
       "title": "Parent fires continue_delegate to a child that calls request_compaction.",
       "owner": "emeric-exact-fire",
-      "state": "honest_limit",
+      "state": "partial",
       "dir": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-2/",
       "evidence_doc": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-RC-2/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
-      "candidate_verdict": "HONEST-LIMIT-candidate",
-      "review_status": "reviewed: frond-scribe (single seat), 2026-10-30",
+      "candidate_verdict": "HONEST-LIMIT-candidate WITHDRAWN 2026-10-31: its child-report half came from the parent-stream echo",
+      "review_status": "re-reviewed: frond-scribe, 2026-10-31 (correction; see EVIDENCE.md § Correction)",
       "fired": true,
       "exact_target_execution": true,
       "pending_receipts": [],
-      "summary": "HONEST-LIMIT-candidate in matrix-012943Z: structured request_compaction rejection (guard context_threshold) with the matching child threshold return; receipts reviewed.",
-      "notes": "owner: -",
+      "summary": "Correction 2026-10-31: the measured request_compaction toolResult is genuine and kept (guard context_threshold, context 13, threshold 70, threshold_rejected_measured). The child-report half (context=unknown) was parsed from the parent-stream path, an echo of the child task, so it is review-pending. The HONEST-LIMIT verdict needed both halves and is withdrawn; the row is partial.",
+      "notes": "owner: harness (child report read from the parent stream; fixed on docs branch codeagent/harness-sentinel-audit (ed28bb0e..3283454d), under independent review). The measured toolResult half stands.",
       "test_cases_executed": [
         "20261030T014846Z-r-rc-2-44aa4c89"
       ],
@@ -953,11 +955,12 @@
         "tempo-trace-550e4725d1f5.json"
       ],
       "audit_status": {
-        "status": "unverified-echo-vulnerable",
+        "status": "confirmed-echo-child-half",
         "reading": "Audit: the measured toolResult receipt is real (context 13, threshold 70, threshold_rejected_measured). The child-report half parsed context=unknown from the parent-stream path; likely an echo of the child task.",
         "source": "tools/k6-proofs/AUDIT-sentinel-echo-20261030.md on docs branch codeagent/harness-sentinel-audit @ ed28bb0e",
         "recorded": "2026-10-30",
-        "note": "State unchanged by this annotation (🌊 20:50Z: an audit flag alone is not a confirmed false pass; no verdict raised). F″ re-fires every row with the fixed harness."
+        "note": "🌊 Discord msg 1565885870949531709 (2026-10-31 00:31Z): correct F′ now, keep the original receipts, add a correction trail; F″ is an independent re-fire, not retroactive evidence.",
+        "confirmed": "2026-10-31"
       }
     },
     {
@@ -1003,12 +1006,12 @@
   ],
   "rollup": {
     "total_rows": 38,
-    "pass": 31,
-    "partial": 2,
+    "pass": 29,
+    "partial": 3,
     "thin": 0,
     "fail": 0,
-    "honest_limit": 1,
-    "missing": 4
+    "honest_limit": 0,
+    "missing": 6
   },
   "method": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/METHOD.md",
   "corpus": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/",

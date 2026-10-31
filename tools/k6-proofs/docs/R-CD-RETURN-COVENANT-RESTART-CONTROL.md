@@ -31,6 +31,13 @@ This document is the operator's guide to the control:
 with `path:line` anchors at F′ `f15237ec92`, is in the header of
 `tools/k6-proofs/scenarios/r-cd-return-covenant-authority.js`. That k6 entry itself fails closed.
 
+The control starts, restarts and stops a real gateway process, so it is not a process-local
+fixture. The row manifest names it under `invocation.control` with
+`invocation.artifactClass: "disposable-real-process"`. The verdict-cap rule
+(`tools/k6-proofs/lib/row-verdict-cap.mjs`, the ruling on docs#616) therefore does not cap the
+row at `PARTIAL-candidate`, as it caps R-CW-5/6's process-local fixtures. The row can grade
+PASS-candidate from the two supervised cases.
+
 ## What it proves
 
 A delegate's return is bound to the recipient session's authority generation: one UUID epoch per

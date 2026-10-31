@@ -870,6 +870,11 @@ stopped `$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe
 `scripts/proof-gw/composite-launcher.sh` on a free loopback port that is not the live
 gateway's.
 
+Because the control restarts a real gateway process, the manifest names it under
+`invocation.control` with `invocation.artifactClass: "disposable-real-process"`. It is not a
+process-local fixture, so the row declares no `verdictCap` and is not capped (see "The
+process-local cap" below).
+
 It has two row cases and two optional controls. 🌊's final scope ruling (Discord msg
 1565927316687691777) scopes the row's claim to the supervised branch the fleet runs:
 
@@ -993,11 +998,29 @@ fixture, which is not an external gateway invocation. Each manifest declares the
 cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
 `artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
 requires that declaration of every row whose `transport` is process-local
-(however spelled), that names a process-local fixture (`invocation.fixture`), or
+(however spelled), whose runner is a process-local fixture, or
 that the ruling names (R-CW-5, R-CW-6, by id).
 A declared transport outside the schema's list is refused rather than read as
 "not process-local", and the grader also refuses a manifest with no transport. The cap is read from the declaration, never inferred from prose,
 and the rules live in `lib/row-verdict-cap.mjs`.
+
+A runner's artifact class is declared in `invocation.artifactClass`, never
+inferred from the key that names the runner:
+
+- A runner named with no class is a process-local fixture, so the row must
+  declare the cap. That covers `invocation.fixture`, as before, and
+  `invocation.control` without a class. So does
+  `invocation.artifactClass: "process-local-fixture"`.
+- `"disposable-real-process"` is a runner that starts, restarts and stops a real
+  gateway process it set up for the run, never the live one. It names that runner
+  in `invocation.control`, and it is not capped.
+  R-CD-RETURN-COVENANT-AUTHORITY's restart control is the one such row. The class
+  is refused on a process-local or missing transport, beside `invocation.fixture`,
+  without `invocation.control`, and on R-CW-5/6.
+- Any other class, a different spelling of a known one included, is refused.
+
+So dropping a process-local marker never un-caps R-CW-5/6, and reclassifying
+them doesn't either.
 
 - The row verdict is the minimum of the fixture's verdict, the declared cap and
   the preflight cap. A fixture `PASS-candidate` is behavioral only.

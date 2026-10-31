@@ -13,6 +13,13 @@
  * from a different artifact class, adopted by an explicit method change; no such
  * authority is adopted, so `supersedingAuthorities` must be empty.
  *
+ * Whether a row is process-local is read from its transport and from the
+ * artifact class its runner declares in `invocation.artifactClass`, never from
+ * the key that names the runner (docs#615). R-CD-RETURN-COVENANT-AUTHORITY's
+ * restart control restarts a real disposable gateway process, so it declares
+ * `disposable-real-process` and is not capped; a runner with no declared class
+ * is read as a process-local fixture.
+ *
  * The grader (grade-preflight-gated-row.mjs), the catalog check
  * (check-proof-row-manifests.mjs) and the corpus validator (validate-corpus.mjs)
  * share this one copy of the rules. Plain ESM with no Node or k6 imports.
@@ -23,6 +30,17 @@ import { canonicalRowId } from './required-preflight.mjs';
 export const ROW_VERDICT_CAP = 'PARTIAL-candidate';
 /** The artifact class every process-local row's cap names. */
 export const PROCESS_LOCAL_ARTIFACT_CLASS = 'process-local-fixture';
+/**
+ * A runner that starts, restarts and stops a real gateway process it set up for
+ * the run, never the live one: R-CD-RETURN-COVENANT-AUTHORITY's restart control
+ * (docs#615). It is not process-local, so the ruling does not cap it.
+ */
+export const DISPOSABLE_REAL_PROCESS_ARTIFACT_CLASS = 'disposable-real-process';
+/**
+ * The classes `invocation.artifactClass` may declare. A runner's class is read
+ * from that declaration, never inferred from the key that names the runner.
+ */
+export const INVOCATION_ARTIFACT_CLASSES = [PROCESS_LOCAL_ARTIFACT_CLASS, DISPOSABLE_REAL_PROCESS_ARTIFACT_CLASS];
 /**
  * The rows the ruling caps by name. Their manifests must declare the cap however
  * they are otherwise edited, so dropping the process-local markers cannot un-cap
@@ -86,13 +104,69 @@ export function corpusStateWithinCap(state, cap) {
 }
 
 /**
+ * The artifact class of the runner a manifest's invocation names, read from
+ * `invocation.artifactClass`: `{ processLocal, declared, capRequired, failures }`.
+ * A runner is named under `invocation.fixture` (a process-local fixture) or
+ * `invocation.control`. A runner named with no class is read as a process-local
+ * fixture, so a missing class fails closed exactly as #616 reads
+ * `invocation.fixture`; `capRequired` says why such a row must declare a cap. A
+ * class this rule does not know is refused. `disposable-real-process` is the
+ * only class that is not process-local, and only when nothing else about the
+ * row is: its runner is `invocation.control`, it names no `invocation.fixture`,
+ * its transport is declared and not process-local, and the ruling does not cap
+ * it by id. Any contradiction is refused and read as process-local.
+ */
+function runnerArtifactClass(manifest, processLocalTransport) {
+  const rowId = manifest?.rowId;
+  const invocation = isObject(manifest?.invocation) ? manifest.invocation : {};
+  const names = (key) => typeof invocation[key] === 'string' && invocation[key] !== '';
+  const fixture = names('fixture');
+  const control = names('control');
+  const mustDeclare = `must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`;
+  if (!Object.prototype.hasOwnProperty.call(invocation, 'artifactClass')) {
+    const capRequired = [];
+    if (fixture) capRequired.push(`${rowId} names a process-local fixture (invocation.fixture), so it ${mustDeclare}`);
+    if (control) {
+      capRequired.push(`${rowId} names a runner (invocation.control) without invocation.artifactClass, so it is read as a process-local fixture and ${mustDeclare}`);
+    }
+    return { processLocal: capRequired.length > 0, declared: null, capRequired, failures: [] };
+  }
+  const declared = invocation.artifactClass;
+  if (!INVOCATION_ARTIFACT_CLASSES.includes(declared)) {
+    return {
+      processLocal: true,
+      declared: null,
+      capRequired: [],
+      failures: [
+        `invocation.artifactClass ${JSON.stringify(declared)} is not a known artifact class (${INVOCATION_ARTIFACT_CLASSES.join(', ')}), ` +
+          `so whether ${rowId} is process-local cannot be decided`,
+      ],
+    };
+  }
+  if (declared === PROCESS_LOCAL_ARTIFACT_CLASS) {
+    return { processLocal: true, declared, capRequired: [`${rowId} declares invocation.artifactClass "${declared}", so it ${mustDeclare}`], failures: [] };
+  }
+  const claim = `${rowId} declares invocation.artifactClass "${declared}"`;
+  const failures = [];
+  if (processLocalTransport) failures.push(`${claim}, but its transport ${JSON.stringify(manifest.transport)} is process-local`);
+  if (manifest?.transport === undefined) failures.push(`${claim} but declares no transport, so whether it is process-local cannot be decided`);
+  if (fixture) failures.push(`${claim} but names a process-local fixture (invocation.fixture); a disposable real process's runner is invocation.control`);
+  if (!control) failures.push(`${claim} without naming its runner in invocation.control`);
+  if (RULED_CAPPED_ROWS.includes(canonicalRowId(rowId))) {
+    failures.push(`${rowId} is capped by 🌊's ruling on docs#616 as a process-local fixture, so it cannot declare invocation.artifactClass "${declared}"`);
+  }
+  return { processLocal: failures.length > 0, declared, capRequired: [], failures };
+}
+
+/**
  * Problems with one manifest's cap declaration, without a file prefix. A row
- * whose transport is process-local (however spelled), that names a
- * process-local fixture (`invocation.fixture`) or that the ruling names
- * (RULED_CAPPED_ROWS) must declare one, and a declared
- * transport this rule does not know is refused rather than read as "not
- * process-local" (a missing one is the schema's to require; the grader refuses
- * it). A row that declares a cap must declare it whole, and its expected
+ * whose transport is process-local (however spelled), whose runner is a
+ * process-local fixture (runnerArtifactClass: `invocation.fixture` or a runner
+ * with no declared class) or that the ruling names (RULED_CAPPED_ROWS) must
+ * declare one, and a declared transport or runner class this rule does not know
+ * is refused rather than read as "not process-local" (a missing transport is
+ * the schema's to require; the grader refuses it). A row that declares a cap
+ * must declare it whole, for the class its runner declares, and its expected
  * artifact class may not lie above it.
  */
 export function manifestVerdictCapFailures(manifest) {
@@ -106,10 +180,11 @@ export function manifestVerdictCapFailures(manifest) {
     );
   }
   const processLocal = transport === 'process-local';
-  const fixture = typeof manifest?.invocation?.fixture === 'string' && manifest.invocation.fixture !== '';
+  const runner = runnerArtifactClass(manifest, processLocal);
+  failures.push(...runner.failures);
   if (!Object.prototype.hasOwnProperty.call(manifest || {}, 'verdictCap') || manifest.verdictCap === undefined) {
     if (processLocal) failures.push(`${rowId} is process-local, so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
-    if (fixture) failures.push(`${rowId} names a process-local fixture (invocation.fixture), so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
+    failures.push(...runner.capRequired);
     if (RULED_CAPPED_ROWS.includes(canonicalRowId(rowId))) {
       failures.push(`${rowId} is capped by 🌊's ruling on docs#616, so it must declare verdictCap (rowCap ${ROW_VERDICT_CAP})`);
     }
@@ -120,8 +195,10 @@ export function manifestVerdictCapFailures(manifest) {
   if (cap.rowCap !== ROW_VERDICT_CAP) failures.push(`verdictCap.rowCap must be "${ROW_VERDICT_CAP}", not ${JSON.stringify(cap.rowCap)}`);
   if (typeof cap.artifactClass !== 'string' || !cap.artifactClass) {
     failures.push('verdictCap.artifactClass must name the artifact class the cap belongs to');
-  } else if ((processLocal || fixture) && cap.artifactClass !== PROCESS_LOCAL_ARTIFACT_CLASS) {
+  } else if ((processLocal || runner.processLocal) && cap.artifactClass !== PROCESS_LOCAL_ARTIFACT_CLASS) {
     failures.push(`verdictCap.artifactClass must be "${PROCESS_LOCAL_ARTIFACT_CLASS}" for a process-local row, not ${JSON.stringify(cap.artifactClass)}`);
+  } else if (!processLocal && !runner.processLocal && runner.declared && cap.artifactClass !== runner.declared) {
+    failures.push(`verdictCap.artifactClass must be "${runner.declared}", the class invocation.artifactClass declares, not ${JSON.stringify(cap.artifactClass)}`);
   }
   if (!Array.isArray(cap.supersedingAuthorities) || cap.supersedingAuthorities.length !== 0) {
     failures.push(

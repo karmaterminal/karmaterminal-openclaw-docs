@@ -97,6 +97,13 @@ Copy the closest existing manifest to `tools/k6-proofs/manifests/<row>.json`, fo
   `tools/k6-proofs/lib/continuation-trace-requirement.mjs`.
 - A row whose required receipts include a telemetry receipt also declares `telemetryContract`
   (`tools/k6-proofs/docs/CONTINUATION-TELEMETRY-REMEDY-ROWS.md`).
+- A row run by a script instead of its k6 scenario names that runner in `invocation` and
+  declares the runner's class in `invocation.artifactClass`. A process-local fixture
+  (`invocation.fixture`, or any runner with no class) must declare `verdictCap`
+  (`PARTIAL-candidate`). A runner that restarts a real disposable gateway process goes under
+  `invocation.control` as `disposable-real-process` and is not capped; the catalog check refuses
+  that class on a process-local transport. The rule lives in
+  `tools/k6-proofs/lib/row-verdict-cap.mjs`.
 
 ### 3. Write the Scenario
 Name it after the row in lowercase with hyphens, usually with what it proves

@@ -26,7 +26,8 @@
     "registryNotes": "Ledger command AUTHORITY-RESTART-CONTROL, gate reviewed-restart-control-on-final-successor. Rejected base: the first gateway-restart transition cleared the current generation before the replacement became usable, and the exact failure body was lost. The row stays required and MISSING at F′ until this control runs on the final successor (🌊, Discord msg 1565895695586558120). 🌊's ruling on the fork (Discord msg 1565903655885082677): the spawned branch closes the old server before the child's readiness, so continuous old-process service is not an invariant, and a blocked fallback is a failure or limit, not PASS. 🌊's final scope ruling (Discord msg 1565927316687691777, 🌻 agreeing in msg 1565922704752779386): the restart claim is the supervised branch the fleet runs; update.run on an unmanaged gateway is a distinct update-respawn control, not the negative proving fleet restart; the plain in-process case is named separately."
   },
   "invocation": {
-    "fixture": "tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs",
+    "control": "tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs",
+    "artifactClass": "disposable-real-process",
     "cases": [
       "positive",
       "negative-replacement-never-usable"
@@ -39,7 +40,7 @@
     "transition": "gateway.restart.request {reason: gateway.restart, skipDeferral: true} with operator.admin on the supervised cases; {reason: update.run, skipDeferral: true} on the update-respawn controls (the untargeted request passes its reason to the run loop; no update is performed)",
     "authority": "sessions.create then session.visibility.set(suggest); the narrowing advances session_recipient_authority",
     "supervisor": "positive and negative-replacement-never-usable: OPENCLAW_SUPERVISOR_MODE=external, and the control consumes the restart handoff and starts the replacement; update-respawn controls: no supervisor hint, the product spawns and judges the replacement",
-    "fixtureState": "an existing proof-gw directory (composite-launcher.sh setup, then stop); its state is kept for composite-launcher.sh shred"
+    "controlState": "an existing proof-gw directory (composite-launcher.sh setup, then stop); its state is kept for composite-launcher.sh shred"
   },
   "expectedReceipts": [
     {

@@ -28,9 +28,12 @@
  * Each compaction seen goes into side_effect.compaction_observations, ordered
  * against the nonce-bound toolResult where the run can show the order: a
  * transcript row by its position in the same read, a stream signal by whether
- * the toolResult had already arrived. One shown after a rejection that meets
- * the PASS rule is FAIL-candidate (verdictAuthority.fail); one whose order is
- * not shown is PARTIAL. classifyRrc1Evidence is the one verdict.
+ * the toolResult had already arrived. A committed compaction (a transcript or
+ * stream compaction row, or an agent compaction end with completed:true) shown
+ * after a rejection that meets the PASS rule is FAIL-candidate
+ * (verdictAuthority.fail) and ends the run; an attempt or an unordered one
+ * blocks PASS and the window still runs, in case the compaction commits.
+ * classifyRrc1Evidence is the one verdict.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -50,6 +53,7 @@ import {
   newCompactionRows,
   requestCompactionResultIndex,
   requestCompactionToolCallIdForNonce,
+  rrc1CompactionShownAfterRejection,
   RRC1_MIN_SIDE_EFFECT_WINDOW_MS,
   rrc1RejectionFacts,
 } from '../lib/request-compaction-receipt.js';
@@ -91,6 +95,8 @@ export const options = {
 };
 
 const failures = new Counter('proof_failures');
+// handleSummary runs outside the VU, so a FAIL verdict reaches it through this count.
+const failCandidates = new Counter('r_rc_1_fail_candidate');
 const duration = new Trend('r_rc_1_duration');
 const manifest = loadManifestFromEnv();
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -122,6 +128,9 @@ export default function () {
   }
   if (Number.isFinite(requestedWindowMs) && requestedWindowMs < DEFAULT_SIDE_EFFECT_WINDOW_MS) {
     console.warn(`OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS=${requestedWindowMs} is shorter than ${DEFAULT_SIDE_EFFECT_WINDOW_MS}ms; using ${SIDE_EFFECT_WINDOW_MS}ms`);
+  }
+  if (Number.isFinite(requestedWindowMs) && requestedWindowMs > MAX_SIDE_EFFECT_WINDOW_MS) {
+    console.warn(`OPENCLAW_RRC1_SIDE_EFFECT_WINDOW_MS=${requestedWindowMs} is longer than ${MAX_SIDE_EFFECT_WINDOW_MS}ms; using ${SIDE_EFFECT_WINDOW_MS}ms`);
   }
 
   const evidence = {
@@ -170,8 +179,9 @@ export default function () {
       stream_compaction_signals: 0,
       stream_compaction_sources: [],
       // Each compaction seen after dispatch. after_rejection: true when it is
-      // shown to follow the nonce-bound toolResult, false when shown before it,
-      // null when the order is not shown.
+      // shown to follow the nonce-bound toolResult, false when shown before it
+      // (a transcript row before it in the same read, or a stream row that is
+      // in the baseline), null when the order is not shown.
       compaction_observations: [],
       unproven_reason: null,
     },
@@ -186,6 +196,8 @@ export default function () {
   };
   const sideEffect = evidence.side_effect;
   let baselineMessages = [];
+  // Record ids of the compaction rows in the baseline read.
+  const baselineCompactionIds = new Set();
   // Why the final read did not count, for unproven_reason.
   let finalReadProblem = null;
   // toolCallIds of the request_compaction toolResult events that named this session.
@@ -193,6 +205,21 @@ export default function () {
   // Stream observations made before the receipt was recorded, with the
   // toolResult events seen by then; ordered once the receipt names its call.
   const pendingStreamOrder = [];
+
+  // A signal that came after the toolResult's event (for the nonce-bound call)
+  // follows it. One that came first is not shown to precede it: transcript
+  // events reach the socket by another path than agent events.
+  function resolveStreamOrder() {
+    if (!evidence.tool_call_id) return;
+    for (const { observation, seenCallIds } of pendingStreamOrder) {
+      if (seenCallIds.includes(evidence.tool_call_id)) observation.after_rejection = true;
+    }
+  }
+
+  // A committed compaction after a rejection that meets the PASS rule: FAIL, and final.
+  function failEvidenceShown() {
+    return evidence.rejection_meets_contract === true && sideEffect.compaction_observations.some(rrc1CompactionShownAfterRejection);
+  }
 
   function addCompactionObservation(observation) {
     if (sideEffect.compaction_observations.length >= MAX_COMPACTION_OBSERVATIONS) return false;
@@ -253,8 +280,9 @@ export default function () {
     function recordSideEffect(where) {
       evidence.no_compaction_side_effect = false;
       console.error(`✗ compaction side effect observed after dispatch (${where})`);
-      // Once the receipt is recorded nothing else can change the verdict.
-      if (receiptRecorded) finish();
+      // PASS is gone either way; only a committed compaction after the rejection
+      // settles the verdict. Anything less keeps watching in case one commits.
+      if (receiptRecorded && failEvidenceShown()) finish();
     }
 
     // A signal after the receipt was recorded follows the toolResult; an earlier
@@ -262,14 +290,19 @@ export default function () {
     function recordStreamCompaction(signal, data) {
       sideEffect.stream_compaction_signals += 1;
       if (!sideEffect.stream_compaction_sources.includes(signal.source)) sideEffect.stream_compaction_sources.push(signal.source);
+      const recordId = typeof data.message?.__openclaw?.id === 'string' ? data.message.__openclaw.id : null;
+      // A compaction row the baseline already held was committed before dispatch.
+      const inBaseline = recordId !== null && baselineCompactionIds.has(recordId);
       const observation = {
         source: signal.source,
         phase: signal.phase,
-        record_id: typeof data.message?.__openclaw?.id === 'string' ? data.message.__openclaw.id : null,
+        // An agent compaction end says whether it committed (ok && compacted); a start says nothing.
+        completed: signal.source === 'agent-compaction-event' && typeof data.data?.completed === 'boolean' ? data.data.completed : null,
+        record_id: recordId,
         session_named: eventNamesSession(data, sessionKey),
-        after_rejection: receiptRecorded ? true : null,
+        after_rejection: inBaseline ? false : receiptRecorded ? true : null,
       };
-      if (addCompactionObservation(observation) && !receiptRecorded) {
+      if (addCompactionObservation(observation) && !receiptRecorded && !inBaseline) {
         pendingStreamOrder.push({ observation, seenCallIds: [...toolResultEventCallIds] });
       }
       recordSideEffect(signal.source);
@@ -369,7 +402,8 @@ export default function () {
           finish();
           return true;
         }
-        if (evidence.no_compaction_side_effect === false) {
+        resolveStreamOrder();
+        if (failEvidenceShown()) {
           finish();
           return true;
         }
@@ -397,6 +431,7 @@ export default function () {
           baselineMessages = messages;
           sideEffect.baseline_read = true;
           sideEffect.baseline_compaction_markers = newCompactionMarkerCount([], baselineMessages);
+          for (const row of newCompactionRows([], baselineMessages)) if (row.id !== null) baselineCompactionIds.add(row.id);
         } else {
           console.error(`✗ baseline sessions.get gave no transcript: ${JSON.stringify(classified.error || classified.payload)}`);
         }
@@ -601,14 +636,7 @@ export default function () {
   evidence.duration_ms = Date.now() - started;
   duration.add(evidence.duration_ms);
 
-  // Order the stream signals that came before the receipt was recorded: after
-  // the toolResult if its event (for the nonce-bound call) had arrived, before
-  // it if that event came later, otherwise not shown.
-  for (const { observation, seenCallIds } of pendingStreamOrder) {
-    if (!evidence.tool_call_id) continue;
-    if (seenCallIds.includes(evidence.tool_call_id)) observation.after_rejection = true;
-    else if (toolResultEventCallIds.has(evidence.tool_call_id)) observation.after_rejection = false;
-  }
+  resolveStreamOrder();
 
   if (evidence.no_compaction_side_effect === null) {
     sideEffect.unproven_reason = !evidence.rejection_meets_contract
@@ -642,6 +670,7 @@ export default function () {
   if (evidence.verdict !== 'PASS-candidate') {
     failures.add(1);
   }
+  if (evidence.verdict === 'FAIL-candidate') failCandidates.add(1);
 
   console.log(`\n--- R-RC-1 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
@@ -653,12 +682,13 @@ export default function () {
 export function handleSummary(data) {
   const timestamp = new Date().toISOString();
   const passRate = data.metrics.proof_failures?.values?.count === 0;
+  const failCandidate = (data.metrics.r_rc_1_fail_candidate?.values?.count || 0) > 0;
   const summary = {
     row: 'R-RC-1',
     sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
     seat: __ENV.OPENCLAW_SEAT_NAME || 'cael-dgx',
     timestamp,
-    verdict: passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
+    verdict: failCandidate ? 'FAIL-candidate' : passRate ? 'PASS-candidate' : 'PARTIAL-candidate',
     metrics: {
       duration_ms: data.metrics.r_rc_1_duration?.values || null,
       failures: data.metrics.proof_failures?.values?.count || 0,

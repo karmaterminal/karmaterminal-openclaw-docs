@@ -158,7 +158,8 @@ export function rrc1RejectionFacts(receipt) {
   return {
     status: typeof r.status === 'string' ? r.status : null,
     guard: typeof r.guard === 'string' ? r.guard : null,
-    cause: typeof r.cause === 'string' ? r.cause : null,
+    // A cause that is not a string is recorded as given (JSON), so the rule still reads it.
+    cause: typeof r.cause === 'string' ? r.cause : r.cause === undefined || r.cause === null ? null : JSON.stringify(r.cause),
     contextUsage: finiteNumber(r.contextUsage),
     threshold: finiteNumber(r.threshold),
     usageFieldsPresent: 'contextUsage' in r || 'threshold' in r,
@@ -334,15 +335,59 @@ export function compactionStreamSignal(eventPayload, sessionKey) {
   return null;
 }
 
+// The sources a side_effect.compaction_observations entry can have, and which
+// count each is tallied in.
+const COMPACTION_OBSERVATION_SOURCES = new Map([
+  ['transcript-compaction-row', 'transcript'],
+  ['agent-compaction-event', 'stream'],
+  ['session-message-compaction-row', 'stream'],
+]);
+
 /**
- * One compaction the scenario recorded in side_effect.compaction_observations
- * that shows a compaction in this session after the rejection: a transcript row
- * after the nonce-bound toolResult in the same sessions.get read, or a stream
- * signal naming this session that arrived after the toolResult.
+ * One entry of side_effect.compaction_observations that shows a committed
+ * compaction in this session after the rejection: a transcript row after the
+ * nonce-bound toolResult in the same sessions.get read, or, arriving after the
+ * toolResult and naming this session, a compaction row on the stream or an
+ * agent compaction end with completed:true. An attempt is not a compaction: at
+ * openclaw 542d1cac46 start carries no outcome and end carries
+ * completed = ok && compacted
+ * (src/agents/embedded-agent-runner/run/compaction-runtime.ts:101-148).
  */
 export function rrc1CompactionShownAfterRejection(observation) {
   if (!isRecord(observation) || observation.after_rejection !== true) return false;
-  return observation.source === 'transcript-compaction-row' || observation.session_named === true;
+  switch (observation.source) {
+    case 'transcript-compaction-row':
+      return true;
+    case 'session-message-compaction-row':
+      return observation.session_named === true;
+    case 'agent-compaction-event':
+      return observation.session_named === true && observation.phase === 'end' && observation.completed === true;
+    default:
+      return false;
+  }
+}
+
+/** Why the recorded compaction evidence disagrees with itself, or null. */
+function compactionEvidenceProblem(sideEffect, observations) {
+  const rows = finiteNumber(sideEffect.new_compaction_markers);
+  const signals = finiteNumber(sideEffect.stream_compaction_signals);
+  if (rows === null || signals === null) return 'the transcript or stream compaction count is missing';
+  const sources = Array.isArray(sideEffect.stream_compaction_sources) ? sideEffect.stream_compaction_sources : [];
+  let rowObservations = 0;
+  let streamObservations = 0;
+  for (const observation of observations) {
+    const tally = isRecord(observation) ? COMPACTION_OBSERVATION_SOURCES.get(observation.source) : undefined;
+    if (!tally) return `an observation has an unknown source (${observation?.source ?? 'missing'})`;
+    if (tally === 'transcript') {
+      rowObservations += 1;
+    } else {
+      streamObservations += 1;
+      if (!sources.includes(observation.source)) return `stream source ${observation.source} is not in stream_compaction_sources`;
+    }
+  }
+  if (rowObservations > 0 && rows < 1) return 'transcript compaction rows are observed but none is counted';
+  if (streamObservations > signals) return `${streamObservations} stream observations but ${signals} stream compaction signals counted`;
+  return null;
 }
 
 function describeCompactionEvidence(sideEffect) {
@@ -350,9 +395,10 @@ function describeCompactionEvidence(sideEffect) {
     ? ` (${sideEffect.stream_compaction_sources.join(', ')})`
     : '';
   const observations = Array.isArray(sideEffect.compaction_observations) ? sideEffect.compaction_observations : [];
+  const committed = observations.filter(rrc1CompactionShownAfterRejection).length;
   return `stream signals ${sideEffect.stream_compaction_signals ?? '?'}${sources}, ` +
     `new transcript compaction rows ${sideEffect.new_compaction_markers ?? '?'}; ` +
-    `${observations.filter(rrc1CompactionShownAfterRejection).length} shown after the rejection in this session`;
+    `${committed} committed ${committed === 1 ? 'compaction' : 'compactions'} shown after the rejection in this session`;
 }
 
 /**
@@ -363,8 +409,9 @@ function describeCompactionEvidence(sideEffect) {
  * complete window of at least RRC1_MIN_SIDE_EFFECT_WINDOW_MS.
  * FAIL-candidate (verdictAuthority.fail, the contract change in 🌊's review of
  * docs 3e2c83c7): the same receipts and a rejection that meets the PASS rule,
- * then a compaction shown after it in this session, which contradicts it. It
- * outranks an incomplete window, since the run stops once it sees one.
+ * then a committed compaction shown after it in this session, which
+ * contradicts it, on evidence that agrees with itself. It outranks an
+ * incomplete window, since the run stops once it sees one.
  * Anything else is PARTIAL-candidate with the first missing piece named.
  */
 export function classifyRrc1Evidence(evidence) {
@@ -396,10 +443,12 @@ export function classifyRrc1Evidence(evidence) {
     return partial(sawCompaction ? `${rejection.reason}; a compaction was also observed (${describeCompactionEvidence(window)})` : rejection.reason);
   }
   if (e.no_compaction_side_effect === false) {
+    const problem = compactionEvidenceProblem(window, observations || []);
+    if (problem) return partial(`the compaction evidence is inconsistent: ${problem}`);
     if ((observations || []).some(rrc1CompactionShownAfterRejection)) {
       return { verdict: 'FAIL-candidate', reason: `a compaction followed the rejection (${describeCompactionEvidence(window)})`, shape: rejection.shape };
     }
-    return partial(`a compaction was observed but is not shown to follow the rejection in this session (${describeCompactionEvidence(window)})`);
+    return partial(`a compaction signal was observed, but a committed compaction is not shown to follow the rejection in this session (${describeCompactionEvidence(window)})`);
   }
   if (e.no_compaction_side_effect !== true) {
     return partial(`no compaction side effect is unproven: ${window.unproven_reason || 'the side-effect window did not complete'}`);

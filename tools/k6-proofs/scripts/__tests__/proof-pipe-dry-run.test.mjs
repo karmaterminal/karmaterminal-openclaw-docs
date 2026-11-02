@@ -151,18 +151,17 @@ async function writeTree(root, files) {
 /**
  * A docs repository with one commit, or two when `then` is given (the second
  * becomes HEAD; `docsSha` stays the first). Returns the root and both SHAs.
+ * An explicit `hold: undefined` or `manifest: undefined` leaves that file out;
+ * a destructuring default would put the fixture's back.
  */
-async function fixtureRepo({
-  hold = HELD,
-  manifest = defaultManifest(),
-  corpusSha = CANDIDATE,
-  catalog = defaultCatalog(),
-  extra = {},
-  then,
-} = {}) {
+async function fixtureRepo(options = {}) {
+  const hold = Object.hasOwn(options, 'hold') ? options.hold : HELD;
+  const manifest = Object.hasOwn(options, 'manifest') ? options.manifest : defaultManifest();
+  const { corpusSha = CANDIDATE, catalog = defaultCatalog(), extra = {}, then } = options;
   const root = await scratch('proof-pipe-repo-');
   const home = await scratch('proof-pipe-home-');
-  const files = { ...extra };
+  // The repository-root contract wants both catalogs: manifests and scenarios.
+  const files = { 'tools/k6-proofs/scenarios/README.md': 'fixture\n', ...extra };
   for (const [name, value] of Object.entries(catalog)) files[`tools/k6-proofs/manifests/${name}`] = value;
   if (hold !== undefined) files['tools/k6-proofs/proof-pipe/hold.json'] = hold;
   if (manifest !== undefined) files[`PROOFS/${corpusSha}/proofs-manifest.json`] = manifest;
@@ -223,6 +222,15 @@ function baseArgs(docsSha, extra = []) {
   return ['--product-sha', CANDIDATE, '--docs-sha', docsSha, '--json', ...extra];
 }
 
+test('the tripwire itself fires when a guarded binary is called', async () => {
+  const own = await tripwireBin();
+  for (const name of ['k6', 'ssh', 'temporal']) {
+    const called = spawnSync('sh', ['-c', `${name} probe`], { encoding: 'utf8', env: { ...process.env, PATH: `${own.dir}${path.delimiter}${process.env.PATH}` } });
+    assert.equal(called.status, 97, `${name} did not resolve to the tripwire`);
+  }
+  assert.equal((await readFile(own.log, 'utf8')).trim().split('\n').length, 3);
+});
+
 // ── dry_run=false and the hold ──────────────────────────────────────────────
 
 test('dry_run=false is refused while the hold flag is set', async () => {
@@ -265,6 +273,10 @@ for (const [label, hold] of FAIL_CLOSED_HOLDS) {
     const result = run(root, baseArgs(docsSha, ['--dry-run', 'false']));
     assert.equal(result.status, 3, result.stderr);
     assert.equal(result.json.reason, 'held');
+    // The file under test was the one judged, not a fixture default.
+    assert.equal(result.json.hold.sources.length, 1);
+    assert.notEqual(result.json.hold.sources[0].reason, RELEASED.reason);
+    if (hold === undefined) assert.match(result.json.hold.sources[0].reason, /a missing hold is a hold/);
     assertNothingFired();
   });
 }

@@ -15,10 +15,13 @@ run-name: proof-pipe-dry-run ${{ inputs.trigger }} ${{ inputs.rows }} dry=${{ in
 # because the live leg is not built.
 #
 # Cost: ARC or self-hosted only, never a rented runner. runs-on comes from
-# vars.PROOF_PIPE_RUNS_ON, default the ARC scale set oc-4cpu-16gb. A value
-# naming a GitHub-hosted image or a Blacksmith runner skips the job before a
-# runner is assigned, and the planner refuses it again from inside. The docs
-# repository has not used ARC before: grant it the runner group first.
+# vars.PROOF_PIPE_RUNS_ON, default the ARC scale set oc-4cpu-16gb. The job's
+# `if:` admits only an unset variable, a JSON list or string starting with an
+# oc-* scale set, or a list starting with "self-hosted", written without
+# spaces; anything else (a runner group object, an escaped label, a
+# GitHub-hosted image, a Blacksmith runner) skips the job before a runner is
+# assigned, and the planner refuses it again from inside. The docs repository
+# has not used ARC before: grant it the runner group first.
 
 on:
   workflow_dispatch:
@@ -69,7 +72,11 @@ jobs:
   plan:
     name: proof pipe plan (dry run)
     if: >-
-      !contains(vars.PROOF_PIPE_RUNS_ON, 'ubuntu-')
+      (vars.PROOF_PIPE_RUNS_ON == ''
+        || startsWith(vars.PROOF_PIPE_RUNS_ON, '["oc-')
+        || startsWith(vars.PROOF_PIPE_RUNS_ON, '"oc-')
+        || startsWith(vars.PROOF_PIPE_RUNS_ON, '["self-hosted"'))
+      && !contains(vars.PROOF_PIPE_RUNS_ON, 'ubuntu-')
       && !contains(vars.PROOF_PIPE_RUNS_ON, 'windows-')
       && !contains(vars.PROOF_PIPE_RUNS_ON, 'macos-')
       && !contains(vars.PROOF_PIPE_RUNS_ON, 'blacksmith')

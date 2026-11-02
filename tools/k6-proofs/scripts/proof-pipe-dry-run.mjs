@@ -10,7 +10,7 @@
  *     [--dry-run true|false] [--json] [--out <file>] [--repo-root <dir>]
  *
  * It validates its inputs, reads the bugs-first hold at the pipeline's own
- * commit and at the docs SHA, resolves rows from
+ * commit, at the docs SHA and at origin/main, resolves rows from
  * PROOFS/<corpus>/proofs-manifest.json::dispatch_allocation at the docs SHA,
  * refuses any consumed or possibly consumed row, and prints the plan and the
  * receipts the pipe would collect. Every byte it reads is a git object at an
@@ -74,9 +74,13 @@ function parseArgs(argv) {
   return { json, raw };
 }
 
-/** git with ambient repository overrides cleared and replace refs ignored, as run-proofs.sh does. */
+/**
+ * git with ambient repository overrides cleared and replace refs ignored, as
+ * run-proofs.sh does. GIT_NO_LAZY_FETCH keeps a partial clone from fetching a
+ * missing object behind a read: the planner never fetches.
+ */
 function gitEnv() {
-  const env = { ...process.env, GIT_NO_REPLACE_OBJECTS: '1', GIT_TERMINAL_PROMPT: '0', GIT_OPTIONAL_LOCKS: '0' };
+  const env = { ...process.env, GIT_NO_REPLACE_OBJECTS: '1', GIT_NO_LAZY_FETCH: '1', GIT_TERMINAL_PROMPT: '0', GIT_OPTIONAL_LOCKS: '0' };
   for (const name of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_COMMON_DIR', 'GIT_NAMESPACE']) {
     delete env[name];
   }
@@ -109,10 +113,18 @@ function blobId(root, ref, file) {
   return result.ok ? result.stdout.trim() : undefined;
 }
 
-/** Paths below `dir` at `ref` (recursive or one level), NUL-separated so no name is mangled. */
-function listTree(root, ref, dir, { recursive }) {
-  const result = gitRead(root, ['ls-tree', ...(recursive ? ['-r'] : []), '--name-only', '-z', ref, '--', `${dir}/`]);
-  return result.ok ? result.stdout.split('\0').filter(Boolean) : [];
+/**
+ * The entries directly below `dir` at `ref`, NUL-separated so no name is
+ * mangled. An absent directory lists nothing (git exits 0); a listing git
+ * cannot make throws, because "nothing there" would read as no consumption.
+ */
+function listTree(root, ref, dir) {
+  const result = gitRead(root, ['ls-tree', '-z', ref, '--', `${dir}/`]);
+  if (!result.ok) throw new Error(`git could not list ${dir} at ${ref}`);
+  return result.stdout.split('\0').filter(Boolean).map((entry) => {
+    const tab = entry.indexOf('\t');
+    return { type: entry.slice(0, tab).split(' ')[1], path: entry.slice(tab + 1) };
+  });
 }
 
 function parseJson(text) {
@@ -126,8 +138,8 @@ function parseJson(text) {
 /** Every catalog manifest at the docs SHA, by the row id it declares. */
 function readCatalog(root, docsSha) {
   const catalog = new Map();
-  for (const file of listTree(root, docsSha, CATALOG_DIR, { recursive: false })) {
-    if (!file.endsWith('.json')) continue;
+  for (const { type, path: file } of listTree(root, docsSha, CATALOG_DIR)) {
+    if (type !== 'blob' || !file.endsWith('.json')) continue;
     const parsed = parseJson(blobText(root, docsSha, file) ?? '');
     const rowId = parsed.value?.rowId;
     if (typeof rowId !== 'string') continue;
@@ -138,24 +150,45 @@ function readCatalog(root, docsSha) {
 }
 
 /**
- * Every row.json of a thornfield packet for these SHAs at the docs SHA:
- * PROOF-RUNS/<sha>/<run>/<ROW>/row.json. An unreadable one keeps its row with
- * no state, which never reads as not-run.
+ * Every row of a merged thornfield packet that bears on this trigger, at the
+ * docs SHA. ttf writes a packet under its runtime candidate,
+ * PROOF-RUNS/<candidate>/<run>/, and names the corpus it planned from in
+ * run.json (manifest.corpusSha, and pure). A run counts when its candidate is
+ * the product SHA or its corpus is this corpus; one whose run.json cannot be
+ * read counts too. Each counted run's <ROW>/row.json is read; a row directory
+ * with no readable row.json keeps its row with no state, which never reads as
+ * not-run. Listing goes one level at a time: a recursive ls-tree of a large
+ * tree can overflow.
  */
-function readPackets(root, docsSha, shas) {
+function readPackets(root, docsSha, { productSha, corpusSha }) {
   const packets = [];
   const read = [];
-  for (const sha of [...new Set(shas)]) {
-    const prefix = `${PACKET_ROOT}/${sha}`;
-    for (const file of listTree(root, docsSha, prefix, { recursive: true })) {
-      const parts = file.split('/');
-      if (parts.length !== 5 || parts[4] !== 'row.json' || !ROW_NAME_RE.test(parts[3])) continue;
-      read.push(file);
-      const parsed = parseJson(blobText(root, docsSha, file) ?? '');
-      packets.push({ path: file, row: parts[3], state: parsed.value?.state });
+  const runs = [];
+  for (const candidate of listTree(root, docsSha, PACKET_ROOT)) {
+    if (candidate.type !== 'tree') continue;
+    const candidateSha = candidate.path.split('/')[1];
+    for (const run of listTree(root, docsSha, candidate.path)) {
+      if (run.type !== 'tree') continue;
+      const runJson = parseJson(blobText(root, docsSha, `${run.path}/run.json`) ?? '').value;
+      const why = candidateSha === productSha
+        ? 'candidate is the product SHA'
+        : !runJson || typeof runJson !== 'object'
+          ? 'run.json unreadable'
+          : runJson.manifest?.corpusSha === corpusSha || runJson.pure === corpusSha
+            ? 'planned from this corpus'
+            : undefined;
+      if (!why) continue;
+      runs.push({ dir: run.path, why });
+      for (const rowDir of listTree(root, docsSha, run.path)) {
+        const row = rowDir.path.split('/').at(-1);
+        if (rowDir.type !== 'tree' || !ROW_NAME_RE.test(row) || row === 'receipts') continue;
+        const file = `${rowDir.path}/row.json`;
+        read.push(file);
+        packets.push({ path: file, row, state: parseJson(blobText(root, docsSha, file) ?? '').value?.state });
+      }
     }
   }
-  return { packets, read };
+  return { packets, read, runs };
 }
 
 function emit(result, { json, out }, exitCode) {
@@ -199,9 +232,18 @@ function main() {
   if (!head.ok) return emit(refusal('the repository has no HEAD commit', { dryRun: input.dryRun }), options, EXIT.REFUSED);
   const pipelineSha = head.stdout.trim();
 
-  // (e) the hold: at the pipeline's own commit and at the docs SHA; either holds.
-  const refs = [...new Set([pipelineSha, input.docsSha])];
-  const hold = combineHold(refs.map((ref) => judgeHold(blobText(root, ref, HOLD_PATH), ref)), process.env.PROOF_PIPE_HOLD);
+  // (e) the hold: at the pipeline's own commit, at the docs SHA and at
+  // origin/main; any one holds. The dispatcher picks the first two, so a
+  // release counts only once it is on main. No origin/main here is a hold.
+  const main = gitRead(root, ['rev-parse', '--verify', '--quiet', 'refs/remotes/origin/main^{commit}']);
+  const mainSha = main.ok ? main.stdout.trim() : undefined;
+  const refs = [...new Set([pipelineSha, input.docsSha, ...(mainSha ? [mainSha] : [])])];
+  const sources = refs.map((ref) => ({
+    ...judgeHold(blobText(root, ref, HOLD_PATH), ref),
+    via: [[pipelineSha, 'pipeline'], [input.docsSha, 'docs-sha'], [mainSha, 'origin/main']].filter(([sha]) => sha === ref).map(([, name]) => name),
+  }));
+  if (!mainSha) sources.push({ ref: 'origin/main', held: true, reason: 'no origin/main in this checkout: a release counts only on main', via: ['origin/main'] });
+  const hold = combineHold(sources, process.env.PROOF_PIPE_HOLD);
   if (!input.dryRun) {
     if (hold.held) {
       return emit(refusal('dry_run=false refused: the bugs-first hold is in effect', { dryRun: false, reason: 'held', hold }), options, EXIT.HELD);
@@ -230,7 +272,18 @@ function main() {
   const allocation = resolveAllocation(manifest);
   if (allocation.problem) return emit(refusal(`${manifestPath}: ${allocation.problem}`, { dryRun: true }), options, EXIT.REFUSED);
 
-  const { packets, read } = readPackets(root, input.docsSha, [input.productSha, input.corpusSha]);
+  let packetLedger;
+  try {
+    packetLedger = readPackets(root, input.docsSha, input);
+  } catch (err) {
+    return emit(refusal(`${err.message}: the consumption ledger is unreadable`, { dryRun: true }), options, EXIT.REFUSED);
+  }
+  let catalog;
+  try {
+    catalog = readCatalog(root, input.docsSha);
+  } catch (err) {
+    return emit(refusal(`${err.message}: the row catalog is unreadable`, { dryRun: true }), options, EXIT.REFUSED);
+  }
   const built = buildPlan({
     input,
     cost,
@@ -240,9 +293,10 @@ function main() {
     manifestPath,
     manifestBlob: blobId(root, input.docsSha, manifestPath),
     allocation,
-    catalog: readCatalog(root, input.docsSha),
-    packets,
-    packetsRead: read,
+    catalog,
+    packets: packetLedger.packets,
+    packetsRead: packetLedger.read,
+    packetRuns: packetLedger.runs,
   });
   if (built.problem) return emit(refusal(built.problem, { dryRun: true }), options, EXIT.REFUSED);
   return emit(built.plan, options, built.plan.refused ? EXIT.REFUSED : EXIT.PLANNED);

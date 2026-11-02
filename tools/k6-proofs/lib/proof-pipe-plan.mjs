@@ -66,6 +66,25 @@ export const ROW_CONDITIONAL_FILES = Object.freeze([
   { file: 'verdict-reconciliation.json', when: 'the VU and handleSummary verdicts disagree' },
 ]);
 
+/**
+ * What ttf's proofCollect copies into the packet from a row's run directory:
+ * the sanitizer's named outputs, its receipt and the validated run-result.json
+ * (src/seat/proof-run.ts, sanitizerOutputs and the public-set copy), plus the
+ * Tempo projection when there is one. Everything else stays on the seat.
+ */
+export const PACKET_PUBLIC_FILES = Object.freeze([
+  'evidence-redaction.json',
+  'evidence.jsonl',
+  'evidence-lines.log',
+  'k6.log',
+  'gateway-journal.log',
+  'gateway-journal-redaction.json',
+  'run-result.json',
+]);
+
+/** run-proofs.sh names a row's trace projection by the trace id's first 12 hex. */
+export const TRACE_PROJECTION_FILE = 'tempo-trace-<trace-id-12>.json';
+
 /** What ttf's proofCollect adds per row (its receipts and the packet's row.json). */
 export const COLLECTION_FILES = Object.freeze([
   'row.json',
@@ -261,6 +280,8 @@ export function resolveAllocation(manifest) {
   } else if (typeof allocation === 'object') {
     for (const [owner, rows] of Object.entries(allocation)) {
       if (!Array.isArray(rows) || !rows.every((row) => typeof row === 'string')) return invalid;
+      // ttf checks every owner name, an empty bucket's included.
+      if (owner !== 'supplemental' && !SEAT_NAME_RE.test(owner)) return { problem: `unsafe owner name: ${shown(owner)}` };
       if (owner === 'supplemental') supplemental = [...rows];
       else for (const row of rows) pairs.push([owner, row]);
     }
@@ -318,21 +339,27 @@ function packetStateConsumed(state) {
 export function rowConsumption(row, { corpusRows, refires, packets }) {
   const consumed = [];
   const possibly = [];
+  // refires[] comes as {row}, {rows: [...]} or a refire record per row; one naming no row could be any row.
+  if (refires !== undefined && !Array.isArray(refires)) possibly.push('refires is not a list');
+  for (const entry of Array.isArray(refires) ? refires : []) {
+    const rows = entry && typeof entry === 'object' ? [entry.row, ...(Array.isArray(entry.rows) ? entry.rows : [])].filter((name) => typeof name === 'string') : [];
+    if (rows.length === 0) possibly.push('a refires[] entry names no row');
+    else if (rows.includes(row)) consumed.push('refires[]');
+  }
   const entries = corpusRows.filter((entry) => entry && typeof entry === 'object' && entry.row === row);
   if (entries.length === 0) possibly.push('no rows[] entry');
   if (entries.length > 1) possibly.push('more than one rows[] entry');
   for (const entry of entries) {
     if (entry.fired === true) consumed.push('fired: true');
     else if (entry.fired !== false) possibly.push(`fired is not false: ${shown(entry.fired)}`);
-    if (Array.isArray(entry.test_cases_executed) && entry.test_cases_executed.length > 0) {
-      consumed.push(`test_cases_executed ×${entry.test_cases_executed.length}`);
-    }
+    const cases = entry.test_cases_executed;
+    if (Array.isArray(cases) && cases.length > 0) consumed.push(`test_cases_executed ×${cases.length}`);
+    else if (cases !== undefined && !Array.isArray(cases)) possibly.push(`test_cases_executed is not a list: ${shown(cases)}`);
     if (entry.possibly_consumed !== undefined && entry.possibly_consumed !== false) {
       possibly.push(`possibly_consumed: ${shown(entry.possibly_consumed)}`);
     }
     if (entry.state !== undefined && entry.state !== 'missing') consumed.push(`state ${typeof entry.state === 'string' ? oneLine(entry.state, 40) : shown(entry.state)}`);
   }
-  if (refires.some((entry) => entry && typeof entry === 'object' && entry.row === row)) consumed.push('refires[]');
   for (const packet of packets) {
     if (packet.row !== row || packet.state === 'not-run') continue;
     const reason = `${packet.path} state ${typeof packet.state === 'string' ? oneLine(packet.state, 60) : shown(packet.state)}`;
@@ -358,8 +385,9 @@ export function liveFireProblem(row, entries) {
 export function rowReceipts(row, manifest) {
   const trace = traceRequirement(manifest);
   const files = [...ROW_PUBLIC_FILES];
-  if (trace.required) files.push('tempo-trace-<trace-id>.json');
+  if (trace.required) files.push(TRACE_PROJECTION_FILE);
   if (trace.correlationReceipt) files.push(`${trace.correlationReceipt}.json`);
+  const packet = [...PACKET_PUBLIC_FILES, ...(trace.required ? [TRACE_PROJECTION_FILE] : []), ...COLLECTION_FILES];
   const declared = [
     ...(Array.isArray(manifest.liveRunSafety?.requiredReceipts) ? manifest.liveRunSafety.requiredReceipts : []),
     ...(Array.isArray(manifest.expectedReceipts) ? manifest.expectedReceipts.filter((r) => r?.required === true).map((r) => r.name) : []),
@@ -369,7 +397,9 @@ export function rowReceipts(row, manifest) {
     row,
     files,
     conditional: ROW_CONDITIONAL_FILES.map((entry) => ({ ...entry })),
-    collection: [...COLLECTION_FILES],
+    packet,
+    // On the seat only: ttf's copy leaves them out (a gap for the fold, which needs the correlation receipt).
+    droppedByCollection: files.filter((file) => !packet.includes(file)),
     manifestReceipts,
     trace: { required: trace.required, reasons: trace.reasons, receipts: trace.receipts },
     expectedArtifactClass: manifest.liveRunSafety?.expectedArtifactClass ?? null,
@@ -381,7 +411,7 @@ export function rowReceipts(row, manifest) {
  * is true when any guard refuses; the plan still names everything it found,
  * so the refusal is reviewable.
  */
-export function buildPlan({ input, cost, hold, pipelineSha, manifest, manifestPath, manifestBlob, allocation, catalog, packets, packetsRead }) {
+export function buildPlan({ input, cost, hold, pipelineSha, manifest, manifestPath, manifestBlob, allocation, catalog, packets, packetsRead, packetRuns = [] }) {
   const { productSha, docsSha, corpusSha, label } = input;
   const selection = selectRows(input.rows, allocation);
   if (selection.problem) return { problem: selection.problem };
@@ -389,7 +419,7 @@ export function buildPlan({ input, cost, hold, pipelineSha, manifest, manifestPa
   const rows = selection.rows.map((row) => rowDisposition(row, allocation.owners.get(row), input.proofSeats));
   const fireRows = rows.filter((row) => row.disposition === 'fire');
   const corpusRows = Array.isArray(manifest.rows) ? manifest.rows : [];
-  const refires = Array.isArray(manifest.refires) ? manifest.refires : [];
+  const refires = manifest.refires;
 
   const refusedConsumed = [];
   const catalogProblems = [];
@@ -406,8 +436,10 @@ export function buildPlan({ input, cost, hold, pipelineSha, manifest, manifestPa
 
   const workflowId = `proofs/${productSha}/${label}`;
   const safeId = workflowIdSafe(workflowId);
+  const selected = new Set(fireRows.map((row) => row.row));
   const seats = [...new Set(fireRows.map((row) => row.seat))].map((seat) => {
-    const seatRows = fireRows.filter((row) => row.seat === seat).map((row) => row.row);
+    // ttf launches a seat's rows in its bucket's order, whatever order --rows named them in.
+    const seatRows = allocation.buckets.get(seat).filter((row) => selected.has(row));
     return {
       seat,
       taskQueue: `thornfield-proof-${seat}`,
@@ -423,10 +455,12 @@ export function buildPlan({ input, cost, hold, pipelineSha, manifest, manifestPa
       isolatedGateway: {
         dir: `~/proof-gw/comp-${corpusSha.slice(0, 8)}`,
         unit: `openclaw-proof-comp-${corpusSha.slice(0, 8)}`,
-        binding: input.pure ? 'pure corpus SHA, composite runtime (BIND=pure; pure credit is a separate reviewed materiality judgment)' : 'exact: corpus SHA is the runtime SHA',
+        // The harness binds the runtime: seat readiness refuses a candidate that is not the runtime build,
+        // so a composite runs BIND=runtime and the pure corpus only names the manifest (as ttf --pure does).
+        binding: input.pure ? 'composite runtime bound (BIND=runtime); the pure corpus names the manifest, and pure credit is a separate reviewed materiality judgment' : 'exact: corpus SHA is the runtime SHA',
         ownerActs: ['setup', 'login', 'login-finish', 'adopt-auth', 'stop', 'shred'],
       },
-      launcher: `bash <frond-scribe>/scripts/proof-gw/composite-launcher.sh run ${corpusSha} ${productSha} ${docsSha} ${seatRows.join(',')}`,
+      launcher: `BIND=runtime bash <frond-scribe>/scripts/proof-gw/composite-launcher.sh run ${corpusSha} ${productSha} ${docsSha} ${seatRows.join(',')}`,
       stateDir: `~/.local/state/thornfield-frond/proof-runs/${safeId}/${seat}`,
       liveGateway: 'never touched: openclaw-gateway.service keeps its MainPID, start time and restart count',
     };
@@ -511,6 +545,7 @@ export function buildPlan({ input, cost, hold, pipelineSha, manifest, manifestPa
           checked: fireRows.map((row) => row.row),
           refused: refusedConsumed,
           packetsRead: [...packetsRead],
+          packetRuns: packetRuns.map((run) => ({ ...run })),
           ledgerGaps: [
             'open proof-runs/* packet branches not merged at the docs SHA',
             `Temporal workflows proofs/${productSha}/* (read by the live leg, never by the dry run)`,
@@ -566,7 +601,9 @@ export function renderPlan(plan) {
   out.push('');
   out.push('(c) collection');
   for (const row of collection.rows) {
-    out.push(line(row.row, row.files.join(', ')));
+    out.push(line(row.row, `run directory: ${row.files.join(', ')}`));
+    out.push(`    packet: ${row.packet.join(', ')}`);
+    if (row.droppedByCollection.length > 0) out.push(`    seat only (not in the packet): ${row.droppedByCollection.join(', ')}`);
     out.push(`    manifest receipts: ${row.manifestReceipts.join(', ') || 'none'}`);
   }
   out.push(line('run', collection.run.join(', ')));

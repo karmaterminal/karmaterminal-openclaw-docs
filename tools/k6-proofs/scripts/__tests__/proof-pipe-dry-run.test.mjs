@@ -152,12 +152,14 @@ async function writeTree(root, files) {
  * A docs repository with one commit, or two when `then` is given (the second
  * becomes HEAD; `docsSha` stays the first). Returns the root and both SHAs.
  * An explicit `hold: undefined` or `manifest: undefined` leaves that file out;
- * a destructuring default would put the fixture's back.
+ * a destructuring default would put the fixture's back. refs/remotes/origin/main
+ * names HEAD unless `originMain` is 'docs' (the first commit) or null (none);
+ * `remote` adds an origin URL.
  */
 async function fixtureRepo(options = {}) {
   const hold = Object.hasOwn(options, 'hold') ? options.hold : HELD;
   const manifest = Object.hasOwn(options, 'manifest') ? options.manifest : defaultManifest();
-  const { corpusSha = CANDIDATE, catalog = defaultCatalog(), extra = {}, then } = options;
+  const { corpusSha = CANDIDATE, catalog = defaultCatalog(), extra = {}, then, originMain = 'head', remote } = options;
   const root = await scratch('proof-pipe-repo-');
   const home = await scratch('proof-pipe-home-');
   // The repository-root contract wants both catalogs: manifests and scenarios.
@@ -177,7 +179,9 @@ async function fixtureRepo(options = {}) {
     git(root, ['commit', '-q', '-m', 'fixture head'], home);
     headSha = git(root, ['rev-parse', 'HEAD'], home);
   }
-  return { root, docsSha, headSha };
+  if (originMain !== null) git(root, ['update-ref', 'refs/remotes/origin/main', originMain === 'docs' ? docsSha : headSha], home);
+  if (remote) git(root, ['remote', 'add', 'origin', remote], home);
+  return { root, docsSha, headSha, home };
 }
 
 const TRIPWIRES = ['k6', 'ssh', 'scp', 'systemctl', 'systemd-run', 'journalctl', 'curl', 'wget', 'gh', 'temporal', 'thornfield', 'docker', 'kubectl', 'nc', 'openclaw'];
@@ -258,28 +262,44 @@ test('dry_run=false is refused with the hold lifted too: the live leg is not bui
 });
 
 const FAIL_CLOSED_HOLDS = [
-  ['a missing hold file', undefined],
-  ['a hold file that is not JSON', '{ held: false'],
-  ['a hold file with another schema', { ...RELEASED, schema: 'openclaw.k6.proof-pipe-hold.v0' }],
-  ['held:false with no release authority', { ...RELEASED, release: null }],
-  ['held:false with a blank release ref', { ...RELEASED, release: { ...RELEASED.release, ref: '  ' } }],
-  ['held:"false" as a string', { ...RELEASED, held: 'false' }],
-  ['a hold file that is an array', [RELEASED]],
+  ['a missing hold file', undefined, /a missing hold is a hold/],
+  ['a hold file that is not JSON', '{ held: false', /is not JSON/],
+  ['a hold file with another schema', { ...RELEASED, schema: 'openclaw.k6.proof-pipe-hold.v0' }, /schema is not openclaw\.k6\.proof-pipe-hold\.v1/],
+  ['held:false with no release authority', { ...RELEASED, release: null }, /no release authority is named/],
+  ['held:false with a blank release ref', { ...RELEASED, release: { ...RELEASED.release, ref: '  ' } }, /no release authority is named/],
+  ['held:"false" as a string', { ...RELEASED, held: 'false' }, /held is "false", not a boolean/],
+  ['a hold file that is an array', [RELEASED], /is not an object/],
 ];
 
-for (const [label, hold] of FAIL_CLOSED_HOLDS) {
+for (const [label, hold, reason] of FAIL_CLOSED_HOLDS) {
   test(`the hold fails closed: ${label} is a hold`, async () => {
     const { root, docsSha } = await fixtureRepo({ hold });
     const result = run(root, baseArgs(docsSha, ['--dry-run', 'false']));
     assert.equal(result.status, 3, result.stderr);
     assert.equal(result.json.reason, 'held');
-    // The file under test was the one judged, not a fixture default.
+    // One source (HEAD, docs SHA and origin/main are one commit), held for this file's own reason.
     assert.equal(result.json.hold.sources.length, 1);
-    assert.notEqual(result.json.hold.sources[0].reason, RELEASED.reason);
-    if (hold === undefined) assert.match(result.json.hold.sources[0].reason, /a missing hold is a hold/);
+    assert.equal(result.json.hold.sources[0].held, true);
+    assert.deepEqual(result.json.hold.sources[0].via, ['pipeline', 'docs-sha', 'origin/main']);
+    assert.match(result.json.hold.sources[0].reason, reason);
     assertNothingFired();
   });
 }
+
+test('a release off main is no release: origin/main holds', async () => {
+  // main holds; a branch commit releases, and the dispatcher names it as both pipeline and docs SHA.
+  const { root, docsSha, headSha } = await fixtureRepo({ hold: HELD, then: { 'tools/k6-proofs/proof-pipe/hold.json': RELEASED }, originMain: 'docs' });
+  const result = run(root, baseArgs(headSha, ['--dry-run', 'false']));
+  assert.equal(result.status, 3, result.stderr);
+  assert.deepEqual(result.json.hold.sources.map((s) => [s.ref, s.held, s.via]), [[headSha, false, ['pipeline', 'docs-sha']], [docsSha, true, ['origin/main']]]);
+});
+
+test('a checkout with no origin/main is held', async () => {
+  const { root, docsSha } = await fixtureRepo({ hold: RELEASED, originMain: null });
+  const result = run(root, baseArgs(docsSha, ['--dry-run', 'false']));
+  assert.equal(result.status, 3, result.stderr);
+  assert.ok(result.json.hold.sources.some((s) => s.ref === 'origin/main' && s.held && /no origin\/main/.test(s.reason)));
+});
 
 test('a release at HEAD does not lift a hold at the docs SHA', async () => {
   const { root, docsSha, headSha } = await fixtureRepo({ hold: HELD, then: { 'tools/k6-proofs/proof-pipe/hold.json': RELEASED } });
@@ -348,19 +368,23 @@ test('a dry run prints the plan and the receipts it would collect, and fires not
   assert.equal(handoff.temporal.workflowIdReusePolicy, 'REJECT_DUPLICATE');
   assert.deepEqual(handoff.seats.map((s) => [s.seat, s.taskQueue, s.rows]), [['emeric', 'thornfield-proof-emeric', ['R-A', 'R-B']]]);
   assert.equal(handoff.seats[0].go, 'required');
-  assert.match(handoff.seats[0].launcher, /composite-launcher\.sh run /);
+  assert.match(handoff.seats[0].launcher, /^BIND=runtime bash .*composite-launcher\.sh run /);
   assert.ok(handoff.seats[0].launcher.includes(`${CANDIDATE} ${CANDIDATE} ${docsSha} R-A,R-B`));
   assert.equal(handoff.seats[0].stageOnly.workflow, 'deploy-gateway.yml');
   assert.equal(handoff.seats[0].stageOnly.approvedRef, CANDIDATE);
 
   const receipts = Object.fromEntries(collection.rows.map((row) => [row.row, row]));
-  assert.ok(receipts['R-A'].files.includes('tempo-trace-<trace-id>.json'));
+  assert.ok(receipts['R-A'].files.includes('tempo-trace-<trace-id-12>.json'));
   assert.ok(receipts['R-A'].files.includes('continuation-trace-correlation.json'));
+  // ttf's packet carries the trace but not its correlation receipt or the provenance files.
+  assert.ok(receipts['R-A'].packet.includes('tempo-trace-<trace-id-12>.json'));
+  assert.ok(receipts['R-A'].packet.includes('receipts/validation.stdout.json'));
+  assert.deepEqual(receipts['R-A'].droppedByCollection, ['runner-metadata.json', 'row-manifest.json', 'row-scenario.js', 'gateway-journal-capture.json', 'continuation-trace-correlation.json']);
   assert.ok(receipts['R-A'].files.includes('run-result.json'));
   assert.ok(receipts['R-A'].files.includes('evidence-redaction.json'));
   assert.ok(receipts['R-A'].files.includes('gateway-journal-redaction.json'));
   assert.ok(receipts['R-A'].manifestReceipts.includes('continuation-trace-correlation'));
-  assert.equal(receipts['R-B'].files.includes('tempo-trace-<trace-id>.json'), false);
+  assert.equal(receipts['R-B'].files.includes('tempo-trace-<trace-id-12>.json'), false);
   assert.ok(collection.run.includes('harness-provenance.json'));
   assert.equal(collection.stagingRefs[0], `proof-runs-staging/proofs_${CANDIDATE}_nightly-${docsSha.slice(0, 8)}/emeric`);
 
@@ -412,6 +436,11 @@ test('--rows narrows the allocation; owner:<bucket> takes one bucket', async () 
   const bucket = run(root, baseArgs(docsSha, ['--rows', 'owner:emeric']));
   assert.equal(bucket.status, 0, bucket.stderr);
   assert.deepEqual(bucket.json.stages.trigger.rows.map((r) => r.row), ['R-A', 'R-B']);
+  // ttf launches a seat's rows in its bucket's order, whatever order --rows named them in.
+  const reversed = run(root, baseArgs(docsSha, ['--rows', 'R-B,R-A']));
+  assert.equal(reversed.status, 0, reversed.stderr);
+  assert.deepEqual(reversed.json.stages.handoff.seats[0].rows, ['R-A', 'R-B']);
+  assert.ok(reversed.json.stages.handoff.seats[0].launcher.endsWith(' R-A,R-B'));
 });
 
 test('the supplemental bucket is not a firing bucket', async () => {
@@ -453,7 +482,8 @@ test('malformed inputs are refused before anything is read', async () => {
 });
 
 test('a docs SHA that is not a commit here is refused; the runner never fetches', async () => {
-  const { root } = await fixtureRepo();
+  // A fetch from this remote would run ssh, which is a tripwire.
+  const { root } = await fixtureRepo({ remote: 'ssh://tripwire.invalid/karmaterminal-openclaw-docs.git' });
   const result = run(root, baseArgs('0123456789abcdef0123456789abcdef01234567'));
   assert.equal(result.status, 2);
   assert.match(result.json.problem, /docs-sha 0123456789abcdef0123456789abcdef01234567 is not a commit in this repository/);
@@ -475,7 +505,10 @@ test('row authority is proofs-manifest.json::dispatch_allocation; a bad allocati
   badShape.dispatch_allocation = { emeric: 'R-A' };
   const otherCorpus = defaultManifest();
   otherCorpus.capture_sha = PURE;
+  const emptyBadOwner = defaultManifest();
+  emptyBadOwner.dispatch_allocation['Bad Owner'] = [];
   const cases = [
+    [emptyBadOwner, /unsafe owner name: "Bad Owner"/],
     [twice, /row allocated twice: R-A/],
     [unallocated, /row allocated to no owner: R-B/],
     [unknown, /unknown row allocated: R-Z/],
@@ -521,6 +554,8 @@ test('a consumed or possibly consumed row is refused, and the whole trigger with
     [{ possibly_consumed: true }, /R-A: possibly consumed \(possibly_consumed: true\)/],
     [{ fired: undefined }, /R-A: possibly consumed \(fired is not false/],
     [{ state: 'pass' }, /R-A: consumed \(state pass[;)]/],
+    [{ test_cases_executed: 'tc-1' }, /R-A: possibly consumed \(test_cases_executed is not a list/],
+    [{ test_cases_executed: { a: 1 } }, /R-A: possibly consumed \(test_cases_executed is not a list/],
   ];
   for (const [extra, reason] of cases) {
     const manifest = defaultManifest();
@@ -545,13 +580,22 @@ test('a row missing from the corpus rows[] is possibly consumed', async () => {
   assert.ok(result.json.stages.guards.noRefire.refused.some((r) => /R-B: possibly consumed \(no rows\[\] entry\)/.test(r)));
 });
 
-test('a recorded refire names a consumed row', async () => {
-  const manifest = defaultManifest();
-  manifest.refires = [{ row: 'R-B', run: 'x', authorized_by: 'fixture' }];
-  const { root, docsSha } = await fixtureRepo({ manifest });
-  const result = run(root, baseArgs(docsSha));
-  assert.equal(result.status, 2);
-  assert.ok(result.json.stages.guards.noRefire.refused.some((r) => /R-B: consumed \(refires\[\][;)]/.test(r)));
+test('a recorded refire names a consumed row, in every refires[] shape the corpora use', async () => {
+  const shapes = [
+    [[{ row: 'R-B', run: 'x', authorized_by: 'fixture' }], /^R-B: consumed \(refires\[\][;)]/],
+    // 293c977f records a refire of several rows at once.
+    [[{ run: 'x', rows: ['R-B'], authority: 'fixture' }], /^R-B: consumed \(refires\[\][;)]/],
+    [['R-B'], /^R-B: possibly consumed \(a refires\[\] entry names no row[;)]/],
+    [{ 'R-B': 'x' }, /^R-B: possibly consumed \(refires is not a list[;)]/],
+  ];
+  for (const [refires, reason] of shapes) {
+    const manifest = defaultManifest();
+    manifest.refires = refires;
+    const { root, docsSha } = await fixtureRepo({ manifest });
+    const result = run(root, baseArgs(docsSha, ['--rows', 'R-B']));
+    assert.equal(result.status, 2, JSON.stringify(refires));
+    assert.ok(result.json.stages.guards.noRefire.refused.some((r) => reason.test(r)), JSON.stringify(result.json.stages.guards.noRefire.refused));
+  }
 });
 
 test('a prior thornfield packet for the candidate or the corpus marks its rows consumed, unless not-run', async () => {
@@ -561,19 +605,43 @@ test('a prior thornfield packet for the candidate or the corpus marks its rows c
   assert.equal(firedResult.status, 2);
   assert.ok(firedResult.json.stages.guards.noRefire.refused.some((r) => /R-A: consumed \(PROOF-RUNS\/.*\/R-A\/row\.json state candidate:PASS-candidate\)/.test(r)));
 
+  // ttf writes a packet under its runtime candidate and names the corpus in run.json: a run of
+  // another composite over the same pure corpus consumes the row; one over another corpus does not.
+  const OTHER = 'abcdefabcdefabcdefabcdefabcdefabcdefabcd';
+  const UNRELATED = '0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f';
+  const runJson = (corpusSha) => ({ schema: 'thornfield.proof-run.v1', manifest: { corpus: 'pure', corpusSha }, pure: corpusSha });
   const possibly = await fixtureRepo({
     corpusSha: PURE,
     manifest: defaultManifest(PURE),
-    extra: { [`PROOF-RUNS/${PURE}/20261101T020000Z-n1/R-A/row.json`]: packetRow('possibly-consumed') },
+    extra: {
+      [`PROOF-RUNS/${OTHER}/20261101T020000Z-n1/run.json`]: runJson(PURE),
+      [`PROOF-RUNS/${OTHER}/20261101T020000Z-n1/R-A/row.json`]: packetRow('possibly-consumed'),
+      [`PROOF-RUNS/${UNRELATED}/20261101T030000Z-n2/run.json`]: runJson(UNRELATED),
+      [`PROOF-RUNS/${UNRELATED}/20261101T030000Z-n2/R-B/row.json`]: { ...packetRow('candidate:PASS-candidate'), row: 'R-B' },
+    },
   });
   const possiblyResult = run(possibly.root, baseArgs(possibly.docsSha, ['--corpus-sha', PURE]));
   assert.equal(possiblyResult.status, 2);
-  assert.ok(possiblyResult.json.stages.guards.noRefire.refused.some((r) => /R-A: possibly consumed \(PROOF-RUNS\/.*state possibly-consumed\)/.test(r)));
+  const ledger = possiblyResult.json.stages.guards.noRefire;
+  assert.ok(ledger.refused.some((r) => /^R-A: possibly consumed \(PROOF-RUNS\/abcdef.*state possibly-consumed\)/.test(r)), JSON.stringify(ledger));
+  assert.equal(ledger.refused.some((r) => r.startsWith('R-B:')), false, 'a run over another corpus does not consume R-B');
+  assert.deepEqual(ledger.packetRuns, [{ dir: `PROOF-RUNS/${OTHER}/20261101T020000Z-n1`, why: 'planned from this corpus' }]);
 
   const notRun = await fixtureRepo({ extra: { [`PROOF-RUNS/${CANDIDATE}/20261101T020000Z-n1/R-A/row.json`]: packetRow('not-run') } });
   const notRunResult = run(notRun.root, baseArgs(notRun.docsSha));
   assert.equal(notRunResult.status, 0, notRunResult.stdout);
   assert.deepEqual(notRunResult.json.stages.guards.noRefire.packetsRead, [`PROOF-RUNS/${CANDIDATE}/20261101T020000Z-n1/R-A/row.json`]);
+});
+
+test('a consumption ledger git cannot list refuses, never reads as empty', async () => {
+  const { root, docsSha, home } = await fixtureRepo({ extra: { [`PROOF-RUNS/${CANDIDATE}/20261101T020000Z-n1/R-A/row.json`]: { row: 'R-A', state: 'candidate:PASS-candidate' } } });
+  // Drop the PROOF-RUNS tree object: git can no longer list it.
+  const tree = git(root, ['rev-parse', `${docsSha}:PROOF-RUNS`], home);
+  await rm(path.join(root, '.git', 'objects', tree.slice(0, 2), tree.slice(2)));
+  const result = run(root, baseArgs(docsSha));
+  assert.equal(result.status, 2, result.stdout);
+  assert.match(result.json.problem, /consumption ledger is unreadable/);
+  assertNothingFired();
 });
 
 test('F′ at this checkout: every emeric row has fired, so the pipe refuses to refire any of them', () => {

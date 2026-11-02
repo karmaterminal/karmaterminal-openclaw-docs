@@ -58,6 +58,11 @@ test('the workflow only reads, holds no secret and never names a rented runner',
   const [job] = jobs;
   assert.equal(RENTED.test(String(job['runs-on']).replace(/vars\.PROOF_PIPE_RUNS_ON/gu, '')), false, `runs-on ${job['runs-on']}`);
   assert.match(String(job['runs-on']), /oc-4cpu-16gb/u, 'the default runner is the ARC scale set');
+  // An allowlist decides before a runner is assigned; the blocklist stays as a second layer.
+  for (const admitted of ["vars.PROOF_PIPE_RUNS_ON == ''", `startsWith(vars.PROOF_PIPE_RUNS_ON, '["oc-')`, `startsWith(vars.PROOF_PIPE_RUNS_ON, '"oc-')`, `startsWith(vars.PROOF_PIPE_RUNS_ON, '["self-hosted"')`]) {
+    assert.ok(String(job.if).includes(admitted), `the job's allowlist admits ${admitted}`);
+  }
+  assert.equal(String(job.if).match(/startsWith\(/gu)?.length, 3, 'nothing else is admitted');
   for (const label of ['ubuntu-', 'windows-', 'macos-', 'blacksmith']) {
     assert.ok(String(job.if).includes(`!contains(vars.PROOF_PIPE_RUNS_ON, '${label}')`), `the job is skipped before a runner when the variable names ${label}`);
   }
@@ -97,8 +102,24 @@ test('the committed bugs-first hold is well formed and in effect', async () => {
   assert.match(hold.reason, /docs#587/u);
 });
 
+/** The planner and every local module it imports, transitively. */
+async function plannerModules() {
+  const seen = new Set();
+  const queue = [PLANNER];
+  while (queue.length > 0) {
+    const file = queue.shift();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    const source = await readFile(file, 'utf8');
+    for (const [, spec] of source.matchAll(/from\s+['"](\.{1,2}\/[^'"]+)['"]/gu)) queue.push(path.resolve(path.dirname(file), spec));
+  }
+  return [...seen];
+}
+
 test('the planner opens no socket and starts no process but git', async () => {
-  for (const file of [PLANNER, LIBRARY]) {
+  const modules = await plannerModules();
+  assert.ok(modules.includes(LIBRARY) && modules.length >= 4, `scanned ${modules.map((m) => path.basename(m)).join(', ')}`);
+  for (const file of modules) {
     const source = await readFile(file, 'utf8');
     assert.equal(/from ['"]node:(http|https|http2|net|tls|dgram|dns)['"]/u.test(source), false, `${path.basename(file)} imports a network module`);
     assert.equal(/\bfetch\(|\bWebSocket\b/u.test(source), false, `${path.basename(file)} reaches the network`);
@@ -106,4 +127,6 @@ test('the planner opens no socket and starts no process but git', async () => {
     const spawned = [...source.matchAll(/(?<![.\w])(?:execFileSync|spawnSync|execFile|spawn|execSync|exec)\(\s*([^,)]+)/gu)].map((m) => m[1].trim());
     assert.ok(spawned.every((target) => target === "'git'"), `${path.basename(file)} starts ${spawned.join(', ')}`);
   }
+  // A partial clone would fetch a missing object behind a read; the planner forbids it.
+  assert.match(await readFile(PLANNER, 'utf8'), /GIT_NO_LAZY_FETCH: '1'/u);
 });

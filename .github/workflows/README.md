@@ -77,9 +77,12 @@ seat, gateway or Temporal Service.
 | `dry_run` | `true` | `false` is refused: while `tools/k6-proofs/proof-pipe/hold.json` (or `vars.PROOF_PIPE_HOLD`) holds, and after, because no live leg is built. |
 
 - **Cost:** `runs-on` is `vars.PROOF_PIPE_RUNS_ON`, default the ARC scale set
-  `oc-4cpu-16gb`. A value naming a GitHub-hosted image or a Blacksmith runner
-  skips the job before a runner is assigned, and the planner refuses it again.
-  Grant this repository the ARC runner group before the first dispatch.
+  `oc-4cpu-16gb`. The job's `if:` admits only an unset variable, a JSON list or
+  string starting with an `oc-*` scale set, or a list starting with
+  `"self-hosted"`, written without spaces. Anything else, a GitHub-hosted image
+  or a Blacksmith runner included, skips the job before a runner is assigned,
+  and the planner refuses it again. Grant this repository the ARC runner group
+  before the first dispatch.
 - **Secret-free and read-only:** `permissions: contents: read`, no secret, and
   dispatch inputs reach shell steps only through `env:`.
 - **Artifact:** `proof-pipe-plan-<run id>-<attempt>` holds the plan as JSON

@@ -50,12 +50,12 @@ A path below such as `ttf src/seat/proof-run.ts` means that file at the SHA abov
  ─────────────          ─────────────────────────────     ──────────────────────    ────────────────────   ───────────
  Actions                 thornfield CLI on an ARC or      ttf proofCollect, per     mai-code-2-flash       princes read
  workflow_dispatch  ──▶  self-hosted runner starts   ──▶  row, on the seat:    ──▶  Copilot lane on   ──▶  the draft PR;
- (nightly cron or        proofRunWorkflow on Temporal     validate, recover         the seat writes        a fold is a
+ (nightly clock or       proofRunWorkflow on Temporal     validate, recover         the seat writes        a fold is a
  on-deploy dispatch)     and exits. Per seat:             trace, copy the public    candidate row          separate,
                          proof worker → isolated          set, scan it, stage it;   evidence onto the      reviewed act
- product SHA, docs       gateway (stage_only build,       orchestrator merges       packet and opens       (direct to
- SHA, rows from          composite-launcher run) →        the staging branches      the docs PR            main, per the
- dispatch_allocation     run-proofs.sh --live             into a PROOF-RUNS/        (candidate only)       corpus method)
+ product SHA, docs       gateway (stage_only build,       orchestrator merges       packet branch          (direct to
+ SHA, rows from          composite-launcher run) →        the staging branches      (candidate only)       main, per the
+ dispatch_allocation     run-proofs.sh --live             into a PROOF-RUNS/                               corpus method)
                          live gateway: never touched      packet, draft PR
 
  (e) guards, at every stage: hold switch · row authority · no refire · redaction · exact SHA · cost
@@ -63,24 +63,29 @@ A path below such as `ttf src/seat/proof-run.ts` means that file at the SHA abov
 
 ## What exists today
 
-Most of the pipe exists. The missing parts are the first leg (Actions → Temporal), the seat's
-gateway (isolated, not live), the assembler, and the guards between them.
+Most of the pipe exists. The missing parts are:
+
+- the first leg, Actions → Temporal;
+- an isolated gateway for the seat leg, which fires the live one today;
+- the collection's copy of the correlation and provenance receipts;
+- the assembler;
+- the guards between them.
 
 | stage | today's tool | what it does | gap |
 |---|---|---|---|
-| (a) trigger | docs `.github/workflows/project81-k6-proof.yml`; bootstrap `.github/workflows/project81-k6-proof.yml` | dispatch-only row-list runs on one runner, dry by default | no schedule, no on-deploy trigger, no Temporal hand-off ([G1](#g1), [G12](#g12)) |
-| (a) trigger | docs PR #588 `k6-baseline-scheduled.yml` (draft) | nightly cron, 30-minute deployed-SHA poll and missed-fire watchdog on seat runners, no Temporal | open; overlaps this design ([decision 5](#open-decisions-for-the-princes)) |
-| (a) row authority | ttf `planProofRun` / `allocationRows` (`src/sdlc/proof-run.ts`) | `dispatch_allocation` is the only firing authority, every required row allocated once, `--rows` only narrows | treats a `supplemental` bucket as an owner ([G7](#g7)) |
-| (b) Actions → Temporal | ttf `thornfield-ingress-reusable.yml`, `thornfield-workshop.yml` | relay issue and PR events; start familiar and probe Workflows | no step starts `proofRunWorkflow` ([G1](#g1)); ttf#15 canary not yet proved |
+| (a) trigger | docs `.github/workflows/project81-k6-proof.yml` (row lists, any runner); docs `.github/workflows/k6-proof.yml` (one scenario, `[self-hosted, <seat>]`); bootstrap `.github/workflows/project81-k6-proof.yml` (one prince's runner) | dispatch-only runs, dry by default | no schedule, no on-deploy trigger, no Temporal hand-off ([G1](#g1), [G12](#g12)) |
+| (a) trigger | docs PR #588 `k6-baseline-scheduled.yml` (draft) | nightly cron and 30-minute deployed-SHA poll on seat runners; missed-fire watchdog on ARC `oc-4cpu-16gb`; no Temporal | open; overlaps this design ([decision 5](#open-decisions-for-the-princes)) |
+| (a) row authority | ttf `planProofRun` / `allocationRows` (`src/sdlc/proof-run.ts`) | `dispatch_allocation` is the only firing authority, every required row allocated once, `--rows` only narrows | treats a `supplemental` bucket as an owner ([G7](#g7)); `proofReadManifest` checks neither schema nor `capture_sha` ([G19](#g19)) |
+| (b) Actions → Temporal | ttf `thornfield-ingress-reusable.yml`, `thornfield-workshop.yml` | relay GitHub events into the SDLC Workflow; start familiar and probe Workflows | no step starts `proofRunWorkflow` ([G1](#g1)); ttf#15 canary not yet proved |
 | (b) Temporal | ttf `proofRunWorkflow` (`src/workflows/proof-run.ts`) | per-seat go check, preflight, one detached launch, bounded probe, collection, packet; never relaunches | none in itself |
 | (b) seat | ttf `createProofSeatActivities` (`src/seat/proof-run.ts`) + frond-scribe `live-proof.sh` | preflight, launch, probe, collect on `thornfield-proof-<seat>` | **targets the seat's live gateway** ([G2](#g2)) |
-| (b) isolated gateway | frond-scribe `composite-launcher.sh`; bootstrap `deploy-gateway.yml` `stage_only=true` | owner-run isolated gateway with its own state, token, port, unit and model sign-in, from a stage-only build | not wired to the proof worker; done line and run directory differ ([G2](#g2), [G3](#g3)) |
+| (b) isolated gateway | frond-scribe `composite-launcher.sh`; bootstrap `deploy-gateway.yml` `stage_only=true` | owner-run isolated gateway with its own state, token, unit, OTel service and model sign-in, from a stage-only build | not wired to the proof worker; four contract mismatches with ttf ([G2](#g2), [G3](#g3)) |
 | (b) firing | docs `scripts/run-proofs.sh --live` | catalog preflight, exact docs-ref snapshot, signed seat readiness, per-row k6 run, sanitizer, journal capture, trace collection | none: the pipe calls it unchanged |
-| (c) collection | ttf `proofCollect`, `proofWritePacket` (`src/github/proof-run.ts`) | validate each row, recover the trace post-run, copy only the sanitizer's outputs, scan for secret shapes, stage as an orphan commit, merge into `PROOF-RUNS/<candidate>/<ts>-<label>/`, open a draft PR | static rows not run ([G8](#g8)) |
-| (c) trace | docs `collect-continuation-trace.mjs`, `fetch-tempo-trace.mjs` | public-safe Tempo projection and correlation receipt per row; post-run recovery without refire | none |
+| (c) collection | ttf `proofCollect` (`src/seat/proof-run.ts`), `proofWritePacket` (`src/github/proof-run.ts`) | validate each row, recover the trace post-run, copy the public set, scan for secret shapes, stage as an orphan commit, merge into `PROOF-RUNS/<candidate>/<ts>-<label>/`, open a draft PR (when a gh identity is configured) | the packet drops the correlation and provenance receipts ([G18](#g18)); static rows not run ([G8](#g8)) |
+| (c) trace | docs `collect-continuation-trace.mjs`, `fetch-tempo-trace.mjs` | public-safe Tempo projection and correlation receipt per row; post-run recovery without refire | the correlation receipt stays on the seat ([G18](#g18)) |
 | (d) assembly | frond-scribe `dispatch-code-agent.sh` (`COPILOT_MODEL=mai-code-2-flash`) | launches a Copilot lane in tmux on a seat | no assembler brief, trigger or output check ([G10](#g10)) |
 | (e) hold | none before this PR | | `proof-pipe/hold.json` added; Temporal does not read it yet ([G14](#g14)) |
-| (e) no refire | ttf workflow id `proofs/<candidate>/<label>` with `REJECT_DUPLICATE`; corpus `rows[].fired`, `refires[]` | a Workflow id never runs twice; a corpus records fires | no single consumption ledger ([G5](#g5)) |
+| (e) no refire | ttf workflow id `proofs/<candidate>/<label>` with `REJECT_DUPLICATE`; corpus `rows[].fired`, `test_cases_executed`, `refires[]` | a Workflow id never runs twice; a corpus records fires | no single consumption ledger ([G5](#g5)) |
 | (e) cost | bootstrap `openclaw-local-ci.yml` cost guard | refuses a rented hosted lane unless overridden | docs `project81-k6-proof.yml` defaults to `ubuntu-latest` ([G13](#g13)) |
 
 ## Stage (a): trigger
@@ -96,13 +101,16 @@ dispatch it: a nightly clock and an on-deploy hook. A person can dispatch it by 
 | `docs_sha` | 40 lowercase hex: docs `main` resolved once when the trigger fires. It is the corpus manifest, the catalog and the harness the seat pins (`run-proofs.sh --docs-ref`). |
 | `corpus_sha` | optional 40 hex: the pure corpus when the runtime is a composite (ttf `--pure`). Pure-SHA credit stays a separate, reviewed materiality judgment. |
 | `rows` | `all`, `owner:<dispatch_allocation bucket>`, or a row list. Rows come only from `PROOFS/<corpus>/proofs-manifest.json::dispatch_allocation` at `docs_sha`, and a list only narrows it. |
-| `trigger` | `manual`, `nightly` or `on-deploy`, recorded in the plan and the label. |
+| `trigger` | `manual`, `nightly` or `on-deploy`, recorded in the plan and the default label. |
 | `label` | lowercase slug. It names the Temporal Workflow id `proofs/<product>/<label>`, which is the run's idempotency key. A nightly label should carry the date (for example `nightly-20261103`), so one night is one run. |
 | `dry_run` | defaults to true. False is refused while the hold is in effect. |
 
-**Receipts.** The plan, `openclaw.k6.proof-pipe-plan.v1`, uploaded as the run's artifact and written to the
-job summary. It records the product, docs, corpus and pipeline SHAs, the manifest path and blob, every
-selected row and its disposition, and each guard's finding.
+**What it does today.** Nothing dispatches it on a clock or a deploy. The skeleton workflow
+`proof-pipe-dry-run.yml` takes these inputs by hand and plans.
+
+**Receipts.** The plan, `openclaw.k6.proof-pipe-plan.v1`, uploaded as the run's artifact and written to
+the job summary. It records the product, docs, corpus and pipeline SHAs, the manifest path and blob,
+every selected row and its disposition, and each guard's finding.
 
 **Fail-closed refusals** (the skeleton implements each one and a test holds it):
 
@@ -112,17 +120,18 @@ selected row and its disposition, and each guard's finding.
   first, by full SHA only);
 - no manifest at `PROOFS/<corpus>/proofs-manifest.json` at `docs_sha`, a schema other than
   `openclaw.proofs.manifest.v1`, or a `capture_sha` that is not the corpus SHA;
-- no `dispatch_allocation`, an invalid shape, a row allocated twice, a required row allocated to nobody,
-  or an allocated row outside `required_rows`. The `supplemental` bucket (docs#613) is never a firing
-  bucket;
+- no `dispatch_allocation`, an invalid shape, an unsafe owner name (an empty bucket's included), a row
+  allocated twice, a required row allocated to nobody, or an allocated row outside `required_rows`. The
+  `supplemental` bucket (docs#613) is never a firing bucket;
 - a row list naming a row outside `required_rows`, or an unknown bucket;
 - **a selected seat row that is consumed or possibly consumed** (see [no refire](#no-refire)). The whole
   trigger is refused and every refused row is listed. The operator narrows the rows deliberately; the
   pipe never drops them silently;
+- a consumption ledger or catalog that git cannot list;
 - a seat row whose catalog manifest `run-proofs.sh --live` would skip: not `k6-runnable`, or not
   `runnable`;
-- nothing to fire. A run that does not fire is a failure (docs#587), so a selection made only of
-  static rows or rows on no proof seat is refused;
+- nothing to fire. A run that does not fire is a failure (docs#587), so a selection made only of static
+  rows or rows on no proof seat is refused;
 - a rented runner (see [cost](#cost)).
 
 **Gaps.** Nothing dispatches the trigger yet ([G1](#g1), [G12](#g12)). A nightly deployed build usually
@@ -139,9 +148,17 @@ thornfield proofs run --candidate <product_sha> --docs-ref <docs_sha> [--pure <c
   --rows <seat rows> --label <label> --go <seat>=<go message id> [--go ...]
 ```
 
-On the Temporal side nothing new is needed until the seat. `proofRunWorkflow` is the existing Workflow
-(type `proofRunWorkflow`, task queue `thornfield-orchestrator`, id `proofs/<product>/<label>`,
-`REJECT_DUPLICATE`), and it:
+**Inputs.**
+
+- From (a): the product, docs and corpus SHAs, the label and the seat rows.
+- Per live seat: the go message id (ttf `--go`).
+- On the orchestrator: `THORNFIELD_PROOF_SEATS`, its docs clone and its go token file.
+- On each seat: a proof worker with role `proof`, a stage-only build of the product SHA, and the
+  isolated gateway set up for it.
+
+**What it does.** On the Temporal side nothing new is needed until the seat. `proofRunWorkflow` is the
+existing Workflow (type `proofRunWorkflow`, task queue `thornfield-orchestrator`, id
+`proofs/<product>/<label>`, started `REJECT_DUPLICATE` by the CLI). It:
 
 1. reads the manifest at `docs_sha` and plans from `dispatch_allocation` (ttf invariant 1);
 2. checks each seat owner's go on the orchestrator before anything reaches the seat (invariant 16);
@@ -152,25 +169,27 @@ On the Temporal side nothing new is needed until the seat. `proofRunWorkflow` is
 **The seat's gateway: isolated, never live.** This is where the pipe departs from today's seat
 Activities. The rows fire against an isolated proof gateway:
 
-- **The runtime is a `stage_only` build.** bootstrap `deploy-gateway.yml` with `stage_only=true` and
-  `approved_ref=<product_sha>` builds and validates the candidate beside the live install at
-  `<path-b-root>/stage-only/<sha>`. It writes `.path-b-stage-only/receipt.json`, and it proves the live
-  unit's MainPID, start time and active state unchanged. There is no stop, cutover, config or timer
-  change.
+- **The runtime is a `stage_only` build.** bootstrap `deploy-gateway.yml` with `stage_only=true`,
+  `approved_ref=<product_sha>` and its `approved_base` builds and validates the candidate beside the
+  live install at `<path-b-root>/stage-only/<sha>`. It writes `.path-b-stage-only/receipt.json`, and it
+  checks the live unit's MainPID, start time and active state unchanged. There is no stop, cutover,
+  config or timer change.
 - **The owner runs the launcher.** frond-scribe `composite-launcher.sh`, run as the seat owner's user on
   their own seat. The owner does the one-time acts by hand:
   - `setup` derives the config read-only from the live `openclaw.json`, with no auth section and no
-    channels. It mints its own token, port and unit (`openclaw-proof-comp-<sha8>`), its own state
-    directory (`~/proof-gw/comp-<sha8>/state`) and its own OTel service;
+    channels. It mints its own token and runs its own unit (`openclaw-proof-comp-<sha8>`) on a loopback
+    port (18796 unless `PORT` says otherwise), with its own state directory
+    (`~/proof-gw/comp-<sha8>/state`) and OTel service. It refuses a port already in use;
   - `login` and `login-finish` do the isolated device-code sign-in;
   - `adopt-auth` moves an earlier isolated sign-in to the new SHA.
 
-  The proof worker would only call `run`, which binds candidate, runtime and docs SHAs, the isolated
-  WebSocket, unit and service name, disposable sessions and the seat class, then runs signed seat
-  readiness and `run-proofs.sh --live`.
+  The proof worker would only call `run`, as `BIND=runtime`. The launcher's default `BIND=pure` binds the
+  harness candidate to the pure SHA, which seat readiness refuses as `candidate-runtime-sha-mismatch` on
+  a composite. `BIND=runtime` binds the runtime as ttf `--pure` does, and leaves the pure corpus as the
+  manifest's location only. `run` sets the isolated WebSocket, unit and service name, disposable
+  sessions and the seat class, then runs signed seat readiness and `run-proofs.sh --live`.
 - **The live gateway is never touched.** `openclaw-gateway.service` keeps its MainPID,
-  `ActiveEnterTimestamp` and `NRestarts`, and the pipe records that before and after
-  ([G17](#g17)).
+  `ActiveEnterTimestamp` and `NRestarts`, and the pipe records them before and after ([G17](#g17)).
 
 **Receipts.**
 
@@ -187,18 +206,19 @@ Activities. The rows fire against an isolated proof gateway:
 **Fail-closed refusals that exist today.**
 
 - ttf:
-  - a malformed input;
-  - a live seat with no go, or a go that is unverified or expires before launch (`not-run`);
-  - no proof worker within the worker wait (`not-run`);
-  - a failed preflight (`not-run`);
-  - a second launch into the same state directory (refused, never relaunched);
+  - a malformed input, or a live seat with no `--go`, refuses the whole run;
+  - a go that is unverified or expires before launch leaves that seat `not-run`;
+  - so do no proof worker within the worker wait, and a failed preflight;
+  - a second launch into the same state directory is refused, never relaunched;
   - a launch that failed after the worker took it, a probe deadline, a vanished runner or a cancel
-    (`possibly-consumed`; never relaunched).
+    leaves the rows `possibly-consumed`, never relaunched.
 - `run-proofs.sh`:
   - a docs ref that is not `HEAD`, or a tracked tree that differs from it (exit 78, no row);
   - a candidate that is not the runtime build;
-  - a row that is not `k6-runnable` (skipped);
-  - a held same-session lock.
+  - a row that is not `k6-runnable` (skipped).
+
+  It runs a seat's rows serially in one process. The same-session lock (`live-run-guard.mjs` with
+  `flock`) belongs to the single-row `run-proof.sh`, not to this path.
 - `composite-launcher.sh`:
   - no validated stage-only build for the SHA;
   - `diagnostics-otel` absent;
@@ -207,44 +227,66 @@ Activities. The rows fire against an isolated proof gateway:
   - an inactive proof unit;
   - a docs worktree that is not clean at the docs SHA.
 
-**Gaps.** The seat Activities launch `live-proof.sh`, which fires against the live gateway. A launcher
-contract for the isolated gateway is needed ([G2](#g2)). Stage-only provisioning and the owner's
-one-time acts are not automated ([G3](#g3)). Unattended fires have no go source ([G4](#g4)).
+**Gaps.** The seat Activities launch `live-proof.sh`, which fires against the live gateway, and the
+isolated launcher does not meet ttf's probe and collection contract ([G2](#g2)). Stage-only provisioning
+and the owner's one-time acts are manual ([G3](#g3)). Unattended fires have no go source ([G4](#g4)).
 
 ## Stage (c): collection
 
-**What it is.** The existing ttf collection, unchanged, for each fired row:
+**What it is.** The existing ttf collection, for each fired row.
 
-1. take the row from its one run directory (`<ts>/artifacts/<candidate>/<row>/<seat>/<run-id>/`, never
-   the newest of several);
-2. `fetch-tempo-trace.mjs --run-dir` recovers the trace post-run (never a refire), and
-   `validate-candidate-run-result.mjs` validates the run, both from the harness worktree pinned at the
-   docs ref;
-3. copy only the public set: the outputs `sanitize-k6-artifacts.mjs` names in `evidence-redaction.json`,
-   the validated `run-result.json`, the Tempo projection, and the collection's own receipts;
-4. refuse the row's whole copy on a secret shape, a symlink, an unreadable file or a file that changed
-   between scan and staging;
-5. stage the bytes as an orphan commit on `proof-runs-staging/<workflowId-safe>/<seat>`. No artifact
-   bytes enter Temporal;
-6. on the orchestrator, merge each staging branch only if it names the recorded commit and holds exactly
-   the recorded files and hashes. Write `PROOF-RUNS/<product>/<ts>-<label>/` (`RUN.md`, `run.json`,
-   per row `row.json` plus its public set) on `proof-runs/<product8>-<ts>`, and open a draft PR.
+**Inputs.**
 
-**Receipts per fired row** (the dry run lists them per row from its catalog manifest):
+- The seat's one `<ts>/` run directory named by the done line, with its exit status.
+- The docs ref, and its harness worktree pinned on the seat.
+- The seat's assigned rows.
+- The packet directory `PROOF-RUNS/<product>/<ts>-<label>/`.
 
-- `run-result.json`, `runner-metadata.json`, `row-manifest.json`, `row-scenario.js`;
-- the sanitizer's outputs (`evidence-redaction.json`, `evidence.jsonl`, `evidence-lines.log`, `k6.log`);
-- the redacted journal (`gateway-journal.log`, `gateway-journal-capture.json`,
-  `gateway-journal-redaction.json`);
-- for every continuation row (`lib/continuation-trace-requirement.mjs`), the public-safe
-  `tempo-trace-<trace-id>.json` and its correlation and topology receipt:
-  `continuation-trace-correlation.json` for `continue_work` and `continue_delegate`,
-  `tool-trace-correlation.json` otherwise. R-CD-2 keeps its signed authority receipt instead;
-- only on their condition: `candidate-run-result.json` (when review completes) and
-  `verdict-reconciliation.json` (when the VU and summary verdicts disagree);
-- the collection's own `row.json`, `receipts/tempo-fetch.*` and `receipts/validation.*`;
-- per run: `seat-readiness.json`, `harness-provenance.json`, `catalog-preflight.log`, `report.html`,
-  `report-receipt.json`.
+**What it does.**
+
+1. Take the row from its one run directory (`<ts>/artifacts/<candidate>/<row>/<seat>/<run-id>/`, never
+   the newest of several).
+2. `fetch-tempo-trace.mjs --run-dir` recovers the trace post-run (never a refire).
+   `validate-candidate-run-result.mjs` validates the run. Both run from the harness worktree pinned at
+   the docs ref.
+3. Copy the public set: the outputs `sanitize-k6-artifacts.mjs` names in `evidence-redaction.json`, that
+   receipt, the validated `run-result.json`, the Tempo projection, and the collection's own receipts.
+4. Refuse the row's whole copy on a secret shape, a symlink, an unreadable file or a file that changed
+   between scan and staging.
+5. Stage the bytes as an orphan commit on `proof-runs-staging/<workflowId-safe>/<seat>`. No artifact
+   bytes enter Temporal.
+6. On the orchestrator, merge each staging branch only if it names the recorded commit and holds exactly
+   the recorded files and hashes. Write `PROOF-RUNS/<product>/<ts>-<label>/` (`RUN.md`, `run.json`, per
+   row `row.json` plus its public set) on `proof-runs/<product8>-<ts>`.
+7. Open a draft PR when `THORNFIELD_PROOF_GH_CONFIG_DIR` names a gh identity; otherwise return the
+   compare URL.
+
+**Receipts per fired row.** The dry run lists both sets per row, from its catalog manifest.
+
+- **In the run directory on the seat:**
+  - `run-result.json`, `runner-metadata.json`, `row-manifest.json`, `row-scenario.js`;
+  - the sanitizer's outputs: `evidence-redaction.json`, `evidence.jsonl`, `evidence-lines.log`,
+    `k6.log`;
+  - the redacted journal: `gateway-journal.log`, `gateway-journal-capture.json`,
+    `gateway-journal-redaction.json`;
+  - for a row that owes a trace (`lib/continuation-trace-requirement.mjs`), the public-safe
+    `tempo-trace-<first 12 hex of the trace id>.json`. A continuation row also gets its correlation and
+    topology receipt: `continuation-trace-correlation.json` for `continue_work` and `continue_delegate`
+    (and for a token row with no tool), `tool-trace-correlation.json` for another tool. R-CD-2 keeps its
+    signed authority receipt instead;
+  - only on their condition: `candidate-run-result.json` (when review completes) and
+    `verdict-reconciliation.json` (when the VU and summary verdicts disagree);
+  - per run: `seat-readiness.json`, `harness-provenance.json`, `catalog-preflight.log`, `report.html`,
+    `report-receipt.json`.
+- **In the packet:**
+  - the sanitizer's outputs and `evidence-redaction.json`;
+  - the validated `run-result.json`;
+  - the Tempo projection (or `tempo-trace-recovered.json` after recovery);
+  - the collection's `row.json`, `receipts/tempo-fetch.*` and `receipts/validation.*`.
+
+  The correlation receipt, `row-manifest.json`, `row-scenario.js`, `runner-metadata.json`,
+  `gateway-journal-capture.json`, the conditional receipts and the per-run files stay on the seat
+  ([G18](#g18)).
 
 These never leave the seat: the raw k6 log, the raw journal, raw Tempo or OTLP responses,
 `<artifact-dir>.private`, `openclaw.json`, the gateway token and model credentials.
@@ -253,14 +295,19 @@ These never leave the seat: the raw k6 log, the raw journal, raw Tempo or OTLP r
 
 - `row-dir-missing`, `ambiguous`, `harness-unusable`;
 - `validation-failed`, `trace-missing`, `run-result-unreadable`, `verdict-missing`;
-- `public-set-incomplete`, `secret-shape`, `not-a-regular-file`, `changed-during-collection`;
-- `collection-missing`, `collection-duplicate`, `collection-misplaced-file`, `collection-refused`;
-- `collect-failed`.
+- `public-set-incomplete`, `secret-shape`, `not-a-regular-file`, `unreadable`,
+  `changed-during-collection`;
+- `collection-missing`, `collection-duplicate`, `collection-misplaced-file`, `collection-refused`,
+  `collection-incomplete`;
+- `collect-failed`, `unsettled`.
 
 A verdict is copied byte for byte, and only onto a row with no debt.
 
-**Gaps.** Static rows are recorded `not-run` and nobody runs their validators ([G8](#g8)). The pipe never
-fires fixture and orchestration rows ([G9](#g9)).
+**Gaps.**
+
+- The packet drops the correlation and provenance receipts a fold needs ([G18](#g18)).
+- Static rows are recorded `not-run` and nobody runs their validators ([G8](#g8)).
+- The pipe never fires fixture and orchestration rows ([G9](#g9)).
 
 ## Stage (d): assembly
 
@@ -271,22 +318,32 @@ contract:
 - `tools/k6-proofs/CONTRIBUTING-ROWS.md` ("EVIDENCE.md must record");
 - this document.
 
-It reads the packet branch and turns the public sets into candidate row evidence that princes can
-review, instead of assembling it by hand.
+It turns the packet into candidate row evidence that princes review, instead of assembling it by hand.
 
-**Proposed shape** (the princes decide the host and owner, [decision 3](#open-decisions-for-the-princes)):
+**Inputs.**
 
-- **Input:** the packet branch `proof-runs/<product8>-<ts>` and its draft PR.
-- **Writes:**
-  - per fired row, `PROOF-RUNS/<product>/<ts>-<label>/<ROW>/EVIDENCE.md`. It records the run context,
-    the copied candidate verdict and why it holds, the receipt table, the trace and correlation status,
-    the debts, the live-run safety classification, `foldRequiresReview: true` and a no-secrets line;
-  - `ASSEMBLY.md`: the rollup (pass, partial, fail, missing and honest-limit counts, each row's last
-    same-row PASS from the `PROOFS/*/proofs-manifest.json` history, and `NEW-ROW-NO-PRIOR-PASS` where
-    there is none), plus what it did not read.
-- **Commits** onto the packet branch, so the princes review one PR. It adds files only: every packet
-  file keeps its blob.
-- **Opens or retitles** the draft PR `proof run evidence: <product8> @ docs <docs8> (candidate evidence
+- The packet branch `proof-runs/<product8>-<ts>`, with its `run.json`, `RUN.md` and per-row
+  `row.json`.
+- The draft PR or compare URL.
+- The plan from (a).
+- The corpus history `PROOFS/*/proofs-manifest.json` at the docs SHA, for the last same-row PASS.
+
+**What it does** (proposed; the princes decide the host and owner,
+[decision 3](#open-decisions-for-the-princes)).
+
+- It writes, per fired row, `PROOF-RUNS/<product>/<ts>-<label>/<ROW>/EVIDENCE.md`. That file records:
+  - the run context and the copied candidate verdict;
+  - the receipt table and the trace status;
+  - the debts;
+  - the live-run safety classification and `foldRequiresReview: true`;
+  - a no-secrets line.
+- It writes `ASSEMBLY.md` with:
+  - the rollup: pass, partial, fail, missing and honest-limit counts;
+  - each row's last same-row PASS, or `NEW-ROW-NO-PRIOR-PASS`;
+  - what it could not read.
+- It commits onto the packet branch, so the princes review one PR. It adds files only: every packet file
+  keeps its blob.
+- It opens or retitles the draft PR `proof run evidence: <product8> @ docs <docs8> (candidate evidence
   only)`, with the princes as reviewers.
 
 **Rules.**
@@ -294,20 +351,45 @@ review, instead of assembling it by hand.
 - It copies the harness verdict exactly and never promotes one. A row with debt stays debt. A missing
   receipt is never retro-justified. `HONEST-LIMIT` is only R-RC-2's structured receipt.
 - It never writes `PROOFS/INDEX.json`, anything under `PROOFS/`, `tools/`, `.github/` or `RUNBOOKS/`.
-  The fold is a separate, reviewed act: direct to `main` per bootstrap `RUNBOOKS/PROOF-CORPUS-METHOD.md`,
-  never by this lane.
+  The fold is a separate, reviewed act: direct to `main` per bootstrap
+  `RUNBOOKS/PROOF-CORPUS-METHOD.md`, never by this lane.
 - It refires nothing and contacts no gateway. It reads the public set, never the seat's private
   acquisition files.
-- It re-scans every file it writes for the secret shapes ttf refuses (`SECRET_SHAPES`) before it
-  pushes.
 
-**Receipts.** The lane's commits (path, blob, size), the scan result, and the PR URL. The PR body names the
-product, docs, corpus and pipeline SHAs, the Workflow id and the hold state at fire time.
+**Receipts.**
 
-**Gaps.** No assembler exists: no brief, no trigger and no output check ([G10](#g10)). Nothing reports the
-rollup or alerts on a run that did not fire ([G11](#g11)).
+- The lane's commits (path, blob, size) and the scan result.
+- The PR URL.
+- The PR body names the product, docs, corpus and pipeline SHAs, the Workflow id and the hold state at
+  fire time.
+
+**Fail-closed refusals** (proposed; none is built):
+
+- the packet's `run.json` does not name the plan's product SHA, docs ref and Workflow id: stop, write
+  nothing;
+- any packet file's blob would change, or a write falls outside the packet directory or into a forbidden
+  path: stop before the commit;
+- a written file holds a secret shape (ttf `SECRET_SHAPES`): stop before the push;
+- an `EVIDENCE.md` verdict differs from its `row.json` verdict: stop;
+- a fired row has no `row.json`: it is reported missing, never written up.
+
+**Gaps.** No assembler exists: no brief, no trigger and no output check ([G10](#g10)). Its receipts and
+refusals above are the contract it needs ([G16](#g16)). Nothing reports the rollup or alerts on a run
+that did not fire ([G11](#g11)).
 
 ## Stage (e): guards
+
+Each guard holds at more than one stage. The skeleton implements all of them in its plan; the live leg
+must hold them again where each stage acts.
+
+| guard | input | receipt | refusal |
+|---|---|---|---|
+| hold switch | `tools/k6-proofs/proof-pipe/hold.json` at the pipeline commit, the docs SHA and `origin/main`; `vars.PROOF_PIPE_HOLD` | `guards.hold` in the plan: each source, its ref and why it holds | `dry_run=false` while any source holds (exit 3) |
+| row authority | `PROOFS/<corpus>/proofs-manifest.json` at the docs SHA | the manifest path and git blob; owner bucket sizes | any allocation fault (stage (a)) |
+| no refire | the corpus `rows[]` and `refires[]`; merged `PROOF-RUNS/` packets | `guards.noRefire`: rows checked, each refusal with its evidence, packets and runs read, ledger gaps | any seat row not affirmatively unfired |
+| redaction | the sanitizer's receipt; the collection's secret scan | `evidence-redaction.json`, the collection's refusals | a raw event, a secret shape, a symlink, a changed file |
+| exact SHA | product, docs, corpus and pipeline SHAs | `guards.exactSha` | a non-40-hex SHA, a `capture_sha` that is not the corpus SHA, a docs SHA not present |
+| cost | the job's `runs-on` | `guards.cost`: labels and why they pass | a rented label, or neither `self-hosted` nor `oc-*` |
 
 ### Hold switch
 
@@ -317,15 +399,17 @@ this PR commits it held. It fails closed:
 - A release is only a well-formed file with `held: false` that names who released it, where and when
   (`release.by`, `release.ref`, `release.at`, each non-blank). A missing file, malformed JSON, another
   schema, a non-boolean `held`, or `held: false` with no named release is a hold.
-- The planner reads it at two refs, the pipeline's own commit and the docs SHA, and either one holds. A
-  release on a branch cannot lift a hold on the docs ref being fired, and an old docs ref that predates
-  the file is held.
+- The planner reads it at three refs: the pipeline's own commit, the docs SHA and `origin/main`. Any one
+  of them holds. The dispatcher picks the first two; reading `origin/main` means a release counts only
+  once it is merged there. A checkout with no `origin/main` is held. An old docs ref that predates the
+  file is held.
 - The repository variable `PROOF_PIPE_HOLD` can add a hold (any value but empty, `false`, `0`, `off` or
   `no`). No value of it lifts one, so an operator can stop the pipe without a commit.
-- Lifting the hold is a reviewed commit to `hold.json` that names 🌊's go. That commit also changes the
-  test that pins the hold in effect.
-- In the live leg, Temporal must re-read the hold at the docs ref immediately before each seat launch,
-  as it does for the go's expiry ([G14](#g14)).
+- Lifting the hold is a reviewed commit to `hold.json` on `main` that names 🌊's go. That commit also
+  changes the test that pins the hold in effect. Nothing checks that the named go exists
+  ([G15](#g15)).
+- In the live leg, Temporal must re-read the hold at the docs ref and at `main` immediately before each
+  seat launch, as it does for the go's expiry ([G14](#g14)).
 
 ### Row authority
 
@@ -333,11 +417,13 @@ this PR commits it held. It fails closed:
 
 - it covers `required_rows` exactly once;
 - `supplemental` never fires;
-- a `*-static` owner's rows run on the orchestrator;
+- a `*-static` owner's rows belong to the orchestrator's static validators, which ttf records `not-run`
+  today ([G8](#g8));
 - an owner that is not a proof seat (`unfired`, `frond-scribe-fixture`) is `not-run`
   (`owner-not-a-proof-seat`), never a refusal.
 
-The plan records the manifest path and its git blob at the docs SHA. ttf records the same.
+The plan records the manifest path and its git blob at the docs SHA, as ttf's packet does. ttf reads the
+manifest but checks neither its schema nor its `capture_sha` ([G19](#g19)).
 
 ### No refire
 
@@ -347,29 +433,42 @@ A row may fire only on affirmative evidence that it never has. The planner refus
 - its corpus row says `fired: true`;
 - it lists `test_cases_executed`;
 - its state is anything but `missing`;
-- `refires[]` names it;
-- a merged ttf packet (`PROOF-RUNS/<product or corpus>/<run>/<ROW>/row.json`) records it as `candidate:*`,
-  `collected` or `debt`.
+- a `refires[]` entry names it, in either corpus shape: `{row}` or `{rows: [...]}`;
+- a merged ttf packet records it as `candidate:*`, `collected` or `debt`.
 
 It refuses a row as **possibly consumed** when:
 
 - the corpus has no `rows[]` entry for it;
 - `fired` is not exactly `false`;
+- `test_cases_executed` is present but not a list;
 - the row carries a `possibly_consumed` marker;
+- `refires` is not a list, or one of its entries names no row;
 - a packet records it in any state but `not-run`.
 
 A folded `missing` does not mean unfired. F′'s R-CD-3, R-CD-SILENT and R-CW-TOKEN are `missing` with
 `fired: true`, and the skeleton's real-data test refuses all 27 of F′'s emeric rows.
 
-Two more layers hold in the live leg:
+**Which packets count.** ttf writes a packet under its runtime candidate,
+`PROOF-RUNS/<candidate>/<run>/`, and names the corpus it planned from in `run.json`
+(`manifest.corpusSha`, and `pure`). So the planner counts a run when:
 
-- the Workflow id `proofs/<product>/<label>` is `REJECT_DUPLICATE`, so a label never runs twice;
+- its candidate is the product SHA;
+- its `run.json` names this corpus;
+- or its `run.json` cannot be read.
+
+A run of another composite over the same pure corpus counts. A run over another corpus does not.
+
+**More layers in the live leg.**
+
+- The Workflow id `proofs/<product>/<label>` is `REJECT_DUPLICATE`, so a label never runs twice.
 - ttf never relaunches a launch that may have started.
 
-The ledger is still split ([G5](#g5)). The dry run reads the corpus and merged packets. The live leg must
-also read open packet branches and Temporal history for `proofs/<product>/*`, and treat any it cannot
-read as possibly consumed. A refire is a new, deliberate run with its authorization recorded in
-`refires[]` (`authorized_by`), never an automatic retry.
+**What the ledger still misses.** It is split ([G5](#g5)). The dry run reads the corpus and the merged
+packets, and refuses if git cannot list them. The live leg must also read open packet branches and
+Temporal history for `proofs/<product>/*`, and treat any it cannot read as possibly consumed.
+
+A refire is a new, deliberate run with its authorization recorded in `refires[]`, never an automatic
+retry.
 
 ### Redaction
 
@@ -400,13 +499,16 @@ manifest blob, frond-scribe SHA and ttf SHA.
 
 ARC or self-hosted only, never a rented runner:
 
-- the workflow's `runs-on` comes from `vars.PROOF_PIPE_RUNS_ON`, defaulting to the ARC scale set
-  `oc-4cpu-16gb`;
-- a value naming `ubuntu-*`, `windows-*`, `macos-*` or `blacksmith` skips the job before a runner is
-  assigned;
-- the planner's cost guard refuses those labels again, admits `self-hosted` or `oc-*` only, and records
-  the decision in the plan;
-- seat work runs on the seats themselves, as proof workers. The assembler runs there too, so nothing
+- The workflow's `runs-on` comes from `vars.PROOF_PIPE_RUNS_ON`, defaulting to the ARC scale set
+  `oc-4cpu-16gb`.
+- The job's `if:` is an allowlist decided before a runner is assigned. It admits only:
+  - an unset variable;
+  - a JSON list or string starting with an `oc-*` scale set;
+  - a list starting with `"self-hosted"`, written without spaces.
+- Anything else skips the job: a runner group object, an escaped label, or a value naming `ubuntu-*`,
+  `windows-*`, `macos-*` or `blacksmith`.
+- The planner's cost guard refuses the same labels again and records its decision in the plan.
+- Seat work runs on the seats themselves, as proof workers. The assembler runs there too, so nothing
   bills Actions minutes.
 
 ## The dry-run skeleton
@@ -438,46 +540,64 @@ gh workflow run proof-pipe-dry-run.yml --repo karmaterminal/karmaterminal-opencl
 | exit | meaning |
 |---|---|
 | 0 | a plan: every guard passed, and nothing fired |
-| 2 | refused: input, manifest, allocation, consumption, catalog or cost; the JSON names every reason |
+| 2 | refused: input, manifest, allocation, consumption, ledger, catalog or cost; the JSON names every reason |
 | 3 | `dry_run=false` refused: the hold is in effect |
 | 4 | `dry_run=false` refused with the hold lifted: the live leg is not built |
 
-**What it does.** It validates the inputs and reads the hold at the pipeline commit and the docs SHA. It
-resolves the allocation at the docs SHA, refuses consumed and possibly consumed rows, and checks each seat
-row against the catalog. It then prints stages (a) to (e): the thornfield command and Temporal start it
-would make, the stage-only build, the launcher invocation and isolated gateway for each seat, the
-receipts each row would leave, the assembler's writes and forbidden paths, and every guard's finding.
+**What it does.**
+
+- It validates the inputs.
+- It reads the hold at the pipeline commit, the docs SHA and `origin/main`.
+- It resolves the allocation at the docs SHA.
+- It refuses consumed and possibly consumed rows.
+- It checks each seat row against the catalog.
+- It then prints stages (a) to (e):
+  - the thornfield command and Temporal start it would make;
+  - for each seat, the stage-only build, the launcher invocation and the isolated gateway;
+  - the receipts each row would leave on the seat and the subset that would reach the packet;
+  - the assembler's writes and forbidden paths;
+  - every guard's finding.
+
 With `--json` it emits the same plan as `openclaw.k6.proof-pipe-plan.v1`, with `fired: 0` and
 `contacted: []`.
 
-**What it never does.** It never fetches, and git is the only process it starts: no k6, ssh, systemctl,
-curl, gh, thornfield, temporal, docker or openclaw. The test puts a tripwire on each, and a contract test
-scans the source. It reads no seat state, so a seat's own readiness and its `~/.local/state` are unread.
-It never contacts Temporal, so the Temporal side of the ledger and the go checks are unread.
+**What it never does.**
 
-**What a dry run cannot prove.** A row's receipts in the plan are what the catalog says the row would
-leave, not evidence. The packet's start timestamp is unknown until a Workflow starts, so the plan writes
-`<start-ts>`. A plan that passes says only that the trigger is well formed, authorized by the allocation,
-unfired as far as the docs SHA records, and planned to run on unbilled runners.
+- It never fetches: `GIT_NO_LAZY_FETCH` blocks a partial clone's lazy fetch, and an ssh remote proves
+  a refused SHA is not fetched.
+- git is the only process it starts. A tripwire stands in for each of k6, ssh, systemctl, curl, gh,
+  thornfield, temporal, docker and openclaw, and a contract test scans the planner and every module it
+  imports.
+- It reads no seat state, so a seat's own readiness and its `~/.local/state` are unread.
+- It never contacts Temporal, so the Temporal side of the ledger and the go checks are unread.
 
-**Tests and probes.** The skeleton's two test files pass 39 of 39. Fifteen mutation probes each break one
-guard and turn its named test red:
+**What a dry run cannot prove.**
 
-- the hold check;
-- a missing hold read as released;
-- only the HEAD hold counting;
-- an operator variable lifting the hold;
-- `fired: true` ignored;
-- unknown `fired` accepted;
-- packets ignored;
-- `refires[]` ignored;
-- a rented runner admitted;
-- `supplemental` fired;
-- a non-k6-runnable seat row admitted;
-- the workflow defaulting to a live run;
-- `ubuntu-latest`;
-- an input spliced into a script;
-- the planner starting `curl`.
+- A row's receipts in the plan are what the catalog says the row would leave, not evidence.
+- The packet's start timestamp is unknown until a Workflow starts, so the plan writes `<start-ts>`.
+- A plan that passes says only this: the trigger is well formed, the allocation authorizes it, the docs
+  SHA records it as unfired, and it is planned for unbilled runners.
+
+**Tests and probes.**
+
+- **Tests:** the skeleton's two test files pass 42 of 42. The repository's other suites are unchanged:
+  `scripts/__tests__` has only the three INDEX-drift reds docs `main` already has, and `tests/` passes.
+- **Mutation probes:** 25 probes each break one guard and turn its named test red.
+  - Hold: the hold check, a missing hold read as released, only one hold source counting, an operator
+    variable lifting the hold, `origin/main` not read, no `origin/main` not held.
+  - No refire:
+    - `fired: true` ignored, unknown `fired` accepted, a non-list `test_cases_executed` accepted;
+    - packets ignored, packets counted by directory only, a failed ledger listing read as empty;
+    - `refires[]` `rows` ignored.
+  - Allocation and catalog: `supplemental` fired, an empty bucket's owner unchecked, a non-k6-runnable
+    seat row admitted.
+  - Cost: a rented runner admitted, the workflow allowlist dropped, the workflow on `ubuntu-latest`.
+  - Workflow: a default live run, an input spliced into a script.
+  - Process and fetch: the planner or a module it imports starting `curl`, lazy fetch allowed.
+  - Binding: `BIND` left at `pure`.
+- **Review:** an independent review found the `refires[]` `rows` shape, the pure-corpus packet, the
+  ledger-listing and branch-release paths, and they are closed. Each repaired path has a test that fails
+  on the pre-repair commit `6c205deb`.
 
 ## Gaps
 
@@ -486,37 +606,49 @@ the dry run only, and reads the other repositories without writing to them.
 
 <a id="g1"></a>**G1. No Actions → Temporal entrypoint for proofs (ttf).**
 
-- `thornfield-ingress-reusable.yml` relays issue and PR events (`thornfield ingress`) only.
-  `thornfield-workshop.yml` starts familiar and probe Workflows only.
+- `thornfield-ingress-reusable.yml` relays GitHub events (issues, issue comments, PRs, reviews, CI
+  `workflow_run`, a dispatch naming an issue) into the SDLC Workflow through `thornfield ingress`.
+  `thornfield-workshop.yml` starts familiar and probe Workflows.
+- Neither starts `proofRunWorkflow`.
 - Two candidate shapes:
   - a `proofs-run` workshop command;
   - a reusable `thornfield-proofs` workflow the docs workflow calls with
     `uses: karmaterminal/temporal-thornfield-frond/...@<sha>`, as ingress-reusable is called from other
     repositories.
-- Either starts `proofRunWorkflow` and exits.
+- Either starts the Workflow and exits.
 - It depends on ttf#15 proving one real Actions ingress run to Temporal, and on ttf#4 and #9 for
   everything past echo.
 
-<a id="g2"></a>**G2. The seat leg fires the live gateway (ttf, frond-scribe).**
+<a id="g2"></a>**G2. The seat leg fires the live gateway, and the isolated launcher does not meet ttf's
+contract (ttf, frond-scribe).**
 
-- `proofPreflight` requires `systemctl --user is-active openclaw-gateway` and the live install's
-  `dist/build-info.json` equal to the candidate.
-- `proofLaunch` spawns `live-proof.sh`, which reads `~/.openclaw/openclaw.json` and fires at the live
-  port and unit.
-- The isolated route needs a launcher contract the seat Activities can probe and collect:
-  - preflight: the isolated unit is active; its stage dir's `build-info.json` and its
-    `receipts/identity.json` name the product (and the corpus); the live unit's identity is captured;
-  - launch: `composite-launcher.sh run` writes into `LIVE_PROOF_STATE/<ts>/` and ends with ttf's done line
-    (`live-proof done rc=<rc> <utc> out=<dir>`).
-- Today `run` writes to `~/proof-runs/COMP-<sha8>-<ts>/` and prints no done line, so `proofProbe` would
-  read it as possibly consumed.
+- **Today:** `proofPreflight` requires `systemctl --user is-active openclaw-gateway` and the live
+  install's `dist/build-info.json` equal to the candidate. `proofLaunch` spawns `live-proof.sh`, which
+  reads `~/.openclaw/openclaw.json` and fires at the live port and unit.
+- **`composite-launcher.sh run` meets ttf's probe and collection in none of four places:**
+  - **Done line and layout.** It writes to `~/proof-runs/COMP-<sha8>-<ts>/<candidate>/<row>/...`, with
+    no `artifacts/` level, and prints no done line (`live-proof done rc=<rc> <utc> out=<dir>`).
+    `proofProbe` would read the run as possibly consumed, and `rowRunDir` would find no row.
+  - **Harness path.** It pins `WORKTREES/docs-comp-<sha8>`. `proofCollect` validates from
+    `WORKTREES/docs-proof-<ref10>`, so every row would be `harness-unusable`.
+  - **Token.** `proofCollect` gives the validator the token from the live `openclaw.json`. The
+    readiness receipt is HMAC-signed with the isolated gateway's token, so every row would be
+    `validation-failed`.
+  - **Exit status.** `run` exits 0 whatever `run-proofs.sh` returned.
+- **The contract needed:**
+  - preflight checks that the isolated unit is active and that its stage dir's `build-info.json` and
+    `receipts/identity.json` name the product (and the corpus), and captures the live unit's identity;
+  - launch runs `BIND=runtime composite-launcher.sh run` into `LIVE_PROOF_STATE/<ts>/artifacts/`, ending
+    with the done line and the real exit status;
+  - collection validates from the launcher's worktree with the isolated gateway's token.
 - `thornfield doctor --role proof` checks `live-proof.sh` and would need to check the isolated launcher
   instead.
 
 <a id="g3"></a>**G3. Stage-only provisioning and the owner's one-time acts are manual (bootstrap,
 frond-scribe).**
 
-- Nothing dispatches `deploy-gateway.yml stage_only=true` for the pipe's product SHA.
+- Nothing dispatches `deploy-gateway.yml stage_only=true` (with its `approved_base`) for the pipe's
+  product SHA.
 - Nothing reaps `stage-only/<sha>`, and a second stage-only run for the same target refuses while it
   exists.
 - `composite-launcher.sh setup` refuses existing state.
@@ -527,24 +659,28 @@ frond-scribe).**
 <a id="g4"></a>**G4. Unattended fires have no consent source (ttf).** A live seat needs a go: the seat's
 prince posts `proof go <sha prefix> [<seat>]` in the frond room, 24 hours by default and at most 7 days
 (`THORNFIELD_PROOF_GO_MAX_AGE_SEC`). A nightly or on-deploy run names a new SHA nobody has posted a go
-for ([decision 4](#open-decisions-for-the-princes)).
+for, and a live seat with no `--go` refuses the whole run ([decision 4](#open-decisions-for-the-princes)).
 
 <a id="g5"></a>**G5. The consumption ledger is split (docs, ttf).**
 
-- Consumption truth lives in six places: the corpus `rows[]` (`fired`, `test_cases_executed`), the
-  corpus `refires[]`, merged `PROOF-RUNS/` packets, open `proof-runs/*` packet branches, Temporal
-  history, and seat state directories.
+- Consumption truth lives in six places:
+  - the corpus `rows[]` (`fired`, `test_cases_executed`);
+  - the corpus `refires[]` (three shapes across the corpora);
+  - merged `PROOF-RUNS/` packets;
+  - open `proof-runs/*` packet branches;
+  - Temporal history;
+  - seat state directories.
 - No corpus manifest yet records a `possibly_consumed` marker.
-- The dry run reads the first two and refuses anything not affirmatively unfired. The live leg must read
-  the rest.
+- The dry run reads the first three and refuses anything not affirmatively unfired. The live leg must
+  read the rest.
 - A seeded corpus must write `fired: false` on every row; without it every row is possibly consumed.
 
 <a id="g6"></a>**G6. A nightly build has no seeded corpus (docs).**
 
 - The pipe fires only rows a manifest allocates at `capture_sha` = the corpus SHA.
 - A deployed build usually has no `PROOFS/<sha>/`.
-- The current INDEX corpus (`139e3657…`) has no `required_rows`, `dispatch_allocation` or
-  `capture_sha`, and the skeleton refuses it, correctly.
+- The current INDEX (`current_sha` `e821503d…`) points its `manifest_path` at `139e3657…`, which has
+  no `required_rows`, `dispatch_allocation` or `capture_sha`. The skeleton refuses it, correctly.
 - A seed step is needed: for example a candidate-only working corpus (docs#587's option) or a baseline
   manifest outside `PROOFS/` ([decision 8](#open-decisions-for-the-princes)).
 
@@ -553,8 +689,8 @@ for ([decision 4](#open-decisions-for-the-princes)).
 run as `unknown row allocated`. `validate-corpus.mjs` and this planner exclude it.
 
 <a id="g8"></a>**G8. Static rows are not run (ttf, docs).** `proofRunWorkflow` records `*-static` rows
-`not-run` (`static-validator-orchestrator`). Nothing runs `static-corpus-row-validator.js` for them in
-the pipe. An offline orchestrator step at the docs SHA would close it.
+`not-run` (`static-validator-orchestrator`). Nothing runs `static-corpus-row-validator.js` for them in the
+pipe. An offline orchestrator step at the docs SHA would close it.
 
 <a id="g9"></a>**G9. Fixture and orchestration rows stay manual (docs).** R-CW-5 and R-CW-6
 (process-local fixtures, capped at PARTIAL) and R-CD-RETURN-COVENANT-AUTHORITY (a disposable real-restart
@@ -563,13 +699,12 @@ them.
 
 <a id="g10"></a>**G10. No assembler (frond-scribe, ttf).** There are two routes:
 
-- a `dispatch-code-agent.sh` Copilot lane with `COPILOT_MODEL=mai-code-2-flash`, started when the packet
-  PR opens;
+- a `dispatch-code-agent.sh` Copilot lane with `COPILOT_MODEL=mai-code-2-flash`, started when the
+  packet lands. That is a draft PR, or a compare URL when ttf has no gh identity configured;
 - a Temporal Activity after `proofWritePacket` that runs a Copilot turn on the seat. This route is
   blocked until non-echo turns are armed (ttf#4, #9).
 
-Either one needs a written brief (the corpus contract above), the add-only and forbidden-path check,
-and the secret re-scan.
+Either needs a written brief (the corpus contract above) and the stage (d) refusals.
 
 <a id="g11"></a>**G11. No rollup or not-fired alert in the Temporal path (docs, ttf).** docs PR #588's
 `scheduled-baseline.mjs` builds the last-same-row-PASS rollup and the missed-fire watchdog for its
@@ -588,19 +723,36 @@ instead.
 - Both are outside this lane's scope and left unchanged.
 
 <a id="g14"></a>**G14. Temporal does not read the hold (ttf).** The live leg must read
-`tools/k6-proofs/proof-pipe/hold.json` at the docs ref before each seat launch, and refuse the seat
-(`not-run: held`) when the hold is in effect.
+`tools/k6-proofs/proof-pipe/hold.json` at the docs ref and at `main` before each seat launch, and refuse
+the seat (`not-run: held`) when it holds.
 
 <a id="g15"></a>**G15. Hold release is a convention (docs).** The release block names the authority, but
-nothing checks that the named go exists. A release is reviewed like any other commit.
+nothing checks that the named go exists. A release is reviewed like any other commit to `main`.
 
 <a id="g16"></a>**G16. The assembler's writes are unscanned (frond-scribe).** ttf scans what leaves the
-seat. Nothing yet scans what the assembler writes.
+seat. Nothing yet scans or checks what the assembler writes; stage (d)'s refusals are that check.
 
 <a id="g17"></a>**G17. No structured live-gateway-untouched receipt (frond-scribe, ttf).**
 `composite-launcher.sh` prints the live gateway's pid and build as text. The pipe should record the live
-unit's MainPID, `ActiveEnterTimestamp` and `NRestarts` before and after each seat run, as
-`deploy-gateway.yml` stage-only and #588's teardown do, and fail the run if any changed.
+unit's MainPID, `ActiveEnterTimestamp` and `NRestarts` before and after each seat run, and fail the run
+if any changed. #588's teardown checks all three; `deploy-gateway.yml` stage-only checks MainPID, start
+time and active state.
+
+<a id="g18"></a>**G18. The packet drops the receipts a fold needs (ttf).**
+
+- `proofCollect` copies the sanitizer's outputs, its receipt, the validated `run-result.json`, the
+  trace projection and its own receipts.
+- The correlation and topology receipt stays on the seat, and the method requires it for every
+  continuation row's fold (#600). So do the frozen `row-manifest.json` and `row-scenario.js`,
+  `runner-metadata.json`, `gateway-journal-capture.json`, and the per-run `seat-readiness.json` and
+  `harness-provenance.json`.
+- Without them the assembler cannot show a row's trace correlation or its harness provenance from the
+  packet.
+- The copy list should add them. They are already public-safe by construction.
+
+<a id="g19"></a>**G19. ttf does not check the manifest it plans from (ttf).** `proofReadManifest` reads
+`PROOFS/<corpus>/proofs-manifest.json` but checks neither its schema nor that `capture_sha` is the corpus
+SHA. The live leg keeps those stage (a) refusals only if the planner gates first, or if ttf adds them.
 
 ## Open decisions for the princes
 
@@ -628,7 +780,8 @@ This lane does not decide these.
    `adopt-auth`, `stop` and `shred`.
 8. **The nightly corpus:** a candidate-only working corpus per deployed SHA, or a baseline manifest
    kind outside `PROOFS/`.
-9. **Who lifts the hold, and how.** This design proposes a reviewed commit to `hold.json` naming 🌊's go.
+9. **Who lifts the hold, and how.** This design proposes a reviewed commit to `hold.json` on `main` naming
+   🌊's go.
 10. **Where candidate evidence lands:** on the packet branch (one PR, proposed here) or a separate
     assembler PR. Also, when the `proof-runs-staging/*` branches are deleted.
 

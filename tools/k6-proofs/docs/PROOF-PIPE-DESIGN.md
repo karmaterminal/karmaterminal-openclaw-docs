@@ -442,21 +442,30 @@ It refuses a row as **possibly consumed** when:
 - `fired` is not exactly `false`;
 - `test_cases_executed` is present but not a list;
 - the row carries a `possibly_consumed` marker;
-- `refires` is not a list, or one of its entries names no row;
-- a packet records it in any state but `not-run`.
+- `refires` is not a list, or one of its entries names no row or is malformed (its `row` or `rows` is
+  not a string or a list of strings, so junk beside a named row could be this one);
+- a packet records it in any state but `not-run`, or records it as a file instead of a directory.
 
 A folded `missing` does not mean unfired. F′'s R-CD-3, R-CD-SILENT and R-CW-TOKEN are `missing` with
 `fired: true`, and the skeleton's real-data test refuses all 27 of F′'s emeric rows.
 
 **Which packets count.** ttf writes a packet under its runtime candidate,
 `PROOF-RUNS/<candidate>/<run>/`, and names the corpus it planned from in `run.json`
-(`manifest.corpusSha`, and `pure`). So the planner counts a run when:
+(`manifest.corpusSha`, and `pure`). The planner leaves a run out only when both of these hold:
 
-- its candidate is the product SHA;
-- its `run.json` names this corpus;
-- or its `run.json` cannot be read.
+- its candidate is not the product SHA;
+- its `run.json` is an object naming another corpus by full SHA, with no `pure` or another full
+  `pure` SHA.
 
-A run of another composite over the same pure corpus counts. A run over another corpus does not.
+Every other run counts, including one whose `run.json` is missing, unreadable or unrecognized. So a
+run of another composite over the same pure corpus counts, and a run over another corpus does not.
+
+In a counted run, every entry except `RUN.md`, `run.json` and `ASSEMBLY.md` is a row:
+
+- a directory's `row.json` gives its state;
+- a `row.json` naming a different row records both names;
+- a row directory with no readable `row.json` keeps the row with no state;
+- a row recorded as a file keeps the row with no state.
 
 **More layers in the live leg.**
 
@@ -505,8 +514,9 @@ ARC or self-hosted only, never a rented runner:
   - an unset variable;
   - a JSON list or string starting with an `oc-*` scale set;
   - a list starting with `"self-hosted"`, written without spaces.
-- Anything else skips the job: a runner group object, an escaped label, or a value naming `ubuntu-*`,
-  `windows-*`, `macos-*` or `blacksmith`.
+- It then refuses any `ubuntu-*`, `windows-*`, `macos-*` or `blacksmith` label among the decoded
+  labels (`toJSON(fromJSON(...))`), so a JSON escape after an allowed prefix cannot hide one.
+- Anything else skips the job, a runner group object included.
 - The planner's cost guard refuses the same labels again and records its decision in the plan.
 - Seat work runs on the seats themselves, as proof workers. The assembler runs there too, so nothing
   bills Actions minutes.
@@ -544,6 +554,10 @@ gh workflow run proof-pipe-dry-run.yml --repo karmaterminal/karmaterminal-opencl
 | 3 | `dry_run=false` refused: the hold is in effect |
 | 4 | `dry_run=false` refused with the hold lifted: the live leg is not built |
 
+Input, cost and docs-SHA refusals come before the hold check, so a malformed `dry_run=false` dispatch
+exits 2. Any planner failure (no git, a hostile value) is also exit 2 with a JSON refusal, never a stack
+trace or a plan.
+
 **What it does.**
 
 - It validates the inputs.
@@ -580,24 +594,40 @@ With `--json` it emits the same plan as `openclaw.k6.proof-pipe-plan.v1`, with `
 
 **Tests and probes.**
 
-- **Tests:** the skeleton's two test files pass 42 of 42. The repository's other suites are unchanged:
+- **Tests:** the skeleton's two test files pass 47 of 47. The repository's other suites are unchanged:
   `scripts/__tests__` has only the three INDEX-drift reds docs `main` already has, and `tests/` passes.
-- **Mutation probes:** 25 probes each break one guard and turn its named test red.
+- **Mutation probes:** 35 probes each break one guard and turn its named test red.
   - Hold: the hold check, a missing hold read as released, only one hold source counting, an operator
     variable lifting the hold, `origin/main` not read, no `origin/main` not held.
   - No refire:
     - `fired: true` ignored, unknown `fired` accepted, a non-list `test_cases_executed` accepted;
     - packets ignored, packets counted by directory only, a failed ledger listing read as empty;
-    - `refires[]` `rows` ignored.
+    - a `run.json` naming no corpus skipped, an unreadable `run.json` skipped;
+    - a `row.json`'s own row ignored, a row recorded as a file skipped, `receipts` skipped as a row;
+    - `refires[]` `rows` ignored, a malformed `refires[]` entry accepted.
   - Allocation and catalog: `supplemental` fired, an empty bucket's owner unchecked, a non-k6-runnable
     seat row admitted.
-  - Cost: a rented runner admitted, the workflow allowlist dropped, the workflow on `ubuntu-latest`.
+  - Cost: a rented runner admitted, the workflow allowlist dropped, the blocklist read on undecoded
+    labels, the workflow on `ubuntu-latest`.
   - Workflow: a default live run, an input spliced into a script.
-  - Process and fetch: the planner or a module it imports starting `curl`, lazy fetch allowed.
+  - Process and fetch: the planner or a module it imports starting `curl`, lazy fetch allowed (in a real
+    partial clone whose promisor is an ssh tripwire).
+  - Failure: no outer catch, `String()` of a hostile `capture_sha`.
   - Binding: `BIND` left at `pure`.
-- **Review:** an independent review found the `refires[]` `rows` shape, the pure-corpus packet, the
-  ledger-listing and branch-release paths, and they are closed. Each repaired path has a test that fails
-  on the pre-repair commit `6c205deb`.
+- **Review:** two independent reviews found fail-open paths, now closed:
+  - **First review**, of `6c205deb`:
+    - the `refires[]` `rows` shape;
+    - the pure-corpus packet;
+    - a failed ledger listing read as empty;
+    - a release on a branch lifting the hold.
+  - **Second review**, of `3c0b5486`:
+    - a `run.json` naming no corpus;
+    - row entries skipped by name or shape;
+    - malformed `refires[]` entries;
+    - crashes on hostile values;
+    - an escaped rented label in the workflow.
+
+  Each repaired path has a test that fails on the commit the review read, for the stated reason.
 
 ## Gaps
 

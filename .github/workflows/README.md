@@ -79,10 +79,11 @@ seat, gateway or Temporal Service.
 - **Cost:** `runs-on` is `vars.PROOF_PIPE_RUNS_ON`, default the ARC scale set
   `oc-4cpu-16gb`. The job's `if:` admits only an unset variable, a JSON list or
   string starting with an `oc-*` scale set, or a list starting with
-  `"self-hosted"`, written without spaces. Anything else, a GitHub-hosted image
-  or a Blacksmith runner included, skips the job before a runner is assigned,
-  and the planner refuses it again. Grant this repository the ARC runner group
-  before the first dispatch.
+  `"self-hosted"`, written without spaces, and then refuses any GitHub-hosted
+  image or Blacksmith runner among the decoded labels, so a JSON escape cannot
+  hide one. Anything else skips the job before a runner is assigned, and the
+  planner refuses it again. Grant this repository the ARC runner group before
+  the first dispatch.
 - **Secret-free and read-only:** `permissions: contents: read`, no secret, and
   dispatch inputs reach shell steps only through `env:`.
 - **Artifact:** `proof-pipe-plan-<run id>-<attempt>` holds the plan as JSON

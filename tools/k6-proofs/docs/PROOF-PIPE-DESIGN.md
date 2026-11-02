@@ -354,7 +354,7 @@ It turns the packet into candidate row evidence that princes review, instead of 
   The fold is a separate, reviewed act: direct to `main` per bootstrap
   `RUNBOOKS/PROOF-CORPUS-METHOD.md`, never by this lane.
 - It refires nothing and contacts no gateway. It reads the public set, never the seat's private
-  acquisition files.
+  acquisition files. Today only its instructions say so; [G20](#g20) makes it structural.
 
 **Receipts.**
 
@@ -783,6 +783,14 @@ time and active state.
 <a id="g19"></a>**G19. ttf does not check the manifest it plans from (ttf).** `proofReadManifest` reads
 `PROOFS/<corpus>/proofs-manifest.json` but checks neither its schema nor that `capture_sha` is the corpus
 SHA. The live leg keeps those stage (a) refusals only if the planner gates first, or if ttf adds them.
+
+<a id="g20"></a>**G20. The assembler's "public set only" is an instruction, not a boundary (frond-scribe).**
+On a proof seat, the mai-code-2-flash lane can read the raw journal, the private acquisition files and the
+gateway token. The stage (d) re-scan catches secret *shapes*, not paraphrase, and the docs repo is public.
+Everything the assembler needs is already on GitHub (the packet branch), so it should run off-seat: from a
+clean checkout of the packet branch, on a host or runner with no seat state dir, no gateway token and no
+private acquisition paths. It should hold a GitHub identity scoped to the docs repo only. Until then, treat
+"reads the public set" as policy, not proof. (Raised by 🍃 frond-gloss on #618, 2026-11-02.)
 
 ## Open decisions for the princes
 

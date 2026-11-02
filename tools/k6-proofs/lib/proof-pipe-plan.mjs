@@ -339,11 +339,18 @@ function packetStateConsumed(state) {
 export function rowConsumption(row, { corpusRows, refires, packets }) {
   const consumed = [];
   const possibly = [];
-  // refires[] comes as {row}, {rows: [...]} or a refire record per row; one naming no row could be any row.
+  // refires[] comes as {row}, {rows: [...]} or a refire record per row. An entry that names no row, or
+  // whose row or rows is not a string or a list of strings, could be any row.
   if (refires !== undefined && !Array.isArray(refires)) possibly.push('refires is not a list');
   for (const entry of Array.isArray(refires) ? refires : []) {
-    const rows = entry && typeof entry === 'object' ? [entry.row, ...(Array.isArray(entry.rows) ? entry.rows : [])].filter((name) => typeof name === 'string') : [];
-    if (rows.length === 0) possibly.push('a refires[] entry names no row');
+    const record = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : undefined;
+    const malformed =
+      !record ||
+      (record.row !== undefined && typeof record.row !== 'string') ||
+      (record.rows !== undefined && (!Array.isArray(record.rows) || !record.rows.every((name) => typeof name === 'string')));
+    const rows = malformed ? [] : [record.row, ...(record.rows ?? [])].filter((name) => typeof name === 'string');
+    if (malformed) possibly.push('a refires[] entry is malformed');
+    else if (rows.length === 0) possibly.push('a refires[] entry names no row');
     else if (rows.includes(row)) consumed.push('refires[]');
   }
   const entries = corpusRows.filter((entry) => entry && typeof entry === 'object' && entry.row === row);
@@ -383,13 +390,15 @@ export function liveFireProblem(row, entries) {
 
 /** The receipts a fired row's run directory would hold, and the ones its manifest names. */
 export function rowReceipts(row, manifest) {
-  const trace = traceRequirement(manifest);
+  // Only string receipt names reach the shared trace rule; the catalog check refuses anything else.
+  const required = Array.isArray(manifest.liveRunSafety?.requiredReceipts) ? manifest.liveRunSafety.requiredReceipts.filter((name) => typeof name === 'string') : [];
+  const trace = traceRequirement({ ...manifest, liveRunSafety: { ...manifest.liveRunSafety, requiredReceipts: required } });
   const files = [...ROW_PUBLIC_FILES];
   if (trace.required) files.push(TRACE_PROJECTION_FILE);
   if (trace.correlationReceipt) files.push(`${trace.correlationReceipt}.json`);
   const packet = [...PACKET_PUBLIC_FILES, ...(trace.required ? [TRACE_PROJECTION_FILE] : []), ...COLLECTION_FILES];
   const declared = [
-    ...(Array.isArray(manifest.liveRunSafety?.requiredReceipts) ? manifest.liveRunSafety.requiredReceipts : []),
+    ...required,
     ...(Array.isArray(manifest.expectedReceipts) ? manifest.expectedReceipts.filter((r) => r?.required === true).map((r) => r.name) : []),
   ];
   const manifestReceipts = [...new Set(declared.filter((name) => typeof name === 'string').map(normalizeReceiptName))];

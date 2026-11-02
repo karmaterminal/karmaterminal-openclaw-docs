@@ -32,6 +32,7 @@ import {
   PACKET_ROOT,
   PLAN_SCHEMA,
   ROW_NAME_RE,
+  SHA40_RE,
   buildPlan,
   combineHold,
   costGuard,
@@ -153,12 +154,17 @@ function readCatalog(root, docsSha) {
  * Every row of a merged thornfield packet that bears on this trigger, at the
  * docs SHA. ttf writes a packet under its runtime candidate,
  * PROOF-RUNS/<candidate>/<run>/, and names the corpus it planned from in
- * run.json (manifest.corpusSha, and pure). A run counts when its candidate is
- * the product SHA or its corpus is this corpus; one whose run.json cannot be
- * read counts too. Each counted run's <ROW>/row.json is read; a row directory
- * with no readable row.json keeps its row with no state, which never reads as
- * not-run. Listing goes one level at a time: a recursive ls-tree of a large
- * tree can overflow.
+ * run.json (manifest.corpusSha, and pure). A run is left out only when its
+ * candidate is not the product SHA and its run.json is an object naming
+ * another corpus by full SHA (and no pure SHA, or another one); every other
+ * run counts, an unreadable or unrecognized run.json included.
+ *
+ * In a counted run, every entry but RUN.md, run.json and ASSEMBLY.md is a
+ * row: a directory's row.json gives its state, under the directory's name and
+ * under the row its row.json names, when that differs; a row directory with no
+ * readable row.json, or a row recorded as a file, keeps the row with no state,
+ * which never reads as not-run. Listing goes one level at a time: a recursive
+ * ls-tree of a large tree can overflow.
  */
 function readPackets(root, docsSha, { productSha, corpusSha }) {
   const packets = [];
@@ -169,26 +175,42 @@ function readPackets(root, docsSha, { productSha, corpusSha }) {
     const candidateSha = candidate.path.split('/')[1];
     for (const run of listTree(root, docsSha, candidate.path)) {
       if (run.type !== 'tree') continue;
-      const runJson = parseJson(blobText(root, docsSha, `${run.path}/run.json`) ?? '').value;
-      const why = candidateSha === productSha
-        ? 'candidate is the product SHA'
-        : !runJson || typeof runJson !== 'object'
-          ? 'run.json unreadable'
-          : runJson.manifest?.corpusSha === corpusSha || runJson.pure === corpusSha
-            ? 'planned from this corpus'
-            : undefined;
+      const why = packetRunCounts(candidateSha, parseJson(blobText(root, docsSha, `${run.path}/run.json`) ?? '').value, { productSha, corpusSha });
       if (!why) continue;
       runs.push({ dir: run.path, why });
-      for (const rowDir of listTree(root, docsSha, run.path)) {
-        const row = rowDir.path.split('/').at(-1);
-        if (rowDir.type !== 'tree' || !ROW_NAME_RE.test(row) || row === 'receipts') continue;
-        const file = `${rowDir.path}/row.json`;
+      for (const entry of listTree(root, docsSha, run.path)) {
+        const name = entry.path.split('/').at(-1);
+        if (PACKET_RUN_FILES.has(name)) continue;
+        if (entry.type !== 'tree') {
+          packets.push({ path: entry.path, row: name, state: undefined });
+          continue;
+        }
+        const file = `${entry.path}/row.json`;
         read.push(file);
-        packets.push({ path: file, row, state: parseJson(blobText(root, docsSha, file) ?? '').value?.state });
+        const recorded = parseJson(blobText(root, docsSha, file) ?? '').value;
+        const state = recorded && typeof recorded === 'object' && !Array.isArray(recorded) ? recorded.state : undefined;
+        packets.push({ path: file, row: name, state });
+        const named = recorded && typeof recorded === 'object' ? recorded.row : undefined;
+        if (typeof named === 'string' && named !== name) packets.push({ path: file, row: named, state });
       }
     }
   }
   return { packets, read, runs };
+}
+
+/** What the packet writer puts in a run directory beside its rows (and the assembler's ASSEMBLY.md). */
+const PACKET_RUN_FILES = new Set(['RUN.md', 'run.json', 'ASSEMBLY.md']);
+
+/** Why a packet run counts toward this trigger, or undefined when it provably does not. */
+function packetRunCounts(candidateSha, runJson, { productSha, corpusSha }) {
+  if (candidateSha === productSha) return 'candidate is the product SHA';
+  if (!runJson || typeof runJson !== 'object' || Array.isArray(runJson)) return 'run.json unreadable';
+  const named = runJson.manifest && typeof runJson.manifest === 'object' ? runJson.manifest.corpusSha : undefined;
+  if (typeof named !== 'string' || !SHA40_RE.test(named)) return 'run.json names no corpus';
+  if (named === corpusSha) return 'planned from this corpus';
+  if (runJson.pure !== undefined && (typeof runJson.pure !== 'string' || !SHA40_RE.test(runJson.pure))) return 'run.json pure is not a SHA';
+  if (runJson.pure === corpusSha) return 'planned from this corpus';
+  return undefined;
 }
 
 function emit(result, { json, out }, exitCode) {
@@ -267,7 +289,8 @@ function main() {
     return emit(refusal(`${manifestPath} schema is not openclaw.proofs.manifest.v1`, { dryRun: true }), options, EXIT.REFUSED);
   }
   if (manifest.capture_sha !== input.corpusSha) {
-    return emit(refusal(`${manifestPath}: capture_sha ${String(manifest.capture_sha).slice(0, 40)} is not the corpus SHA ${input.corpusSha}`, { dryRun: true }), options, EXIT.REFUSED);
+    const named = typeof manifest.capture_sha === 'string' ? manifest.capture_sha.slice(0, 40) : JSON.stringify(manifest.capture_sha ?? null)?.slice(0, 40);
+    return emit(refusal(`${manifestPath}: capture_sha ${named} is not the corpus SHA ${input.corpusSha}`, { dryRun: true }), options, EXIT.REFUSED);
   }
   const allocation = resolveAllocation(manifest);
   if (allocation.problem) return emit(refusal(`${manifestPath}: ${allocation.problem}`, { dryRun: true }), options, EXIT.REFUSED);
@@ -302,4 +325,9 @@ function main() {
   return emit(built.plan, options, built.plan.refused ? EXIT.REFUSED : EXIT.PLANNED);
 }
 
-main();
+// Anything unforeseen is a refusal, never a stack trace or a plan.
+try {
+  main();
+} catch (err) {
+  emit(refusal(`the planner failed: ${String(err?.message ?? 'unknown error').slice(0, 200)}`), { json: process.argv.includes('--json') }, EXIT.REFUSED);
+}

@@ -204,7 +204,7 @@ test.before(async () => {
 
 function run(root, args, env = {}) {
   const base = { ...process.env };
-  delete base.PROOF_PIPE_HOLD;
+  for (const name of ['PROOF_PIPE_HOLD', 'GIT_SSH', 'GIT_SSH_COMMAND']) delete base[name];
   const result = spawnSync(process.execPath, [script, '--repo-root', root, ...args], {
     encoding: 'utf8',
     env: { ...base, PATH: `${tripwire.dir}${path.delimiter}${process.env.PATH}`, ...env },
@@ -585,8 +585,13 @@ test('a recorded refire names a consumed row, in every refires[] shape the corpo
     [[{ row: 'R-B', run: 'x', authorized_by: 'fixture' }], /^R-B: consumed \(refires\[\][;)]/],
     // 293c977f records a refire of several rows at once.
     [[{ run: 'x', rows: ['R-B'], authority: 'fixture' }], /^R-B: consumed \(refires\[\][;)]/],
-    [['R-B'], /^R-B: possibly consumed \(a refires\[\] entry names no row[;)]/],
+    [['R-B'], /^R-B: possibly consumed \(a refires\[\] entry is malformed[;)]/],
+    [[{ run: 'x' }], /^R-B: possibly consumed \(a refires\[\] entry names no row[;)]/],
     [{ 'R-B': 'x' }, /^R-B: possibly consumed \(refires is not a list[;)]/],
+    // Junk beside a named row could be this row.
+    [[{ row: 'R-C', rows: 'R-B' }], /^R-B: possibly consumed \(a refires\[\] entry is malformed[;)]/],
+    [[{ rows: ['R-C', { row: 'R-B' }] }], /^R-B: possibly consumed \(a refires\[\] entry is malformed[;)]/],
+    [[{ row: 5 }], /^R-B: possibly consumed \(a refires\[\] entry is malformed[;)]/],
   ];
   for (const [refires, reason] of shapes) {
     const manifest = defaultManifest();
@@ -631,6 +636,99 @@ test('a prior thornfield packet for the candidate or the corpus marks its rows c
   const notRunResult = run(notRun.root, baseArgs(notRun.docsSha));
   assert.equal(notRunResult.status, 0, notRunResult.stdout);
   assert.deepEqual(notRunResult.json.stages.guards.noRefire.packetsRead, [`PROOF-RUNS/${CANDIDATE}/20261101T020000Z-n1/R-A/row.json`]);
+});
+
+test('a packet run counts unless its run.json provably names another corpus', async () => {
+  const OTHER = 'abcdefabcdefabcdefabcdefabcdefabcdefabcd';
+  const run1 = `PROOF-RUNS/${OTHER}/20261101T020000Z-n1`;
+  const collected = { row: 'R-A', state: 'collected' };
+  for (const [label, runJson] of [
+    ['missing', undefined],
+    ['null', 'null'],
+    ['a list', []],
+    ['an empty object', {}],
+    ['a null manifest', { manifest: null }],
+    ['a renamed key', { manifest: { corpus_sha: PURE } }],
+    ['an uppercase SHA', { manifest: { corpusSha: PURE.toUpperCase() } }],
+    ['a pure that is not a SHA', { manifest: { corpusSha: OTHER }, pure: 7 }],
+  ]) {
+    const extra = { [`${run1}/R-A/row.json`]: collected };
+    if (runJson !== undefined) extra[`${run1}/run.json`] = runJson;
+    const { root, docsSha } = await fixtureRepo({ corpusSha: PURE, manifest: defaultManifest(PURE), extra });
+    const result = run(root, baseArgs(docsSha, ['--corpus-sha', PURE]));
+    assert.equal(result.status, 2, `${label}: ${result.stdout}`);
+    assert.ok(result.json.stages.guards.noRefire.refused.some((r) => r.startsWith('R-A: consumed (')), label);
+  }
+});
+
+test('every row a counted run records is read, whatever its name or shape', async () => {
+  const run1 = `PROOF-RUNS/${CANDIDATE}/20261101T020000Z-n1`;
+  // A row named receipts is a row: the packet's receipts directory lives inside a row, never beside it.
+  const manifest = defaultManifest();
+  manifest.required_rows.push('receipts');
+  manifest.dispatch_allocation.emeric.push('receipts');
+  manifest.rows.push(corpusRow('receipts'));
+  const catalog = { ...defaultCatalog(), 'receipts.json': catalogManifest('receipts') };
+  const { root, docsSha } = await fixtureRepo({
+    manifest,
+    catalog,
+    extra: {
+      [`${run1}/receipts/row.json`]: { row: 'receipts', state: 'collected' },
+      // A directory named for one row whose row.json names another.
+      [`${run1}/r-b/row.json`]: { row: 'R-B', state: 'candidate:PASS-candidate' },
+      // A row recorded as a file, not a directory.
+      [`${run1}/R-A`]: 'not a directory\n',
+      [`${run1}/RUN.md`]: '# run\n',
+    },
+  });
+  const result = run(root, baseArgs(docsSha));
+  assert.equal(result.status, 2, result.stdout);
+  const refused = result.json.stages.guards.noRefire.refused;
+  assert.ok(refused.some((r) => /^receipts: consumed \(PROOF-RUNS\/.*\/receipts\/row\.json state collected\)/.test(r)), JSON.stringify(refused));
+  assert.ok(refused.some((r) => /^R-B: consumed \(PROOF-RUNS\/.*\/r-b\/row\.json state candidate:PASS-candidate\)/.test(r)), JSON.stringify(refused));
+  assert.ok(refused.some((r) => /^R-A: possibly consumed \(PROOF-RUNS\/.*\/R-A state undefined\)/.test(r)), JSON.stringify(refused));
+});
+
+test('hostile manifest values are refused, never a stack trace', async () => {
+  const manifest = defaultManifest();
+  manifest.capture_sha = { toString: 1 };
+  const bad = await fixtureRepo({ manifest });
+  const result = run(bad.root, baseArgs(bad.docsSha));
+  assert.equal(result.status, 2, result.stderr);
+  assert.match(result.json.problem, /capture_sha \{"toString":1\} is not the corpus SHA/);
+
+  const catalog = defaultCatalog();
+  catalog['r-b.json'].liveRunSafety.requiredReceipts = [{ toString: 1 }, 'dispatch-accepted'];
+  const odd = await fixtureRepo({ catalog });
+  const planned = run(odd.root, baseArgs(odd.docsSha));
+  assert.equal(planned.status, 0, planned.stderr);
+  assert.ok(planned.json.stages.collection.rows.find((r) => r.row === 'R-B').manifestReceipts.includes('dispatch-accepted'));
+});
+
+test('a planner failure is a refusal: with no git it plans nothing', async () => {
+  const { root, docsSha } = await fixtureRepo();
+  const result = run(root, baseArgs(docsSha), { PATH: tripwire.dir });
+  assert.equal(result.status, 2, result.stderr);
+  assert.match(result.json.problem, /the planner failed: git could not run/);
+  assertNothingFired();
+});
+
+test('a partial clone is never fetched lazily: a missing blob reads as absent, and ssh never runs', async () => {
+  const source = await fixtureRepo();
+  git(source.root, ['config', 'uploadpack.allowFilter', 'true'], source.home);
+  const target = path.join(await scratch('proof-pipe-partial-'), 'docs');
+  const cloned = spawnSync('git', ['clone', '-q', '--filter=blob:none', '--no-checkout', `file://${source.root}`, target], {
+    encoding: 'utf8',
+    env: { ...process.env, HOME: source.home, GIT_CONFIG_NOSYSTEM: '1' },
+  });
+  assert.equal(cloned.status, 0, cloned.stderr);
+  // Its promisor is now an ssh remote: any lazy fetch would run ssh, a tripwire.
+  git(target, ['remote', 'set-url', 'origin', 'ssh://tripwire.invalid/karmaterminal-openclaw-docs.git'], source.home);
+  for (const dir of ['manifests', 'scenarios']) await mkdir(path.join(target, 'tools/k6-proofs', dir), { recursive: true });
+  const result = run(target, baseArgs(source.docsSha), { GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' });
+  assert.equal(result.status, 2, result.stdout);
+  assert.match(result.json.problem, /no PROOFS\/.*\/proofs-manifest\.json at docs/);
+  assertNothingFired();
 });
 
 test('a consumption ledger git cannot list refuses, never reads as empty', async () => {

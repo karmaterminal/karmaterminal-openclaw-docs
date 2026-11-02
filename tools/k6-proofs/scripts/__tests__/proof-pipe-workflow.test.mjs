@@ -63,8 +63,10 @@ test('the workflow only reads, holds no secret and never names a rented runner',
     assert.ok(String(job.if).includes(admitted), `the job's allowlist admits ${admitted}`);
   }
   assert.equal(String(job.if).match(/startsWith\(/gu)?.length, 3, 'nothing else is admitted');
+  // On the decoded labels, so a JSON escape cannot hide one.
+  const decoded = `toJSON(fromJSON(vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]'))`;
   for (const label of ['ubuntu-', 'windows-', 'macos-', 'blacksmith']) {
-    assert.ok(String(job.if).includes(`!contains(vars.PROOF_PIPE_RUNS_ON, '${label}')`), `the job is skipped before a runner when the variable names ${label}`);
+    assert.ok(String(job.if).includes(`!contains(${decoded}, '${label}')`), `the job is skipped before a runner when a decoded label names ${label}`);
   }
 });
 

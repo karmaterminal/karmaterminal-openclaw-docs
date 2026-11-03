@@ -45,7 +45,8 @@
       "lastPresentAt": "3821eaef72677c78f450ae9956cb582a22ba4cba",
       "removedBy": "2a8566340ddf8572dd974fc6a510fed0907dfe8a",
       "presentAtJ12": false,
-      "note": "git grep at j12 352f56029dc95c60149ab4aaa127226a861d0b3d finds no return-covenant bytes. The launcher refuses a plan whose fixture command is not a tracked blob at the candidate, so a j12 plan cannot start."
+      "note": "git grep at j12 352f56029dc95c60149ab4aaa127226a861d0b3d finds no return-covenant bytes. The launcher refuses a plan whose fixture command is not a tracked blob at the candidate, so a j12 plan cannot start. Where the seam survives (P89 and the fork-full refs that keep it), the product driver's plan schema pins rowId to R-CD-RETURN-COVENANT-AUTHORITY (return-covenant-fixture/protocol.ts:11, 108 at 3821eaef), so it refuses this row's plans; a restored seam must accept R-CD-RECIPIENT-AUTHORITY-MATRIX.",
+      "rowIdPinnedByDriver": "R-CD-RETURN-COVENANT-AUTHORITY"
     }
   },
   "verdictCap": {

@@ -782,15 +782,25 @@ The product that will be presented is j12, karmaterminal/openclaw
 fixture harness to fork-only", 2026-10-02) removed the fixture command above, its module and
 the gateway extra-handler seam it ran in, so the seam binding in the previous section does not
 hold at j12. A plan bound to j12 is refused by the launcher's tracked-command check before any
-process starts. The per-case j12 anchors, the gaps between what the P89 driver reached and the
-j12 product path, and what executing the matrix again needs are in
-[`R-CD-RECIPIENT-AUTHORITY-MATRIX.md`](R-CD-RECIPIENT-AUTHORITY-MATRIX.md).
+process starts.
+
+Where the seam survives (P89, and the fork-full refs that keep it), its driver pins the plan's
+row id to `R-CD-RETURN-COVENANT-AUTHORITY`. It refuses this row's plans until it accepts
+`R-CD-RECIPIENT-AUTHORITY-MATRIX`.
+
+The row doc, [`R-CD-RECIPIENT-AUTHORITY-MATRIX.md`](R-CD-RECIPIENT-AUTHORITY-MATRIX.md), has the
+per-case j12 anchors, the gaps between what the P89 driver reached and the j12 product path, and
+what executing the matrix again needs.
 
 ## Current completion boundary
 
-- The exact-head plan validates and is executable: `validateReturnCovenantPlan`
-  returns no errors and `assertExecutableReturnCovenantPlan` accepts a plan bound
-  to `3821eaef72677c78f450ae9956cb582a22ba4cba`.
+- The docs-side contract accepts an exact-head plan bound to
+  `3821eaef72677c78f450ae9956cb582a22ba4cba`: `validateReturnCovenantPlan` returns no errors and
+  `assertExecutableReturnCovenantPlan` accepts it. The P89 product driver does not. Its plan
+  schema pins the row id `R-CD-RETURN-COVENANT-AUTHORITY`
+  (`return-covenant-fixture/protocol.ts:11, 108`), so it refuses a plan for
+  `R-CD-RECIPIENT-AUTHORITY-MATRIX`. The plan is executable only against a driver that accepts
+  this row's id.
 - The exact-product runtime smoke remains bootstrap evidence only; the
   product-owned fixture seam is satisfied separately, by the tracked command
   recorded under **Exact P89 seam binding**.

@@ -24,14 +24,21 @@
  * (gateway/server-extra-handlers.ts). git grep at j12 finds no return-covenant bytes. The last
  * product carrying the seam is P89 3821eaef72677c78f450ae9956cb582a22ba4cba. The launcher
  * requires the plan's fixture command to be a tracked blob at the candidate, so a j12 plan is
- * refused before any process starts; no case can pass there without reaching its path. The
- * anchors say where each case's return would be bound, checked, refused or adopted at j12 and
- * what each outcome leaves, for the review of a restored seam.
+ * refused before any process starts; no case can pass there without reaching its path. Even
+ * where the seam survives, it cannot run this row unchanged: the P89 driver, and every fork-full
+ * ref that keeps it (2a8566340d^, gloss/p89-composite-l8full, scribe/20261002/p89-composite-l8),
+ * pins the plan's row id to R-CD-RETURN-COVENANT-AUTHORITY
+ * (return-covenant-fixture/protocol.ts:11 and 108 at 3821eaef), so it refuses a plan for
+ * R-CD-RECIPIENT-AUTHORITY-MATRIX. A restored seam must accept this row's id. The anchors say
+ * where each case's return would be bound, checked, refused or adopted at j12 and what each
+ * outcome leaves, for the review of a restored seam.
  *
  * Shared path, every case and both forms:
- *   Bound    typed form: agents/tools/continue-delegate-tool.ts:434; bracket form:
- *            auto-reply/reply/agent-runner-continuation-signal.ts:251. Both call
- *            enqueuePendingDelegate (auto-reply/continuation/delegate-store.ts:203-219) ->
+ *   Bound    typed form: agents/tools/continue-delegate-tool.ts:434 (post-compaction mode
+ *            stages at :401 through stagePostCompactionCustodyDelegate,
+ *            auto-reply/continuation/delegate-store-post-compaction.ts:41-69); bracket form:
+ *            auto-reply/reply/agent-runner-continuation-signal.ts:251 -> enqueuePendingDelegate
+ *            (auto-reply/continuation/delegate-store.ts:203-219). Every form reaches
  *            createDelegateRecord, which binds before the custody record exists
  *            (auto-reply/continuation/delegate-flow-store.ts:426-437) ->
  *            createContinuationRecipientAuthorityBinding / captureContinuationRecipientAuthorities
@@ -57,6 +64,14 @@
  *            (auto-reply/reply/session-system-events.ts:192-211) and at final prompt adoption
  *            (auto-reply/reply/session-system-event-adoption.ts:234-256, 263-300), and at durable
  *            replay (gateway/server-restart-sentinel-delivery.ts:226-243, 269-290).
+ *            The matrix's held flow decides at the replay check. At P89 the driver enqueued each
+ *            held return while its authority was still current, then deferred the durable row
+ *            and removed the queued event (return-covenant-fixture/case-dispatch.ts:184-194 at
+ *            3821eaef). At release it drained that row itself, through
+ *            deliverQueuedSessionDeliveryCore (case-lifecycle.ts:321-346). So every refusal it
+ *            observed came from the replay check, and the wake and adoption checks fenced the
+ *            allowed cases after it. The enqueue checks ran only before the edge, when the epoch
+ *            was still current.
  *   Refused  the product has one refusal, not three: targeting.ts:284 calls it "stale",
  *            server-restart-sentinel-delivery.ts:274 "stale-authority". The matrix's stale,
  *            unauthorized and revoked labels name the edge that advanced the epoch; the P89 driver
@@ -78,12 +93,15 @@
  *            RETURN_COVENANT_MODE_EFFECTS configures. Refused: zero prompt adoption, zero wake,
  *            zero channel delivery, the durable row acknowledged with no retry.
  *
- * The epoch advances only at deletion (config/sessions/session-accessor.sqlite-entry-store.ts:56-69),
- * owner change (config/sessions/session-accessor.sqlite-owner.ts:168-182), visibility narrowing for
- * every writer (config/sessions/session-accessor.sqlite-entry-mutation.ts:119-136) and member
- * removal (config/sessions/session-sharing-store.native.ts:177-182), each through
+ * The runtime advances the epoch only at deletion
+ * (config/sessions/session-accessor.sqlite-entry-store.ts:56-69), owner change
+ * (config/sessions/session-accessor.sqlite-owner.ts:168-182), visibility narrowing for every writer
+ * (config/sessions/session-accessor.sqlite-entry-mutation.ts:119-136) and member removal
+ * (config/sessions/session-sharing-store.native.ts:177-182), each through
  * advanceSessionRecipientAuthorityInTransaction
  * (config/sessions/session-accessor.sqlite-recipient-authority.ts:16-37), plus first capture.
+ * Outside the runtime, `openclaw doctor`'s canonical-key repair can re-mint or delete an epoch
+ * (commands/doctor-session-recipient-authority-repair.ts:15-117); it is not a revocation API.
  * j12 has no recipient-authority revocation API (gateway/methods/core-descriptors.ts lists
  * sessions.reset :255, sessions.delete :259, session.visibility.set :467,
  * session.members.remove :470, sessions.assignOwner :524 and no revoke). Its stores are per-agent
@@ -115,15 +133,20 @@
  *   - allowed-compaction: compaction has no epoch writer; a post-compaction delegate is staged
  *     with its binding (auto-reply/continuation/delegate-store-post-compaction.ts:41-69) and
  *     released carrying it (auto-reply/reply/post-compaction-delegate-delivery.ts:547-548), then
- *     takes the shared path.
+ *     takes the shared path. No compaction ran at P89: the fixture patched compactionCount and
+ *     claimed the staged delegate directly (case-lifecycle.ts:141-146,
+ *     case-dispatch.ts:288-310), so it showed the staged binding carries over, not that a real
+ *     compaction releases it.
  *   - allowed-gateway-restart-replay: the durable row survives the process and replays through
  *     deliverQueuedSessionDeliveryCore (gateway/server-restart-sentinel.ts:74-98, 138-153 ->
  *     gateway/server-restart-sentinel-delivery.ts:138-297), checked at :226-243 and re-enqueued
  *     under the authority decision at :269-290. At P89 the "restart" was the driver's SIGTERM and
  *     respawn of its own fixture gateway (return-covenant-fixture/gateway.ts:71-88,
  *     fixture-gateway.ts:18-81) and the replay was the driver's own drain
- *     (case-lifecycle.ts:321-346). No gateway.restart.request, run-loop restart branch or
- *     restart handoff is involved, so this edge is not evidence for the supervised-restart
+ *     (case-lifecycle.ts:321-346). The replacement's boot recovery
+ *     (gateway/server-restart-sentinel.ts:138-153) was deliberately kept from redriving the
+ *     held row (case-lifecycle.ts:327-328). No gateway.restart.request, run-loop restart branch
+ *     or restart handoff is involved, so this edge is not evidence for the supervised-restart
  *     claim that R-CD-RETURN-COVENANT-AUTHORITY's control owns.
  *   - allowed-session-id-rollover: an implicit reply-session rollover (session.ts:203-210 with
  *     explicitReset false; session-rollover-mutation.ts:27-29) gets inert retention hooks
@@ -152,11 +175,12 @@
  *     its own, and a restored seam must not add its own advance or the case cannot show the
  *     product did.
  *   - forbidden-explicit-revocation (label revoked): no product path at j12 (no revocation API;
- *     the only advance sites are the four above and first capture). The case can only be
- *     not-exposed with the product's capability receipt. At P89 the driver declared
- *     revocationApiExposed from test-runtime/return-covenant/recipient-authority-revocation and
- *     advanced the epoch itself (case-lifecycle.ts:224-234); the resolver now refuses an executed
- *     revocation from a test-runtime surface (revocation-capability-mismatch).
+ *     the runtime's only advance sites are the four above and first capture). At j12 the case
+ *     can only be not-exposed with the product's capability receipt; that is a fact for the
+ *     review of a restored seam, not something the resolver can enforce. At P89 the driver
+ *     declared revocationApiExposed from test-runtime/return-covenant/recipient-authority-revocation
+ *     and advanced the epoch itself (case-lifecycle.ts:224-234). The resolver now refuses an
+ *     executed revocation from any test-runtime surface (revocation-capability-mismatch).
  */
 import http from 'k6/http';
 import { check, sleep } from 'k6';

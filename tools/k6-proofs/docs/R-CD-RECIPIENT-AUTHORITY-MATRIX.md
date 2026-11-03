@@ -71,6 +71,18 @@ seam the matrix drives:
 to be a tracked blob at the candidate, so a j12 plan is refused before any process starts. No case
 can pass at j12 without reaching its path, because none can run.
 
+**Where the seam survives, it still cannot run this row unchanged.** These product drivers pin the
+plan's row id to `R-CD-RETURN-COVENANT-AUTHORITY`
+(`return-covenant-fixture/protocol.ts:11` and `:108` at `3821eaef`):
+
+- the P89 driver;
+- every fork-full ref that keeps it (`2a8566340d^`, `gloss/p89-composite-l8full`,
+  `scribe/20261002/p89-composite-l8`).
+
+So each refuses a plan for `R-CD-RECIPIENT-AUTHORITY-MATRIX`. A restored seam must accept this
+row's id. The harness keeps the new id, because a matrix receipt bound to the restart control's id
+would undo the split.
+
 The header of [`contracts/return-covenant-authority/scenario.js`](../contracts/return-covenant-authority/scenario.js)
 anchors every case at j12 with `path:line`: where the return is bound, checked, refused or
 adopted, and what each outcome leaves. In summary:
@@ -86,6 +98,15 @@ adopted, and what each outcome leaves. In summary:
   - at the wake handoff (`continuation-wake.ts:163-228`);
   - at the prompt drain and at final prompt adoption;
   - at durable replay (`server-restart-sentinel-delivery.ts:226-243, 269-290`).
+
+  The matrix's held flow decides at the replay check:
+  - At P89 the driver enqueued each held return while its authority was still current.
+  - It then deferred the durable row and removed the queued event (`case-dispatch.ts:184-194`).
+  - At release it drained that row itself through `deliverQueuedSessionDeliveryCore`
+    (`case-lifecycle.ts:321-346`).
+
+  So every refusal the matrix observed came from the replay check, and the wake and adoption
+  checks fenced the allowed cases after it.
 - **Refused** with one product refusal, not three. `targeting.ts:284` calls it `stale`, and the
   replay path calls it `stale-authority`. A refused return either writes no row, or its row is
   acknowledged and retired and its queued event removed. Nothing reaches a prompt, a wake or a
@@ -94,14 +115,16 @@ adopted, and what each outcome leaves. In summary:
   (the wake that replaced upstream's retired `requestHeartbeatNow`), or the next prompt drain
   does. Its row is acknowledged only after that adoption.
 
-The epoch advances only at four product sites, plus its first capture:
+The runtime advances the epoch only at four product sites, plus its first capture:
 
 - deletion (`session-accessor.sqlite-entry-store.ts:56-69`);
 - owner change (`session-accessor.sqlite-owner.ts:180-182`);
 - visibility narrowing, for every writer (`session-accessor.sqlite-entry-mutation.ts:119-136`);
 - member removal (`session-sharing-store.native.ts:180-182`).
 
-j12 has no recipient-authority revocation API.
+Outside the runtime, `openclaw doctor`'s canonical-key repair can also re-mint or delete an epoch
+(`commands/doctor-session-recipient-authority-repair.ts:15-117`). j12 has no recipient-authority
+revocation API.
 
 The matrix's `stale`, `unauthorized` and `revoked` labels name which edge advanced the epoch. They
 are not product refusal reasons: the P89 driver set them from the case id
@@ -118,8 +141,8 @@ restored seam must close each gap, or that case still does not reach its path.
 | `allowed-ordinary-new` | adopted | `/new` through reply-session init or Gateway `sessions.reset`, both with reset retention (`session-reset-retention.ts`) | captured = current | the mode's prompt, wake and channel counts | seam absent | The driver called `resetSessionEntryLifecycle` directly and bypassed reset retention (new since F4, 2026-10-21). |
 | `allowed-ordinary-reset` | adopted | as `/new`, reason `reset` | captured = current | as configured | seam absent | as `/new` |
 | `allowed-provider-fallback` | adopted | the run's model fallback, which writes no epoch | captured = current | as configured | seam absent | The driver modelled fallback as a session-entry model patch. That shows the patch writer keeps the epoch, not that a real fallback run delivers. |
-| `allowed-compaction` | adopted | a post-compaction delegate staged and released with its binding | captured = current | as configured | seam absent | none found |
-| `allowed-gateway-restart-replay` | adopted | durable row replay through `deliverQueuedSessionDeliveryCore` | captured = current | as configured, no duplicate | seam absent | A fixture SIGTERM and respawn plus the driver's own drain; no supervised restart (see above). |
+| `allowed-compaction` | adopted | a post-compaction delegate staged and released with its binding | captured = current | as configured | seam absent | No compaction ran. The driver patched `compactionCount` and claimed the staged delegate directly, which shows the binding carries over, not that a real compaction releases it. |
+| `allowed-gateway-restart-replay` | adopted | durable row replay through `deliverQueuedSessionDeliveryCore` | captured = current | as configured, no duplicate | seam absent | A fixture SIGTERM and respawn plus the driver's own drain. The replacement's boot recovery was kept from redriving the row, and there was no supervised restart (see above). |
 | `allowed-session-id-rollover` | adopted | an implicit reply-session rollover with inert retention hooks | captured = current | as configured | seam absent | The driver wrote the new session ID through the accessor, not the rollover flow. |
 | `allowed-late-materialization` | adopted | first capture creates the epoch; materializing writes none | captured = current | exactly one adoption | seam absent | Holds only if the materializing write does not narrow visibility below `shared`. |
 | `forbidden-delete-recreate` | stale | `sessions.delete` advances the epoch in the deleting transaction, and the recreated key keeps the advanced epoch | captured != current | zero; row acknowledged | seam absent | none found |
@@ -172,16 +195,23 @@ or trusted system events, and the durable row acknowledged with no retry.
   logical key to a new session generation after deletion. `forbidden-owner-reassignment` is the
   reassigned owner. Session-id rollover and ordinary `/new` and `/reset` are not reassignment: the
   logical recipient and its epoch carry over, so they are allowed edges and must adopt.
-- **Replay.** `allowed-gateway-restart-replay`: the held return's durable row outlives the process
-  and is replayed through `deliverQueuedSessionDeliveryCore`, then adopted exactly once with no
-  duplicate.
+- **Replay.** Every case's held row is released through the durable replay core,
+  `deliverQueuedSessionDeliveryCore`:
+  - Each forbidden case is refused at its authority check.
+  - Each allowed case passes it and is adopted.
+  - `allowed-gateway-restart-replay` additionally carries the row across a process replacement,
+    then adopts it exactly once with no duplicate.
 - **Not covered**, even when the matrix runs:
   - **Nothing at j12.** The product seam is absent, so the matrix gives no evidence about the
     presented product until a seam returns at an exact candidate.
-  - **Rejection after restart replay.** No case takes a refused return across a restart. The
-    product's replay check (`server-restart-sentinel-delivery.ts:234-243`) is unexercised, though
-    ClawSweeper's Security item asks for exactly this.
-  - **Explicit revocation.** No product API exists to test.
+  - **Rejection across a real restart.** The replay check refuses each forbidden case, but no
+    forbidden case's row crosses a process restart. The gateway's own boot recovery
+    (`server-restart-sentinel.ts:138-153`) never drives a held row, because the driver drains
+    every row itself. ClawSweeper's Security item asks for rejection through restart replay.
+  - **Explicit revocation.** No product API exists to test. The resolver refuses the P89 shape
+    (an exposed API from a test-runtime surface). The surface is the driver's own text, so the
+    resolver cannot prove that any other surface is a shipped API; review of a restored seam has
+    to.
   - **The supervised restart branch.** That is `R-CD-RETURN-COVENANT-AUTHORITY`'s claim, not this
     row's.
   - **A real gateway invocation.** The matrix is process-local with synthetic recipients and a
@@ -221,7 +251,11 @@ successor is mergeable, exact-head CI-clean, reviewed and deployed fleet-wide.
 These are decisions for the cohort; this row does not make them.
 
 1. **A product seam at the presented SHA**, or an explicit decision to fire at a fork-full SHA
-   that still carries it, and to accept that the evidence is about that SHA, not j12.
+   that still carries it, and to accept that the evidence is about that SHA, not j12. Either way
+   the product driver's plan schema must accept `R-CD-RECIPIENT-AUTHORITY-MATRIX`: today's
+   drivers pin `R-CD-RETURN-COVENANT-AUTHORITY` (`protocol.ts:11, 108` at `3821eaef`). Keeping
+   the old id on the wire through a docs-side alias is the alternative, and it is the cohort's
+   call.
 2. **Database profiles and retention-inspector pins re-anchored** to the product's current schema
    line (per-agent 40 and global 36 at j12), with the fresh-database drift control rerun against
    that product.
@@ -230,8 +264,9 @@ These are decisions for the cohort; this row does not make them.
    - the rollover flow;
    - the product's own visibility-narrowing advance, with no driver-side advance;
    - `not-exposed` for explicit revocation unless the product adds an API.
-4. **A refused-return-after-restart case**, if ClawSweeper's Security item is to be answered
-   completely.
+4. **A refused-return-across-a-restart case**, in which a forbidden case's held row crosses a real
+   process restart and the replacement's own recovery refuses it, if ClawSweeper's Security item
+   is to be answered completely.
 5. **Review of the restored seam and of this harness at the final docs SHA**, then a fire
    authorized under docs#536. Folding into a corpus is a separate, reviewed coordinator step.
 

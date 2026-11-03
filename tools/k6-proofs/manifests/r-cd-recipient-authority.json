@@ -1,0 +1,315 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-RECIPIENT-AUTHORITY",
+  "issue": 536,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-isolated-proof-gateway}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-disposable}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": true,
+  "timeoutSeconds": 3600,
+  "scenario": {
+    "name": "r-cd-recipient-authority",
+    "description": "A live, isolated-gateway row at pinned j12: a targeted delegate return reaches only a recipient whose authority is unchanged. On one disposable gateway started by the control, each case is its own receipt. A real continue_delegate with targetSessionKey from a model turn (the R-CD-4 shape) is accepted, the target's authority is changed through a public gateway RPC between dispatch and return, and the case is graded from what the product leaves observable. allowed and allowed-across-reset must be adopted and acknowledged exactly once by the primed target. unauthorized-admission, unauthorized-dispatch, revoked-visibility, revoked-membership, revoked-owner, reassigned and replay-restart must each show both the product's refusal reason and the absence of target adoption, ack, wake and final effect.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.list",
+      "chat.history",
+      "sessions.reset",
+      "sessions.delete",
+      "session.visibility.set",
+      "session.members.list",
+      "session.members.add",
+      "session.members.remove",
+      "config.get",
+      "config.patch",
+      "gateway.restart.request",
+      "sessions tool assign_owner (sessions.assignOwner)",
+      "continue_delegate (model turn)"
+    ],
+    "status": "runnable",
+    "file": "r-cd-recipient-authority.js",
+    "notes": "scenarios/r-cd-recipient-authority.js drives one case's gateway WebSocket protocol and refuses to run unless the control launched it for its own run (it throws from setup() otherwise). Its header holds the j12 product path with path:line anchors. The control, scripts/run-recipient-authority-row.mjs, starts and owns the disposable gateway, reads its log and the recipient-authority epoch read-only, performs the supervised restart for replay-restart, grades each case with lib/recipient-authority-row.mjs and signs the receipt.",
+    "registryNotes": "🌊's ruling (room msg 1567077062139838485, 2026-11-03): a live, isolated-gateway row at pinned j12, separate from the supervised-restart row R-CD-RETURN-COVENANT-AUTHORITY; every case MISSING until an owner runs it; observe the refusal reason and the absence of target adoption, ack and final effect, including replay. The fixture matrix (R-CD-RECIPIENT-AUTHORITY-MATRIX, docs#549) is history, not j12 proof. This row never feeds either of those rows' verdicts and reads none of their receipts."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "silent-wake",
+    "modes": [
+      "silent-wake",
+      "silent"
+    ],
+    "modeNote": "allowed, allowed-across-reset and the unauthorized cases dispatch silent-wake (R-CD-4's mode). The revoked, reassigned and replay cases dispatch silent so the return parks un-adopted before the transition: at j12 a refusal at enqueue, wake or prompt drain leaves no reason, and only the durable replay logs one. invocation.mode names the trace collector's default; each case's evidence records its own delegate_mode.",
+    "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY:-disposable}",
+    "promptTemplate": "RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.",
+    "idempotencyKeyPrefix": "R-CD-RECIPIENT-AUTHORITY",
+    "control": "tools/k6-proofs/scripts/run-recipient-authority-row.mjs",
+    "artifactClass": "disposable-real-process",
+    "pinnedCandidate": "352f56029dc95c60149ab4aaa127226a861d0b3d",
+    "cases": [
+      "allowed",
+      "allowed-across-reset",
+      "unauthorized-admission",
+      "unauthorized-dispatch",
+      "revoked-visibility",
+      "revoked-membership",
+      "revoked-owner",
+      "reassigned",
+      "replay-restart"
+    ],
+    "rowVerdict": "The row verdict is the minimum over every case's signed receipt (--grade-row). A case with no verified receipt is MISSING-candidate, so the row is MISSING until an owner runs all nine at j12.",
+    "controlState": "an existing proof-gw directory (composite-launcher.sh setup and login, then stop) at the pinned candidate; its state is kept for composite-launcher.sh shred"
+  },
+  "expectedReceipts": [
+    {
+      "name": "harness-gateway-identity",
+      "required": true,
+      "description": "The disposable gateway the control started and owned for the whole run: proof-gw directory and unit, a stage whose dist/build-info.json commit is j12, the isolated state (never under ~/.openclaw), and per generation the PID, kernel start ticks and listener ownership re-verified before and after every case. A gateway the control did not start is refused before any case."
+    },
+    {
+      "name": "model-sign-in",
+      "required": true,
+      "description": "openclaw models status --json against the isolated state: the auth store lives under it, no provider in use lacks a sign-in, and the primary model's provider holds a profile."
+    },
+    {
+      "name": "dispatch-binding",
+      "required": true,
+      "description": "The continue_delegate toolCall from the parent's model turn (unwrapped through Tool Search) whose task carries the case marker and targetSessionKey, paired by toolCallId with its toolResult: status scheduled (the binding is captured by then), or for unauthorized-admission the product's policy error. Records reason_hash, reason_length and delegate_mode."
+    },
+    {
+      "name": "authority-epochs",
+      "required": true,
+      "description": "The target's session_recipient_authority epoch, read read-only from the isolated per-agent database and published as SHA-256 only: captured (after the scheduled toolResult), after the transition, and at the end of the case."
+    },
+    {
+      "name": "transition-response",
+      "required": true,
+      "description": "The public RPC response for the case's authority transition: sessions.reset, config.patch (crossSessionTargeting disabled, then restored), session.visibility.set, session.members.remove, the sessions tool assign_owner toolResult, or sessions.delete plus sessions.create."
+    },
+    {
+      "name": "refusal-reason",
+      "required": true,
+      "description": "Refusal cases only: the product's own reason for this case's session key. The continue_delegate policy error (admission), the [continuation:delegate-rejected] policy.cross_session_targeting log line for the dispatcher (dispatch), or the durable replay's 'recipient authority changed' warn for the target (revoked, reassigned; from the replacement generation for replay-restart)."
+    },
+    {
+      "name": "target-adoption-observation",
+      "required": true,
+      "description": "The target transcript read after the observation window: TARGET-ACK <nonce> as assistant text or a heartbeat_respond receipt from a run other than priming, woken target runs, the return marker repeated by the target, and for refusal cases the probe turn that forces a prompt drain. allowed cases need exactly one acknowledging run; refusal cases need none, no wake and no return marker."
+    },
+    {
+      "name": "no-parent-return",
+      "required": true,
+      "description": "The dispatching parent never carries the target's acknowledgement."
+    },
+    {
+      "name": "signed-case-receipt",
+      "required": true,
+      "description": "One public-safe receipt per case, graded by lib/recipient-authority-row.mjs and HMAC-SHA256-signed with a launcher-held observer key the gateway never receives. Raw transcripts and log lines stay in the private directory."
+    },
+    {
+      "name": "cleanup",
+      "required": true,
+      "description": "The control stops only the gateway generations it started (PID, start ticks and run marker re-verified), confirms the port is free, and records that config.patch changes were restored."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON for each case whose delegate fired, collected after the run with collect-continuation-trace.mjs from the case's evidence.jsonl (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json for each case whose delegate fired, matched by that case's reason hash, length and delegate mode. Without it the case grades PARTIAL-candidate (trace-receipt-pending)."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-RECIPIENT-AUTHORITY",
+    "seat": "${OPENCLAW_SEAT_NAME:-isolated-proof-gateway}",
+    "runDirPrefix": "authority-row"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "The control writes candidate receipts only. Folding is a reviewed corpus step at j12. The row stays MISSING until an owner runs every case on an isolated proof gateway at j12; no case may be carried from the fixture matrix, the restart control or any earlier SHA."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The claim is which session adopts a targeted return. Tempo drops session identifiers from exported spans, and no refusal at j12 emits a span naming recipient authority, so the claim is proven from the gateway event stream, the gateway's own log and the read-only authority store captured at run time. Telemetry corroborates the dispatch and fire only."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "The strongest join available; it is not an identity."
+        },
+        {
+          "key": "continuation.target.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254",
+          "notes": "Without it telemetry cannot tell which recipient a return reached or was refused for."
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254"
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "Session keys, epochs and log lines are published as SHA-256 only. Raw session keys, authority epochs, prompt bodies, the observer key and the gateway token never enter the public artifact.",
+      "forbiddenInArtifacts": [
+        "raw session key",
+        "raw target session key",
+        "raw authority epoch",
+        "prompt body",
+        "gateway token",
+        "observer signing key"
+      ]
+    },
+    "controls": {
+      "positive": "allowed and allowed-across-reset: the primed target acknowledges the nonce-bound return exactly once, from a run other than priming, with its authority epoch unchanged; sessions.reset leaves the epoch unchanged at j12.",
+      "negative": "Each refusal case: the product's reason for this case's own session key, and no acknowledgement, no woken target run, no return marker in the target, a probe turn that drained without adopting, and no parent landing. A refusal whose reason the product does not emit stays MISSING, never PASS."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash",
+        "delegate.mode"
+      ],
+      "notes": "A degraded backend removes trace corroboration only; the case is recorded PARTIAL, never as an absent return or an absent refusal."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.recipient-authority-case.v1",
+      "requiredFiles": [
+        "case-receipt.json",
+        "evidence.jsonl",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "Every case's signed receipt grades PASS-candidate at j12 on one harness-started isolated gateway: allowed returns adopted and acknowledged exactly once, every refusal case with both its product reason and the absence of adoption, ack, wake and final effect, and each fired delegate's trace correlated.",
+      "partial": "A trace receipt is pending, a config.patch change was not restored, cleanup was incomplete, a receipt did not verify, or two receipts of one case disagree.",
+      "fail": "A refused return was adopted, acknowledged or woke the target; an allowed return was routed but never adopted, or adopted twice; a return landed in the parent; an unauthorized delegate spawned; or sessions.reset advanced the epoch."
+    },
+    "execution": {
+      "deterministicK6": "Not a run-proof.sh scenario: run-recipient-authority-row.mjs starts the disposable gateway and runs scenarios/r-cd-recipient-authority.js once per case against it.",
+      "manual": "An owner runs it on an isolated proof gateway after j12 deploys (docs/R-CD-RECIPIENT-AUTHORITY.md, operator procedure).",
+      "relationship": "The signed case receipts own the behavioral verdict; the trace receipts decide only review completeness."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "harness-gateway-identity",
+      "model-sign-in",
+      "dispatch-binding",
+      "authority-epochs",
+      "transition-response",
+      "refusal-reason",
+      "target-adoption-observation",
+      "no-parent-return",
+      "signed-case-receipt",
+      "cleanup",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "run-proof.sh, run-proofs.sh and live-run-guard.mjs refuse orchestration-required rows, so no catalog or live-suite run can fire it. Only the control runs it, and only on a stopped proof-gw gateway whose stage is j12, with an isolated model sign-in and cross-session targeting enabled; it starts that gateway itself and refuses any gateway it did not start. It never reads OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_WS and never touches ~/.openclaw."
+  }
+}

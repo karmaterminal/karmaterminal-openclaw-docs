@@ -52,8 +52,16 @@ function gatewayFor(world) {
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: ALL_METHODS } });
       case 'sessions.create': sessions[p.key] = { messages: [] }; return ok({ key: p.key });
-      case 'session.members.list': return ok({ identities: world.noIdentity ? [] : [{ type: 'agent', id: 'main' }] });
-      case 'session.members.add': case 'session.members.remove': case 'session.visibility.set': case 'sessions.delete': return ok({ ok: true });
+      // The sharing methods' params are closed objects keyed by sessionKey at j12
+      // (packages/gateway-protocol/src/schema/sessions-sharing.ts:29-37, 62, 115-120).
+      case 'session.members.list': case 'session.members.add': case 'session.members.remove': case 'session.visibility.set': {
+        if (typeof p.sessionKey !== 'string' || 'key' in p) {
+          return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: `invalid ${frame.method} params: unexpected property` } }];
+        }
+        if (frame.method === 'session.members.list') return ok({ sessionKey: p.sessionKey, identities: world.noIdentity ? [] : [{ type: 'agent', id: 'main' }] });
+        return ok({ ok: true, sessionKey: p.sessionKey });
+      }
+      case 'sessions.delete': return ok({ ok: true });
       case 'sessions.reset': sessions[p.key] = { messages: [] }; return ok({ ok: true, key: p.key });
       case 'config.get': return ok({ hash: 'config-hash-1' });
       case 'config.patch': {

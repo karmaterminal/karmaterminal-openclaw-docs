@@ -671,6 +671,33 @@ test('the control runs no case on a gateway whose listener is not the process it
   }
 });
 
+test('the control stops the gateway it started even when a case throws', async () => {
+  const fixture = proofGwFixture();
+  try {
+    const signals = [];
+    let exit;
+    const { platform } = fakePlatform(fixture, {
+      listenerOwner: () => ({ pid: 4242, startTicks: 77 }),
+      spawnGateway: () => ({
+        pid: 4242,
+        lines: [],
+        exited: new Promise((resolve) => { exit = resolve; }),
+        signal: (sig) => {
+          signals.push(sig);
+          exit({ code: 0, signal: sig });
+        },
+      }),
+      runK6: async () => {
+        throw new Error('k6 crashed');
+      },
+    });
+    await assert.rejects(runRecipientAuthorityRow(controlOptions(fixture), platform), /k6 crashed/);
+    assert.deepEqual(signals, ['SIGTERM'], 'the generation the control started is stopped');
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 /* ------------------------------------------------------------------------------------ */
 /* Case records: assembly, public safety, signature, row grade                           */
 /* ------------------------------------------------------------------------------------ */

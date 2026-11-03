@@ -104,6 +104,10 @@ const SAFE_QUEUE_STATUSES = new Set([
   'unauthorized-acknowledged',
   'revoked-acknowledged',
 ]);
+// The product's test runtime (dist/test-runtime) is not shipped. A revocation "API" exposed only
+// there is the fixture's own epoch advance, as at P89 3821eaef
+// (test-runtime/return-covenant/recipient-authority-revocation), never a product revocation path.
+const TEST_RUNTIME_SURFACE = /^\/?test-runtime(?:\/|$)/iu;
 
 function isObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -2332,6 +2336,20 @@ export function validateReturnCovenantObservationSet({
       errors,
       'revocation-capability-mismatch',
       'revocation applicability differs between forms or from run capability',
+    );
+  }
+  if (
+    expectedRevocationApplicability === 'executed' &&
+    TEST_RUNTIME_SURFACE.test(
+      String(driverAttestation?.revocationCapability?.surface ?? '').trim(),
+    )
+  ) {
+    // At j12 352f5602 no product path advances recipient authority except deletion, owner
+    // change, visibility narrowing and member removal, so the case can only be not-exposed.
+    addError(
+      errors,
+      'revocation-capability-mismatch',
+      'an executed explicit revocation names a test-runtime surface, not a product revocation API',
     );
   }
   if (expectedRevocationApplicability === 'not-exposed') {

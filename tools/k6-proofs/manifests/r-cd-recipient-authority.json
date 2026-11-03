@@ -11,7 +11,7 @@
   "timeoutSeconds": 3600,
   "scenario": {
     "name": "r-cd-recipient-authority",
-    "description": "A live, isolated-gateway row at pinned j12: a targeted delegate return reaches only a recipient whose authority is unchanged. On one disposable gateway started by the control, each case is its own receipt. A real continue_delegate with targetSessionKey from a model turn (the R-CD-4 shape) is accepted, the target's authority is changed through a public gateway RPC between dispatch and return, and the case is graded from what the product leaves observable. allowed and allowed-across-reset must be adopted and acknowledged exactly once by the primed target. unauthorized-admission, unauthorized-dispatch, revoked-visibility, revoked-membership, revoked-owner, reassigned and replay-restart must each show both the product's refusal reason and the absence of target adoption, ack, wake and final effect.",
+    "description": "A live, isolated-gateway row at pinned j12: a targeted delegate return reaches only a recipient whose authority is unchanged. On one disposable gateway started by the control, each case is its own receipt. A real continue_delegate with targetSessionKey from a model turn (the R-CD-4 shape) is accepted, the target's authority is changed through a public gateway RPC between dispatch and return, and the case is graded from what the product leaves observable. allowed and allowed-across-reset must be adopted and acknowledged exactly once by the primed target; allowed-silent, the control for every refusal case's absence, must be adopted into the probe turn with the product's adoption marker on the visible row. unauthorized-admission, unauthorized-dispatch, revoked-visibility, revoked-membership, revoked-owner, reassigned and replay-restart must each show both the product's refusal reason and the absence of target adoption, ack, wake and final effect.",
     "methods": [
       "sessions.create",
       "sessions.send",
@@ -41,7 +41,7 @@
       "silent-wake",
       "silent"
     ],
-    "modeNote": "allowed, allowed-across-reset and the unauthorized cases dispatch silent-wake (R-CD-4's mode). The revoked, reassigned and replay cases dispatch silent so the return parks un-adopted before the transition: at j12 a refusal at enqueue, wake or prompt drain leaves no reason, and only the durable replay logs one. invocation.mode names the trace collector's default; each case's evidence records its own delegate_mode.",
+    "modeNote": "allowed, allowed-across-reset and the unauthorized cases dispatch silent-wake (R-CD-4's mode). allowed-silent and the revoked, reassigned and replay cases dispatch silent so the return parks un-adopted before the transition: at j12 a refusal at enqueue, wake or prompt drain leaves no reason, and only the durable replay logs one. invocation.mode names the trace collector's default; each case's evidence records its own delegate_mode.",
     "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY:-disposable}",
     "promptTemplate": "RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-RECIPIENT-AUTHORITY",
@@ -51,6 +51,7 @@
     "cases": [
       "allowed",
       "allowed-across-reset",
+      "allowed-silent",
       "unauthorized-admission",
       "unauthorized-dispatch",
       "revoked-visibility",
@@ -59,14 +60,14 @@
       "reassigned",
       "replay-restart"
     ],
-    "rowVerdict": "The row verdict is the minimum over every case's signed receipt (--grade-row). A case with no verified receipt is MISSING-candidate, so the row is MISSING until an owner runs all nine at j12.",
+    "rowVerdict": "The row verdict is the minimum over every case's signed receipt (--grade-row). A case with no verified receipt is MISSING-candidate, so the row is MISSING until an owner runs all ten at j12.",
     "controlState": "an existing proof-gw directory (composite-launcher.sh setup and login, then stop) at the pinned candidate; its state is kept for composite-launcher.sh shred"
   },
   "expectedReceipts": [
     {
       "name": "harness-gateway-identity",
       "required": true,
-      "description": "The disposable gateway the control started and owned for the whole run: proof-gw directory and unit, a stage whose dist/build-info.json commit is j12, the isolated state (never under ~/.openclaw), and per generation the PID, kernel start ticks and listener ownership re-verified before and after every case. A gateway the control did not start is refused before any case."
+      "description": "The disposable gateway the control started and owned for the whole run: proof-gw directory and unit, a stage whose dist/build-info.json commit is j12, the isolated state (never under ~/.openclaw), and per generation the PID, kernel start ticks and listener ownership re-verified every 500 ms and before and after every case. A gateway the control did not start is refused before any case."
     },
     {
       "name": "model-sign-in",
@@ -96,7 +97,7 @@
     {
       "name": "target-adoption-observation",
       "required": true,
-      "description": "The target transcript read after the observation window: TARGET-ACK <nonce> as assistant text or a heartbeat_respond receipt from a run other than priming, woken target runs, the return marker repeated by the target, and for refusal cases the probe turn that forces a prompt drain. allowed cases need exactly one acknowledging run; refusal cases need none, no wake and no return marker."
+      "description": "The target transcript read after the observation window: the product's adoption marker (__openclaw.sessionDeliveryAckIds on a visible row, which chat.history keeps), TARGET-ACK <nonce> as assistant text or a heartbeat_respond receipt from a run other than priming, woken target runs, the return marker repeated by the target, and for refusal cases the probe turn that forces a prompt drain. allowed cases need exactly one acknowledging run; allowed-silent also the marker on its probe row; refusal cases need no marker, no ack, no wake and no return marker."
     },
     {
       "name": "no-parent-return",
@@ -240,7 +241,7 @@
     },
     "controls": {
       "positive": "allowed and allowed-across-reset: the primed target acknowledges the nonce-bound return exactly once, from a run other than priming, with its authority epoch unchanged; sessions.reset leaves the epoch unchanged at j12.",
-      "negative": "Each refusal case: the product's reason for this case's own session key, and no acknowledgement, no woken target run, no return marker in the target, a probe turn that drained without adopting, and no parent landing. A refusal whose reason the product does not emit stays MISSING, never PASS."
+      "negative": "Each refusal case: the product's reason for this case's own session key, and no adoption marker, no acknowledgement, no woken target run, no return marker in the target, a probe turn that drained, and no parent landing. allowed-silent shows the marker where the refusal cases show none. A refusal whose reason the product does not emit stays MISSING, never PASS."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -276,7 +277,7 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "Every case's signed receipt grades PASS-candidate at j12 on one harness-started isolated gateway: allowed returns adopted and acknowledged exactly once, every refusal case with both its product reason and the absence of adoption, ack, wake and final effect, and each fired delegate's trace correlated.",
+      "pass": "Every case's signed receipt grades PASS-candidate at j12 on one harness-started isolated gateway: allowed returns adopted and acknowledged exactly once (allowed-silent with the product's adoption marker), every refusal case with both its product reason and the absence of adoption, ack, wake and final effect, and each fired delegate's trace correlated.",
       "partial": "A trace receipt is pending, a config.patch change was not restored, cleanup was incomplete, a receipt did not verify, or two receipts of one case disagree.",
       "fail": "A refused return was adopted, acknowledged or woke the target; an allowed return was routed but never adopted, or adopted twice; a return landed in the parent; an unauthorized delegate spawned; or sessions.reset advanced the epoch."
     },

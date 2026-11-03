@@ -46,6 +46,7 @@ const repoRoot = path.resolve(k6Root, '../..');
 const manifestPath = path.join(k6Root, 'manifests', 'r-cd-recipient-authority.json');
 const RUN = 'rra-0123456789abcdef';
 const H = (c) => c.repeat(64);
+const TRACE_ID = '0123456789abcdef0123456789abcdef';
 
 /* ------------------------------------------------------------------------------------ */
 /* Registration                                                                          */
@@ -145,7 +146,7 @@ function completeRecord(caseId) {
       gatewayStartedByHarness: true,
     },
     gateway: { generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], restartedAtMs: null },
-    scenario: { controlRunId: RUN },
+    scenario: { controlRunId: RUN, refusals: [], preflightOk: true },
     dispatch: { accepted: true, status: 'scheduled', capturedAtMs: 1000, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode },
     child: { spawned: true, bound: true, done: true },
     target: {
@@ -156,6 +157,7 @@ function completeRecord(caseId) {
       foreignRuns: refusal ? 0 : 1,
       unattributedAssistantRows: 0,
       returnMarkerRows: 0,
+      adoptedDeliveryRows: 0,
     },
     parent: { ackRows: 0 },
     transition: { method: spec.transition, ok: spec.transition ? true : null, requestedAtMs: spec.transition ? 5000 : null, settledAtMs: spec.transition ? 5100 : null },
@@ -166,6 +168,10 @@ function completeRecord(caseId) {
     trace: spec.expectChild === false ? null : { correlated: true },
     cleanup: { gatewayStopped: true, residue: false },
   };
+  if (spec.probeAdopts) {
+    // The probe turn adopts the parked silent return: the marker on its row and the ack in its run.
+    record.target = { ...record.target, probeRan: true, probeReplied: false, ackRuns: 1, foreignRuns: 0, adoptedDeliveryRows: 1 };
+  }
   if (caseId === 'unauthorized-admission') {
     record.dispatch = { accepted: false, status: 'error', capturedAtMs: null, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode };
     record.transition.requestedAtMs = 500;
@@ -203,7 +209,7 @@ const durableCases = refusalCases.filter((caseId) => RRA_CASES[caseId].expectChi
 
 test('every case with its complete receipt chain grades PASS-candidate', () => {
   assert.deepEqual(RRA_CASE_IDS, [
-    'allowed', 'allowed-across-reset', 'unauthorized-admission', 'unauthorized-dispatch',
+    'allowed', 'allowed-across-reset', 'allowed-silent', 'unauthorized-admission', 'unauthorized-dispatch',
     'revoked-visibility', 'revoked-membership', 'revoked-owner', 'reassigned', 'replay-restart',
   ]);
   for (const caseId of RRA_CASE_IDS) {
@@ -231,6 +237,10 @@ test('a refusal is never PASS without the observed absence, even with the reason
     'probe-turn-unobserved (no reply)': (r) => { r.target.probeReplied = false; },
     'target-not-primed': (r) => { r.target.primed = false; },
     'unattributable-target-rows': (r) => { r.target.unattributedAssistantRows = 1; },
+    'transcript-not-read (adoption marker)': (r) => { r.target.adoptedDeliveryRows = null; },
+    'scenario-refused': (r) => { r.scenario.refusals = ['websocket error']; },
+    'scenario-refused (unread)': (r) => { r.scenario.refusals = undefined; },
+    'preflight-not-ok': (r) => { r.scenario.preflightOk = false; },
   };
   for (const caseId of refusalCases) {
     for (const [hole, fn] of Object.entries(holes)) {
@@ -243,6 +253,7 @@ test('a refusal is never PASS without the observed absence, even with the reason
 test('any adoption, ack, wake or landing of a refused return is FAIL-candidate', () => {
   const effects = {
     'refused-return-adopted': (r) => { r.target.ackRuns = 1; },
+    'refused-return-adopted (product marker, no ack)': (r) => { r.target.adoptedDeliveryRows = 1; },
     'target-woken': (r) => { r.target.foreignRuns = 1; },
     'return-reached-target': (r) => { r.target.returnMarkerRows = 1; },
     'return-landed-in-parent': (r) => { r.parent.ackRows = 1; },
@@ -251,7 +262,7 @@ test('any adoption, ack, wake or landing of a refused return is FAIL-candidate',
     for (const [code, fn] of Object.entries(effects)) {
       const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), fn));
       assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} ${code}`);
-      assert.ok(graded.contradictions.includes(code), `${caseId} ${code}: ${graded.contradictions}`);
+      assert.ok(graded.contradictions.includes(code.replace(/ \(.*\)$/u, '')), `${caseId} ${code}: ${graded.contradictions}`);
     }
     // FAIL even when the reason was also logged: the product refused and still delivered.
     assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.ackRuns = 2; })).verdict, 'FAIL-candidate');
@@ -320,11 +331,12 @@ test('the allowed cases: adopted exactly once in the target, never the parent, e
       'duplicate-wake': (r) => { r.target.foreignRuns = 2; },
       'return-landed-in-parent': (r) => { r.parent.ackRows = 1; },
       'adopted-after-epoch-advance': (r) => { r.epochs.final = H('c'); },
+      'duplicate-adoption (product marker)': (r) => { r.target.adoptedDeliveryRows = 2; },
     };
     for (const [code, fn] of Object.entries(cases)) {
       const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), fn));
       assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} ${code}`);
-      assert.ok(graded.contradictions.includes(code), `${caseId} ${code}: ${graded.contradictions}`);
+      assert.ok(graded.contradictions.includes(code.replace(/ \(.*\)$/u, '')), `${caseId} ${code}: ${graded.contradictions}`);
     }
     for (const fn of [
       (r) => { r.park.deliveredToTargetAtMs = null; r.target.ackRuns = 0; },
@@ -363,6 +375,46 @@ test('a record not about j12 on a harness-owned gateway is MISSING whatever else
     assert.equal(gradeRecipientAuthorityCase(record).verdict, 'MISSING-candidate');
   }
   assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord('allowed'), (r) => { r.cleanup.residue = true; })).verdict, 'PARTIAL-candidate');
+});
+
+test('a transition that did not take effect is MISSING, never FAIL, whatever the return then did', () => {
+  for (const caseId of [...refusalCases, 'allowed-across-reset']) {
+    const failed = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      r.transition.ok = false;
+      r.target.ackRuns = 1;
+      r.target.foreignRuns = 1;
+      r.child.spawned = true;
+      r.dispatch.accepted = true;
+      r.dispatch.status = 'scheduled';
+    }));
+    assert.equal(failed.verdict, 'MISSING-candidate', `${caseId}: ${JSON.stringify(failed)}`);
+    assert.deepEqual(failed.contradictions, [], caseId);
+  }
+  // A revocation that left the epoch where it was leaves the return current: its adoption is correct.
+  for (const caseId of durableCases) {
+    const unmoved = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      r.epochs.afterTransition = r.epochs.captured;
+      r.target.ackRuns = 1;
+      r.target.adoptedDeliveryRows = 1;
+    }));
+    assert.equal(unmoved.verdict, 'MISSING-candidate', caseId);
+    assert.ok(unmoved.missing.includes('transition-did-not-advance-epoch'));
+    assert.deepEqual(unmoved.contradictions, []);
+  }
+});
+
+test('allowed-silent is the control for the refusal cases\' absence: the product marker must show', () => {
+  const unseen = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.adoptedDeliveryRows = 0; }));
+  assert.equal(unseen.verdict, 'MISSING-candidate');
+  assert.ok(unseen.missing.includes('adoption-marker-unobserved'));
+  const woke = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.foreignRuns = 1; }));
+  assert.equal(woke.verdict, 'FAIL-candidate');
+  assert.ok(woke.contradictions.includes('silent-return-woke-target'));
+  const unprobed = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.probeRan = false; }));
+  assert.equal(unprobed.verdict, 'MISSING-candidate');
+  // Without the control the row cannot be PASS: the refusal cases' marker absence would be unproven.
+  const rows = RRA_CASE_IDS.filter((caseId) => caseId !== 'allowed-silent').map((caseId) => ({ record: completeRecord(caseId), verified: true }));
+  assert.equal(gradeRecipientAuthorityRow(rows).verdict, 'MISSING-candidate');
 });
 
 test('the row stays MISSING until every case has a verified receipt, and moves only down', () => {
@@ -428,7 +480,9 @@ test('target transcript: priming runs never count, any later ack does, and a hea
     say(`PROBE-OK probe-1`, 'run-probe'),
   ];
   const quiet = observeTargetTranscript(messages, { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe', probeNonce: 'probe-1' });
-  assert.deepEqual(quiet, { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true });
+  assert.deepEqual(quiet, { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 });
+  const marked = [...messages, { role: 'user', content: [{ type: 'text', text: 'probe' }], __openclaw: { sessionDeliveryAckIds: ['q-1'] } }];
+  assert.equal(observeTargetTranscript(marked, { nonce, primingRunIds: ['run-prime'] }).adoptedDeliveryRows, 1, 'the product marker counts without any ack');
   const woken = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-wake')], { nonce, primingRunIds: ['run-prime'] });
   assert.equal(woken.ackRuns, 1);
   assert.equal(woken.foreignRuns, 2, 'the probe run is foreign without a probeRunId');
@@ -637,7 +691,7 @@ function revokedEvidence() {
     child: { spawned: true, bound: true, done: true },
     transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
     probe_ran: true,
-    target_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true },
+    target_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
     parent_ack_rows: 0,
     refusals: [],
     preflight: { ok: true },
@@ -700,7 +754,7 @@ test('a sample taken after the transition is never read as the captured epoch', 
     keys: { parent: 'agent:main:r-cd-ra-allowed-across-reset-parent-abc', target, ops: null },
     transition: { method: 'sessions.reset', ok: true, requested_at_ms: 1_500, settled_at_ms: 1_600 },
     probe_ran: false,
-    target_obs: { ackRuns: 1, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false },
+    target_obs: { ackRuns: 1, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
   };
   const advanced = '22222222-2222-4222-8222-222222222222';
   const record = assembleCaseRecord({
@@ -736,11 +790,11 @@ test('case receipts are signed; a tampered or foreign-key receipt does not verif
     for (const caseId of RRA_CASE_IDS) {
       mkdirSync(path.join(dir, caseId));
       writeFileSync(path.join(dir, caseId, 'case-receipt.json'), JSON.stringify(sealCaseReceipt({ ...completeRecord(caseId), trace: null }, key)));
-      const correlation = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 } };
+      const correlation = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json` };
       if (RRA_CASES[caseId].expectChild !== false) writeFileSync(path.join(dir, caseId, 'continuation-trace-correlation.json'), JSON.stringify(correlation));
     }
     assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'PASS-candidate');
-    writeFileSync(path.join(dir, 'allowed', 'continuation-trace-correlation.json'), JSON.stringify({ schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'ffffffffffffffff', length: 120 } }));
+    writeFileSync(path.join(dir, 'allowed', 'continuation-trace-correlation.json'), JSON.stringify({ schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'ffffffffffffffff', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json` }));
     assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'PARTIAL-candidate', 'another case\'s trace is no trace');
     rmSync(path.join(dir, 'reassigned'), { recursive: true });
     assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'MISSING-candidate');
@@ -748,7 +802,11 @@ test('case receipts are signed; a tampered or foreign-key receipt does not verif
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-  assert.equal(traceCorrelationMatches(completeRecord('allowed'), { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: 'R-CD-4', reason: { hash: 'abcdef0123456789', length: 120 } }), false);
+  const good = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json` };
+  assert.equal(traceCorrelationMatches(completeRecord('allowed'), good), true);
+  assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, row: 'R-CD-4' }), false);
+  assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceId: undefined }), false, 'no trace id, no trace');
+  assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceJson: 'tempo-trace-000000000000.json' }), false, 'a trace file that is not its own');
 });
 
 test('the CLI fails closed with no target and refuses to grade without an observer key', () => {

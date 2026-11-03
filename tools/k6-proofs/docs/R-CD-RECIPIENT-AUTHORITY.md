@@ -52,6 +52,8 @@ It does not prove:
   driven (R-CD-TOKEN covers targeted bracket returns); j12 has no explicit revocation API.
 - **Fresh install or upgrade.** Proposed separately (docs#619, `R-CD-FRESH-INSTALL`).
 - **Anything until an owner runs it.** No case here has run.
+- **Listener ownership between samples.** The control checks it every 500 ms and at every case
+  boundary, not continuously.
 
 ## Its own row
 
@@ -113,9 +115,10 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 |---|---|---|---|---|---|
 | `allowed` | none | silent-wake | n/a | n/a | n/a: exactly one `TARGET-ACK <nonce>` from a non-priming target run; none in the parent; epoch unchanged |
 | `allowed-across-reset` | `sessions.reset` after capture, then re-prime | silent-wake | n/a | n/a | as `allowed`, and the epoch unchanged by the reset |
+| `allowed-silent` | none; the silent return parks, then the probe turn adopts it | silent | n/a | n/a | n/a: the product's adoption marker on the visible probe row and the ack in the probe run, no wake. The positive control for the refusal cases' absence |
 | `unauthorized-admission` | `config.patch` policy disabled before dispatch, then restored | silent-wake | admission | the continue_delegate policy error | no child, no target ack, no woken target run, no parent landing |
 | `unauthorized-dispatch` | `config.patch` policy disabled after the `scheduled` result, then restored | silent-wake | dispatch | `[continuation:delegate-rejected] policy.cross_session_targeting` for the dispatcher | as above |
-| `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | durable replay | `recipient authority changed` for the target | no ack, no woken run, no return marker, a probe turn that drained without adopting, no parent landing |
+| `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | durable replay | `recipient authority changed` for the target | no adoption marker, no ack, no woken run, no return marker, an answered probe turn, no parent landing |
 | `revoked-membership` | `session.members.add` before dispatch, `session.members.remove` after the return parked | silent | durable replay | as above | as above |
 | `revoked-owner` | the `sessions` tool `assign_owner` (agent `main`) from an operator session, after the return parked | silent | durable replay | as above | as above |
 | `reassigned` | `sessions.delete` then `sessions.create` of the same key, after the return parked | silent | durable replay | as above | as above |
@@ -125,6 +128,15 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 admitted while current and sits un-adopted (mode silent does not wake). The control samples the
 epoch every 500 ms: captured after the `scheduled` toolResult and strictly before the transition,
 again after it, and at the end.
+
+**How absence is observed.** `chat.history` hides the wake's own rows, but it keeps the product's
+adoption marker, `__openclaw.sessionDeliveryAckIds`, on a visible row
+(`session-system-event-adoption.ts:49-79`; `chat-display-projection.sanitize.ts:442-475` strips only
+named private keys). A parked return adopted into the probe turn would put its delivery id on the
+probe's row whether or not the model acknowledges it. `allowed-silent` is the control: the same park
+and probe, where the marker must show. Without it the row cannot pass, because the refusal cases'
+"no marker" would be unproven. A wake turn's own rows stay hidden, so a wake is read from its
+visible assistant rows (a woken run that is neither priming nor probe).
 
 ## What ClawSweeper asked for, case by case
 
@@ -140,6 +152,7 @@ lists the items.
 | Security: prove stale recipient rejection before final effects | every refusal case: the reason and no adoption, ack, wake or final effect |
 | P1: durable returns outliving admission; rejection unproven at prompt, wake, delivery, restart replay | `unauthorized-dispatch` (accepted, then refused at dispatch); the revoked and reassigned cases (refused at durable replay, then no adoption at the probe's prompt drain); `replay-restart` (refused at boot replay) |
 | P1: accepted-child survival, reset | `allowed-across-reset` (reset is not an authority edge at j12) |
+| Allowed delivery through prompt adoption | `allowed-silent` (adopted by a prompt drain, with the product's marker), `allowed` and `allowed-across-reset` (adopted by the wake) |
 | Unauthorized recipient | `unauthorized-admission`, `unauthorized-dispatch`: the only admission refusal j12 has |
 | Not answered here | rejection reasons at enqueue, wake and prompt (j12 emits none); compaction, session-id rollover and late materialization; fresh install and upgrade |
 
@@ -149,18 +162,25 @@ lists the items.
 
 - A record that is not this row's, names another candidate than j12, lacks a gate (j12 build, isolated
   state, model sign-in, cross-session policy enabled, gateway started by the control), whose listener
-  was not the control's own process throughout, or whose evidence is not bound to the control's run
-  is **MISSING-candidate**, and nothing else about it is judged.
-- A contradiction is **FAIL-candidate**: a refused return acknowledged, woken or repeated in the
-  target, a return in the parent, an unauthorized delegate spawned or accepted, an allowed return
+  was not the control's own process at every 500 ms sample and case boundary, or whose evidence is
+  not bound to the control's run is **MISSING-candidate**, and nothing else about it is judged. So is
+  a case whose scenario recorded any refusal or whose methods were not all advertised.
+- A transition that did not take effect (its RPC failed, or a revocation left the epoch unchanged)
+  is MISSING, and nothing the return then did is judged a contradiction: adopting a still-current
+  return is correct.
+- A contradiction is **FAIL-candidate**: a refused return adopted (the product's marker),
+  acknowledged, woken or repeated in the target, a return in the parent, an unauthorized delegate spawned or accepted, an allowed return
   routed but never acknowledged or acknowledged twice, or `sessions.reset` advancing the epoch.
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
   reason, or without the observed absence (transcripts read, probe turn answered, every target row
   attributable to a run), is MISSING, never PASS. So is a revoked case whose return was not parked
   before the transition, or whose transition did not advance the epoch.
 - A residual condition is **PARTIAL-candidate**: a policy change not restored, cleanup incomplete,
-  or a fired delegate's Tempo trace not correlated (`trace-receipt-pending`).
-- The row is the minimum over all nine cases. A case without a verified receipt is MISSING, so the
+  or a fired delegate's Tempo trace not correlated (`trace-receipt-pending`). The trace counts only
+  from a `continuation-trace-correlation.json` of this row whose reason hash and length are the
+  case's and whose `traceJson` names its own `traceId`. The collector does not sign it, so the fold
+  review checks the trace file itself.
+- The row is the minimum over all ten cases. A case without a verified receipt is MISSING, so the
   row is MISSING until every case runs. Receipts from different runs are MISSING, and an unverified
   receipt or two disagreeing receipts of one case cap it at PARTIAL.
 

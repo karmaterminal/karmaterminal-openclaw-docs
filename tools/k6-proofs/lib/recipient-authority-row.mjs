@@ -65,6 +65,15 @@ export const RRA_CASES = Object.freeze({
     reprime: true,
     clawSweeper: 'P1: accepted-child survival, reset (the epoch is not advanced by reset at j12)',
   }),
+  'allowed-silent': Object.freeze({
+    family: 'allowed',
+    mode: 'silent',
+    transition: null,
+    // The positive control for every refusal case's absence: the same parked silent return, the
+    // same probe turn, and the product's adoption marker must show on the visible probe row.
+    probeAdopts: true,
+    clawSweeper: 'allowed delivery ... through prompt adoption (the control for the refusal cases\' absence)',
+  }),
   'unauthorized-admission': Object.freeze({
     family: 'refusal',
     boundary: 'admission',
@@ -268,6 +277,10 @@ function roleOf(message) {
  *   that has any is MISSING.
  * - returnMarkerRows: assistant rows that repeat the child's return marker.
  * - probeReplied: the probe run answered `PROBE-OK <probeNonce>`.
+ * - adoptedDeliveryRows: rows carrying the product's adoption marker,
+ *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:49-79 at j12). chat.history
+ *   keeps it on a visible row (chat-display-projection.sanitize.ts:442-475 strips only named private
+ *   keys), so a parked return adopted into the probe turn shows here even if the model never acks.
  */
 export function observeTargetTranscript(messages, { nonce, primingRunIds = [], probeRunId = null, probeNonce = null } = {}) {
   const list = Array.isArray(messages) ? messages : [];
@@ -277,7 +290,10 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
   let unattributedAssistantRows = 0;
   let returnMarkerRows = 0;
   let probeReplied = false;
+  let adoptedDeliveryRows = 0;
   for (const message of list) {
+    const ackIds = message?.__openclaw?.sessionDeliveryAckIds;
+    if (Array.isArray(ackIds) && ackIds.some((id) => typeof id === 'string' && id)) adoptedDeliveryRows += 1;
     if (roleOf(message) !== 'assistant') continue;
     const runId = messageRunId(message);
     const text = textOf(message);
@@ -312,6 +328,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     unattributedAssistantRows,
     returnMarkerRows,
     probeReplied,
+    adoptedDeliveryRows,
   };
 }
 
@@ -459,6 +476,7 @@ export function gradeRecipientAuthorityCase(record) {
   if (typeof record.runId !== 'string' || !record.runId || record.scenario?.controlRunId !== record.runId) {
     missing.push('scenario-not-bound-to-run');
   }
+  if (record.scenario?.observeRunId !== undefined && record.scenario.observeRunId !== record.runId) missing.push('scenario-not-bound-to-run');
   if (missing.length) return result('MISSING-candidate');
 
   const need = (ok, code) => {
@@ -473,13 +491,35 @@ export function gradeRecipientAuthorityCase(record) {
   const epochs = record.epochs ?? {};
   const reason = record.reason ?? null;
 
+  // The scenario ran to its end: a refusal it recorded (a rejected RPC, a socket error, its window
+  // elapsing) or a method hello-ok did not advertise leaves the case unjudged.
+  if (!Array.isArray(record.scenario?.refusals) || record.scenario.refusals.length > 0) missing.push('scenario-refused');
+  if (record.scenario?.preflightOk !== true) missing.push('preflight-not-ok');
   const counted = need(
-    ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows'].every((key) => isCount(target[key])) && isCount(parent.ackRows),
+    ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows'].every((key) => isCount(target[key])) && isCount(parent.ackRows),
     'transcript-not-read',
   );
   if (counted && target.unattributedAssistantRows > 0) missing.push('unattributable-target-rows');
   need(target.primed === true, 'target-not-primed');
-  if (spec.transition) need(transition.ok === true && isTime(transition.requestedAtMs), 'transition-not-observed');
+  // A case's claim is about its transition. If the transition RPC did not take effect, whatever the
+  // return then did is not evidence either way: no contradiction is judged, the case is MISSING.
+  let premise = !spec.transition || (transition.ok === true && isTime(transition.requestedAtMs));
+  if (!premise) missing.push('transition-not-observed');
+  // A revocation or reassignment holds only once the epoch actually moved: a transition that left it
+  // unchanged (a narrowing to a visibility no narrower, say) leaves the return current, and its
+  // adoption would be correct.
+  if (spec.family === 'refusal' && spec.expectChild !== false) {
+    if (!isHash(epochs.captured) || !isHash(epochs.afterTransition)) {
+      missing.push('epochs-unread');
+      premise = false;
+    } else if (epochs.afterTransition === epochs.captured) {
+      missing.push('transition-did-not-advance-epoch');
+      premise = false;
+    }
+  }
+  const contradict = (code) => {
+    if (premise) contradictions.push(code);
+  };
 
   if (spec.family === 'allowed') {
     need(dispatch.accepted === true && dispatch.status === 'scheduled', 'dispatch-not-accepted');
@@ -488,26 +528,34 @@ export function gradeRecipientAuthorityCase(record) {
     need(isHash(epochs.captured), 'captured-epoch-unread');
     if (spec.transition && isHash(epochs.captured)) {
       if (!isHash(epochs.afterTransition)) missing.push('epoch-after-transition-unread');
-      else if (epochs.afterTransition !== epochs.captured) contradictions.push('epoch-advanced-by-non-edge-transition');
+      else if (epochs.afterTransition !== epochs.captured) contradict('epoch-advanced-by-non-edge-transition');
     }
     const adopted = counted && target.ackRuns > 0;
     if (isHash(epochs.captured)) {
       if (!isHash(epochs.final)) missing.push('final-epoch-unread');
       else if (epochs.final !== epochs.captured) {
-        if (adopted) contradictions.push('adopted-after-epoch-advance');
+        if (adopted) contradict('adopted-after-epoch-advance');
         else missing.push('epoch-advanced-premise-broken');
       }
     }
     if (counted) {
-      if (parent.ackRows > 0) contradictions.push('return-landed-in-parent');
-      if (target.ackRuns > 1) contradictions.push('duplicate-adoption');
-      if (target.foreignRuns > 1) contradictions.push('duplicate-wake');
-      if (target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) contradictions.push('allowed-return-not-adopted');
+      if (parent.ackRows > 0) contradict('return-landed-in-parent');
+      if (target.ackRuns > 1) contradict('duplicate-adoption');
+      if (target.foreignRuns > 1) contradict('duplicate-wake');
+      if (target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) contradict('allowed-return-not-adopted');
+      if (target.adoptedDeliveryRows > 1) contradict('duplicate-adoption');
+      if (spec.probeAdopts) {
+        // The probe turn must adopt it (the product's marker on the visible row) and the silent
+        // return must not have woken the target first.
+        need(target.probeRan === true, 'probe-turn-unobserved');
+        if (target.adoptedDeliveryRows === 0) missing.push('adoption-marker-unobserved');
+        if (target.foreignRuns > 0) contradict('silent-return-woke-target');
+      }
     }
   } else {
     if (spec.boundary === 'admission') {
       need(dispatch.accepted === false && dispatch.status === 'error', 'admission-not-refused');
-      if (dispatch.accepted === true) contradictions.push('unauthorized-dispatch-accepted');
+      if (dispatch.accepted === true) contradict('unauthorized-dispatch-accepted');
     } else {
       need(dispatch.accepted === true && dispatch.status === 'scheduled' && isTime(dispatch.capturedAtMs), 'dispatch-not-accepted');
     }
@@ -515,15 +563,12 @@ export function gradeRecipientAuthorityCase(record) {
       need(transition.requestedAtMs > dispatch.capturedAtMs, 'policy-not-changed-after-capture');
     }
     if (spec.expectChild === false) {
-      if (child.spawned === true) contradictions.push('refused-delegate-spawned');
+      if (child.spawned === true) contradict('refused-delegate-spawned');
       else need(child.spawned === false, 'child-spawn-unobserved');
     } else {
       need(child.bound === true && child.done === true, 'child-not-bound');
       const park = record.park?.deliveredToTargetAtMs;
       need(isTime(park) && isTime(transition.requestedAtMs) && park < transition.requestedAtMs, 'return-not-parked-before-transition');
-      if (need(isHash(epochs.captured) && isHash(epochs.afterTransition), 'epochs-unread') && epochs.afterTransition === epochs.captured) {
-        missing.push('transition-did-not-advance-epoch');
-      }
     }
     if (spec.restart) {
       const restarted = record.gateway?.restartedAtMs;
@@ -541,10 +586,10 @@ export function gradeRecipientAuthorityCase(record) {
     );
     need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
     if (counted) {
-      if (target.ackRuns > 0) contradictions.push('refused-return-adopted');
-      if (target.foreignRuns > 0) contradictions.push('target-woken');
-      if (target.returnMarkerRows > 0) contradictions.push('return-reached-target');
-      if (parent.ackRows > 0) contradictions.push('return-landed-in-parent');
+      if (target.ackRuns > 0 || target.adoptedDeliveryRows > 0) contradict('refused-return-adopted');
+      if (target.foreignRuns > 0) contradict('target-woken');
+      if (target.returnMarkerRows > 0) contradict('return-reached-target');
+      if (parent.ackRows > 0) contradict('return-landed-in-parent');
     }
     if (spec.transition === 'config.patch' && record.config?.restored !== true) partial.push('config-not-restored');
   }
@@ -571,7 +616,9 @@ export function traceCorrelationMatches(record, correlation) {
       correlation.row === RRA_ROW &&
       typeof dispatch.reasonHash === 'string' && dispatch.reasonHash.length > 0 &&
       correlation.reason?.hash === dispatch.reasonHash &&
-      Number.isSafeInteger(dispatch.reasonLength) && correlation.reason?.length === dispatch.reasonLength,
+      Number.isSafeInteger(dispatch.reasonLength) && correlation.reason?.length === dispatch.reasonLength &&
+      typeof correlation.traceId === 'string' && /^[0-9a-f]{32}$/u.test(correlation.traceId) &&
+      correlation.traceJson === `tempo-trace-${correlation.traceId.slice(0, 12)}.json`,
   );
 }
 

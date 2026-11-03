@@ -45,6 +45,9 @@
  *      every visibility allowed by default, src/gateway/session-sharing-policy.ts:85-100);
  *    - member removal: src/config/sessions/session-sharing-store.native.ts:150-195 (session.members.remove,
  *      sessions-sharing.ts:337-423, 616; members.add accepts only a known identity, :347-361).
+ *    The sharing methods take { sessionKey, agentId?, ... } in closed schemas
+ *    (packages/gateway-protocol/src/schema/sessions-sharing.ts:29-37, 62, 115-120); sessions.reset,
+ *    sessions.delete and sessions.create take { key, ... }.
  *    Sharing mutations need the owner or operator.admin
  *    (src/gateway/server-methods/sessions-sharing-authority.ts:144-156); a loopback backend client
  *    with the shared token keeps its requested scopes (src/gateway/server/ws-connection/connect-auth.ts:286-296,
@@ -333,12 +336,13 @@ export default function () {
 
     function afterCreate() {
       if (spec.transition === 'session.members.remove') return addMember(() => prime(dispatchOrAdmission));
-      if (control.caseId === 'unauthorized-admission') return prime(() => setPolicy('disabled', dispatchOrAdmission));
+      // A policy that could not be disabled leaves nothing to refuse: stop before dispatching.
+      if (control.caseId === 'unauthorized-admission') return prime(() => setPolicy('disabled', dispatchOrAdmission, finalReads));
       return prime(dispatchOrAdmission);
     }
 
     function addMember(next) {
-      rpc('session.members.list', { key: keys.target }, (r) => {
+      rpc('session.members.list', { sessionKey: keys.target }, (r) => {
         const identities = Array.isArray(r.payload?.identities) ? r.payload.identities : [];
         memberIdentity = identities.find((identity) => identity && typeof identity.id === 'string' && identity.id)?.id || null;
         evidence.member_identity_found = Boolean(memberIdentity);
@@ -346,7 +350,7 @@ export default function () {
           refuse('precondition: no known identity to add as a member (session.members.add accepts only a known identity)');
           return finish();
         }
-        rpc('session.members.add', { key: keys.target, identityId: memberIdentity }, (added) => {
+        rpc('session.members.add', { sessionKey: keys.target, identityId: memberIdentity }, (added) => {
           if (!added.ok) {
             refuse(`session.members.add rejected: ${boundedText(added.error?.message)}`);
             return finish();
@@ -379,7 +383,7 @@ export default function () {
       });
     }
 
-    function setPolicy(value, next) {
+    function setPolicy(value, next, onFailed = next) {
       rpc('config.get', {}, (got) => {
         configHash = got.payload?.hash || got.payload?.baseHash || null;
         const raw = JSON.stringify({ agents: { defaults: { continuation: { crossSessionTargeting: value } } } });
@@ -394,7 +398,10 @@ export default function () {
           } else {
             evidence.config.restored = patched.ok;
           }
-          if (!patched.ok) refuse(`config.patch ${value} rejected: ${boundedText(patched.error?.message)}`);
+          if (!patched.ok) {
+            refuse(`config.patch ${value} rejected: ${boundedText(patched.error?.message)}`);
+            return onFailed();
+          }
           next();
         });
       });
@@ -438,12 +445,14 @@ export default function () {
         return finalReads();
       }
       if (control.caseId === 'unauthorized-dispatch') {
-        return setPolicy('disabled', () => later(delaySeconds * 1000 + parkMs, () => setPolicy('enabled', probeThenFinal)));
+        return setPolicy('disabled', () => later(delaySeconds * 1000 + parkMs, () => setPolicy('enabled', probeThenFinal)), finalReads);
       }
       if (spec.family === 'allowed') {
         // The control samples the epoch every 500 ms; leave it a sample of the captured epoch
         // before the reset, so a reset that advanced it would show.
         if (spec.transition === 'sessions.reset') return later(numberEnv('OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 2000), () => resetTarget(() => prime(waitForAck)));
+        // allowed-silent: the silent return parks un-adopted, and the probe turn adopts it.
+        if (spec.probeAdopts) return waitForChild(() => later(parkMs, probeThenFinal));
         return waitForAck();
       }
       // durable-replay and boot-replay: let the silent return route and park, then transition.
@@ -511,9 +520,9 @@ export default function () {
       };
       switch (spec.transition) {
         case 'session.visibility.set':
-          return rpc('session.visibility.set', { key: keys.target, visibility: 'read-only' }, (r) => settle(r.ok, r.error?.message));
+          return rpc('session.visibility.set', { sessionKey: keys.target, visibility: 'read-only' }, (r) => settle(r.ok, r.error?.message));
         case 'session.members.remove':
-          return rpc('session.members.remove', { key: keys.target, identityId: memberIdentity }, (r) => settle(r.ok, r.error?.message));
+          return rpc('session.members.remove', { sessionKey: keys.target, identityId: memberIdentity }, (r) => settle(r.ok, r.error?.message));
         case 'sessions.delete+sessions.create':
           return rpc('sessions.delete', { key: keys.target }, (deleted) => {
             if (!deleted.ok) return settle(false, deleted.error?.message);

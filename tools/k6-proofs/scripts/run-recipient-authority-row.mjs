@@ -85,6 +85,8 @@ const NODE_OPTIONS_ALLOWED = /^(?:--max-old-space-size=\d+|--inspect=127\.0\.0\.
 // Case timing the operator may tune; passed to the scenario, recorded in the receipt.
 const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS'];
 const READY_TIMEOUT_MS = 120_000;
+// Live generations of the current run, so an interrupted CLI can still stop what it started.
+const liveGenerations = new Set();
 const EPOCH_SAMPLE_MS = 500;
 const STOP_GRACE_MS = 10_000;
 
@@ -544,6 +546,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       foreignRuns: target.foreignRuns ?? null,
       unattributedAssistantRows: target.unattributedAssistantRows ?? null,
       returnMarkerRows: target.returnMarkerRows ?? null,
+      adoptedDeliveryRows: target.adoptedDeliveryRows ?? null,
     },
     parent: { ackRows: final.parent_ack_rows ?? null },
     transition: {
@@ -599,8 +602,17 @@ async function startGeneration({ index, target, options, runId, privateDir, plat
   };
   mkdirSync(env.TMPDIR, { recursive: true, mode: 0o700 });
   const process_ = platform.spawnGateway({ node: options.node, args: [path.join(target.stageDir, 'dist', 'index.js'), 'gateway', '--port', String(target.port)], env });
-  const stat = platform.procStat(process_.pid);
-  const generation = { index, pid: process_.pid, startTicks: stat?.startTicks ?? null, process: process_, startedByHarness: true, ownedListenerThroughout: false };
+  let stat = null;
+  for (let attempt = 0; attempt < 20 && !Number.isSafeInteger(stat?.startTicks); attempt += 1) {
+    stat = platform.procStat(process_.pid);
+    if (!Number.isSafeInteger(stat?.startTicks)) await platform.sleep(50);
+  }
+  // Without start ticks the listener can never be proven this process's, so it is never owned.
+  const generation = { index, runId, pid: process_.pid, startTicks: stat?.startTicks ?? null, process: process_, startedByHarness: true, ownedListenerThroughout: false };
+  liveGenerations.add(generation);
+  process_.exited.then(() => {
+    generation.exited = true;
+  });
   const deadline = platform.now() + READY_TIMEOUT_MS;
   while (platform.now() < deadline) {
     const owner = platform.listenerOwner(target.port, [process_.pid]);
@@ -621,14 +633,21 @@ function verifyOwnership(generation, target, platform) {
 }
 
 async function stopGeneration(generation, platform) {
+  liveGenerations.delete(generation);
+  if (generation.exited) return { stopped: true, signalled: false };
   const stat = platform.procStat(generation.pid);
-  if (!stat || stat.startTicks !== generation.startTicks) return { stopped: true, signalled: false };
+  if (!stat) return { stopped: true, signalled: false };
+  // The process handle is the control's own child, so signalling it cannot reach a recycled PID;
+  // the start ticks and run marker are checked as well whenever they are known.
+  if (Number.isSafeInteger(generation.startTicks) && stat.startTicks !== generation.startTicks) return { stopped: true, signalled: false };
   if (!platform.procEnvironHas(generation.pid, `${RUN_MARKER_ENV}=${generation.runId}`)) return { stopped: false, signalled: false };
   generation.process.signal('SIGTERM');
   const deadline = platform.now() + STOP_GRACE_MS;
   while (platform.now() < deadline) {
     const current = platform.procStat(generation.pid);
-    if (!current || current.startTicks !== generation.startTicks || current.state === 'Z') return { stopped: true, signalled: true };
+    if (generation.exited || !current || (Number.isSafeInteger(generation.startTicks) && current.startTicks !== generation.startTicks) || current.state === 'Z') {
+      return { stopped: true, signalled: true };
+    }
     await platform.sleep(250);
   }
   generation.process.signal('SIGKILL');
@@ -675,7 +694,6 @@ async function restartGeneration({ generation, target, options, runId, privateDi
   if (consumed.code !== 0) return { ok: false, reason: 'handoff-not-consumed' };
   const restartedAtMs = platform.now();
   const replacement = await startGeneration({ index: next, target, options, runId, privateDir, platform });
-  replacement.runId = runId;
   return { ok: replacement.ownedListenerThroughout, replacement, restartedAtMs };
 }
 
@@ -692,7 +710,6 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
   const startedAtMs = platform.now();
   const generations = [];
   let current = await startGeneration({ index: 0, target, options, runId, privateDir, platform });
-  current.runId = runId;
   generations.push(current);
   if (!current.ownedListenerThroughout) {
     await stopGeneration(current, platform);
@@ -702,13 +719,18 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
   const timeline = [];
   let sampling = true;
   const authorityDb = path.join(target.stateDir, 'agents', 'main', 'agent', 'openclaw-agent.sqlite');
+  // Every 500 ms: the epoch table, read-only, and whether the listener is still the control's own
+  // current generation (between a restart's old exit and its replacement there is none to own).
+  let restarting = false;
   const sampler = (async () => {
     while (sampling) {
       timeline.push({ atMs: platform.now(), ...platform.readAuthorityTable(authorityDb) });
+      if (!restarting) verifyOwnership(current, target, platform);
       await platform.sleep(EPOCH_SAMPLE_MS);
     }
   })();
   const receipts = [];
+  const stops = [];
   const secrets = [target.token, observerKey];
   try {
     for (const caseId of options.cases) {
@@ -718,7 +740,9 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       let observeEvidence = null;
       let restartedAtMs = null;
       if (RRA_CASES[caseId].restart && evidence?.handoff?.ready_for_restart) {
+        restarting = true;
         const restarted = await restartGeneration({ generation: current, target, options, runId, privateDir, platform, next: generations.length });
+        restarting = false;
         if (restarted.replacement) generations.push(restarted.replacement);
         if (restarted.ok) {
           current = restarted.replacement;
@@ -756,9 +780,9 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
   } finally {
     sampling = false;
     await sampler;
+    // Stop what this run started, whatever happened above.
+    for (const generation of generations) stops.push(await stopGeneration(generation, platform));
   }
-  const stops = [];
-  for (const generation of generations) stops.push(await stopGeneration(generation, platform));
   const cleanup = { gatewayStopped: stops.every((stop) => stop.stopped), residue: platform.portListening(target.port) };
   const written = [];
   for (const record of receipts) {
@@ -812,6 +836,15 @@ export function gradeRowFromArtifacts(artifactDir, observerKey, { privateDir = `
 /* CLI                                                                                   */
 /* ------------------------------------------------------------------------------------ */
 
+function installInterruptCleanup(platform) {
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.once(signal, async () => {
+      for (const generation of [...liveGenerations]) await stopGeneration(generation, platform);
+      process.exit(130);
+    });
+  }
+}
+
 async function main(argv) {
   let options;
   try {
@@ -831,7 +864,9 @@ async function main(argv) {
     console.log(JSON.stringify(verdict, null, 2));
     return verdict.verdict === 'PASS-candidate' ? 0 : 1;
   }
-  const result = await runRecipientAuthorityRow(options);
+  const platform = defaultPlatform();
+  installInterruptCleanup(platform);
+  const result = await runRecipientAuthorityRow(options, platform);
   console.log(JSON.stringify(result.ok ? result : result.refusal, null, 2));
   return result.ok ? 0 : 2;
 }

@@ -56,7 +56,11 @@ function gatewayFor(world) {
       case 'session.members.add': case 'session.members.remove': case 'session.visibility.set': case 'sessions.delete': return ok({ ok: true });
       case 'sessions.reset': sessions[p.key] = { messages: [] }; return ok({ ok: true, key: p.key });
       case 'config.get': return ok({ hash: 'config-hash-1' });
-      case 'config.patch': policy = JSON.parse(p.raw).agents.defaults.continuation.crossSessionTargeting; return ok({ ok: true });
+      case 'config.patch': {
+        if (world.patchFails) return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: 'config base hash required; re-run config.get and retry' } }];
+        policy = JSON.parse(p.raw).agents.defaults.continuation.crossSessionTargeting;
+        return ok({ ok: true });
+      }
       case 'sessions.send': {
         const message = String(p.message || '');
         const priming = /priming (\S+)\./.exec(message);
@@ -69,7 +73,11 @@ function gatewayFor(world) {
         }
         const probe = /probe (\S+):/.exec(message);
         if (probe) {
-          push(p.key, say(world.adoptOnProbe ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
+          // A parked return adopted into the probe turn: the product's marker on the visible user row
+          // (managed-delivery-turn-lifecycle.ts:107-111) and the primed target's ack in the probe run.
+          const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
+          push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(adopts ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
+          push(p.key, say(adopts && !world.markerOnly ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
           return ok({ runId: 'run-probe' });
         }
         if (message.includes('assign_owner')) {
@@ -92,7 +100,7 @@ function gatewayFor(world) {
           childSpawned = true;
           sessions[CHILD] = { messages: [user(`[Subagent Task]\n\n${task}`)] };
         }
-        ackDue = spec.family === 'allowed' && world.ack !== 'none';
+        ackDue = spec.family === 'allowed' && !spec.probeAdopts && world.ack !== 'none';
         return ok({ runId: 'run-d' });
       }
       case 'sessions.list':
@@ -226,11 +234,22 @@ test('dry run: each case sends exactly its transition, never another case\'s', a
   }
 });
 
-test('dry run: a refused return adopted into the probe turn is FAIL-candidate', async () => {
+test('dry run: a refused return adopted into the probe turn is FAIL-candidate, with or without the model\'s ack', async () => {
   for (const caseId of ['revoked-visibility', 'reassigned', 'replay-restart']) {
-    const { graded } = await grade(caseId, { adoptOnProbe: true });
-    assert.equal(graded.verdict, 'FAIL-candidate', caseId);
-    assert.ok(graded.contradictions.includes('refused-return-adopted'), caseId);
+    for (const markerOnly of [false, true]) {
+      const { graded } = await grade(caseId, { adoptOnProbe: true, markerOnly });
+      assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} markerOnly=${markerOnly}`);
+      assert.ok(graded.contradictions.includes('refused-return-adopted'), caseId);
+    }
+  }
+});
+
+test('dry run: a policy patch the gateway rejected stops the case before dispatch and is never FAIL', async () => {
+  for (const caseId of ['unauthorized-admission', 'unauthorized-dispatch']) {
+    const { drive, graded } = await grade(caseId, { patchFails: true });
+    assert.ok(drive.refusals.some((refusal) => refusal.startsWith('config.patch disabled rejected')), drive.refusals.join('\n'));
+    assert.equal(graded.verdict, 'MISSING-candidate', caseId);
+    assert.deepEqual(graded.contradictions, [], caseId);
   }
 });
 

@@ -826,6 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at j12) | MISSING until an owner runs all nine cases at j12; PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -914,6 +915,25 @@ grade non-PASS with `negativeControl.holds: true`. The fallback control's restor
 is old-process restoration, never fresh-successor proof. Raw process output stays in
 `<artifact-dir>.private`, which is never published. See
 [`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
+
+### R-CD-RECIPIENT-AUTHORITY live recipient-authority row at j12
+
+🌊's ruling (room msg 1567077062139838485, 2026-11-03; docs#536): a live, isolated-gateway row at
+pinned j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`), separate from the restart control above
+and from the fixture matrix. On one disposable gateway that
+`scripts/run-recipient-authority-row.mjs` starts and owns, nine cases each drive a real
+`continue_delegate` with `targetSessionKey` from a model turn and change the target's authority
+through a public RPC between dispatch and return. `allowed` and `allowed-across-reset` must be
+adopted exactly once. `unauthorized-admission`, `unauthorized-dispatch`, `revoked-visibility`,
+`revoked-membership`, `revoked-owner`, `reassigned` and `replay-restart` must each show the
+product's refusal reason and no adoption, ack, wake or final effect. At j12 a return refused at
+enqueue, wake or prompt drain leaves no reason, so the revoked and reassigned cases park a silent
+return and are refused at the durable replay, which logs one. The control refuses a candidate other
+than j12, a non-disposable or live-overlapping target, a missing isolated model sign-in, a disabled
+cross-session policy and any gateway it did not start; the live-run guard refuses the manifest
+(`orchestration-required`). Every case stays MISSING until an owner runs it. See
+[`docs/R-CD-RECIPIENT-AUTHORITY.md`](docs/R-CD-RECIPIENT-AUTHORITY.md) for the j12 path table, the
+cases mapped to ClawSweeper's items and the operator procedure.
 
 ### Required preflights: R-CW-5A/6A gate R-CW-5/6
 

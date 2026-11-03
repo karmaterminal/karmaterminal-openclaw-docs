@@ -56,7 +56,7 @@
  * 4. Admission. The only refusal of a target at admission is the policy gate
  *    agents.defaults.continuation.crossSessionTargeting, disabled unless "enabled"
  *    (src/auto-reply/continuation/config.ts:128-129): a ToolInputError at the tool
- *    (continue-delegate-tool.ts:353-362), and for a delegate accepted before the policy changed, a
+ *    (src/agents/tools/continue-delegate-tool.ts:353-362), and for a delegate accepted before the policy changed, a
  *    rejection at dispatch: log `[continuation:delegate-rejected] policy.cross_session_targeting
  *    ... session=<dispatcher>`, terminal custody failure, an owner notice and a continuation.disabled
  *    span (src/auto-reply/continuation/delegate-dispatch.ts:267-290). The policy is read at each
@@ -110,6 +110,7 @@ import { nonce as makeNonce, RequestTracker } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
 import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 import { advertisedMethodsFromHello } from '../lib/child-observer.mjs';
+import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { messageRunId, hasExactSentinelText } from '../lib/wake-turn-receipt.mjs';
 import {
   RRA_ACK_MARKER,
@@ -147,6 +148,11 @@ export const options = {
 const failures = new Counter('proof_failures');
 const duration = new Trend('r_cd_recipient_authority_duration');
 const manifest = loadManifestFromEnv();
+
+// The collector re-renders the manifest's template with the evidence nonce, so the dispatched task
+// is rendered the same way (lib/row-child-correlation.mjs).
+const DEFAULT_TASK_TEMPLATE =
+  'RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.';
 
 const REFUSAL =
   'R-CD-RECIPIENT-AUTHORITY runs only under tools/k6-proofs/scripts/run-recipient-authority-row.mjs, which starts the disposable gateway at j12 and passes its run id, case and phase.';
@@ -231,16 +237,14 @@ export default function () {
 
   const prior = control.phase === 'observe' ? JSON.parse(__ENV.OPENCLAW_RCD_RA_STATE || '{}') : null;
   const rowNonce = prior?.nonce || makeNonce('RCDRA');
-  const suffix = rowNonce.replace(/[^A-Za-z0-9]/g, '').slice(-16);
+  const suffix = rowNonce.slice(-16);
   const probeNonce = makeNonce('RCDRA-PROBE');
   const keys = prior?.keys || {
     parent: sessionKeyFor(`${control.caseId}-parent`, suffix),
     target: sessionKeyFor(`${control.caseId}-target`, suffix),
     ops: spec.transition === 'sessions.assignOwner' ? sessionKeyFor(`${control.caseId}-ops`, suffix) : null,
   };
-  const task = (manifest?.invocation?.promptTemplate || '')
-    .replace(/\{\{nonceSuffix16\}\}/g, suffix)
-    .replace(/\{\{nonce\}\}/g, rowNonce);
+  const childTask = renderRowTaskTemplate(manifest?.invocation?.promptTemplate || DEFAULT_TASK_TEMPLATE, rowNonce);
   const delaySeconds = numberEnv('OPENCLAW_RCD_RA_DELAY_SECONDS', 30);
   const pollMs = numberEnv('OPENCLAW_RCD_RA_POLL_MS', 2000);
   const windowMs = numberEnv('OPENCLAW_RCD_RA_WINDOW_MS', 120000);
@@ -252,9 +256,9 @@ export default function () {
     nonce: rowNonce,
     probe_nonce: probeNonce,
     keys,
-    delegate_mode: spec.mode,
     reason_hash: null,
     reason_length: null,
+    delegate_mode: null,
     dispatch_accepted_at_ms: prior?.dispatch_accepted_at_ms ?? null,
     preflight: null,
     priming_run_ids: prior?.priming_run_ids || [],
@@ -273,6 +277,7 @@ export default function () {
   if (prior) {
     evidence.reason_hash = prior.reason_hash ?? null;
     evidence.reason_length = prior.reason_length ?? null;
+    evidence.delegate_mode = prior.delegate_mode ?? null;
   }
 
   const started = Date.now();
@@ -396,11 +401,12 @@ export default function () {
     }
 
     function dispatchOrAdmission() {
-      evidence.reason_hash = crypto.sha256(task, 'hex').slice(0, 16);
-      evidence.reason_length = task.length;
+      evidence.reason_hash = crypto.sha256(childTask, 'hex').slice(0, 16);
+      evidence.reason_length = childTask.length;
+      evidence.delegate_mode = spec.mode;
       const instruction =
         `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and ` +
-        `args={task:"${task}", mode:"${spec.mode}", delaySeconds:${delaySeconds}, targetSessionKey:"${keys.target}"}. ` +
+        `args={task:"${childTask}", mode:"${spec.mode}", delaySeconds:${delaySeconds}, targetSessionKey:"${keys.target}"}. ` +
         'This is a proof run: perform the discovery and call, then no other action.';
       send(keys.parent, instruction, `${RRA_ROW}-${rowNonce}`, (r) => {
         if (!r.ok) {

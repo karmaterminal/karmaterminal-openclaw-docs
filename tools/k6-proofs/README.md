@@ -821,6 +821,7 @@ true at `2273ef64d5`.
 | R-CD-4 | `r-cd-4-target-session-key` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-COLLECTION-ON-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
+| R-CD-FRESH-INSTALL | `run-fresh-install-control.mjs` | disposable-gateway fresh install/read-only | PASS-candidate only with every receipt; manual-only fresh-install control on an empty state dir at the exact candidate, review required before fold; MISSING until the j12 run lands |
 | R-CD-MODEL-CHAINED-ALT | `r-cd-model-chained-alt` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -914,6 +915,37 @@ grade non-PASS with `negativeControl.holds: true`. The fallback control's restor
 is old-process restoration, never fresh-successor proof. Raw process output stays in
 `<artifact-dir>.private`, which is never published. See
 [`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
+
+### R-CD-FRESH-INSTALL disposable fresh-install control
+
+`tools/k6-proofs/scripts/run-fresh-install-control.mjs` proves that a fresh install of the
+candidate creates the continuation storage correctly and serves (🌊's ruling, room msg
+1567073096706297887: empty state dir, disposable process, no model turn). It is its own row, kept
+apart from j12's stopped-seat restore receipt, which proves upgrade and recovery, and it stays
+MISSING until a run at j12 lands. It runs outside the generic k6 runner and `--live-suite`, because
+the manifest is `orchestration-required`.
+
+Before it creates or starts anything it refuses a non-empty state directory, one under (or over) a
+live `~/.openclaw`, a port in use, a stage whose `dist/build-info.json` commit is not the
+candidate, and any model credential in its environment. It then starts one disposable gateway on
+the empty state directory with a minimal config and an empty, control-owned HOME, and observes
+readiness, the agent database created at schema 40 directly with no upgrade path in the migration
+journal, `session_recipient_authority`'s column hash, exactly one epoch row from `sessions.create`
+then a narrowing, `openclaw config validate`, a clean SIGTERM stop and a signed cleanup receipt.
+Like the restart control it is `invocation.artifactClass: "disposable-real-process"` and is not
+capped.
+
+```bash
+env -i HOME="$HOME" PATH="$PATH" ${OPENCLAW_STATE_DIR:+OPENCLAW_STATE_DIR="$OPENCLAW_STATE_DIR"} \
+  node tools/k6-proofs/scripts/run-fresh-install-control.mjs \
+  --stage-dir <stage-only build of the candidate> --candidate-sha <40-char-sha> --docs-sha <40-char-docs-sha> \
+  --state-dir <new dir: the control creates it> --port <free loopback port> \
+  --artifact-dir <new directory> --observer-key-file <0600 key file>
+node tools/k6-proofs/scripts/run-fresh-install-control.mjs --verify <artifact dir>/observer-receipt.json --observer-key-file <0600 key file>
+```
+
+Raw output stays in `<artifact-dir>.private`, which is never published. See
+[`docs/R-CD-FRESH-INSTALL-CONTROL.md`](docs/R-CD-FRESH-INSTALL-CONTROL.md).
 
 ### Required preflights: R-CW-5A/6A gate R-CW-5/6
 
@@ -1014,10 +1046,11 @@ inferred from the key that names the runner:
   whatever its value: an empty, blank or non-string value is never read as "no
   runner". A runner under any other key is not recognized, so these two keys are
   the ones to use.
-- `"disposable-real-process"` is a runner that starts, restarts and stops a real
+- `"disposable-real-process"` is a runner that starts (and may restart) and stops a real
   gateway process it set up for the run, never the live one. It names that runner
   in `invocation.control` and needs no cap; a cap a reviewer adds names this class.
-  R-CD-RETURN-COVENANT-AUTHORITY's restart control is the one such row. The class
+  R-CD-RETURN-COVENANT-AUTHORITY's restart control and R-CD-FRESH-INSTALL's
+  fresh-install control (which starts and stops one) are the two such rows. The class
   is refused on a process-local or missing transport, beside an
   `invocation.fixture` key, without a non-blank `invocation.control`, and on
   R-CW-5/6.

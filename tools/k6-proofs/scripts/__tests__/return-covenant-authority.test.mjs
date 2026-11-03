@@ -6301,6 +6301,49 @@ test('explicit revocation N/A requires a complete exact-build capability invento
   assert.equal(malformed.verdict, 'FAIL-candidate');
 });
 
+test('an executed explicit revocation through a test-runtime surface is not a product revocation API', async () => {
+  // At P89 3821eaef the product's own fixture driver declared revocationApiExposed=true from
+  // test-runtime/return-covenant/recipient-authority-revocation and "revoked" by calling the
+  // internal epoch advance itself (return-covenant-fixture/case-lifecycle.ts:224-234). The
+  // test runtime is not shipped, and at j12 352f5602 no product path advances recipient
+  // authority except deletion, owner change, visibility narrowing and member removal, so
+  // that case passed without reaching any product revocation path.
+  const [plan, cleanupFixture, runtimeConfig] = await Promise.all([
+    fixture('plan.valid.json'),
+    fixture('cleanup-pass.json'),
+    fixture('runtime-config.valid.json'),
+  ]);
+  const resolveWithSurface = async (surface) => {
+    const { attestationSha256: _unsigned, ...unsigned } = driverAttestationFor(plan);
+    unsigned.revocationCapability = { ...unsigned.revocationCapability, surface };
+    const driverAttestation = { ...unsigned, attestationSha256: jsonSha256(unsigned) };
+    const { evidence } = await completeMatrix({ plan, driverAttestation });
+    return resolveReturnCovenantAuthoritativeReceipt({
+      plan,
+      evidence,
+      cleanup: bindCleanup(cleanupFixture, evidence, driverAttestation, plan),
+      runtimeConfig,
+      driverAttestation,
+      signingKey,
+    });
+  };
+
+  const product = await resolveWithSurface('diagnostics/continuation/capability-inventory');
+  assert.equal(product.verdict, 'PASS-candidate', product.failureCategories.join(', '));
+
+  for (const surface of [
+    'test-runtime/return-covenant/recipient-authority-revocation',
+    'test-runtime',
+  ]) {
+    const testRuntime = await resolveWithSurface(surface);
+    assert.equal(testRuntime.verdict, 'FAIL-candidate', surface);
+    assert.ok(
+      testRuntime.failureCategories.includes('revocation-capability-mismatch'),
+      `${surface}: ${testRuntime.failureCategories.join(', ')}`,
+    );
+  }
+});
+
 test('evidence parser requires exactly one observation set and teardown', async () => {
   const { evidence } = await completeMatrix();
   const line = `${RETURN_COVENANT_EVIDENCE_PREFIX}${JSON.stringify(evidence)}`;

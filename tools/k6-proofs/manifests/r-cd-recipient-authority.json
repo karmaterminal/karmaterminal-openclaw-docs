@@ -135,7 +135,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "The control writes candidate receipts only. Folding is a reviewed corpus step at j12. The row stays MISSING until an owner runs every case on an isolated proof gateway at j12; no case may be carried from the fixture matrix, the restart control or any earlier SHA."
+    "notes": "The control writes candidate receipts only. Folding is a reviewed corpus step at j12. The row stays MISSING until an owner runs every case on an isolated proof gateway at j12; no case may be carried from the fixture matrix, the restart control or any earlier SHA. A deviation by the model or the setup (another delegate call, another mode or delay, a return adopted before its transition, a scenario refusal) grades MISSING, never FAIL."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -311,6 +311,6 @@
       "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
-    "notes": "run-proof.sh, run-proofs.sh and live-run-guard.mjs refuse orchestration-required rows, so no catalog or live-suite run can fire it. Only the control runs it, and only on a stopped proof-gw gateway whose stage is j12, with an isolated model sign-in and cross-session targeting enabled; it starts that gateway itself and refuses any gateway it did not start. It never reads OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_WS and never touches ~/.openclaw."
+    "notes": "run-proof.sh, run-proofs.sh and live-run-guard.mjs refuse orchestration-required rows, so no catalog or live-suite run can fire it. Only the control runs it, and only on a stopped proof-gw gateway whose stage is j12, with an isolated model sign-in, cross-session targeting enabled and config reload not off; it starts that gateway itself and refuses any gateway it did not start. It never reads OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_WS and never touches ~/.openclaw."
   }
 }

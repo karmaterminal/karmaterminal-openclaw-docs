@@ -125,6 +125,7 @@ import {
   RRA_RETURN_MARKER,
   RRA_ROW,
   RRA_TASK_MARKER,
+  countDelegateCalls,
   countParentAcks,
   findDelegateDispatch,
   findOwnerAssignment,
@@ -273,6 +274,8 @@ export default function () {
     transition: prior?.transition || { method: spec.transition, ok: spec.transition ? null : true, requested_at_ms: null, settled_at_ms: null, error: null },
     probe_run_id: null,
     probe_ran: false,
+    pre_transition_obs: prior?.pre_transition_obs ?? null,
+    other_delegate_calls: null,
     target_obs: null,
     parent_ack_rows: null,
     child_spawn_observed: null,
@@ -425,8 +428,16 @@ export default function () {
           return found && found.status ? found : null;
         }, attempts(windowMs), (found) => {
           evidence.dispatch = found
-            ? { status: found.status, accepted: found.status === 'scheduled', tool_call_id: found.toolCallId, error_text: boundedText(found.errorText), observed_at_ms: Date.now() }
-            : { status: null, accepted: null, tool_call_id: null, error_text: null, observed_at_ms: null };
+            ? {
+              status: found.status,
+              accepted: found.status === 'scheduled',
+              tool_call_id: found.toolCallId,
+              error_text: boundedText(found.errorText),
+              result_mode: found.mode,
+              result_delay_seconds: found.delaySeconds,
+              observed_at_ms: Date.now(),
+            }
+            : { status: null, accepted: null, tool_call_id: null, error_text: null, result_mode: null, result_delay_seconds: null, observed_at_ms: null };
           if (found?.status === 'scheduled') evidence.dispatch_accepted_at_ms = evidence.dispatch.observed_at_ms;
           afterDispatch();
         });
@@ -508,6 +519,17 @@ export default function () {
     }
 
     function transition(next) {
+      // What the target showed just before the transition: the return must still be parked
+      // un-adopted, or the transition tests nothing.
+      history(keys.target, (messages) => {
+        evidence.pre_transition_obs = messages
+          ? observeTargetTranscript(messages, { nonce: rowNonce, primingRunIds: evidence.priming_run_ids })
+          : null;
+        transitionNow(next);
+      });
+    }
+
+    function transitionNow(next) {
       evidence.transition.requested_at_ms = Date.now();
       const settle = (ok, error) => {
         evidence.transition.ok = ok;
@@ -594,6 +616,9 @@ export default function () {
               : null;
             history(keys.parent, (parent) => {
               evidence.parent_ack_rows = parent ? countParentAcks(parent, rowNonce) : null;
+              // Every continue_delegate call the parent made beyond the case's own bound one.
+              const calls = parent ? countDelegateCalls(parent) : null;
+              evidence.other_delegate_calls = calls === null ? null : calls - (evidence.dispatch?.tool_call_id ? 1 : 0);
               finish();
             });
           });

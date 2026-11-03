@@ -326,7 +326,14 @@ export function defaultPlatform() {
     spawnGateway: ({ node, args, env }) => {
       const child = spawn(node, args, { env, stdio: ['ignore', 'pipe', 'pipe'], detached: true });
       const lines = [];
-      const exited = new Promise((resolve) => child.on('exit', (code, signal) => resolve({ code, signal })));
+      const exited = new Promise((resolve) => {
+        child.on('exit', (code, signal) => resolve({ code, signal }));
+        // A spawn that failed never ran: record it instead of crashing the control.
+        child.on('error', (error) => {
+          lines.push({ atMs: Date.now(), text: `[rra-control] gateway spawn error: ${String(error?.code ?? error?.message ?? 'error')}` });
+          resolve({ code: null, signal: null, error: true });
+        });
+      });
       for (const stream of [child.stdout, child.stderr]) {
         let buffered = '';
         stream.on('data', (chunk) => {
@@ -336,7 +343,22 @@ export function defaultPlatform() {
           for (const text of parts) lines.push({ atMs: Date.now(), text });
         });
       }
-      return { pid: child.pid, lines, exited, signal: (sig) => child.kill(sig) };
+      // The gateway leads its own process group (detached), so a stop reaches its children too. The
+      // group is signalled only while the child is unreaped, so its id cannot have been reused.
+      return {
+        pid: child.pid,
+        lines,
+        exited,
+        signal: (sig, { group = true } = {}) => {
+          if (child.exitCode !== null || child.signalCode !== null) return;
+          try {
+            if (group) process.kill(-child.pid, sig);
+            else child.kill(sig);
+          } catch {
+            child.kill(sig);
+          }
+        },
+      };
     },
   };
 }
@@ -532,6 +554,9 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       reasonHash: evidence?.reason_hash ?? null,
       reasonLength: evidence?.reason_length ?? null,
       delegateMode: evidence?.delegate_mode ?? null,
+      resultMode: evidence?.dispatch?.result_mode ?? null,
+      resultDelaySeconds: evidence?.dispatch?.result_delay_seconds ?? null,
+      otherDelegateCalls: final.other_delegate_calls ?? null,
     },
     child: {
       spawned: final.child?.spawned ?? null,
@@ -549,6 +574,13 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       adoptedDeliveryRows: target.adoptedDeliveryRows ?? null,
     },
     parent: { ackRows: final.parent_ack_rows ?? null },
+    preTransition: evidence?.pre_transition_obs
+      ? {
+          ackRuns: evidence.pre_transition_obs.ackRuns ?? null,
+          foreignRuns: evidence.pre_transition_obs.foreignRuns ?? null,
+          adoptedDeliveryRows: evidence.pre_transition_obs.adoptedDeliveryRows ?? null,
+        }
+      : null,
     transition: {
       method: spec.transition,
       ok: transition.ok ?? null,
@@ -640,8 +672,10 @@ async function stopGeneration(generation, platform) {
   // The process handle is the control's own child, so signalling it cannot reach a recycled PID;
   // the start ticks and run marker are checked as well whenever they are known.
   if (Number.isSafeInteger(generation.startTicks) && stat.startTicks !== generation.startTicks) return { stopped: true, signalled: false };
-  if (!platform.procEnvironHas(generation.pid, `${RUN_MARKER_ENV}=${generation.runId}`)) return { stopped: false, signalled: false };
-  generation.process.signal('SIGTERM');
+  // With its run marker readable the whole group is stopped; without it only the control's own
+  // child handle is signalled, which cannot reach another process.
+  const group = platform.procEnvironHas(generation.pid, `${RUN_MARKER_ENV}=${generation.runId}`);
+  generation.process.signal('SIGTERM', { group });
   const deadline = platform.now() + STOP_GRACE_MS;
   while (platform.now() < deadline) {
     const current = platform.procStat(generation.pid);
@@ -650,8 +684,13 @@ async function stopGeneration(generation, platform) {
     }
     await platform.sleep(250);
   }
-  generation.process.signal('SIGKILL');
-  return { stopped: true, signalled: true, killed: true };
+  generation.process.signal('SIGKILL', { group });
+  const killDeadline = platform.now() + 2_000;
+  while (platform.now() < killDeadline) {
+    if (generation.exited || !platform.procStat(generation.pid)) return { stopped: true, signalled: true, killed: true };
+    await platform.sleep(100);
+  }
+  return { stopped: false, signalled: true, killed: true };
 }
 
 async function runScenario({ caseId, phase, state, runId, target, options, privateDir, platform }) {
@@ -676,6 +715,8 @@ async function runScenario({ caseId, phase, state, runId, target, options, priva
 }
 
 async function restartGeneration({ generation, target, options, runId, privateDir, platform, next }) {
+  // Only the control's own generation may be asked to restart.
+  if (!verifyOwnership(generation, target, platform)) return { ok: false, reason: 'not-owned-at-restart' };
   const requested = await platform.gatewayRpc({
     port: target.port,
     token: target.token,
@@ -837,12 +878,19 @@ export function gradeRowFromArtifacts(artifactDir, observerKey, { privateDir = `
 /* ------------------------------------------------------------------------------------ */
 
 function installInterruptCleanup(platform) {
-  for (const signal of ['SIGINT', 'SIGTERM']) {
-    process.once(signal, async () => {
+  let stopping = false;
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(signal, async () => {
+      if (stopping) return;
+      stopping = true;
       for (const generation of [...liveGenerations]) await stopGeneration(generation, platform);
       process.exit(130);
     });
   }
+  // Last resort on any exit path (a crash included): kill what is still live, synchronously.
+  process.on('exit', () => {
+    for (const generation of liveGenerations) generation.process.signal('SIGKILL', { group: false });
+  });
 }
 
 async function main(argv) {

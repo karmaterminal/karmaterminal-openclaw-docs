@@ -15,6 +15,7 @@ import {
   RRA_CASE_SCHEMA,
   RRA_J12,
   RRA_ROW,
+  countDelegateCalls,
   countParentAcks,
   evaluateContinuationConfig,
   evaluateModelSignIn,
@@ -147,7 +148,7 @@ function completeRecord(caseId) {
     },
     gateway: { generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], restartedAtMs: null },
     scenario: { controlRunId: RUN, refusals: [], preflightOk: true },
-    dispatch: { accepted: true, status: 'scheduled', capturedAtMs: 1000, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode },
+    dispatch: { accepted: true, status: 'scheduled', capturedAtMs: 1000, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode, resultMode: spec.mode, resultDelaySeconds: 30, otherDelegateCalls: 0 },
     child: { spawned: true, bound: true, done: true },
     target: {
       primed: true,
@@ -160,6 +161,7 @@ function completeRecord(caseId) {
       adoptedDeliveryRows: 0,
     },
     parent: { ackRows: 0 },
+    preTransition: durable ? { ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 0 } : null,
     transition: { method: spec.transition, ok: spec.transition ? true : null, requestedAtMs: spec.transition ? 5000 : null, settledAtMs: spec.transition ? 5100 : null },
     park: { deliveredToTargetAtMs: 4000 },
     epochs: { captured: H('a'), afterTransition: spec.transition ? (durable ? H('b') : H('a')) : null, final: durable ? H('b') : H('a') },
@@ -169,11 +171,12 @@ function completeRecord(caseId) {
     cleanup: { gatewayStopped: true, residue: false },
   };
   if (spec.probeAdopts) {
-    // The probe turn adopts the parked silent return: the marker on its row and the ack in its run.
-    record.target = { ...record.target, probeRan: true, probeReplied: false, ackRuns: 1, foreignRuns: 0, adoptedDeliveryRows: 1 };
+    // The probe turn adopts the parked silent return: the product's marker on its row. The model
+    // answers the probe as asked; an ack is not required of it.
+    record.target = { ...record.target, probeRan: true, probeReplied: true, ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 1 };
   }
   if (caseId === 'unauthorized-admission') {
-    record.dispatch = { accepted: false, status: 'error', capturedAtMs: null, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode };
+    record.dispatch = { accepted: false, status: 'error', capturedAtMs: null, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode, resultMode: null, resultDelaySeconds: null, otherDelegateCalls: 0 };
     record.transition.requestedAtMs = 500;
     record.child = { spawned: false, bound: false, done: false };
     record.reason = { kind: 'admission-policy', observedAtMs: 1000, generation: 0 };
@@ -326,12 +329,12 @@ test('the unauthorized cases: a spawned or accepted delegate is FAIL; an unresto
 test('the allowed cases: adopted exactly once in the target, never the parent, epoch unchanged', () => {
   for (const caseId of allowedCases) {
     const cases = {
-      'allowed-return-not-adopted': (r) => { r.target.ackRuns = 0; },
+      ...(RRA_CASES[caseId].probeAdopts ? {} : { 'allowed-return-not-adopted': (r) => { r.target.ackRuns = 0; r.target.foreignRuns = 0; } }),
       'duplicate-adoption': (r) => { r.target.ackRuns = 2; },
+      'duplicate-adoption (two marked rows)': (r) => { r.target.adoptedDeliveryRows = 2; },
       'duplicate-wake': (r) => { r.target.foreignRuns = 2; },
       'return-landed-in-parent': (r) => { r.parent.ackRows = 1; },
-      'adopted-after-epoch-advance': (r) => { r.epochs.final = H('c'); },
-      'duplicate-adoption (product marker)': (r) => { r.target.adoptedDeliveryRows = 2; },
+      'adopted-after-epoch-advance': (r) => { r.epochs.final = H('c'); r.target.ackRuns = Math.max(r.target.ackRuns, 1); },
     };
     for (const [code, fn] of Object.entries(cases)) {
       const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), fn));
@@ -345,6 +348,12 @@ test('the allowed cases: adopted exactly once in the target, never the parent, e
       (r) => { r.epochs.captured = null; },
     ]) {
       assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), fn)).verdict, 'MISSING-candidate', caseId);
+    }
+    if (!RRA_CASES[caseId].probeAdopts) {
+      // Woken but without the exact ack may be the model's miss, never the product's: MISSING.
+      const loose = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.ackRuns = 0; }));
+      assert.equal(loose.verdict, 'MISSING-candidate', caseId);
+      assert.ok(loose.missing.includes('woken-without-ack'), caseId);
     }
     const noTrace = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.trace = null; }));
     assert.equal(noTrace.verdict, 'PARTIAL-candidate', caseId);
@@ -403,10 +412,61 @@ test('a transition that did not take effect is MISSING, never FAIL, whatever the
   }
 });
 
+test('a deviation by the model or the setup is MISSING, never a product FAIL', () => {
+  const adoptedEverything = (r) => {
+    r.target.ackRuns = 1;
+    r.target.foreignRuns = 1;
+    r.target.adoptedDeliveryRows = 1;
+    r.child.spawned = true;
+  };
+  const deviations = {
+    'extra-delegate-calls': (r) => { r.dispatch.otherDelegateCalls = 1; },
+    'delegate-calls-unread': (r) => { r.dispatch.otherDelegateCalls = null; },
+    'scenario-refused': (r) => { r.scenario.refusals = ['websocket error']; },
+    'preflight-not-ok': (r) => { r.scenario.preflightOk = false; },
+  };
+  for (const caseId of [...refusalCases, ...allowedCases]) {
+    for (const [code, fn] of Object.entries(deviations)) {
+      const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { fn(r); adoptedEverything(r); }));
+      assert.equal(graded.verdict, 'MISSING-candidate', `${caseId} ${code}: ${JSON.stringify(graded)}`);
+      assert.ok(graded.missing.includes(code), `${caseId} ${code}`);
+      assert.deepEqual(graded.contradictions, [], `${caseId} ${code}`);
+    }
+  }
+  for (const caseId of [...durableCases, ...allowedCases, 'unauthorized-dispatch']) {
+    const wrongMode = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      r.dispatch.resultMode = RRA_CASES[caseId].mode === 'silent' ? 'silent-wake' : 'normal';
+      adoptedEverything(r);
+    }));
+    assert.equal(wrongMode.verdict, 'MISSING-candidate', caseId);
+    assert.ok(wrongMode.missing.includes('delegate-shape-mismatch'), caseId);
+    assert.deepEqual(wrongMode.contradictions, [], caseId);
+  }
+  // unauthorized-dispatch: the policy must change before the delegate can fire.
+  for (const delay of [0, 1, null]) {
+    const early = gradeRecipientAuthorityCase(mutate(completeRecord('unauthorized-dispatch'), (r) => { r.dispatch.resultDelaySeconds = delay; r.child.spawned = true; }));
+    assert.equal(early.verdict, 'MISSING-candidate', String(delay));
+    assert.ok(early.missing.includes('policy-change-not-before-fire'));
+  }
+  // A revoked return already adopted or woken before its transition was a current return.
+  for (const caseId of durableCases) {
+    for (const key of ['ackRuns', 'foreignRuns', 'adoptedDeliveryRows']) {
+      const early = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.preTransition[key] = 1; adoptedEverything(r); }));
+      assert.equal(early.verdict, 'MISSING-candidate', `${caseId} ${key}`);
+      assert.ok(early.missing.includes('return-not-parked-unadopted'));
+      assert.deepEqual(early.contradictions, []);
+    }
+    const unread = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.preTransition = null; }));
+    assert.ok(unread.missing.includes('pre-transition-unread'), caseId);
+  }
+});
+
 test('allowed-silent is the control for the refusal cases\' absence: the product marker must show', () => {
   const unseen = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.adoptedDeliveryRows = 0; }));
   assert.equal(unseen.verdict, 'MISSING-candidate');
   assert.ok(unseen.missing.includes('adoption-marker-unobserved'));
+  // The model answering the probe as asked, without any ack, is a PASS: the product's marker decides.
+  assert.equal(gradeRecipientAuthorityCase(completeRecord('allowed-silent')).verdict, 'PASS-candidate');
   const woke = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.foreignRuns = 1; }));
   assert.equal(woke.verdict, 'FAIL-candidate');
   assert.ok(woke.contradictions.includes('silent-return-woke-target'));
@@ -504,13 +564,14 @@ test('dispatch binding: the case\'s own continue_delegate call, through Tool Sea
   const call = (id, args) => ({ role: 'assistant', content: [{ type: 'toolCall', id, name: 'dispatch_action', arguments: { id: 'openclaw:core:continue_delegate', args } }], __openclaw: { runId: 'run-d' } });
   const result = (id, payload, isError = false) => ({ role: 'toolResult', toolCallId: id, toolName: 'dispatch_action', isError, content: [{ type: 'text', text: typeof payload === 'string' ? payload : JSON.stringify(payload) }] });
   const task = 'RCDRA:abc Proof nonce n: reply exactly RCDRA-RETURN n.';
-  assert.deepEqual(findDelegateDispatch([call('c1', { task, targetSessionKey: target }), result('c1', { status: 'scheduled' })], { taskMarker: 'RCDRA:abc', targetSessionKey: target }), { status: 'scheduled', toolCallId: 'c1', errorText: null });
+  assert.deepEqual(findDelegateDispatch([call('c1', { task, targetSessionKey: target }), result('c1', { status: 'scheduled', mode: 'silent', delaySeconds: 30 })], { taskMarker: 'RCDRA:abc', targetSessionKey: target }), { status: 'scheduled', toolCallId: 'c1', errorText: null, mode: 'silent', delaySeconds: 30 });
+  assert.equal(countDelegateCalls([call('c1', { task, targetSessionKey: target }), call('c2', { task, targetSessionKey: 'agent:main:x' }), say('x', 'r')]), 2);
   const refused = findDelegateDispatch([call('c2', { task, targetSessionKey: target }), result('c2', 'cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting.', true)], { taskMarker: 'RCDRA:abc', targetSessionKey: target });
   assert.equal(refused.status, 'error');
   assert.equal(isAdmissionPolicyRefusal(refused.errorText), true);
   assert.equal(findDelegateDispatch([call('c3', { task, targetSessionKey: 'agent:main:other' }), result('c3', { status: 'scheduled' })], { taskMarker: 'RCDRA:abc', targetSessionKey: target }), null);
   assert.equal(findDelegateDispatch([call('c4', { task: 'other', targetSessionKey: target }), result('c4', { status: 'scheduled' })], { taskMarker: 'RCDRA:abc', targetSessionKey: target }), null);
-  assert.deepEqual(findDelegateDispatch([call('c5', { task, targetSessionKey: target })], { taskMarker: 'RCDRA:abc', targetSessionKey: target }), { status: null, toolCallId: 'c5', errorText: null });
+  assert.deepEqual(findDelegateDispatch([call('c5', { task, targetSessionKey: target })], { taskMarker: 'RCDRA:abc', targetSessionKey: target }), { status: null, toolCallId: 'c5', errorText: null, mode: null, delaySeconds: null });
   const owner = [
     { role: 'assistant', content: [{ type: 'toolCall', id: 'o1', name: 'sessions', arguments: { action: 'assign_owner', sessionKey: target, ownerType: 'agent', ownerId: 'main' } }] },
     { role: 'toolResult', toolCallId: 'o1', toolName: 'sessions', content: [{ type: 'text', text: JSON.stringify({ status: 'updated' }) }] },
@@ -540,6 +601,8 @@ test('gates: model sign-in, cross-session policy and listener ownership fail clo
   }
   assert.equal(evaluateContinuationConfig({ agents: { defaults: { continuation: { enabled: true, crossSessionTargeting: 'enabled' } } } }).ok, true);
   assert.equal(evaluateContinuationConfig({ agents: { defaults: { continuation: { enabled: true } } } }).ok, false, 'the default is disabled');
+  const reloadOff = evaluateContinuationConfig({ gateway: { reload: { mode: 'off' } }, agents: { defaults: { continuation: { enabled: true, crossSessionTargeting: 'enabled' } } } });
+  assert.ok(reloadOff.refusals.some((entry) => entry.code === 'config-reload-off'), 'a policy patch would never apply');
   assert.equal(listenerOwnedBy({ pid: 10, startTicks: 5 }, { pid: 10, startTicks: 5 }), true);
   assert.equal(listenerOwnedBy({ pid: 10, startTicks: 6 }, { pid: 10, startTicks: 5 }), false, 'a recycled PID is another process');
   assert.equal(listenerOwnedBy({ pid: 11, startTicks: 5 }, { pid: 10, startTicks: 5 }), false);
@@ -714,7 +777,9 @@ function revokedEvidence() {
     reason_length: 120,
     delegate_mode: 'silent',
     target_primed: true,
-    dispatch: { status: 'scheduled', accepted: true, observed_at_ms: 1_000 },
+    dispatch: { status: 'scheduled', accepted: true, result_mode: 'silent', result_delay_seconds: 30, observed_at_ms: 1_000 },
+    other_delegate_calls: 0,
+    pre_transition_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
     child: { spawned: true, bound: true, done: true },
     transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
     probe_ran: true,

@@ -53,7 +53,8 @@ It does not prove:
 - **Fresh install or upgrade.** Proposed separately (docs#619, `R-CD-FRESH-INSTALL`).
 - **Anything until an owner runs it.** No case here has run.
 - **Listener ownership between samples.** The control checks it every 500 ms and at every case
-  boundary, not continuously.
+  boundary, not continuously. It stops its gateway's whole process group, on success, on error and
+  on SIGINT, SIGTERM or SIGHUP, and kills it on any other exit.
 
 ## Its own row
 
@@ -168,9 +169,17 @@ lists the items.
 - A transition that did not take effect (its RPC failed, or a revocation left the epoch unchanged)
   is MISSING, and nothing the return then did is judged a contradiction: adopting a still-current
   return is correct.
+- So is any deviation by the model or the setup, because it tests something other than the case:
+  - another `continue_delegate` call by the parent (a retry after the policy error, another target);
+  - an accepted delegate whose mode, read from its own `scheduled` result, is not the case's;
+  - an `unauthorized-dispatch` delegate whose delay let it fire before the policy changed;
+  - a revoked or reassigned return already acknowledged, woken or marked adopted when the
+    transition was sent (the scenario reads the target just before it).
 - A contradiction is **FAIL-candidate**: a refused return adopted (the product's marker),
-  acknowledged, woken or repeated in the target, a return in the parent, an unauthorized delegate spawned or accepted, an allowed return
-  routed but never acknowledged or acknowledged twice, or `sessions.reset` advancing the epoch.
+  acknowledged, woken or repeated in the target, an allowed wake-mode return routed but never woken, a return in the parent, an unauthorized delegate spawned or accepted, an allowed return
+  adopted twice, or `sessions.reset` advancing the epoch. A woken target that never typed the exact
+  ack is MISSING (`woken-without-ack`): the miss may be the model's. `allowed-silent` is decided by
+  the product's marker on the probe row; its model is asked only for `PROBE-OK`.
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
   reason, or without the observed absence (transcripts read, probe turn answered, every target row
   attributable to a run), is MISSING, never PASS. So is a revoked case whose return was not parked
@@ -194,8 +203,9 @@ For the owner who runs it on an isolated proof gateway after j12 deploys. Never 
    `setup <j12> <j12>`, then `login` and `login-finish` (or `adopt-auth` from a previous isolated
    gateway). Its `receipts/isolated-auth-status.json` must show an OpenAI profile under its own state.
 3. **Enable continuation and cross-session targeting** in that gateway's own `openclaw.json`
-   (`agents.defaults.continuation.enabled: true`, `crossSessionTargeting: "enabled"`). The control
-   refuses a disabled policy; it never edits the file itself, and the unauthorized cases change the
+   (`agents.defaults.continuation.enabled: true`, `crossSessionTargeting: "enabled"`), and leave
+   `gateway.reload.mode` anything but `off`: with reload off, `config.patch` saves the policy without
+   applying it (`config-write-flow.ts:214-226`). The control refuses a disabled policy and reload off; it never edits the file itself, and the unauthorized cases change the
    policy only through `config.patch` and restore it.
 4. **Stop it**: `composite-launcher.sh stop <j12> <j12>`. The control refuses a running unit or a
    busy port, and starts the gateway itself.

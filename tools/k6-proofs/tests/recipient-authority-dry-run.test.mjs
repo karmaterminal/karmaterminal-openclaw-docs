@@ -85,7 +85,7 @@ function gatewayFor(world) {
           // (managed-delivery-turn-lifecycle.ts:107-111) and the primed target's ack in the probe run.
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
           push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(adopts ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
-          push(p.key, say(adopts && !world.markerOnly ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
+          push(p.key, say(world.adoptOnProbe && !world.markerOnly ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
           return ok({ runId: 'run-probe' });
         }
         if (message.includes('assign_owner')) {
@@ -101,9 +101,13 @@ function gatewayFor(world) {
         push(p.key, toolCall('c1', 'dispatch_action', { id: 'openclaw:core:continue_delegate', args: { task, mode, delaySeconds: 30, targetSessionKey } }, 'run-d'));
         if (policy === 'disabled') {
           push(p.key, toolResult('c1', 'dispatch_action', 'cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting. Use the default return target.', 'run-d', true));
+          // A model following the error's advice retries with the default return target.
+          if (world.retry) push(p.key, toolCall('c2', 'dispatch_action', { id: 'openclaw:core:continue_delegate', args: { task, mode } }, 'run-d'));
           return ok({ runId: 'run-d' });
         }
-        push(p.key, toolResult('c1', 'dispatch_action', { status: 'scheduled', mode }, 'run-d'));
+        // The scheduled result reports what the tool accepted (continue-delegate-tool.ts:436-449).
+        push(p.key, toolResult('c1', 'dispatch_action', { status: 'scheduled', mode: world.resultMode ?? mode, delaySeconds: 30 }, 'run-d'));
+        if (world.retry) push(p.key, toolCall('c2', 'dispatch_action', { id: 'openclaw:core:continue_delegate', args: { task, mode, targetSessionKey: p.key } }, 'run-d'));
         if (spec.expectChild !== false) {
           childSpawned = true;
           sessions[CHILD] = { messages: [user(`[Subagent Task]\n\n${task}`)] };
@@ -266,6 +270,14 @@ test('dry run: without the product reason line a refusal case stays MISSING-cand
     const { graded } = await grade(caseId, {}, { reason: false });
     assert.equal(graded.verdict, 'MISSING-candidate', caseId);
     assert.ok(graded.missing.includes('refusal-reason-not-observed') || graded.missing.includes('reason-not-from-replacement'), caseId);
+  }
+});
+
+test('dry run: a model that retries, or accepts another mode, makes the case MISSING, not FAIL', async () => {
+  for (const [caseId, world] of [['unauthorized-admission', { retry: true }], ['revoked-visibility', { retry: true, adoptOnProbe: true }], ['revoked-visibility', { resultMode: 'silent-wake', adoptOnProbe: true }]]) {
+    const { graded } = await grade(caseId, world);
+    assert.equal(graded.verdict, 'MISSING-candidate', `${caseId} ${JSON.stringify(world)}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.contradictions, [], caseId);
   }
 });
 

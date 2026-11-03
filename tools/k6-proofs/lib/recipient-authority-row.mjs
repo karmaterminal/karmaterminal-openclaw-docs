@@ -369,13 +369,31 @@ export function findDelegateDispatch(messages, { taskMarker, targetSessionKey })
       if (!target || target.name !== 'continue_delegate' || typeof part.id !== 'string') continue;
       if (!String(target.args?.task ?? '').includes(taskMarker) || target.args?.targetSessionKey !== targetSessionKey) continue;
       const result = toolResultFor(list, part.id, i + 1);
-      if (!result) return { status: null, toolCallId: part.id, errorText: null };
+      if (!result) return { status: null, toolCallId: part.id, errorText: null, mode: null, delaySeconds: null };
       const { parsed, text } = parseResultPayload(result);
-      if (result.isError === true || !parsed) return { status: 'error', toolCallId: part.id, errorText: text };
-      return { status: typeof parsed.status === 'string' ? parsed.status : null, toolCallId: part.id, errorText: null };
+      if (result.isError === true || !parsed) return { status: 'error', toolCallId: part.id, errorText: text, mode: null, delaySeconds: null };
+      // The scheduled result reports what the tool accepted (continue-delegate-tool.ts:436-449), so the
+      // delegate's real mode and delay are read here, not assumed from the instruction.
+      return {
+        status: typeof parsed.status === 'string' ? parsed.status : null,
+        toolCallId: part.id,
+        errorText: null,
+        mode: typeof parsed.mode === 'string' ? parsed.mode : null,
+        delaySeconds: typeof parsed.delaySeconds === 'number' ? parsed.delaySeconds : null,
+      };
     }
   }
   return null;
+}
+
+/** Every continue_delegate call in a transcript, through Tool Search or not. */
+export function countDelegateCalls(messages) {
+  let count = 0;
+  for (const message of Array.isArray(messages) ? messages : []) {
+    if (roleOf(message) !== 'assistant' || !Array.isArray(message.content)) continue;
+    for (const part of message.content) if (toolCallTarget(part)?.name === 'continue_delegate') count += 1;
+  }
+  return count;
 }
 
 /**
@@ -505,6 +523,43 @@ export function gradeRecipientAuthorityCase(record) {
   // return then did is not evidence either way: no contradiction is judged, the case is MISSING.
   let premise = !spec.transition || (transition.ok === true && isTime(transition.requestedAtMs));
   if (!premise) missing.push('transition-not-observed');
+  // The scenario must have run its script as written: a refusal it recorded or a failed preflight
+  // leaves nothing to judge.
+  if (missing.includes('scenario-refused') || missing.includes('preflight-not-ok')) premise = false;
+  // The model must have made exactly the call the case needs. Another continue_delegate call (a retry
+  // after the policy error, another target) or an accepted call of another mode or too short a delay
+  // tests something else, so it is MISSING, not a product failure.
+  const otherCalls = dispatch.otherDelegateCalls;
+  if (!isCount(otherCalls)) {
+    missing.push('delegate-calls-unread');
+    premise = false;
+  } else if (otherCalls > 0) {
+    missing.push('extra-delegate-calls');
+    premise = false;
+  }
+  // At admission any acceptance, whatever its shape, is the product failing to refuse.
+  if (spec.boundary !== 'admission' && dispatch.accepted === true && dispatch.resultMode !== spec.mode) {
+    missing.push('delegate-shape-mismatch');
+    premise = false;
+  }
+  if (spec.boundary === 'dispatch' && dispatch.accepted === true) {
+    const fireAfter = Number(dispatch.resultDelaySeconds) * 1000;
+    if (!(isTime(transition.requestedAtMs) && isTime(dispatch.capturedAtMs) && fireAfter > transition.requestedAtMs - dispatch.capturedAtMs)) {
+      missing.push('policy-change-not-before-fire');
+      premise = false;
+    }
+  }
+  // A revoked or reassigned return must still be parked un-adopted when the transition lands.
+  if (spec.family === 'refusal' && spec.expectChild !== false) {
+    const before = record.preTransition ?? {};
+    if (!['ackRuns', 'foreignRuns', 'adoptedDeliveryRows'].every((key) => isCount(before[key]))) {
+      missing.push('pre-transition-unread');
+      premise = false;
+    } else if (before.ackRuns + before.foreignRuns + before.adoptedDeliveryRows > 0) {
+      missing.push('return-not-parked-unadopted');
+      premise = false;
+    }
+  }
   // A revocation or reassignment holds only once the epoch actually moved: a transition that left it
   // unchanged (a narrowing to a visibility no narrower, say) leaves the return current, and its
   // adoption would be correct.
@@ -530,7 +585,7 @@ export function gradeRecipientAuthorityCase(record) {
       if (!isHash(epochs.afterTransition)) missing.push('epoch-after-transition-unread');
       else if (epochs.afterTransition !== epochs.captured) contradict('epoch-advanced-by-non-edge-transition');
     }
-    const adopted = counted && target.ackRuns > 0;
+    const adopted = counted && (target.ackRuns > 0 || target.adoptedDeliveryRows > 0);
     if (isHash(epochs.captured)) {
       if (!isHash(epochs.final)) missing.push('final-epoch-unread');
       else if (epochs.final !== epochs.captured) {
@@ -542,7 +597,11 @@ export function gradeRecipientAuthorityCase(record) {
       if (parent.ackRows > 0) contradict('return-landed-in-parent');
       if (target.ackRuns > 1) contradict('duplicate-adoption');
       if (target.foreignRuns > 1) contradict('duplicate-wake');
-      if (target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) contradict('allowed-return-not-adopted');
+      if (!spec.probeAdopts && target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) {
+        // Routed and never woken is the product's; woken without the exact ack may be the model's.
+        if (target.foreignRuns === 0) contradict('allowed-return-not-adopted');
+        else missing.push('woken-without-ack');
+      }
       if (target.adoptedDeliveryRows > 1) contradict('duplicate-adoption');
       if (spec.probeAdopts) {
         // The probe turn must adopt it (the product's marker on the visible row) and the silent
@@ -715,6 +774,12 @@ export function evaluateContinuationConfig(config) {
   if (continuation?.enabled !== true) refusals.push({ code: 'config-continuation-disabled', detail: 'agents.defaults.continuation.enabled is not true' });
   if (continuation?.crossSessionTargeting !== 'enabled') {
     refusals.push({ code: 'config-cross-session-disabled', detail: 'agents.defaults.continuation.crossSessionTargeting is not "enabled"' });
+  }
+  // With reload off, config.patch persists the policy without applying it and still answers ok
+  // (src/gateway/server-methods/config-write-flow.ts:214-226), so an unauthorized case would test a
+  // policy that never took effect.
+  if (config?.gateway?.reload?.mode === 'off') {
+    refusals.push({ code: 'config-reload-off', detail: 'gateway.reload.mode is "off"; config.patch would not apply the policy' });
   }
   return { ok: refusals.length === 0, refusals };
 }

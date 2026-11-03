@@ -1,0 +1,144 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-FRESH-INSTALL",
+  "issue": 536,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "read-only",
+  "mutates": true,
+  "timeoutSeconds": 600,
+  "scenario": {
+    "status": "scaffold",
+    "name": "r-cd-fresh-install",
+    "expectedFile": "r-cd-fresh-install.js",
+    "description": "A fresh install of the candidate creates the continuation storage correctly and serves. 🌊's ruling (room msg 1567073096706297887, 2026-11-03 07:09Z): fresh install is its own j12 corpus row, with an empty state dir, a disposable process and no model turn, kept separate from the stopped-seat restore receipt, which proves upgrade and recovery; they prove different paths, and neither row is satisfied until its own artifact exists. ClawSweeper's P1 on openclaw/openclaw#129388 (comment 5442236054) names the gap: the new authority storage, migration paths and public SDK exports lack complete fresh-install/upgrade evidence. One disposable gateway starts on a state directory the control created and proved empty, with a minimal config and no model sign-in. The control observes readiness (owned listener, /readyz, /startupz, hello-ok), the agent database created at OPENCLAW_AGENT_SCHEMA_VERSION 40 directly with no migration journal entry showing an upgrade path, session_recipient_authority with the byte-walked column hash 6ede42f5f5ea65007530f5f59da660e22bcab9d932ba3fae6639b848aee8eb7b, exactly one epoch row from sessions.create then a visibility narrowing (read read-only from outside the gateway, published as SHA-256 only), openclaw config validate on the fresh config, a clean SIGTERM stop, and cleanup of the disposable state with a signed cleanup receipt. It proves no upgrade path, no model turn and no delegate delivery.",
+    "methods": [
+      "GET /readyz",
+      "GET /startupz",
+      "connect (hello-ok)",
+      "sessions.create",
+      "session.visibility.set",
+      "openclaw config validate --json",
+      "agent and state databases (read-only)"
+    ],
+    "notes": "Fixture-gated: k6 cannot create a state directory or start, observe and stop a gateway, so the k6 entry fails closed and the executable control is scripts/run-fresh-install-control.mjs (see the product-path map, with j12 path:line anchors at 352f56029dc95c60149ab4aaa127226a861d0b3d, in scenarios/r-cd-fresh-install.js). Refusals before anything starts, each named in refusal.json: state-dir-not-empty (a fresh install starts from an empty state directory); state-dir-live (the state directory is, is inside, or contains ~/.openclaw, ~/.openclaw-<profile>, ~/.clawdbot or the operator's $OPENCLAW_STATE_DIR); port-in-use (and port-is-live for 18789 or a live config's port); stage-build-mismatch (the stage's dist/build-info.json commit is not the candidate); model-credentials-in-environment (the control's own environment carries a model credential, named by key, never by value). The gateway gets a cleared environment and an empty, control-owned HOME, so no credential reaches it from the environment or from a CLI credential file. The minimal config is gateway.mode local, the port, bind loopback, token auth with a fresh disposable token, and agents.defaults.continuation.enabled true; it lives in the private artifact directory, outside the state directory, and is removed at cleanup. Receipts, each graded present and holding: runtime-build-info, state-dir-empty-proof, readiness, agent-schema-version (user_version 40, schema_meta schema_version 40 inserted once by canonical creation: created_at equals updated_at), no-upgrade-path (migration_runs holds only the fresh boot's own once-per-database receipt node-desktop-stream-pairing-defaults-v1 completed with nothing retired; no migration_sources, no backup_runs, no agent database registered below 40; anything else is named by the SHA-256 of its id), authority-table-column-hash, authority-epoch-row-hash (0 rows before sessions.create, exactly 1 after the narrowing, bound to the created session key), no-model-sign-in (no credential key in the running gateway's /proc environ, HOME is the control's, no auth_profile_store row), config-validate (exit 0, valid true, the fresh config's path), clean-stop (SIGTERM, exit 0 within the grace, no SIGKILL, listener released, no run process left), timings, signed-cleanup-receipt (no run process, listener, state, gateway HOME or config remains; HMAC-SHA256 with a launcher-held key, hmac-sha256-proof-observer-key-v1). Verdict, from the signed record only: PASS-candidate needs every receipt present and holding. FAIL-candidate when a present receipt contradicts a fresh install (a gateway that never served, a wrong or migrated schema, an upgrade path in the journal, a missing or drifted authority table, not exactly one epoch row, a model credential or auth profile, an invalid config, an unclean stop, residue after cleanup). MISSING-candidate when a receipt is absent: nothing to judge. PARTIAL-candidate when everything holds but a bound is missing (unsigned record, dirty docs harness, a stage without a buildId to bind hello-ok to, timings not recorded, a recorded control error). Any missing receipt keeps the record below PASS-candidate. Only counts and SHA-256s leave the databases; no credentials and no database contents are published. The row stays MISSING until a run at j12 lands and is reviewed.",
+    "registryNotes": "Bound issue karmaterminal/karmaterminal-openclaw-docs#536 (map: comment 6597622114). Presentation: openclaw/openclaw#129388 is 🌊's. Upgrade and recovery are proven by j12's stopped-seat restore receipt; this row proves the fresh-install path only and is never folded with it."
+  },
+  "invocation": {
+    "control": "tools/k6-proofs/scripts/run-fresh-install-control.mjs",
+    "artifactClass": "disposable-real-process",
+    "byteWalkSha": "352f56029dc95c60149ab4aaa127226a861d0b3d",
+    "namedRefusals": [
+      "state-dir-not-empty",
+      "state-dir-live",
+      "port-in-use",
+      "stage-build-mismatch",
+      "model-credentials-in-environment"
+    ],
+    "authority": "sessions.create (no message, no title source: no model turn), then session.visibility.set(suggest); the narrowing advances (creates) session_recipient_authority",
+    "lifecycle": "one disposable gateway, started on the empty state directory and stopped with SIGTERM; no restart",
+    "controlState": "a state directory the control creates (or an empty one it is given), removed or emptied at cleanup; config and gateway HOME in <artifact-dir>.private, removed at cleanup"
+  },
+  "expectedReceipts": [
+    {
+      "name": "runtime-build-info",
+      "required": true,
+      "description": "The staged runtime's dist/build-info.json commit (must equal the candidate; the guard refuses otherwise), buildId and version. hello-ok's server.buildId must equal the staged buildId."
+    },
+    {
+      "name": "state-dir-empty-proof",
+      "required": true,
+      "description": "The state directory listed after the control created it (or accepted it empty) and before the gateway's first boot: zero entries, its mode, whether the control created it. The gateway HOME is control-owned and empty; the minimal config is 0600, outside the state directory, with exactly the expected keys (SHA-256 of its bytes published, the token never)."
+    },
+    {
+      "name": "readiness",
+      "required": true,
+      "description": "The listener owned by the run's process (/proc), /readyz 200 ready:true, /startupz 200 started, and hello-ok with a bootId (SHA-256 published) and the staged buildId; plus whether the agent database existed at first readiness."
+    },
+    {
+      "name": "agent-schema-version",
+      "required": true,
+      "description": "The fresh agent database's PRAGMA user_version (must be 40, OPENCLAW_AGENT_SCHEMA_VERSION at j12) and its schema_meta primary row: role agent, schema_version 40, the agent id, and created_at equal to updated_at (one insert by canonical creation, never a later migration bump)."
+    },
+    {
+      "name": "no-upgrade-path",
+      "required": true,
+      "description": "The state database's migration journal: migration_runs counted and classified (only node-desktop-stream-pairing-defaults-v1, completed with nothing retired, is a fresh boot's own receipt; any other run is named by the SHA-256 of its id), migration_sources and backup_runs counts (must be 0), and agent_databases rows for the agent registered below schema 40 (must be 0). PRAGMA user_version of the state database is recorded (36 at j12), not graded."
+    },
+    {
+      "name": "authority-table-column-hash",
+      "required": true,
+      "description": "session_recipient_authority exists, and the SHA-256 of its canonical projection (PRAGMA table_xinfo columns plus PRAGMA table_list strict and without-rowid flags) equals 6ede42f5f5ea65007530f5f59da660e22bcab9d932ba3fae6639b848aee8eb7b, the value SQLite reports for the DDL at src/state/openclaw-agent-schema.sql:142-147 at j12."
+    },
+    {
+      "name": "authority-epoch-row-hash",
+      "required": true,
+      "description": "Authority rows read read-only from outside the gateway: 0 before sessions.create, the count after it, and exactly 1 after the narrowing, bound to the created session key. Only the SHA-256 of that key and of its epoch are published."
+    },
+    {
+      "name": "no-model-sign-in",
+      "required": true,
+      "description": "The running gateway's /proc environ keys (never values) carry no model credential and its HOME is the control's empty directory; the fresh agent database has no auth_profile_store row; the control's own environment carried no model credential."
+    },
+    {
+      "name": "config-validate",
+      "required": true,
+      "description": "`openclaw config validate --json` on the fresh config with the gateway's own environment: exit code, valid, whether the reported path is the fresh config, warning and issue counts, and the SHA-256 of its output (raw output private)."
+    },
+    {
+      "name": "clean-stop",
+      "required": true,
+      "description": "SIGTERM to the identity-verified gateway; it exits 0 on its own within the grace, with no SIGKILL, the listener released and no process carrying the run marker left behind."
+    },
+    {
+      "name": "timings",
+      "required": true,
+      "description": "Boot (spawn to first full readiness), authority establishment, config validate, stop and total, in milliseconds."
+    },
+    {
+      "name": "signed-cleanup-receipt",
+      "required": true,
+      "description": "Cleanup stops only processes carrying the run marker (identity re-verified before any signal), removes the state directory it created (re-identified by device and inode; one it was given empty is emptied), the gateway HOME and the config, and records that none remain and the listener is gone. The whole observer receipt is HMAC-SHA256-signed (hmac-sha256-proof-observer-key-v1) with a launcher-held key the gateway never receives."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-FRESH-INSTALL",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "fresh-install-control"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "The control writes a candidate receipt only. Folding it is a reviewed corpus step at j12. The row stays MISSING until that artifact exists, and it is never folded with the stopped-seat restore receipt."
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "runtime-build-info",
+      "state-dir-empty-proof",
+      "readiness",
+      "agent-schema-version",
+      "no-upgrade-path",
+      "authority-table-column-hash",
+      "authority-epoch-row-hash",
+      "no-model-sign-in",
+      "config-validate",
+      "clean-stop",
+      "timings",
+      "signed-cleanup-receipt"
+    ],
+    "foldRequiresReview": true,
+    "notes": "run-proof.sh and run-proofs.sh refuse orchestration-required rows, so a catalog or live-suite run never fires this control. The owner runs it by hand on a staged j12 runtime (docs/R-CD-FRESH-INSTALL-CONTROL.md). It never reads OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_WS, never touches a live gateway or a live state directory, and never signals a process it did not start. It needs no live session: its one session lives in the disposable state."
+  }
+}

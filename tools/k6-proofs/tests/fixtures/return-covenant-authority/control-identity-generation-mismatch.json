@@ -1,0 +1,22 @@
+{
+  "schema": "openclaw.k6.return-covenant-control.v1",
+  "baseFixture": "forbidden-pass.json",
+  "mutations": [
+    {
+      "path": "candidateSha",
+      "value": "3333333333333333333333333333333333333333"
+    },
+    {
+      "path": "authorityDiagnostic.currentAuthorityGeneration",
+      "value": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    },
+    {
+      "path": "lifecycle.generationAdvanced",
+      "value": false
+    }
+  ],
+  "expectedFailures": [
+    "identity-mismatch",
+    "authority-generation-mismatch"
+  ]
+}

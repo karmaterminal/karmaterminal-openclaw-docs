@@ -157,7 +157,9 @@ async function runRcd2RunnerFixture({ tamper = false } = {}) {
  * receipts stay pending. A row leaves this list by persisting the contract the
  * tests below assert; a listed row that already records a fingerprint fails.
  */
-const DELEGATE_FINGERPRINT_DEBT = ['R-CD-COLLECTION-ON-COLLAPSE'];
+// R-CD-RECIPIENT-AUTHORITY-MATRIX's scenarios/ entry is a fail-closed scaffold, and its matrix
+// runs in a sandbox that exports no spans, so it records no reason fingerprint (docs#549).
+const DELEGATE_FINGERPRINT_DEBT = ['R-CD-COLLECTION-ON-COLLAPSE', 'R-CD-RECIPIENT-AUTHORITY-MATRIX'];
 const WORK_FINGERPRINT_DEBT = ['R-CW-5', 'R-CW-6'];
 
 /**

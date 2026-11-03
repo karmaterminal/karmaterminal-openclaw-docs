@@ -826,6 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY-MATRIX | `launch-return-covenant-driver.mjs` | process-local/mixed | PARTIAL-candidate (`verdictCap`: a signed matrix PASS-candidate does not lift it); manual-only process-local matrix, not executable at j12 (its product fixture driver was cut to fork-only), review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -854,7 +855,7 @@ true at `2273ef64d5`.
 
 `preflight` remains the read-only readiness row; the runner also performs seat-readiness before live runs. Neither readiness surface promotes a cap row.
 
-`R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
+`R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CD-RECIPIENT-AUTHORITY-MATRIX` is excluded for the same reason: it is an orchestration-required, process-local cap row. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 
 ### R-CD-RETURN-COVENANT-AUTHORITY disposable restart control
 
@@ -914,6 +915,38 @@ grade non-PASS with `negativeControl.holds: true`. The fallback control's restor
 is old-process restoration, never fresh-successor proof. Raw process output stays in
 `<artifact-dir>.private`, which is never published. See
 [`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
+
+### R-CD-RECIPIENT-AUTHORITY-MATRIX recipient-authority matrix
+
+The matrix proves that a held delegate return is adopted only while its recipient's
+authority generation (the `session_recipient_authority` epoch) is unchanged. It runs 12
+lifecycle cases, each fired as a typed `continue_delegate` call and then as a bracket
+token, and binds all 24 observations into one signed receipt. Seven allowed edges keep
+the epoch current, and the return must reach prompt adoption, wake and channel delivery
+exactly as its return mode configures. Five forbidden edges advance it, and the return
+must be refused before any of those effects, its durable row acknowledged with no retry.
+
+It is a row of its own, beside the restart control above. It never feeds
+`R-CD-RETURN-COVENANT-AUTHORITY`'s verdict (🌊's ruling, 2026-10-31), and its
+`allowed-gateway-restart-replay` edge is not evidence for the supervised-restart claim:
+that edge is the fixture's own SIGTERM and respawn of its gateway, not
+`gateway.restart.request` on the supervised branch.
+
+The producer is `tools/k6-proofs/scripts/launch-return-covenant-driver.mjs`, which runs
+`contracts/return-covenant-authority/scenario.js` against a product-owned fixture driver
+inside an isolated sandbox. That makes the row process-local, so the manifest caps it at
+`PARTIAL-candidate` (`verdictCap`); a signed matrix `PASS-candidate` is behavioral only.
+The manifest is `orchestration-required`, so the live-run guard refuses it, and its Tempo
+trace receipts stay pending because the sandbox exports no spans.
+
+No case executes at j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`): openclaw
+`2a8566340d` moved the product fixture driver and its module to fork-only. The scenario
+header anchors each case's j12 path. See
+[`docs/R-CD-RECIPIENT-AUTHORITY-MATRIX.md`](docs/R-CD-RECIPIENT-AUTHORITY-MATRIX.md) for
+the case table, the mapping to ClawSweeper's ask on openclaw/openclaw#129388, and what the
+matrix still does not cover, and
+[`docs/RETURN-COVENANT-AUTHORITY-HARNESS.md`](docs/RETURN-COVENANT-AUTHORITY-HARNESS.md)
+for the launcher, sandbox and signed-observer contract.
 
 ### Required preflights: R-CW-5A/6A gate R-CW-5/6
 
@@ -994,7 +1027,9 @@ before the ruling are listed by name in `scripts/pre-f2-ruling-corpora.json`.
 🌊's ruling on docs#616 (his CHANGES_REQUESTED review and issue comment, Discord
 1565925290008387728, 2026-10-31; openclaw-bootstrap#1727): R-CW-5 and R-CW-6 are
 capped at `PARTIAL-candidate` while their only producer is a process-local
-fixture, which is not an external gateway invocation. Each manifest declares the
+fixture, which is not an external gateway invocation. R-CD-RECIPIENT-AUTHORITY-MATRIX
+declares the same cap: its only producer is the process-local matrix launcher and
+its fixture driver. Each manifest declares the
 cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
 `artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
 requires that declaration of every row whose `transport` is process-local
@@ -1274,7 +1309,7 @@ grader.
 
 **Declared row caps (🌊's ruling on docs#616).** Every corpus that is not exempt
 and carries a row bound to a catalog manifest that declares `verdictCap` (today
-R-CW-5 and R-CW-6) gets one more check. A row is bound by its id (compared
+R-CW-5, R-CW-6 and R-CD-RECIPIENT-AUTHORITY-MATRIX) gets one more check. A row is bound by its id (compared
 canonically), any segment of its normalized `dir`, or its `manifest`. A row that
 names none of them (an alias in its own directory, with no `manifest`) is outside
 this check; requiring that a corpus name only catalog rows is the seed method's

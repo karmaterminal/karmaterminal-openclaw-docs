@@ -107,7 +107,9 @@ const SAFE_QUEUE_STATUSES = new Set([
 // The product's test runtime (dist/test-runtime) is not shipped. A revocation "API" exposed only
 // there is the fixture's own epoch advance, as at P89 3821eaef
 // (test-runtime/return-covenant/recipient-authority-revocation), never a product revocation path.
-const TEST_RUNTIME_SURFACE = /^\/?test-runtime(?:\/|$)/iu;
+// Any test-runtime path segment counts. The surface is the driver's own free text, so this
+// refuses the P89 shape; it cannot prove that another surface is a shipped API.
+const TEST_RUNTIME_SURFACE = /(?:^|[/\\])test-runtime(?:[/\\]|$)/iu;
 
 function isObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -2344,8 +2346,9 @@ export function validateReturnCovenantObservationSet({
       String(driverAttestation?.revocationCapability?.surface ?? '').trim(),
     )
   ) {
-    // At j12 352f5602 no product path advances recipient authority except deletion, owner
-    // change, visibility narrowing and member removal, so the case can only be not-exposed.
+    // At j12 352f5602 the runtime advances recipient authority only at deletion, owner change,
+    // visibility narrowing and member removal (doctor's offline canonical-key repair can also
+    // re-mint or delete it); there is no revocation API, so the case can only be not-exposed.
     addError(
       errors,
       'revocation-capability-mismatch',

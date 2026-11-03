@@ -6305,9 +6305,9 @@ test('an executed explicit revocation through a test-runtime surface is not a pr
   // At P89 3821eaef the product's own fixture driver declared revocationApiExposed=true from
   // test-runtime/return-covenant/recipient-authority-revocation and "revoked" by calling the
   // internal epoch advance itself (return-covenant-fixture/case-lifecycle.ts:224-234). The
-  // test runtime is not shipped, and at j12 352f5602 no product path advances recipient
-  // authority except deletion, owner change, visibility narrowing and member removal, so
-  // that case passed without reaching any product revocation path.
+  // test runtime is not shipped, and at j12 352f5602 there is no revocation API (the runtime
+  // advances recipient authority only at deletion, owner change, visibility narrowing and member
+  // removal), so that case passed without reaching any product revocation path.
   const [plan, cleanupFixture, runtimeConfig] = await Promise.all([
     fixture('plan.valid.json'),
     fixture('cleanup-pass.json'),
@@ -6328,12 +6328,24 @@ test('an executed explicit revocation through a test-runtime surface is not a pr
     });
   };
 
-  const product = await resolveWithSurface('diagnostics/continuation/capability-inventory');
-  assert.equal(product.verdict, 'PASS-candidate', product.failureCategories.join(', '));
+  // A product surface passes, including one whose name merely contains the words.
+  for (const surface of [
+    'diagnostics/continuation/capability-inventory',
+    'diagnostics/continuation/test-runtime-free-inventory',
+  ]) {
+    const product = await resolveWithSurface(surface);
+    assert.equal(product.verdict, 'PASS-candidate', `${surface}: ${product.failureCategories.join(', ')}`);
+  }
 
+  // The product builds that runtime under dist/test-runtime; any test-runtime path segment counts.
   for (const surface of [
     'test-runtime/return-covenant/recipient-authority-revocation',
     'test-runtime',
+    'dist/test-runtime/return-covenant/recipient-authority-revocation',
+    './test-runtime/return-covenant',
+    'src/test-runtime/return-covenant',
+    'test-runtime\\return-covenant\\revocation',
+    ' TEST-RUNTIME/return-covenant ',
   ]) {
     const testRuntime = await resolveWithSurface(surface);
     assert.equal(testRuntime.verdict, 'FAIL-candidate', surface);

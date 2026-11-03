@@ -22,9 +22,9 @@
  * - Every refused return logs one line, `[continuation:return-refused] stage=<stage>
  *   reason=recipient-authority-changed session=<key>[ deliveryId=<id>]`
  *   (src/auto-reply/continuation/return-refusal.ts:15-29), at whichever boundary sees it first:
- *   enqueue (targeting.ts:261-280, 343-347, 369-373), replay
+ *   enqueue (targeting.ts:261-280, 343-347, 369-374), replay
  *   (server-restart-sentinel-delivery.ts:50-76), wake (continuation-wake.ts:233-243) or prompt
- *   drain (session-system-events.ts:193-207). Which boundary that is depends on where the return
+ *   drain (session-system-events.ts:192-207). Which boundary that is depends on where the return
  *   is when its epoch advances, so each case pins one stage (RRA_CASES, refusedAt).
  * - The router logs `Delivered to <keys>` only for recipients it delivered, and nothing at all
  *   when every recipient was refused (subagent-announce.continuation-return.ts:189-203).
@@ -125,7 +125,7 @@ export const RRA_CASES = Object.freeze({
   'revoked-visibility': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
-    refusedAtBytes: 'session-system-events.ts:193-202 -> session-system-event-adoption.ts:118-146; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
+    refusedAtBytes: 'session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
     timing: 'parked',
     deliveryId: true,
     mode: 'silent',
@@ -137,7 +137,7 @@ export const RRA_CASES = Object.freeze({
   'revoked-membership': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
-    refusedAtBytes: 'session-system-events.ts:193-202 -> session-system-event-adoption.ts:118-146; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
+    refusedAtBytes: 'session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
     timing: 'parked',
     deliveryId: true,
     mode: 'silent',
@@ -149,7 +149,7 @@ export const RRA_CASES = Object.freeze({
   'revoked-owner': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
-    refusedAtBytes: 'session-system-events.ts:193-202 -> session-system-event-adoption.ts:118-146; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
+    refusedAtBytes: 'session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
     timing: 'parked',
     deliveryId: true,
     mode: 'silent',

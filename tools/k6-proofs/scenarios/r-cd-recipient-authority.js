@@ -32,18 +32,18 @@
  *
  * 3. What advances the epoch: exactly four writers, plus first capture
  *    (src/config/sessions/session-accessor.sqlite-recipient-authority.ts:17-37 and its callers):
- *    - deletion, every deletion owner: session-accessor.sqlite-entry-store.ts:56-69
+ *    - deletion, every deletion owner: src/config/sessions/session-accessor.sqlite-entry-store.ts:56-69
  *      (gateway sessions.delete, src/gateway/server-methods/sessions-delete.ts:589; the epoch row
  *      outlives the session, so sessions.create of the same key keeps the advanced epoch);
- *    - owner change: session-accessor.sqlite-owner.ts:158-182 (sessions.assignOwner,
+ *    - owner change: src/config/sessions/session-accessor.sqlite-owner.ts:158-182 (sessions.assignOwner,
  *      src/gateway/server-methods/sessions-mutations.ts:343-470; it refuses a caller that is neither
  *      an agent runtime nor a human profile, :362-374, so a shared-token client cannot drive it; the
  *      agent's sessions tool action assign_owner can, src/agents/tools/sessions-tool.ts:384-419);
- *    - visibility narrowing, every writer: session-accessor.sqlite-entry-mutation.ts:119-136
+ *    - visibility narrowing, every writer: src/config/sessions/session-accessor.sqlite-entry-mutation.ts:119-136
  *      (session.visibility.set, src/gateway/server-methods/sessions-sharing.ts:527-610; rank
  *      shared 3 > suggest 2 > read-only 1 > draft 0, session-recipient-authority-types.ts:66-99;
  *      every visibility allowed by default, src/gateway/session-sharing-policy.ts:85-100);
- *    - member removal: session-sharing-store.native.ts:150-195 (session.members.remove,
+ *    - member removal: src/config/sessions/session-sharing-store.native.ts:150-195 (session.members.remove,
  *      sessions-sharing.ts:337-423, 616; members.add accepts only a known identity, :347-361).
  *    Sharing mutations need the owner or operator.admin
  *    (src/gateway/server-methods/sessions-sharing-authority.ts:144-156); a loopback backend client

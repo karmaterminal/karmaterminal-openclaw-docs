@@ -92,8 +92,15 @@
  *    a stop that misses its shutdown deadline logs "shutdown deadline reached before stop ...
  *    cleanup incomplete" and can still force-exit 0 (run-loop.ts:622-634), so the control reads
  *    that line and does not call such a stop clean.
- *    On Linux the entry re-execs in place (src/entry.compile-cache.ts:52-53), so the spawned PID
- *    owns the listener.
+ *    When the entry re-execs for its compile cache it does so in place with execve on Linux
+ *    (src/entry.compile-cache.ts:52-53), so the spawned PID owns the listener; the control also
+ *    accepts a listener owned by any process carrying its run marker. The entry may detach a
+ *    compile-cache maintainer (node-compile-cache.mjs:192-229) that outlives the gateway by design;
+ *    the control counts it apart from leftover processes and stops it at cleanup. The log file is
+ *    configured into the run's private directory, because without logging.file the product logs to
+ *    the machine-wide /tmp/openclaw rolling file (src/logging/logger.ts:441-442,
+ *    src/infra/tmp-openclaw-dir.ts:6); that shared temp root has no override
+ *    (src/infra/tmp-openclaw-dir.ts:87-127), so the control records what changed there.
  *
  * 8. Model credentials. Core provider credentials are environment variables
  *    (src/secrets/provider-env-vars.ts:32-44) plus each plugin's setup.providers[].envVars

@@ -936,9 +936,10 @@ Like the restart control it is `invocation.artifactClass: "disposable-real-proce
 capped.
 
 ```bash
-env -i HOME="$HOME" PATH="$PATH" node tools/k6-proofs/scripts/run-fresh-install-control.mjs \
+env -i HOME="$HOME" PATH="$PATH" ${OPENCLAW_STATE_DIR:+OPENCLAW_STATE_DIR="$OPENCLAW_STATE_DIR"} \
+  node tools/k6-proofs/scripts/run-fresh-install-control.mjs \
   --stage-dir <stage-only build of the candidate> --candidate-sha <40-char-sha> --docs-sha <40-char-docs-sha> \
-  --state-dir <new or empty dir> --port <free loopback port> \
+  --state-dir <new dir: the control creates it> --port <free loopback port> \
   --artifact-dir <new directory> --observer-key-file <0600 key file>
 node tools/k6-proofs/scripts/run-fresh-install-control.mjs --verify <artifact dir>/observer-receipt.json --observer-key-file <0600 key file>
 ```

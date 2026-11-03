@@ -36,11 +36,18 @@
  * that code on SIGTERM; FIC_SCRIPT_STOP_DEADLINE=1 logs the run loop's missed-deadline line
  * (src/cli/gateway-cli/run-loop.ts:626-628) and still exits 0; FIC_SCRIPT_IGNORE_SIGTERM=1 ignores it; FIC_SCRIPT_ORPHAN=1 leaves a helper
  * behind when it stops; FIC_SCRIPT_NEVER_READY=1 keeps /readyz at 503; FIC_SCRIPT_BUILD_ID=<id>
- * reports another buildId in hello-ok.
+ * reports another buildId in hello-ok; FIC_SCRIPT_NO_DESKTOP_RECEIPT=1 skips the fresh boot's own
+ * journal receipt; FIC_SCRIPT_MAINTAINER=1 detaches a compile-cache maintainer
+ * (`node <dist>/node-compile-cache.mjs --maintain <dir>`, as the j12 entry does,
+ * node-compile-cache.mjs:192-229) that outlives the stop by design.
+ *
+ * Like the product it logs to logging.file when the config sets one, and keeps its scratch under
+ * TMPDIR.
  */
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
 import { createServer } from 'node:http';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -91,6 +98,18 @@ if (config?.gateway?.mode !== 'local') {
 }
 const port = Number(args[args.indexOf('--port') + 1]);
 const token = config.gateway.auth.token;
+const logFile = config.logging?.file ?? null;
+const logLine = (line) => {
+  if (logFile) appendFileSync(logFile, `${new Date().toISOString()} ${line}\n`);
+};
+writeFileSync(path.join(os.tmpdir(), `fic-scripted-${process.pid}.tmp`), 'scratch');
+logLine('gateway starting');
+if (env.FIC_SCRIPT_MAINTAINER === '1') {
+  spawn(process.execPath, [new URL('./node-compile-cache.mjs', import.meta.url).pathname, '--maintain', path.join(os.tmpdir(), 'node-compile-cache')], {
+    stdio: 'ignore',
+    detached: true,
+  }).unref();
+}
 const bootId = randomUUID();
 const startedAt = Date.now();
 const sessions = new Map();
@@ -115,8 +134,10 @@ CREATE TABLE IF NOT EXISTS backup_runs (
   status TEXT NOT NULL, manifest_json TEXT NOT NULL) STRICT;
 PRAGMA user_version = 36;`);
 const run = (sql, ...values) => stateDb.prepare(sql).run(...values);
-run("INSERT OR IGNORE INTO migration_runs VALUES ('node-desktop-stream-pairing-defaults-v1', ?, ?, 'completed', ?)",
-  startedAt, startedAt, JSON.stringify({ retiredDesktopApprovals: Number(env.FIC_SCRIPT_DESKTOP_RETIRED ?? 0) }));
+if (env.FIC_SCRIPT_NO_DESKTOP_RECEIPT !== '1') {
+  run("INSERT OR IGNORE INTO migration_runs VALUES ('node-desktop-stream-pairing-defaults-v1', ?, ?, 'completed', ?)",
+    startedAt, startedAt, JSON.stringify({ retiredDesktopApprovals: Number(env.FIC_SCRIPT_DESKTOP_RETIRED ?? 0) }));
+}
 if (env.FIC_SCRIPT_LEGACY_IMPORT === '1') {
   run("INSERT INTO migration_runs VALUES ('legacy-sessions:import', ?, ?, 'completed', '{}')", startedAt, startedAt);
   run("INSERT INTO migration_sources VALUES ('legacy-sessions:abc', 'sessions', '/legacy/sessions.json', 'session_nodes', NULL, NULL, 1, 'legacy-sessions:import', 'completed', ?, 1, '{}')", startedAt);
@@ -336,6 +357,7 @@ process.on('SIGTERM', () => {
   if (env.FIC_SCRIPT_STOP_DEADLINE === '1') {
     process.stderr.write('[gateway] shutdown deadline reached before stop; pending close steps: plugins; cleanup incomplete; exitCode=0\n');
   }
+  logLine('gateway stopped');
   process.stdout.write('[gateway] stopped\n');
   process.exit(Number(env.FIC_SCRIPT_STOP_EXIT ?? 0));
 });

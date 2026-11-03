@@ -4,10 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -47,6 +48,7 @@ async function workspace({ commit = CANDIDATE, buildId = 'fic-build-1' } = {}) {
   mkdirSync(path.join(stage, 'dist'), { recursive: true });
   copyFileSync(SCRIPTED, path.join(stage, 'dist', 'index.js'));
   writeFileSync(path.join(stage, 'dist', 'build-info.json'), JSON.stringify({ commit, buildId, version: '2026.10.31' }));
+  writeFileSync(path.join(stage, 'dist', 'node-compile-cache.mjs'), "if (process.argv.includes('--maintain')) setTimeout(() => {}, 60_000);\n");
   const keyFile = path.join(root, 'observer.key');
   writeFileSync(keyFile, `${'k'.repeat(64)}\n`, { mode: 0o600 });
   return {
@@ -226,6 +228,42 @@ test('refusal: a non-empty state directory', async () => {
   assert.equal(readFileSync(path.join(ws.stateDir, 'openclaw.json'), 'utf8'), '{}');
 });
 
+test('refusal: an existing state directory, even an empty one: the control creates its own', async () => {
+  const ws = await workspace();
+  mkdirSync(ws.stateDir);
+  assert.deepEqual(await refusedRun(ws), ['state-dir-exists']);
+  assert.deepEqual(readdirSync(ws.stateDir), []);
+});
+
+test('two runs on one state directory: the second cannot claim it', async () => {
+  const first = await workspace();
+  const second = await workspace();
+  const { runFreshInstallControl } = await driver();
+  const results = await Promise.all([
+    runFreshInstallControl(controlOptions(first), docsOverride),
+    runFreshInstallControl(controlOptions(second, { stateDir: first.stateDir }), docsOverride),
+  ]);
+  const completed = results.filter((result) => result.status === 'completed');
+  const refused = results.filter((result) => result.status === 'refused');
+  assert.equal(completed.length, 1, JSON.stringify(results.map((result) => result.refusals ?? result.grade?.verdict)));
+  assert.equal(completed[0].grade.verdict, 'PASS-candidate', JSON.stringify(completed[0].grade));
+  assert.equal(refused.length, 1);
+  assert.ok(['state-dir-changed', 'state-dir-exists', 'state-dir-not-empty'].includes(refused[0].refusals[0].code), JSON.stringify(refused[0].refusals));
+  assert.equal(refused[0].refusal.processesStarted, 0);
+});
+
+test('refusal: an artifact directory that lands in a live ~/.openclaw through a symlink', async () => {
+  const ws = await workspace();
+  const data = path.join(ws.root, 'data', 'openclaw');
+  mkdirSync(data, { recursive: true });
+  symlinkSync(data, path.join(ws.home, '.openclaw'));
+  const { runFreshInstallControl } = await driver();
+  const result = await runFreshInstallControl(controlOptions(ws, { artifactDir: path.join(data, 'run1') }), docsOverride);
+  assert.deepEqual(result.refusals.map((entry) => entry.code), ['artifact-dir-in-target']);
+  assert.equal(result.refusalWritten, false);
+  assert.deepEqual(readdirSync(data), []);
+});
+
 test('refusal: a state directory under, or over, any live ~/.openclaw', async () => {
   for (const make of [
     (ws) => path.join(ws.home, '.openclaw', 'fresh'),
@@ -374,7 +412,7 @@ function passingRecord(fic) {
     },
     configValidate: { ran: true, exit: { code: 0, signal: null }, valid: true, pathMatches: true, warnings: 0, issues: 0 },
     stop: { signal: 'SIGTERM', signalledAtMs: 3000, exitedAtMs: 3100, exit: { code: 0, signal: null }, escalatedToSigkill: false, shutdownDeadlineReached: false, portReleased: true, leftoverProcesses: 0 },
-    cleanup: { completed: true, residualPids: [], unverifiedPids: [], orphansTerminated: [], portReleased: true, stateRemoved: true, homeRemoved: true, configRemoved: true },
+    cleanup: { completed: true, residualPids: [], unverifiedPids: [], orphansTerminated: [], portReleased: true, stateRemoved: true, homeRemoved: true, tmpRemoved: true, configRemoved: true },
     timings: { bootMs: 1200, establishMs: 40, configValidateMs: 300, stopMs: 100, totalMs: 4000 },
     observerKey: { available: true, algorithmFingerprint: '0123456789abcdef' },
     errors: [],
@@ -428,6 +466,7 @@ const CONTRADICTIONS = {
   'readiness-incomplete': (record) => { record.gateway.hello.buildId = 'another-build'; },
   'agent-schema-not-canonical': (record) => { record.storage.agentDatabase.schemaMeta.createdEqualsUpdated = false; },
   'upgrade-path-recorded': (record) => { record.storage.stateDatabase.migrationSources = 1; },
+  'fresh-boot-receipt-missing': (record) => { Object.assign(record.storage.stateDatabase.migrationRuns, { runs: 0, freshInstallReceipts: 0 }); },
   'authority-table-missing': (record) => { record.storage.authorityTable = { present: false }; },
   'authority-table-drift': (record) => { record.storage.authorityTable.columnsSha256 = '0'.repeat(64); },
   'epoch-row-not-single': (record) => { record.authority.rowsAfterNarrowing = 2; },
@@ -467,6 +506,8 @@ test('each contradiction of a fresh install grades FAIL-candidate with its own c
     (record) => { record.cleanup.residualPids = [4242]; },
     (record) => { record.cleanup.configRemoved = false; },
     (record) => { record.cleanup.homeRemoved = false; },
+    (record) => { record.cleanup.tmpRemoved = false; },
+    (record) => { record.target.stateDir.createdByControl = false; },
     (record) => { record.target.config.keys = [...fic.FIC_CONFIG_KEYS, 'channels.discord.token']; },
     (record) => { record.target.config.mode = '0644'; },
     (record) => { record.candidateSha = 'short'; },
@@ -523,6 +564,17 @@ test('dry run: a fresh install of the scripted gateway grades PASS-candidate and
   assert.ok(!existsSync(ws.stateDir));
   assert.ok(!existsSync(path.join(`${ws.artifactDir}.private`, 'home')));
   assert.ok(!existsSync(path.join(`${ws.artifactDir}.private`, 'config')));
+  assert.ok(!existsSync(path.join(`${ws.artifactDir}.private`, 'tmp')), 'the gateway TMPDIR is removed');
+  assert.equal(record.cleanup.tmpRemoved, true);
+  // The gateway logged to the run's own file, not the machine-wide /tmp/openclaw one.
+  assert.ok(record.target.config.keys.includes('logging.file'));
+  assert.match(readFileSync(path.join(`${ws.artifactDir}.private`, 'logs', 'gateway.log'), 'utf8'), /gateway starting[\s\S]*gateway stopped/u);
+  assert.equal(record.stop.leftoverProcesses, 0);
+  assert.equal(record.stop.compileCacheMaintainers, 0);
+  // The session key cannot be rebuilt from the public run id.
+  const guessed = createHash('sha256').update(`agent:main:fic-${record.runId.slice(4, 16)}`).digest('hex');
+  assert.notEqual(record.authority.sessionKeySha256, guessed);
+  assert.equal(record.target.livePortsRefused, undefined);
   assert.equal(statSync(`${ws.artifactDir}.private`).mode & 0o777, 0o700);
   assert.deepEqual(markerProcesses(record.runId), []);
   assert.equal(record.cleanup.portReleased, true);
@@ -538,18 +590,18 @@ test('dry run: a fresh install of the scripted gateway grades PASS-candidate and
   assert.match(config, /\[gateway\] stopped/u);
 });
 
-test('dry run: a state directory that already exists empty is used and emptied again', async () => {
-  const ws = await workspace();
-  mkdirSync(ws.stateDir);
-  const { runFreshInstallControl } = await driver();
-  const result = await runFreshInstallControl(controlOptions(ws), docsOverride);
+test('dry run: the entry\'s detached compile-cache maintainer is not a leftover, and cleanup still stops it', async () => {
+  const { ws, result } = await dryRun({ FIC_SCRIPT_MAINTAINER: '1' });
   assert.equal(result.grade.verdict, 'PASS-candidate', JSON.stringify(result.grade));
-  assert.equal(result.record.target.stateDir.createdByControl, false);
-  assert.equal(result.record.cleanup.stateRemovalMode, 'emptied-pre-existing-directory');
-  assert.deepEqual(readdirSync(ws.stateDir), []);
+  assert.equal(result.record.stop.compileCacheMaintainers, 1);
+  assert.equal(result.record.stop.leftoverProcesses, 0);
+  assert.equal(result.record.cleanup.orphansTerminated.length, 1);
+  assert.deepEqual(markerProcesses(result.record.runId), []);
+  assert.ok(!existsSync(ws.stateDir));
 });
 
 const NEGATIVE_DRY_RUNS = [
+  [{ FIC_SCRIPT_NO_DESKTOP_RECEIPT: '1' }, 'fresh-boot-receipt-missing'],
   [{ FIC_SCRIPT_MIGRATED: '1' }, 'agent-schema-not-canonical'],
   [{ FIC_SCRIPT_AGENT_VERSION: '39' }, 'agent-schema-not-canonical'],
   [{ FIC_SCRIPT_LEGACY_IMPORT: '1' }, 'upgrade-path-recorded'],

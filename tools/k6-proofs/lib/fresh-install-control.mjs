@@ -97,7 +97,11 @@ export const FIC_FRESH_INSTALL_MIGRATION_RECEIPTS = Object.freeze([
  * The minimal fresh config: what `openclaw gateway` needs to start a local gateway
  * (gateway.mode=local, src/cli/gateway-cli/pre-bootstrap.ts:54-81) on one loopback port with its
  * own token, plus the continuation switch, which is off unless set
- * (src/auto-reply/continuation/config.ts:100). No channels, no models, no plugins.
+ * (src/auto-reply/continuation/config.ts:100), and a log file of the run's own. Without
+ * logging.file the product logs to the machine-wide /tmp/openclaw rolling file and prunes it
+ * (src/logging/logger.ts:441-442, src/logging/log-file-path.ts:44-50,
+ * src/infra/tmp-openclaw-dir.ts:6), the same file a live gateway of the same user writes. No
+ * channels, no models, no plugins.
  */
 export const FIC_CONFIG_KEYS = Object.freeze([
   'agents.defaults.continuation.enabled',
@@ -106,12 +110,14 @@ export const FIC_CONFIG_KEYS = Object.freeze([
   'gateway.bind',
   'gateway.mode',
   'gateway.port',
+  'logging.file',
 ]);
 
-export function minimalFreshConfig({ port, token }) {
+export function minimalFreshConfig({ port, token, logFile }) {
   return {
     gateway: { mode: 'local', port, bind: 'loopback', auth: { mode: 'token', token } },
     agents: { defaults: { continuation: { enabled: true } } },
+    logging: { file: logFile },
   };
 }
 
@@ -199,6 +205,7 @@ export const DEFAULT_PLAN = Object.freeze({
   configValidateTimeoutMs: 60_000,
   stopGraceMs: 30_000,
   killGraceMs: 5_000,
+  helperSettleMs: 5_000,
 });
 
 const HEX64 = /^[0-9a-f]{64}$/u;
@@ -290,6 +297,28 @@ function within(parent, child, pathApi) {
   return relative === '' || (!relative.startsWith('..') && !pathApi.isAbsolute(relative));
 }
 
+export { within as pathWithin };
+
+/**
+ * A path as the filesystem will resolve it once created: the real path of its nearest existing
+ * ancestor joined with the rest. So a path through a symlink compares as where it lands.
+ */
+export function resolveThroughAncestors(file, { fsApi, pathApi }) {
+  let probe = file;
+  let real = null;
+  for (;;) {
+    try {
+      real = fsApi.realpathSync(probe);
+      break;
+    } catch {
+      const parent = pathApi.dirname(probe);
+      if (parent === probe) break;
+      probe = parent;
+    }
+  }
+  return real === null ? file : pathApi.join(real, pathApi.relative(probe, file));
+}
+
 /**
  * The live state directories a fresh-install run must never touch: ~/.openclaw, every profile
  * directory ~/.openclaw-<profile> (src/cli/profile-utils.ts:26-37), the legacy ~/.clawdbot
@@ -365,28 +394,26 @@ export function evaluateFreshInstallTarget({
     } catch {
       stat = null;
     }
-    // A missing directory is created by the control; its nearest existing ancestor is what the
-    // live-state comparison resolves.
-    let probe = stateDir;
-    while (!real(probe) && pathApi.dirname(probe) !== probe) probe = pathApi.dirname(probe);
-    const resolved = stat ? real(stateDir) : pathApi.join(real(probe) ?? probe, pathApi.relative(probe, stateDir));
+    // The control creates the state directory itself (one atomic mkdir), so no other run can
+    // share it. A missing directory resolves through its nearest existing ancestor.
+    const resolved = resolveThroughAncestors(stateDir, { fsApi, pathApi });
     if (stat?.isSymbolicLink()) refuse('state-dir-symlinked', 'the state directory must not be a symlink');
     else if (stat && !stat.isDirectory()) refuse('state-dir-not-directory', 'the state directory exists and is not a directory');
     else if (stat) {
-      let entries = [];
+      let entries = null;
       try {
         entries = fsApi.readdirSync(stateDir);
       } catch {
         refuse('state-dir-unreadable', 'the state directory cannot be listed');
       }
-      if (entries.length > 0) refuse('state-dir-not-empty', `the state directory holds ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}; a fresh install starts from an empty one`);
+      if (entries?.length > 0) refuse('state-dir-not-empty', `the state directory holds ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}; a fresh install starts from an empty one`);
+      else if (entries) refuse('state-dir-exists', 'the control creates the state directory itself, so no other run can share it; remove the empty directory or name a new one');
     }
     if (resolved && live.some((dir) => within(dir, resolved, pathApi) || within(resolved, dir, pathApi))) {
       refuse('state-dir-live', 'the state directory is, or overlaps, a live OpenClaw state directory (~/.openclaw, ~/.openclaw-<profile>, ~/.clawdbot or $OPENCLAW_STATE_DIR)');
     }
     if (resolved && within(resolved, homeReal, pathApi)) refuse('state-dir-live', 'the state directory must not contain the home directory');
-    target.stateDir = resolved ?? stateDir;
-    target.stateDirExisted = Boolean(stat);
+    target.stateDir = resolved;
   }
 
   /* the port */
@@ -437,7 +464,7 @@ export function evaluateFreshInstallTarget({
       if (target.stateDir && within(stageReal, target.stateDir, pathApi)) refuse('state-dir-in-stage', 'the state directory must not live inside the stage');
     }
   }
-  target.liveStateDirCount = live.length;
+  target.liveDirs = live;
   return { refusals, target };
 }
 
@@ -502,6 +529,7 @@ export function gradeFreshInstallControl(record) {
     const present = typeof state.emptyAtStart === 'boolean' && nonNegativeInteger(state.entriesAtStart);
     const keysMatch = Array.isArray(config.keys) && canonicalJson(config.keys) === canonicalJson([...FIC_CONFIG_KEYS]);
     const holds =
+      state.createdByControl === true &&
       state.emptyAtStart === true &&
       state.entriesAtStart === 0 &&
       home.controlOwned === true &&
@@ -566,11 +594,18 @@ export function gradeFreshInstallControl(record) {
       nonNegativeInteger(state.migrationSources) &&
       nonNegativeInteger(state.backupRuns) &&
       nonNegativeInteger(state.agentRegistry?.mismatched);
-    const holds = runs.unexpected === 0 && state.migrationSources === 0 && state.backupRuns === 0 && state.agentRegistry?.mismatched === 0;
-    observe('no-upgrade-path', present, holds);
+    const upgrade = runs.unexpected !== 0 || state.migrationSources !== 0 || state.backupRuns !== 0 || state.agentRegistry?.mismatched !== 0;
+    // The fresh boot's own receipt must be there: it shows this state database was prepared by the
+    // gateway's startup (src/gateway/server-startup-bootstrap.ts:482-505). Whether the agent
+    // database is registered depends on the opener (src/state/openclaw-agent-db-schema.ts:739-741),
+    // so only a registration below the current schema is graded.
+    const freshBoot = runs.runs === 1 && runs.freshInstallReceipts === 1;
+    observe('no-upgrade-path', present, !upgrade && freshBoot);
     if (!present) miss('migration-journal-unread', `the state database's migration journal was not read${state.error ? ` (${state.error})` : ''}`);
-    else if (!holds) {
+    else if (upgrade) {
       fail('upgrade-path-recorded', `the journal shows an upgrade or import path (${runs.unexpected} unexpected run(s), ${state.migrationSources} source(s), ${state.backupRuns} backup run(s), ${state.agentRegistry?.mismatched} agent database(s) registered below schema ${FIC_AGENT_SCHEMA_VERSION})`);
+    } else if (!freshBoot) {
+      fail('fresh-boot-receipt-missing', 'the fresh boot\'s own journal receipt (node-desktop-stream-pairing-defaults-v1) is not in the state database the control read');
     }
   }
 
@@ -668,11 +703,12 @@ export function gradeFreshInstallControl(record) {
       cleanup.portReleased === true &&
       cleanup.stateRemoved === true &&
       cleanup.homeRemoved === true &&
+      cleanup.tmpRemoved === true &&
       cleanup.configRemoved === true;
     const signed = record?.observerKey?.available === true;
     observe('signed-cleanup-receipt', present && signed, holds);
     if (!present) miss('cleanup-not-recorded', 'no cleanup record');
-    else if (!holds) fail('cleanup-residue', 'cleanup left a process, the listener, the disposable state, the gateway home or the config behind');
+    else if (!holds) fail('cleanup-residue', 'cleanup left a process, the listener, the disposable state, the gateway home, its temp directory or the config behind');
     if (present && !signed) partial('receipt-unsigned', 'the cleanup record is not signed with the observer key');
   }
 

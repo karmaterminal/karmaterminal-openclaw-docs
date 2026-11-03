@@ -55,6 +55,7 @@ import {
   listenInodes,
   parseJson,
   parseTrailingJson,
+  procArgs,
   procEnvironHas,
   processesWithMarker,
   procStat,
@@ -73,11 +74,12 @@ import {
   gradeFreshInstallControl,
   isModelCredentialKey,
   isSha40,
-  liveStateDirs,
   minimalFreshConfig,
   observerKeyFingerprint,
+  pathWithin,
   planFreshInstall,
   projectionSha256,
+  resolveThroughAncestors,
   sealObserverReceipt,
   sha256,
   verifyObserverReceipt,
@@ -91,6 +93,7 @@ const CLIENT = Object.freeze({ id: 'cli', mode: 'cli', version: 'k6-proof-fic-v1
 const GATEWAY_ENV_ALLOWED = /^(?:NODE_OPTIONS|OPENCLAW_CODEX_APP_SERVER_BIN|FIC_SCRIPT_[A-Z0-9_]+)$/u;
 const NODE_OPTIONS_ALLOWED = /^(?:--max-old-space-size=\d+|--inspect=127\.0\.0\.1:\d{4,5})$/u;
 const MARKER_KEY = 'OPENCLAW_PROOF_FIC_RUN';
+const SHARED_TMP_ROOT = '/tmp/openclaw';
 // The product's own line when a stop misses its shutdown deadline (src/cli/gateway-cli/run-loop.ts:626-628).
 const SHUTDOWN_DEADLINE_LINE = /shutdown deadline reached before stop; pending close steps:/u;
 
@@ -303,7 +306,7 @@ export function parseArgs(argv) {
 const USAGE = `Usage:
   node tools/k6-proofs/scripts/run-fresh-install-control.mjs \\
     --stage-dir <stage-only build dir> --candidate-sha <40-hex> --docs-sha <40-hex> \\
-    --state-dir <new or empty dir> --port <free loopback port> \\
+    --state-dir <new dir: the control creates it> --port <free loopback port> \\
     --artifact-dir <new public dir> --observer-key-file <0600 key file> \\
     [--agent-id main] [--node <node>] [--boot-timeout-ms 180000] [--stop-grace-ms 30000] \\
     [--config-validate-timeout-ms 60000] [--gateway-env KEY=VALUE]...
@@ -316,6 +319,14 @@ row's candidate verdict; --verify checks the observer signature and re-grades th
 /* ------------------------------------------------------------------------------------ */
 /* Control                                                                               */
 /* ------------------------------------------------------------------------------------ */
+
+function entryCount(dir) {
+  try {
+    return readdirSync(dir).length;
+  } catch {
+    return null;
+  }
+}
 
 function inside(dir, child) {
   const relative = path.relative(dir, child);
@@ -423,26 +434,21 @@ export async function runFreshInstallControl(options, overrides = {}) {
   }
   let unwritable = false;
   if (artifactDir) {
-    const homeReal = (() => {
-      try {
-        return realpathSync(home);
-      } catch {
-        return home;
-      }
-    })();
-    const live = liveStateDirs({ home: homeReal, environment, fsApi: { readdirSync }, pathApi: path });
-    for (const forbidden of [target.stateDir, target.stageDir, ...live].filter(Boolean)) {
-      if (inside(forbidden, artifactDir)) {
-        unwritable = true;
-        refuse('artifact-dir-in-target', 'the artifact directory must live outside the state directory, the stage and every live state directory');
-      }
+    // Compared where they land: through any symlink in an existing ancestor, as the state
+    // directory is (resolveThroughAncestors), against the resolved live directories.
+    const resolve = (file) => resolveThroughAncestors(file, { fsApi: { realpathSync }, pathApi: path });
+    const landings = [resolve(artifactDir), resolve(`${artifactDir}.private`)];
+    const lands = (dir) => landings.some((landing) => pathWithin(dir, landing, path));
+    if ([target.stateDir, target.stageDir, ...(target.liveDirs ?? [])].filter(Boolean).some(lands)) {
+      unwritable = true;
+      refuse('artifact-dir-in-target', 'the artifact directory must live outside the state directory, the stage and every live state directory');
     }
     // The private sibling keeps raw logs; it must never land in a repository tree.
-    if (inside(path.resolve(repoRoot), artifactDir)) {
+    if (lands(resolve(path.resolve(repoRoot)))) {
       unwritable = true;
       refuse('artifact-dir-in-repo', 'write receipts outside the docs repository (for example ~/proof-runs/...); publishing is a separate reviewed step');
     }
-    if (target.stateDir && (inside(artifactDir, target.stateDir) || inside(`${artifactDir}.private`, target.stateDir))) {
+    if (target.stateDir && landings.some((landing) => pathWithin(landing, target.stateDir, path))) {
       refuse('state-dir-in-artifact-dir', 'the state directory must not live inside the artifact directory or its private sibling');
     }
     if (existsSync(path.join(artifactDir, 'observer-receipt.json')) || existsSync(`${artifactDir}.private`)) {
@@ -461,18 +467,40 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   const node = options.node ?? process.execPath;
   const entry = path.join(target.stageDir, 'dist', 'index.js');
   const privateDir = `${artifactDir}.private`;
+  const stateDir = target.stateDir;
+
+  /* 1. claim the fresh state directory: one atomic mkdir of the leaf. Another run that got past
+     the guard with the same path finds it taken and stops here; a symlink swapped in since the
+     guard is refused by the lstat that follows. */
+  let stateIdentity;
+  try {
+    mkdirSync(path.dirname(stateDir), { recursive: true });
+    mkdirSync(stateDir, { mode: 0o700 });
+    const stat = lstatSync(stateDir);
+    if (stat.isSymbolicLink() || !stat.isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
+    stateIdentity = { dev: stat.dev, ino: stat.ino, mode: stat.mode };
+  } catch (error) {
+    return refusalResult({
+      artifactDir,
+      options,
+      unwritable: false,
+      refusals: [{ code: 'state-dir-changed', detail: `the state directory could not be claimed (${error?.code ?? 'error'}): another run or process created it after the guard` }],
+    });
+  }
   mkdirSync(artifactDir, { recursive: true });
   mkdirSync(privateDir, { recursive: true, mode: 0o700 });
   chmodSync(privateDir, 0o700);
 
   const runId = `fic-${randomBytes(16).toString('hex')}`;
   const marker = `${MARKER_KEY}=${runId}`;
-  const sessionSlug = `fic-${runId.slice(4, 16)}`;
+  // Not derived from runId, which is public: the session key is published only as SHA-256.
+  const sessionSlug = `fic-${randomBytes(9).toString('hex')}`;
   const token = randomBytes(24).toString('hex');
-  const stateDir = target.stateDir;
   const configDir = path.join(privateDir, 'config');
   const configPath = path.join(configDir, 'openclaw.json');
   const gatewayHome = path.join(privateDir, 'home');
+  const gatewayTmp = path.join(privateDir, 'tmp');
+  const logFile = path.join(privateDir, 'logs', 'gateway.log');
   const agentDatabase = path.join(stateDir, 'agents', agentId, 'agent', 'openclaw-agent.sqlite');
   const stateDatabase = path.join(stateDir, 'state', 'openclaw.sqlite');
   const secrets = [
@@ -504,7 +532,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     target: {
       agentId,
       port: target.port,
-      livePortsRefused: target.livePorts,
+      livePortsRefusedCount: target.livePorts.length,
       stageBuild: target.stageBuild,
       environmentCredentialKeys: target.environmentCredentialKeys,
       guard: 'passed',
@@ -520,23 +548,24 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     errors: [],
   };
 
-  /* 1. the fresh state directory, the minimal config and an empty gateway HOME */
-  const existed = existsSync(stateDir);
-  if (!existed) mkdirSync(stateDir, { recursive: true, mode: 0o700 });
-  const stateStat = lstatSync(stateDir);
-  const stateIdentity = { dev: stateStat.dev, ino: stateStat.ino };
+  /* 2. prove it empty; the minimal config, an empty gateway HOME and temp directory, a log file */
   const stateEntries = readdirSync(stateDir).length;
   mkdirSync(configDir, { mode: 0o700 });
   mkdirSync(gatewayHome, { mode: 0o700 });
-  const config = minimalFreshConfig({ port: target.port, token });
+  mkdirSync(gatewayTmp, { mode: 0o700 });
+  mkdirSync(path.dirname(logFile), { mode: 0o700 });
+  const config = minimalFreshConfig({ port: target.port, token, logFile });
   const configText = `${JSON.stringify(config, null, 2)}\n`;
   writeFileSync(configPath, configText, { mode: 0o600, flag: 'wx' });
   record.target.stateDir = {
-    createdByControl: !existed,
+    createdByControl: true,
     emptyAtStart: stateEntries === 0,
     entriesAtStart: stateEntries,
-    mode: (stateStat.mode & 0o777).toString(8).padStart(4, '0'),
+    mode: (stateIdentity.mode & 0o777).toString(8).padStart(4, '0'),
   };
+  // The product's machine-wide temp root has no override (src/infra/tmp-openclaw-dir.ts:6,
+  // 87-127); the run's log and TMPDIR are private, and what changes there is recorded, not graded.
+  record.target.sharedTmpRoot = { path: SHARED_TMP_ROOT, entriesBefore: entryCount(SHARED_TMP_ROOT) };
   record.target.home = { controlOwned: true, entriesAtStart: readdirSync(gatewayHome).length };
   record.target.config = {
     sha256: sha256(configText),
@@ -549,6 +578,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   // control-owned directory, so no CLI credential file can be discovered either.
   const childEnv = {
     HOME: gatewayHome,
+    TMPDIR: gatewayTmp,
     PATH: process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin',
     TZ: process.env.TZ ?? 'UTC',
     LANG: process.env.LANG ?? 'C.UTF-8',
@@ -778,56 +808,70 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     };
   };
 
-  /** SIGTERM to the gateway this run started (identity re-verified); SIGKILL only on timeout. */
+  /**
+   * SIGTERM to the gateway this run started; SIGKILL to its process group only on timeout. The
+   * gateway is the control's direct child and is signalled through its own handle: until Node
+   * reaps it its PID cannot be reused, so the signal cannot reach another process.
+   */
   const stopGateway = async () => {
-    if (!gateway.pid || gateway.exited) {
+    if (!gateway.child || gateway.exited) {
       record.stop = { signalledAtMs: null, exitedBeforeStop: gateway.exited, exit: gateway.exit };
       return;
     }
     const stat = procStat(gateway.pid);
-    if (!stat || stat.startTicks !== gateway.startTicks || !procEnvironHas(gateway.pid, marker)) {
-      record.stop = { signalledAtMs: null, identityUnverified: true };
-      return;
-    }
+    const identityVerified = Boolean(stat && stat.startTicks === gateway.startTicks && procEnvironHas(gateway.pid, marker));
     const signalledAtMs = now();
-    try {
-      process.kill(gateway.pid, 'SIGTERM');
-    } catch {
-      // Already gone.
-    }
+    gateway.child.kill('SIGTERM');
     await Promise.race([gateway.closed, sleep(plan.stopGraceMs)]);
     let escalated = false;
     if (!gateway.exited) {
       escalated = true;
       try {
+        // The group the detached gateway leads; its id stays reserved while any member lives.
         process.kill(-gateway.pid, 'SIGKILL');
       } catch {
-        try {
-          process.kill(gateway.pid, 'SIGKILL');
-        } catch {
-          // Already gone.
-        }
+        gateway.child.kill('SIGKILL');
       }
       await Promise.race([gateway.closed, sleep(plan.killGraceMs)]);
     }
     const exitedAtMs = gateway.exitedAtMs;
-    // Give the kernel a moment to drop the listening socket of an exited process.
+    // Give the kernel a moment to drop the listening socket, and the run's helpers a moment to
+    // finish on their own.
     const released = await waitUntil(() => listenInodes(target.port).length === 0, now() + 2000, 50);
+    await waitUntil(() => runHelpers().others.length === 0, now() + plan.helperSettleMs, 100);
+    const helpers = runHelpers();
     // The run loop force-exits at its shutdown deadline, with code 0 when its budget allows
     // (src/cli/gateway-cli/run-loop.ts:622-634), so exit 0 alone is not a clean stop.
     const output = Buffer.concat([...gateway.stdout, ...gateway.stderr]).toString('utf8');
     record.stop = {
       signal: 'SIGTERM',
       signalledAtMs,
+      identityVerified,
       exitedAtMs,
       exit: gateway.exit,
       escalatedToSigkill: escalated,
       shutdownDeadlineReached: SHUTDOWN_DEADLINE_LINE.test(output),
       portReleased: Boolean(released),
-      // A helper that outlives the gateway's own stop is not a clean stop.
-      leftoverProcesses: processesWithMarker(marker).length,
+      // A process of the run that outlives the gateway's own stop is not a clean stop, except the
+      // compile-cache maintainer the entry detaches by design, which is counted on its own.
+      leftoverProcesses: helpers.others.length,
+      compileCacheMaintainers: helpers.maintainers.length,
     };
     timings.stopMs = typeof exitedAtMs === 'number' ? exitedAtMs - signalledAtMs : null;
+  };
+
+  /**
+   * Processes still carrying the run marker, the gateway excluded, split into the entry's detached
+   * compile-cache maintainer (`node <stage>/.../node-compile-cache.mjs --maintain <dir>`,
+   * node-compile-cache.mjs:192-229 at j12) and everything else.
+   */
+  const runHelpers = () => {
+    const pids = processesWithMarker(marker).filter((pid) => pid !== gateway.pid || gateway.exited);
+    const maintainer = (pid) => {
+      const args = procArgs(pid);
+      return args.includes('--maintain') && args.some((arg) => path.basename(arg) === 'node-compile-cache.mjs' && inside(target.stageDir, arg));
+    };
+    return { maintainers: pids.filter(maintainer), others: pids.filter((pid) => !maintainer(pid)) };
   };
 
   try {
@@ -841,7 +885,8 @@ async function executeControl({ options, platform, plan, target, docs, home, art
   } catch (error) {
     record.errors.push({ at: 'stop', message: redact(error.stack ?? error.message).slice(0, 2000) });
   }
-  await cleanup({ record, gateway, marker, target, stateDir, stateIdentity, existed, gatewayHome, configDir, configPath, redact });
+  await cleanup({ record, gateway, marker, target, stateDir, stateIdentity, gatewayHome, gatewayTmp, configDir, configPath, redact });
+  record.target.sharedTmpRoot.entriesAfter = entryCount(SHARED_TMP_ROOT);
   liveRuns.delete(run);
   for (const stream of ['stdout', 'stderr']) {
     if (gateway.logs) await new Promise((resolve) => gateway.logs[stream].end(resolve));
@@ -863,28 +908,28 @@ async function executeControl({ options, platform, plan, target, docs, home, art
 
 /**
  * Remove what the run created, and only that: any process still carrying the run marker, the
- * fresh state directory (re-identified by device and inode; one that pre-existed empty is emptied,
- * not removed), the gateway HOME and the config. The private directory keeps the raw logs.
+ * fresh state directory it created (re-identified by device and inode), the gateway HOME, its temp
+ * directory and the config. The private directory keeps the raw logs.
  */
-async function cleanup({ record, gateway, marker, target, stateDir, stateIdentity, existed, gatewayHome, configDir, configPath, redact }) {
+async function cleanup({ record, gateway, marker, target, stateDir, stateIdentity, gatewayHome, gatewayTmp, configDir, configPath, redact }) {
   const runMembers = () => {
     const found = new Set(processesWithMarker(marker));
     if (gateway.pid && !gateway.exited) found.add(gateway.pid);
     return [...found].sort((a, b) => a - b);
   };
-  // Re-read identity immediately before any signal: the gateway by PID, start ticks and marker,
-  // anything else by the marker alone. A PID that fails the check is never signalled.
-  const ours = (pid) => {
-    if (!procEnvironHas(pid, marker)) return false;
-    return pid !== gateway.pid || procStat(pid)?.startTicks === gateway.startTicks;
-  };
-  const orphans = runMembers();
+  // Every other process is re-identified by the run marker immediately before any signal; one
+  // that no longer carries it is never signalled. The unreaped gateway goes through its handle.
+  const orphans = runMembers().filter((pid) => pid !== gateway.pid);
   const unverified = [];
   for (const [signalName, graceMs] of [['SIGTERM', 10_000], ['SIGKILL', 5_000]]) {
     const live = runMembers();
     if (live.length === 0) break;
     for (const pid of live) {
-      if (!ours(pid)) {
+      if (pid === gateway.pid && !gateway.exited) {
+        gateway.child.kill(signalName);
+        continue;
+      }
+      if (!procEnvironHas(pid, marker)) {
         if (procStat(pid) && !unverified.includes(pid)) unverified.push(pid);
         continue;
       }
@@ -897,7 +942,7 @@ async function cleanup({ record, gateway, marker, target, stateDir, stateIdentit
     const deadline = Date.now() + graceMs;
     while (Date.now() < deadline && runMembers().length > 0) await sleep(100);
   }
-  await gateway.closed;
+  await Promise.race([gateway.closed, sleep(5_000)]);
   const residual = runMembers();
 
   const remove = (label, action) => {
@@ -918,28 +963,25 @@ async function cleanup({ record, gateway, marker, target, stateDir, stateIdentit
         throw new Error('the state directory is no longer the one this run created; left in place');
       }
       stateEntriesRemoved = readdirSync(stateDir).length;
-      if (existed) {
-        for (const entry of readdirSync(stateDir)) rmSync(path.join(stateDir, entry), { recursive: true, force: true });
-      } else {
-        rmSync(stateDir, { recursive: true, force: true });
-      }
-    }) && (existed ? readdirSync(stateDir).length === 0 : !existsSync(stateDir));
+      rmSync(stateDir, { recursive: true, force: true });
+    }) && !existsSync(stateDir);
   } else {
     record.errors.push({ at: 'cleanup-state', message: 'a run process survived; the disposable state was left for the operator' });
   }
   const homeRemoved = remove('home', () => rmSync(gatewayHome, { recursive: true, force: true })) && !existsSync(gatewayHome);
+  const tmpRemoved = remove('tmp', () => rmSync(gatewayTmp, { recursive: true, force: true })) && !existsSync(gatewayTmp);
   const configRemoved = remove('config', () => rmSync(configDir, { recursive: true, force: true })) && !existsSync(configPath);
   record.cleanup = {
     completed: true,
     completedAtMs: Date.now(),
-    orphansTerminated: orphans.filter((pid) => pid !== gateway.pid),
+    orphansTerminated: orphans,
     residualPids: residual,
     unverifiedPids: unverified,
     portReleased: listenInodes(target.port).length === 0,
     stateRemoved,
-    stateRemovalMode: existed ? 'emptied-pre-existing-directory' : 'removed-created-directory',
     stateEntriesRemoved,
     homeRemoved,
+    tmpRemoved,
     configRemoved,
   };
 }

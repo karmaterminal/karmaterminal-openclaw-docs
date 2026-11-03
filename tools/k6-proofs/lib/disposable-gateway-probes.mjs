@@ -65,6 +65,15 @@ export function procStat(pid, procRoot = '/proc') {
   }
 }
 
+/** A process's command line, split; empty when unreadable. */
+export function procArgs(pid, procRoot = '/proc') {
+  try {
+    return readFileSync(path.join(procRoot, String(pid), 'cmdline')).toString('utf8').split('\0').filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 function environEntries(pid, procRoot) {
   return readFileSync(path.join(procRoot, String(pid), 'environ')).toString('utf8').split('\0');
 }

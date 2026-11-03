@@ -47,8 +47,8 @@ model turn:
 - **The fresh config validates.** `openclaw config validate --json` exits 0 with `valid: true`
   for the config the gateway ran with.
 - **It stops cleanly and leaves nothing.** SIGTERM stops it with exit 0, no SIGKILL, no missed
-  shutdown deadline and no process left behind; the disposable state, the gateway HOME and the
-  config are removed, and the cleanup record is signed.
+  shutdown deadline and no process left behind; the disposable state, the gateway HOME, its temp
+  directory and the config are removed, and the cleanup record is signed.
 
 ## What it does not prove
 
@@ -61,6 +61,10 @@ model turn:
   established without one, as the restart control's is.
 - No continuation behaviour beyond its storage and config: the continuation tools never run.
 - No live seat: the gateway is disposable and the state is removed.
+- No isolation of the product's machine-wide temp root. The run's log file and `TMPDIR` are
+  private, but `/tmp/openclaw` is preferred whatever the environment says
+  (`src/infra/tmp-openclaw-dir.ts:6, 87-127`), so the control records its entry count before and
+  after the run (`record.target.sharedTmpRoot`), ungraded.
 
 ## The product path at j12
 
@@ -125,11 +129,15 @@ once-per-database receipt unconditionally, `node-desktop-stream-pairing-defaults
 (`src/gateway/server-startup-bootstrap.ts:496-505`). So "no journal entries" cannot mean an empty
 table. The control reads it as follows, and publishes counts and hashes only:
 
-- that one receipt, exactly so, is the fresh boot's own (`freshInstallReceipts`);
+- that one receipt, exactly so, is the fresh boot's own (`freshInstallReceipts`), and it must be
+  there, alone: it shows the gateway's startup prepared the state database the control read
+  (`fresh-boot-receipt-missing` otherwise);
 - any other run, or that id with another status or with approvals retired, is an upgrade or import
   path (`unexpected`), named only by the SHA-256 of its id;
 - any `migration_sources` row, any `backup_runs` row, or an `agent_databases` row for the agent
-  below schema 40 is an upgrade path too;
+  below schema 40 is an upgrade path too. Whether the agent database is registered at all is the
+  opener's choice (`src/state/openclaw-agent-db-schema.ts:739-741`), so the row count is recorded,
+  not graded;
 - the agent database's own `schema_meta` row must have been inserted once at 40
   (`agent-schema-version`).
 
@@ -144,7 +152,7 @@ refusals:
 
 | Refusal | When |
 | --- | --- |
-| `state-dir-not-empty` | `--state-dir` exists and holds anything. A fresh install starts from an empty directory; a missing one is created by the control. |
+| `state-dir-not-empty` | `--state-dir` exists and holds anything. A fresh install starts from an empty directory, and the control creates it itself with one atomic `mkdir`, so an existing empty one is refused too (`state-dir-exists`), and a run that loses that race after the guard stops as `state-dir-changed` without starting anything. |
 | `state-dir-live` | `--state-dir` is, is inside, or contains `~/.openclaw`, any `~/.openclaw-<profile>`, `~/.clawdbot`, or the operator's own `$OPENCLAW_STATE_DIR`. |
 | `port-in-use` | Something already listens on `--port`. (`port-is-live` refuses 18789 and any port a live config names; `port-invalid` anything below 1024.) |
 | `stage-build-mismatch` | The stage's `dist/build-info.json` commit is not `--candidate-sha`. |
@@ -152,25 +160,29 @@ refusals:
 
 It also refuses a missing or loose observer key (`observer-key-missing`, `observer-key-mode`,
 `observer-key-in-target`, `observer-key-short`), a docs SHA that is not the executing checkout
-(`docs-sha-mismatch`), an artifact directory inside the repository, the state, the stage or a live
-directory, or one already used, a state directory inside the artifact directory, a symlinked state
+(`docs-sha-mismatch`), an artifact directory (or its private sibling) that lands inside the
+repository, the state, the stage or a live directory, compared through symlinks, or one already used, a state directory inside the artifact directory, a symlinked state
 directory, a stage under a live directory, and any `--gateway-env` key but `NODE_OPTIONS`
 (`--max-old-space-size`, loopback `--inspect`) and `OPENCLAW_CODEX_APP_SERVER_BIN`.
 
 The gateway never sees the operator's environment. It gets a cleared one: `PATH`, `TZ`, `LANG`,
 `NO_COLOR`, the allowed `--gateway-env`, `OPENCLAW_STATE_DIR`, `OPENCLAW_CONFIG_PATH`,
-`OPENCLAW_GATEWAY_PORT`, the run marker, and `HOME` set to an empty directory the control owns, so
-no CLI sign-in file (`~/.codex`, `~/.claude`, …) is discoverable either. The control re-reads the
+`OPENCLAW_GATEWAY_PORT`, the run marker, `TMPDIR` set to a private directory, and `HOME` set to an
+empty directory the control owns, so no CLI sign-in file (`~/.codex`, `~/.claude`, …) is
+discoverable either. The control re-reads the
 running gateway's `/proc/<pid>/environ` (keys only) to confirm it.
 
 ## How it runs
 
 1. **Guard.** The refusals above.
-2. **Fresh state.** It creates the state directory (mode 0700), lists it (zero entries), and writes
-   the minimal config to `<artifact-dir>.private/config/openclaw.json` (mode 0600, outside the
-   state directory): `gateway.mode: "local"`, `gateway.port`, `gateway.bind: "loopback"`,
-   `gateway.auth: { mode: "token", token: <fresh disposable token> }` and
-   `agents.defaults.continuation.enabled: true`. Nothing else: no channels, no models, no plugins.
+2. **Fresh state.** It claims the state directory with one atomic `mkdir` (mode 0700), lists it
+   (zero entries), and writes the minimal config to `<artifact-dir>.private/config/openclaw.json`
+   (mode 0600, outside the state directory): `gateway.mode: "local"`, `gateway.port`,
+   `gateway.bind: "loopback"`, `gateway.auth: { mode: "token", token: <fresh disposable token> }`,
+   `agents.defaults.continuation.enabled: true` and `logging.file` in
+   `<artifact-dir>.private/logs/`. Without `logging.file` the product logs to the machine-wide
+   `/tmp/openclaw` rolling file (`src/logging/logger.ts:441-442`), the one a live gateway of the same
+   user writes and prunes. Nothing else: no channels, no models, no plugins.
 3. **One disposable gateway.** `node <stage>/dist/index.js gateway --port <port>` with the cleared
    environment, in its own process group. It waits up to `--boot-timeout-ms` (180 s) until the run's
    process owns the listener, `/readyz` and `/startupz` pass, and hello-ok answers.
@@ -183,12 +195,17 @@ running gateway's `/proc/<pid>/environ` (keys only) to confirm it.
    the epoch could not be established, so a missing table grades on the table.
 6. **Config validate.** `node <stage>/dist/index.js config validate --json` with the gateway's own
    environment, while the gateway still runs.
-7. **Clean stop.** SIGTERM to the gateway, identity re-checked (PID, start ticks, run marker). It
-   must exit 0 within `--stop-grace-ms` (30 s) with no SIGKILL, without the product's "shutdown
-   deadline reached before stop" line, with the listener released and no run process left behind.
-8. **Cleanup.** It stops any process still carrying the run marker (recorded), removes the state
-   directory it created (re-identified by device and inode; one it was given empty is emptied
-   instead), the gateway HOME and the config, and confirms none remains.
+7. **Clean stop.** SIGTERM to the gateway through its own child handle: until Node reaps it, its PID
+   cannot be reused, so the signal cannot reach another process. It must exit 0 within
+   `--stop-grace-ms` (30 s) with no SIGKILL (sent to its process group only on timeout), without
+   the product's "shutdown deadline reached before stop" line, with the listener released, and,
+   after a short settle, with no process carrying the run marker left behind. The entry's detached
+   compile-cache maintainer (`node-compile-cache.mjs --maintain`, inside the stage) outlives the
+   gateway by design; it is counted apart (`compileCacheMaintainers`), never as a leftover.
+8. **Cleanup.** It stops any process still carrying the run marker, re-checking the marker before
+   each signal (recorded in `orphansTerminated`), removes the state directory it created
+   (re-identified by device and inode), the gateway HOME, its `TMPDIR` and the config, and confirms
+   none remains. The private directory keeps the gateway log and raw output.
 9. **Receipt.** It grades the record, checks that no secret reached it (the token, the paths, the
    session key, the raw epoch, the observer key), signs `observer-receipt.json` with the observer
    key (`hmac-sha256-proof-observer-key-v1`) and keeps raw output in `<artifact-dir>.private` (mode
@@ -202,17 +219,17 @@ Every receipt is graded `present` and `holds`. `gradeFreshInstallControl` in
 | Receipt | Holds when |
 | --- | --- |
 | `runtime-build-info` | The stage's build-info commit is the candidate (buildId and version recorded). |
-| `state-dir-empty-proof` | Zero entries before the first boot; the gateway HOME control-owned and empty; the config 0600, outside the state, with exactly the minimal keys (SHA-256 of its bytes). |
+| `state-dir-empty-proof` | Created by the control, zero entries before the first boot; the gateway HOME control-owned and empty; the config 0600, outside the state, with exactly the minimal keys (SHA-256 of its bytes). |
 | `readiness` | Owned listener, `/readyz` 200 ready, `/startupz` 200 started, hello-ok with a bootId and the staged buildId. |
 | `agent-schema-version` | `user_version` 40; `schema_meta` role `agent`, schema 40, the agent id, `created_at = updated_at`. |
-| `no-upgrade-path` | Only the fresh boot's own receipt in `migration_runs`; no `migration_sources`, no `backup_runs`, no agent registered below 40. |
+| `no-upgrade-path` | Exactly one run in `migration_runs`, the fresh boot's own receipt; no `migration_sources`, no `backup_runs`, no agent registered below 40. |
 | `authority-table-column-hash` | The table exists and hashes to `6ede42f5f5ea65007530f5f59da660e22bcab9d932ba3fae6639b848aee8eb7b`. |
 | `authority-epoch-row-hash` | 0 rows before `sessions.create`, exactly 1 after the narrowing, bound to the created key; key and epoch published as SHA-256 only. |
 | `no-model-sign-in` | No credential key in the gateway's environ, its HOME the control's, no `auth_profile_store` row, none in the control's environment. |
 | `config-validate` | Exit 0, `valid: true`, the reported path is the fresh config. |
-| `clean-stop` | SIGTERM, exit 0, no SIGKILL, no missed shutdown deadline, listener released, nothing left. |
+| `clean-stop` | SIGTERM, exit 0, no SIGKILL, no missed shutdown deadline, listener released, no leftover process (the compile-cache maintainer counted apart). |
 | `timings` | Boot, establishment, stop and total recorded. |
-| `signed-cleanup-receipt` | No run process, listener, state, gateway HOME or config remains, and the record is signed. |
+| `signed-cleanup-receipt` | No run process, listener, state, gateway HOME, its `TMPDIR` or config remains, and the record is signed. |
 
 The verdict starts at PASS and only moves down:
 
@@ -271,7 +288,8 @@ Expected:
 | `record.storage.authorityTable.columnsSha256` | `6ede42f5f5ea65007530f5f59da660e22bcab9d932ba3fae6639b848aee8eb7b` |
 | `record.storage.stateDatabase` | `migrationRuns.freshInstallReceipts: 1`, `unexpected: 0`, `migrationSources: 0`, `backupRuns: 0`, `userVersion: 36` |
 | `record.authority` | `rowsBeforeCreate: 0`, `rowsAfterNarrowing: 1` |
-| `record.cleanup` | `stateRemoved`, `homeRemoved`, `configRemoved` all `true`, `residualPids: []` |
+| `record.stop` | `exit.code: 0`, `escalatedToSigkill: false`, `shutdownDeadlineReached: false`, `leftoverProcesses: 0` |
+| `record.cleanup` | `stateRemoved`, `homeRemoved`, `tmpRemoved`, `configRemoved` all `true`, `residualPids: []` |
 | `$RUN/state` | gone |
 
 If it grades anything else, report it with the receipt; do not retry with a weaker configuration.

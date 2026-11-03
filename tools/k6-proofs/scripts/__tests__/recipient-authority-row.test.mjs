@@ -761,6 +761,36 @@ test('the control stops the gateway it started even when a case throws', async (
   }
 });
 
+test('the control never asks a gateway it does not own to restart', async () => {
+  const fixture = proofGwFixture();
+  try {
+    let owner = { pid: 4242, startTicks: 77 };
+    const rpcs = [];
+    const { platform } = fakePlatform(fixture, {
+      listenerOwner: () => owner,
+      gatewayRpc: async (call) => {
+        rpcs.push(call.method);
+        return { ok: true };
+      },
+      spawnGateway: () => ({ pid: 4242, lines: [], exited: new Promise(() => {}), signal: () => {} }),
+      runK6: async ({ env }) => {
+        // The drive phase hands over for the restart; meanwhile another process took the port.
+        owner = { pid: 5151, startTicks: 99 };
+        const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase: env.OPENCLAW_RCD_RA_PHASE, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_J12, keys: { parent: 'p', target: 't' }, handoff: { ready_for_restart: true }, refusals: [] };
+        return { code: 0, log: `R_CD_RECIPIENT_AUTHORITY_EVIDENCE ${JSON.stringify(evidence)}\n` };
+      },
+    });
+    const result = await runRecipientAuthorityRow(controlOptions(fixture, { cases: ['replay-restart'] }), platform);
+    assert.equal(result.ok, true);
+    assert.deepEqual(rpcs, [], 'no restart request reaches a gateway the control does not own');
+    const receipt = JSON.parse(readFileSync(path.join(fixture.home, 'artifacts', 'replay-restart', 'case-receipt.json'), 'utf8'));
+    assert.equal(receipt.grade.verdict, 'MISSING-candidate');
+    assert.ok(receipt.grade.missing.includes('gateway-not-harness-owned'));
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 /* ------------------------------------------------------------------------------------ */
 /* Case records: assembly, public safety, signature, row grade                           */
 /* ------------------------------------------------------------------------------------ */

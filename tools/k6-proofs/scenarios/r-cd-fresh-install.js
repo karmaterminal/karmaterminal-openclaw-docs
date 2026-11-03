@@ -48,7 +48,8 @@
  * 4. What sessions.create and session.visibility.set write. sessions.create
  *    (src/gateway/methods/core-descriptors.ts:244) with no message has no initial turn: it
  *    schedules only a title, and that only with a title source, so it dispatches no model turn
- *    (src/gateway/server-methods/sessions-create.ts:254-263 and 616-618,
+ *    (src/gateway/server-methods/sessions-create.ts:254-263,
+ *    src/gateway/server-methods/sessions-create.ts:616-618,
  *    src/gateway/server-methods/chat-send-background.ts:36-38). Creation is not an authority
  *    generation edge. session.visibility.set (operator.write,
  *    src/gateway/methods/core-descriptors.ts:467; handler
@@ -65,7 +66,8 @@
  *    point; enabled only when explicitly true, defaultDelayMs 15000, minDelayMs 5000, maxDelayMs
  *    300000, maxChainLength 10, costCapTokens 500000, maxDelegatesPerTurn 5, maxPendingWork 32,
  *    earlyWarningBand 0.3125, crossSessionTargeting disabled, busy-skip backoff 1 s x2 up to
- *    maxDelayMs (src/auto-reply/continuation/config.ts:15-26 and 90-137; schema
+ *    maxDelayMs (src/auto-reply/continuation/config.ts:15-26,
+ *    src/auto-reply/continuation/config.ts:90-137; schema
  *    src/config/zod-schema.agent-defaults-base.ts:270-322). The schema and the authority advance
  *    do not depend on the switch; the minimal config sets enabled true so config validate covers
  *    the continuation block a continuation install carries.

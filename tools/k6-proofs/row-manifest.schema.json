@@ -82,7 +82,7 @@
         },
         "artifactClass": {
           "enum": ["process-local-fixture", "disposable-real-process"],
-          "description": "The artifact class of the runner. process-local-fixture must declare verdictCap. disposable-real-process (a runner that starts, restarts and stops a real gateway process it set up for the run, never the live one, as R-CD-RETURN-COVENANT-AUTHORITY's restart control does) needs no verdictCap; one a reviewer adds names this class. check-proof-row-manifests.mjs refuses it on a process-local or missing transport, beside a fixture key, without a non-blank control, or on a row the ruling caps by id (R-CW-5, R-CW-6). Any other value is refused."
+          "description": "The artifact class of the runner. process-local-fixture must declare verdictCap. disposable-real-process (a runner that starts, may restart, and stops a real gateway process it set up for the run, never the live one, as R-CD-RETURN-COVENANT-AUTHORITY's restart control and R-CD-FRESH-INSTALL's fresh-install control do) needs no verdictCap; one a reviewer adds names this class. check-proof-row-manifests.mjs refuses it on a process-local or missing transport, beside a fixture key, without a non-blank control, or on a row the ruling caps by id (R-CW-5, R-CW-6). Any other value is refused."
         }
       }
     },

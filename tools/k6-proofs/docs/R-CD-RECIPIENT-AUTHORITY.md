@@ -55,8 +55,8 @@ shape) is:
     generation after a supervised restart (`replay-restart`).
 
   In each refusal there is no adoption marker, ack, wake turn, return marker or parent landing, and
-  no `Delivered to` line for the return after its transition. A wake-mode return refused at enqueue
-  leaves no `Delivered to` line at all.
+  no `Delivered to` line for the return once its transition has settled. A wake-mode return refused
+  at enqueue leaves no `Delivered to` line at all.
 
 It does not prove:
 
@@ -182,7 +182,7 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 | `allowed-silent` | none; the silent return parks, then the probe turn adopts it | silent | n/a | n/a | n/a: the product's adoption marker on the visible probe row and the ack in the probe run, no wake. The positive control for the refusal cases' absence |
 | `unauthorized-admission` | `config.patch` policy disabled before dispatch, then restored | silent-wake | admission | the continue_delegate policy error | no child, no target ack, no woken target run, no parent landing |
 | `unauthorized-dispatch` | `config.patch` policy disabled after the `scheduled` result, then restored | silent-wake | dispatch | `[continuation:delegate-rejected] policy.cross_session_targeting` for the dispatcher | as above |
-| `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | `stage=prompt-drain`: the sweep defers to the queued copy (`server-restart-sentinel-delivery.ts:61-65`), and the probe turn's drain refuses it (`session-system-events.ts:192-207` -> `session-system-event-adoption.ts:118-147`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the probe was sent | no `Delivered to` for it after the transition, no adoption marker, no ack, no woken run, no return marker, an answered probe turn, no parent landing |
+| `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | `stage=prompt-drain`: the sweep defers to the queued copy (`server-restart-sentinel-delivery.ts:61-65`), and the probe turn's drain refuses it (`session-system-events.ts:192-207` -> `session-system-event-adoption.ts:118-147`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the probe was sent | no `Delivered to` for it once the transition settled, no adoption marker, no ack, no woken run, no return marker, an answered probe turn, no parent landing |
 | `revoked-membership` | `session.members.add` before dispatch, `session.members.remove` after the return parked | silent | `stage=prompt-drain`, as above | as above | as above |
 | `revoked-owner` | the `sessions` tool `assign_owner` (agent `main`) from an operator session, after the return parked | silent | `stage=prompt-drain`, as above | as above | as above |
 | `reassigned` | `sessions.delete` then `sessions.create` of the same key, after the return parked | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:194-196`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the transition | as above |
@@ -197,7 +197,7 @@ The control samples the epoch every 500 ms: captured after the `scheduled` toolR
 before the transition, again after it, and at the end.
 
 **One stage per case.** Each refused return's stage comes from where its queued copy is when its
-epoch advances, so the bytes allow exactly one per case:
+epoch advances. The bytes allow exactly one first refusal per case:
 
 - `revoked-visibility`, `revoked-membership`, `revoked-owner`: none of these RPCs touches the
   target's queued events (`sessions-sharing.ts`, `session-accessor.sqlite-owner.ts`), so the sweep
@@ -211,8 +211,14 @@ epoch advances, so the bytes allow exactly one per case:
 - `replay-restart`: the old generation never prompts the target, and its sweep defers to the copy,
   so the first boundary to see the row is the replacement's boot recovery.
 
-A line at any other stage, or a second line at another stage, leaves the case MISSING
-(`refusal-stage-mismatch`).
+The first line naming the target must carry that stage. One later line is possible, and only in
+the prompt-drain cases: a `replay` line naming the same row. The pending sweep may load the row
+just before the probe's drain retires it. The drain moves the row to `failed` and consumes the
+event before it reports (`session-system-event-adoption.ts:125-146`). `refuseStaleAuthorityReplay`
+checks only the queued copy (`server-restart-sentinel-delivery.ts:61-71`), so the sweep then reports
+the row once more. The lib names this as `laterStages: ['replay']` for those three cases. Any other
+first stage, any other later stage, another row, or a row-less line where the stage writes one
+leaves the case MISSING (`refusal-stage-mismatch`, `reason-delivery-id-ambiguous`).
 
 **How absence is observed.** `chat.history` hides the wake's own rows, but it keeps the product's
 adoption marker, `__openclaw.sessionDeliveryAckIds`, on a visible row
@@ -276,11 +282,14 @@ becomes provable.
   - an `unauthorized-dispatch` delegate whose delay let it fire before the policy changed;
   - a wake-mode transition that settled after the delegate could fire, or a wake-mode return routed
     before its transition;
+  - a parked return not routed before its transition was requested, or any return routed while its
+    transition RPC was in flight (`return-routed-during-transition`): the router may have read the
+    epoch before it committed, so delivering then is correct;
   - a revoked or reassigned return already acknowledged, woken or marked adopted when the
     transition was sent (the scenario reads the target just before it).
 - A contradiction is **FAIL-candidate**: a refused return adopted (the product's marker),
-  acknowledged, woken, repeated in the target, or logged `Delivered to` after its transition (the
-  target named, or j12's empty list from its child); an allowed wake-mode return routed but never
+  acknowledged, woken, repeated in the target, or logged `Delivered to` once its transition had
+  settled (the target named, or j12's empty list from its child); an allowed wake-mode return routed but never
   woken; a return in the parent; an unauthorized delegate spawned or accepted; an allowed return
   adopted twice; or `sessions.reset` advancing the epoch. A woken target that never typed the exact
   ack is MISSING (`woken-without-ack`): the miss may be the model's. `allowed-silent` is decided by
@@ -288,11 +297,13 @@ becomes provable.
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
   reason, or without the observed absence (transcripts read, router lines read, probe turn answered,
   every target row attributable to a run), is MISSING, never PASS. For a refused return the reason
-  is j12′'s line naming the case's target, and it must be at the case's pinned stage on every line
-  (`refusal-stage-mismatch`). It must name a row exactly when that stage writes one
-  (`refusal-delivery-id-mismatch`), and no more than one row (`reason-delivery-id-ambiguous`). It
-  must come after the transition, after the probe was sent for `prompt-drain`, and from the
-  replacement after the restart for `replay-restart`. j12's lines are no reason. So is a revoked
+  is j12′'s line naming the case's target with j12′'s one reason on every line
+  (`refusal-reason-mismatch`). Its first line must carry the case's pinned stage, and a later line
+  only a stage the bytes name for the same row (`refusal-stage-mismatch`). It must name a row exactly
+  when that stage writes one (`refusal-delivery-id-mismatch`): every line names the same one row,
+  or no line names any (`reason-delivery-id-ambiguous`). It must come after the transition, after
+  the probe was sent for `prompt-drain`, and from the replacement after the restart for
+  `replay-restart`. j12's lines are no reason. So is a revoked
   case whose return was not parked before the transition, or whose transition did not advance the
   epoch.
 - A residual condition is **PARTIAL-candidate**: a policy change not restored, cleanup incomplete,
@@ -357,8 +368,10 @@ replaces the interim pin. Never against a live seat.
 10. **Shred** with `composite-launcher.sh shred` when the review no longer needs the state.
 
 If a case is MISSING for a setup reason (no member identity to add for `revoked-membership`, a model
-that never made the call, a wake-mode transition that settled after the fire), rerun that case with
-`--cases`. Each run is a new run id, so the row needs every case from one run.
+that never made the call, a wake-mode transition that settled after the fire), fix the setup and
+rerun the whole row. Each run is a new run id, and the row needs every case from one run: receipts
+from different runs grade it MISSING (`receipts-from-different-runs`). `--cases` runs a subset for
+diagnosis only.
 
 ## Files
 

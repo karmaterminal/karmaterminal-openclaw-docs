@@ -519,12 +519,23 @@ function returnRefusalReason(logEntries, targetKey, afterMs) {
     kind: 'return-refused',
     stage: first.stage,
     stages: [...new Set(lines.map((line) => line.stage))],
-    reasonText: first.reason,
+    reasonTexts: [...new Set(lines.map((line) => line.reason))],
     observedAtMs: first.atMs,
     generation: first.generation,
     deliveryIdHash: first.deliveryId ? sha256(first.deliveryId) : null,
     distinctDeliveryIds: ids.size,
+    linesWithoutDeliveryId: lines.filter((line) => !line.deliveryId).length,
     lines: lines.length,
+  };
+}
+
+function routingAround(logEntries, keys, transition) {
+  const requested = transition.requested_at_ms;
+  const settled = transition.settled_at_ms;
+  if (!Number.isFinite(requested) || !Number.isFinite(settled) || settled < requested) return { duringTransition: null, afterTransition: null };
+  return {
+    duringTransition: countRoutedAfter(logEntries, keys, requested, settled),
+    afterTransition: countRoutedAfter(logEntries, keys, settled),
   };
 }
 
@@ -622,14 +633,11 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       settledAtMs: transition.settled_at_ms ?? null,
     },
     park: { deliveredToTargetAtMs: findRouted(logEntries, keys.target) },
-    // Router lines for this return after its transition: the target named, or its child as the
-    // source (the child key stays private). A refused return must leave none at j12′.
+    // Router lines for this return, the target named or its child as the source (the child key
+    // stays private): while the transition RPC was in flight, and once it had settled. A refused
+    // return must leave none after the settle at j12′.
     routing: spec.family === 'refusal' && spec.expectChild !== false
-      ? {
-          afterTransition: Number.isFinite(transition.requested_at_ms)
-            ? countRoutedAfter(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition.requested_at_ms)
-            : null,
-        }
+      ? routingAround(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition)
       : null,
     epochs: {
       captured: Number.isFinite(capturedAt) ? epochIn(timeline, keys.target, capturedAt, capturedUntil) : null,

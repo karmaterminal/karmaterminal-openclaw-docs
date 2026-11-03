@@ -196,7 +196,7 @@ function completeRecord(caseId) {
     transition: { method: spec.transition, ok: spec.transition ? true : null, requestedAtMs: spec.transition ? 5000 : null, settledAtMs: spec.transition ? 5100 : null },
     // A parked return was routed before its transition; a wake-mode one never was.
     park: { deliveredToTargetAtMs: spec.timing === 'before-return' ? null : 4000 },
-    routing: durable ? { afterTransition: 0 } : null,
+    routing: durable ? { duringTransition: 0, afterTransition: 0 } : null,
     epochs: { captured: H('a'), afterTransition: spec.transition ? (durable ? H('b') : H('a')) : null, final: durable ? H('b') : H('a') },
     reason: durable ? refusedReason(spec, { observedAtMs: 60000, generation: 0 }) : null,
     config: null,
@@ -240,11 +240,12 @@ function refusedReason(spec, { observedAtMs, generation }) {
     kind: 'return-refused',
     stage: spec.refusedAt,
     stages: [spec.refusedAt],
-    reasonText: 'recipient-authority-changed',
+    reasonTexts: ['recipient-authority-changed'],
     observedAtMs,
     generation,
     deliveryIdHash: spec.deliveryId ? H('e') : null,
     distinctDeliveryIds: spec.deliveryId ? 1 : 0,
+    linesWithoutDeliveryId: spec.deliveryId ? 0 : 1,
     lines: 1,
   };
 }
@@ -372,6 +373,14 @@ test('each refused return pins one stage from the j12′ bytes, and a row only w
       'replay-restart': ['replay', true, 'parked', 'silent'],
     },
   );
+  assert.deepEqual(
+    Object.fromEntries(durableCases.map((caseId) => [caseId, RRA_CASES[caseId].laterStages ?? []])),
+    {
+      'revoked-visibility': ['replay'], 'revoked-membership': ['replay'], 'revoked-owner': ['replay'],
+      reassigned: [], 'wake-revoked-visibility': [], 'wake-reassigned': [], 'replay-restart': [],
+    },
+    'only a prompt-drain refusal can be followed by the sweep reporting the same row',
+  );
   for (const caseId of durableCases) {
     const spec = RRA_CASES[caseId];
     assert.match(spec.refusedAtBytes, /\.ts:\d+/u, caseId);
@@ -383,6 +392,9 @@ test('each refused return pins one stage from the j12′ bytes, and a row only w
     }
     const mixed = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stages = [spec.refusedAt, 'wake']; r.reason.lines = 2; }));
     assert.ok(mixed.missing.includes('refusal-stage-mismatch'), caseId);
+    // The first line decides: a pinned stage seen only later is not the boundary that refused it.
+    const latePin = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stage = 'wake'; r.reason.stages = ['wake', spec.refusedAt]; }));
+    assert.ok(latePin.missing.includes('refusal-stage-mismatch'), caseId);
     // A row named where the stage writes none, or none named where it does.
     const flipped = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
       r.reason.deliveryIdHash = spec.deliveryId ? null : H('e');
@@ -395,6 +407,23 @@ test('each refused return pins one stage from the j12′ bytes, and a row only w
     assert.ok(twoRows.missing.includes('reason-delivery-id-ambiguous'), caseId);
     const unreadIds = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.distinctDeliveryIds = undefined; }));
     assert.ok(unreadIds.missing.includes('reason-delivery-id-ambiguous'), caseId);
+    // Exactly: a row-writing stage names its row on every line; a row-less one names none on any.
+    const inexact = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      if (spec.deliveryId) r.reason.linesWithoutDeliveryId = 1;
+      else r.reason.distinctDeliveryIds = 1;
+      r.reason.lines = 2;
+    }));
+    assert.ok(inexact.missing.includes('reason-delivery-id-ambiguous'), caseId);
+    // Every line carries j12′'s one reason.
+    for (const texts of [['other-reason'], ['recipient-authority-changed', 'other-reason'], [], undefined]) {
+      const reasonText = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.reasonTexts = texts; }));
+      assert.ok(reasonText.missing.includes('refusal-reason-mismatch'), `${caseId} ${JSON.stringify(texts)}`);
+    }
+    // A later line at a stage the bytes name for the same row is allowed; any other is not.
+    for (const stage of ['enqueue', 'replay', 'wake', 'prompt-drain'].filter((value) => value !== spec.refusedAt)) {
+      const later = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stages = [spec.refusedAt, stage]; r.reason.lines = 2; }));
+      assert.equal(later.verdict, (spec.laterStages ?? []).includes(stage) ? 'PASS-candidate' : 'MISSING-candidate', `${caseId} then ${stage}`);
+    }
     // j12's reason kind is not j12′'s.
     const j12Kind = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.kind = 'replay-authority-changed'; }));
     assert.ok(j12Kind.missing.includes('refusal-reason-not-observed'), caseId);
@@ -402,7 +431,11 @@ test('each refused return pins one stage from the j12′ bytes, and a row only w
     const routed = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.routing.afterTransition = 1; }));
     assert.equal(routed.verdict, 'FAIL-candidate', caseId);
     assert.ok(routed.contradictions.includes('refused-return-routed'), caseId);
-    for (const routing of [null, { afterTransition: null }, {}]) {
+    const during = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.routing.duringTransition = 1; r.target.ackRuns = 1; }));
+    assert.equal(during.verdict, 'MISSING-candidate', caseId);
+    assert.ok(during.missing.includes('return-routed-during-transition'), caseId);
+    assert.deepEqual(during.contradictions, [], caseId);
+    for (const routing of [null, { afterTransition: null, duringTransition: 0 }, { afterTransition: 0, duringTransition: null }, {}]) {
       const unread = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.routing = routing; }));
       assert.equal(unread.verdict, 'MISSING-candidate', `${caseId} ${JSON.stringify(routing)}`);
       assert.ok(unread.missing.includes('routing-unread'), caseId);
@@ -703,6 +736,11 @@ test('j12′\'s refused-return line is read from the console or the structured f
   for (const line of [
     `[agent/embedded] ${message}`,
     `assistant said: ${message}`,
+    // The subsystem tag must open the line (after at most a timestamp), not be quoted inside it.
+    `08:00:00 [agent/embedded] assistant text: [continuation/return-refused] ${message}`,
+    // A JSON record of another subsystem that merely carries the tag as a value.
+    JSON.stringify({ subsystem: 'agent/embedded', quoted: JSON.stringify({ subsystem: 'continuation/return-refused' }), message }),
+    JSON.stringify({ 0: '{"subsystem":"agent/embedded"}', 1: JSON.stringify({ subsystem: 'continuation/return-refused' }), 2: message }),
     `${refusedConsole('replay', target)} extra`,
     refusedFile('replay', target, DELIVERY_ID, { stage: 'wake' }),
     refusedFile('replay', target, DELIVERY_ID, { sessionKey: `${target}2` }),
@@ -752,6 +790,8 @@ test('the router line binds the return to the target only when the target is a l
   assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to ${target} from ${child}`, child), true);
   assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to ${target} from ${child}2`, child), false);
   assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to ${target} from ${child}`, null), false);
+  // A JSON-wrapped console line ends the key with a quote or a brace.
+  assert.equal(routedFromChild(JSON.stringify({ message: `[continuation:targeted-return] Delivered to  from ${child}` }), child), true);
   const lines = [
     { atMs: 10, text: `[continuation:targeted-return] Delivered to ${target} from ${child}` },
     { atMs: 30, text: `[continuation:targeted-return] Delivered to  from ${child}` },
@@ -1093,17 +1133,18 @@ test('the control assembles a case record from scenario evidence, product log li
     startedAtMs: 500,
   });
   assert.equal(record.park.deliveredToTargetAtMs, 3_000);
-  assert.deepEqual(record.routing, { afterTransition: 0 }, 'the park line precedes the transition');
+  assert.deepEqual(record.routing, { duringTransition: 0, afterTransition: 0 }, 'the park line precedes the transition');
   assert.equal(record.target.probeSentAtMs, 59_000);
   assert.deepEqual(record.reason, {
     kind: 'return-refused',
     stage: 'prompt-drain',
     stages: ['prompt-drain'],
-    reasonText: 'recipient-authority-changed',
+    reasonTexts: ['recipient-authority-changed'],
     observedAtMs: 60_000,
     generation: 0,
     deliveryIdHash: sha256Hex(DELIVERY_ID),
     distinctDeliveryIds: 1,
+    linesWithoutDeliveryId: 0,
     lines: 1,
   }, 'the parent\'s line is another session');
   assert.notEqual(record.epochs.captured, record.epochs.afterTransition, 'the captured epoch is read before the transition');
@@ -1125,9 +1166,26 @@ test('the control assembles a case record from scenario evidence, product log li
   const wrongStage = grade([...harness.logEntries.slice(0, 2), { atMs: 60_000, text: refusedConsole('replay', evidence.keys.target), generation: 0 }]);
   assert.equal(wrongStage.verdict, 'MISSING-candidate');
   assert.ok(wrongStage.missing.includes('refusal-stage-mismatch'));
-  // A later line at another stage for the same return is never PASS either.
-  const twoStages = grade([...harness.logEntries, { atMs: 70_000, text: refusedConsole('replay', evidence.keys.target), generation: 0 }]);
-  assert.ok(twoStages.missing.includes('refusal-stage-mismatch'), JSON.stringify(twoStages));
+  // The sweep may report the same row once more after the probe's drain retired it: allowed, and
+  // only that stage, only that row.
+  assert.equal(grade([...harness.logEntries, { atMs: 70_000, text: refusedConsole('replay', evidence.keys.target), generation: 0 }]).verdict, 'PASS-candidate');
+  const laterWake = grade([...harness.logEntries, { atMs: 70_000, text: refusedConsole('wake', evidence.keys.target), generation: 0 }]);
+  assert.ok(laterWake.missing.includes('refusal-stage-mismatch'), JSON.stringify(laterWake));
+  const laterOtherRow = grade([...harness.logEntries, { atMs: 70_000, text: refusedConsole('replay', evidence.keys.target, 'c'.repeat(64)), generation: 0 }]);
+  assert.ok(laterOtherRow.missing.includes('reason-delivery-id-ambiguous'), JSON.stringify(laterOtherRow));
+  const laterNoRow = grade([...harness.logEntries, { atMs: 70_000, text: refusedConsole('enqueue', evidence.keys.target, null), generation: 0 }]);
+  assert.ok(laterNoRow.missing.includes('refusal-stage-mismatch') && laterNoRow.missing.includes('reason-delivery-id-ambiguous'), JSON.stringify(laterNoRow));
+  // The reason must be j12′'s one reason on every line.
+  const otherReason = grade([...harness.logEntries.slice(0, 2), { atMs: 60_000, text: refusedConsole('prompt-drain', evidence.keys.target).replace('recipient-authority-changed', 'other-reason'), generation: 0 }]);
+  assert.ok(otherReason.missing.includes('refusal-reason-mismatch'), JSON.stringify(otherReason));
+  // A return routed while the transition RPC was in flight may have been read as current: MISSING,
+  // never FAIL, whatever it then did (review finding: route 5050, request 5000, settle 5100).
+  const inFlight = grade([harness.logEntries[1], harness.logEntries[2], { atMs: 5_050, text: `[continuation:targeted-return] Delivered to ${evidence.keys.target} from ${CHILD_KEY}`, generation: 0 }], {
+    target_obs: { ...evidence.target_obs, ackRuns: 1, adoptedDeliveryRows: 1 },
+  });
+  assert.equal(inFlight.verdict, 'MISSING-candidate', JSON.stringify(inFlight));
+  assert.ok(inFlight.missing.includes('return-not-parked-before-transition') && inFlight.missing.includes('return-routed-during-transition'));
+  assert.deepEqual(inFlight.contradictions, []);
   // A prompt-drain line from before the probe was sent is not the probe's drain.
   const beforeProbe = grade(harness.logEntries, { probe_sent_at_ms: 61_000 });
   assert.ok(beforeProbe.missing.includes('reason-not-from-probe-drain'));

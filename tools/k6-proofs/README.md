@@ -930,7 +930,7 @@ authority through a public RPC between dispatch and return. `allowed`, `allowed-
 `revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`, `wake-revoked-visibility`,
 `wake-reassigned` and `replay-restart` must each show j12′'s `[continuation:return-refused]` line for
 the target at the case's pinned stage (prompt drain, replay or enqueue), no `Delivered to` line for
-the return after its transition, and no adoption (the product's own marker), ack, wake or final
+the return once its transition settled, and no adoption (the product's own marker), ack, wake or final
 effect. j12's `recipient authority changed` lines never count. The control refuses a candidate other
 than j12′, a non-disposable or live-overlapping target, a missing isolated model sign-in, a disabled
 cross-session policy and any gateway it did not start; the live-run guard refuses the manifest

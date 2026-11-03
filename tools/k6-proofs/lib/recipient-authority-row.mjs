@@ -74,7 +74,8 @@ export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
  * it there. `timing` says when the transition lands: `parked` after the return was routed and
  * parked un-adopted (mode silent), `before-return` after the scheduled result and before the
  * delegate fires. `deliveryId` says whether that line names the refused row (`true`) or no row
- * was written (`false`). `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment
+ * was written (`false`). `laterStages` names the only stages a later line for the same row may
+ * carry, and why. `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment
  * 5442236054) it answers.
  */
 export const RRA_CASES = Object.freeze({
@@ -125,6 +126,11 @@ export const RRA_CASES = Object.freeze({
   'revoked-visibility': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
+    // The pending sweep may have loaded the row before the probe's drain retired it: it then finds
+    // no queued copy and reports the same row once more (refuseStaleAuthorityReplay checks only the
+    // copy, server-restart-sentinel-delivery.ts:61-71; the drain retires the row and consumes the
+    // event before it reports, session-system-event-adoption.ts:125-146).
+    laterStages: Object.freeze(['replay']),
     refusedAtBytes: 'session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
     timing: 'parked',
     deliveryId: true,
@@ -137,6 +143,11 @@ export const RRA_CASES = Object.freeze({
   'revoked-membership': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
+    // The pending sweep may have loaded the row before the probe's drain retired it: it then finds
+    // no queued copy and reports the same row once more (refuseStaleAuthorityReplay checks only the
+    // copy, server-restart-sentinel-delivery.ts:61-71; the drain retires the row and consumes the
+    // event before it reports, session-system-event-adoption.ts:125-146).
+    laterStages: Object.freeze(['replay']),
     refusedAtBytes: 'session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
     timing: 'parked',
     deliveryId: true,
@@ -149,6 +160,11 @@ export const RRA_CASES = Object.freeze({
   'revoked-owner': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
+    // The pending sweep may have loaded the row before the probe's drain retired it: it then finds
+    // no queued copy and reports the same row once more (refuseStaleAuthorityReplay checks only the
+    // copy, server-restart-sentinel-delivery.ts:61-71; the drain retires the row and consumes the
+    // event before it reports, session-system-event-adoption.ts:125-146).
+    laterStages: Object.freeze(['replay']),
     refusedAtBytes: 'session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
     timing: 'parked',
     deliveryId: true,
@@ -263,9 +279,10 @@ export const RRA_ROUTED_TEXT = '[continuation:targeted-return] Delivered to ';
 /** The subsystem that logs a refused return (return-refusal.ts:18). */
 export const RRA_REFUSED_SUBSYSTEM = 'continuation/return-refused';
 const REFUSED_MESSAGE = /^\[continuation:return-refused\] stage=(\S+) reason=(\S+) session=(\S+?)(?: deliveryId=(\S+))?$/u;
-// The console prints `[<subsystem>] <message>`, behind an optional timestamp
-// (src/logging/subsystem.ts:158-194); the message is the line's last text.
-const REFUSED_CONSOLE = /(?:^|\s)\[continuation\/return-refused\] (\[continuation:return-refused\] .*)$/u;
+// The console prints `[<subsystem>] <message>` behind an optional one-token timestamp
+// (src/logging/subsystem.ts:158-194; src/logging/console.ts:146-152): the subsystem tag opens the
+// line and the message is the rest of it.
+const REFUSED_CONSOLE = /^(?:\S+ )?\[continuation\/return-refused\] (\[continuation:return-refused\] .*)$/u;
 const ANSI = /\u001b\[[0-9;]*m/gu;
 
 function escapeRegex(value) {
@@ -302,10 +319,11 @@ export function parseReturnRefusedLine(line) {
     if (!record || typeof record !== 'object' || Array.isArray(record)) return null;
     const subsystemTag = JSON.stringify({ subsystem: RRA_REFUSED_SUBSYSTEM });
     const values = Object.values(record);
-    const fromSubsystem =
-      record.subsystem === RRA_REFUSED_SUBSYSTEM ||
-      record._meta?.name === subsystemTag ||
-      values.some((value) => value === subsystemTag);
+    // The JSON console names the subsystem as a field; the file log as tslog's logger name, its
+    // first positional value. Any other record is not this subsystem's, whatever it quotes.
+    const fromSubsystem = record.subsystem !== undefined
+      ? record.subsystem === RRA_REFUSED_SUBSYSTEM
+      : record['0'] === subsystemTag && (record._meta?.name === undefined || record._meta.name === subsystemTag);
     if (!fromSubsystem) return null;
     const messages = [record.message, ...values].filter((value) => typeof value === 'string');
     const parsed = messages.map(refusalFromMessage).find(Boolean);
@@ -357,7 +375,8 @@ function routedRecipientsAndSource(line) {
   if (end < 0) return null;
   return {
     recipients: rest.slice(0, end).split(',').map((key) => key.trim()).filter(Boolean),
-    source: rest.slice(end + ' from '.length).trim().split(/\s/u)[0] ?? '',
+    // The key is the token after ` from `; a JSON-wrapped line ends it with a quote or a brace.
+    source: /^[^\s"\\,}]+/u.exec(rest.slice(end + ' from '.length).trim())?.[0] ?? '',
   };
 }
 
@@ -414,13 +433,13 @@ export function findRouted(entries, targetKey) {
 }
 
 /**
- * Router `Delivered to` lines at or after `afterMs` that name the target or come from the case's
- * child: after the transition, a refused return must leave none.
+ * Router `Delivered to` lines at or after `afterMs` (and before `beforeMs`) that name the target or
+ * come from the case's child: once its transition has settled, a refused return must leave none.
  */
-export function countRoutedAfter(entries, { targetKey, childKey }, afterMs) {
+export function countRoutedAfter(entries, { targetKey, childKey }, afterMs, beforeMs = Infinity) {
   let count = 0;
   for (const entry of Array.isArray(entries) ? entries : []) {
-    if (typeof entry?.atMs !== 'number' || entry.atMs < afterMs) continue;
+    if (typeof entry?.atMs !== 'number' || entry.atMs < afterMs || entry.atMs >= beforeMs) continue;
     if (routedToTarget(entry.text, targetKey) || routedFromChild(entry.text, childKey)) count += 1;
   }
   return count;
@@ -653,15 +672,15 @@ function isHash(value) {
  * - a residual condition (config not restored, cleanup incomplete) is PARTIAL;
  * - otherwise PASS-candidate. A refusal case is PASS only with BOTH the product reason and the
  *   observed absence of adoption, ack, wake and final effect. A refused return's reason is its
- *   j12′ line naming the target, at the case's pinned stage, naming a row exactly when that stage
- *   writes one; another stage, a j12-only line or two rows is MISSING, and a `Delivered to` line
- *   for the return after its transition is FAIL.
+ *   j12′ line naming the target, first at the case's pinned stage, naming a row exactly when that
+ *   stage writes one; another stage, a j12-only line or two rows is MISSING. A `Delivered to` line
+ *   for the return once its transition settled is FAIL; one while it was in flight is MISSING.
  */
 export function gradeRecipientAuthorityCase(record) {
   const missing = [];
   const contradictions = [];
   const partial = [];
-  const result = (verdict) => ({ verdict, missing, contradictions, partial });
+  const result = (verdict) => ({ verdict, missing: [...new Set(missing)], contradictions: [...new Set(contradictions)], partial: [...new Set(partial)] });
   if (!record || typeof record !== 'object' || record.schema !== RRA_CASE_SCHEMA || record.row !== RRA_ROW) {
     missing.push('not-a-case-record');
     return result('MISSING-candidate');
@@ -752,6 +771,27 @@ export function gradeRecipientAuthorityCase(record) {
       premise = false;
     }
   }
+  if (spec.family === 'refusal' && spec.expectChild !== false) {
+    // A parked case is about a return routed before its transition was requested. One routed later
+    // was read while current or while the transition was in flight, so its adoption proves nothing.
+    if (spec.timing === 'parked') {
+      const park = record.park?.deliveredToTargetAtMs;
+      if (!(isTime(park) && isTime(transition.requestedAtMs) && park < transition.requestedAtMs)) {
+        missing.push('return-not-parked-before-transition');
+        premise = false;
+      }
+    }
+    // A router line while the transition RPC was in flight may have read the epoch before it
+    // committed: neither a refusal nor a contradiction.
+    const routedDuring = record.routing?.duringTransition;
+    if (!isCount(routedDuring)) {
+      missing.push('routing-unread');
+      premise = false;
+    } else if (routedDuring > 0) {
+      missing.push('return-routed-during-transition');
+      premise = false;
+    }
+  }
   // A revoked or reassigned return must still be parked un-adopted when the transition lands.
   if (spec.family === 'refusal' && spec.expectChild !== false) {
     const before = record.preTransition ?? {};
@@ -829,13 +869,9 @@ export function gradeRecipientAuthorityCase(record) {
       else need(child.spawned === false, 'child-spawn-unobserved');
     } else {
       need(child.bound === true && child.done === true, 'child-not-bound');
-      if (spec.timing === 'parked') {
-        const park = record.park?.deliveredToTargetAtMs;
-        need(isTime(park) && isTime(transition.requestedAtMs) && park < transition.requestedAtMs, 'return-not-parked-before-transition');
-      }
       // j12′ logs `Delivered to` only for recipients it delivered, and nothing when every recipient
-      // was refused: after the transition this return may leave no router line naming the target
-      // or coming from its child, j12's empty-list line included.
+      // was refused: once the transition has settled, this return may leave no router line naming
+      // the target or coming from its child, j12's empty-list line included.
       const routedAfter = record.routing?.afterTransition;
       if (need(isCount(routedAfter), 'routing-unread') && routedAfter > 0) contradict('refused-return-routed');
     }
@@ -854,14 +890,23 @@ export function gradeRecipientAuthorityCase(record) {
       'refusal-reason-not-observed',
     );
     if (reasonSeen && spec.reasonKind === 'return-refused') {
-      // One stage per case, from the j12′ bytes (RRA_CASES, refusedAtBytes): every line for this
-      // return carries it.
-      const stages = Array.isArray(reason.stages) ? reason.stages : [reason.stage];
-      need(reason.stage === spec.refusedAt && stages.every((stage) => stage === spec.refusedAt), 'refusal-stage-mismatch');
+      // j12′ has one reason (return-refusal.ts:15); every line for this return must carry it.
+      const texts = Array.isArray(reason.reasonTexts) ? reason.reasonTexts : [];
+      need(texts.length > 0 && texts.every((text) => text === RRA_REFUSAL_REASON), 'refusal-reason-mismatch');
+      // One stage per case, from the j12′ bytes (RRA_CASES, refusedAtBytes): the first line carries
+      // it, and a later line only a stage the bytes name for the same row (laterStages).
+      const stages = Array.isArray(reason.stages) ? reason.stages : [];
+      const allowed = new Set([spec.refusedAt, ...(spec.laterStages ?? [])]);
+      need(reason.stage === spec.refusedAt && stages.length > 0 && stages.every((stage) => allowed.has(stage)), 'refusal-stage-mismatch');
       // A boundary that retires a written row names it; the router's first read refuses before any row.
       need(isHash(reason.deliveryIdHash) === spec.deliveryId, 'refusal-delivery-id-mismatch');
-      // The disposable target receives only this case's return: one row at most.
-      need(isCount(reason.distinctDeliveryIds) && reason.distinctDeliveryIds <= 1, 'reason-delivery-id-ambiguous');
+      // The disposable target receives only this case's return: exactly its one row, on every line,
+      // or none at all where the stage writes none.
+      need(
+        isCount(reason.distinctDeliveryIds) && reason.distinctDeliveryIds === (spec.deliveryId ? 1 : 0) &&
+          (!spec.deliveryId || reason.linesWithoutDeliveryId === 0),
+        'reason-delivery-id-ambiguous',
+      );
       if (spec.refusedAt === 'prompt-drain') {
         need(isTime(target.probeSentAtMs) && reason.observedAtMs > target.probeSentAtMs, 'reason-not-from-probe-drain');
       }

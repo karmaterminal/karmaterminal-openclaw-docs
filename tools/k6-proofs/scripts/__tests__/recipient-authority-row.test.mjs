@@ -689,6 +689,42 @@ test('the control assembles a case record from scenario evidence, product log li
   assert.equal(gradeRecipientAuthorityCase({ ...noReason, trace: { correlated: true } }).verdict, 'MISSING-candidate');
 });
 
+test('a sample taken after the transition is never read as the captured epoch', () => {
+  // allowed-across-reset where the reset (wrongly) advanced the epoch and no sample fell between
+  // the scheduled toolResult and the reset request: the advanced epoch must not pass as captured.
+  const target = 'agent:main:r-cd-ra-allowed-across-reset-target-abc';
+  const evidence = {
+    ...revokedEvidence(),
+    case: 'allowed-across-reset',
+    delegate_mode: 'silent-wake',
+    keys: { parent: 'agent:main:r-cd-ra-allowed-across-reset-parent-abc', target, ops: null },
+    transition: { method: 'sessions.reset', ok: true, requested_at_ms: 1_500, settled_at_ms: 1_600 },
+    probe_ran: false,
+    target_obs: { ackRuns: 1, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false },
+  };
+  const advanced = '22222222-2222-4222-8222-222222222222';
+  const record = assembleCaseRecord({
+    caseId: 'allowed-across-reset',
+    runId: RUN,
+    docsSha: 'd'.repeat(40),
+    gates: completeRecord('allowed').gates,
+    evidence,
+    logEntries: [{ atMs: 1_200, text: `[continuation:targeted-return] Delivered to ${target} from agent:main:subagent:c`, generation: 0 }],
+    timeline: [
+      { atMs: 900, state: 'read', rows: [] },
+      { atMs: 2_000, state: 'read', rows: [{ session_key: target, epoch: advanced }] },
+      { atMs: 3_000, state: 'read', rows: [{ session_key: target, epoch: advanced }] },
+    ],
+    generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }],
+    cleanup: { gatewayStopped: true, residue: false },
+    startedAtMs: 500,
+  });
+  assert.equal(record.epochs.captured, null);
+  const graded = gradeRecipientAuthorityCase({ ...record, trace: { correlated: true } });
+  assert.equal(graded.verdict, 'MISSING-candidate');
+  assert.ok(graded.missing.includes('captured-epoch-unread'));
+});
+
 test('case receipts are signed; a tampered or foreign-key receipt does not verify; --grade-row credits only matching traces', () => {
   const key = 'k'.repeat(40);
   const sealed = sealCaseReceipt(completeRecord('allowed'), key);

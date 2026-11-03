@@ -435,7 +435,9 @@ export default function () {
         return setPolicy('disabled', () => later(delaySeconds * 1000 + parkMs, () => setPolicy('enabled', probeThenFinal)));
       }
       if (spec.family === 'allowed') {
-        if (spec.transition === 'sessions.reset') return resetTarget(() => prime(waitForAck));
+        // The control samples the epoch every 500 ms; leave it a sample of the captured epoch
+        // before the reset, so a reset that advanced it would show.
+        if (spec.transition === 'sessions.reset') return later(numberEnv('OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 2000), () => resetTarget(() => prime(waitForAck)));
         return waitForAck();
       }
       // durable-replay and boot-replay: let the silent return route and park, then transition.

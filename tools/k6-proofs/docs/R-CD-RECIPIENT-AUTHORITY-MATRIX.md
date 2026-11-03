@@ -211,7 +211,9 @@ attribution key. The plan fires all four delegate modes, so a live trace collect
 per-case collector.
 
 The manifest is `orchestration-required`, so `live-run-guard.mjs`, `run-proof.sh` and
-`run-proofs.sh` all refuse it. docs#536 authorizes no live acceptance fire until the final
+`run-proofs.sh` all refuse it. Its `scenarios/r-cd-recipient-authority-matrix.js` entry is a
+fail-closed k6 scaffold, as R-CW-6's and the restart control's are: it refuses from `setup()` and
+names the launcher. docs#536 authorizes no live acceptance fire until the final
 successor is mergeable, exact-head CI-clean, reviewed and deployed fleet-wide.
 
 ## What executing it needs

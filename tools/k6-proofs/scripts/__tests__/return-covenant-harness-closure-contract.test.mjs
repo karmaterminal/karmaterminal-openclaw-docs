@@ -95,8 +95,9 @@ test('return covenant harness is complete and bound to the exact P89 seam', asyn
   assert.match(documentation, /0ed59cb64f31971e8659b417fe3fd2ba6a1730c3/);
   // The matrix is its own row, R-CD-RECIPIENT-AUTHORITY-MATRIX (docs#549 after docs#615
   // made R-CD-RETURN-COVENANT-AUTHORITY the supervised restart control). Its pipeline entry
-  // is the reviewed registration; the k6 workflow still does not offer it, its scenario is not
-  // promoted into scenarios/, and no generic resolver script stands in for the launcher.
+  // is the reviewed registration; the k6 workflow still does not offer it, its scenarios/
+  // entry is a fail-closed scaffold rather than the promoted matrix, and no generic resolver
+  // script stands in for the launcher.
   assert.doesNotMatch(workflow, /r-cd-recipient-authority-matrix|r-cd-return-covenant-authority/);
   const matrixRowStart = pipeline.indexOf('<Row id="R-CD-RECIPIENT-AUTHORITY-MATRIX"');
   assert.ok(matrixRowStart >= 0, 'the matrix row must be registered in the pipeline');
@@ -104,10 +105,9 @@ test('return covenant harness is complete and bound to the exact P89 seam', asyn
   assert.match(matrixRow, /orchestration-required/);
   assert.match(matrixRow, /PARTIAL-candidate/);
   assert.match(matrixRow, /manifests\/r-cd-recipient-authority-matrix\.json/);
-  await assert.rejects(
-    access(path.join(root, 'scenarios/r-cd-recipient-authority-matrix.js')),
-    (error) => error?.code === 'ENOENT',
-  );
+  const scaffold = await read('scenarios/r-cd-recipient-authority-matrix.js');
+  assert.match(scaffold, /export function setup\(\) \{\s+throw new Error\(REFUSAL\);/);
+  assert.doesNotMatch(scaffold, /postPhase|return-covenant-scenario-contract/);
   await assert.rejects(
     access(path.join(root, 'scripts/resolve-return-covenant-authority-receipt.mjs')),
     (error) => error?.code === 'ENOENT',

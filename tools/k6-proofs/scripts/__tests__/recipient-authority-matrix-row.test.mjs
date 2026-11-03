@@ -11,9 +11,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import os from 'node:os';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const proofs = path.join(repoRoot, 'tools/k6-proofs');
@@ -23,6 +24,7 @@ const MATRIX_MANIFEST = path.join(proofs, 'manifests/r-cd-recipient-authority-ma
 const RESTART_MANIFEST = path.join(proofs, 'manifests/r-cd-return-covenant-authority.json');
 const MATRIX_DOC = path.join(proofs, 'docs/R-CD-RECIPIENT-AUTHORITY-MATRIX.md');
 const MATRIX_SCENARIO = path.join(proofs, 'contracts/return-covenant-authority/scenario.js');
+const MATRIX_SCAFFOLD = path.join(proofs, 'scenarios/r-cd-recipient-authority-matrix.js');
 const LAUNCHER = 'tools/k6-proofs/scripts/launch-return-covenant-driver.mjs';
 const RESTART_CONTROL = 'tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs';
 // The product that will be presented (karmaterminal/openclaw codeagent/absorb-8083-j12), and
@@ -47,10 +49,10 @@ test('the recipient-authority matrix is its own row beside the restart control',
   assert.equal(matrix.invocation.artifactClass, 'process-local-fixture');
   assert.equal(matrix.invocation.caseCount, 12);
   assert.equal(matrix.invocation.observationCount, 24);
-  // Still not a k6-runnable scenario: the planned scenario file must not exist yet.
+  // Still not a k6-runnable scenario: the planned scenarios/ entry is a fail-closed scaffold,
+  // as R-CW-6's and the restart control's are, never the promoted matrix.
   assert.equal(matrix.scenario.status, 'scaffold');
   assert.equal(matrix.scenario.expectedFile, 'r-cd-recipient-authority-matrix.js');
-  assert.equal(existsSync(path.join(proofs, 'scenarios', matrix.scenario.expectedFile)), false);
 
   // The restart control is docs#615's, unchanged: its runner, class and two supervised cases.
   assert.equal(restart.rowId, RESTART_ROW);
@@ -177,6 +179,28 @@ test('the pipeline, README and row doc register the matrix as its own row', asyn
   }
   assert.match(doc, new RegExp(J12));
   assert.match(doc, new RegExp(FIXTURE_CUT.slice(0, 10)));
+});
+
+test('the scenarios/ entry is a fail-closed scaffold that never runs the matrix', async () => {
+  const source = await readFile(MATRIX_SCAFFOLD, 'utf8');
+  // No phase driver, no contract import and no fingerprint: the matrix is not promoted here.
+  assert.doesNotMatch(source, /postPhase|return-covenant-scenario-contract|reason_hash|k6\/http/);
+  assert.match(source, /contracts\/return-covenant-authority\/scenario\.js/);
+  const scaffold = await import(pathToFileURL(MATRIX_SCAFFOLD).href);
+  assert.throws(() => scaffold.setup(), /launch-return-covenant-driver\.mjs/u);
+  assert.throws(() => scaffold.default(), /launch-return-covenant-driver\.mjs/u);
+});
+
+const k6 = ['/usr/local/bin/k6', path.join(os.homedir(), 'bin', 'k6')].find((candidate) => existsSync(candidate));
+test('k6 itself refuses the matrix scaffold with a non-zero exit', { skip: k6 ? false : 'k6 is not installed here' }, () => {
+  const result = spawnSync(k6, ['run', '--no-usage-report', '--quiet', path.basename(MATRIX_SCAFFOLD)], {
+    cwd: path.dirname(MATRIX_SCAFFOLD),
+    encoding: 'utf8',
+    timeout: 60_000,
+    env: { PATH: process.env.PATH ?? '/usr/bin:/bin', HOME: os.tmpdir() },
+  });
+  assert.notEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  assert.match(`${result.stdout}\n${result.stderr}`, /launch-return-covenant-driver\.mjs/);
 });
 
 test('the scenario header anchors every case at j12 and marks why none executes there', async () => {
